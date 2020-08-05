@@ -1,0 +1,15 @@
+.app main, .app footer {
+  padding-left: 1rem;
+}
+
+.footer {
+  background: #3F729B;
+  padding: 2em;
+}
+
+:host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,15 @@
+
+body.#{$themeName}{
+  background: $body-background;
+  color: $textColor;
+  app-layout{
+    background: $backgroundColor;
+  }
+  app-navbar{
+    background: $body-background;
+
+  }
+
+
+}
+

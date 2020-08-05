@@ -1,0 +1,172 @@
+<div id="scxFibonacciDrawingDialog" class="modal scxDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+                <h4 id="scxFibonacciDrawingDialog_title">Fibonacci Drawing</h4>
+            </div>
+            <div class="modal-body scxFibonacciDrawingDialog-body">
+                <ul class="scxTabs">
+                    <li class="scxTabItem active" data-id="scxFibonacciDrawingDialog_tab_style" data-i18n="drawing.all.dialog.style"></li>
+                    <li class="scxTabItem" data-id="scxFibonacciDrawingDialog_tab_tooltip" data-i18n="tooltip.dialog.title"></li>
+                    <li class="scxTabItem" data-id="scxFibonacciDrawing_tab_points" data-i18n="drawing.all.dialog.points.title"></li>
+                </ul>
+
+                <div class="scxTabsContent">
+                    <div class="scxTabPanel active" id="scxFibonacciDrawingDialog_panel_levels" data-id="scxFibonacciDrawingDialog_tab_style">
+                        <div class="scxFibonacciDrawingDialog_panel_figure">
+                            <label class="scxFibonacciDrawingDialog_label_lineLevel" data-i18n="drawing.all.dialog.lineLevel"></label>
+                            <label class="scxFibonacciDrawingDialog_label_lineWidth" data-i18n="drawing.all.dialog.lineWidth"></label>
+                            <table>
+                            </table>
+                            <a href="#" aria-hidden="true" class="scxFibonacciDrawingDialog_panel_addLinePanel">+</a>
+                        </div>
+
+                        <div class="scxFibonacciDrawingDialog_panel_figure_trendLinePanel">
+                            <table>
+                                <tr class="scxFibonacciDrawingDialog_panel_figure_trendLine">
+                                    <td>
+                                        <span class="scxFibonacciDrawingDialog_panel_figure_trendEnabled">
+                                        <input class="scxFibonacciDrawingDialog_chk_trendLine js-switch" type="checkbox"/>
+                                        </span>
+                                        <label class="scxFibonacciDrawingDialog_label_trendLine" data-i18n="drawing.all.dialog.trendLine"></label>
+                                        <input class="scxFibonacciDrawingDialog_input_lineColor scxSpectrum" type="text">
+
+                                        <input class="scxFibonacciDrawingDialog_input_lineWidth form-control" type="text">
+
+                                        <select class="scxFibonacciDrawingDialog_input_lineStyle scxLineStyleSelector scxDropdown">
+                                            <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                            <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                            <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                            <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="scxFibonacciDrawingDialog_panel_figure_retracementsOptionsPanel">
+                            <table>
+                                <tr class="scxFibonacciDrawingDialog_panel_figure_retracementsOptions">
+                                    <td>
+                                        <div class="scxFibonacciDrawingDialog_extendHor">
+                                            <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                                <input class="scxFibonacciDrawingDialog_chk_extendLinesLeft js-switch" type="checkbox"/>
+                                            </span>
+
+                                            <label class="scxFibonacciDrawingDialog_label_extendLinesLeft" data-i18n="drawing.all.dialog.extendLeft"></label>
+
+                                            <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                                <input class="scxFibonacciDrawingDialog_chk_extendLinesRight js-switch" type="checkbox"/>
+                                            </span>
+                                            <label class="scxFibonacciDrawingDialog_label_extendLinesRight" data-i18n="drawing.all.dialog.extendRight"></label>
+                                        </div>
+                                        <div class="scxFibonacciDrawingDialog_extendVer">
+                                            <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                                <input class="scxFibonacciDrawingDialog_chk_extendLinesTop js-switch" type="checkbox"/>
+                                            </span>
+                                            <label class="scxFibonacciDrawingDialog_label_extendLinesTop" data-i18n="drawing.all.dialog.extendTop"></label>
+                                            <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                                <input class="scxFibonacciDrawingDialog_chk_extendLinesBottom js-switch" type="checkbox"/>
+                                            </span>
+                                            <label class="scxFibonacciDrawingDialog_label_extendLinesBottom" data-i18n="drawing.all.dialog.extendBottom"></label>
+                                        </div>
+                                        <div class="scxFibonacciDrawingDialog_reverse">
+                                            <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                                <input class="scxFibonacciDrawingDialog_chk_linesReverse js-switch" type="checkbox"/>
+                                            </span>
+                                            <label class="scxFibonacciDrawingDialog_label_linesReverse" data-i18n="drawing.all.dialog.reverse"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="scxFibonacciDrawingDialog_panel_figure_levelParametersPanel">
+                            <table>
+                            </table>
+                        </div>
+
+                        <div class="scxFibonacciDrawingDialog_panel_figure_labelsParametersPanel">
+                            <table>
+                                <tr class="scxFibonacciDrawingDialog_panel_figure_labels">
+                                    <td>
+                                        <label class="scxFibonacciDrawingDialog_label" data-i18n="drawing.all.dialog.lables"></label>
+
+                                        <div class="scxFibonacciDrawingDialog_labelsPosition">
+                                            <select class="scxFibonacciDrawingDialog_input_labelsPosition scxDropdown">
+                                                <option value="left" data-i18n="drawing.all.dialog.left"></option>
+                                                <option value="center" data-i18n="drawing.all.dialog.center"></option>
+                                                <option value="right" data-i18n="drawing.all.dialog.right"></option>
+                                            </select>
+                                        </div>
+
+                                        <select class="scxFibonacciDrawingDialog_input_labelsTextPosition scxDropdown">
+                                            <option value="top" data-i18n="drawing.all.dialog.top"></option>
+                                            <option value="middle" data-i18n="drawing.all.dialog.middle"></option>
+                                            <option value="bottom" data-i18n="drawing.all.dialog.bottom"></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="scxFibonacciDrawingDialog_panel_figure_backgroundPanel">
+                            <table>
+                                <tr class="scxFibonacciDrawingDialog_panel_figure_background">
+                                    <td>
+                                        <span class="scxFibonacciDrawingDialog_panel_figure_lineEnabled">
+                                            <input class="scxFibonacciDrawingDialog_chk_background js-switch" type="checkbox"/>
+                                        </span>
+                                        <label class="scxFibonacciDrawingDialog_label_background" data-i18n="drawing.all.dialog.background"></label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="scxFibonacciDrawingDialog_tab_tooltip" class="scxTabPanel" data-id="scxFibonacciDrawingDialog_tab_tooltip"></div>
+                    <div class="scxTabPanel" data-id="scxFibonacciDrawing_tab_points">
+                        <div class="scxFibonacciDrawingDialog_panel_points">
+                            <table id="scxDrawingDialog_panel_magnetTo_selector">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <label id="scxFibonacciDrawingDialog_label_magnetModeLabel" data-i18n="drawing.all.dialog.points.magnetMode"></label>
+                                    </td>
+                                    <td>
+                                        <select id="scxFibonacciDrawingDialog_input_magnetMode" class="scxMagnetSelector scxDropdown scxFibonacciDrawingDialog_input_magnetMode">
+                                            <option value="none" data-i18n="drawing.all.dialog.points.never"></option>
+                                            <option value="always" data-i18n="drawing.all.dialog.points.always"></option>
+                                            <option value="near" data-i18n="drawing.all.dialog.points.near"></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label id="scxFibonacciDrawingDialog_label_magnetToLabel" data-i18n="drawing.all.dialog.points.magnetTo"></label>
+                                    </td>
+                                    <td>
+                                        <select id="scxFibonacciDrawingDialog_input_magnetTo" class="scxMagnetSelector scxDropdown scxFibonacciDrawingDialog_input_magnetTo">
+                                            <option value="open" data-i18n="drawing.all.dialog.points.open"></option>
+                                            <option value="high" data-i18n="drawing.all.dialog.points.high"></option>
+                                            <option value="low" data-i18n="drawing.all.dialog.points.low"></option>
+                                            <option value="close" data-i18n="drawing.all.dialog.points.close"></option>
+                                            <option value="bar" data-i18n="drawing.all.dialog.points.bar"></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer scxFibonacciDrawingDialog-footer">
+                <button type="button" class="btn btn-warning" id="scxFibonacciDrawingDialog_btn_resetToDefaults" data-i18n="dialog.button.defaults"></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="dialog.button.close"></button>
+                <button type="button" class="btn btn-success" id="scxFibonacciDrawingDialog_btn_save" data-i18n="dialog.button.save"></button>
+                <button type="button" class="btn btn-primary" id="scxFibonacciDrawingDialog_btn_apply" data-i18n="dialog.button.apply"></button>
+            </div>
+        </div>
+    </div>
+</div>

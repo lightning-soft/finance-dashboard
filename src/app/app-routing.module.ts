@@ -13,9 +13,9 @@ const routes: Routes = [
       .then(mod => mod.AboutModule)
   },
   {
-    path: 'contact',
-    loadChildren: () => import('./modules/general/contact/contact.module')
-      .then(mod => mod.ContactModule)
+    path: 'chart',
+    loadChildren: () => import('./modules/general/chart/chart.module')
+      .then(mod => mod.ChartModule)
   },
   {
     path: 'signin',

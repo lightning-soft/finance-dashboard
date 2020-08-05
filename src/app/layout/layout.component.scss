@@ -1,0 +1,56 @@
+$padding: 0;
+$activeColor: #2296f3;
+@import "../../scss/variables";
+
+:host {
+  display: block;
+  height: calc(100% - #{$navbar-height} - 10px);
+  width:calc(100% - 10px);
+  padding: $padding;
+  position: relative;
+  color: #ffffff;
+
+  > div {
+    height: 100%;
+    width: 100%;
+  }
+
+  //&.isActive {
+  //  border: 1px solid rebeccapurple;
+  //  padding: #{$padding} - 1px;
+  //}
+  //}
+
+  ::ng-deep .layout {
+    padding: 0;
+  }
+
+  ::ng-deep .split-area {
+    position: relative;
+  }
+
+  ::ng-deep .split-gutter {
+    background: red;
+  }
+
+  ::ng-deep .lm_items {
+    border: 1px solid transparent;
+  }
+
+  ::ng-deep .lm_tab {
+    border: 1px solid transparent;
+    border-bottom: none;
+  }
+
+  .lm_selected {
+    .lm_active {
+      border-color: $activeColor;
+    }
+
+    .lm_items {
+      border-color: $activeColor;
+    }
+  }
+}
+
+

@@ -1,0 +1,307 @@
+<div id="scxIndicatorDialog" class="modal scxDialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+                <h4 id="scxIndicatorDialog_title">Indicator</h4>
+            </div>
+            <div class="modal-body scxIndicatorDialog_body">
+                <ul class="scxTabs">
+                    <li class="scxTabItem paramsItems active" data-id="scxIndicatorDialog_tab_parameters" data-i18n="indicator.all.dialog.parameters"></li>
+                    <li class="scxTabItem styleItems" data-id="scxIndicatorDialog_tab_style" data-i18n="indicator.all.dialog.style"></li>
+                </ul>
+                <div class="scxTabsContent">
+                    <div class="scxTabPanel active" data-id="scxIndicatorDialog_tab_parameters">
+                        <div id="scxIndicatorDialog_panel_parameters">
+                            <form>
+                                <div id="scxIndicatorDialog_container_source">
+                                    <label id="scxIndicatorDialog_label_source" for="scxIndicatorDialog_input_source" data-i18n="indicator.all.parameter.source"></label>
+                                    <select id="scxIndicatorDialog_input_source" class="scxComboBox scxDropdown" data-container="body">
+                                        <option value=".open" data-i18n="indicator.all.source.open"></option>
+                                        <option value=".high" data-i18n="indicator.all.source.high"></option>
+                                        <option value=".low" data-i18n="indicator.all.source.low"></option>
+                                        <option value=".close" data-i18n="indicator.all.source.close" selected></option>
+                                        <option value=".volume" data-i18n="indicator.all.source.volume"></option>
+                                        <option value=".weighted" data-i18n="indicator.all.source.weighted"></option>
+                                        <option value=".typical" data-i18n="indicator.all.source.typical" selected></option>
+                                        <option value=".median" data-i18n="indicator.all.source.median"></option>
+                                    </select>
+                                </div>
+                                <div id="scxIndicatorDialog_container_maType">
+                                    <label id="scxIndicatorDialog_label_maType" for="scxIndicatorDialog_input_maType" data-i18n="indicator.all.parameter.mat"></label>
+                                    <select id="scxIndicatorDialog_input_maType" class="scxComboBox scxDropdown" data-container="body">
+                                        <option value="0" data-i18n="indicator.all.parameter.Exponential" selected></option>
+                                        <option value="1" data-i18n="indicator.all.parameter.Hull"></option>
+                                        <option value="2" data-i18n="indicator.all.parameter.Simple"></option>
+                                        <option value="3" data-i18n="indicator.all.parameter.Triangular"></option>
+                                        <option value="4" data-i18n="indicator.all.parameter.Tema"></option>
+                                        <option value="5" data-i18n="indicator.all.parameter.Weighted"></option>
+                                        <option value="6" data-i18n="indicator.all.parameter.Variable"></option>
+                                        <option value="7" data-i18n="indicator.all.parameter.Wws"></option>
+                                        <option value="8" data-i18n="indicator.all.parameter.Vidya"></option>
+                                    </select>
+                                </div>
+                                <div id="scxIndicatorDialog_container_periods">
+                                    <label id="scxIndicatorDialog_label_periods" for="scxIndicatorDialog_input_periods" data-i18n="indicator.all.parameter.periods"></label>
+                                    <input id="scxIndicatorDialog_input_periods" type="text" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_standardDeviations">
+                                    <label id="scxIndicatorDialog_label_standardDeviations" for="scxIndicatorDialog_input_standardDeviations" data-i18n="indicator.all.parameter.standardDeviations"></label>
+                                    <input type="text" value="2" id="scxIndicatorDialog_input_standardDeviations" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_shortCycle">
+                                    <label id="scxIndicatorDialog_label_shortCycle" for="scxIndicatorDialog_input_shortCycle" data-i18n="indicator.all.parameter.shortCycle"></label>
+                                    <input type="text" value="13" id="scxIndicatorDialog_input_shortCycle" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_longCycle">
+                                    <label id="scxIndicatorDialog_label_longCycle" for="scxIndicatorDialog_input_longCycle" data-i18n="indicator.all.parameter.longCycle"></label>
+                                    <input type="text" value="25" id="scxIndicatorDialog_input_longCycle" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_rateOfChange">
+                                    <label id="scxIndicatorDialog_label_rateOfChange" for="scxIndicatorDialog_input_rateOfChange" data-i18n="indicator.all.parameter.rateOfChange"></label>
+                                    <input type="text" value="2" id="scxIndicatorDialog_input_rateOfChange" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_kPeriods">
+                                    <label id="scxIndicatorDialog_label_kPeriods" for="scxIndicatorDialog_input_kPeriods" data-i18n="indicator.all.parameter.kPeriods"></label>
+                                    <input type="text" value="13" id="scxIndicatorDialog_input_kPeriods" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_dPeriods">
+                                    <label id="scxIndicatorDialog_label_dPeriods" for="scxIndicatorDialog_input_dPeriods" data-i18n="indicator.all.parameter.dPeriods"></label>
+                                    <input type="text" value="9" id="scxIndicatorDialog_input_dPeriods" class="form-control scxNumeric">
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_bandPct">
+                                    <label id="scxIndicatorDialog_label_bandPct" for="scxIndicatorDialog_input_bandPct" data-i18n="indicator.all.parameter.bandPct"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_bandPct" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_smooth">
+                                    <label id="scxIndicatorDialog_label_smooth" for="scxIndicatorDialog_input_smooth" data-i18n="indicator.all.parameter.smooth"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_smooth" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_fast">
+                                    <label id="scxIndicatorDialog_label_fast" for="scxIndicatorDialog_input_fast" data-i18n="indicator.all.parameter.fastPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_fast" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_slow">
+                                    <label id="scxIndicatorDialog_label_slow" for="scxIndicatorDialog_input_slow" data-i18n="indicator.all.parameter.slowPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_slow" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_maPeriods">
+                                    <label id="scxIndicatorDialog_label_maPeriods" for="scxIndicatorDialog_input_maPeriods" data-i18n="indicator.all.parameter.maPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_maPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_rocPeriods">
+                                    <label id="scxIndicatorDialog_label_rocPeriods" for="scxIndicatorDialog_input_rocPeriods" data-i18n="indicator.all.parameter.rocPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_rocPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_volumeDivisor">
+                                    <label id="scxIndicatorDialog_label_volumeDivisor" for="scxIndicatorDialog_input_volumeDivisor" data-i18n="indicator.all.parameter.volumeDivisor"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_volumeDivisor" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_barCount">
+                                    <label id="scxIndicatorDialog_label_barCount" for="scxIndicatorDialog_input_barCount" data-i18n="indicator.all.parameter.barCount"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_barCount" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_forecast">
+                                    <label id="scxIndicatorDialog_label_forecast" for="scxIndicatorDialog_input_forecast" data-i18n="indicator.all.parameter.forecast"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_forecast" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_ema1Periods">
+                                    <label id="scxIndicatorDialog_label_ema1Periods" for="scxIndicatorDialog_input_ema1Periods" data-i18n="indicator.all.parameter.ema1Periods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_ema1Periods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_ema2Periods">
+                                    <label id="scxIndicatorDialog_label_ema2Periods" for="scxIndicatorDialog_input_ema2Periods" data-i18n="indicator.all.parameter.ema2Periods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_ema2Periods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_envelopePercentage">
+                                    <label id="scxIndicatorDialog_label_envelopePercentage" for="scxIndicatorDialog_input_envelopePercentage" data-i18n="indicator.all.parameter.envelopePercentage"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_envelopePercentage" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_offsetMultiplier">
+                                    <label id="scxIndicatorDialog_label_offsetMultiplier" for="scxIndicatorDialog_input_offsetMultiplier" data-i18n="indicator.KeltnerChannel.parameter.offsetMultiplier"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_offsetMultiplier" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_qPeriods">
+                                    <label id="scxIndicatorDialog_label_qPeriods" for="scxIndicatorDialog_input_qPeriods" data-i18n="indicator.all.parameter.qPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_qPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_basePeriods">
+                                    <label id="scxIndicatorDialog_label_basePeriods" for="scxIndicatorDialog_input_basePeriods" data-i18n="indicator.Ichimoku.parameter.BLP"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_basePeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_logginPeriods">
+                                    <label id="scxIndicatorDialog_label_logginPeriods" for="scxIndicatorDialog_input_logginPeriods" data-i18n="indicator.Ichimoku.parameter.LS2P"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_logginPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_conversionPeriods">
+                                    <label id="scxIndicatorDialog_label_conversionPeriods" for="scxIndicatorDialog_input_conversionPeriods" data-i18n="indicator.Ichimoku.parameter.CLP"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_conversionPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_limitValue">
+                                    <label id="scxIndicatorDialog_label_limitValue" for="scxIndicatorDialog_input_limitValue" data-i18n="indicator.all.parameter.limitValue"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_limitValue" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_r2Scale">
+                                    <label id="scxIndicatorDialog_label_r2Scale" for="scxIndicatorDialog_input_r2Scale" data-i18n="indicator.all.parameter.r2Scale"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_r2Scale" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_volatilityPeriod">
+                                    <label id="scxIndicatorDialog_label_volatilityPeriod" for="scxIndicatorDialog_input_volatilityPeriod" data-i18n="indicator.all.parameter.r2Scale"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_volatilityPeriod" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_signalPeriods">
+                                    <label id="scxIndicatorDialog_label_signalPeriods" for="scxIndicatorDialog_input_signalPeriods" data-i18n="indicator.all.parameter.signalPeriods"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_signalPeriods" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_intermediate">
+                                    <label id="scxIndicatorDialog_label_intermediate" for="scxIndicatorDialog_input_intermediate" data-i18n="indicator.all.parameter.intermediate"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_intermediate" class="form-control scxNumeric">
+                                </div>
+                                <div id="scxIndicatorDialog_container_source2">
+                                    <label id="scxIndicatorDialog_label_source2" for="scxIndicatorDialog_input_source2"data-i18n="indicator.all.parameter.source2"></label>
+                                    <select id="scxIndicatorDialog_input_source2" class="scxComboBox scxDropdown" data-container="body">
+                                        <option value=".open" selected data-i18n="indicator.all.source.open"></option>
+                                        <option value=".high" data-i18n="indicator.all.source.high"></option>
+                                        <option value=".low" data-i18n="indicator.all.source.low"></option>
+                                        <option value=".close" data-i18n="indicator.all.source.close"></option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="scxTabPanel" data-id="scxIndicatorDialog_tab_style">
+                        <div id="scxIndicatorDialog_panel_figure">
+                            <form>
+                                <div id="scxIndicatorDialog_container_histogram_colors">
+                                    <table>
+                                        <tr>
+                                            <td><label id="scxIndicatorDialog_label_histogram_line1" for="scxIndicatorDialog_input_histogram_line1_color" data-i18n="indicator.all.dialog.upColor"></label></td>
+                                            <td><input id="scxIndicatorDialog_input_histogram_line1_color" type=text class="scxSpectrum"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label id="scxIndicatorDialog_label_histogram_line2" for="scxIndicatorDialog_input_histogram_line2_color" data-i18n="indicator.all.dialog.downColor"></label></td>
+                                            <td><input id="scxIndicatorDialog_input_histogram_line2_color" type=text class="scxSpectrum"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+
+                                <div id="scxIndicatorDialog_container_line1">
+                                    <label id="scxIndicatorDialog_label_line1"></label>
+
+                                    <input type="text" id="scxIndicatorDialog_input_line1_width" class="form-control scxNumeric">
+
+                                    <select id="scxIndicatorDialog_input_line1_style" class="scxLineStyleSelector scxDropdown" data-container="body">
+                                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                    </select>
+
+                                    <input id="scxIndicatorDialog_input_line1_color" type=text class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_line1Enabled">
+                                        <input class="scxIndicatorDialog_switchery_line1 js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_line2">
+                                    <label id="scxIndicatorDialog_label_line2" for="scxIndicatorDialog_input_line2_width"></label>
+
+                                    <input type="text" id="scxIndicatorDialog_input_line2_width" class="form-control scxNumeric">
+
+                                    <select id="scxIndicatorDialog_input_line2_style" class="scxLineStyleSelector scxDropdown" data-container="body">
+                                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                    </select>
+
+                                    <input id="scxIndicatorDialog_input_line2_color" type=text class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_line2Enabled">
+                                        <input class="scxIndicatorDialog_switchery_line2 js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_line3">
+                                    <label id="scxIndicatorDialog_label_line3" for="scxIndicatorDialog_input_line2_width"></label>
+
+                                    <input type="text" id="scxIndicatorDialog_input_line3_width" class="form-control scxNumeric">
+
+                                    <select id="scxIndicatorDialog_input_line3_style" class="scxLineStyleSelector scxDropdown" data-container="body">
+                                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                    </select>
+
+                                    <input id="scxIndicatorDialog_input_line3_color" type=text class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_line3Enabled">
+                                        <input class="scxIndicatorDialog_switchery_line3 js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_line4">
+                                    <label id="scxIndicatorDialog_label_line4" for="scxIndicatorDialog_input_line4_width"></label>
+
+                                    <input type="text" id="scxIndicatorDialog_input_line4_width" class="form-control scxNumeric">
+
+                                    <select id="scxIndicatorDialog_input_line4_style" class="scxLineStyleSelector scxDropdown" data-container="body">
+                                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                    </select>
+
+                                    <input id="scxIndicatorDialog_input_line4_color" type=text class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_line4Enabled">
+                                        <input class="scxIndicatorDialog_switchery_line4 js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_line5">
+                                    <label id="scxIndicatorDialog_label_line5" for="scxIndicatorDialog_input_line4_width"></label>
+
+                                    <input type="text" id="scxIndicatorDialog_input_line5_width" class="form-control scxNumeric">
+
+                                    <select id="scxIndicatorDialog_input_line5_style" class="scxLineStyleSelector scxDropdown" data-container="body">
+                                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                                    </select>
+
+                                    <input id="scxIndicatorDialog_input_line5_color" type=text class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_line5Enabled">
+                                        <input class="scxIndicatorDialog_switchery_line5 js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+
+                                <div id="scxIndicatorDialog_container_fill">
+                                    <label id="scxIndicatorDialog_label_fillAbove" for="scxIndicatorDialog_input_fillAbove" data-i18n="indicator.all.plot.fillAbove"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_fillAbove" class="scxSpectrum">
+                                    <label id="scxIndicatorDialog_label_fillBelow" for="scxIndicatorDialog_input_fillBelow" data-i18n="indicator.all.plot.fillBelow"></label>
+                                    <input type="text" id="scxIndicatorDialog_input_fillBelow" class="scxSpectrum">
+                                    <span class="scxIndicatorDialog_panel_fillEnabled">
+                                        <input class="scxIndicatorDialog_switchery_fill js-switch" type="checkbox"/>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer scxIndicatorDialog-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="dialog.button.close"></button>
+                <button type="button" class="btn btn-success" id="scxIndicatorDialog_btn_save" data-i18n="dialog.button.save"></button>
+                <button type="button" class="btn btn-primary" id="scxIndicatorDialog_btn_apply" data-i18n="dialog.button.apply"></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+@import "../../scss/variables";
+
+.navigation-bar {
+  height: $navbar-height;
+  display: flex;
+  margin-left: 30px;
+  &__item {
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    &:not(:last-child){
+      margin-right: 10px;
+    }
+  }
+}
