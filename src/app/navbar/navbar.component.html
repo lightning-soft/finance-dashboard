@@ -1,0 +1,6 @@
+<nav class="navigation-bar">
+  <div (click)="addLink(item)" class="navigation-bar__item" *ngFor="let item of links">{{item}}</div>
+  <div (click)="switchTheme('scxThemeBlue')" class="navigation-bar__item">Switch to blue</div>
+  <div (click)="switchTheme('scxThemeDark')" class="navigation-bar__item">Switch to default</div>
+
+</nav>

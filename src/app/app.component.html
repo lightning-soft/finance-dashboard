@@ -1,2 +1,2 @@
-<h1>App component</h1>
-<router-outlet></router-outlet>
+<app-navbar></app-navbar>
+<app-layout  [onLayoutReady]="initLayout.bind(this)" #layout [config]="settings"></app-layout>

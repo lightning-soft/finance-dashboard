@@ -1,0 +1,36 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; }
+
+.scxActiveBorder {
+  border: 1px solid orange; }
+
+.scxActiveBorder.scxFullWindow .scxContainer {
+  border-top: 1px solid orange; }
+
+.charts {
+  margin-top: 35px; }
+  .charts .scxToolbar-scroll {
+    top: 0; }
+
+#chartsContainer .scxChartContainer {
+  margin-top: 0; }
+
+.scxFullScreen #chartsContainer .scxChartContainer .scxContainer {
+  margin-top: 35px; }
+
+.scxChartContainer.scxRootContainer.scxActiveBorder.scxFullWindow .scxContainer {
+  margin-top: 35px !Important; }
+
+#chartsContainer .scxChartContainer {
+  margin-top: 0; }
+  #chartsContainer .scxChartContainer .scxContainer {
+    margin-top: 0; }
+
+.scxNonActiveBorder {
+  border: 1px solid black; }
+
+#footer {
+  display: none; }

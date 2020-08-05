@@ -1,0 +1,93 @@
+<div id="scxOrderDialog" class="modal scxDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+                <h4 data-i18n="trading.order.dialog.title"></h4>
+            </div>
+
+            <div class="modal-body">
+                <div id="scxOrderDialog_panel_orderParameters">
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <label data-i18n="trading.order.dialog.type"></label>
+                            </td>
+                            <td>
+                                <select id="scxOrderDialog_select_kind" class="scxDropdown scxOrderInputField">
+                                    <option value="market" data-i18n="trading.order.kind.market"></option>
+                                    <option value="stop" data-i18n="trading.order.kind.stop"></option>
+                                    <option value="limit" data-i18n="trading.order.kind.limit"></option>
+                                    <option value="stopLimit" data-i18n="trading.order.kind.stopLimit"></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="scxOrderDialog_region_stopPrice">
+                            <td>
+                                <label data-i18n="trading.order.dialog.stopPrice"></label>
+                            </td>
+                            <td class="inputField">
+                                <input id="scxOrderDialog_input_stopPrice"
+                                       class="form-control scxNumericField scxOrderInputField"/>
+                            </td>
+                        </tr>
+                        <tr id="scxOrderDialog_region_price">
+                            <td>
+                                <label data-i18n="trading.order.dialog.limitPrice"></label>
+                            </td>
+                            <td class="input">
+                                <input id="scxOrderDialog_input_price"
+                                       class="form-control scxNumericField scxOrderInputField"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label data-i18n="trading.order.dialog.quantity"></label>
+                            </td>
+                            <td class="inputField">
+                                <input id="scxOrderDialog_input_quantity"
+                                       class="form-control scxNumericField scxOrderInputField"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label data-i18n="trading.order.dialog.tif"></label>
+                            </td>
+                            <td class="inputField">
+                                <select id="scxOrderDialog_select_timeInForce"
+                                        class="scxDropdown scxOrderInputField">
+                                    <option value="goodTillDate"
+                                            data-i18n="trading.order.tif.gtd"></option>
+                                    <option value="day" data-i18n="trading.order.tif.day"></option>
+                                    <option value="goodTillCanceled"
+                                            data-i18n="trading.order.tif.gtc"></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="scxOrderDialog_region_timeInForceDate">
+                            <td>
+                                <label data-i18n="trading.order.dialog.date"></label>
+                            </td>
+                            <td class="inputField">
+                                <input id="scxOrderDialog_input_timeInForceDate" class="scxCoordinate-datetimepicker form-control"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer scxDrawingDialog-footer">
+                <button type="button" class="btn btn-success" id="scxOrderDialog_btn_submit"
+                        data-i18n="dialog.button.submit"></button>
+                <button type="button" class="btn btn-warning" id="scxOrderDialog_btn_replace"
+                        data-i18n="dialog.button.replace"></button>
+                <button type="button" class="btn btn-success" id="scxOrderDialog_btn_buy"
+                        data-i18n="dialog.button.buy"></button>
+                <button type="button" class="btn btn-danger" id="scxOrderDialog_btn_sell"
+                        data-i18n="dialog.button.sell"></button>
+            </div>
+        </div>
+    </div>
+</div>
