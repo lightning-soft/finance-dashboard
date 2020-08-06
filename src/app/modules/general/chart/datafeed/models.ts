@@ -1,4 +1,4 @@
-import {IStockChartXInstrument} from './IInstrument';
+import { IStockChartXInstrument } from './IInstrument';
 
 export interface IQuote {
   Ask: number;
@@ -34,11 +34,11 @@ export interface IBarsRequest extends IRequest {
   fromDate?: Date;
 }
 
-export interface IQuate {
+export interface IQuote {
   price: number;
   volume: number;
   date: Date;
-  symbol: IStockChartXInstrument;
+  instrument: IStockChartXInstrument;
 }
 
 export interface IStockChartXBar {

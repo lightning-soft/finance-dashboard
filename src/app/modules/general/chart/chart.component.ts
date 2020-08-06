@@ -1,14 +1,14 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild,} from '@angular/core';
-import {LazyLoadingService} from '../../../LazyLoadingService';
-import {BehaviorSubject, Subject} from 'rxjs';
-import {IChart} from './models/chart';
-import {IScxComponentState} from './models/scx.component.state';
-import {Datafeed} from './datafeed/Datafeed';
-import {environment} from '../../../../environments/environment';
-import {IChartConfig} from './models/chart.config';
-import {CSVDatafeed} from './datafeed/CsvDatafeed';
-import {LayoutService} from '../../../layout/layout.service';
-import {takeUntil} from 'rxjs/operators';
+import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild, } from '@angular/core';
+import { LazyLoadingService } from '../../../LazyLoadingService';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { IChart } from './models/chart';
+import { IScxComponentState } from './models/scx.component.state';
+import { Datafeed } from './datafeed/Datafeed';
+import { environment } from '../../../../environments/environment';
+import { IChartConfig } from './models/chart.config';
+import { CSVDatafeed } from './datafeed/CsvDatafeed';
+import { LayoutService } from '../../../layout/layout.service';
+import { takeUntil } from 'rxjs/operators';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -21,7 +21,7 @@ const EVENTS_SUFFIX = '.scxComponent';
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss'],
   providers: [
-    {provide: Datafeed, useClass: CSVDatafeed}
+    { provide: Datafeed, useClass: CSVDatafeed }
   ]
 })
 export class ChartComponent implements AfterViewInit, OnDestroy {
@@ -61,7 +61,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   saveState() {
-    const {_chart} = this;
+    const { _chart } = this;
 
     if (!_chart) {
       return;
@@ -75,22 +75,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadChart() {
-    const {_elementRef, loadedState} = this,
+    const { _elementRef, loadedState } = this,
       state = loadedState && loadedState.value,
       chart = this._chart = this._initChart(state);
-    this.datafeed.chart = this._chart;
-     if (this.datafeed instanceof CSVDatafeed)
-       this.datafeed.loadInstruments().then(
-         result => {
-           if (result && result.length){
-            this._chart.instrument = result[0];
-            this.datafeed.subscribeToRealtime();
 
-           }
-         }
-       );
+    if (this.datafeed instanceof CSVDatafeed)
+      this.datafeed.loadInstruments()
+    // .then(
+    //   result => {
+    //     if (result && result.length) {
+    //       this._chart.instrument = result[0];
+    //     }
+    //   }
+    // );
 
-    this._checkChartInstrument();
+    this._setUnavaliableIfNeed();
     if (_elementRef && _elementRef.nativeElement) {
       chart.toolbar = $(_elementRef.nativeElement)
         .scx()
@@ -102,7 +101,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
-      this._checkChartInstrument();
+      this._setUnavaliableIfNeed();
       this._chart.instrument = event.value;
 
     });
@@ -139,7 +138,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private _checkChartInstrument() {
+  private _setUnavaliableIfNeed() {
     if (!this._chart) {
       return;
     }
@@ -157,7 +156,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     StockChartX.Environment.Path.view = './assets/StockChartX/view/';
     StockChartX.Environment.Path.locales = './assets/StockChartX/locales/';
 
-    const {chartContainer} = this;
+    const { chartContainer } = this;
 
     if (!chartContainer || !chartContainer.nativeElement) {
       return null;
@@ -165,19 +164,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
-      datafeed:  this.datafeed,
+      datafeed: this.datafeed,
       showToolbar: false,
       showScrollbar: false,
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
       timeFrame: state && state.timeFrame,
-      instrument: (state && state.instrument) || null
+      instrument: (state && state.instrument) || {
+        symbol: 'AAPL',
+        tickSize: 0.01
+      }
     } as IChartConfig);
   }
 
   refresh() {
-    const {_chart} = this;
+    const { _chart } = this;
 
     if (!_chart) {
       return;
@@ -190,7 +192,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
 
   @HostBinding('window:resize')
-  handleResize(){
+  handleResize() {
     this.setNeedUpdate();
   }
 

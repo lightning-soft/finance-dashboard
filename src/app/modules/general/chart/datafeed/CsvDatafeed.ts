@@ -1,15 +1,13 @@
-import {Datafeed, IDateFormat} from './Datafeed';
-import {IBarsRequest, IQuate, IRequest} from './models';
-import {Injectable} from '@angular/core';
-import {interval, Observable, Subscription} from 'rxjs';
-import ticks from 'ticks';
+import { Datafeed, IDateFormat } from './Datafeed';
+import { IBarsRequest, IQuote, IRequest } from './models';
+import { Injectable } from '@angular/core';
+import { interval, Observable, Subscription } from 'rxjs';
 
 declare let StockChartX: any;
 
 @Injectable()
 export class CSVDatafeed extends Datafeed {
-  realtime: Observable<any>;
-  realtimeSubscription: Subscription;
+  realtimeSubscription: { [key: string]: Subscription } = {};
 
   /**
    * @internal
@@ -52,12 +50,10 @@ export class CSVDatafeed extends Datafeed {
   /**
    * @inheritDoc
    */
-
-
-
   defaultUrlBuilder = (req: IRequest) => {
-    if (req.chart.instrument) {
-      switch (req.chart.instrument.symbol) {
+    const instrument = getInstrument(req);
+    if (instrument) {
+      switch (instrument.symbol) {
         case 'AAPL':
           return 'assets/StockChartX/data/aapl.csv';
         case 'MSFT':
@@ -85,10 +81,10 @@ export class CSVDatafeed extends Datafeed {
 
     return new Promise((resolve, reject) => {
       $.get(symbolsFilePath, (symbols: any[]) => {
-        const allSymbols = typeof symbols === 'string'
+        let allSymbols = typeof symbols === 'string'
           ? JSON.parse(symbols)
           : symbols;
-
+        allSymbols = allSymbols.map(i => ({ tickSize: 0.01, ...i }));
         resolve(symbols);
         StockChartX.getAllInstruments = () => {
           return allSymbols;
@@ -121,6 +117,7 @@ export class CSVDatafeed extends Datafeed {
     $.get(url, (data: any) => {
       if (this.isRequestAlive(request)) {
         this._processResult(data, request);
+        this.subscribeToRealtime(request);
       }
     }).fail(() => {
       this.onRequstCanceled(request);
@@ -178,34 +175,36 @@ export class CSVDatafeed extends Datafeed {
     return bars;
   }
 
-  protected convertQuate(quate: any): IQuate {
-    const lastBar = this._getLastBar(this._chart);
-    const price =   lastBar.close + ((Math.random() * lastBar.close) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
-    const volume = lastBar.volume + ((Math.random() * lastBar.volume) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
-
-    const newQuate = {
-      symbol: this._chart.instrument,
-      date: new Date(),
-      volume,
-      price,
-    } as IQuate;
-    return newQuate;
-  }
-   destroy() {
+  destroy() {
     super.destroy();
-    if (this.realtimeSubscription)
-      this.realtimeSubscription.unsubscribe();
+    for (const key in this.realtimeSubscription)
+      this.realtimeSubscription[key].unsubscribe();
   }
 
-  subscribeToRealtime() {
-    this.realtime = interval(100);
-    const chart = this._chart;
-    this.realtimeSubscription = this.realtime.subscribe(() => {
-      this.processMainQuate(chart, null);
+  subscribeToRealtime(request: IBarsRequest) {
+    const chart = request.chart;
+    const instrument = getInstrument(request);
+    this.realtimeSubscription[instrument.symbol] = interval(100).subscribe(() => {
+      const lastBar = this._getLastBar(chart, chart?.instrument?.symbol == instrument?.symbol ? null : instrument);
+      const price = lastBar.close + ((Math.random() * lastBar.close) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
+      const volume = lastBar.volume + ((Math.random() * lastBar.volume) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
+
+      const newQuate = {
+        date: new Date(),
+        instrument,
+        volume,
+        price,
+      } as IQuote;
+
+      this.processQuote(chart, newQuate);
     });
   }
 }
 
+
+function getInstrument(req: IRequest) {
+  return req.instrument ?? req.chart.instrument;
+}
 // }
 
 // region Interfaces

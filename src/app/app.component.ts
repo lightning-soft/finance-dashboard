@@ -1,11 +1,9 @@
-import {AfterViewInit, Component, HostBinding, OnDestroy, ViewChild} from '@angular/core';
-import {LayoutComponent} from './layout/layout.component';
-import {HomeComponent} from './modules/general/home/home.component';
-import {AboutComponent} from './modules/general/about/about.component';
-import {ChartComponent} from './modules/general/chart/chart.component';
-import {GoldenLayoutHandler} from './layout/goldenLayout.handler';
-import {BehaviorSubject, Subscription} from 'rxjs';
-import {ThemeService} from './theme.service';
+import {  Component, ViewChild } from '@angular/core';
+import { LayoutComponent } from './layout/layout.component';
+import { OrdersComponent } from './modules/general/orders/orders.component';
+import { WatchComponent } from './modules/general/watch/watch.component';
+import { ChartComponent } from './modules/general/chart/chart.component';
+import { GoldenLayoutHandler } from './layout/goldenLayout.handler';
 
 
 @Component({
@@ -20,40 +18,44 @@ export class AppComponent {
 
   settings = {
     settings: {
-      closePopoutsOnUnload: true,
-      showPopoutIcon: true,
+      showPopoutIcon: false,
       showMaximiseIcon: true,
       responsiveMode: 'always'
+    },
+    dimensions: {
+      headerHeight: 28.4,
+      borderWidth: 15,
     },
     content: [
       {
         type: 'row',
-        content: [{
-          type: 'component',
-          componentName: 'Chart'
-        },
+        content: [
           {
             type: 'component',
-            componentName: 'View'
+            componentName: 'Chart'
           },
           {
             type: 'component',
-            componentName: 'History'
+            componentName: 'Watch'
+          },
+          {
+            type: 'component',
+            componentName: 'Orders'
           },
         ]
       }]
   };
 
   constructor(private layoutHandler: GoldenLayoutHandler,
-             ) {
+  ) {
   }
 
 
 
   initLayout() {
     this.layout.registerComponent('Chart', ChartComponent);
-    this.layout.registerComponent('View', AboutComponent);
-    this.layout.registerComponent('History', HomeComponent);
+    this.layout.registerComponent('Watch', WatchComponent);
+    this.layout.registerComponent('Orders', OrdersComponent);
     this.layout.init();
 
     this.layoutHandler.handleCreate.subscribe((name) => {

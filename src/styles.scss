@@ -8,10 +8,10 @@ body,html {
   box-sizing: border-box;
 }
 
-@import "scss/variables";
+@import "scss/dark.theme";
 @import "scss/template";
 
-@import "scss/blue.theme";
+@import "scss/light.theme";
 @import "scss/template";
 
 $width0: 100%; // Appears 3 times
@@ -45,10 +45,16 @@ $height6: 15px; // Appears 1 time
 }
 
 // ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+
+body.lm_dragging{
+  overflow: hidden;
+}
+
 .lm_dragging,
 .lm_dragging * {
   cursor: move !important;
   user-select: none;
+
 
   .lm_vertical {
     .lm_drag_handle {
@@ -83,18 +89,22 @@ $height6: 15px; // Appears 1 time
 // Separator line (handle to change pane size)
 .lm_splitter {
   position: relative;
-  z-index: 40;
+  z-index: 12;
 
   &:hover, // When hovered by mouse...
   &.lm_dragging {
     background: orange;
   }
 
+
   &.lm_vertical {
     .lm_drag_handle {
       width: $width0;
       position: absolute;
       cursor: ns-resize;
+      mask-size: 22px !important;
+      mask-image: url("assets/img/svg/resize_vertical.svg");
+      mask-repeat: no-repeat;
     }
   }
 
@@ -106,6 +116,9 @@ $height6: 15px; // Appears 1 time
       height: $height0;
       position: absolute;
       cursor: ew-resize;
+      mask-image: url("assets/img/svg/resize.svg");
+      mask-size: 100%;
+      mask-repeat: no-repeat;
     }
   }
 }
@@ -155,8 +168,8 @@ $height6: 15px; // Appears 1 time
     padding: 0 10px 5px;
     padding-right: 25px;
     position: relative;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
     background: #303644;
     white-space: nowrap;
     overflow: hidden;
@@ -485,13 +498,12 @@ $color10: #ffffff; // Appears 2 time
 
   // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
   .lm_tab {
-    font-family: Arial, sans-serif;
     font-size: 12px;
     color: $color6;
     background: $color7;
     box-shadow: none;
     margin-right: 2px;
-    padding-bottom: 2px;
+    padding-bottom: 0px;
     padding-top: 2px;
 
     /*.lm_title         // Present in LIGHT Theme
@@ -503,9 +515,9 @@ $color10: #ffffff; // Appears 2 time
     .lm_close_tab {
       width: 11px;
       height: 11px;
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAATElEQVR4nG3OwQ0DMQwDwZGRBtR/j1YJzMc5+IDoR+yCVO29g+pu981MFgqZmRdAfU7+CYWcbF11LwALjpBL0N0qybNx/RPU+gOeiS/+XCRwDlTgkQAAAABJRU5ErkJggg==);
-      background-position: center center;
-      background-repeat: no-repeat;
+      mask-image: url("assets/img/svg/close_icon.svg");
+      mask-size: 100% ;
+      mask-repeat: no-repeat;
       top: 4px;
       right: 6px;
       opacity: 0.4;
@@ -519,7 +531,7 @@ $color10: #ffffff; // Appears 2 time
     &.lm_active {
       border-bottom: none;
       box-shadow: 0 -2px 2px $color0;
-      padding-bottom: 3px;
+      padding-bottom: 2px;
 
       .lm_close_tab {
         opacity: 1;
@@ -581,12 +593,17 @@ $color10: #ffffff; // Appears 2 time
 
   // Icon to Maximize Pane, so it will fill the entire GoldenLayout Container
   .lm_maximise {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKElEQVR4nGP8////fwYCgImQAgYGBgYWKM2IR81/okwajIpgvsMbVgAwgQYRVakEKQAAAABJRU5ErkJggg==);
+    mask-image: url("assets/img/svg/maximaze.svg");
+    mask-size: 100% ;
+    margin-right: 5px;
+    mask-repeat: no-repeat;
   }
 
   // Icon to Close Pane and so remove it from GoldenLayout Container
   .lm_close {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAQUlEQVR4nHXOQQ4AMAgCQeT/f6aXpsGK3jSTuCVJAAr7iBdoAwCKd0nwfaAdHbYERw5b44+E8JoBjEYGMBq5gAYP3usUDu2IvoUAAAAASUVORK5CYII=);
+    mask-image: url("assets/img/svg/close_icon.svg");
+    mask-size: 100% ;
+    mask-repeat: no-repeat;
   }
 }
 

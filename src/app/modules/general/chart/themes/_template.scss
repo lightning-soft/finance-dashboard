@@ -3,6 +3,10 @@
 *** Theme styles ***
 ***              ***
 *******************/
+body.#{$themeName} :host {
+  background-color: $tabBackground;
+  padding: 15px;
+}
 
 @mixin dropdownMenu() {
   & > li {
@@ -18,6 +22,7 @@
           background-color: $dropdownMenuSelectedItemBackgroundColor;
           color: $textColorOnHover;
         }
+
         &:hover {
           color: $textColorOnHover;
         }
@@ -42,7 +47,7 @@
 }
 
 
-::ng-deep .scxTheme#{$themeName} {
+::ng-deep #{$themeName} {
   .scxFullWindow {
     background-color: $fullScreenBackgroundColor;
   }
@@ -309,20 +314,24 @@
           color: $toolbarTextColor !important;
           background-color: $backgroundColor !important;
           border-color: $toolbarBorderColor !important;
+
           .scxToolbarButton-dropdownElement-image {
             color: $toolbarTextColor;
           }
+
           .scxToolbarButton-dropdownElement {
             &.active {
               .scxToolbarButton-dropdownElement-image {
                 color: $dropdownActiveIconColor;
               }
+
               &:hover {
                 .scxToolbarButton-dropdownElement-image {
                   color: $iconColorOnHover;
                 }
               }
             }
+
             &:hover {
               .scxToolbarButton-dropdownElement-image {
                 color: $iconColorOnHover;

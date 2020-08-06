@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import {GoldenLayoutHandler} from '../layout/goldenLayout.handler';
 import {ThemeService} from '../theme.service';
 
 @Component({
@@ -7,19 +6,13 @@ import {ThemeService} from '../theme.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
-  links = this.goldenLayoutHandler.layoutItems;
+export class NavbarComponent  {
+  isDark = true;
 
-  constructor(private goldenLayoutHandler: GoldenLayoutHandler,
-              private themeService: ThemeService) { }
-  ngOnInit(): void {
-  }
+  constructor(private themeService: ThemeService) { }
 
-  addLink(item: string) {
-    this.goldenLayoutHandler.create(item);
-  }
-
-  switchTheme(name: string) {
-    this.themeService.switchTheme(name);
+  switchTheme() {
+    this.themeService.switchTheme(this.isDark ?  'scxThemeLight' : 'scxThemeDark');
+    this.isDark = !this.isDark;
   }
 }
