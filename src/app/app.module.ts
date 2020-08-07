@@ -8,6 +8,9 @@ import {AppRoutingModule} from './app-routing.module';
 import {LayoutComponent} from './layout/layout.component';
 import {NavbarComponent} from './navbar/navbar.component';
 import {DataGridComponent} from './data-grid/data-grid.component';
+import {AddComponentComponent} from './modules/general/add-component/add-component.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 
 @NgModule({
@@ -17,12 +20,16 @@ import {DataGridComponent} from './data-grid/data-grid.component';
     NotFoundComponent,
     DataGridComponent,
     LayoutComponent,
+    AddComponentComponent,
     NavbarComponent
   ],
-  entryComponents: [],
+  entryComponents: [AddComponentComponent,
+  ],
   imports: [
     BrowserModule.withServerTransition({appId: 'serverApp'}),
     AppRoutingModule,
+    MatDialogModule,
+    BrowserAnimationsModule,
   ],
   providers: [],
   exports: [

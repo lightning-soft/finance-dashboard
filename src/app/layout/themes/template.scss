@@ -8,6 +8,14 @@ body.#{$themeName} {
       .lm_content {
         background: $tabBackground;
       }
+      .stack__plus {
+        color: $textColorSecondary;
+      }
+
+      .lm_tabdropdown{
+        display: none !important;
+      }
+
       .lm_splitter{
         background: none;
         .lm_drag_handle{
@@ -36,10 +44,8 @@ body.#{$themeName} {
         &.lm_active {
           min-width: 120px;
           font-weight: 600;
-          padding-bottom: 1px;
           border: none;
           color: $textColor;
-
           background: $tabBackground;
           line-height: 19px;
 
@@ -50,9 +56,10 @@ body.#{$themeName} {
       }
 
       .lm_header .lm_controls {
-        position: absolute;
-        right: 3px;
-        top: 9px;
+        order: 2;
+        display: flex;
+        align-items: center;
+        margin-left: auto;
       }
 
       .lm_controls li {

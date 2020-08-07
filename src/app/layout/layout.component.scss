@@ -43,6 +43,14 @@ $activeColor: #2296f3;
     border-bottom: none;
   }
 
+  ::ng-deep {
+    .stack__plus {
+      margin-left: 10px;
+      font-size: 19px;
+      line-height: 1;
+    }
+  }
+
   .lm_selected {
     .lm_active {
       border-color: $activeColor;

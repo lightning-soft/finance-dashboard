@@ -13,6 +13,8 @@ import {
 import {LazyLoadingService} from '../LazyLoadingService';
 import {scripts} from '../lazyLoadingConfig';
 import {LayoutService} from './layout.service';
+import {MatDialog} from '@angular/material/dialog';
+import {AddComponentComponent} from '../modules/general/add-component/add-component.component';
 
 type NgComponent<T> = new(...params: any[]) => T;
 
@@ -40,7 +42,8 @@ export class LayoutComponent implements AfterViewInit {
     private injector: Injector,
     private zone: NgZone,
     private lazyLoadingService: LazyLoadingService,
-    private layoutService: LayoutService
+    private layoutService: LayoutService,
+    public dialog: MatDialog
 ) { }
 
   ngAfterViewInit(): void {
@@ -54,9 +57,33 @@ export class LayoutComponent implements AfterViewInit {
   }
 
   init(){
+    this.layout.on( 'stackCreated', ( stack ) => {
+      stack.header.element.append( '<div class="stack__plus">+</div>' );
+    });
     this.layout.init();
+    document.addEventListener('click', (event) => {
+      const classList = [...event.target['classList']];
+      if (classList && classList.includes('stack__plus')) {
+        this.openLinks(event.clientX, event.clientY);
+      }
+
+    });
     this.layout.on( 'stateChanged', (event) => {
       this.layoutService.onStateChange();
+    });
+
+
+  }
+
+  openLinks(x, y){
+    this.dialog.open(AddComponentComponent, {
+      height: '200px',
+      width: '200px',
+      hasBackdrop: true,
+      position: {
+        top:  y + 'px',
+        left: x + 'px'
+      }
     });
   }
 

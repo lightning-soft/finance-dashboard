@@ -1,0 +1,44 @@
+@import "src/scss/variables";
+
+body.#{$themeName} {
+
+  :host {
+    background-color: $tabBackground;
+    height: 100%;
+    display: block;
+    padding: 10px 20px;
+    color: $textColor;
+    font-size: 16px;
+    line-height: 22px;
+
+    .list {
+      &__item {
+        cursor: pointer;
+        display: flex;
+        $item: &;
+        justify-content: space-between;
+        margin-top: 20px;
+
+        &:hover {
+          font-weight: 600;
+
+          .list__item-plus {
+            background-color: $bodyBackground;
+          }
+        }
+      }
+
+      &__item-plus {
+        height: 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s;
+        width: 22px;
+        border-radius: 50%;
+      }
+    }
+  }
+
+}
+
