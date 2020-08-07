@@ -13,8 +13,8 @@ import {
 import {LazyLoadingService} from '../LazyLoadingService';
 import {scripts} from '../lazyLoadingConfig';
 import {LayoutService} from './layout.service';
-import {MatDialog} from '@angular/material/dialog';
 import {AddComponentComponent} from '../modules/general/add-component/add-component.component';
+import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 
 type NgComponent<T> = new(...params: any[]) => T;
 
@@ -41,9 +41,9 @@ export class LayoutComponent implements AfterViewInit {
     private appRef: ApplicationRef,
     private injector: Injector,
     private zone: NgZone,
+    private modal: NzModalService,
     private lazyLoadingService: LazyLoadingService,
     private layoutService: LayoutService,
-    public dialog: MatDialog
 ) { }
 
   ngAfterViewInit(): void {
@@ -76,14 +76,21 @@ export class LayoutComponent implements AfterViewInit {
   }
 
   openLinks(x, y){
-    this.dialog.open(AddComponentComponent, {
-      height: '200px',
+    this.modal.create({
+      nzContent: AddComponentComponent,
+      nzFooter: null,
+      nzClosable: false,
+      nzStyle: {
+        left: x  + 'px',
+        top: y + 'px'
+      }
+    /*  height: '200px',
       width: '200px',
       hasBackdrop: true,
       position: {
         top:  y + 'px',
         left: x + 'px'
-      }
+      }*/
     });
   }
 

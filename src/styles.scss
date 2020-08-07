@@ -5,6 +5,8 @@ body, html {
   padding: 0;
 }
 
+@import "~ng-zorro-antd/style/index.min.css";
+
 *, *:after, *:before {
   box-sizing: border-box;
 }
@@ -288,10 +290,18 @@ body.lm_dragging {
   }
 }
 
-.mat-dialog-container {
-  background: none;
-  box-shadow: none;
+.ant-modal-body {
+  /* background: none;
+   box-shadow: none;*/
   padding: 0 !important;
+}
+
+.ant-modal {
+  width: auto !important;
+}
+
+.ant-modal-content {
+  width: 230px;
 }
 
 .lm_dragProxy.lm_bottom,

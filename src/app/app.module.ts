@@ -10,7 +10,7 @@ import {NavbarComponent} from './navbar/navbar.component';
 import {DataGridComponent} from './data-grid/data-grid.component';
 import {AddComponentComponent} from './modules/general/add-component/add-component.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 
 @NgModule({
@@ -28,7 +28,7 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
   imports: [
     BrowserModule.withServerTransition({appId: 'serverApp'}),
     AppRoutingModule,
-    MatDialogModule,
+    NzModalModule,
     BrowserAnimationsModule,
   ],
   providers: [],

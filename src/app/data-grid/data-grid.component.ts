@@ -28,6 +28,5 @@ export class DataGridComponent implements OnInit {
 
   isFalling(record: IDataItem) {
     return record.status != null && record.status === DataStatus.DOWN;
-
   }
 }

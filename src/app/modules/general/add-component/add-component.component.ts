@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {GoldenLayoutHandler} from '../../../layout/goldenLayout.handler';
-import {MatDialogRef} from '@angular/material/dialog';
+import {NzModalRef} from 'ng-zorro-antd/modal/modal-ref';
+import {NzModalService} from 'ng-zorro-antd';
 
 @Component({
   selector: 'app-add-component',
@@ -11,12 +12,11 @@ export class AddComponentComponent  {
   items = GoldenLayoutHandler.layoutItems;
 
   constructor(private layoutHandler: GoldenLayoutHandler,
-              public dialogRef: MatDialogRef<AddComponentComponent>) { }
+              private modal: NzModalService) { }
 
 
   addComponent(item: string) {
     this.layoutHandler.create(item);
-    this.dialogRef.close();
-
+    this.modal.closeAll();
   }
 }
