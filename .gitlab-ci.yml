@@ -2,7 +2,7 @@ image: teracy/angular-cli
 
 stages:
     - install
-    - test
+    # - test
     - build
     # - deploy
 
@@ -19,13 +19,13 @@ install:
     script:
         - npm i
 
-lint:
-    extends: .libs-cache
-    stage: test
-    cache:
-        policy: pull
-    script:
-        - npm run lint
+# lint:
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run lint
 
 # test:
 #     image: trion/ng-cli-karma
