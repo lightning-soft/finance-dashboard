@@ -1,0 +1,36 @@
+<div class="grid">
+  <div class="table-container" #tableContainer>
+    <table>
+
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns; let i = index" class="head cell" [style.width.px]="columnsInfo[i].width"
+            [title]="column">
+            <span class="data" [translate]="translateSuffix ? translateSuffix + 'header.' + column : column"> </span>
+            <span class="grips" horizontalDraggable [dimensions]="columnsInfo[i].grips"
+              [style.left.px]="columnsInfo[i].grips.left" (drag)="handleDrag(i, $event)"></span>
+          </th>
+          <th style="width: 100%"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr class="disable-draggable" *ngFor="let i of rows;trackBy: trackByFn;" [className]="items[i].class"
+          [ngClass]="{'selected': items[i].selected}" [attr.data-row]="i">
+          <td *ngFor="let column of columns; let j = index" class="column cell" [ngClass]="column"
+            [attr.data-column]="column">
+            <span *itemViewBuilder="items[i] && items[i][column]" [ngClass]="items[i][column].class" class="data">
+              {{items[i][column].value}}
+            </span>
+          </td>
+          <td style="width: 100%"></td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <div class="scroll" *ngIf="allowVerticalScroll" #scroll (scroll)="handleScroll($event && $event.currentTarget)">
+    <div #fakeContainer class="fake-container"></div>
+  </div>
+</div>

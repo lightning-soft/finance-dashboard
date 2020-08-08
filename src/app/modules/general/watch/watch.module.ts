@@ -1,21 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { WatchComponent } from './watch.component';
 import { WatchRoutingModule } from './watch-routing.module';
-import {AppModule} from '../../../app.module';
+import { DataGridModule } from 'data-grid';
 
 @NgModule({
   imports: [
     CommonModule,
     WatchRoutingModule,
-    AppModule
+    DataGridModule
   ],
   exports: [
-    WatchComponent
+    WatchComponent,
   ],
   declarations: [
-    WatchComponent
+    WatchComponent,
   ],
   providers: [
   ],

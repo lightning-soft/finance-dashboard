@@ -1,0 +1,293 @@
+$odd-background: #272b37;
+$even-background: #303644;
+$height: 36px;
+$grips-z-index: 20;
+
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: $even-background;
+
+  .grid {
+    height: 100%;
+    width: 100%;
+    //padding-right: 18px; //scroll
+  }
+
+  .table-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 100%;
+  }
+
+  .scroll {
+    z-index: $grips-z-index;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    .fake-container {
+      display: block;
+      background: transparent;
+      width: 1px;
+      height: 100%;
+    }
+  }
+
+  &.phone {
+    .scroll {
+      width: 10px;
+    }
+  }
+
+  .data {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th {
+    .grips {
+      position: absolute;
+      top: 0;
+      cursor: col-resize;
+      width: 1px;
+      z-index: $grips-z-index;
+      height: 37px;
+      //background: grey;
+
+      &:before {
+        content: '';
+        cursor: col-resize;
+        position: absolute;
+        width: 20px;
+        left: -10px;
+        height: 100%;
+      }
+
+      &:hover,
+      &.active {
+        background: grey;
+        height: 100%;
+      }
+    }
+
+    //&:nth-last-child(2) {
+    //  .grips {
+    //    &:before {
+    //      width: 10px;
+    //      left: -10px;
+    //    }
+    //  }
+    //}
+  }
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    position: relative;
+
+    td, th {
+      border: 1px solid #3a3d43;
+      text-align: left;
+      padding: 8px;
+      font-weight: normal;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    thead {
+      tr {
+        height: 37px;
+        background: $odd-background;
+        color: gray;
+      }
+    }
+
+    tr {
+      height: 37px;
+      width: 100%;
+      //margin: 1px;
+
+      &:hover {
+        cursor: pointer;
+        background-color: #404558 !important;
+      }
+
+      &.selected {
+        cursor: pointer;
+        //outline: 1px solid rebeccapurple;
+        &:hover {
+          background-color: #434c68 !important
+        }
+
+        background-color: #3c445d !important;
+      }
+
+      &:nth-child(even) {
+        background: $even-background;
+      }
+
+      &:nth-child(odd) {
+        background: $odd-background;
+      }
+    }
+  }
+
+  //.table {
+  //  overflow: auto;
+  //  position: relative;
+  //  height: 100%;
+  //  width: 100%;
+  //  margin: 0;
+  //}
+  //
+  //.cells {
+  //  display: inline-block;
+  //  vertical-align: middle;
+  //  white-space: nowrap;
+  //  overflow: hidden;
+  //  padding: 5px;
+  //  height: $height;
+  //
+  //  &:before {
+  //    content: '';
+  //    display: inline-block;
+  //    top: 0;
+  //    height: 100%;
+  //    vertical-align: middle;
+  //  }
+  //
+  //  //&:first-of-type {
+  //  //  position: absolute;
+  //  //
+  //  //  .grips {
+  //  //    margin-left: -1px;
+  //  //  }
+  //  //
+  //  //  &.head {
+  //  //    z-index: $grips-z-index + 1;
+  //  //  }
+  //  //}
+  //}
+  //
+  //.header {
+  //  z-index: 1;
+  //  position: absolute;
+  //  background: $odd-background;
+  //  height: $height;
+  //  white-space: nowrap;
+  //  border-bottom: 1px solid #80808036;
+  //  overflow: hidden;
+  //
+  //  &:before {
+  //    content: '';
+  //    height: 100%;
+  //  }
+  //
+  //  .head {
+  //    background: $odd-background;
+  //
+  //    .grips {
+  //      position: absolute;
+  //      top: 0;
+  //      cursor: col-resize;
+  //      background: grey;
+  //      width: 1px;
+  //      z-index: $grips-z-index;
+  //      height: 88%;
+  //
+  //      &:before {
+  //        content: '';
+  //        cursor: col-resize;
+  //        position: absolute;
+  //        width: 20px;
+  //        left: -10px;
+  //        height: 100%;
+  //      }
+  //    }
+  //
+  //    &:last-of-type {
+  //      .grips {
+  //        &:before {
+  //          width: 10px;
+  //          left: -10px;
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
+  //
+  //.table-row {
+  //  height: $height;
+  //  white-space: nowrap;
+  //  display: inline-block;
+  //  min-width: 100%;
+  //
+  //  &:nth-child(1) {
+  //    margin-top: $height; // for fixed header
+  //  }
+  //
+  //  &:hover {
+  //    cursor: pointer;
+  //    background-color: #404558 !important;
+  //
+  //    .cells {
+  //      background-color: #404558 !important;
+  //    }
+  //  }
+  //
+  //  &.selected {
+  //    cursor: pointer;
+  //    //outline: 1px solid rebeccapurple;
+  //    &:hover {
+  //      background-color: #434c68 !important;
+  //
+  //      .cells {
+  //        background-color: #434c68 !important;
+  //      }
+  //    }
+  //
+  //    .cells {
+  //      background-color: #3c445d !important;
+  //
+  //    }
+  //    background-color: #3c445d !important;
+  //  }
+  //
+  //  &.header {
+  //    color: gray;
+  //  }
+  //
+  //  &:nth-child(even) {
+  //    background: $even-background;
+  //
+  //    .cells {
+  //      background: $even-background;
+  //    }
+  //  }
+  //
+  //  &:nth-child(odd) {
+  //    background: $odd-background;
+  //
+  //    .cells {
+  //      background: $odd-background;
+  //    }
+  //  }
+  //}
+  //
+  //.activated,
+  //.up {
+  //  color: green;
+  //}
+  //
+  //.down {
+  //  color: red;
+  //}
+}

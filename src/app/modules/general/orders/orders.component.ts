@@ -1,9 +1,8 @@
-import {Component} from '@angular/core';
-import {DataStatus, IDataItem} from '../../../data-grid/data-grid.component';
+import { Component } from '@angular/core';
 
-const createItem = (value, status = DataStatus.NONE): IDataItem => {
-  return {value, status} as IDataItem;
-};
+// const createItem = (value, status = DataStatus.NONE): IDataItem => {
+//   return { value, status } as IDataItem;
+// };
 
 @Component({
   selector: 'app-orders',
@@ -16,14 +15,14 @@ export class OrdersComponent {
   headers = ['Symbol', 'Side', 'Size', 'Executed', 'price', 'Price in', 'status', 'type'];
 
   data = [
-    [createItem('BTCUSD'), createItem('Buy', DataStatus.DOWN),
-      createItem('0.000507551'), createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
-    [createItem('BTCUSD'), createItem('Sell', DataStatus.UP), createItem('0.000507551'),
-      createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
-    [createItem('BTCUSD'), createItem('Buy', DataStatus.DOWN), createItem('0.000507551'),
-      createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
-    [createItem('BTCUSD'), createItem('Sell', DataStatus.UP), createItem('0.000507551'),
-      createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')]
+    // [createItem('BTCUSD'), createItem('Buy', DataStatus.DOWN),
+    // createItem('0.000507551'), createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
+    // [createItem('BTCUSD'), createItem('Sell', DataStatus.UP), createItem('0.000507551'),
+    // createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
+    // [createItem('BTCUSD'), createItem('Buy', DataStatus.DOWN), createItem('0.000507551'),
+    // createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')],
+    // [createItem('BTCUSD'), createItem('Sell', DataStatus.UP), createItem('0.000507551'),
+    // createItem('0.000507551'), createItem('1.10538'), createItem('1.10538'), createItem('Open'), createItem('Market')]
   ];
 
 

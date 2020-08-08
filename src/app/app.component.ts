@@ -1,10 +1,9 @@
-import {  Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { GoldenLayoutHandler } from './layout/goldenLayout.handler';
 import { LayoutComponent } from './layout/layout.component';
+import { ChartComponent } from './modules/general/chart/chart.component';
 import { OrdersComponent } from './modules/general/orders/orders.component';
 import { WatchComponent } from './modules/general/watch/watch.component';
-import { ChartComponent } from './modules/general/chart/chart.component';
-import { GoldenLayoutHandler } from './layout/goldenLayout.handler';
-import {AddComponentComponent} from './modules/general/add-component/add-component.component';
 
 
 @Component({
