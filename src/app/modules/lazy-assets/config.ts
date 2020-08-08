@@ -1,5 +1,5 @@
-import {IScript, IStyle} from './LazyLoadingService';
-import {environment} from '../environments/environment';
+import { IScript, IStyle } from './lazy-loading.service';
+import { environment } from '../../../environments/environment';
 
 export const scripts = {
 

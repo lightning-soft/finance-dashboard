@@ -4,19 +4,17 @@ import {
   ComponentFactoryResolver,
   ElementRef,
   HostListener,
-  Injector,
   NgZone,
   OnInit,
   SystemJsNgModuleLoader,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
-import { Layout } from './layouts/layout';
-import { PhoneLayout } from './layouts/phone.layout';
-import { DesktopLayout } from './layouts/desktop.layout';
+import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
-import { LazyLoadingService } from '../../../../LazyLoadingService';
+import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
+import { DesktopLayout } from './layouts/desktop.layout';
+import { Layout } from './layouts/layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 

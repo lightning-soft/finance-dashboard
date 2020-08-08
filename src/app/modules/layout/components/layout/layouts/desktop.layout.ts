@@ -1,9 +1,9 @@
 import { Layout } from './layout';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentFactoryResolver, ElementRef, ViewContainerRef } from '@angular/core';
-import { LazyLoadingService } from '../../../../../LazyLoadingService';
 import { LoadingService } from 'lazy-modules';
 import { ComponentInitCallback } from '../layout.component';
+import { LazyLoadingService } from 'lazy-assets';
 
 const DragTabClass = 'drag-tab-class';
 

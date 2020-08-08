@@ -27,6 +27,9 @@
       "lazy-modules": [
         "src/app/modules/lazy-modules/index"
       ],
+      "lazy-assets": [
+        "src/app/modules/lazy-assets/index"
+      ],
       "layout": [
         "src/app/modules/layout/index"
       ]

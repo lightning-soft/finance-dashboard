@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
 import { LayoutService } from 'layout';
+import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { LazyLoadingService } from '../../LazyLoadingService';
 import { CSVDatafeed } from './datafeed/CsvDatafeed';
 import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';

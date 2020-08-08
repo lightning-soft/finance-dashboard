@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {scripts, styles} from './lazyLoadingConfig';
+import { Injectable } from '@angular/core';
+import { scripts, styles } from './config';
 
 export interface IScript {
   src: string;
@@ -64,7 +64,7 @@ export class LazyLoadingService {
   }
 
   loadScript(script: IScript): Promise<boolean> {
-    const {loadedScripts} = this;
+    const { loadedScripts } = this;
     let existingScript: ILoadingScript = loadedScripts.find((item: IScript) => item.src === script.src);
 
     if (!existingScript) {
@@ -79,7 +79,7 @@ export class LazyLoadingService {
   }
 
   loadStyle(style: IStyle): Promise<boolean> {
-    const {loadedStyles} = this;
+    const { loadedStyles } = this;
     let existingStyle: ILoadingStyle = loadedStyles.find((item: IStyle) => item.href === style.href);
 
     if (!style.rel) {
