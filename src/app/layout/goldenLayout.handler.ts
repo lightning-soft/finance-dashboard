@@ -5,7 +5,7 @@ import {Injectable} from '@angular/core';
   providedIn: 'root'
 })
 export class GoldenLayoutHandler {
-  layoutItems = ['Chart', 'View', 'History'];
+ static layoutItems = ['Chart', 'Watch', 'Orders'];
 
   handleCreate = new Subject<string>();
 

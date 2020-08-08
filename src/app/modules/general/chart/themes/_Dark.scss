@@ -4,7 +4,7 @@
 ***                      ***
 ****************************/
 
-$themeName: "Dark";
+$themeName: "scxThemeDark";
 $isLightTheme: false;
 $textColor: #DDD;
 $dropdownTextColor: #fff;
@@ -70,3 +70,5 @@ $watermarkInfoAndSymbol: rgb(61, 61, 61);
 $chartContainerBorder: 1px solid #333945;
 $scrollToolbarButtonShadowColor: rgba(255,255,255,0.2);
 $scrollToolbarButtonBackground: #2b2b2b;
+
+@import "../../../../../scss/dark.theme";

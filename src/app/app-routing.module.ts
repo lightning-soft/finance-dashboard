@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { HomeComponent } from './modules/general/home/home.component';
+import { OrdersComponent } from './modules/general/orders/orders.component';
 import { NotFoundComponent } from './modules/general/not-found/not-found.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent, },
+  { path: '', component: OrdersComponent, },
 
   {
-    path: 'about',
-    loadChildren: () => import('./modules/general/about/about.module')
-      .then(mod => mod.AboutModule)
+    path: 'watch',
+    loadChildren: () => import('./modules/general/watch/watch.module')
+      .then(mod => mod.WatchModule)
   },
   {
     path: 'chart',

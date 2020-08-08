@@ -1,12 +1,14 @@
 $padding: 0;
 $activeColor: #2296f3;
-@import "../../scss/variables";
-
+@import "src/scss/variables";
+@import "themes/index";
 :host {
   display: block;
-  height: calc(100% - #{$navbar-height} - 10px);
-  width:calc(100% - 10px);
+  height: calc(100% - #{$navbarHeight} - 25px);
+  width: calc(100%);
   padding: $padding;
+  padding-left: 15px;
+  padding-right: 15px;
   position: relative;
   color: #ffffff;
 
@@ -34,12 +36,19 @@ $activeColor: #2296f3;
   }
 
   ::ng-deep .lm_items {
-    border: 1px solid transparent;
   }
 
   ::ng-deep .lm_tab {
     border: 1px solid transparent;
     border-bottom: none;
+  }
+
+  ::ng-deep {
+    .stack__plus {
+      margin-left: 10px;
+      font-size: 19px;
+      line-height: 1;
+    }
   }
 
   .lm_selected {

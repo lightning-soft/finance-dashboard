@@ -1,14 +1,8 @@
 
-body.#{$themeName}{
-  background: $body-background;
+body.#{$themeName} {
+  background: $bodyBackground;
   color: $textColor;
-  app-layout{
-    background: $backgroundColor;
-  }
-  app-navbar{
-    background: $body-background;
-
-  }
+  font-family: $fontFamily;
 
 
 }

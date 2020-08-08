@@ -1,17 +1,20 @@
-body,html {
-	font-weight: 400;
+body, html {
+  font-weight: 400;
   height: 100%;
   margin: 0;
   padding: 0;
 }
-*, *:after, *:before{
+
+@import "~ng-zorro-antd/style/index.min.css";
+
+*, *:after, *:before {
   box-sizing: border-box;
 }
 
-@import "scss/variables";
+@import "scss/dark.theme";
 @import "scss/template";
 
-@import "scss/blue.theme";
+@import "scss/light.theme";
 @import "scss/template";
 
 $width0: 100%; // Appears 3 times
@@ -45,10 +48,16 @@ $height6: 15px; // Appears 1 time
 }
 
 // ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+
+body.lm_dragging {
+  overflow: hidden;
+}
+
 .lm_dragging,
 .lm_dragging * {
   cursor: move !important;
   user-select: none;
+
 
   .lm_vertical {
     .lm_drag_handle {
@@ -83,18 +92,22 @@ $height6: 15px; // Appears 1 time
 // Separator line (handle to change pane size)
 .lm_splitter {
   position: relative;
-  z-index: 40;
+  z-index: 12;
 
   &:hover, // When hovered by mouse...
   &.lm_dragging {
     background: orange;
   }
 
+
   &.lm_vertical {
     .lm_drag_handle {
       width: $width0;
       position: absolute;
       cursor: ns-resize;
+      mask-size: 22px !important;
+      mask-image: url("assets/img/svg/resize_vertical.svg");
+      mask-repeat: no-repeat;
     }
   }
 
@@ -106,6 +119,9 @@ $height6: 15px; // Appears 1 time
       height: $height0;
       position: absolute;
       cursor: ew-resize;
+      mask-image: url("assets/img/svg/resize.svg");
+      mask-size: 100%;
+      mask-repeat: no-repeat;
     }
   }
 }
@@ -122,7 +138,6 @@ $height6: 15px; // Appears 1 time
 
   // Pane controls (popout, maximize, minimize, close)
   .lm_controls {
-    position: absolute;
     right: 3px;
 
     > li {
@@ -141,8 +156,8 @@ $height6: 15px; // Appears 1 time
   }
 
   .lm_tabs {
-    position: absolute;
     overflow-y: hidden;
+
   }
 
   // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
@@ -155,8 +170,8 @@ $height6: 15px; // Appears 1 time
     padding: 0 10px 5px;
     padding-right: 25px;
     position: relative;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
     background: #303644;
     white-space: nowrap;
     overflow: hidden;
@@ -213,15 +228,18 @@ $height6: 15px; // Appears 1 time
     width: 20px;
     float: left;
     vertical-align: top;
+
     .lm_tabs {
       transform-origin: left top;
       top: 0;
       width: 1000px; /*hack*/
     }
+
     .lm_controls {
       bottom: 0;
     }
   }
+
   .lm_items {
     float: left;
   }
@@ -233,11 +251,13 @@ $height6: 15px; // Appears 1 time
     .lm_tabs {
       transform: rotate(-90deg) scaleX(-1);
       left: 0;
+
       .lm_tab {
         transform: scaleX(-1);
         margin-top: 1px;
       }
     }
+
     .lm_tabdropdown_list {
       top: initial;
       right: initial;
@@ -258,14 +278,30 @@ $height6: 15px; // Appears 1 time
       left: 100%;
       margin-left: 0;
     }
+
     .lm_controls {
       left: 3px;
     }
+
     .lm_tabdropdown_list {
       top: initial;
       right: 20px;
     }
   }
+}
+
+.ant-modal-body {
+  /* background: none;
+   box-shadow: none;*/
+  padding: 0 !important;
+}
+
+.ant-modal {
+  width: auto !important;
+}
+
+.ant-modal-content {
+  width: 230px;
 }
 
 .lm_dragProxy.lm_bottom,
@@ -275,9 +311,11 @@ $height6: 15px; // Appears 1 time
       margin-top: 0;
       border-top: none;
     }
+
     .lm_controls {
       top: 3px;
     }
+
     .lm_tabdropdown_list {
       top: initial;
       bottom: 20px;
@@ -294,6 +332,9 @@ $height6: 15px; // Appears 1 time
 
 // Dropdown arrow for additional tabs when too many to be displayed
 .lm_header {
+  display: flex;
+  align-items: center;
+
   .lm_controls .lm_tabdropdown:before {
     content: '';
     width: 0;
@@ -415,6 +456,7 @@ $height6: 15px; // Appears 1 time
     left: 0;
   }
 }
+
 // Color variables (appears count calculates by raw css)
 $color0: transparent; // Appears 7 times
 $color1: #272b37; // Appears 3 times
@@ -485,13 +527,12 @@ $color10: #ffffff; // Appears 2 time
 
   // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
   .lm_tab {
-    font-family: Arial, sans-serif;
     font-size: 12px;
     color: $color6;
     background: $color7;
     box-shadow: none;
     margin-right: 2px;
-    padding-bottom: 2px;
+    padding-bottom: 0px;
     padding-top: 2px;
 
     /*.lm_title         // Present in LIGHT Theme
@@ -503,9 +544,9 @@ $color10: #ffffff; // Appears 2 time
     .lm_close_tab {
       width: 11px;
       height: 11px;
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAATElEQVR4nG3OwQ0DMQwDwZGRBtR/j1YJzMc5+IDoR+yCVO29g+pu981MFgqZmRdAfU7+CYWcbF11LwALjpBL0N0qybNx/RPU+gOeiS/+XCRwDlTgkQAAAABJRU5ErkJggg==);
-      background-position: center center;
-      background-repeat: no-repeat;
+      mask-image: url("assets/img/svg/close_icon.svg");
+      mask-size: 100%;
+      mask-repeat: no-repeat;
       top: 4px;
       right: 6px;
       opacity: 0.4;
@@ -519,7 +560,7 @@ $color10: #ffffff; // Appears 2 time
     &.lm_active {
       border-bottom: none;
       box-shadow: 0 -2px 2px $color0;
-      padding-bottom: 3px;
+      padding-bottom: 2px;
 
       .lm_close_tab {
         opacity: 1;
@@ -532,6 +573,7 @@ $color10: #ffffff; // Appears 2 time
 .lm_stack.lm_bottom {
   .lm_header .lm_tab {
     box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+
     &.lm_active {
       box-shadow: 0 2px 2px $color0;
     }
@@ -581,12 +623,17 @@ $color10: #ffffff; // Appears 2 time
 
   // Icon to Maximize Pane, so it will fill the entire GoldenLayout Container
   .lm_maximise {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKElEQVR4nGP8////fwYCgImQAgYGBgYWKM2IR81/okwajIpgvsMbVgAwgQYRVakEKQAAAABJRU5ErkJggg==);
+    mask-image: url("assets/img/svg/maximaze.svg");
+    mask-size: 100%;
+    margin-right: 5px;
+    mask-repeat: no-repeat;
   }
 
   // Icon to Close Pane and so remove it from GoldenLayout Container
   .lm_close {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAQUlEQVR4nHXOQQ4AMAgCQeT/f6aXpsGK3jSTuCVJAAr7iBdoAwCKd0nwfaAdHbYERw5b44+E8JoBjEYGMBq5gAYP3usUDu2IvoUAAAAASUVORK5CYII=);
+    mask-image: url("assets/img/svg/close_icon.svg");
+    mask-size: 100%;
+    mask-repeat: no-repeat;
   }
 }
 
@@ -635,4 +682,13 @@ $color10: #ffffff; // Appears 2 time
       opacity: 1;
     }
   }
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
