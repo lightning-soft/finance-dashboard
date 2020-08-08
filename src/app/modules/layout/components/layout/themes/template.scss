@@ -1,0 +1,89 @@
+@import "src/scss/variables";
+
+body.#{$themeName} {
+  :host {
+    background: $bodyBackground;
+
+    ::ng-deep {
+      .lm_content {
+        background: $tabBackground;
+      }
+      .stack__plus {
+        color: $textColorSecondary;
+      }
+
+      .lm_tabdropdown{
+        display: none !important;
+      }
+
+      .lm_splitter{
+        background: none;
+        .lm_drag_handle{
+          background: $resizeBarColor;
+          mask-position: center center;
+          mask-size: 6px;
+        }
+      }
+      .lm_header .lm_tab {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 19px;
+        color: $textColorSecondary;
+        font-weight: 600;
+        background: $bodyBackground;
+        border: 2px solid $borderColor;
+        border-bottom: none;
+        height: 100%;
+
+        .lm_title {
+          position: relative;
+          top: 3px;
+          font-family: $fontFamily;
+        }
+
+        &.lm_active {
+          min-width: 120px;
+          font-weight: 600;
+          border: none;
+          color: $textColor;
+          background: $tabBackground;
+          line-height: 19px;
+
+          .lm_title {
+            left: 7px;
+          }
+        }
+      }
+
+      .lm_header .lm_controls {
+        order: 2;
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+      }
+
+      .lm_controls li {
+        background-color: $textColor;
+        width: 16px;
+        height: 14px;
+
+      }
+
+      .lm_header .lm_tab .lm_close_tab {
+        top: 10px;
+        height: 13px;
+        right: 9px;
+        width: 13px;
+        background-color: $textColor;
+
+      }
+
+      .lm_header {
+      }
+
+    }
+
+  }
+
+}
+

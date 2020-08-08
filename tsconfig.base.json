@@ -12,13 +12,23 @@
     "importHelpers": true,
     "target": "es5",
     "module": "es2020",
+    "typeRoots": [
+      "src/libs/**/*.d.ts",
+      "node_modules/@types"
+    ],
     "lib": [
       "es2018",
       "dom"
     ],
     "paths": {
       "data-grid": [
-        "src/app/data-grid/index"
+        "src/app/modules/data-grid/index"
+      ],
+      "lazy-modules": [
+        "src/app/modules/lazy-modules/index"
+      ],
+      "layout": [
+        "src/app/modules/layout/index"
       ]
     }
   }

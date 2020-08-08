@@ -9,13 +9,12 @@ import {
   NgZone,
   ViewChild
 } from '@angular/core';
-
-import {LazyLoadingService} from '../LazyLoadingService';
-import {scripts} from '../lazyLoadingConfig';
-import {LayoutService} from './layout.service';
+import { LazyLoadingService } from '../LazyLoadingService';
+import { scripts } from '../lazyLoadingConfig';
+import { LayoutService } from './layout.service';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 
-type NgComponent<T> = new(...params: any[]) => T;
+type NgComponent<T> = new (...params: any[]) => T;
 
 declare const GoldenLayout;
 @Component({
@@ -32,7 +31,7 @@ export class LayoutComponent implements AfterViewInit {
 
   @ViewChild('container') container;
 
-  @Input()  private config = null;
+  @Input() private config = null;
   @Input() onLayoutReady;
 
   constructor(
@@ -43,7 +42,7 @@ export class LayoutComponent implements AfterViewInit {
     private modal: NzModalService,
     private lazyLoadingService: LazyLoadingService,
     private layoutService: LayoutService,
-) { }
+  ) { }
 
   ngAfterViewInit(): void {
     this.lazyLoadingService.loadScripts([scripts.GoldenLayout])
@@ -55,9 +54,9 @@ export class LayoutComponent implements AfterViewInit {
 
   }
 
-  init(){
-    this.layout.on( 'stackCreated', ( stack ) => {
-      stack.header.element.append( '<div class="stack__plus">+</div>' );
+  init() {
+    this.layout.on('stackCreated', (stack) => {
+      stack.header.element.append('<div class="stack__plus">+</div>');
     });
     this.layout.init();
     document.addEventListener('click', (event) => {
@@ -67,14 +66,14 @@ export class LayoutComponent implements AfterViewInit {
       }
 
     });
-    this.layout.on( 'stateChanged', (event) => {
+    this.layout.on('stateChanged', (event) => {
       this.layoutService.onStateChange();
     });
 
 
   }
 
-  openLinks(x, y){
+  openLinks(x, y) {
     // this.modal.create({
     //   nzContent: AddComponentComponent,
     //   nzFooter: null,
@@ -102,7 +101,7 @@ export class LayoutComponent implements AfterViewInit {
       // create angular component in angular zone and append it in to layout container
       this.zone.run(_ => {
         component = this.createComponent(entryComponent, container);
-        const view: HTMLElement = ( component.hostView as any ).rootNodes[0];
+        const view: HTMLElement = (component.hostView as any).rootNodes[0];
         container.getElement().append(view);
       });
 
@@ -142,14 +141,14 @@ export class LayoutComponent implements AfterViewInit {
 
   }
 
-  addComponent(componentName: string){
+  addComponent(componentName: string) {
     const goldenLayout = this.layout;
     const content = goldenLayout.selectedItem || goldenLayout.root.contentItems[0];
     const item = {
-        type: 'component',
-        componentName,
-        componentState: null
-      };
+      type: 'component',
+      componentName,
+      componentState: null
+    };
 
     try {
       if (content) {

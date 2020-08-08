@@ -1,0 +1,6 @@
+:host-context(.#{$theme-name}) {
+
+  /deep/ split-gutter {
+    background: $split-gutter-color !important;
+  }
+}

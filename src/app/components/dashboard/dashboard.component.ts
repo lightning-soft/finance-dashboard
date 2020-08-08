@@ -1,15 +1,14 @@
-import { Component, ViewChild } from '@angular/core';
-import { LayoutComponent } from '../../layout/layout.component';
-import { GoldenLayoutHandler } from '../../layout/goldenLayout.handler';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { LayoutComponent } from 'layout';
+import { Components } from 'lazy-modules';
 
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements AfterViewInit {
   @ViewChild(LayoutComponent) layout;
-
 
   settings = {
     settings: {
@@ -27,30 +26,21 @@ export class DashboardComponent {
         content: [
           {
             type: 'component',
-            componentName: 'Chart'
+            componentName: Components.Chart
           },
           {
             type: 'component',
-            componentName: 'Watch'
+            componentName: Components.Watchlist
           },
-          {
-            type: 'component',
-            componentName: 'Orders'
-          }
+          // {
+          //   type: 'component',
+          //   componentName: 'Orders'
+          // }
         ]
       }]
   };
 
-  constructor(private layoutHandler: GoldenLayoutHandler) {
+  ngAfterViewInit() {
+    this.layout.loadState(this.settings);
   }
-
-  initLayout() {
-    this.layout.init();
-
-    this.layoutHandler.handleCreate.subscribe((name) => {
-      this.layout.addComponent(name);
-    });
-  }
-
-
 }
