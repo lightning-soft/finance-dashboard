@@ -52,6 +52,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .then(() => this.loadChart())
       .catch(e => console.log(e));
 
+    // setTimeout(() => this.loadChart(), 2000)
+
     this.layoutService.onStateChange$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
