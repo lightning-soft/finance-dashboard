@@ -27,24 +27,24 @@ lint:
     script:
         - npm run lint
 
-test:
-    image: trion/ng-cli-karma
-    allow_failure: true
-    extends: .libs-cache
-    stage: test
-    cache:
-        policy: pull
-    script:
-        - npm run test:prod
+# test:
+#     image: trion/ng-cli-karma
+#     allow_failure: true
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run test:prod
 
-e2e:
-    image: trion/ng-cli-karma
-    extends: .libs-cache
-    stage: test
-    cache:
-        policy: pull
-    script:
-        - npm run e2e
+# e2e:
+#     image: trion/ng-cli-karma
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run e2e
 
 build-web-ssr:
     stage: build
