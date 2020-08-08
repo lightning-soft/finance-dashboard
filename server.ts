@@ -8,6 +8,13 @@ import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 import { existsSync } from 'fs';
 
+function setCustomHeadersToStaticFiles(res, path) {
+  console.log(path, path.match(/StockChartX.+.js/));
+  if (path.match(/StockChartX.+.js/)) {
+    // Custom Cache-Control for HTML files
+    res.setHeader('Content-Type', 'text/javascript; charset=utf-8')
+  }
+}
 // The Express app is exported so that it can be used by serverless Functions.
 export function app() {
   const server = express();
@@ -26,7 +33,8 @@ export function app() {
   // server.get('/api/**', (req, res) => { });
   // Serve static files from /browser
   server.get('*.*', express.static(distFolder, {
-    maxAge: '1y'
+    maxAge: '1y',
+    setHeaders: setCustomHeadersToStaticFiles,
   }));
 
   // All regular routes use the Universal engine

@@ -1,0 +1,91 @@
+image: teracy/angular-cli
+
+stages:
+    - install
+    # - test
+    - build
+    # - deploy
+
+.libs-cache:
+    tags:
+        - docker
+    cache:
+        paths:
+            - node_modules/
+
+install:
+    stage: install
+    extends: .libs-cache
+    script:
+        - npm i
+
+# lint:
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run lint
+
+# test:
+#     image: trion/ng-cli-karma
+#     allow_failure: true
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run test:prod
+
+# e2e:
+#     image: trion/ng-cli-karma
+#     extends: .libs-cache
+#     stage: test
+#     cache:
+#         policy: pull
+#     script:
+#         - npm run e2e
+
+build-web-ssr:
+    stage: build
+    tags:
+        - docker
+    cache:
+        paths:
+            - dist/
+            - node_modules/
+    artifacts:
+        expire_in: 1 day
+        paths:
+            - dist/
+    script:
+        - npm run build:ssr
+    # after_script:
+    #     - npm run test:ssr
+
+# .deploy:
+#     image: docker:latest
+#     stage: deploy
+#     services:
+#         - docker:dind
+#     cache:
+#         policy: pull
+#         paths:
+#             - dist/
+#     before_script:
+#         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+#     tags:
+#         - docker
+#     script:
+#         - docker build -t "$IMAGE" --force-rm --no-cache -f Dockerfile.ssr .
+#         - docker push $IMAGE
+#     after_script:
+#         - docker logout
+
+# deploy-develop:
+#     variables:
+#         IMAGE: $CI_REGISTRY_IMAGE:develop
+#     extends: .deploy
+#     only:
+#         - develop
+#         - master

@@ -47,11 +47,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._lazyLoaderService.loadScx();
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit() {
     this.loadFiles()
-      .then(() => {
-        this.loadChart();
-      });
+      .then(() => this.loadChart())
+      .catch(e => console.log(e));
+
     this.layoutService.onStateChange$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
