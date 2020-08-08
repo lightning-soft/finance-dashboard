@@ -1,18 +1,13 @@
 import { Component, ViewChild } from '@angular/core';
-import { GoldenLayoutHandler } from './layout/goldenLayout.handler';
-import { LayoutComponent } from './layout/layout.component';
-import { ChartComponent } from './modules/general/chart/chart.component';
-import { OrdersComponent } from './modules/general/orders/orders.component';
-import { WatchComponent } from './modules/general/watch/watch.component';
-
+import { LayoutComponent } from '../../layout/layout.component';
+import { GoldenLayoutHandler } from '../../layout/goldenLayout.handler';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
 })
-export class AppComponent {
-  @ViewChild('container') container;
+export class DashboardComponent {
   @ViewChild(LayoutComponent) layout;
 
 
@@ -46,16 +41,10 @@ export class AppComponent {
       }]
   };
 
-  constructor(private layoutHandler: GoldenLayoutHandler,
-  ) {
+  constructor(private layoutHandler: GoldenLayoutHandler) {
   }
 
-
-
   initLayout() {
-    this.layout.registerComponent('Chart', ChartComponent);
-    this.layout.registerComponent('Watch', WatchComponent);
-    this.layout.registerComponent('Orders', OrdersComponent);
     this.layout.init();
 
     this.layoutHandler.handleCreate.subscribe((name) => {

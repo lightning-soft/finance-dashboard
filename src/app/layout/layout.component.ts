@@ -13,7 +13,6 @@ import {
 import {LazyLoadingService} from '../LazyLoadingService';
 import {scripts} from '../lazyLoadingConfig';
 import {LayoutService} from './layout.service';
-import {AddComponentComponent} from '../modules/general/add-component/add-component.component';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 
 type NgComponent<T> = new(...params: any[]) => T;
@@ -76,22 +75,22 @@ export class LayoutComponent implements AfterViewInit {
   }
 
   openLinks(x, y){
-    this.modal.create({
-      nzContent: AddComponentComponent,
-      nzFooter: null,
-      nzClosable: false,
-      nzStyle: {
-        left: x  + 'px',
-        top: y + 'px'
-      }
-    /*  height: '200px',
-      width: '200px',
-      hasBackdrop: true,
-      position: {
-        top:  y + 'px',
-        left: x + 'px'
-      }*/
-    });
+    // this.modal.create({
+    //   nzContent: AddComponentComponent,
+    //   nzFooter: null,
+    //   nzClosable: false,
+    //   nzStyle: {
+    //     left: x  + 'px',
+    //     top: y + 'px'
+    //   }
+    // /*  height: '200px',
+    //   width: '200px',
+    //   hasBackdrop: true,
+    //   position: {
+    //     top:  y + 'px',
+    //     left: x + 'px'
+    //   }*/
+    // });
   }
 
   registerComponent<T>(componentName: string, entryComponent: NgComponent<T>) {
