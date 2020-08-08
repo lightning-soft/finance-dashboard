@@ -12,7 +12,7 @@ function setCustomHeadersToStaticFiles(res, path) {
   console.log(path, path.match(/StockChartX.+.js/));
   if (path.match(/StockChartX.+.js/)) {
     // Custom Cache-Control for HTML files
-    res.setHeader('Content-Type', 'text/javascript; charset=utf-8')
+    res.setHeader('Content-Type', 'text/javascript')
   }
 }
 // The Express app is exported so that it can be used by serverless Functions.
