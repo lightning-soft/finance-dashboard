@@ -1,9 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-// import {DataStatus, IDataItem} from '../../../data-grid/data-grid.component';
-
-// const createItem = (value, status?: DataStatus): IDataItem => {
-//   return {value, status} as IDataItem;
-// };
+import { Component, OnInit } from '@angular/core';
+import { WatchlistItem } from './models/watchlist.item';
 
 @Component({
   selector: 'watchlist',
@@ -11,29 +7,38 @@ import {Component, OnInit} from '@angular/core';
   styleUrls: ['./watchlist.component.scss']
 })
 export class WatchlistComponent implements OnInit {
-  headers = ['price', 'amount', 'time'];
-  data = [
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.DOWN), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.DOWN), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.DOWN), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.DOWN), createItem('0.0506'), createItem('06:31:11')],
-    // [createItem('3816.69 ', DataStatus.UP), createItem('0.0506'), createItem('06:31:11')],
-  ];
+  headers = ['name', 'ask', 'bid', 'timestamp'];
 
-  constructor() {
-  }
+  data: WatchlistItem[] = [];
 
   ngOnInit(): void {
-  }
+    for (let id = 0; id < 100; id++) {
+      this.data.push(new WatchlistItem({ name: id.toString(), id }))
+    }
 
+    setInterval(() => {
+      const count = Math.floor(randomIntFromInterval(0, this.data.length))
+      const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
+
+      for (let i = step; i < count; i += step) {
+        const item = this.data[i];
+        const updates = {};
+
+        for (const key of ['ask', 'bid']) {
+          const value = +item[key].value;
+          updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
+        }
+
+        item.processQuote({
+          instrumentId: i,
+          timestamp: new Date(),
+          ...updates,
+        } as any);
+      }
+    }, 100)
+  }
+}
+
+function randomIntFromInterval(min, max) { // min and max included 
+  return +(Math.random() * (max - min + 1) + min).toFixed(4);
 }

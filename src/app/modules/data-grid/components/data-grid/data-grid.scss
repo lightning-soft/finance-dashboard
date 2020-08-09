@@ -17,26 +17,26 @@ $grips-z-index: 20;
 
   .table-container {
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     height: 100%;
   }
 
-  .scroll {
-    z-index: $grips-z-index;
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    overflow-x: hidden;
-    overflow-y: scroll;
+  // .scroll {
+  //   z-index: $grips-z-index;
+  //   position: absolute;
+  //   right: 0;
+  //   top: 0;
+  //   bottom: 0;
+  //   overflow-x: hidden;
+  //   overflow-y: scroll;
 
-    .fake-container {
-      display: block;
-      background: transparent;
-      width: 1px;
-      height: 100%;
-    }
-  }
+  //   .fake-container {
+  //     display: block;
+  //     background: transparent;
+  //     width: 1px;
+  //     height: 100%;
+  //   }
+  // }
 
   &.phone {
     .scroll {
@@ -61,7 +61,7 @@ $grips-z-index: 20;
       //background: grey;
 
       &:before {
-        content: '';
+        content: "";
         cursor: col-resize;
         position: absolute;
         width: 20px;
@@ -91,9 +91,10 @@ $grips-z-index: 20;
     width: 100%;
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    position: relative;
+    // position: relative;
 
-    td, th {
+    td,
+    th {
       border: 1px solid #3a3d43;
       text-align: left;
       padding: 8px;
@@ -124,7 +125,7 @@ $grips-z-index: 20;
         cursor: pointer;
         //outline: 1px solid rebeccapurple;
         &:hover {
-          background-color: #434c68 !important
+          background-color: #434c68 !important;
         }
 
         background-color: #3c445d !important;
@@ -139,155 +140,4 @@ $grips-z-index: 20;
       }
     }
   }
-
-  //.table {
-  //  overflow: auto;
-  //  position: relative;
-  //  height: 100%;
-  //  width: 100%;
-  //  margin: 0;
-  //}
-  //
-  //.cells {
-  //  display: inline-block;
-  //  vertical-align: middle;
-  //  white-space: nowrap;
-  //  overflow: hidden;
-  //  padding: 5px;
-  //  height: $height;
-  //
-  //  &:before {
-  //    content: '';
-  //    display: inline-block;
-  //    top: 0;
-  //    height: 100%;
-  //    vertical-align: middle;
-  //  }
-  //
-  //  //&:first-of-type {
-  //  //  position: absolute;
-  //  //
-  //  //  .grips {
-  //  //    margin-left: -1px;
-  //  //  }
-  //  //
-  //  //  &.head {
-  //  //    z-index: $grips-z-index + 1;
-  //  //  }
-  //  //}
-  //}
-  //
-  //.header {
-  //  z-index: 1;
-  //  position: absolute;
-  //  background: $odd-background;
-  //  height: $height;
-  //  white-space: nowrap;
-  //  border-bottom: 1px solid #80808036;
-  //  overflow: hidden;
-  //
-  //  &:before {
-  //    content: '';
-  //    height: 100%;
-  //  }
-  //
-  //  .head {
-  //    background: $odd-background;
-  //
-  //    .grips {
-  //      position: absolute;
-  //      top: 0;
-  //      cursor: col-resize;
-  //      background: grey;
-  //      width: 1px;
-  //      z-index: $grips-z-index;
-  //      height: 88%;
-  //
-  //      &:before {
-  //        content: '';
-  //        cursor: col-resize;
-  //        position: absolute;
-  //        width: 20px;
-  //        left: -10px;
-  //        height: 100%;
-  //      }
-  //    }
-  //
-  //    &:last-of-type {
-  //      .grips {
-  //        &:before {
-  //          width: 10px;
-  //          left: -10px;
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
-  //
-  //.table-row {
-  //  height: $height;
-  //  white-space: nowrap;
-  //  display: inline-block;
-  //  min-width: 100%;
-  //
-  //  &:nth-child(1) {
-  //    margin-top: $height; // for fixed header
-  //  }
-  //
-  //  &:hover {
-  //    cursor: pointer;
-  //    background-color: #404558 !important;
-  //
-  //    .cells {
-  //      background-color: #404558 !important;
-  //    }
-  //  }
-  //
-  //  &.selected {
-  //    cursor: pointer;
-  //    //outline: 1px solid rebeccapurple;
-  //    &:hover {
-  //      background-color: #434c68 !important;
-  //
-  //      .cells {
-  //        background-color: #434c68 !important;
-  //      }
-  //    }
-  //
-  //    .cells {
-  //      background-color: #3c445d !important;
-  //
-  //    }
-  //    background-color: #3c445d !important;
-  //  }
-  //
-  //  &.header {
-  //    color: gray;
-  //  }
-  //
-  //  &:nth-child(even) {
-  //    background: $even-background;
-  //
-  //    .cells {
-  //      background: $even-background;
-  //    }
-  //  }
-  //
-  //  &:nth-child(odd) {
-  //    background: $odd-background;
-  //
-  //    .cells {
-  //      background: $odd-background;
-  //    }
-  //  }
-  //}
-  //
-  //.activated,
-  //.up {
-  //  color: green;
-  //}
-  //
-  //.down {
-  //  color: red;
-  //}
 }

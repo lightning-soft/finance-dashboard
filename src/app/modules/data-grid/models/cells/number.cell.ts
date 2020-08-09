@@ -33,8 +33,7 @@ export class NumberCell extends Cell {
 
   _value: number;
 
-  // constructor(private _numberFormatter?: IFormatter, private _addClassStrategy = AddClassStrategy.RELATIVE_PREV_VALUE) {
-  constructor(private _numberFormatter?: any, private _addClassStrategy = AddClassStrategy.RELATIVE_PREV_VALUE) {
+  constructor(private strategy = AddClassStrategy.RELATIVE_PREV_VALUE) {
     super();
   }
 
@@ -42,7 +41,7 @@ export class NumberCell extends Cell {
     if (typeof value !== 'number' || this._value === value)
       return;
 
-    switch (this._addClassStrategy) {
+    switch (this.strategy) {
       case AddClassStrategy.RELATIVE_PREV_VALUE:
         this.class = getProfitClass(this._value, value);
         break;
@@ -52,7 +51,7 @@ export class NumberCell extends Cell {
       default:
         this.class = '';
     }
-    this.value = this._numberFormatter ? this._numberFormatter.format(value) : value.toString();
+    this.value = value.toString();
     this._value = value;
   }
 

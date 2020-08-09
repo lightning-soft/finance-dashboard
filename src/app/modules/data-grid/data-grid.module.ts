@@ -2,7 +2,6 @@ import { DataGrid } from './components/data-grid/data-grid.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemViewBuilder } from './components/item-view-builder';
-import { HorizontalDraggable } from './components/horizontal-draggable';
 
 let entryComponents = [
   DataGrid,
@@ -14,7 +13,6 @@ let entryComponents = [
   ],
   declarations: [
     ItemViewBuilder,
-    HorizontalDraggable,
 
     ...entryComponents
   ],
