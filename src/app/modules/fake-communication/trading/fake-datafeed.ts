@@ -8,14 +8,14 @@ export class FakeDatafeed extends Datafeed {
     constructor() {
         super();
         setInterval(() => {
-            // const size = this._subscribedInstruments.length;
-            // const count = Math.floor(randomIntFromInterval(0, size))
-            // const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
-            console.time('q')
-
             const size = this._subscribedInstruments.length;
-            const count = size;
-            const step = 1;
+            const count = Math.floor(randomIntFromInterval(0, size))
+            const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
+            // console.time('q')
+
+            // const size = this._subscribedInstruments.length;
+            // const count = size;
+            // const step = 1;
             const quotes = [];
             for (let i = step; i < count; i += step) {
                 const instrumentId = this._subscribedInstruments[i];
@@ -35,8 +35,8 @@ export class FakeDatafeed extends Datafeed {
             }
 
             this._triggerQuotes(quotes);
-            console.timeEnd('q');
-        }, 100)
+            // console.timeEnd('q');
+        }, 500)
     }
 
     protected _subscribe(instruemntId: Id) {

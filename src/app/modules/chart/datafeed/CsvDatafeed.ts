@@ -1,7 +1,9 @@
+import { Injectable } from '@angular/core';
+import { InstrumentsRepository } from 'communication';
+import { interval, Observable, Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Datafeed, IDateFormat } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
-import { Injectable } from '@angular/core';
-import { interval, Observable, Subscription } from 'rxjs';
 
 declare let StockChartX: any;
 
@@ -33,7 +35,7 @@ export class CSVDatafeed extends Datafeed {
   public separator: string;
 
 
-  constructor() {
+  constructor(private _instrumentsRepository: InstrumentsRepository) {
     super();
     this._dateFormat = this.defaultDateFormat;
     this.separator = ',';
@@ -76,24 +78,13 @@ export class CSVDatafeed extends Datafeed {
     this._loadData(request);
   }
 
-  loadInstruments(): Promise<any[]> {
-    const symbolsFilePath = './assets/StockChartX/data/symbols.json';
-
-    return new Promise((resolve, reject) => {
-      $.get(symbolsFilePath, (symbols: any[]) => {
-        let allSymbols = typeof symbols === 'string'
-          ? JSON.parse(symbols)
-          : symbols;
-        allSymbols = allSymbols.map(i => ({ tickSize: 0.01, ...i }));
-        resolve(symbols);
-        StockChartX.getAllInstruments = () => {
-          return allSymbols;
-        };
-      }).fail(() => {
-        reject();
+  loadInstruments(): Observable<any[]> {
+    return this._instrumentsRepository.getItems().pipe(
+      tap(instruments => {
         StockChartX.UI.Notification.error('Load symbols failed.');
-      });
-    });
+        StockChartX.getAllInstruments = () => instruments;
+      })
+    )
   }
 
 

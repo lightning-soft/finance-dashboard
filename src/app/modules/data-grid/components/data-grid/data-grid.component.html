@@ -11,7 +11,7 @@
     </thead>
 
     <tbody>
-      <tr *cdkVirtualFor="let item of items; let i = index" [className]="item.class">
+      <tr *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
         <td>{{i}}</td>
         <td *ngFor="let column of columns; let j = index" class="column cell" [ngClass]="column">
           <span *itemViewBuilder="item && item[column]" [ngClass]="item[column].class" class="data">
