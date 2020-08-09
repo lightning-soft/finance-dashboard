@@ -6,6 +6,7 @@ import { NavbarComponent, DashboardComponent, AppComponent } from './components'
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
+import { FakeCommunicationModule } from 'fake-communication';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { LoadingModule } from 'lazy-modules';
     BrowserAnimationsModule,
     LayoutModule.forRoot(),
     LoadingModule.forRoot(),
+    FakeCommunicationModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '',

@@ -1,11 +1,10 @@
 import { Cell, DateCell, NumberCell, ReadonlyCell } from 'data-grid';
-import { IInstrument } from './instrument';
-import { InstrumentNameCell } from './instrument-name.cell';
-import { IQuote } from './quote';
+import { InstrumentNameCell, } from './instrument-name.cell';
+import { IQuote, IInstrument } from 'communication';
 
 export class WatchlistItem {
-    _instrumentId: any;
-    instrumentId: Cell = new ReadonlyCell('');
+    instrumentId: any;
+    
     name: Cell;
     timestamp: Cell = new DateCell();
     ask: Cell = new NumberCell();
@@ -13,11 +12,11 @@ export class WatchlistItem {
 
     constructor(instrument: IInstrument) {
         this.name = new InstrumentNameCell(instrument);
-        this._instrumentId = instrument.id;
+        this.instrumentId = instrument.id;
     }
 
     processQuote(quote: IQuote) {
-        if (!quote || quote.instrumentId != this._instrumentId)
+        if (!quote || quote.instrumentId != this.instrumentId)
             return;
 
         this.ask.updateValue(quote.ask);

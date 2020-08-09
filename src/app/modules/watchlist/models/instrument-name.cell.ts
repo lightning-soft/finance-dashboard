@@ -1,5 +1,5 @@
 import { Cell } from 'data-grid';
-import { IInstrument } from './instrument';
+import { IInstrument } from 'communication';
 
 export class InstrumentNameCell extends Cell {
   value = '';

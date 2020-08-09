@@ -3,6 +3,10 @@ $even-background: #303644;
 $height: 36px;
 $grips-z-index: 20;
 
+cdk-virtual-scroll-viewport {
+  height: 100%;
+}
+
 :host {
   display: block;
   height: 100%;
@@ -16,8 +20,8 @@ $grips-z-index: 20;
   }
 
   .table-container {
-    overflow-x: auto;
-    overflow-y: auto;
+    // overflow-x: auto;
+    // overflow-y: auto;
     height: 100%;
   }
 

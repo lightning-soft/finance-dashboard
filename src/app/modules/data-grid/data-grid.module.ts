@@ -2,6 +2,7 @@ import { DataGrid } from './components/data-grid/data-grid.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemViewBuilder } from './components/item-view-builder';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 let entryComponents = [
   DataGrid,
@@ -10,6 +11,7 @@ let entryComponents = [
 @NgModule({
   imports: [
     CommonModule,
+    ScrollingModule,
   ],
   declarations: [
     ItemViewBuilder,

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { IQuote, Datafeed, Id, IInstrument, InstrumentsRepository } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
 
 @Component({
@@ -9,36 +10,75 @@ import { WatchlistItem } from './models/watchlist.item';
 export class WatchlistComponent implements OnInit {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
-  data: WatchlistItem[] = [];
+  items: WatchlistItem[] = [];
+  private _itemsMap = new Map<Id, WatchlistItem>();
+
+  constructor(
+    private _instrumentsRepository: InstrumentsRepository,
+    private _datafeed: Datafeed
+  ) { }
 
   ngOnInit(): void {
-    for (let id = 0; id < 100; id++) {
-      this.data.push(new WatchlistItem({ name: id.toString(), id }))
-    }
+    this._datafeed.on((quotes) => this._processQuotes(quotes));
+    this._instrumentsRepository.getItems()
+      .subscribe(
+        (instruments: IInstrument[]) => this.addToWatchlist(instruments),
+        (e) => console.error(e)
+      );
 
-    setInterval(() => {
-      const count = Math.floor(randomIntFromInterval(0, this.data.length))
-      const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
+    // for (let id = 0; id < 100; id++) {
+    //   this.data.push(new WatchlistItem({ name: id.toString(), id }))
+    // }
 
-      for (let i = step; i < count; i += step) {
-        const item = this.data[i];
-        const updates = {};
+    // setInterval(() => {
+    //   const count = Math.floor(randomIntFromInterval(0, this.data.length))
+    //   const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
 
-        for (const key of ['ask', 'bid']) {
-          const value = +item[key].value;
-          updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
-        }
+    //   for (let i = step; i < count; i += step) {
+    //     const item = this.data[i];
+    //     const updates = {};
 
-        item.processQuote({
-          instrumentId: i,
-          timestamp: new Date(),
-          ...updates,
-        } as any);
-      }
-    }, 100)
+    //     for (const key of ['ask', 'bid']) {
+    //       const value = +item[key].value;
+    //       updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
+    //     }
+
+    //     item.processQuote({
+    //       instrumentId: i,
+    //       timestamp: new Date(),
+    //       ...updates,
+    //     } as any);
+    //   }
+    // }, 100)
   }
-}
 
-function randomIntFromInterval(min, max) { // min and max included 
-  return +(Math.random() * (max - min + 1) + min).toFixed(4);
+  addToWatchlist(instruments: IInstrument | IInstrument[]) {
+    if (instruments == null)
+      throw new Error('Invalid instrument');
+
+    if (!Array.isArray(instruments))
+      instruments = [instruments];
+
+    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
+    for (const item of items)
+      this._itemsMap.set(item.instrumentId, item);
+
+    this.items = [...items, ...this.items];
+    this.subscribeForRealtime(instruments);
+  }
+
+  subscribeForRealtime(instruments: IInstrument[]) {
+    for (const instrument of instruments) {
+      this._datafeed.subscribe(instrument);
+    }
+  }
+
+  _processQuotes(quotes: IQuote[]) {
+    for (const quote of quotes) {
+      const item = this._itemsMap.get(quote?.instrumentId);
+
+      if (item)
+        item.processQuote(quote);
+    }
+  }
 }

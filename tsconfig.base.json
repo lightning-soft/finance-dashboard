@@ -30,6 +30,12 @@
       "lazy-assets": [
         "src/app/modules/lazy-assets/index"
       ],
+      "communication": [
+        "src/app/modules/communication/index"
+      ],
+      "fake-communication": [
+        "src/app/modules/fake-communication/index"
+      ],
       "layout": [
         "src/app/modules/layout/index"
       ]
