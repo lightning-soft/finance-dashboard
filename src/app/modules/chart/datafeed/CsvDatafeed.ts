@@ -81,7 +81,6 @@ export class CSVDatafeed extends Datafeed {
   loadInstruments(): Observable<any[]> {
     return this._instrumentsRepository.getItems().pipe(
       tap(instruments => {
-        StockChartX.UI.Notification.error('Load symbols failed.');
         StockChartX.getAllInstruments = () => instruments;
       })
     )

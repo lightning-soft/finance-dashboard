@@ -81,7 +81,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       chart = this._chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
-      this.datafeed.loadInstruments()
+      this.datafeed.loadInstruments().subscribe()
     // .then(
     //   result => {
     //     if (result && result.length) {
