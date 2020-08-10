@@ -1,0 +1,694 @@
+::ng-deep {
+  $width0: 100%; // Appears 3 times
+  $width1: 20px; // Appears 2 times
+  $width2: 100px; // Appears 1 time
+  $width3: 14px; // Appears 1 time
+  $width4: 18px; // Appears 1 time
+  $width5: 15px; // Appears 1 time
+  $width6: 2px; // Appears 1 time
+
+  $height0: 100%; // Appears 4 times
+  $height1: 20px; // Appears 2 times
+  $height2: 14px; // Appears 2 times
+  $height3: 10px; // Appears 1 time
+  $height4: 19px; // Appears 1 time
+  $height5: 18px; // Appears 1 time
+  $height6: 15px; // Appears 1 time
+
+  .lm_root {
+    position: relative;
+  }
+
+  .lm_row > .lm_item {
+    float: left;
+  }
+
+  // Single Pane content (area in which final dragged content is contained)
+  .lm_content {
+    overflow: hidden;
+    position: relative;
+  }
+
+  // ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+
+  body.lm_dragging {
+    overflow: hidden;
+  }
+
+  .lm_dragging,
+  .lm_dragging * {
+    cursor: move !important;
+    user-select: none;
+
+
+    .lm_vertical {
+      .lm_drag_handle {
+        height: 200px !important;
+        top: -100px !important;
+        width: 100% !important;
+
+      }
+    }
+
+    .lm_horizontal {
+      .lm_drag_handle {
+        height: 100% !important;
+        width: 200px !important;
+        left: -100px !important;
+      }
+    }
+  }
+
+  // If a specific Pane is maximized
+  .lm_maximised {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 40;
+  }
+
+  .lm_maximise_placeholder {
+    display: none;
+  }
+
+  // Separator line (handle to change pane size)
+  .lm_splitter {
+    position: relative;
+    z-index: 12;
+
+    &:hover, // When hovered by mouse...
+    &.lm_dragging {
+      background: orange;
+    }
+
+
+    &.lm_vertical {
+      .lm_drag_handle {
+        width: $width0;
+        position: absolute;
+        cursor: ns-resize;
+        mask-size: 22px !important;
+        mask-image: url("../../../../../assets/img/svg/resize_vertical.svg");
+        mask-repeat: no-repeat;
+      }
+    }
+
+    &.lm_horizontal {
+      float: left;
+      height: $height0;
+
+      .lm_drag_handle {
+        height: $height0;
+        position: absolute;
+        cursor: ew-resize;
+        mask-image: url("../../../../../assets/img/svg/resize.svg");
+        mask-size: 100%;
+        mask-repeat: no-repeat;
+      }
+    }
+  }
+
+  // Pane Header (container of Tabs for each pane)
+  .lm_header {
+    overflow: visible;
+    position: relative;
+    z-index: 20;
+
+    [class^=lm_] {
+      box-sizing: content-box !important;
+    }
+
+
+    // Pane controls (popout, maximize, minimize, close)
+    .lm_controls {
+      right: 3px;
+
+      > li {
+        cursor: pointer;
+        float: left;
+        width: $width4;
+        height: $height5;
+        text-align: center;
+      }
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    .lm_tabs {
+      overflow-y: hidden;
+
+    }
+
+    // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
+    .lm_tab {
+      cursor: pointer;
+      float: left;
+      height: $height2;
+      line-height: $height2;
+      margin-top: 1px;
+      padding: 0 10px 5px;
+      padding-right: 25px;
+      position: relative;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      background: #303644;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      i {
+        width: $width6;
+        height: $height4;
+        position: absolute;
+
+        &.lm_left {
+          top: 0;
+          left: -2px;
+        }
+
+        &.lm_right {
+          top: 0;
+          right: -2px;
+        }
+      }
+
+      .lm_title {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 1px;
+      }
+
+      // Close Tab Icon
+      .lm_close_tab {
+        width: $width3;
+        height: $height2;
+        position: absolute;
+        top: 0;
+        right: 0;
+        text-align: center;
+      }
+    }
+  }
+
+  // Headers positions
+  .lm_stack.lm_left,
+  .lm_stack.lm_right {
+    .lm_header {
+      height: 100%;
+    }
+  }
+
+  .lm_dragProxy.lm_left,
+  .lm_dragProxy.lm_right,
+  .lm_stack.lm_left,
+  .lm_stack.lm_right {
+    .lm_header {
+      width: 20px;
+      float: left;
+      vertical-align: top;
+
+      .lm_tabs {
+        transform-origin: left top;
+        top: 0;
+        width: 1000px; /*hack*/
+      }
+
+      .lm_controls {
+        bottom: 0;
+      }
+    }
+
+    .lm_items {
+      float: left;
+    }
+  }
+
+  .lm_dragProxy.lm_left,
+  .lm_stack.lm_left {
+    .lm_header {
+      .lm_tabs {
+        transform: rotate(-90deg) scaleX(-1);
+        left: 0;
+
+        .lm_tab {
+          transform: scaleX(-1);
+          margin-top: 1px;
+        }
+      }
+
+      .lm_tabdropdown_list {
+        top: initial;
+        right: initial;
+        left: 20px;
+      }
+    }
+  }
+
+  .lm_dragProxy.lm_right .lm_content {
+    float: left;
+  }
+
+  .lm_dragProxy.lm_right,
+  .lm_stack.lm_right {
+    .lm_header {
+      .lm_tabs {
+        transform: rotate(90deg) scaleX(1);
+        left: 100%;
+        margin-left: 0;
+      }
+
+      .lm_controls {
+        left: 3px;
+      }
+
+      .lm_tabdropdown_list {
+        top: initial;
+        right: 20px;
+      }
+    }
+  }
+
+  .lm_dragProxy.lm_bottom,
+  .lm_stack.lm_bottom {
+    .lm_header {
+      .lm_tab {
+        margin-top: 0;
+        border-top: none;
+      }
+
+      .lm_controls {
+        top: 3px;
+      }
+
+      .lm_tabdropdown_list {
+        top: initial;
+        bottom: 20px;
+      }
+    }
+  }
+
+  .lm_drop_tab_placeholder {
+    float: left;
+    width: $width2;
+    height: $height3;
+    visibility: hidden;
+  }
+
+  // Dropdown arrow for additional tabs when too many to be displayed
+  .lm_header {
+    display: flex;
+    align-items: center;
+
+    .lm_controls .lm_tabdropdown:before {
+      content: '';
+      width: 0;
+      height: 0;
+      vertical-align: middle;
+      display: inline-block;
+      border-top: 5px dashed;
+      border-right: 5px solid transparent;
+      border-left: 5px solid transparent;
+      color: white; // Overriden in specific Themes
+    }
+
+    .lm_tabdropdown_list {
+      position: absolute;
+      top: 20px;
+      right: 0;
+      z-index: 5;
+      background-color: #3f4553;
+      overflow: hidden;
+
+      .lm_tab {
+        clear: both;
+        padding: 5px 10px;
+        margin: 0;
+        width: 100%;
+
+        .lm_title {
+          max-width: 130px;
+        }
+      }
+
+      .lm_close_tab {
+        display: none !important;
+      }
+    }
+  }
+
+  /***********************************
+  * Drag Proxy
+  ***********************************/
+
+  // Single Pane content during Drag (style of moving window following mouse)
+  .lm_dragProxy {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+
+    .lm_header {
+      background: transparent;
+    }
+
+    .lm_content {
+      border-top: none;
+      overflow: hidden;
+    }
+  }
+
+  // Placeholder Container of target position
+  .lm_dropTargetIndicator {
+    display: none;
+    position: absolute;
+    z-index: 20;
+
+    // Inner Placeholder
+    .lm_inner {
+      width: $width0;
+      height: $height0;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  .lm_transition_indicator {
+    display: none;
+    width: $width1;
+    height: $height1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+  }
+
+  // If a specific Pane is Popped Out, so move it to a different Browser Window, Icon to restore original position is:
+  .lm_popin {
+    width: $width1;
+    height: $height1;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+    background-color: black;
+
+    > * {
+      width: $width0;
+      height: $height0;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    > .lm_bg {
+      z-index: 10;
+    }
+
+    > .lm_icon {
+      z-index: 20;
+    }
+  }
+
+  .lm_dragProxy {
+    &:after {
+      content: '';
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  // Color variables (appears count calculates by raw css)
+  $color0: transparent; // Appears 7 times
+  $color1: #272b37; // Appears 3 times
+  $color2: #eeeeee; // Appears 2 times
+  $color3: #dddddd; // Appears 2 times
+
+  $color4: #cccccc; // Appears 1 time
+  $color5: #555b6b; // Appears 1 time
+  $color6: #999999; // Appears 1 time
+  $color7: transparent; // Appears 1 time
+  $color8: transparent; // Appears 1 time
+  $color9: #555555; // Appears 1 time
+  $color10: #ffffff; // Appears 2 time
+
+  // ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+
+  // Entire GoldenLayout Container, if a background is set, it is visible as color of "pane header" and "splitters" (if these latest has opacity very low)
+  .lm_goldenlayout {
+    background: $color0;
+  }
+
+  // Single Pane content (area in which final dragged content is contained)
+  .lm_content {
+    background: $color1;
+  }
+
+  // Single Pane content during Drag (style of moving window following mouse)
+  .lm_dragProxy {
+    .lm_content {
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    }
+  }
+
+  // Placeholder Container of target position
+  .lm_dropTargetIndicator {
+    box-shadow: inset 0 0 30px $color0;
+    outline: 1px dashed $color4;
+    transition: all 200ms ease;
+
+    // Inner Placeholder
+    .lm_inner {
+      background: $color0;
+      opacity: 0.2;
+    }
+  }
+
+  // Separator line (handle to change pane size)
+  .lm_splitter {
+    background: $color0;
+    opacity: 0.001;
+    transition: opacity 200ms ease;
+
+    &:hover, // When hovered by mouse...
+    &.lm_dragging {
+      background: $color5;
+      opacity: 1;
+    }
+  }
+
+  // Pane Header (container of Tabs for each pane)
+  .lm_header {
+    height: 20px;
+    user-select: none;
+
+    &.lm_selectable {
+      cursor: pointer;
+    }
+
+    // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
+    .lm_tab {
+      font-size: 12px;
+      color: $color6;
+      background: $color7;
+      box-shadow: none;
+      margin-right: 2px;
+      padding-bottom: 0px;
+      padding-top: 2px;
+
+      /*.lm_title         // Present in LIGHT Theme
+      {
+        padding-top:1px;
+      }*/
+
+      // Close Tab Icon
+      .lm_close_tab {
+        width: 11px;
+        height: 11px;
+        mask-image: url("../../../../../assets/img/svg/close_icon.svg");
+        mask-size: 100%;
+        mask-repeat: no-repeat;
+        top: 4px;
+        right: 6px;
+        z-index: 2;
+        opacity: 0.4;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      // If Tab is isActive, so if it's in foreground
+      &.lm_active {
+        border-bottom: none;
+        box-shadow: 0 -2px 2px $color0;
+        padding-bottom: 2px;
+
+        .lm_close_tab {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .lm_dragProxy.lm_bottom,
+  .lm_stack.lm_bottom {
+    .lm_header .lm_tab {
+      box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+
+      &.lm_active {
+        box-shadow: 0 2px 2px $color0;
+      }
+    }
+  }
+
+  // If Pane Header (container of Tabs for each pane) is selected (used only if addition of new Contents is made "by selection" and not "by drag")
+  .lm_selected {
+    .lm_header {
+      background-color: $color8;
+    }
+  }
+
+  .lm_tab {
+    &:hover, // If Tab is hovered
+    &.lm_active // If Tab is isActive, so if it's in foreground
+    {
+      background: $color1;
+      color: $color3;
+    }
+  }
+
+  // Dropdown arrow for additional tabs when too many to be displayed
+  .lm_header .lm_controls .lm_tabdropdown:before {
+    color: $color10;
+  }
+
+  // Pane controls (popout, maximize, minimize, close)
+  .lm_controls {
+    // All Pane controls shares these
+    > li {
+      position: relative;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: 0.4;
+      transition: opacity 300ms ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    // Icon to PopOut Pane, so move it to a different Browser Window
+    .lm_popout {
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=);
+    }
+
+    // Icon to Maximize Pane, so it will fill the entire GoldenLayout Container
+    .lm_maximise {
+      mask-image: url("../../../../../assets/img/svg/maximaze.svg");
+      mask-size: 100%;
+      margin-right: 5px;
+      mask-repeat: no-repeat;
+    }
+
+    // Icon to Close Pane and so remove it from GoldenLayout Container
+    .lm_close {
+      mask-image: url("../../../../../assets/img/svg/close_icon.svg");
+      mask-size: 100%;
+      mask-repeat: no-repeat;
+    }
+  }
+
+  // If a specific Pane is maximized
+  .lm_maximised {
+    // Pane Header (container of Tabs for each pane) can have different style when is Maximized
+    .lm_header {
+      background-color: $color0;
+    }
+
+    // Pane controls are different in Maximized Mode, especially the old Icon "Maximise" that now has a different meaning, so "Minimize" (even if CSS Class did not change)
+    .lm_controls {
+      .lm_maximise {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJ0lEQVR4nGP8//8/AzGAiShVI1YhCwMDA8OsWbPwBmZaWhoj0SYCAN1lBxMAX4n0AAAAAElFTkSuQmCC);
+      }
+    }
+  }
+
+  .lm_transition_indicator {
+    background-color: $color0;
+    border: 1px dashed $color9;
+  }
+
+  // If a specific Pane is Popped Out, so move it to a different Browser Window, Icon to restore original position is:
+  .lm_popin {
+    cursor: pointer;
+
+    // Background of Icon
+    .lm_bg {
+      background: $color10;
+      opacity: 0.3;
+    }
+
+    // Icon to Restore original position in Golden Layout Container
+    .lm_icon {
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+      background-position: center center;
+      background-repeat: no-repeat;
+      border-left: 1px solid $color2;
+      border-top: 1px solid $color2;
+      opacity: 0.7;
+    }
+
+    &:hover {
+      .lm_icon {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+::ng-deep .layout {
+  padding: 0;
+}
+
+::ng-deep .split-area {
+  position: relative;
+}
+
+::ng-deep .split-gutter {
+  background: red;
+}
+
+::ng-deep .lm_items {
+}
+
+::ng-deep .lm_tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+::ng-deep {
+  .stack__plus {
+    margin-left: 10px;
+    font-size: 19px;
+    line-height: 1;
+  }
+}
+
+.lm_selected {
+  .lm_active {
+    border-color: $activeColor;
+  }
+
+  .lm_items {
+    border-color: $activeColor;
+  }
+}
