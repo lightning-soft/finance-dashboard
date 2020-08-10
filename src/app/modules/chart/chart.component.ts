@@ -81,7 +81,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       chart = this._chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
-      this.datafeed.loadInstruments().subscribe()
+      this.datafeed.loadInstruments()
+        .pipe(
+          takeUntil(this.destroy$)
+        )
+        .subscribe();
     // .then(
     //   result => {
     //     if (result && result.length) {
@@ -108,7 +112,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
 
-    this.loadedState.subscribe(value => {
+    this.loadedState
+      .pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(value => {
       if (!value) {
         return;
       }

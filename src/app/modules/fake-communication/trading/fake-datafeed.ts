@@ -46,10 +46,11 @@ export class FakeDatafeed extends Datafeed {
     }
 
     protected _unsubscribe(instruemntId: Id) {
-        console.log('_subscribe', instruemntId);
+        this._subscribedInstruments = this._subscribedInstruments
+          .filter(item => item != instruemntId);
     }
 }
 
-function randomIntFromInterval(min, max) { // min and max included 
+function randomIntFromInterval(min, max) { // min and max included
     return +(Math.random() * (max - min + 1) + min).toFixed(4);
 }

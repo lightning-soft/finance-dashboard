@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
-import {GoldenLayoutHandler} from '../../../layout/goldenLayout.handler';
-import {NzModalRef} from 'ng-zorro-antd/modal/modal-ref';
 import {NzModalService} from 'ng-zorro-antd';
+import {GoldenLayoutHandler} from '../../modules/layout/models/golden-layout-handler';
 
 @Component({
   selector: 'app-add-component',
-  templateUrl: './add-component.component.html',
-  styleUrls: ['./add-component.component.scss']
+  templateUrl: './add.component.html',
+  styleUrls: ['./add.component.scss']
 })
-export class AddComponentComponent  {
-  items = GoldenLayoutHandler.layoutItems;
+export class AddComponent  {
+  items =[];
 
   constructor(private layoutHandler: GoldenLayoutHandler,
               private modal: NzModalService) { }

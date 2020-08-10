@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { IQuote, Datafeed, Id, IInstrument, InstrumentsRepository } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'watchlist',
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss']
 })
-export class WatchlistComponent implements OnInit {
+export class WatchlistComponent implements OnInit, OnDestroy {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
+
+  private destroy = new Subject<boolean>();
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
@@ -21,6 +25,9 @@ export class WatchlistComponent implements OnInit {
   ngOnInit(): void {
     this._datafeed.on((quotes) => this._processQuotes(quotes));
     this._instrumentsRepository.getItems()
+      .pipe(
+        takeUntil(this.destroy)
+      )
       .subscribe(
         (instruments: IInstrument[]) => this.addToWatchlist(instruments),
         (e) => console.error(e)
@@ -80,5 +87,10 @@ export class WatchlistComponent implements OnInit {
       if (item)
         item.processQuote(quote);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy.next(true);
+    this.destroy.complete();
   }
 }
