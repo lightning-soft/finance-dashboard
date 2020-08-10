@@ -19,6 +19,7 @@ export class DashboardComponent implements AfterViewInit {
     dimensions: {
       headerHeight: 28.4,
       borderWidth: 15,
+      minItemWidth: 210,
     },
     content: [
       {
