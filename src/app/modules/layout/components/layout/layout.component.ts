@@ -4,7 +4,7 @@ import {
   ComponentFactoryResolver,
   ElementRef,
   HostListener,
-  NgZone, OnDestroy,
+  NgZone,
   OnInit,
   SystemJsNgModuleLoader,
   ViewChild,
@@ -15,19 +15,17 @@ import { LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { DesktopLayout } from './layouts/desktop.layout';
 import { Layout } from './layouts/layout';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
-
+@UntilDestroy()
 @Component({
   selector: 'layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit, OnDestroy {
+export class LayoutComponent implements OnInit {
 
-  private destroy = new Subject<boolean>();
 
   @ViewChild('container')
   container: ElementRef;
@@ -54,7 +52,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     this.ngZone.runOutsideAngular(() => this._layoutHandler
       .handleCreate
       .pipe(
-        takeUntil(this.destroy)
+        untilDestroyed(this)
       )
       .subscribe(name => this.layout && this.layout.addComponent(name)));
   }
@@ -107,10 +105,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     await this.layout.loadState(state);
   }
 
-  ngOnDestroy(): void {
-    this.destroy.next(true);
-    this.destroy.complete();
-  }
+
 }
 
 function isInput(element: Element): boolean {

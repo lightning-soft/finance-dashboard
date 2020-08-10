@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { IQuote, Datafeed, Id, IInstrument, InstrumentsRepository } from 'communication';
+import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'watchlist',
   templateUrl: './watchlist.component.html',
@@ -15,7 +15,8 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
 
-  private destroy = new Subject<boolean>();
+  private subscriptions = [] as Function[];
+
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
@@ -23,10 +24,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this._datafeed.on((quotes) => this._processQuotes(quotes));
+    this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
     this._instrumentsRepository.getItems()
       .pipe(
-        takeUntil(this.destroy)
+        untilDestroyed(this)
       )
       .subscribe(
         (instruments: IInstrument[]) => this.addToWatchlist(instruments),
@@ -90,7 +91,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy.next(true);
-    this.destroy.complete();
+    this.subscriptions.forEach(item => item());
   }
+
 }

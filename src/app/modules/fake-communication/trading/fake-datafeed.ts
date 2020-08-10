@@ -46,8 +46,8 @@ export class FakeDatafeed extends Datafeed {
     }
 
     protected _unsubscribe(instruemntId: Id) {
-        this._subscribedInstruments = this._subscribedInstruments
-          .filter(item => item != instruemntId);
+      console.log('_subscribe', instruemntId);
+
     }
 }
 
