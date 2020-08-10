@@ -22,6 +22,6 @@ export class WatchlistModule implements LazyModule {
   get components(): ComponentStore {
     return {
       [Components.Watchlist]: WatchlistComponent
-    }
+    };
   }
 }

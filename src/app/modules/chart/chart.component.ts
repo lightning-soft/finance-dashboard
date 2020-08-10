@@ -8,6 +8,7 @@ import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -15,6 +16,7 @@ declare let $: JQueryStatic;
 
 const EVENTS_SUFFIX = '.scxComponent';
 
+@UntilDestroy()
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
@@ -33,7 +35,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   _chart: IChart;
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
-  private destroy$ = new Subject<boolean>();
 
   constructor(
     protected _lazyLoaderService: LazyLoadingService,
@@ -55,7 +56,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     // setTimeout(() => this.loadChart(), 2000)
 
     this.layoutService.onStateChange$.pipe(
-      takeUntil(this.destroy$)
+      untilDestroyed(this)
     ).subscribe(() => {
       this.handleResize();
     });
@@ -81,7 +82,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       chart = this._chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
-      this.datafeed.loadInstruments().subscribe()
+      this.datafeed.loadInstruments()
+        .pipe(
+          untilDestroyed(this)
+        )
+        .subscribe();
     // .then(
     //   result => {
     //     if (result && result.length) {
@@ -108,7 +113,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
 
-    this.loadedState.subscribe(value => {
+    this.loadedState
+      .pipe(
+        untilDestroyed(this)
+      ).subscribe(value => {
       if (!value) {
         return;
       }
@@ -212,8 +220,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     this._chart = null;
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }
 

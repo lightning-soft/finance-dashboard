@@ -15,15 +15,17 @@ import { LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { DesktopLayout } from './layouts/desktop.layout';
 import { Layout } from './layouts/layout';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
-
+@UntilDestroy()
 @Component({
   selector: 'layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
+
 
   @ViewChild('container')
   container: ElementRef;
@@ -47,7 +49,12 @@ export class LayoutComponent implements OnInit {
 
   ngOnInit() {
     (window as any).l = this;
-    this.ngZone.runOutsideAngular(() => this._layoutHandler.handleCreate.subscribe(name => this.layout && this.layout.addComponent(name)));
+    this.ngZone.runOutsideAngular(() => this._layoutHandler
+      .handleCreate
+      .pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(name => this.layout && this.layout.addComponent(name)));
   }
 
   private _initLayout() {
@@ -97,6 +104,8 @@ export class LayoutComponent implements OnInit {
 
     await this.layout.loadState(state);
   }
+
+
 }
 
 function isInput(element: Element): boolean {

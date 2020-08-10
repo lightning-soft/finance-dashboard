@@ -1,17 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { IQuote, Datafeed, Id, IInstrument, InstrumentsRepository } from 'communication';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'watchlist',
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss']
 })
-export class WatchlistComponent implements OnInit {
+export class WatchlistComponent implements OnInit, OnDestroy {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
+
+  private subscriptions = [] as Function[];
+
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
@@ -19,8 +24,11 @@ export class WatchlistComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this._datafeed.on((quotes) => this._processQuotes(quotes));
+    this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
     this._instrumentsRepository.getItems()
+      .pipe(
+        untilDestroyed(this)
+      )
       .subscribe(
         (instruments: IInstrument[]) => this.addToWatchlist(instruments),
         (e) => console.error(e)
@@ -81,4 +89,9 @@ export class WatchlistComponent implements OnInit {
         item.processQuote(quote);
     }
   }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(item => item());
+  }
+
 }
