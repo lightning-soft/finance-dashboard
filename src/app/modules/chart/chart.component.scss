@@ -24,10 +24,12 @@ $toolbarMargin: 4px;
   width: auto !important; // because set width from js
 }
 
+
 :host {
   display: inline-block;
   width: 100%;
   height: 100%;
+  position: relative;
 
   ::ng-deep .scxToolbar-btn.scxToolbar-btn-theme {
     display: none;
@@ -215,6 +217,10 @@ $toolbarMargin: 4px;
     opacity: inherit;
   }
 }
+
+/*:host ::ng-deep .scxToolbar-scroll{
+  display: none;
+}*/
 
 ::ng-deep body {
   .scxWatermarkInfo, .scxWatermarkSymbol {

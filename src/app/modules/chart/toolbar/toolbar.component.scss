@@ -1,0 +1,23 @@
+@import "themes/dark";
+@import "themes/template";
+
+@import "themes/light";
+@import "themes/template";
+
+:host {
+  position: absolute;
+  top: 49px;
+  z-index: 11;
+  left: 20px;
+}
+
+
+
+.toolbar-container{
+  display: flex;
+}
+
+.instrument-bar {
+  width: 100px;
+
+}

@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
 import { LayoutService } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import { CSVDatafeed } from './datafeed/CsvDatafeed';
 import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
@@ -53,7 +52,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .then(() => this.loadChart())
       .catch(e => console.log(e));
 
-    // setTimeout(() => this.loadChart(), 2000)
 
     this.layoutService.onStateChange$.pipe(
       untilDestroyed(this)
@@ -87,20 +85,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           untilDestroyed(this)
         )
         .subscribe();
-    // .then(
-    //   result => {
-    //     if (result && result.length) {
-    //       this._chart.instrument = result[0];
-    //     }
-    //   }
-    // );
 
     this._setUnavaliableIfNeed();
-    if (_elementRef && _elementRef.nativeElement) {
-      chart.toolbar = $(_elementRef.nativeElement)
-        .scx()
-        .toolbar(chart);
-    }
 
     if (!chart) {
       return;

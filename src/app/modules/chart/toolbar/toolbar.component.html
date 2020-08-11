@@ -1,0 +1,144 @@
+<div class="toolbar-container">
+  <div class="instrument-bar">
+    <input nz-input [(ngModel)]="instrument" [nzAutocomplete]="auto">
+    <nz-autocomplete nzOverlayClassName="toolbar-dropdown" #auto>
+      <nz-auto-option *ngFor="let option of (instuments$ | async)" [nzValue]="option.id">
+        {{option.name}}
+      </nz-auto-option>
+    </nz-autocomplete>
+
+  </div>
+
+  <div class="pane">
+    <div class="pane_time-frame">
+      <nz-select
+        nzDropdownClassName="toolbar-dropdown"
+        [(ngModel)]="timeFrame">
+        <nz-option *ngFor="let option of timeFrameOptions"
+                   [nzValue]="option"
+                   [nzLabel]="getTimeFrame(option)"></nz-option>
+      </nz-select>
+
+
+    </div>
+    <div class="pane__indicators">
+      <nz-button-group>
+        <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu4"
+                nzPlacement="bottomRight">
+          <span class="scx-icon icon-indicators"></span>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu
+
+        #menu4="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item>
+            <span
+              class="scx-icon icon-delete-indicators"></span>Delete Indicators
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+    <div class="pane__price-style">
+      <nz-select
+        [nzCustomTemplate]="defaultTemplate" nzDropdownClassName="toolbar-dropdown" [(ngModel)]="priceStyle">
+        <nz-option *ngFor="let option of priceStyles"
+                   [nzValue]="option"
+                   [nzLabel]="option"
+                   nzCustomContent>
+          <span class="scx-icon icon-{{option}}"></span>{{option}}
+        </nz-option>
+      </nz-select>
+    </div>
+
+    <div class="pane__icon-cross">
+      <nz-select
+        [nzCustomTemplate]="defaultTemplate"
+        nzDropdownClassName="toolbar-dropdown" [(ngModel)]="iconCross">
+        <nz-option *ngFor="let option of iconCrosses"
+                   [nzValue]="option"
+                   [nzLabel]="option"
+                   nzCustomContent>
+          <span class="scx-icon icon-{{option}}"></span>{{option}}
+        </nz-option>
+      </nz-select>
+    </div>
+    <div class="pane__zoom">
+      <nz-button-group>
+        <button
+          nzOverlayClassName="toolbar-dropdown"
+          nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight">
+          <span class="scx-icon icon-zoom-date-range"></span>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #menu1="nzDropdownMenu">
+        <ul nz-menu>
+          <li *ngFor="let option of zoomOptions" nz-menu-item><span
+            class="scx-icon icon-cursor-{{option}}"></span>{{option}}
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+    <div class="pane__show-drawing">
+      <button nz-button>
+        <span class="scx-icon icon-show-drawings"></span>
+      </button>
+    </div>
+    <div class="pane__drawing-mode">
+      <button nz-button>
+        <span class="scx-icon icon-continuous-drawing"></span>
+      </button>
+    </div>
+    <div class="pane__drawing-instruments">
+      <nz-button-group>
+        <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu2"
+                nzPlacement="bottomRight">
+          <span class="scx-icon icon-toolbar_drawing-tools"></span>
+        </button>
+
+      </nz-button-group>
+      <nz-dropdown-menu #menu2="nzDropdownMenu">
+        <ul nz-menu>
+          <li *ngFor="let drawingInstrument of drawingInstruments"
+              nz-submenu nzTitle="{{drawingInstrument.value}}">
+            <ul class="toolbar-submenu">
+              <li *ngFor="let item of drawingInstrument.items" nz-menu-item>{{item}}</li>
+            </ul>
+          </li>
+          <li nz-menu-item>Delete All Drawings</li>
+
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+    <div class="pane__image">
+      <button nz-button>
+        <span class="scx-icon icon-snapshot"></span>
+      </button>
+    </div>
+    <div class="pane__view-mode">
+      <nz-button-group>
+        <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu3"
+                nzPlacement="bottomRight">
+          <span class="scx-icon icon-full-window"></span>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu
+
+        #menu3="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item>
+            <span
+              class="scx-icon icon-full-window"></span>Full Window Mode
+          </li>
+          <li nz-menu-item>
+            <span
+              class="scx-icon icon-full-screen"></span>Full Screen Mode
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+  </div>
+</div>
+<ng-template #defaultTemplate let-selected>
+  <span class="scx-icon icon-{{selected.nzValue}}"></span>
+</ng-template>
