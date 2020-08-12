@@ -55,6 +55,11 @@ cdk-virtual-scroll-viewport {
   }
 
   th {
+    position: sticky;
+    top: 0;
+    background: $odd-background;
+    border-top: 0px !important;
+
     .grips {
       position: absolute;
       top: 0;

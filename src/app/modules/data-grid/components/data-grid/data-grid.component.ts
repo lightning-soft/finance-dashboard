@@ -1,8 +1,9 @@
 import {
   Component,
-  Input
+  Input, ViewChild
 } from '@angular/core';
 import { ICell } from '../../models';
+import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -16,6 +17,9 @@ export interface DataGridItem {
 export class DataGrid<T extends DataGridItem = any> {
   rowHeight = 35;
 
+  @ViewChild(CdkVirtualScrollViewport)
+  public viewPort: CdkVirtualScrollViewport;
+
   @Input()
   columns = [];
 
@@ -24,5 +28,14 @@ export class DataGrid<T extends DataGridItem = any> {
 
   trackByFn(index) {
     return index;
+  }
+
+  public get inverseTranslation(): string {
+    if (!this.viewPort || !this.viewPort['_renderedContentOffset']) {
+      return '-0px';
+    }
+
+    const offset = this.viewPort['_renderedContentOffset'];
+    return `-${offset}px`;
   }
 }
