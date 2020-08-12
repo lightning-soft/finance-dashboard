@@ -2,6 +2,7 @@ import {Component, ViewChild, AfterViewInit} from '@angular/core';
 import {LayoutComponent} from 'layout';
 import {Components} from 'lazy-modules';
 import {NavigationDrawerService} from './navigation-drawer.service';
+import {DragDrawerComponent} from './drag-drawer/drag-drawer.component';
 
 @Component({
   selector: 'dashboard',
@@ -11,11 +12,9 @@ import {NavigationDrawerService} from './navigation-drawer.service';
 })
 export class DashboardComponent implements AfterViewInit {
 
-  isOpen$ = this.navigationDrawerService.isOpen$;
 
   @ViewChild(LayoutComponent) layout: LayoutComponent;
-  @ViewChild('addChart') addChart;
-  @ViewChild('addWatch') addWatch;
+  @ViewChild(DragDrawerComponent) drawer: DragDrawerComponent;
 
   settings = {
     settings: {
@@ -47,24 +46,10 @@ export class DashboardComponent implements AfterViewInit {
         ]
       }]
   };
-  constructor(private navigationDrawerService: NavigationDrawerService) {
-  }
+
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {
-
-      this.layout.createDragSource(this.addChart.nativeElement,
-        {
-          title: 'chart',
-          type: 'component',
-          componentName: 'chart',
-        });
-
-      this.layout.createDragSource(this.addWatch.nativeElement,
-        {
-          title: 'watchlist',
-          type: 'component',
-          componentName: 'watchlist',
-        });
+      this.drawer.initLayoutDragAndDrop(this.layout);
     });
   }
 

@@ -1,6 +1,20 @@
-@import "src/scss/variables";
+@import "../../../../../scss/variables";
 
 body.#{$themeName} :host {
+
+
+  .side-navigation {
+    position: absolute;
+    z-index: 21;
+    height: 100%;
+    transition: all 0.3s;
+    transform: translateX(-100%);
+
+    &--open {
+      transform: translateX(0%);
+
+    }
+  }
 
   .side-navigation {
     background: $tabBackground;
@@ -34,21 +48,22 @@ body.#{$themeName} :host {
       }
 
       .icon-orders {
-        mask-image: url("../../../../assets/img/svg/orders.svg");
+        mask-image: url("../../../../../assets/img/svg/orders.svg");
       }
 
       .icon-chart {
-        mask-image: url("../../../../assets/img/svg/logo.svg");
+        mask-image: url("../../../../../assets/img/svg/logo.svg");
       }
 
       .icon-watch {
-        mask-image: url("../../../../assets/img/svg/watch.svg");
+        mask-image: url("../../../../../assets/img/svg/watch.svg");
       }
 
       .icon-positions {
-        mask-image: url("../../../../assets/img/svg/position.svg");
+        mask-image: url("../../../../../assets/img/svg/position.svg");
       }
     }
   }
 }
+
 

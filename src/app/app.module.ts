@@ -7,11 +7,13 @@ import { RouterModule } from '@angular/router';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
+import {DragDrawerComponent} from './components/dashboard/drag-drawer/drag-drawer.component';
 
 @NgModule({
   declarations: [
     NavbarComponent,
     DashboardComponent,
+    DragDrawerComponent,
     AppComponent,
   ],
   imports: [
