@@ -1,25 +1,11 @@
 <aside
   [class.side-navigation--open]="isOpen$ | async"
   class="side-navigation">
-  <div #addChart  class="side-navigation__item">
-    <span class="icon-chart"></span>
-    Trading<br>
-    Chart
-  </div>
   <div
-    #addWatch
+    *ngFor="let item of items"
+    #add
     class="side-navigation__item">
-    <span class="icon-watch"></span>
-    Market<br>
-    Watch
-  </div>
-  <div class="side-navigation__item">
-    <span class="icon-orders"></span>
-    Orders<br>
-    Book
-  </div>
-  <div class="side-navigation__item">
-    <span class="icon-positions"></span>
-    Positions
+    <span class="{{item.icon}}"></span>
+    {{item.text}}
   </div>
 </aside>

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {ThemeService} from '../../theme.service';
 import {NavigationDrawerService} from '../dashboard/navigation-drawer.service';
 

@@ -1,21 +1,21 @@
 <nav class="navigation-bar">
-  <div class="navigation-bar__add">
+  <div class="add">
     <div
-      [class.navigation-bar__plus--open]="isOpen$ | async"
-      (click)="toggleNavigationDrawer()" class="navigation-bar__plus">
+      [class.open]="isOpen$ | async"
+      (click)="toggleNavigationDrawer()" class="plus">
       +
     </div>
   </div>
-  <div class="navigation-bar__logo">
-    <div class="navigation-bar__logo-image">
+  <div class="logo">
+    <div class="logo-image">
     </div>
   </div>
-  <span class="navigation-bar__name">T-Platform</span>
+  <span class="name">T-Platform</span>
 
-  <div class="navigation-bar__user-menu">
-    <div (click)="switchTheme()" class="navigation-bar__change-theme">Change theme</div>
+  <div class="user-menu">
+    <div (click)="switchTheme()" class="change-theme">Change theme</div>
     <img src="https://krausefx.com/assets/posts/profilePictures/FelixKrause2014.jpg"
          alt=""
-         class="navigation-bar__avatar">Username@name.com
+         class="avatar">Username@name.com
   </div>
 </nav>

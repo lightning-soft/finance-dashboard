@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import {NavigationDrawerService} from '../navigation-drawer.service';
 
 @Component({
@@ -9,29 +9,49 @@ import {NavigationDrawerService} from '../navigation-drawer.service';
 export class DragDrawerComponent implements OnInit {
 
   isOpen$ = this.navigationDrawerService.isOpen$;
+  @ViewChildren('add') viewItems;
 
-  @ViewChild('addChart') addChart;
-  @ViewChild('addWatch') addWatch;
+  items = [
+    {
+      icon: 'icon-chart',
+      text: 'Trading \n' +
+        '    Chart',
+      component: 'chart'
+    },
+    {
+      text: 'Market \n' +
+        'Watch',
+      icon: 'icon-watch',
+      component: 'watchlist'
 
-  constructor(private navigationDrawerService: NavigationDrawerService) { }
+    },
+    /* {
+       text: ' Orders\n' +
+         'Book',
+       icon: 'icon-orders'
+     },
+     {
+       text: 'Positions',
+       icon: 'icon-positions'
+     }*/
+  ];
+
+  constructor(private navigationDrawerService: NavigationDrawerService) {
+  }
 
   ngOnInit(): void {
   }
 
   initLayoutDragAndDrop(layout) {
-    layout.createDragSource(this.addChart.nativeElement,
-      {
-        title: 'chart',
-        type: 'component',
-        componentName: 'chart',
-      });
 
-    layout.createDragSource(this.addWatch.nativeElement,
-      {
-        title: 'watchlist',
-        type: 'component',
-        componentName: 'watchlist',
-      });
+    this.viewItems._results.forEach((item, index) => {
+      layout.createDragSource(item.nativeElement,
+        {
+          title: this.items[index].component,
+          type: 'component',
+          componentName: this.items[index].component,
+        });
+    });
   }
 
 }

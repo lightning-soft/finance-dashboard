@@ -7,20 +7,63 @@
   margin-right: 40px;
   align-items: center;
 
-  &__logo{
-    font-weight: bold;
-    font-size: 24px;
-    line-height: 33px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase
+  .logo {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    display: flex;
+    margin-left: 20px;
+    align-items: center;
+    justify-content: center;
+
+    &-image {
+      mask-image: url("../../../assets/img/svg/logo.svg");
+      mask-repeat: no-repeat;
+      height: 18px;
+      width: 18px;
+      mask-position: center center;
+    }
   }
-  &__user-menu{
+
+  .user-menu {
     cursor: pointer;
     display: flex;
     align-items: center;
 
   }
-  &__avatar{
+
+  .plus {
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.3s;
+    line-height: 1;
+
+    &--open {
+      transform: rotate(45deg);
+    }
+  }
+
+  .add {
+    width: $navbarHeight;
+    height: $navbarHeight;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .name {
+    margin-right: auto;
+    margin-left: 5px;
+    font-weight: 600;
+  }
+
+  .change-theme {
+    font-size: 16px;
+    display: inline-block;
+    margin-right: 30px;
+  }
+
+  .avatar {
     width: 34px;
     height: 34px;
     border-radius: 50%;

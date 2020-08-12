@@ -46,6 +46,7 @@ export class DashboardComponent implements AfterViewInit {
         ]
       }]
   };
+  val = 'val';
 
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {
