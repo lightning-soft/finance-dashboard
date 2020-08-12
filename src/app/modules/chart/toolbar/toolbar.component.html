@@ -1,6 +1,7 @@
 <div class="toolbar-container">
   <div class="instrument-bar">
     <input nz-input [(ngModel)]="instrument" [nzAutocomplete]="auto">
+    <i class="instrument-bar__arrow" nz-icon nzType="down"></i>
     <nz-autocomplete nzOverlayClassName="toolbar-dropdown" #auto>
       <nz-auto-option *ngFor="let option of (instuments$ | async)" [nzValue]="option.id">
         {{option.name}}
@@ -10,6 +11,11 @@
   </div>
 
   <div class="pane">
+    <div class="pane__compare-instruments">
+      <button nz-button>
+        <span class="scx-icon icon-compare-instruments"></span>
+      </button>
+    </div>
     <div class="pane_time-frame">
       <nz-select
         nzDropdownClassName="toolbar-dropdown"
@@ -69,6 +75,7 @@
           nzOverlayClassName="toolbar-dropdown"
           nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight">
           <span class="scx-icon icon-zoom-date-range"></span>
+          <i nz-icon nzType="down"></i>
         </button>
       </nz-button-group>
       <nz-dropdown-menu #menu1="nzDropdownMenu">
@@ -94,15 +101,18 @@
         <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu2"
                 nzPlacement="bottomRight">
           <span class="scx-icon icon-toolbar_drawing-tools"></span>
+          <i nz-icon nzType="down"></i>
         </button>
 
       </nz-button-group>
       <nz-dropdown-menu #menu2="nzDropdownMenu">
         <ul nz-menu>
           <li *ngFor="let drawingInstrument of drawingInstruments"
-              nz-submenu nzTitle="{{drawingInstrument.value}}">
+              nz-submenu   nzTitle="{{drawingInstrument.value}}">
             <ul class="toolbar-submenu">
-              <li *ngFor="let item of drawingInstrument.items" nz-menu-item>{{item}}</li>
+              <li *ngFor="let item of drawingInstrument.items" nz-menu-item>
+                <span class="scx-icon icon-drawing-{{item.toLowerCase()}}"></span><span>{{item}}</span>
+              </li>
             </ul>
           </li>
           <li nz-menu-item>Delete All Drawings</li>
@@ -120,6 +130,8 @@
         <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu3"
                 nzPlacement="bottomRight">
           <span class="scx-icon icon-full-window"></span>
+          <i nz-icon nzType="down"></i>
+
         </button>
       </nz-button-group>
       <nz-dropdown-menu

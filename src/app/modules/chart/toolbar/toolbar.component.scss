@@ -12,12 +12,18 @@
 }
 
 
-
-.toolbar-container{
+.toolbar-container {
   display: flex;
 }
 
 .instrument-bar {
   width: 100px;
+  position: relative;
 
+  &__arrow {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
