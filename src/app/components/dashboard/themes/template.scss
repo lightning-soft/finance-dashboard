@@ -1,0 +1,54 @@
+@import "src/scss/variables";
+
+body.#{$themeName} :host {
+
+  .side-navigation {
+    background: $tabBackground;
+
+    &__item {
+      width: $navbarHeight;
+      font-size: 10px;
+      text-align: center;
+      line-height: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding-bottom: 10px;
+
+      span[class^='icon-'] {
+        mask-size: 100%;
+        mask-position: center center;
+        mask-repeat: no-repeat;
+        height: 22px;
+        margin-bottom: 8px;
+        display: block;
+        background-color: $textColor;
+        width: 22px;
+      }
+
+      &:hover {
+        background: $bodyBackground;
+      }
+
+      .icon-orders {
+        mask-image: url("../../../../assets/img/svg/orders.svg");
+      }
+
+      .icon-chart {
+        mask-image: url("../../../../assets/img/svg/logo.svg");
+      }
+
+      .icon-watch {
+        mask-image: url("../../../../assets/img/svg/watch.svg");
+      }
+
+      .icon-positions {
+        mask-image: url("../../../../assets/img/svg/position.svg");
+      }
+    }
+  }
+}
+

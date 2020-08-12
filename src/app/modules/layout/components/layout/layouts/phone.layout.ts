@@ -47,6 +47,9 @@ export class PhoneLayout extends Layout {
     };
   }
 
+  createDragSource(element, itemConfig) {
+  }
+
   handleResize() {
     if (this._componentRef && this._componentRef.instance)
       this._componentRef.instance.handleResize();

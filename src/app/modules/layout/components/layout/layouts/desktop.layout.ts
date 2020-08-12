@@ -52,6 +52,10 @@ export class DesktopLayout extends Layout {
     }
   }
 
+  createDragSource(element, itemConfig){
+    this.goldenLayout.createDragSource(element, itemConfig);
+  }
+
   handleResize() {
     super.handleResize();
     if (this.goldenLayout)

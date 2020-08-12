@@ -54,7 +54,16 @@ export class LayoutComponent implements OnInit {
       .pipe(
         untilDestroyed(this)
       )
-      .subscribe(name => this.layout && this.layout.addComponent(name)));
+      .subscribe(name => this.addComponent(name)));
+  }
+
+  addComponent(name: string) {
+    if (this.layout)
+      this.layout.addComponent(name);
+  }
+
+  createDragSource(element, item){
+    this.layout.createDragSource(element, item);
   }
 
   private _initLayout() {
