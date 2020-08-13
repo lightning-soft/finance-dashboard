@@ -14,11 +14,8 @@ body.#{$themeName} {
 
         border: 1px solid $logoColor;
 
+        color: $logoColor;
 
-        &-image {
-          background-color: $logoColor;
-
-        }
       }
 
 
