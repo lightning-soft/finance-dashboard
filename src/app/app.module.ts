@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NavbarComponent, DashboardComponent, AppComponent } from './components';
+import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent } from './components';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
@@ -12,6 +12,7 @@ import { FakeCommunicationModule } from 'fake-communication';
   declarations: [
     NavbarComponent,
     DashboardComponent,
+    DragDrawerComponent,
     AppComponent,
   ],
   imports: [

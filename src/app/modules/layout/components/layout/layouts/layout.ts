@@ -16,6 +16,8 @@ export abstract class Layout {
   handleResize() {
 
   }
+  createDragSource(element, itemConfig){
+  }
 
   handleEvent(event) {
 

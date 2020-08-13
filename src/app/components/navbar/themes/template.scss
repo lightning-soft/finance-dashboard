@@ -4,21 +4,30 @@ body.#{$themeName} {
 
   :host {
     background: $tabBackground;
-    margin-bottom: 10px;
+
     .navigation-bar {
       color: $textColor;
 
       height: $navbarHeight;
 
-      &__logo {
+      .logo {
+
+        border: 1px solid $logoColor;
+
         color: $logoColor;
 
       }
-      &__add{
-        font-size: 16px;
-        display: inline-block;
-        margin-right: 30px;
+
+
+      .add {
+        background: $borderColor;
       }
+
+      .name {
+        color: $logoColor;
+      }
+
+
     }
 
   }
