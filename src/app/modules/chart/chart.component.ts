@@ -31,7 +31,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
-  _chart: IChart;
+  chart: IChart;
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 
@@ -61,23 +61,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   saveState() {
-    const { _chart } = this;
+    const { chart } = this;
 
-    if (!_chart) {
+    if (!chart) {
       return;
     }
 
     return {
-      instrument: _chart.instrument,
-      timeFrame: _chart.timeFrame,
-      stockChartXState: _chart.saveState()
+      instrument: chart.instrument,
+      timeFrame: chart.timeFrame,
+      stockChartXState: chart.saveState()
     };
   }
 
   loadChart() {
     const { _elementRef, loadedState } = this,
       state = loadedState && loadedState.value,
-      chart = this._chart = this._initChart(state);
+      chart = this.chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
       this.datafeed.loadInstruments()
@@ -94,7 +94,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
-      this._chart.instrument = event.value;
+      this.chart.instrument = event.value;
 
     });
 
@@ -134,16 +134,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _setUnavaliableIfNeed() {
-    if (!this._chart) {
+    if (!this.chart) {
       return;
     }
 
-    this.isChartUnavailable = this._chart.instrument && this._chart.instrument.id === null;
+    this.isChartUnavailable = this.chart.instrument && this.chart.instrument.id === null;
   }
 
   setNeedUpdate() {
-    if (this._chart) {
-      this._chart.setNeedsUpdate();
+    if (this.chart) {
+      this.chart.setNeedsUpdate();
     }
   }
 
@@ -174,14 +174,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   refresh() {
-    const { _chart } = this;
+    const { chart } = this;
 
-    if (!_chart) {
+    if (!chart) {
       return;
     }
 
-    if (_chart.reload) {
-      _chart.reload();
+    if (chart.reload) {
+      chart.reload();
     }
   }
 
@@ -201,11 +201,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
-    if (this._chart) {
-      this._chart.destroy();
+    if (this.chart) {
+      this.chart.destroy();
     }
 
-    this._chart = null;
+    this.chart = null;
   }
 }
 
