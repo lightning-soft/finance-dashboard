@@ -1,8 +1,8 @@
-import {Component, ViewChild, AfterViewInit} from '@angular/core';
-import {LayoutComponent} from 'layout';
-import {Components} from 'lazy-modules';
-import {NavigationDrawerService} from './navigation-drawer.service';
-import {DragDrawerComponent} from './drag-drawer/drag-drawer.component';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { LayoutComponent } from 'layout';
+import { Components } from 'lazy-modules';
+import { NavigationDrawerService } from './navigation-drawer.service';
+import { DragDrawerComponent } from './drag-drawer/drag-drawer.component';
 
 @Component({
   selector: 'dashboard',
@@ -46,7 +46,6 @@ export class DashboardComponent implements AfterViewInit {
         ]
       }]
   };
-  val = 'val';
 
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {

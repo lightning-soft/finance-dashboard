@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4200",
-    "build": "ng build",
+    "build": "npm run font && ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -13,6 +13,7 @@
     "build:ssr": "ng build --prod && ng run angular-starter:server:production",
     "prerender": "ng run angular-starter:prerender",
     "stats": "ng build --stats-json",
+    "font": "node icon-generator.js",
     "analyze": "webpack-bundle-analyzer dist/browser/stats.json",
     "check-bundle": "npm run stats && npm run analyze"
   },
@@ -38,6 +39,7 @@
     "express": "4.17.1",
     "ng-zorro-antd": "9.3.0",
     "rxjs": "6.6.2",
+    "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
     "zone.js": "0.10.3"
   },

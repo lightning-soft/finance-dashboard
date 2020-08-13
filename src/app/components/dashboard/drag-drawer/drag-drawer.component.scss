@@ -1,1 +1,39 @@
 @import "themes/index";
+
+.side-navigation {
+  position: absolute;
+  z-index: 21;
+  height: 100%;
+  transition: all 0.3s;
+  transform: translateX(-100%);
+
+  &--open {
+    transform: translateX(0%);
+
+  }
+}
+
+.side-navigation {
+
+  &__item {
+    width: $navbarHeight;
+    font-size: 10px;
+    text-align: center;
+    line-height: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding-bottom: 10px;
+
+    i[class^='icon-'] {
+      margin-bottom: 8px;
+      display: block;
+      line-height: 1;
+      font-size: 22px;
+    }
+
+  }
+}

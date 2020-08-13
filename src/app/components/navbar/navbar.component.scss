@@ -16,13 +16,6 @@
     align-items: center;
     justify-content: center;
 
-    &-image {
-      mask-image: url("../../../assets/img/svg/logo.svg");
-      mask-repeat: no-repeat;
-      height: 18px;
-      width: 18px;
-      mask-position: center center;
-    }
   }
 
   .user-menu {
@@ -38,7 +31,7 @@
     transition: all 0.3s;
     line-height: 1;
 
-    &--open {
+    &.open {
       transform: rotate(45deg);
     }
   }

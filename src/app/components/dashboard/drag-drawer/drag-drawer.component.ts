@@ -13,7 +13,7 @@ export class DragDrawerComponent implements OnInit {
 
   items = [
     {
-      icon: 'icon-chart',
+      icon: 'icon-logo',
       text: 'Trading \n' +
         '    Chart',
       component: 'chart'
