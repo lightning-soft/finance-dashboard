@@ -1,11 +1,12 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {InstrumentsRepository} from '../../communication/trading/repositories';
-import {Observable} from 'rxjs';
-import {IInstrument} from '../../communication/trading/models';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {IChart} from '../models/chart';
-import {ITimeFrame, StockChartXPeriodicity} from '../datafeed/TimeFrame';
+import { Component, Input, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable } from 'rxjs';
+import { IInstrument } from '../../communication/trading/models';
+import { InstrumentsRepository } from '../../communication/trading/repositories';
+import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
+import { IChart } from '../models/chart';
 
+declare const StockChartX;
 
 @UntilDestroy()
 @Component({
@@ -14,53 +15,68 @@ import {ITimeFrame, StockChartXPeriodicity} from '../datafeed/TimeFrame';
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements OnInit {
-  instrument = 'AAPL';
+  inputValue: any = { label: 'Lucy', value: 'lucy', age: 20 };
+  options: any[] = [
+    { label: 'Lucy', value: 'lucy', age: 20 },
+    { label: 'Jack', value: 'jack', age: 22 }
+  ];
 
-
+  compareFun = (o1: any | string, o2: any) => {
+    if (o1) {
+      return typeof o1 === 'string' ? o1 === o2.label : o1.value === o2.value;
+    } else {
+      return false;
+    }
+  };
   timeFrameOptions = [
-    {interval: 1, periodicity: StockChartXPeriodicity.YEAR},
-    {interval: 6, periodicity: StockChartXPeriodicity.MONTH},
-    {interval: 3, periodicity: StockChartXPeriodicity.MONTH},
-    {interval: 1, periodicity: StockChartXPeriodicity.MONTH},
-    {interval: 1, periodicity: StockChartXPeriodicity.WEEK},
-    {interval: 1, periodicity: StockChartXPeriodicity.DAY},
-    {interval: 4, periodicity: StockChartXPeriodicity.HOUR},
-    {interval: 1, periodicity: StockChartXPeriodicity.HOUR},
-    {interval: 1, periodicity: StockChartXPeriodicity.MINUTE}
+    { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
+    { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
+    { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
+    { interval: 1, periodicity: StockChartXPeriodicity.MONTH },
+    { interval: 1, periodicity: StockChartXPeriodicity.WEEK },
+    { interval: 1, periodicity: StockChartXPeriodicity.DAY },
+    { interval: 4, periodicity: StockChartXPeriodicity.HOUR },
+    { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
+    { interval: 1, periodicity: StockChartXPeriodicity.MINUTE }
   ] as ITimeFrame[];
 
   iconCrosses = ['dot', 'none', 'markers', 'crossBars'];
-
 
   priceStyles = ['heikinAshi', 'bar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
     'candleVolume', 'equiVolume', 'equiVolumeShadow',
     'line', 'mountain', 'pointAndFigure'];
 
-  zoomOptions = ['Zoom Date Range', 'Zoom Rect'];
+  zoomOptions = ['dateRange', 'rect'];
+
+  // allDraings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
+  //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
+  //   "text", "image", "balloon", "measure", "measureTool", "fibonacciArcs", "fibonacciEllipses", "fibonacciRetracements", "fibonacciFan",
+  //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
+  //   "tironeLevels", "speedLines", "gannFan", "trendAngle"];
 
   drawingInstruments = [
     {
       value: 'Chart market',
       items: [
-        'Dot', 'Square', 'Diamond', 'Arrow-Up', 'Arrow-Down', 'Arrow-Left', 'Arrow-Right', 'Arrow', 'Note'
+        'Dot', 'Square', 'Diamond', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Arrow', 'Note'
       ]
     },
     {
       value: 'Geometric',
-      items: ['Line-Segment', 'Horizontal-Line', 'Vertical-Line',
-        'Rectangle', 'Triangle', 'Circle', 'Ellipse', 'Polygon', 'Polyline', 'Free-hand', 'Cyclic-Lines']
+      items: ['LineSegment', 'HorizontalLine', 'VerticalLine',
+        'Rectangle', 'Triangle', 'Circle', 'Ellipse', 'Polygon', 'Polyline', 'Freehand', 'CyclicLines']
     },
     {
       value: 'Fibonacci',
-      items: ['Fibonacci-Arcs', 'Fibonacci-Ellipsis',
-        'Fibonacci-Rectangle', 'Fibonacci-Fan', 'Fibonacci-Time-Zone', 'Fibonacci-Extensions']
+      items: ['FibonacciArcs', 'FibonacciEllipses',
+        'fibonacciRetracements', 'FibonacciFan', 'FibonacciTimeZone', 'FibonacciExtensions']
     },
     {
       value: 'Trend Channel Drawings',
-      items: ['Trend-Channel', 'Andrew-Pitchfork',
-        'Error-Channel', 'Raff-Regression', 'Quadrant-Lines',
-        'Tirone-Levels', 'Speed-Lines', 'Gann-Fan', 'Trend-Angle']
+      items: ['TrendChannel', 'AndrewPitchfork',
+        'ErrorChannel', 'RaffRegression', 'QuadrantLines',
+        'TironeLevels', 'SpeedLines', 'GannFan', 'TrendAngle']
     },
     {
       value: 'General Drawings', items: [
@@ -69,29 +85,177 @@ export class ToolbarComponent implements OnInit {
     }
   ];
 
+  compareInstrument = (o1: any | string, o2: any) => {
+    if (o1) {
+      return typeof o1 === 'string' ? o1 === o2.id : o1.id === o2.id;
+    } else {
+      return false;
+    }
+  };
 
-  instuments$: Observable<IInstrument[]>;
+  instuments: IInstrument[] = [];
 
   @Input() chart: IChart;
 
-  timeFrame = this.timeFrameOptions[5];
-  priceStyle = this.priceStyles[1];
-  iconCross = this.iconCrosses[1];
+  get instrument(): IInstrument {
+    let instrument = this.chart?.instrument as any;
 
-  constructor(private _instrumentsRepository: InstrumentsRepository,
-  ) {
-    this.instuments$ = _instrumentsRepository.getItems()
-      .pipe(
-        untilDestroyed(this)
+    if (instrument?.id != null)
+      return instrument;
+  }
+
+  set instrument(instrument: IInstrument) {
+    if (typeof instrument === 'string') {
+      this._search(instrument);
+      return;
+    }
+
+    let chart = this.chart;
+    if (!chart || !instrument)
+      return;
+
+
+    let oldSymbol = chart.instrument && chart.instrument.symbol.toUpperCase();
+    let newSymbol = instrument.name.toUpperCase();
+    if (newSymbol !== chart.instrument.symbol) {
+
+      setTimeout(() => {
+        chart.instrument = {
+          ...instrument,
+          id: instrument.id as any,
+          symbol: instrument.name,
+          company: '',
+          exchange: '',
+        };
+        chart.sendBarsRequest();
+      });
+    }
+  }
+
+  get timeFrame() {
+    return this.chart?.timeFrame;
+  }
+
+  set timeFrame(value) {
+    const chart = this.chart;
+    if (!chart)
+      return;
+
+    chart.timeFrame = value;
+    chart.sendBarsRequest();
+  }
+
+  get priceStyle() {
+    return this.chart?.priceStyleKind ?? 'candle';
+  }
+
+  set priceStyle(value) {
+    this.chart.priceStyleKind = value;
+    this.chart.setNeedsUpdate();
+  }
+
+  get iconCross(): string {
+    return this.chart?.crossHairType ?? 'none';
+  }
+
+  set iconCross(value: string) {
+    this.chart.crossHairType = value;
+  }
+
+  constructor(private _instrumentsRepository: InstrumentsRepository) {
+  }
+
+  _search(search?: string) {
+    this._instrumentsRepository.getItems()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (values) => {
+          if (search != null)
+            values = values.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
+
+          this.instuments = values.slice(0, 100);
+        },
+        (e) => console.error('error', e),
       );
   }
 
   ngOnInit(): void {
-
+    this._search();
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {
     return timeFrame.interval +
       timeFrame.periodicity;
   }
+
+  compareInstrumentDialog() {
+    StockChartX.UI.ViewLoader.compareInstrumentDialog((dialog) => {
+      dialog.show({
+        chart: this.chart,
+        done: () => {
+          let chart = this.chart;
+          if (chart) {
+            chart.setNeedsUpdate();
+          }
+        }
+      });
+    });
+
+  }
+
+  openIndicatorDialog() {
+    StockChartX.UI.ViewLoader.indicatorsDialog((dialog) => {
+      dialog.show({
+        chart: this.chart,
+        done: (className: string) => {
+          let chart = this.chart,
+            showSettingsDialog = StockChartX.UI.IndicatorsDialog.showSettingsBeforeAdding;
+
+          if (!chart)
+            return;
+
+          let indicator = StockChartX.Indicator.deserialize({ className, chart });
+
+          chart.addIndicators(indicator);
+          if (showSettingsDialog) {
+            indicator.showSettingsDialog();
+          }
+          chart.update();
+        }
+      });
+    });
+  }
+
+  changePriceStyle(option) {
+    this.chart.priceStyleKind = option;
+    this.chart.setNeedsUpdate();
+  }
+
+  changeCursor(option) {
+    this.chart.crossHairType = option;
+  }
+
+  zoom(option) {
+    this.chart.startZoomIn(option);
+  }
+
+  addDrawing(name: string) {
+    let chart = this.chart;
+    chart.cancelUserDrawing();
+    let drawing = StockChartX.Drawing.deserialize({ className: getDrawingClassName(name) });
+    chart.startUserDrawing(drawing);
+  }
+
+  removeDrawing() {
+    this.chart.removeDrawings();
+    this.chart.setNeedsUpdate(true);
+  }
+
+  makeSnapshot() {
+    this.chart.saveImage();
+  }
+}
+
+function getDrawingClassName(string) {
+  return string.charAt(0).toLowerCase() + string.slice(1);
 }

@@ -1,4 +1,4 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NgModule, ModuleWithProviders, NgZone } from '@angular/core';
 import { InstrumentsRepository, Datafeed } from '../communication';
 import { FakeInstrumentsRepository, FakeDatafeed } from './trading';
 
@@ -15,6 +15,7 @@ export class FakeCommunicationModule {
                 {
                     provide: Datafeed,
                     useClass: FakeDatafeed,
+                    deps: [NgZone],
                 },
             ]
         };
