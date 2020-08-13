@@ -1,42 +1,48 @@
 import { Id, Datafeed } from "communication";
+import { NgZone } from '@angular/core';
 
 export class FakeDatafeed extends Datafeed {
     protected _subscribedInstruments = [];
 
-    protected _lastPrices = new Map<Id, number>()
+    protected _lastPrices = new Map<Id, number>();
 
-    constructor() {
+    constructor(_ngZone: NgZone) {
         super();
-        setInterval(() => {
-            const size = this._subscribedInstruments.length;
-            const count = Math.floor(randomIntFromInterval(0, size))
-            const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
-            // console.time('q')
+        _ngZone.runOutsideAngular(() => {
+            setInterval(() => {
+                _ngZone.runOutsideAngular(() => {
 
-            // const size = this._subscribedInstruments.length;
-            // const count = size;
-            // const step = 1;
-            const quotes = [];
-            for (let i = step; i < count; i += step) {
-                const instrumentId = this._subscribedInstruments[i];
-                const updates = {};
+                    const size = this._subscribedInstruments.length;
+                    const count = Math.floor(randomIntFromInterval(0, size))
+                    const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
+                    // console.time('q')
 
-                for (const key of ['ask', 'bid']) {
-                    const value = this._lastPrices.get(instrumentId);
-                    updates[key] = randomIntFromInterval(value - 10, value + 10);
-                    this._lastPrices.set(instrumentId, updates[key]);
-                }
+                    // const size = this._subscribedInstruments.length;
+                    // const count = size;
+                    // const step = 1;
+                    const quotes = [];
+                    for (let i = step; i < count; i += step) {
+                        const instrumentId = this._subscribedInstruments[i];
+                        const updates = {};
 
-                quotes.push({
-                    instrumentId,
-                    timestamp: new Date(),
-                    ...updates,
-                } as any);
-            }
+                        for (const key of ['ask', 'bid']) {
+                            const value = this._lastPrices.get(instrumentId);
+                            updates[key] = randomIntFromInterval(value - 10, value + 10);
+                            this._lastPrices.set(instrumentId, updates[key]);
+                        }
 
-            this._triggerQuotes(quotes);
-            // console.timeEnd('q');
-        }, 500)
+                        quotes.push({
+                            instrumentId,
+                            timestamp: new Date(),
+                            ...updates,
+                        } as any);
+                    }
+
+                    this._triggerQuotes(quotes);
+                });
+                // console.timeEnd('q');
+            }, 500);
+        });
     }
 
     protected _subscribe(instruemntId: Id) {
@@ -46,7 +52,7 @@ export class FakeDatafeed extends Datafeed {
     }
 
     protected _unsubscribe(instruemntId: Id) {
-      console.log('_subscribe', instruemntId);
+        console.log('_subscribe', instruemntId);
 
     }
 }
