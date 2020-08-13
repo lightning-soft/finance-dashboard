@@ -1,0 +1,164 @@
+@import "icons";
+
+body.#{$themeName} {
+
+
+  :host {
+    .instrument-bar {
+      input {
+        background-color: $tabBackground;
+        color: $textColor;
+        border: none;
+        border-radius: 3px;
+        height: 32px;
+        box-shadow: none;
+      }
+
+      &__arrow {
+        color: $textColor;
+      }
+    }
+
+    .pane {
+      background-color: $tabBackground !important;
+      color: $textColor !important;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      border-radius: 3px;
+
+      > div:not(:last-child) {
+        position: relative;
+
+        &:after {
+          background-color: $borderColor;
+          width: 1px;
+          position: absolute;
+          top: 15%;
+          content: '';
+          height: 70%;
+        }
+      }
+
+      &__price-style {
+        nz-select {
+        }
+      }
+
+      &__icon-cross {
+        nz-select {
+        }
+      }
+
+      ::ng-deep {
+
+
+        nz-select {
+          background-colfor: $tabBackground !important;
+          color: $textColor !important;
+        }
+
+
+        .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+          background-color: transparent;
+          border: none;
+        }
+
+        .ant-select-arrow {
+          color: inherit;
+        }
+
+        .ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+          box-shadow: none;
+        }
+      }
+
+    }
+  }
+
+
+}
+
+::ng-deep body.#{$themeName} {
+  .toolbar-dropdown nz-option-container {
+    background: $tabBackground !important;
+    width: 140px;
+
+    .ant-select-item-option-content {
+      color: $textColor !important;
+
+    }
+
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      color: inherit;
+      font-weight: inherit;
+      background-color: inherit;
+    }
+  }
+
+  .toolbar-dropdown {
+    .ant-dropdown-menu, &.ant-select-dropdown {
+      background-color: $tabBackground !important;
+      color: $textColor !important;
+
+    }
+
+    .scx-icon {
+      margin-right: 6px;
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+    }
+
+  }
+
+  .toolbar-submenu {
+    background-color: $tabBackground !important;
+    color: $textColor !important;
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+
+
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    .scx-icon {
+      margin-right: 6px;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+
+  }
+
+  .ant-select-item {
+    color: inherit;
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    color: inherit;
+    font-weight: inherit;
+    background-color: inherit;
+  }
+
+  .ant-dropdown-menu {
+    background-color: unset;
+    color: inherit;
+    box-shadow: none;
+  }
+
+  .ant-btn:hover, .ant-btn, .ant-btn:focus, .ant-btn-group {
+    color: inherit;
+    border: none;
+    box-shadow: none;
+
+    &:after {
+      display: none;
+    }
+  }
+}

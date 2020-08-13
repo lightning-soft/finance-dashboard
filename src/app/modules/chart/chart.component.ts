@@ -1,18 +1,17 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
 import { LayoutService } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import { CSVDatafeed } from './datafeed/CsvDatafeed';
 import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { environment } from 'src/environments/environment';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
-
 
 const EVENTS_SUFFIX = '.scxComponent';
 
@@ -32,7 +31,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
-  _chart: IChart;
+  chart: IChart;
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 
@@ -53,7 +52,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .then(() => this.loadChart())
       .catch(e => console.log(e));
 
-    // setTimeout(() => this.loadChart(), 2000)
 
     this.layoutService.onStateChange$.pipe(
       untilDestroyed(this)
@@ -63,23 +61,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   saveState() {
-    const { _chart } = this;
+    const { chart } = this;
 
-    if (!_chart) {
+    if (!chart) {
       return;
     }
 
     return {
-      instrument: _chart.instrument,
-      timeFrame: _chart.timeFrame,
-      stockChartXState: _chart.saveState()
+      instrument: chart.instrument,
+      timeFrame: chart.timeFrame,
+      stockChartXState: chart.saveState()
     };
   }
 
   loadChart() {
     const { _elementRef, loadedState } = this,
       state = loadedState && loadedState.value,
-      chart = this._chart = this._initChart(state);
+      chart = this.chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
       this.datafeed.loadInstruments()
@@ -87,20 +85,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           untilDestroyed(this)
         )
         .subscribe();
-    // .then(
-    //   result => {
-    //     if (result && result.length) {
-    //       this._chart.instrument = result[0];
-    //     }
-    //   }
-    // );
 
     this._setUnavaliableIfNeed();
-    if (_elementRef && _elementRef.nativeElement) {
-      chart.toolbar = $(_elementRef.nativeElement)
-        .scx()
-        .toolbar(chart);
-    }
 
     if (!chart) {
       return;
@@ -108,7 +94,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
-      this._chart.instrument = event.value;
+      this.chart.instrument = event.value;
 
     });
 
@@ -117,47 +103,47 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .pipe(
         untilDestroyed(this)
       ).subscribe(value => {
-      if (!value) {
-        return;
-      }
+        if (!value) {
+          return;
+        }
 
-      if (value.instrument && value.instrument.id != null) {
-      }
+        // if (value.instrument && value.instrument.id != null) {
+        // }
 
-      if (value.timeFrame != null) {
-        chart.timeFrame = value.timeFrame;
-      }
+        // if (value.timeFrame != null) {
+        //   chart.timeFrame = value.timeFrame;
+        // }
 
-      if (value.stockChartXState) {
-        chart.loadState(value.stockChartXState);
-      } else if (StockChartX.Indicator.registeredIndicators.VOL) {
-        chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
-      }
-    });
+        // if (value.stockChartXState) {
+        //   chart.loadState(value.stockChartXState);
+        // } else if (StockChartX.Indicator.registeredIndicators.VOL) {
+        //   chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
+        // }
+      });
 
     let charts = [];
 
-    // if (!environment.production) {
-    //   if (!(window as any).charts) {
-    //     (window as any).charts = [];
-    //   }
+    if (!environment.production) {
+      if (!(window as any).charts) {
+        (window as any).charts = [];
+      }
 
-    //   charts = (window as any).charts;
-    //   charts.push(chart);
-    // }
+      charts = (window as any).charts;
+      charts.push(chart);
+    }
   }
 
   private _setUnavaliableIfNeed() {
-    if (!this._chart) {
+    if (!this.chart) {
       return;
     }
 
-    this.isChartUnavailable = this._chart.instrument && this._chart.instrument.id === null;
+    this.isChartUnavailable = this.chart.instrument && this.chart.instrument.id === null;
   }
 
   setNeedUpdate() {
-    if (this._chart) {
-      this._chart.setNeedsUpdate();
+    if (this.chart) {
+      this.chart.setNeedsUpdate();
     }
   }
 
@@ -182,23 +168,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: state && state.timeFrame,
       instrument: (state && state.instrument) || {
         symbol: 'AAPL',
-        tickSize: 0.01
+        tickSize: 0.01,
+        // id: 'AAPL',
       }
     } as IChartConfig);
   }
 
   refresh() {
-    const { _chart } = this;
+    const { chart } = this;
 
-    if (!_chart) {
+    if (!chart) {
       return;
     }
 
-    if (_chart.reload) {
-      _chart.reload();
+    if (chart.reload) {
+      chart.reload();
     }
   }
-
 
   @HostBinding('window:resize')
   handleResize() {
@@ -215,11 +201,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
-    if (this._chart) {
-      this._chart.destroy();
+    if (this.chart) {
+      this.chart.destroy();
     }
 
-    this._chart = null;
+    this.chart = null;
   }
 }
 

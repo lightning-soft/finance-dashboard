@@ -1,4 +1,6 @@
+/*
 import {Periodicity} from 'communication';
+*/
 
 export interface ITimeFrame {
   interval: number;
@@ -57,7 +59,7 @@ export const StockChartXPeriodicity = {
 
 
 export class TimeFrame {
-  static convertFromSCXPeriodicity(periodicity): Periodicity {
+  /*static convertFromSCXPeriodicity(periodicity) {
     switch (periodicity) {
       case StockChartXPeriodicity.SECOND:
         return Periodicity.Second;
@@ -74,10 +76,33 @@ export class TimeFrame {
       case StockChartXPeriodicity.YEAR:
         return Periodicity.Year;
     }
+  }*/
+
+  public static periodicityToString(periodicity: string): string {
+    switch (periodicity) {
+      case StockChartXPeriodicity.TICK:
+        return 'tick';
+      case StockChartXPeriodicity.SECOND:
+        return 'second';
+      case StockChartXPeriodicity.MINUTE:
+        return 'minute';
+      case StockChartXPeriodicity.HOUR:
+        return 'hour';
+      case StockChartXPeriodicity.DAY:
+        return 'day';
+      case StockChartXPeriodicity.WEEK:
+        return 'week';
+      case StockChartXPeriodicity.MONTH:
+        return 'month';
+      case StockChartXPeriodicity.YEAR:
+        return 'year';
+      default:
+        throw new Error(`Unsupported periodicity: ${periodicity}`);
+    }
   }
 
   // StockCharX periodicity type
-  static convertToSCXPeriodicy(periodicity) {
+ /* static convertToSCXPeriodicy(periodicity) {
     switch (periodicity) {
       case Periodicity.Minute:
         return StockChartXPeriodicity.MINUTE;
@@ -92,7 +117,7 @@ export class TimeFrame {
       case Periodicity.Year:
         return StockChartXPeriodicity.YEAR;
     }
-  }
+  }*/
 
   public static timeFrameToTimeInterval(timeFrame: ITimeFrame) {
     switch (timeFrame.periodicity) {
