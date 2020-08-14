@@ -37,12 +37,16 @@ export class DashboardComponent implements AfterViewInit {
           },
           // {
           //   type: 'component',
-          //   componentName: Components.Watchlist
+          //   componentName: Components.Chart
           // },
           // {
           //   type: 'component',
-          //   componentName: 'Orders'
-          // }
+          //   componentName: Components.Watchlist
+          // },
+          {
+            type: 'component',
+            componentName: Components.Position
+          }
         ]
       }]
   };
