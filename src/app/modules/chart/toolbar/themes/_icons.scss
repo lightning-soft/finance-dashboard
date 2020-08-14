@@ -1,11 +1,8 @@
 .scx-icon {
-  font-family: scx-icons;
+  font-family: scx-icons !important;
 }
 
 
-.icon-2-ut-drag-drop:before {
-  content: "\E001";
-}
 
 .icon-candleVolume:before {
   content: "\E002";
@@ -275,28 +272,8 @@
   content: "\E044";
 }
 
-.icon-left:before {
-  content: "\E045";
-}
-
-.icon-maximize-panel:before {
-  content: "\E046";
-}
-
-.icon-mobile-scroll-left:before {
-  content: "\E047";
-}
-
-.icon-mobile-scroll-right:before {
-  content: "\E048";
-}
-
 .icon-move-down:before {
   content: "\E049";
-}
-
-.icon-move-up:before {
-  content: "\E04A";
 }
 
 .icon-bar:before {
@@ -347,13 +324,6 @@
   content: "\E056";
 }
 
-.icon-remove-bold:before {
-  content: "\E057";
-}
-
-.icon-remove:before {
-  content: "\E058";
-}
 
 .icon-renewal-v2:before {
   content: "\E059";
@@ -435,7 +405,7 @@
   content: "\E06C";
 }
 
-.icon-zoom-date-range:before {
+.icon-zoom-dateRange:before {
   content: "\E06D";
 }
 

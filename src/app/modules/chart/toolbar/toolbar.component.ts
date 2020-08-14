@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Observable } from 'rxjs';
 import { IInstrument } from '../../communication/trading/models';
 import { InstrumentsRepository } from '../../communication/trading/repositories';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
@@ -20,6 +19,13 @@ export class ToolbarComponent implements OnInit {
     { label: 'Lucy', value: 'lucy', age: 20 },
     { label: 'Jack', value: 'jack', age: 22 }
   ];
+  compareTimeFrame = (obj1: ITimeFrame, obj2: ITimeFrame) => {
+    if (!obj1 || !obj2)
+      return;
+
+    return obj2.interval === obj1.interval
+        && obj2.periodicity === obj1.periodicity;
+  }
 
   compareFun = (o1: any | string, o2: any) => {
     if (o1) {
