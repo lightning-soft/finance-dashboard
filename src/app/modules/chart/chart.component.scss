@@ -34,6 +34,10 @@ $toolbarMargin: 4px;
     display: none;
   }
 
+  ::ng-deep .scxPanelTitle .scxSymbolTitle {
+    margin-top: 50px;
+  }
+
   .scxRootContainer.scxFullWindow {
     height: 100% !important;
     width: 100% !important;
@@ -202,47 +206,47 @@ $toolbarMargin: 4px;
   }
 }
 
-.order-icon {
-  &:after {
-    content: "";
-    height: 100%;
-    display: inline-block;
-    vertical-align: middle;
+  .order-icon {
+    &:after {
+      content: "";
+      height: 100%;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    i {
+      color: #cfc9c5;
+      vertical-align: middle;
+      opacity: inherit;
+    }
   }
 
-  i {
-    color: #cfc9c5;
-    vertical-align: middle;
-    opacity: inherit;
-  }
-}
+  /*:host ::ng-deep .scxToolbar-scroll{
+    display: none;
+  }*/
 
-/*:host ::ng-deep .scxToolbar-scroll{
-  display: none;
-}*/
+  ::ng-deep body {
+    .scxWatermarkInfo,
+    .scxWatermarkSymbol {
+      line-height: 70px;
+    }
 
-::ng-deep body {
-  .scxWatermarkInfo,
-  .scxWatermarkSymbol {
-    line-height: 70px;
-  }
+    .scxRootContainer {
+      height: 100%;
+      width: calc(100%) !important;
+      text-align: center;
+      margin-top: 0;
+      padding: 0 4px 4px 0;
+    }
 
-  .scxRootContainer {
-    height: 100%;
-    width: calc(100%) !important;
-    text-align: center;
-    margin-top: 0;
-    padding: 0 4px 4px 0;
-  }
+    .scxToolbar-scroll {
+      position: relative;
+      height: 35px;
+    }
 
-  .scxToolbar-scroll {
-    position: relative;
-    height: 35px;
+    .scxContainer {
+      width: 100% !important;
+      margin-top: 0;
+      border: none !important;
+    }
   }
-
-  .scxContainer {
-    width: 100% !important;
-    margin-top: 0;
-    border: none !important;
-  }
-}

@@ -6,9 +6,146 @@
 
 :host {
   position: absolute;
-  top: 49px;
-  z-index: 11;
+  top: 25px;
+  z-index: 21;
   left: 20px;
+
+  ::ng-deep {
+    .ant-select-arrow .anticon > svg {
+      display: none;
+    }
+
+    .pane__image, .pane__compare-instruments, .pane__indicators {
+      .ant-btn {
+        padding: 4px 11px;
+      }
+    }
+
+    .ant-btn {
+      padding: 0 0 0 5px;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      background-color: transparent;
+      border: none;
+      padding: 0 0 0 5px;
+    }
+
+    .ant-select-arrow {
+      color: inherit;
+    }
+
+    .ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      box-shadow: none;
+    }
+
+    .instrument-bar {
+      input {
+        border: none;
+        border-radius: 3px;
+        height: 32px;
+        box-shadow: none;
+      }
+    }
+
+  }
+}
+
+::ng-deep {
+  .toolbar-dropdown nz-option-container {
+    width: 140px;
+
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      color: inherit;
+      font-weight: inherit;
+      background-color: inherit;
+    }
+  }
+
+  .toolbar-dropdown {
+    .scx-icon {
+      margin-right: 6px;
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+    }
+
+  }
+
+  .toolbar-submenu {
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    .scx-icon {
+      margin-right: 6px;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+
+  }
+
+  .ant-select-item {
+    color: inherit;
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    color: inherit;
+    font-weight: inherit;
+    background-color: inherit;
+  }
+
+  .ant-dropdown-menu {
+    background-color: unset;
+    color: inherit;
+    box-shadow: none;
+  }
+
+  .ant-btn:hover, .ant-btn, .ant-btn:focus, .ant-btn-group {
+    color: inherit;
+    border: none;
+    box-shadow: none;
+
+    &:after {
+      display: none;
+    }
+  }
+}
+
+.pane {
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+
+  > div:not(:last-child) {
+    position: relative;
+    min-width: 42px;
+
+    &:after {
+      width: 1px;
+      position: absolute;
+      top: 15%;
+      content: '';
+      right: 0;
+      height: 70%;
+    }
+  }
+}
+
+.icon-arrow-dropdown {
+  font-size: 4px;
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
 }
 
 
@@ -22,7 +159,8 @@
 
   &__arrow {
     position: absolute;
-    right: 5px;
+    right: 10px;
+    font-size: 4px;
     top: 50%;
     transform: translateY(-50%);
   }
