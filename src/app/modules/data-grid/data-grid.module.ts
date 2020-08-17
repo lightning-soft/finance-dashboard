@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ItemViewBuilder } from './components/item-view-builder';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
-let entryComponents = [
+const entryComponents = [
   DataGrid,
 ];
 
@@ -13,11 +13,11 @@ let entryComponents = [
     CommonModule,
     ScrollingModule,
   ],
-  declarations: [
-    ItemViewBuilder,
+    declarations: [
+        ItemViewBuilder,
 
-    ...entryComponents
-  ],
+        ...entryComponents,
+    ],
   entryComponents,
   exports: entryComponents,
 })

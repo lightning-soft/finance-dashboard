@@ -2,6 +2,7 @@ export interface ICell {
   component?: string;
   value: string;
   class?: string;
+  colSpan?: number;
 
   updateValue(...args: any[]);
 
@@ -10,6 +11,7 @@ export interface ICell {
 
 export abstract class Cell implements ICell {
   value = '';
+  colSpan = 0;
 
   abstract updateValue(...args: any[]);
 

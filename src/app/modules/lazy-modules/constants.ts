@@ -3,14 +3,14 @@ import {IModules} from './models';
 export const Modules = {
   Chart: 'chart',
   Watchlist: 'watchlist',
-  Position: 'position'
+  Positions: 'positions'
 
 };
 
 export const Components = {
   Chart: 'chart',
   Watchlist: 'watchlist',
-  Position: 'position'
+  Positions: 'positions'
 };
 
 export const modulesStore: IModules[] = [
@@ -27,9 +27,9 @@ export const modulesStore: IModules[] = [
     ]
   },
   {
-    module: Modules.Position,
+    module: Modules.Positions,
     components: [
-      Components.Position,
+      Components.Positions,
     ]
   },
 ];

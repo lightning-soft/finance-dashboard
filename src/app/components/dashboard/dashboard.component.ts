@@ -45,7 +45,7 @@ export class DashboardComponent implements AfterViewInit {
           // },
           {
             type: 'component',
-            componentName: Components.Position
+            componentName: Components.Positions
           }
         ]
       }]

@@ -20,8 +20,8 @@ export class LoadingModule {
             loadChildren: () => import('../watchlist/watchlist.module').then(i => i.WatchlistModule)
           },
           {
-            path: Modules.Position,
-            loadChildren: () => import('../position/position.module').then(i => i.PositionModule)
+            path: Modules.Positions,
+            loadChildren: () => import('../position/positions.module').then(i => i.PositionsModule)
           },
         ]),
         {

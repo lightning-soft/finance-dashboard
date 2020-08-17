@@ -1,5 +1,6 @@
 import {Cell, DataCell, NumberCell} from 'data-grid';
 import {EmptyCell} from '../../data-grid/models/cells/empty.cell';
+import {IPosition} from '../../communication/trading/models';
 
 export class PositionItem {
   account: Cell = new EmptyCell();
@@ -9,22 +10,18 @@ export class PositionItem {
   realized: Cell = new EmptyCell();
   total: Cell = new EmptyCell();
 
-  constructor(position?: Position) {
+  constructor(position?: IPosition) {
     if (!position) {
       return;
     }
     this.update(position);
   }
 
-  update(position: Position){
+  update(position: IPosition){
     this.account = new DataCell();
     this.account.updateValue(position.account);
-
-    // tslint:disable-next-line:forin
-    for (let key in position) {
-      if (key === 'account') {
-        continue;
-      }
+    const fields  = ['price', 'size', 'unrealized', 'realized', 'total'];
+    for (let key of fields) {
       this[key] = new NumberCell();
       this[key].updateValue(position[key]);
     }
@@ -32,11 +29,4 @@ export class PositionItem {
 
 }
 
-export class Position {
-  account: string;
-  price: number;
-  size: number;
-  realized: number;
-  unrealized: number;
-  total: number;
-}
+
