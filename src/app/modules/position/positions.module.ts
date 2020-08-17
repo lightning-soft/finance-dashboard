@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { DataGridModule } from 'data-grid';
-import { Components, ComponentStore, LazyModule } from 'lazy-modules';
-import { PositionsComponent } from './positions.component';
+import {CommonModule} from '@angular/common';
+import {NgModule} from '@angular/core';
+import {DataGridModule, IViewBuilderStore, ViewBuilderStore} from 'data-grid';
+import {Components, ComponentStore, LazyModule} from 'lazy-modules';
+import {PositionsComponent} from './positions.component';
+import {IconComponent, iconComponentSelector} from '../data-grid/models/cells/components/icon-conponent';
 
 @NgModule({
   imports: [
@@ -13,8 +14,9 @@ import { PositionsComponent } from './positions.component';
     PositionsComponent
   ],
   declarations: [
-    PositionsComponent
+    PositionsComponent,
   ],
+
 })
 export class PositionsModule implements LazyModule {
   get components(): ComponentStore {

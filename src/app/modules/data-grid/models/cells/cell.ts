@@ -1,3 +1,5 @@
+const textBoldClass = ' text-bold';
+
 export interface ICell {
   component?: string;
   value: string;
@@ -11,7 +13,24 @@ export interface ICell {
 
 export abstract class Cell implements ICell {
   value = '';
+  class = '';
   colSpan = 0;
+  click: Function;
+  _bold: boolean;
+
+
+  set bold(value: boolean) {
+    if (this._bold === value) {
+      return;
+    }
+    this._bold = value;
+
+    if (value) {
+      this.class += textBoldClass;
+    } else if (this.class.includes(textBoldClass)){
+      this.class.replace(textBoldClass, '');
+    }
+  }
 
   abstract updateValue(...args: any[]);
 

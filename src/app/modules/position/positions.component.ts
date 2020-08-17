@@ -4,18 +4,25 @@ import {PositionItem} from './models/position.item';
 import {DataCell} from '../data-grid/models/cells';
 import {PositionsRepository} from '../communication/trading/repositories/positions.repository';
 import {IPosition} from '../communication/trading/models';
-import {BoldCell} from '../data-grid/models/cells/bold.cell';
+import { IViewBuilderStore, ViewBuilderStore } from '../data-grid';
+import { IconComponent, iconComponentSelector } from '../data-grid/models/cells/components/icon-conponent';
 
 @UntilDestroy()
 @Component({
   selector: 'positionList',
   templateUrl: './positions.component.html',
-  styleUrls: ['./positions.component.scss']
+  styleUrls: ['./positions.component.scss'],
+  providers: [{
+    provide: IViewBuilderStore,
+    useValue: new ViewBuilderStore({
+      [iconComponentSelector]: IconComponent
+    })
+  }]
 })
 export class PositionsComponent implements OnInit, OnDestroy {
-  headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total'];
+  headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'click'];
 
-  _isList = true;
+  _isList = false;
 
   set isList(isList) {
     if (isList === this._isList) {
@@ -53,6 +60,16 @@ export class PositionsComponent implements OnInit, OnDestroy {
     );
   }
 
+  deleteItem(item) {
+    const oldLength = this.positions.length;
+    this.positions = this.positions.filter((pos) => {
+      return ![...item.id].includes(pos.id);
+    });
+    if (oldLength === this.positions.length) {
+      this.updateItems();
+    }
+  }
+
   private generateGroupItems() {
     this.items = [];
     const positions = this.positions;
@@ -63,22 +80,31 @@ export class PositionsComponent implements OnInit, OnDestroy {
 
     for (let key in groupedPositions) {
       const positionItem = new PositionItem();
-      const dataCell = new BoldCell();
-      dataCell.updateValue(key);
-      dataCell.colSpan = this.headers.length;
-      positionItem[groupKey] = dataCell;
+
+      positionItem[groupKey] = this.createGroupHeader(key);
+      positionItem.click.click = this.deleteItem.bind(this);
+      positionItem.id = groupedPositions[key].map(item => item.id);
       this.items.push(positionItem);
+
       groupedPositions[key].forEach((item) => {
-        this.items.push(new PositionItem(item));
+        this.items.push(new PositionItem(item, this.deleteItem.bind(this)));
       });
     }
 
   }
 
+  createGroupHeader(key) {
+    const dataCell = new DataCell();
+    dataCell.updateValue(key);
+    dataCell.bold = true;
+    dataCell.colSpan = this.headers.length - 1;
+    return dataCell;
+  }
+
   private generateListItems() {
     this.items = [];
     this.positions.forEach((item) => {
-      this.items.push(new PositionItem(item));
+      this.items.push(new PositionItem(item, this.deleteItem.bind(this)));
     });
 
   }
