@@ -4,6 +4,13 @@ body.#{$themeName} {
   color: $textColor;
   font-family: $fontFamily;
 
+  .up {
+    color: $risingColor;
+  }
+
+  .down {
+    color: $fallingColor;
+  }
 
 }
 

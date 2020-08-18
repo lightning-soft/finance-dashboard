@@ -5,26 +5,32 @@ body.#{$themeName} {
     background: $bodyBackground;
 
     ::ng-deep {
+
+
+
       .lm_content {
         background: $tabBackground;
       }
+
       .stack__plus {
         color: $textColorSecondary;
       }
 
-      .lm_tabdropdown{
+      .lm_tabdropdown {
         display: none !important;
       }
 
-      .lm_splitter{
+      .lm_splitter {
         background: none;
-        .lm_drag_handle{
+
+        .lm_drag_handle {
           background: $resizeBarColor;
           mask-position: center center;
           mask-size: 6px;
         }
       }
-      .lm_header .lm_tab {
+
+      .lm_header .lm_tab, .lm_header .lm_tab:hover {
         font-weight: 500;
         font-size: 14px;
         line-height: 19px;
@@ -45,8 +51,8 @@ body.#{$themeName} {
           min-width: 120px;
           font-weight: 600;
           border: none;
-          color: $textColor;
-          background: $tabBackground;
+          color: $textColor !important;
+          background: $tabBackground !important;
           line-height: 19px;
 
           .lm_title {
@@ -85,5 +91,21 @@ body.#{$themeName} {
 
   }
 
+
 }
 
+
+::ng-deep body.#{$themeName} {
+  .lm_dragProxy {
+    .lm_header {
+      .lm_tabs{
+        .lm_active {
+          color: $textColor !important;
+          background: $tabBackground !important;
+          font-weight: 600;
+        }
+      }
+    }
+
+  }
+}

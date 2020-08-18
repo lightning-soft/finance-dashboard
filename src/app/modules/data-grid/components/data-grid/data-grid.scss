@@ -7,11 +7,12 @@ cdk-virtual-scroll-viewport {
   height: 100%;
 }
 
+@import "themes/index";
+
 :host {
   display: block;
   height: 100%;
   width: 100%;
-  background: $even-background;
 
   .grid {
     height: 100%;
@@ -57,7 +58,6 @@ cdk-virtual-scroll-viewport {
   th {
     position: sticky;
     top: 0;
-    background: $odd-background;
     border-top: 0px !important;
 
     .grips {
@@ -104,9 +104,10 @@ cdk-virtual-scroll-viewport {
 
     td,
     th {
-      border: 1px solid #3a3d43;
       text-align: left;
-      padding: 8px;
+      padding: 6px;
+      font-size: 16px;
+      line-height: 20px;
       font-weight: normal;
       overflow: hidden;
       white-space: nowrap;
@@ -114,39 +115,22 @@ cdk-virtual-scroll-viewport {
 
     thead {
       tr {
-        height: 37px;
-        background: $odd-background;
-        color: gray;
       }
     }
 
     tr {
-      height: 37px;
       width: 100%;
       //margin: 1px;
 
       &:hover {
         cursor: pointer;
-        background-color: #404558 !important;
       }
 
       &.selected {
         cursor: pointer;
         //outline: 1px solid rebeccapurple;
-        &:hover {
-          background-color: #434c68 !important;
-        }
-
-        background-color: #3c445d !important;
       }
 
-      &:nth-child(even) {
-        background: $even-background;
-      }
-
-      &:nth-child(odd) {
-        background: $odd-background;
-      }
     }
   }
 }

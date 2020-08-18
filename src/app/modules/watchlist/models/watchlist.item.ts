@@ -10,7 +10,7 @@ export class WatchlistItem {
     ask: Cell = new NumberCell();
     bid: Cell = new NumberCell();
 
-    constructor(instrument: IInstrument, onClick) {
+    constructor(instrument: IInstrument) {
 
       this.name = new InstrumentNameCell(instrument);
       this.instrumentId = instrument.id;

@@ -3,8 +3,7 @@ import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communic
 import {WatchlistItem} from './models/watchlist.item';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {IViewBuilderStore, ViewBuilderStore} from '../data-grid';
-import {IconComponent, iconComponentSelector} from '../data-grid/models/cells/components/icon-conponent';
-import {CustomIconComponent} from './CustomIconComponent';
+import { IconComponent, iconComponentSelector } from '../data-grid/models/cells/components/icon-conponent';
 
 @UntilDestroy()
 @Component({
@@ -16,13 +15,13 @@ import {CustomIconComponent} from './CustomIconComponent';
       multi: true,
       provide: IViewBuilderStore,
       useValue: new ViewBuilderStore({
-        [iconComponentSelector]: CustomIconComponent
+        [iconComponentSelector]: IconComponent
       })
     }
   ]
 })
 export class WatchlistComponent  implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp', 'delete'];
+  headers = ['name', 'ask', 'bid', 'timestamp',];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
@@ -82,7 +81,7 @@ export class WatchlistComponent  implements OnInit, OnDestroy {
       instruments = [instruments];
     }
 
-    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i, this.delete.bind(this)));
+    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }
