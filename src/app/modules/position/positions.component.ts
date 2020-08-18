@@ -9,15 +9,9 @@ import { IconComponent, iconComponentSelector } from '../data-grid/models/cells/
 
 @UntilDestroy()
 @Component({
-  selector: 'positionList',
+  selector: 'position-list',
   templateUrl: './positions.component.html',
   styleUrls: ['./positions.component.scss'],
-  providers: [{
-    provide: IViewBuilderStore,
-    useValue: new ViewBuilderStore({
-      [iconComponentSelector]: IconComponent
-    })
-  }]
 })
 export class PositionsComponent implements OnInit, OnDestroy {
   headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'click'];
