@@ -4,9 +4,11 @@
   display: flex;
   flex-direction: column;
 }
+$layoutMarginTop: 10px;
 
 layout{
-  margin-top: 10px;
+  margin-top: $layoutMarginTop;
+  height: calc(100% - #{$layoutMarginTop * 2});
 }
 
 .dashboard-wrapper {

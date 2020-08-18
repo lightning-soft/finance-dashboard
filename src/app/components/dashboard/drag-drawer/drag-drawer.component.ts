@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, ViewChildren} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import {NavigationDrawerService} from '../navigation-drawer.service';
 
 @Component({
@@ -6,9 +6,10 @@ import {NavigationDrawerService} from '../navigation-drawer.service';
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements OnInit {
+export class DragDrawerComponent implements OnInit, OnDestroy {
 
-  isOpen$ = this.navigationDrawerService.isOpen$;
+  isOpen$ = this.navigationDrawerService.isOpen$
+    .pipe();
   @ViewChildren('add') viewItems;
 
   items = [
@@ -36,7 +37,8 @@ export class DragDrawerComponent implements OnInit {
      }*/
   ];
 
-  constructor(private navigationDrawerService: NavigationDrawerService) {
+  constructor(private navigationDrawerService: NavigationDrawerService,
+              private changeDetectorRef: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
@@ -54,4 +56,11 @@ export class DragDrawerComponent implements OnInit {
     });
   }
 
+  closeDrawer() {
+    this.navigationDrawerService.close();
+    this.changeDetectorRef.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+  }
 }

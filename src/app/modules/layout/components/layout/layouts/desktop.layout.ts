@@ -55,6 +55,12 @@ export class DesktopLayout extends Layout {
   createDragSource(element, itemConfig){
     this.goldenLayout.createDragSource(element, itemConfig);
   }
+  on(eventName: string, callback) {
+    this.goldenLayout.on(eventName, callback);
+  }
+  off(eventName: string, callback){
+    this.goldenLayout.off(eventName, callback);
+  }
 
   handleResize() {
     super.handleResize();

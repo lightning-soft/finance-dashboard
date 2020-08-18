@@ -28,7 +28,7 @@
   .plus {
     font-size: 32px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.3s ease-out;
     line-height: 1;
 
     &.open {
@@ -40,6 +40,7 @@
     width: $navbarHeight;
     height: $navbarHeight;
     display: flex;
+    cursor: pointer;
     align-items: center;
     justify-content: center;
   }

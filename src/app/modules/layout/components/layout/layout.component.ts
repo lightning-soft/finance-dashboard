@@ -62,6 +62,12 @@ export class LayoutComponent implements OnInit {
       this.layout.addComponent(name);
   }
 
+  on(eventName: string, callback) {
+    this.layout.on(eventName, callback);
+  }
+  off(eventName, callback){
+    this.layout.off(eventName, callback);
+  }
   createDragSource(element, item){
     this.layout.createDragSource(element, item);
   }

@@ -1,6 +1,7 @@
 import { ComponentFactoryResolver, ComponentRef, ElementRef, ViewContainerRef } from '@angular/core';
 import { LoaderComponent } from '../../loader/loader.component';
 import { LoadingService } from 'lazy-modules';
+import {eventNames} from 'zone.js/lib/browser/property-descriptor';
 
 export abstract class Layout {
 
@@ -17,6 +18,13 @@ export abstract class Layout {
 
   }
   createDragSource(element, itemConfig){
+  }
+
+  on(eventName: string, callback){
+  }
+
+  off(eventName, callback){
+
   }
 
   handleEvent(event) {

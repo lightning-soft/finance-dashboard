@@ -22,6 +22,6 @@ export class FakeInstrumentsRepository extends Repository<IInstrument>{
         const symbolsFilePath = './assets/instruments.json';
         const response = await fetch(symbolsFilePath);
         const data = await response.json();
-        return data.map(i => ({ tickSize: 0.01, id: i.symbol, name: i.symbol, ...i }));
+        return data.map(i => ({ tickSize: 0.01, id: i.symbol, name: i.symbol, ...i })).slice(0, 100);
     }
 }

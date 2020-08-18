@@ -1,8 +1,8 @@
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { LayoutComponent } from 'layout';
-import { Components } from 'lazy-modules';
-import { NavigationDrawerService } from './navigation-drawer.service';
-import { DragDrawerComponent } from './drag-drawer/drag-drawer.component';
+import {Component, ViewChild, AfterViewInit, OnDestroy} from '@angular/core';
+import {LayoutComponent} from 'layout';
+import {Components} from 'lazy-modules';
+import {NavigationDrawerService} from './navigation-drawer.service';
+import {DragDrawerComponent} from './drag-drawer/drag-drawer.component';
 
 @Component({
   selector: 'dashboard',
@@ -10,7 +10,7 @@ import { DragDrawerComponent } from './drag-drawer/drag-drawer.component';
   styleUrls: ['./dashboard.component.scss'],
   providers: [NavigationDrawerService]
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, OnDestroy {
 
 
   @ViewChild(LayoutComponent) layout: LayoutComponent;
@@ -23,7 +23,7 @@ export class DashboardComponent implements AfterViewInit {
       responsiveMode: 'always'
     },
     dimensions: {
-      headerHeight: 28.4,
+      headerHeight: 29.27,
       borderWidth: 15,
       minItemWidth: 210,
     },
@@ -50,8 +50,14 @@ export class DashboardComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {
       this.drawer.initLayoutDragAndDrop(this.layout);
+      this.layout.on('componentCreated',
+        this.drawer.closeDrawer.bind(this.drawer));
     });
   }
 
+  ngOnDestroy(): void {
+    this.layout.off('componentCreated',
+      this.drawer.closeDrawer.bind(this.drawer));
+  }
 
 }
