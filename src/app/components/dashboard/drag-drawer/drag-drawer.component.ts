@@ -1,4 +1,5 @@
-import { Component, Input,  OnInit,  ViewChildren} from '@angular/core';
+import {Component, Input, OnInit, ViewChildren} from '@angular/core';
+import {Components} from 'lazy-modules';
 import {UntilDestroy} from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -18,24 +19,25 @@ export class DragDrawerComponent implements OnInit {
       icon: 'icon-logo',
       text: 'Trading \n' +
         '    Chart',
-      component: 'chart'
+      component: Components.Chart
     },
     {
       text: 'Market \n' +
         'Watch',
       icon: 'icon-watch',
-      component: 'watchlist'
+      component: Components.Watchlist
 
     },
     /* {
        text: ' Orders\n' +
          'Book',
        icon: 'icon-orders'
-     },
+     },*/
      {
        text: 'Positions',
-       icon: 'icon-positions'
-     }*/
+       icon: 'icon-position',
+       component:  Components.Positions
+     }
   ];
 
 

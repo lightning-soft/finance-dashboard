@@ -52,7 +52,7 @@
  *
  */
 
-(window as any).__zone_symbol__UNPATCHED_EVENTS = ['close', 'error', 'open', 'message']; // ws events 
+// (window as any).__zone_symbol__UNPATCHED_EVENTS = ['close', 'error', 'open', 'message']; // ws events 
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */

@@ -3,9 +3,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemViewBuilder } from './components/item-view-builder';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import {IconComponent} from './models/cells/components/icon-conponent';
 
-let entryComponents = [
+const entryComponents = [
   DataGrid,
+  IconComponent,
 ];
 
 @NgModule({
@@ -13,11 +15,11 @@ let entryComponents = [
     CommonModule,
     ScrollingModule,
   ],
-  declarations: [
-    ItemViewBuilder,
+    declarations: [
+        ItemViewBuilder,
 
-    ...entryComponents
-  ],
+        ...entryComponents,
+    ],
   entryComponents,
   exports: entryComponents,
 })

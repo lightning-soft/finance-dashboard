@@ -1,5 +1,5 @@
-import {ComponentFactoryResolver, ComponentRef, Directive, Input, OnInit, Optional, TemplateRef, ViewContainerRef} from '@angular/core';
-import {IViewBuilderStore} from './view-builder-store';
+import { ComponentFactoryResolver, ComponentRef, Directive, Input, OnInit, Optional, TemplateRef, ViewContainerRef } from '@angular/core';
+import { IViewBuilderStore } from './view-builder-store';
 
 @Directive({
   selector: '[itemViewBuilder]'
@@ -15,9 +15,9 @@ export class ItemViewBuilder implements OnInit {
   }
 
   constructor(private templateRef: TemplateRef<any>,
-              private viewContainerRef: ViewContainerRef,
-              private componentFactoryResolver: ComponentFactoryResolver,
-              @Optional() private _viewBuilderStore: IViewBuilderStore) {
+    private viewContainerRef: ViewContainerRef,
+    private componentFactoryResolver: ComponentFactoryResolver,
+    @Optional() private _viewBuilderStore: IViewBuilderStore) {
   }
 
   ngOnInit(): void {
