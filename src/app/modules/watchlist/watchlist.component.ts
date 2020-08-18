@@ -1,9 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { IViewBuilderStore, ViewBuilderStore } from '../data-grid';
-import { iconComponentSelector } from '../data-grid/models/cells/components/icon-conponent';
-import { CustomIconComponent } from './CustomIconComponent';
 import { WatchlistItem } from './models/watchlist.item';
 
 @UntilDestroy()

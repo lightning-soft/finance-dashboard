@@ -16,7 +16,6 @@ export interface DataGridItem {
   templateUrl: 'data-grid.component.html',
   styleUrls: ['data-grid.scss'],
   providers: [{
-    multi: true,
     provide: IViewBuilderStore,
     useValue: new ViewBuilderStore({
       [iconComponentSelector]: IconComponent
