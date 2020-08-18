@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, Input} from '@angular/core';
+import { Component, EventEmitter, Input, Output} from '@angular/core';
 import {ThemeService} from '../../theme.service';
-import {NavigationDrawerService} from '../dashboard/navigation-drawer.service';
-import {tap} from 'rxjs/operators';
+import {UntilDestroy} from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -10,16 +10,12 @@ import {tap} from 'rxjs/operators';
 })
 export class NavbarComponent {
   isDark = true;
-  isOpen$ = this.navigationDrawerService.isOpen$
-    .pipe(
-      tap(() => {
-        this.changeDetectorRef.detectChanges();
-      })
-    );
+
+  @Input() isOpen;
+
+  @Output() drawerToggle = new EventEmitter<boolean>();
 
   constructor(private themeService: ThemeService,
-              private changeDetectorRef: ChangeDetectorRef,
-              private navigationDrawerService: NavigationDrawerService
   ) {
   }
 
@@ -29,6 +25,6 @@ export class NavbarComponent {
   }
 
   toggleNavigationDrawer() {
-    this.navigationDrawerService.toggle();
+    this.drawerToggle.emit(!this.isOpen);
   }
 }

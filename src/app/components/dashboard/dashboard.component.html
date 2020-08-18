@@ -1,5 +1,5 @@
-<app-navbar></app-navbar>
+<app-navbar (drawerToggle)="toggleDrawer($event)" [isOpen]="isDrawerOpen"></app-navbar>
 <div class="dashboard-wrapper">
-  <app-drag-drawer></app-drag-drawer>
+  <app-drag-drawer [isOpen]="isDrawerOpen"></app-drag-drawer>
   <layout #layout></layout>
 </div>
