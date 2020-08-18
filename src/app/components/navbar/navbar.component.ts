@@ -1,7 +1,8 @@
-import {Component, Input} from '@angular/core';
-import {ThemeService} from '../../theme.service';
-import {NavigationDrawerService} from '../dashboard/navigation-drawer.service';
+import { Component, Input } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { ThemeService } from '../../theme.service';
 
+@UntilDestroy()
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -9,11 +10,10 @@ import {NavigationDrawerService} from '../dashboard/navigation-drawer.service';
 })
 export class NavbarComponent {
   isDark = true;
-  isOpen$ = this.navigationDrawerService.isOpen$;
 
-  constructor(private themeService: ThemeService,
-              private navigationDrawerService: NavigationDrawerService
-  ) {
+  @Input() isOpen;
+
+  constructor(private themeService: ThemeService) {
   }
 
   switchTheme() {
@@ -21,7 +21,11 @@ export class NavbarComponent {
     this.isDark = !this.isDark;
   }
 
+  closeDrawer() {
+    this.isOpen = false;
+  }
+
   toggleNavigationDrawer() {
-    this.navigationDrawerService.toggle();
+    this.isOpen = !this.isOpen;
   }
 }

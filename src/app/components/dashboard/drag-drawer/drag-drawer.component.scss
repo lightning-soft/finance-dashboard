@@ -4,7 +4,7 @@
   position: absolute;
   z-index: 22;
   height: 100%;
-  transition: all 0.3s;
+  transition: transform 0.3s ease-out;
   transform: translateX(-100%);
 
   &--open {

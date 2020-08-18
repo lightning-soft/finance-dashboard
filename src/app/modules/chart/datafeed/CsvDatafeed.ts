@@ -172,30 +172,30 @@ export class CSVDatafeed extends Datafeed {
   }
 
   subscribeToRealtime(request: IBarsRequest) {
-    const chart = request.chart;
-    const instrument = getInstrument(request);
-    this._ngZone.runOutsideAngular(() => {
-      this.realtimeSubscription[instrument.symbol] = interval(100).subscribe(() => {
-        // setInterval(() => {
-        this._ngZone.runOutsideAngular(() => {
-          const lastBar = this._getLastBar(chart, chart?.instrument?.symbol == instrument?.symbol ? null : instrument);
-          if (!lastBar)
-            return;
-          const price = lastBar.close + ((Math.random() * lastBar.close) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
-          const volume = lastBar.volume + ((Math.random() * lastBar.volume) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
+    // const chart = request.chart;
+    // const instrument = getInstrument(request);
+    // this._ngZone.runOutsideAngular(() => {
+    //   this.realtimeSubscription[instrument.symbol] = interval(100).subscribe(() => {
+    //     // setInterval(() => {
+    //     this._ngZone.runOutsideAngular(() => {
+    //       const lastBar = this._getLastBar(chart, chart?.instrument?.symbol == instrument?.symbol ? null : instrument);
+    //       if (!lastBar)
+    //         return;
+    //       const price = lastBar.close + ((Math.random() * lastBar.close) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
+    //       const volume = lastBar.volume + ((Math.random() * lastBar.volume) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
 
-          const newQuate = {
-            date: new Date(),
-            instrument,
-            volume,
-            price,
-          } as IQuote;
+    //       const newQuate = {
+    //         date: new Date(),
+    //         instrument,
+    //         volume,
+    //         price,
+    //       } as IQuote;
 
-          this.processQuote(chart, newQuate);
-        });
-      });
-      // }, 500);
-    })
+    //       this.processQuote(chart, newQuate);
+    //     });
+    //   });
+    //   // }, 500);
+    // })
   }
 }
 

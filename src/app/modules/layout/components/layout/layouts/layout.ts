@@ -1,14 +1,15 @@
 import { ComponentFactoryResolver, ComponentRef, ElementRef, ViewContainerRef } from '@angular/core';
-import { LoaderComponent } from '../../loader/loader.component';
 import { LoadingService } from 'lazy-modules';
+import { LoaderComponent } from '../../loader/loader.component';
+import { IDropable } from './dropable';
 
-export abstract class Layout {
+export abstract class Layout implements IDropable {
+  canDragAndDrop = false;
 
   constructor(protected _factoryResolver: ComponentFactoryResolver,
     protected _creationsService: LoadingService,
     protected viewContainer: ViewContainerRef,
     protected container: ElementRef) {
-
   }
 
   abstract addComponent(item: string);
@@ -16,7 +17,15 @@ export abstract class Layout {
   handleResize() {
 
   }
-  createDragSource(element, itemConfig){
+
+  createDragSource(element, component: string) {
+  }
+
+  on(eventName: string, callback) {
+  }
+
+  off(eventName, callback) {
+
   }
 
   handleEvent(event) {

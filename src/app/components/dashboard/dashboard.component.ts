@@ -1,20 +1,14 @@
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { Components } from 'lazy-modules';
-import { NavigationDrawerService } from './navigation-drawer.service';
-import { DragDrawerComponent } from './drag-drawer/drag-drawer.component';
 
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  providers: [NavigationDrawerService]
 })
 export class DashboardComponent implements AfterViewInit {
-
-
   @ViewChild(LayoutComponent) layout: LayoutComponent;
-  @ViewChild(DragDrawerComponent) drawer: DragDrawerComponent;
 
   settings = {
     settings: {
@@ -23,7 +17,7 @@ export class DashboardComponent implements AfterViewInit {
       responsiveMode: 'always'
     },
     dimensions: {
-      headerHeight: 28.4,
+      headerHeight: 30,
       borderWidth: 15,
       minItemWidth: 210,
     },
@@ -54,9 +48,7 @@ export class DashboardComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {
-      this.drawer.initLayoutDragAndDrop(this.layout);
+      // this.drawer.initLayoutDragAndDrop(this.layout);
     });
   }
-
-
 }

@@ -1,34 +1,21 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communication';
-import {WatchlistItem} from './models/watchlist.item';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {IViewBuilderStore, ViewBuilderStore} from '../data-grid';
-import {IconComponent, iconComponentSelector} from '../data-grid/models/cells/components/icon-conponent';
-import {CustomIconComponent} from './CustomIconComponent';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
+import { WatchlistItem } from './models/watchlist.item';
 
 @UntilDestroy()
 @Component({
   selector: 'watchlist',
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss'],
-  providers: [
-    {
-      multi: true,
-      provide: IViewBuilderStore,
-      useValue: new ViewBuilderStore({
-        [iconComponentSelector]: CustomIconComponent
-      })
-    }
-  ]
 })
-export class WatchlistComponent  implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp', 'delete'];
+export class WatchlistComponent implements OnInit, OnDestroy {
+  headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
 
   private subscriptions = [] as Function[];
-
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,

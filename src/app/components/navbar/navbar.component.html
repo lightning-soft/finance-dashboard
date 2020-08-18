@@ -1,8 +1,8 @@
 <nav class="navigation-bar">
-  <div class="add">
+  <div  (click)="toggleNavigationDrawer()" class="add">
     <div
-      [class.open]="isOpen$ | async"
-      (click)="toggleNavigationDrawer()" class="plus">
+      [class.open]="isOpen"
+      class="plus">
       +
     </div>
   </div>
