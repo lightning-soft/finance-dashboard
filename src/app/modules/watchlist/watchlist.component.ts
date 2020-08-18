@@ -13,7 +13,6 @@ import {CustomIconComponent} from './CustomIconComponent';
   styleUrls: ['./watchlist.component.scss'],
   providers: [
     {
-      multi: true,
       provide: IViewBuilderStore,
       useValue: new ViewBuilderStore({
         [iconComponentSelector]: CustomIconComponent
