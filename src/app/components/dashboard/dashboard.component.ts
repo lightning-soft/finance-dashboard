@@ -1,20 +1,14 @@
-import {Component, ViewChild, AfterViewInit, OnDestroy, EventEmitter} from '@angular/core';
-import {LayoutComponent} from 'layout';
-import {Components} from 'lazy-modules';
-import {DragDrawerComponent} from './drag-drawer/drag-drawer.component';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { LayoutComponent } from 'layout';
+import { Components } from 'lazy-modules';
 
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements AfterViewInit, OnDestroy {
-
-  isDrawerOpen  = false;
-
+export class DashboardComponent implements AfterViewInit {
   @ViewChild(LayoutComponent) layout: LayoutComponent;
-  @ViewChild(DragDrawerComponent) drawer: DragDrawerComponent;
-
 
   settings = {
     settings: {
@@ -49,21 +43,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.layout.loadState(this.settings).then(() => {
-      this.drawer.initLayoutDragAndDrop(this.layout);
-      this.layout.on('componentCreated', this.closeDrawer.bind(this));
+      // this.drawer.initLayoutDragAndDrop(this.layout);
     });
-  }
-
-  closeDrawer(){
-   this.isDrawerOpen = false;
-  }
-
-  ngOnDestroy(): void {
-    this.layout.off('componentCreated',
-      this.closeDrawer.bind(this));
-  }
-
-  toggleDrawer(open) {
-    this.isDrawerOpen = open;
   }
 }

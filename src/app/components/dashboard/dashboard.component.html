@@ -1,5 +1,5 @@
-<app-navbar (drawerToggle)="toggleDrawer($event)" [isOpen]="isDrawerOpen"></app-navbar>
+<app-navbar #bar></app-navbar>
 <div class="dashboard-wrapper">
-  <app-drag-drawer [isOpen]="isDrawerOpen"></app-drag-drawer>
+  <app-drag-drawer *ngIf="layout" [layout]="layout" [isOpen]="bar.isOpen" (hide)="bar.closeDrawer()"></app-drag-drawer>
   <layout #layout></layout>
 </div>

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output} from '@angular/core';
-import {ThemeService} from '../../theme.service';
-import {UntilDestroy} from '@ngneat/until-destroy';
+import { Component, Input } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { ThemeService } from '../../theme.service';
 
 @UntilDestroy()
 @Component({
@@ -13,10 +13,7 @@ export class NavbarComponent {
 
   @Input() isOpen;
 
-  @Output() drawerToggle = new EventEmitter<boolean>();
-
-  constructor(private themeService: ThemeService,
-  ) {
+  constructor(private themeService: ThemeService) {
   }
 
   switchTheme() {
@@ -24,7 +21,11 @@ export class NavbarComponent {
     this.isDark = !this.isDark;
   }
 
+  closeDrawer() {
+    this.isOpen = false;
+  }
+
   toggleNavigationDrawer() {
-    this.drawerToggle.emit(!this.isOpen);
+    this.isOpen = !this.isOpen;
   }
 }

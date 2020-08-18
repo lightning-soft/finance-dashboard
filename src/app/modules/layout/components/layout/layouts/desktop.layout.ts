@@ -9,6 +9,7 @@ const DragTabClass = 'drag-tab-class';
 
 export class DesktopLayout extends Layout {
   goldenLayout: GoldenLayout;
+  canDragAndDrop = true;
 
   constructor(factoryResolver: ComponentFactoryResolver,
     creationsService: LoadingService,
@@ -52,13 +53,21 @@ export class DesktopLayout extends Layout {
     }
   }
 
-  createDragSource(element, itemConfig){
-    this.goldenLayout.createDragSource(element, itemConfig);
+  createDragSource(element, component) {
+    const config = {
+      title: component,
+      type: 'component',
+      componentName: component,
+    };
+
+    this.goldenLayout.createDragSource(element, config);
   }
+
   on(eventName: string, callback) {
     this.goldenLayout.on(eventName, callback);
   }
-  off(eventName: string, callback){
+
+  off(eventName: string, callback) {
     this.goldenLayout.off(eventName, callback);
   }
 

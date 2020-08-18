@@ -1,5 +1,6 @@
-import { Component, Input,  OnInit,  ViewChildren} from '@angular/core';
-import {UntilDestroy} from '@ngneat/until-destroy';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { LayoutComponent } from 'layout';
 
 @UntilDestroy()
 @Component({
@@ -7,9 +8,10 @@ import {UntilDestroy} from '@ngneat/until-destroy';
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements OnInit {
-
+export class DragDrawerComponent implements AfterViewInit {
+  @Input() layout: LayoutComponent;
   @Input() isOpen = false;
+  @Output() hide = new EventEmitter();
 
   @ViewChildren('add') viewItems;
 
@@ -38,20 +40,15 @@ export class DragDrawerComponent implements OnInit {
      }*/
   ];
 
-
-  ngOnInit(): void {
-  }
-
-  initLayoutDragAndDrop(layout) {
-
-    this.viewItems._results.forEach((item, index) => {
-      layout.createDragSource(item.nativeElement,
-        {
-          title: this.items[index].component,
-          type: 'component',
-          componentName: this.items[index].component,
+  ngAfterViewInit() {
+    const layout = this.layout;
+    layout.on('init', () => {
+      layout.on('componentCreated', () => this.hide.emit());
+      if (layout.canDragAndDrop) {
+        this.viewItems._results.forEach((item, index) => {
+          layout.createDragSource(item.nativeElement, this.items[index].component);
         });
+      }
     });
   }
-
 }

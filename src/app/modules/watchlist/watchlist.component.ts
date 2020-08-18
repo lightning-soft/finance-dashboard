@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communication';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { IQuote, Datafeed, Id, IInstrument, InstrumentsRepository } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
 @Component({
@@ -16,7 +16,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   private _itemsMap = new Map<Id, WatchlistItem>();
 
   private subscriptions = [] as Function[];
-
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
