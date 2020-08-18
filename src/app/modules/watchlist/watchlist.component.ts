@@ -1,16 +1,28 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {IQuote, Datafeed, Id, IInstrument, InstrumentsRepository} from 'communication';
-import { WatchlistItem } from './models/watchlist.item';
+import {WatchlistItem} from './models/watchlist.item';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {IViewBuilderStore, ViewBuilderStore} from '../data-grid';
+import {IconComponent, iconComponentSelector} from '../data-grid/models/cells/components/icon-conponent';
+import {CustomIconComponent} from './CustomIconComponent';
 
 @UntilDestroy()
 @Component({
   selector: 'watchlist',
   templateUrl: './watchlist.component.html',
-  styleUrls: ['./watchlist.component.scss']
+  styleUrls: ['./watchlist.component.scss'],
+  providers: [
+    {
+      multi: true,
+      provide: IViewBuilderStore,
+      useValue: new ViewBuilderStore({
+        [iconComponentSelector]: CustomIconComponent
+      })
+    }
+  ]
 })
-export class WatchlistComponent implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp'];
+export class WatchlistComponent  implements OnInit, OnDestroy {
+  headers = ['name', 'ask', 'bid', 'timestamp', 'delete'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
@@ -21,7 +33,8 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
     private _datafeed: Datafeed
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
@@ -61,18 +74,26 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   }
 
   addToWatchlist(instruments: IInstrument | IInstrument[]) {
-    if (instruments == null)
+    if (instruments == null) {
       throw new Error('Invalid instrument');
+    }
 
-    if (!Array.isArray(instruments))
+    if (!Array.isArray(instruments)) {
       instruments = [instruments];
+    }
 
-    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
-    for (const item of items)
+    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i, this.delete.bind(this)));
+    for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
+    }
 
     this.items = [...items, ...this.items];
     this.subscribeForRealtime(instruments);
+  }
+
+  delete(item) {
+    this._itemsMap.delete(item.instrumentId);
+    this.items = this.items.filter(i => i.instrumentId !== item.instrumentId);
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {
@@ -85,8 +106,9 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     for (const quote of quotes) {
       const item = this._itemsMap.get(quote?.instrumentId);
 
-      if (item)
+      if (item) {
         item.processQuote(quote);
+      }
     }
   }
 

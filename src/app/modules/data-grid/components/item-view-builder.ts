@@ -1,4 +1,14 @@
-import {ComponentFactoryResolver, ComponentRef, Directive, Input, OnInit, Optional, TemplateRef, ViewContainerRef} from '@angular/core';
+import {
+  ComponentFactoryResolver,
+  ComponentRef,
+  Directive,
+  Inject,
+  Input,
+  OnInit,
+  Optional,
+  TemplateRef,
+  ViewContainerRef
+} from '@angular/core';
 import {IViewBuilderStore} from './view-builder-store';
 
 @Directive({
@@ -17,7 +27,7 @@ export class ItemViewBuilder implements OnInit {
   constructor(private templateRef: TemplateRef<any>,
               private viewContainerRef: ViewContainerRef,
               private componentFactoryResolver: ComponentFactoryResolver,
-              @Optional() private _viewBuilderStore: IViewBuilderStore) {
+              @Inject(IViewBuilderStore) @Optional() private _viewBuilderStore: IViewBuilderStore[]) {
   }
 
   ngOnInit(): void {
@@ -31,7 +41,7 @@ export class ItemViewBuilder implements OnInit {
       return;
     }
 
-    const component = this._viewBuilderStore.getComponent(this._item.component);
+    const component = this._viewBuilderStore[0].getComponent(this._item.component);
 
     if (component instanceof Function === false) {
       console.warn(`Please provide ${this._item.component} in view builder store!`);

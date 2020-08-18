@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { DataGridModule } from 'data-grid';
 import { Components, ComponentStore, LazyModule } from 'lazy-modules';
 import { WatchlistComponent } from './watchlist.component';
+import {CustomIconComponent} from './CustomIconComponent';
 
 @NgModule({
   imports: [
@@ -14,6 +15,10 @@ import { WatchlistComponent } from './watchlist.component';
   ],
   declarations: [
     WatchlistComponent,
+    CustomIconComponent
+  ],
+  entryComponents:[
+    CustomIconComponent
   ],
   providers: [
   ],
