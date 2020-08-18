@@ -1,0 +1,21 @@
+
+body.#{$themeName} {
+
+  :host {
+    background-color: $tabBackground;
+
+    .list-type {
+
+      .list, .group{
+        background: $lightBackground;
+        color: $textColorSecondary;
+
+        &.active{
+          background: $bodyBackground;
+          color: $textColor;
+        }
+      }
+    }
+  }
+
+}

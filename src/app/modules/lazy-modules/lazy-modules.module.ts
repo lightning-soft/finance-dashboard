@@ -19,6 +19,10 @@ export class LoadingModule {
             path: Modules.Watchlist,
             loadChildren: () => import('../watchlist/watchlist.module').then(i => i.WatchlistModule)
           },
+          {
+            path: Modules.Positions,
+            loadChildren: () => import('../position/positions.module').then(i => i.PositionsModule)
+          },
         ]),
         {
           provide: ModulesStoreToken,

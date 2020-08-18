@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const _this = this;
         return zone.runOutsideAngular(() => {
           return on.apply(_this, args);
-        })
-      }
+        });
+      };
     })
     .catch(err => console.error(err));
 });

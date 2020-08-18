@@ -18,7 +18,9 @@ body, html {
 @import "scss/light.theme";
 @import "scss/template";
 
-
+.text-bold {
+  font-weight: 600;
+}
 
 .ant-modal-body {
   /* background: none;

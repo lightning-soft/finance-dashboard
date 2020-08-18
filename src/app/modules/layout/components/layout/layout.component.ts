@@ -53,12 +53,14 @@ export class LayoutComponent implements OnInit, IDropable {
 
   ngOnInit() {
     (window as any).l = this;
-    this.ngZone.runOutsideAngular(() => this._layoutHandler
+    // this.ngZone.runOutsideAngular(() =>
+    this._layoutHandler
       .handleCreate
       .pipe(
         untilDestroyed(this)
       )
-      .subscribe(name => this.addComponent(name)));
+      .subscribe(name => this.addComponent(name))
+    // );
   }
 
   addComponent(name: string) {
@@ -85,14 +87,14 @@ export class LayoutComponent implements OnInit, IDropable {
     if (this.layout)
       return;
 
-    this.ngZone.runOutsideAngular(() => {
-      // if (Environment.isPhone)
-      //   this.layout = new PhoneLayout(this._factoryResolver, this._creationsService,
-      //     this.viewContainer, this.container);
-      // else
-      this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
-        this.viewContainer, this.container, this._lazyLoadingService);
-    });
+    // this.ngZone.runOutsideAngular(() => {
+    // if (Environment.isPhone)
+    //   this.layout = new PhoneLayout(this._factoryResolver, this._creationsService,
+    //     this.viewContainer, this.container);
+    // else
+    this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
+      this.viewContainer, this.container, this._lazyLoadingService);
+    // });
   }
 
   @HostListener('window:resize')
