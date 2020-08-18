@@ -8,41 +8,36 @@ export class FakeDatafeed extends Datafeed {
 
     constructor(_ngZone: NgZone) {
         super();
-        _ngZone.runOutsideAngular(() => {
-            setInterval(() => {
-                _ngZone.runOutsideAngular(() => {
+        setInterval(() => {
+            const size = this._subscribedInstruments.length;
+            const count = Math.floor(randomIntFromInterval(0, size))
+            const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
+            // console.time('q')
 
-                    const size = this._subscribedInstruments.length;
-                    const count = Math.floor(randomIntFromInterval(0, size))
-                    const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
-                    // console.time('q')
+            // const size = this._subscribedInstruments.length;
+            // const count = size;
+            // const step = 1;
+            const quotes = [];
+            for (let i = step; i < count; i += step) {
+                const instrumentId = this._subscribedInstruments[i];
+                const updates = {};
 
-                    // const size = this._subscribedInstruments.length;
-                    // const count = size;
-                    // const step = 1;
-                    const quotes = [];
-                    for (let i = step; i < count; i += step) {
-                        const instrumentId = this._subscribedInstruments[i];
-                        const updates = {};
+                for (const key of ['ask', 'bid']) {
+                    const value = this._lastPrices.get(instrumentId);
+                    updates[key] = randomIntFromInterval(value - 10, value + 10);
+                    this._lastPrices.set(instrumentId, updates[key]);
+                }
 
-                        for (const key of ['ask', 'bid']) {
-                            const value = this._lastPrices.get(instrumentId);
-                            updates[key] = randomIntFromInterval(value - 10, value + 10);
-                            this._lastPrices.set(instrumentId, updates[key]);
-                        }
+                quotes.push({
+                    instrumentId,
+                    timestamp: new Date(),
+                    ...updates,
+                } as any);
+            }
 
-                        quotes.push({
-                            instrumentId,
-                            timestamp: new Date(),
-                            ...updates,
-                        } as any);
-                    }
-
-                    this._triggerQuotes(quotes);
-                });
-                // console.timeEnd('q');
-            }, 500);
-        });
+            this._triggerQuotes(quotes);
+            // console.timeEnd('q');
+        }, 100);
     }
 
     protected _subscribe(instruemntId: Id) {

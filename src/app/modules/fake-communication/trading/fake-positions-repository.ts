@@ -3,7 +3,7 @@ import {IPosition} from '../../communication/trading/models';
 import {Observable, of} from 'rxjs';
 
 const positions = [
-  ...createTestItems(3500)
+  ...createTestItems(100)
 ] as IPosition[];
 
 function createTestItems(count) {
