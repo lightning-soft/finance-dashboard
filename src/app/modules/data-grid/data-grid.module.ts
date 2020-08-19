@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ItemViewBuilder } from './components/item-view-builder';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { IconComponent } from './models/cells/components/icon-conponent';
-import { CapitalizePipe } from './components/capitalize';
 
 const entryComponents = [
   DataGrid,
@@ -18,7 +17,6 @@ const entryComponents = [
   ],
   declarations: [
     ItemViewBuilder,
-    CapitalizePipe,
 
     ...entryComponents,
   ],

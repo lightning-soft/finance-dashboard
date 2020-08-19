@@ -1,5 +1,5 @@
 @import "themes/index";
-$selectHeightContainer: 35px;
+$selectHeightContainer: 32px;
 $selectMarginBottom: 15px;
 
 :host {
@@ -20,7 +20,7 @@ $selectMarginBottom: 15px;
     }
     .wrapper{
       height: 100%;
-      padding: 10px;
+      padding-top: 10px;
     }
   }
 
@@ -28,6 +28,7 @@ $selectMarginBottom: 15px;
     position: relative;
     cursor: pointer;
     border-radius: 4px;
+    margin-left: 10px;
     margin-bottom: $selectMarginBottom;
     height: $selectHeightContainer;
     max-width: 140px;
