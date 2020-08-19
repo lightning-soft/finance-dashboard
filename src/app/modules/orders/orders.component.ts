@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {OrderItem} from './models/OrderItem';
-import {OrdersRepository} from 'communication';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { OrderItem } from './models/OrderItem';
+import { OrdersRepository } from 'communication';
 
 
 @UntilDestroy()

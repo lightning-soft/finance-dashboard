@@ -118,7 +118,7 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(comp.location.nativeElement));
 
-          for (let e of ['open', 'resize', 'destroy', 'close', 'hide', 'show'])
+          for (let e of ['open', 'destroy', 'close', 'hide', 'show'])
             container.on(e, tab => {
               // todo: remove this, it jsut hotfix
               console.log('container event', e, tab);
