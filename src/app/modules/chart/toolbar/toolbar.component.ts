@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { IInstrument } from '../../communication/trading/models';
-import { InstrumentsRepository } from '../../communication/trading/repositories';
+import { InstrumentsRepository, IInstrument } from 'communication';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -14,26 +13,7 @@ declare const StockChartX;
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements OnInit {
-  inputValue: any = { label: 'Lucy', value: 'lucy', age: 20 };
-  options: any[] = [
-    { label: 'Lucy', value: 'lucy', age: 20 },
-    { label: 'Jack', value: 'jack', age: 22 }
-  ];
-  compareTimeFrame = (obj1: ITimeFrame, obj2: ITimeFrame) => {
-    if (!obj1 || !obj2)
-      return;
 
-    return obj2.interval === obj1.interval
-        && obj2.periodicity === obj1.periodicity;
-  }
-
-  compareFun = (o1: any | string, o2: any) => {
-    if (o1) {
-      return typeof o1 === 'string' ? o1 === o2.label : o1.value === o2.value;
-    } else {
-      return false;
-    }
-  };
   timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
@@ -91,13 +71,7 @@ export class ToolbarComponent implements OnInit {
     }
   ];
 
-  compareInstrument = (o1: any | string, o2: any) => {
-    if (o1) {
-      return typeof o1 === 'string' ? o1 === o2.id : o1.id === o2.id;
-    } else {
-      return false;
-    }
-  };
+
 
   instuments: IInstrument[] = [];
 
@@ -107,7 +81,7 @@ export class ToolbarComponent implements OnInit {
     let instrument = this.chart?.instrument as any;
 
     if (instrument?.id != null)
-      return instrument;
+      return instrument.symbol;
   }
 
   set instrument(instrument: IInstrument) {
@@ -167,6 +141,32 @@ export class ToolbarComponent implements OnInit {
   set iconCross(value: string) {
     this.chart.crossHairType = value;
   }
+
+  compareInstrument = (o1: any | string, o2: any) => {
+    if (o1) {
+      return typeof o1 === 'string' ? o1 === o2.id : o1.id === o2.id;
+    } else {
+      return false;
+    }
+  };
+
+
+  compareTimeFrame = (obj1: ITimeFrame, obj2: ITimeFrame) => {
+    if (!obj1 || !obj2)
+      return;
+
+    return obj2.interval === obj1.interval
+      && obj2.periodicity === obj1.periodicity;
+  }
+
+  compareFun = (o1: any | string, o2: any) => {
+    if (o1) {
+      return typeof o1 === 'string' ? o1 === o2.label : o1.value === o2.value;
+    } else {
+      return false;
+    }
+  }
+
 
   constructor(private _instrumentsRepository: InstrumentsRepository) {
   }
