@@ -26,6 +26,9 @@
       "data-grid": [
         "src/app/modules/data-grid/index"
       ],
+      "ui": [
+        "src/app/modules/ui/index"
+      ],
       "lazy-modules": [
         "src/app/modules/lazy-modules/index"
       ],

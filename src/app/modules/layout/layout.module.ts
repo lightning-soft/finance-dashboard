@@ -1,20 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
 import { LayoutComponent } from './components/layout/layout.component';
-import { LoaderComponent } from './components/loader/loader.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
 import { LayoutService } from './layout.service';
+import { LoaderModule } from 'ui';
 
 let entryComponents = [
   LayoutComponent,
-  LoaderComponent
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-  ],
+    imports: [
+        CommonModule,
+        LoaderModule,
+    ],
   declarations: [
     ...entryComponents
   ],
@@ -38,7 +38,6 @@ export class LayoutModule {
         },
         LayoutService,
         GoldenLayoutHandler,
-        LoaderComponent
       ]
     };
   }

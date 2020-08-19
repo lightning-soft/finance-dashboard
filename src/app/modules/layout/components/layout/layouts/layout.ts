@@ -1,7 +1,7 @@
 import { ComponentFactoryResolver, ComponentRef, ElementRef, ViewContainerRef } from '@angular/core';
 import { LoadingService } from 'lazy-modules';
-import { LoaderComponent } from '../../loader/loader.component';
 import { IDropable } from './dropable';
+import { LoaderComponent } from 'ui';
 
 export abstract class Layout implements IDropable {
   canDragAndDrop = false;
