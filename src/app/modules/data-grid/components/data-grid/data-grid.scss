@@ -52,6 +52,7 @@ cdk-virtual-scroll-viewport {
   .data {
     white-space: nowrap;
     overflow: hidden;
+    text-transform: capitalize;
     text-overflow: ellipsis;
   }
 
