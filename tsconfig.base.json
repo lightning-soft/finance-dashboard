@@ -26,6 +26,9 @@
       "data-grid": [
         "src/app/modules/data-grid/index"
       ],
+      "themes": [
+        "src/app/modules/themes/index"
+      ],
       "ui": [
         "src/app/modules/ui/index"
       ],

@@ -1,9 +1,9 @@
-import { Layout } from './layout';
-import { EmptyLayout } from '../empty-layout';
-import { ComponentFactoryResolver, ElementRef, ViewContainerRef } from '@angular/core';
-import { LoadingService } from 'lazy-modules';
-import { ComponentInitCallback } from '../layout.component';
+import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
+import { LoadingService } from 'lazy-modules';
+import { EmptyLayout } from '../empty-layout';
+import { ComponentInitCallback } from '../layout.component';
+import { Layout } from './layout';
 
 const DragTabClass = 'drag-tab-class';
 
@@ -11,11 +11,14 @@ export class DesktopLayout extends Layout {
   goldenLayout: GoldenLayout;
   canDragAndDrop = true;
 
-  constructor(factoryResolver: ComponentFactoryResolver,
-              creationsService: LoadingService,
-              viewContainer: ViewContainerRef,
-              container: ElementRef,
-              private _lazyLoadingService: LazyLoadingService) {
+  constructor(
+    factoryResolver: ComponentFactoryResolver,
+    creationsService: LoadingService,
+    viewContainer: ViewContainerRef,
+    container: ElementRef,
+    private _lazyLoadingService: LazyLoadingService,
+    private _ngZone: NgZone
+  ) {
     super(factoryResolver, creationsService, viewContainer, container);
   }
 
@@ -55,7 +58,7 @@ export class DesktopLayout extends Layout {
 
   createDragSource(element, component) {
     const config = {
-      title: component,
+      title: component.capitalize(),
       type: 'component',
       componentName: component,
     };
@@ -98,39 +101,45 @@ export class DesktopLayout extends Layout {
 
   createComponentInitCallback(name: string): ComponentInitCallback {
     return async (container: GoldenLayout.Container, componentState: any) => {
-      // this.ngZone.run(async () => {
-      try {
-        const loader = this.getLoaderComponent();
-        this.viewContainer.insert(loader.hostView);
+      this._ngZone.run(async () => {
+        try {
+          const loader = this.getLoaderComponent();
+          this.viewContainer.insert(loader.hostView);
 
-        container
-          .getElement()
-          .append($(loader.location.nativeElement));
+          container
+            .getElement()
+            .append($(loader.location.nativeElement));
 
-        const comp = await this._creationsService.getComponentRef(name),
-          componentRef = this.viewContainer.insert(comp.hostView),
-          instance: any = comp.instance;
+          const comp = await this._creationsService.getComponentRef(name),
+            componentRef = this.viewContainer.insert(comp.hostView),
+            instance: any = comp.instance;
 
-        container
-          .getElement()
-          .append($(comp.location.nativeElement));
+          container
+            .getElement()
+            .append($(comp.location.nativeElement));
 
-        container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
-        this._addMobileTabDraggingSupport(container.tab);
+          for (let e of ['open', 'resize', 'destroy', 'close', 'hide', 'show'])
+            container.on(e, tab => {
+              // todo: remove this, it jsut hotfix
+              console.log('container event', e, tab);
+              window.dispatchEvent(new Event('resize'));
+            });
+          container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
+          this._addMobileTabDraggingSupport(container.tab);
 
-        instance.componentRef = componentRef;
-        instance.goldenLayoutContainer = container;
+          instance.componentRef = componentRef;
+          instance.goldenLayoutContainer = container;
 
-        if (instance.loadState) {
-          instance.loadState(componentState);
+          if (instance.loadState) {
+            instance.loadState(componentState);
+          }
+
+          loader.destroy();
+        } catch (e) {
+          console.error(e);
+          container.close();
         }
-
-        loader.destroy();
-      } catch (e) {
-        console.error(e);
-        container.close();
-      }
-      // });
+      });
     };
   }
 
@@ -140,6 +149,8 @@ export class DesktopLayout extends Layout {
 
     try {
       const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
+
+
 
       goldenLayout.getComponent = (name) => {
         return this.createComponentInitCallback(name);
@@ -226,7 +237,7 @@ export class DesktopLayout extends Layout {
     const dragElement = $(tab.element).find(`.${DragTabClass}`);
 
     dragListener.off('dragStart', origin, tab);
-    const onDragStart = function(x, y) {
+    const onDragStart = function (x, y) {
       dragElement.appendTo('body');
       origin.call(tab, x, y);
     };

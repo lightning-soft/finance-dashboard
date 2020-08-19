@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { ThemeService } from '../../theme.service';
+import { ThemesHandler, Themes } from 'themes';
 
 @UntilDestroy()
 @Component({
@@ -9,16 +9,17 @@ import { ThemeService } from '../../theme.service';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  isDark = true;
+  get isDark() {
+    return this.themeHandler.theme === Themes.Dark;
+  }
 
   @Input() isOpen;
 
-  constructor(private themeService: ThemeService) {
+  constructor(private themeHandler: ThemesHandler) {
   }
 
   switchTheme() {
-    this.themeService.switchTheme(this.isDark ? 'scxThemeLight' : 'scxThemeDark');
-    this.isDark = !this.isDark;
+    this.themeHandler.changeTheme(this.isDark ? Themes.Light : Themes.Dark);
   }
 
   closeDrawer() {

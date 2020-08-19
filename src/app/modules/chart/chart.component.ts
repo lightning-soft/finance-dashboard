@@ -9,6 +9,7 @@ import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { environment } from 'src/environments/environment';
+import { ThemesHandler, Themes } from 'themes';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -37,6 +38,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     protected _lazyLoaderService: LazyLoadingService,
+    protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
     private layoutService: LayoutService
@@ -98,6 +100,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     });
 
+    this._themesHandler.themeChange$
+      .pipe(untilDestroyed(this))
+      .subscribe(value => chart.theme = getScxTheme(value));
 
     this.loadedState
       .pipe(
@@ -170,7 +175,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         symbol: 'AAPL',
         tickSize: 0.01,
         id: 'AAPL',
-      }
+      },
+      theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
   }
 
@@ -209,3 +215,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 }
 
+function getScxTheme(theme: Themes) {
+  return theme === Themes.Light ? StockChartX.Theme.Light : StockChartX.Theme.Dark;
+}

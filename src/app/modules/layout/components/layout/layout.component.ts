@@ -93,7 +93,7 @@ export class LayoutComponent implements OnInit, IDropable {
       //     this.viewContainer, this.container);
       // else
       this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
-        this.viewContainer, this.container, this._lazyLoadingService);
+        this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
     });
   }
 
