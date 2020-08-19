@@ -43,9 +43,8 @@
 
     .lm_vertical {
       .lm_drag_handle {
-        height: 200px !important;
-        top: -100px !important;
         width: 100% !important;
+
 
       }
     }
@@ -53,8 +52,6 @@
     .lm_horizontal {
       .lm_drag_handle {
         height: 100% !important;
-        width: 200px !important;
-        left: -100px !important;
       }
     }
   }
@@ -76,20 +73,41 @@
     position: relative;
     z-index: 12;
 
-    &:hover, // When hovered by mouse...
-    &.lm_dragging {
-      background: orange;
-    }
-
 
     &.lm_vertical {
       .lm_drag_handle {
         width: $width0;
         position: absolute;
         cursor: ns-resize;
+        transition: color 0.3s ease-in;
         mask-size: 22px !important;
+        mask-position: center;
         mask-image: url("../../../../../assets/img/svg/resize_vertical.svg");
         mask-repeat: no-repeat;
+      }
+      &:after {
+        content: '';
+        height: 1px;
+        width: 100%;
+        opacity: 0;
+        top: 7px;
+        z-index: -1;
+        position: absolute;
+        transition: opacity 0.3s ease-in;
+      }
+
+      &:before {
+        content: '';
+        width: 45px;
+        height: 12px;
+        top: 1.5px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+        border-radius: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
       }
     }
 
@@ -101,9 +119,53 @@
         height: $height0;
         position: absolute;
         cursor: ew-resize;
-        mask-image: url("../../../../../assets/img/svg/resize.svg");
-        mask-size: 100%;
+        mask-image: url("../../../../../assets/img/svg/resize.svg") !important;
+        background-color: transparent;
+        mask-size: 6px;
+        transition: color 0.3s ease-in;
+        mask-position: center center;
         mask-repeat: no-repeat;
+      }
+
+      &:after {
+        content: '';
+        width: 1px;
+        height: 100%;
+        opacity: 0;
+        left: 7px;
+        z-index: -1;
+        position: absolute;
+        transition: opacity 0.3s ease-in;
+      }
+
+      &:before {
+        content: '';
+        height: 45px;
+        width: 100%;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+        border-radius: 4px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+
+    &:hover, // When hovered by mouse...
+    &.lm_dragging {
+      &.lm_horizontal {
+        .lm_drag_handle {
+        }
+      }
+
+      &:after {
+        opacity: 1;
+
+      }
+
+      &:before {
+        opacity: 1;
       }
     }
   }
@@ -470,13 +532,11 @@
   // Separator line (handle to change pane size)
   .lm_splitter {
     background: $color0;
-    opacity: 0.001;
     transition: opacity 200ms ease;
 
     &:hover, // When hovered by mouse...
     &.lm_dragging {
       background: $color5;
-      opacity: 1;
     }
   }
 
