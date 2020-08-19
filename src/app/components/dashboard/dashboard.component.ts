@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, forwardRef } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { Components } from 'lazy-modules';
+import { ThemesHandler, Themes } from 'themes';
 
 @Component({
   selector: 'dashboard',
@@ -46,7 +47,14 @@ export class DashboardComponent implements AfterViewInit {
     ]
   };
 
+  constructor(private _themesHandler: ThemesHandler) { }
+
   ngAfterViewInit() {
     this.layout.loadState(this.settings);
+
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass();
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
   }
 }

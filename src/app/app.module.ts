@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
+import { ThemesHandler } from 'themes';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,9 @@ import { FakeCommunicationModule } from 'fake-communication';
       },
     ]),
   ],
-  providers: [],
+  providers: [
+    ThemesHandler,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
