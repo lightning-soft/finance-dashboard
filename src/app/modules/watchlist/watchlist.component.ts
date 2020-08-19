@@ -11,7 +11,7 @@ import { WatchlistItem } from './models/watchlist.item';
   styleUrls: ['./watchlist.component.scss'],
 })
 export class WatchlistComponent implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp',];
+  headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();

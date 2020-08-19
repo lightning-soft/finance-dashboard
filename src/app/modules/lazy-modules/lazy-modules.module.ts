@@ -23,6 +23,10 @@ export class LoadingModule {
             path: Modules.Positions,
             loadChildren: () => import('../position/positions.module').then(i => i.PositionsModule)
           },
+          {
+            path: Modules.Orders,
+            loadChildren: () => import('../orders/orders.module').then(i => i.OrdersModule)
+          },
         ]),
         {
           provide: ModulesStoreToken,
