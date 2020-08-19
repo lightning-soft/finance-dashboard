@@ -47,8 +47,6 @@ export class DashboardComponent implements AfterViewInit {
   };
 
   ngAfterViewInit() {
-    this.layout.loadState(this.settings).then(() => {
-      // this.drawer.initLayoutDragAndDrop(this.layout);
-    });
+    this.layout.loadState(this.settings);
   }
 }
