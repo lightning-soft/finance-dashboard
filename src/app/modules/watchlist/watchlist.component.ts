@@ -3,6 +3,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
 
+
 @UntilDestroy()
 @Component({
   selector: 'watchlist',
@@ -10,7 +11,7 @@ import { WatchlistItem } from './models/watchlist.item';
   styleUrls: ['./watchlist.component.scss'],
 })
 export class WatchlistComponent implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp'];
+  headers = ['name', 'ask', 'bid', 'timestamp',];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
@@ -69,7 +70,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
       instruments = [instruments];
     }
 
-    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i, this.delete.bind(this)));
+    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }

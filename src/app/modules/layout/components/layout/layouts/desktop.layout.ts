@@ -12,10 +12,10 @@ export class DesktopLayout extends Layout {
   canDragAndDrop = true;
 
   constructor(factoryResolver: ComponentFactoryResolver,
-    creationsService: LoadingService,
-    viewContainer: ViewContainerRef,
-    container: ElementRef,
-    private _lazyLoadingService: LazyLoadingService) {
+              creationsService: LoadingService,
+              viewContainer: ViewContainerRef,
+              container: ElementRef,
+              private _lazyLoadingService: LazyLoadingService) {
     super(factoryResolver, creationsService, viewContainer, container);
   }
 
@@ -34,7 +34,7 @@ export class DesktopLayout extends Layout {
       return;
     }
 
-    let goldenLayout = this.goldenLayout,
+    const goldenLayout = this.goldenLayout,
       content = goldenLayout.selectedItem || goldenLayout.root.contentItems[0],
       item = {
         type: 'component',
@@ -79,32 +79,35 @@ export class DesktopLayout extends Layout {
 
   handleEvent(event) {
     super.handleEvent(event);
-    let goldenLayout = this.goldenLayout;
-    if (!this.goldenLayout)
+    const goldenLayout = this.goldenLayout;
+    if (!this.goldenLayout) {
       return;
+    }
 
-    if (!goldenLayout.selectedItem)
+    if (!goldenLayout.selectedItem) {
       goldenLayout.selectItem(goldenLayout.root && goldenLayout.root.contentItems && goldenLayout.root.contentItems[0]);
+    }
 
-    let item = goldenLayout.selectedItem,
+    const item = goldenLayout.selectedItem,
       activeItem: any = item && item.getActiveContentItem ? item.getActiveContentItem() : item;
 
-    if (activeItem && activeItem.container)
+    if (activeItem && activeItem.container) {
       activeItem.container.emit('event', event);
+    }
   }
 
   createComponentInitCallback(name: string): ComponentInitCallback {
     return async (container: GoldenLayout.Container, componentState: any) => {
       // this.ngZone.run(async () => {
       try {
-        let loader = this.getLoaderComponent();
+        const loader = this.getLoaderComponent();
         this.viewContainer.insert(loader.hostView);
 
         container
           .getElement()
           .append($(loader.location.nativeElement));
 
-        let comp = await this._creationsService.getComponentRef(name),
+        const comp = await this._creationsService.getComponentRef(name),
           componentRef = this.viewContainer.insert(comp.hostView),
           instance: any = comp.instance;
 
@@ -118,8 +121,9 @@ export class DesktopLayout extends Layout {
         instance.componentRef = componentRef;
         instance.goldenLayoutContainer = container;
 
-        if (instance.loadState)
+        if (instance.loadState) {
           instance.loadState(componentState);
+        }
 
         loader.destroy();
       } catch (e) {
@@ -135,7 +139,7 @@ export class DesktopLayout extends Layout {
     await this._lazyLoadingService.loadGoldenLayout();
 
     try {
-      let goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
+      const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
 
       goldenLayout.getComponent = (name) => {
         return this.createComponentInitCallback(name);
@@ -154,28 +158,32 @@ export class DesktopLayout extends Layout {
   }
 
   saveState(): any {
-    if (!this.goldenLayout || !this.goldenLayout.root)
+    if (!this.goldenLayout || !this.goldenLayout.root) {
       return;
+    }
 
     this.extendState(this.goldenLayout.root.contentItems);
     return this.goldenLayout.toConfig();
   }
 
   extendState(items: GoldenLayout.ContentItem[]) {
-    if (!items || !items.length)
+    if (!items || !items.length) {
       return;
+    }
 
-    for (let item of items) {
-      if (item.isComponent && (item as any).container.trigger)
+    for (const item of items) {
+      if (item.isComponent && (item as any).container.trigger) {
         (item as any).container.trigger('extendState');
+      }
 
       this.extendState(item.contentItems);
     }
   }
 
   _tryDestroy() {
-    if (this.goldenLayout && this.goldenLayout.isInitialised)
+    if (this.goldenLayout && this.goldenLayout.isInitialised) {
       this.goldenLayout.destroy();
+    }
   }
 
   loadEmptyState() {
@@ -194,8 +202,9 @@ export class DesktopLayout extends Layout {
     *
     * */
 
-    if (!tab)
+    if (!tab) {
       return;
+    }
 
     const tabDrag = $(`<span class="${DragTabClass}"></span>`);
     tabDrag.css({
@@ -217,7 +226,7 @@ export class DesktopLayout extends Layout {
     const dragElement = $(tab.element).find(`.${DragTabClass}`);
 
     dragListener.off('dragStart', origin, tab);
-    const onDragStart = function (x, y) {
+    const onDragStart = function(x, y) {
       dragElement.appendTo('body');
       origin.call(tab, x, y);
     };
