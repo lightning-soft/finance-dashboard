@@ -3,6 +3,8 @@ import { InstrumentsRepository, Datafeed } from '../communication';
 import { FakeInstrumentsRepository, FakeDatafeed } from './trading';
 import { PositionsRepository } from '../communication/trading/repositories/positions.repository';
 import { FakePositionsRepository } from './trading/fake-positions-repository';
+import {OrdersRepository} from '../communication/trading/repositories/orders.repository';
+import {FakeOrdersRepository} from './trading/fake-orders.repository';
 
 @NgModule({})
 export class FakeCommunicationModule {
@@ -22,6 +24,10 @@ export class FakeCommunicationModule {
               {
                 provide: PositionsRepository,
                 useClass: FakePositionsRepository
+              },
+              {
+                provide: OrdersRepository,
+                useClass: FakeOrdersRepository
               }
             ]
         };

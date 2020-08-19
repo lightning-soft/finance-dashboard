@@ -4,13 +4,17 @@ body.#{$themeName} {
   :host {
     background-color: $tabBackground;
 
+   ::ng-deep data-grid {
+      background: $gridBackground;
+    }
+
     .list-type {
 
-      .list, .group{
+      .list, .group {
         background: $lightBackground;
         color: $textColorSecondary;
 
-        &.active{
+        &.active {
           background: $bodyBackground;
           color: $textColor;
         }

@@ -5,7 +5,8 @@
   height: 100%;
   overflow: auto;
   width: 100%;
-  padding: 15px;
+  padding: 10px;
+
 
   ::ng-deep data-grid{
     height: calc(100% - 48px);

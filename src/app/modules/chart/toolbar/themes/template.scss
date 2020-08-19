@@ -45,28 +45,6 @@ body.#{$themeName} {
 }
 
 ::ng-deep body.#{$themeName} {
-  .toolbar-dropdown nz-option-container {
-    background: $tabBackground !important;
-    width: 140px;
 
-    .ant-select-item-option-content {
-      color: $textColor !important;
-
-    }
-
-  }
-
-  .toolbar-dropdown {
-    .ant-dropdown-menu, &.ant-select-dropdown {
-      background-color: $tabBackground !important;
-      color: $textColor !important;
-
-    }
-  }
-
-  .toolbar-submenu {
-    background-color: $tabBackground !important;
-    color: $textColor !important;
-  }
 
 }

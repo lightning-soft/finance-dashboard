@@ -1,0 +1,30 @@
+
+body.#{$themeName} {
+
+  :host {
+    background-color: $tabBackground;
+
+    .wrapper {
+      background: $gridBackground;
+    }
+
+    ::ng-deep {
+      th {
+        background: $gridBackground !important;
+      }
+    }
+
+    nz-select {
+      color: $textColor !important;
+    }
+
+    .select-container {
+      background-color: $lightBackground !important;
+    }
+
+    .icon-arrow-dropdown {
+      color: $textColorSecondary;
+    }
+  }
+
+}

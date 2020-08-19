@@ -43,7 +43,7 @@ export class DataGrid<T extends DataGridItem = any> {
       return '-0px';
     }
 
-    const offset = this.viewPort['_renderedContentOffset'];
+    const offset = this.viewPort['_renderedContentOffset'] + 1;
     return `-${offset}px`;
   }
 }

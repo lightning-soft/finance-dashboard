@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
   selector: 'loader',
@@ -6,5 +6,5 @@ import {Component} from '@angular/core';
   templateUrl: './loader.component.html',
 })
 export class LoaderComponent {
-
+    @Input() size = 36;
 }

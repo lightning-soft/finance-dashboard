@@ -30,11 +30,12 @@ export class DragDrawerComponent implements AfterViewInit {
       component: Components.Watchlist
 
     },
-    /* {
-       text: ' Orders\n' +
-         'Book',
-       icon: 'icon-orders'
-     },*/
+    {
+      text: ' Orders\n' +
+        'Book',
+      icon: 'icon-orders',
+      component: Components.Orders
+    },
     {
       text: 'Positions',
       icon: 'icon-position',
