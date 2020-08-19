@@ -169,7 +169,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       instrument: (state && state.instrument) || {
         symbol: 'AAPL',
         tickSize: 0.01,
-        // id: 'AAPL',
+        id: 'AAPL',
       }
     } as IChartConfig);
   }

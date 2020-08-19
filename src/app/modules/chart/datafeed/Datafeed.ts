@@ -75,12 +75,14 @@ export abstract class Datafeed implements IDatafeed {
       barsCount = Math.round(chart.lastVisibleIndex - chart.firstVisibleIndex);
     }
 
-    if (request.kind === RequestKind.BARS) {
-      // if (!Environment.isMobile && barsCount > 0)
-      //   chart.recordRange(barsCount);
-    } else if (request.kind === RequestKind.MORE_BARS && !instrument) {
-      chart.firstVisibleRecord = barsCount < 0 ? 0 : oldFirstVisibleRecord + barsCount;
-      chart.lastVisibleRecord = oldLastVisibleRecord + Math.abs(barsCount);
+    // if !instrument then load bars for chart, not for compare
+    if (!instrument) {
+      if (request.kind === RequestKind.BARS) {
+        chart.recordRange(barsCount > 0 && barsCount < 100 ? barsCount : 100);
+      } else if (request.kind === RequestKind.MORE_BARS) {
+        chart.firstVisibleRecord = barsCount < 0 ? 0 : oldFirstVisibleRecord + barsCount;
+        chart.lastVisibleRecord = oldLastVisibleRecord + Math.abs(barsCount);
+      }
     }
 
     this._requests.delete(request.id);
