@@ -44,14 +44,32 @@
     .lm_vertical {
       .lm_drag_handle {
         width: 100% !important;
+        height: 200px !important;
+        top: -100px !important;
+      }
 
+      &:before {
+        transform: translateX(-50%) translateY(-50%) !important;
+      }
 
+      &:after {
+        top: 0 !important;
       }
     }
 
     .lm_horizontal {
       .lm_drag_handle {
         height: 100% !important;
+        width: 200px !important;
+        left: -100px !important;
+      }
+
+      &:before {
+        left: -50%;
+      }
+
+      &:after {
+        left: -10% !important;
       }
     }
   }
@@ -71,7 +89,7 @@
   // Separator line (handle to change pane size)
   .lm_splitter {
     position: relative;
-    z-index: 12;
+    z-index: 40;
 
 
     &.lm_vertical {
@@ -85,6 +103,7 @@
         mask-image: url("../../../../../assets/img/svg/resize_vertical.svg");
         mask-repeat: no-repeat;
       }
+
       &:after {
         content: '';
         height: 1px;
