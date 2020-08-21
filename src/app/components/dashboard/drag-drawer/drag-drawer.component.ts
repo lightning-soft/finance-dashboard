@@ -40,6 +40,11 @@ export class DragDrawerComponent implements AfterViewInit {
       text: 'Positions',
       icon: 'icon-position',
       component: Components.Positions
+    },
+    {
+      text: 'Make order',
+      icon: 'icon-orders',
+      component: Components.OrderForm
     }
   ];
 
