@@ -27,6 +27,10 @@ export class LoadingModule {
             path: Modules.Orders,
             loadChildren: () => import('../orders/orders.module').then(i => i.OrdersModule)
           },
+          {
+            path: Modules.OrderForm,
+            loadChildren: () => import('../order-form/order-form.module').then(i => i.OrderFormModule)
+          },
         ]),
         {
           provide: ModulesStoreToken,

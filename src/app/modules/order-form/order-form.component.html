@@ -1,0 +1,48 @@
+<form [formGroup]="form" class="volume-background">
+  <div (click)="addVolume(-0.1)" class="minus">-</div>
+  <div class="volume">
+    <div>Volume</div>
+    <div class="value">{{volume}}</div>
+  </div>
+  <div (click)="addVolume(0.1)" class="add">+</div>
+</form>
+
+<div class="grid-list">
+  <button (click)="apply('sell')" class="sell">
+    Sell
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+  <button (click)="apply('buy')" class="buy">
+    Buy
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+  <div [class.visibility-hidden]="!longPositions.length" class="list sell-list">
+    <div class="close-all">Close All <i (click)="deleteAll(true)" class="icon-close"></i>
+    </div>
+    <div *ngFor="let position of longPositions; trackBy: trackByFn" class="list-item ">
+      <div>
+        <div class="item-volume">{{position.size}}</div>
+        <div class="item-price">${{position.price}}</div>
+      </div>
+      <i (click)="deleteOrder(position)" class="icon-close"></i>
+    </div>
+  </div>
+
+  <div [class.visibility-hidden]="!shortPositions.length" class="list buy-list">
+    <div class="close-all">Close All <i
+      (click)="deleteAll(false)"
+      class="icon-close"></i>
+    </div>
+    <div *ngFor="let position of shortPositions; trackBy: trackByFn" class="list-item ">
+      <div>
+        <div class="item-volume">{{position.size}}</div>
+        <div class="item-price">-${{position.price}}</div>
+      </div>
+      <i (click)="deleteOrder(position)" class="icon-close"></i>
+    </div>
+  </div>
+</div>

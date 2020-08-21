@@ -7,4 +7,5 @@ export interface IPosition extends IBaseItem{
   realized: number;
   unrealized: number;
   total: number;
+  isLong: boolean;
 }

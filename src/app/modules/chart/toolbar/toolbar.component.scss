@@ -137,6 +137,12 @@
       height: 70%;
     }
   }
+
+  &__zoom, &__drawing-instruments{
+    nz-button-group {
+      width: 100%;
+    }
+  }
 }
 
 .icon-arrow-dropdown {
