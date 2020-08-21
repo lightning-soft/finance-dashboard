@@ -26,22 +26,26 @@ export class DashboardComponent implements AfterViewInit {
       {
         type: 'row',
         content: [
-          // {
-          //   type: 'component',
-          //   componentName: Components.Chart
-          // },
-          // {
-          //   type: 'component',
-          //   componentName: Components.Chart
-          // },
           {
             type: 'component',
-            componentName: Components.Watchlist
+            componentName: Components.Chart
           },
+          // {
+          //   type: 'component',
+          //   componentName: Components.Chart
+          // },
+         /* {
+            type: 'component',
+            componentName: Components.Watchlist
+          },*/
           {
             type: 'component',
             componentName: Components.Orders
-          }
+          },
+          /*{
+            type: 'component',
+            componentName: Components.OrderForm
+          }*/
         ]
       },
     ]

@@ -31,7 +31,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(orderList => {
         this.orders = orderList;
-        console.table(this.orders);
 
         this.orders.forEach(
           (order) => {

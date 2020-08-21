@@ -19,7 +19,7 @@
       </button>
     </div>
     <div
-      (mouseenter)="frame.setOpenState(true)" class="pane_time-frame">
+      class="pane_time-frame">
       <nz-select
         #frame
         [nzShowArrow]="false"
@@ -28,7 +28,7 @@
         <nz-option *ngFor="let option of timeFrameOptions" [nzValue]="option" [nzLabel]="getTimeFrame(option)">
         </nz-option>
       </nz-select>
-      <i  class="icon-arrow-dropdown"></i>
+      <i (click)="frame.setOpenState(true)" class="icon-arrow-dropdown"></i>
     </div>
     <div class="pane__indicators">
       <nz-button-group>
@@ -45,7 +45,7 @@
         </ul>
       </nz-dropdown-menu> -->
     </div>
-    <div (mouseenter)="price.setOpenState(true)" class="pane__price-style">
+    <div class="pane__price-style">
       <nz-select #price [nzCustomTemplate]="defaultTemplate"
                  nzDropdownClassName="toolbar-dropdown" [(ngModel)]="priceStyle">
         <nz-option *ngFor="let option of priceStyles" [nzValue]="option" [nzLabel]="option" nzCustomContent
@@ -53,12 +53,11 @@
           <span class="scx-icon icon-{{option}}"></span>{{option}}
         </nz-option>
       </nz-select>
-      <i class="icon-arrow-dropdown"></i>
+      <i (click)="price.setOpenState(true)" class="icon-arrow-dropdown"></i>
 
     </div>
 
     <div
-      (mouseenter)="cross.setOpenState(true)"
       class="pane__icon-cross">
       <nz-select #cross [nzCustomTemplate]="defaultTemplate" nzDropdownClassName="toolbar-dropdown"
                  [(ngModel)]="iconCross">
@@ -69,22 +68,23 @@
         </nz-option>
       </nz-select>
 
-      <i class="icon-arrow-dropdown"></i>
+      <i (click)="cross.setOpenState(true)" class="icon-arrow-dropdown"></i>
 
     </div>
 
     <div
-      (mouseenter)="menu1.setMouseState(true)"
-
       class="pane__zoom">
-      <nz-button-group>
-        <button nzOverlayClassName="toolbar-dropdown" nz-button nz-dropdown [nzDropdownMenu]="menu1"
-                nzPlacement="bottomRight">
+      <nz-button-group
+        nzPlacement="bottomRight"
+        nzTrigger="click"
+        nzOverlayClassName="toolbar-dropdown"
+        nz-dropdown [nzDropdownMenu]="menu1">
+        <button nz-button>
           <span class="icon-zoom"></span>
         </button>
+        <i class="icon-arrow-dropdown"></i>
       </nz-button-group>
 
-      <i class="icon-arrow-dropdown"></i>
 
       <nz-dropdown-menu #menu1="nzDropdownMenu">
         <ul nz-menu>
@@ -108,16 +108,16 @@
     </div> -->
 
     <div
-      (mouseenter)="menu2.setMouseState(true)"
       class="pane__drawing-instruments">
-      <nz-button-group>
-        <button nz-button nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu2"
-                nzPlacement="bottomRight">
+      <nz-button-group
+        nzTrigger="click"
+        nzOverlayClassName="toolbar-dropdown" nz-dropdown [nzDropdownMenu]="menu2"
+        nzPlacement="bottomRight">
+        <button nz-button>
           <span class="scx-icon icon-toolbar_drawing-tools"></span>
         </button>
+        <i class="icon-arrow-dropdown"></i>
       </nz-button-group>
-
-      <i (click)="menu2.setMouseState(true)" class="icon-arrow-dropdown"></i>
 
       <nz-dropdown-menu #menu2="nzDropdownMenu">
         <ul nz-menu>

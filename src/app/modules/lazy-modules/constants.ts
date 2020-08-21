@@ -4,14 +4,16 @@ export const Modules = {
   Chart: 'chart',
   Watchlist: 'watchlist',
   Positions: 'positions',
-  Orders: 'orders'
+  Orders: 'orders',
+  OrderForm: 'order-form'
 };
 
 export const Components = {
   Chart: 'chart',
   Watchlist: 'watchlist',
   Positions: 'positions',
-  Orders: 'orders'
+  Orders: 'orders',
+  OrderForm: 'order-form'
 };
 
 export const modulesStore: IModules[] = [
@@ -37,6 +39,12 @@ export const modulesStore: IModules[] = [
     module: Modules.Orders,
     components: [
       Components.Orders,
+    ]
+  },
+  {
+    module: Modules.OrderForm,
+    components: [
+      Components.OrderForm,
     ]
   },
 ];
