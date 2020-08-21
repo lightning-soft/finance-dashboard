@@ -16,7 +16,10 @@ export class FakeAccountRepository extends Repository<IAccount> {
 
   getItems(params): Observable<IAccount[]> {
     return of([
+      {name: 'CV', id: 1, server: '', account: '+++++222'},
+      {name: 'CV', id: 1, server: '', account: '+++++222'},
       {name: 'CV', id: 1, server: '', account: '+++++222'}
+
     ] as IAccount[]);
   }
 

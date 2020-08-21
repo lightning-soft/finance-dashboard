@@ -17,12 +17,12 @@
     <img src="https://krausefx.com/assets/posts/profilePictures/FelixKrause2014.jpg"
          alt=""
          class="avatar">Username@name.com
-    <i class="icon-dropdown-arrow"></i>
+    <i class="icon-arrow-dropdown"></i>
   </div>
   <nz-dropdown-menu #menu="nzDropdownMenu">
     <ul nz-menu nzSelectable>
       <li (click)="switchTheme()"  nz-menu-item>Change theme</li>
-      <li nz-menu-item>2nd menu item</li>
+      <li (click)="openAccountDialog()" nz-menu-item>Accounts</li>
       <li nz-menu-item>Logout</li>
     </ul>
   </nz-dropdown-menu>

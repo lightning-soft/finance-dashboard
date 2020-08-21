@@ -1,0 +1,14 @@
+body.#{$themeName} {
+  :host {
+    background: $tabBackground;
+    color: $textColor;
+
+    button {
+      background: $lightBackground;
+    }
+
+    .divider {
+      background: $lightBackground;
+    }
+  }
+}

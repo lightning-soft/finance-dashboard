@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { ThemesHandler, Themes } from 'themes';
+import {AccountsComponent} from '../../modules/accounts/accounts.component';
+import {NzModalService} from 'ng-zorro-antd';
 
 @UntilDestroy()
 @Component({
@@ -15,7 +17,7 @@ export class NavbarComponent {
 
   @Input() isOpen;
 
-  constructor(private themeHandler: ThemesHandler) {
+  constructor(private themeHandler: ThemesHandler, private modal: NzModalService) {
   }
 
   switchTheme() {
@@ -28,5 +30,16 @@ export class NavbarComponent {
 
   toggleNavigationDrawer() {
     this.isOpen = !this.isOpen;
+  }
+
+  openAccountDialog() {
+    const modal = this.modal.create({
+      nzTitle: null,
+      nzContent: AccountsComponent,
+      nzFooter: null,
+      nzWidth: 720,
+    });
+    const instance = modal.getContentComponent();
+
   }
 }

@@ -25,23 +25,25 @@ body, html {
 .d-none {
   display: none;
 }
-.visibility-hidden{
+
+.visibility-hidden {
   visibility: hidden;
 }
 
 .ant-modal-body {
-  /* background: none;
-   box-shadow: none;*/
+  background: none;
+  box-shadow: none;
   padding: 0 !important;
 }
 
+/*
 .ant-modal {
   width: auto !important;
 }
 
 .ant-modal-content {
   width: 230px;
-}
+}*/
 
 
 html, body {

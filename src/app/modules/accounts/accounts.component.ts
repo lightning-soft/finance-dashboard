@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import {AccountRepository, OrdersRepository} from 'communication';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {AccountRepository, IAccount, OrdersRepository} from 'communication';
+import {NzModalRef} from 'ng-zorro-antd/modal';
 
 
 @UntilDestroy()
@@ -11,24 +12,30 @@ import {AccountRepository, OrdersRepository} from 'communication';
 })
 export class AccountsComponent implements OnInit, OnDestroy {
 
-
-  items: any[] = [];
+  items: IAccount[] = [];
   accounts = [];
   status = 'Open';
 
   constructor(
     private repository: AccountRepository,
+    private modal: NzModalRef
   ) {
+
   }
 
 
   ngOnInit(): void {
-
+    this.repository.getItems()
+      .pipe(untilDestroyed(this))
+      .subscribe((accounts) => {
+        this.items = accounts;
+      });
 
   }
 
 
   ngOnDestroy(): void {
+    this.modal.destroy();
   }
 
 }

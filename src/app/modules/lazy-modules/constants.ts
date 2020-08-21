@@ -49,4 +49,10 @@ export const modulesStore: IModules[] = [
       Components.OrderForm,
     ]
   },
+  {
+    module: Modules.Accounts,
+    components: [
+      Components.Accounts
+    ]
+  }
 ];

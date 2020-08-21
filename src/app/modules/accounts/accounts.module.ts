@@ -1,23 +1,21 @@
-import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {DataGridModule} from 'data-grid';
 import {Components, ComponentStore, LazyModule} from 'lazy-modules';
 import {AccountsComponent} from './accounts.component';
 import {NzSelectModule} from 'ng-zorro-antd';
-import {FormsModule} from '@angular/forms';
+import {AccountItemComponent} from './account-item/account-item.component';
+import {CommonModule} from '@angular/common';
 
 @NgModule({
   imports: [
-    CommonModule,
-    DataGridModule,
     NzSelectModule,
-    FormsModule,
+    CommonModule,
   ],
   exports: [
     AccountsComponent
   ],
   declarations: [
     AccountsComponent,
+    AccountItemComponent,
   ],
 
 })

@@ -28,6 +28,10 @@ export class LoadingModule {
             loadChildren: () => import('../orders/orders.module').then(i => i.OrdersModule)
           },
           {
+            path: Modules.Accounts,
+            loadChildren: () => import('../accounts/accounts.module').then(i => i.AccountsModule)
+          },
+          {
             path: Modules.OrderForm,
             loadChildren: () => import('../order-form/order-form.module').then(i => i.OrderFormModule)
           },

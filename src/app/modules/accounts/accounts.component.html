@@ -1,4 +1,5 @@
 <div class="wrapper">
-  Accounts
-  <div>+</div>
+  <div class="add-account">+</div>
+
+  <account-item *ngFor="let item of items" [account]="item"></account-item>
 </div>
