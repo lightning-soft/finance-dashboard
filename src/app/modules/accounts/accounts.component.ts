@@ -6,10 +6,10 @@ import {AccountRepository, OrdersRepository} from 'communication';
 @UntilDestroy()
 @Component({
   selector: 'account-list',
-  templateUrl: './account.component.html',
-  styleUrls: ['./account.component.scss'],
+  templateUrl: './accounts.component.html',
+  styleUrls: ['./accounts.component.scss'],
 })
-export class AccountComponent implements OnInit, OnDestroy {
+export class AccountsComponent implements OnInit, OnDestroy {
 
 
   items: any[] = [];

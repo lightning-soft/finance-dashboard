@@ -8,6 +8,7 @@ import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
+import {NzDropDownModule} from 'ng-zorro-antd';
 
 @NgModule({
   declarations: [
@@ -16,24 +17,25 @@ import { ThemesHandler } from 'themes';
     DragDrawerComponent,
     AppComponent,
   ],
-  imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
-    NzModalModule,
-    BrowserAnimationsModule,
-    LayoutModule.forRoot(),
-    LoadingModule.forRoot(),
-    FakeCommunicationModule.forRoot(),
-    RouterModule.forRoot([
-      {
-        path: '',
-        component: DashboardComponent,
-      },
-      {
-        path: '**',
-        component: DashboardComponent,
-      },
-    ]),
-  ],
+    imports: [
+        BrowserModule.withServerTransition({appId: 'serverApp'}),
+        NzModalModule,
+        BrowserAnimationsModule,
+        LayoutModule.forRoot(),
+        LoadingModule.forRoot(),
+        FakeCommunicationModule.forRoot(),
+        RouterModule.forRoot([
+            {
+                path: '',
+                component: DashboardComponent,
+            },
+            {
+                path: '**',
+                component: DashboardComponent,
+            },
+        ]),
+        NzDropDownModule,
+    ],
   providers: [
     ThemesHandler,
   ],

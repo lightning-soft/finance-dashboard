@@ -5,7 +5,8 @@ export const Modules = {
   Watchlist: 'watchlist',
   Positions: 'positions',
   Orders: 'orders',
-  OrderForm: 'order-form'
+  OrderForm: 'order-form',
+  Accounts: 'accounts'
 };
 
 export const Components = {
@@ -13,7 +14,8 @@ export const Components = {
   Watchlist: 'watchlist',
   Positions: 'positions',
   Orders: 'orders',
-  OrderForm: 'order-form'
+  OrderForm: 'order-form',
+  Accounts: 'accounts'
 };
 
 export const modulesStore: IModules[] = [

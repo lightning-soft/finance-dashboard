@@ -11,10 +11,19 @@
     </div>
   <span class="name">T-Platform</span>
 
-  <div class="user-menu">
-    <div (click)="switchTheme()" class="change-theme">Change theme</div>
+  <div nzOverlayClassName="toolbar-dropdown"
+       nzTrigger="click"
+       nz-dropdown [nzDropdownMenu]="menu" class="user-menu">
     <img src="https://krausefx.com/assets/posts/profilePictures/FelixKrause2014.jpg"
          alt=""
          class="avatar">Username@name.com
+    <i class="icon-dropdown-arrow"></i>
   </div>
+  <nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu nzSelectable>
+      <li (click)="switchTheme()"  nz-menu-item>Change theme</li>
+      <li nz-menu-item>2nd menu item</li>
+      <li nz-menu-item>Logout</li>
+    </ul>
+  </nz-dropdown-menu>
 </nav>
