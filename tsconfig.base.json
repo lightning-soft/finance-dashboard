@@ -29,6 +29,9 @@
       "themes": [
         "src/app/modules/themes/index"
       ],
+      "core": [
+        "src/app/modules/core/index"
+      ],
       "ui": [
         "src/app/modules/ui/index"
       ],

@@ -1,7 +1,7 @@
-import {Component} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import { IPosition, PositionsRepository} from 'communication';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { IPosition, PositionsRepository } from 'communication';
 
 declare type Operation = 'sell' | 'buy';
 
@@ -53,7 +53,7 @@ export class OrderFormComponent {
   }
 
   apply(operation: Operation) {
-    this.form.patchValue({operation});
+    this.form.patchValue({ operation });
   }
 
   deleteOrder(order: IPosition) {
