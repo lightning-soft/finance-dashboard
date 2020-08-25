@@ -1,6 +1,6 @@
 import { Observable, of, throwError } from 'rxjs';
 import { IBaseItem as IBaseItem } from './item';
-import { IPaginationResponse } from '../../../../../.history/src/app/modules/communication/common/pagination_20200824183924';
+import {IPaginationResponse} from './pagination';
 
 export type ExcludeId<T> = {
     [P in Exclude<keyof T, keyof IBaseItem>]?: T[P]

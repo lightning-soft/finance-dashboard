@@ -35,6 +35,10 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     this.autoLoadData = false;
   }
 
+  getPositionsBySide(side: Side){
+    return this.items.filter(item => item.side === side);
+  }
+
   private _handleInstrumentChange() {
     this.loadData({ instrument: this.instrument });
   }

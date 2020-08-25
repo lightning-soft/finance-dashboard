@@ -6,18 +6,18 @@
   </div>
   <div (click)="addVolume(this.step)" class="add">+</div>
 </form>
-
-<button (click)="apply($event)" class="sell">
-  Sell
-  <div class="price">
-    1.24000
-  </div>
-</button>
-<button (click)="apply($event)" class="buy">
-  Buy
-  <div class="price">
-    1.24000
-  </div>
-</button>
-
+<div class="button-container">
+  <button (click)="apply($event)" class="sell">
+    Sell
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+  <button (click)="apply($event)" class="buy">
+    Buy
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+</div>
 <positions [instrument]="instrument"></positions>
