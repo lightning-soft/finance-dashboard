@@ -178,7 +178,6 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
             event.preventDefault();
             event.stopPropagation();
         }
-
         const hide = this.showLoading();
         this._deleteItem(item)
             .pipe(finalize(hide))
