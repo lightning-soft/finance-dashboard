@@ -15,7 +15,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   _isList = false;
 
-
   items: OrderItem[] = [];
   orders = [];
   status = 'Open';
@@ -29,8 +28,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.repository.getItems()
       .pipe(untilDestroyed(this))
-      .subscribe(orderList => {
-        this.orders = orderList;
+      .subscribe(res => {
+        this.orders = res.data;
 
         this.orders.forEach(
           (order) => {

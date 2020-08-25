@@ -1,4 +1,4 @@
-import { OnInit } from '@angular/core';
+import { OnInit, Directive } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { debounceTime, filter, finalize, tap } from 'rxjs/operators';
@@ -41,11 +41,12 @@ export interface IFormComponentConfig extends ILoadingComponentConfig {
     autoSave: boolean;
 }
 
+@Directive()
 export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T> implements OnInit {
     config: IFormComponentConfig = {
         ...DefaultLoadingItemConfig,
-        loadData: {
-            ...DefaultLoadingItemConfig.loadData,
+        autoLoadData: {
+            ...DefaultLoadingItemConfig.autoLoadData,
             onInit: false,
         },
         autoSave: true,
@@ -200,11 +201,11 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
     }
 
     protected _create(obj: T): Observable<any> {
-        return this.provider.createItem(obj);
+        return this.repository.createItem(obj);
     }
 
     protected _update(obj: T): Observable<any> {
-        return this.provider.updateItem(obj);
+        return this.repository.updateItem(obj);
     }
 
     protected handleItem(item: T): void {

@@ -21,7 +21,7 @@ export class LoadingModule {
           },
           {
             path: Modules.Positions,
-            loadChildren: () => import('../position/positions.module').then(i => i.PositionsModule)
+            loadChildren: () => import('../positions/positions.module').then(i => i.PositionsModule)
           },
           {
             path: Modules.Orders,

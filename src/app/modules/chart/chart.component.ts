@@ -28,11 +28,14 @@ const EVENTS_SUFFIX = '.scxComponent';
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
 
-
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
   chart: IChart;
+
+  get instrument() {
+    return this.chart?.instrument;
+  }
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 

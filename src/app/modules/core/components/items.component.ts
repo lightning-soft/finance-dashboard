@@ -1,21 +1,12 @@
-import { OnDestroy, OnInit } from '@angular/core';
+import { OnDestroy, OnInit, Directive } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
-import { IIdObject, IPaginationParams } from '../models';
+import { IIdObject, IPaginationParams, IPaginationResponse } from '../models';
 import { LoadingComponent } from './loading.component';
 
 export type ResponseHandling = 'append' | 'prepend' | null;
 
-function toArray(obj: IIdObject | IIdObject[]) {
-    return Array.isArray(obj) ? obj : [obj];
-}
-
-export const CollectionResponseHandlingMap = new Map<ResponseHandling, (response: IIdObject | IIdObject[], container: any[]) => any[]>([
-    ['append', (response, container) => [...container, ...toArray(response)]],
-    ['prepend', (response, container) => [...toArray(response), ...container]],
-    [null, (response, container) => container = toArray(response)],
-]);
-
+@Directive()
 export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationParams = any>
     extends LoadingComponent<P, T> implements OnInit, OnDestroy {
     public items: T[] = [];
@@ -25,19 +16,6 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
     protected _params: P;
 
     private _totalItems: number;
-    protected _responseHandling: ResponseHandling;
-
-    protected set responseHandling(value: ResponseHandling) {
-        this._responseHandling = value;
-    }
-
-    protected get responseHandling() {
-        return this._responseHandling || null;
-    }
-
-    protected get responseHandler() {
-        return CollectionResponseHandlingMap.get(this.responseHandling);
-    }
 
     get params(): P {
         return this._params;
@@ -81,17 +59,18 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
         const loadingParams = this.getParams(params);
 
         this._getItems(loadingParams)
-            .pipe(first(), finalize(() => {
-                hide();
-            }))
+            .pipe(
+                first(),
+                finalize(() => hide())
+            )
             .subscribe(
                 (response) => this._handleResponse(response),
                 (error) => this._handleLoadingError(error),
             );
     }
 
-    protected _getItems(params?): Observable<T[]> {
-        return this.provider.getItems(params);
+    protected _getItems(params?): Observable<IPaginationResponse<T>> {
+        return this.repository.getItems(params);
     }
 
     refresh() {
@@ -130,9 +109,6 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
         }
     }
 
-    protected _getResponseHandler(responseHandling: ResponseHandling) {
-        return responseHandling ? CollectionResponseHandlingMap.get(responseHandling) : null;
-    }
 
     protected _handleCreateItem(item: T | T[], responseHandling: ResponseHandling = 'prepend') {
         try {
@@ -143,8 +119,7 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
                     this._handleCreateItem(i);
                 }
             } else if (!this.items.find(({ id }) => id === item.id)) {
-                const responseHandler = this._getResponseHandler(responseHandling);
-                this.items = responseHandler(item, this.items);
+                this.items = [item, ...this.items];
             }
         } catch (e) {
             console.error('error', e);
@@ -181,21 +156,33 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
         this.totalItems = this.totalItems - deletedItems;
     }
 
-    protected _handleResponse(response: T[]) {
-        if (Array.isArray(response)) {
-            // if (response instanceof IPaginationResponse) {
-            //     this.totalItems = response.totalItems;
+    protected _handleResponse(response: IPaginationResponse<T>) {
+        if (Array.isArray(response?.data)) {
+            // if (response) {
+            // this.totalItems = response.totalItems;
             // }
 
-            const { take } = (this._params || {}) as IPaginationParams;
-            this.items = this.responseHandler(response, this.items);
+            const { take, skip } = (this._params || {}) as IPaginationParams;
 
-            if (take != null && response.length < take) {
+            if (skip === 0)
+                this._replaceItems(response.data);
+            else
+                this._addItems(response.data);
+
+            if (take != null && response.data.length < take) {
                 this.allItemsLoaded = true;
             }
         } else {
             throw new Error('Invalid response');
         }
+    }
+
+    _replaceItems(items: T[]) {
+        this.items = items;
+    }
+
+    _addItems(items: T[]) {
+        this.items = [...items, ...this.items];
     }
 
     protected _handleLoadingError(error: any) {

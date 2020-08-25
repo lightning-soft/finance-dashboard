@@ -1,9 +1,10 @@
-import { OnInit } from '@angular/core';
+import { Directive, OnInit } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
 import { IIdObject } from '../models';
 import { LoadingComponent } from './loading.component';
 
+@Directive()
 export abstract class ItemComponent<T extends IIdObject> extends LoadingComponent<null> implements OnInit {
     needCreate = false;
     item: T;
@@ -17,7 +18,7 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
         if (!id)
             return EMPTY;
 
-        return this.provider.getItemById(id);
+        return this.repository.getItemById(id);
     }
 
     loadData(params?: any) {

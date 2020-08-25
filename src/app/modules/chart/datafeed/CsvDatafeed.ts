@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { InstrumentsRepository } from 'communication';
 import { interval, Observable, Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Datafeed, IDateFormat } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
 
@@ -81,8 +81,9 @@ export class CSVDatafeed extends Datafeed {
   loadInstruments(): Observable<any[]> {
     return this._instrumentsRepository.getItems().pipe(
       tap(instruments => {
-        StockChartX.getAllInstruments = () => instruments;
-      })
+        StockChartX.getAllInstruments = () => instruments.data;
+      }),
+      map(i => i.data)
     )
   }
 

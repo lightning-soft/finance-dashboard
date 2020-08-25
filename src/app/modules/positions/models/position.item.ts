@@ -1,5 +1,5 @@
 import { Cell, DataCell, NumberCell } from 'data-grid';
-import { IPosition } from '../../communication/trading/models';
+import { IPosition } from 'communication';
 import { IconCell } from '../../data-grid/models/cells/icon.cell';
 
 export class PositionItem {
@@ -7,7 +7,7 @@ export class PositionItem {
   price: Cell;
   size: Cell;
   unrealized: Cell;
-  realized: Cell ;
+  realized: Cell;
   total: Cell;
   click = new IconCell('icon-close');
   id: string | number | string[] | number[];
@@ -21,11 +21,11 @@ export class PositionItem {
       this.click.click = clickHandler;
   }
 
-  update(position: IPosition){
+  update(position: IPosition) {
     this.account = new DataCell();
     this.account.updateValue(position.account);
     this.id = position.id;
-    const fields  = ['price', 'size', 'unrealized', 'realized', 'total'];
+    const fields = ['price', 'size', 'unrealized', 'realized', 'total'];
     for (let key of fields) {
       this[key] = new NumberCell();
       this[key].updateValue(position[key]);

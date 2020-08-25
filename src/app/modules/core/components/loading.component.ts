@@ -1,4 +1,4 @@
-import { OnDestroy, OnInit } from '@angular/core';
+import { Injectable, Injector, OnDestroy, OnInit, Optional, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { debounceTime, finalize } from 'rxjs/operators';
@@ -14,16 +14,18 @@ export interface ILoadingHandler {
     initializing: boolean;
 }
 
+export interface IAutoLoadDataConfig {
+    onInit?: boolean;
+    onParamsChange?: boolean;
+    onQueryParamsChange?: boolean;
+}
+
 export interface ILoadingComponentConfig {
-    loadData?: {
-        onInit?: boolean,
-        onParamsChange?: boolean,
-        onQueryParamsChange?: boolean,
-    },
+    autoLoadData?: false | IAutoLoadDataConfig;
 }
 
 export const DefaultLoadingItemConfig: ILoadingComponentConfig = {
-    loadData: {
+    autoLoadData: {
         onInit: true,
         onParamsChange: true,
         onQueryParamsChange: true,
@@ -45,6 +47,11 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
 
     protected _route: ActivatedRoute;
     protected _queryParams;
+    protected _changeDetectorRef: ChangeDetectorRef;
+
+    set autoLoadData(value: false | IAutoLoadDataConfig) {
+        this.config.autoLoadData = value;
+    }
 
     get loading() {
         if (this.loadingHandler && this.loadingHandler !== this) {
@@ -87,17 +94,17 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
         return this._router;
     }
 
-    protected _provider?: Repository<I>;
+    protected _repository?: Repository<I>;
 
-    get provider(): Repository<I> {
-        if (!this._provider)
+    get repository(): Repository<I> {
+        if (!this._repository)
             throw new Error('Please provide valid repository');
 
-        return this._provider;
+        return this._repository;
     }
 
-    set provider(value: Repository<I>) {
-        this._provider = value;
+    set repository(value: Repository<I>) {
+        this._repository = value;
     }
 
     protected _notifier?: NotifierService;
@@ -113,17 +120,31 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
         this._notifier = value;
     }
 
+    protected _injector?: Injector;
+
+    initDepndencies() {
+        const injector = this._injector;
+
+        if (!injector)
+            return;
+
+        this._route = injector.get(ActivatedRoute);
+        this._router = injector.get(Router);
+        this._notifier = injector.get(NotifierService, null);
+    }
+
     ngOnInit(): void {
-        const loadData = this.config.loadData;
-        if (loadData.onInit)
+        this.initDepndencies();
+        const loadData = this.config.autoLoadData || {};
+        if (loadData?.onInit)
             this.loadData();
 
-        if (loadData.onParamsChange)
+        if (loadData?.onParamsChange)
             this.route.params
                 .pipe(untilDestroyed(this))
                 .subscribe((params) => this._onParamsChanged(params));
 
-        if (loadData.onQueryParamsChange)
+        if (loadData?.onQueryParamsChange)
             this.route.queryParams
                 .pipe(
                     untilDestroyed(this),
@@ -173,7 +194,7 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     }
 
     protected _deleteItem({ id }: I) {
-        return this.provider.deleteItem(id);
+        return this.repository.deleteItem(id);
     }
 
     loadData(params?: any) { }
@@ -280,6 +301,13 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
 
     protected _getTranslateKey(key) {
         return key;
+    }
+
+    detectChanges() {
+        if (!this._changeDetectorRef)
+            return;
+
+        this._changeDetectorRef.detectChanges();
     }
 
     ngOnDestroy(): void {
