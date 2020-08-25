@@ -5,6 +5,16 @@ body.#{$themeName} {
       background: $lightBackground;
     }
 
+    .sell {
+      background: $fallingColor;
+      color: $buttonColor;
+    }
+
+    .buy {
+      background: $risingColor;
+      color: $buttonColor;
+    }
+
     .volume {
       .value {
         color: $textColor;
@@ -14,38 +24,12 @@ body.#{$themeName} {
     .grid-list {
       color: $textColor;
 
-      .sell {
-        background: $fallingColor;
-        color: $buttonColor;
-      }
 
-      .buy {
-        background: $risingColor;
-        color: $buttonColor;
-
-      }
     }
 
-    .list {
-      background: $lightBackground;
 
-      .close-all {
-        color: $textColor;
-        background: $bodyBackground;
-      }
-    }
 
-    .sell-list {
-      .item-volume {
-        color: $fallingColor;
-      }
-    }
 
-    .buy-list {
-      .item-volume {
-        color: $risingColor;
-      }
-    }
   }
 
 }

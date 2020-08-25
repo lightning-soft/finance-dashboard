@@ -1,2 +1,28 @@
 body.#{$themeName} :host {
+  .list {
+    background: $lightBackground;
+
+    .close-all {
+      color: $textColor;
+      background: $bodyBackground;
+    }
+  }
+
+  .list.short {
+    .item-volume {
+      color: $fallingColor;
+    }
+  }
+
+  .list.long {
+    .item-volume {
+      color: $risingColor;
+    }
+  }
+
+  .close-all-positions{
+    color: $fallingColor;
+    background: $lightBackground;
+  }
+
 }

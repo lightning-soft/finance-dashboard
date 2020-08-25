@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent } from 'core';
-import { DataCell } from '../data-grid/models/cells';
 import { PositionItem } from './models/position.item';
 
 @Component({
