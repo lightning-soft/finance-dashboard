@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
-import { LayoutService } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
 import { CSVDatafeed } from './datafeed/CsvDatafeed';
@@ -10,6 +9,7 @@ import { IScxComponentState } from './models/scx.component.state';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler, Themes } from 'themes';
+import { LayoutNode } from 'layout';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -25,7 +25,7 @@ const EVENTS_SUFFIX = '.scxComponent';
     { provide: Datafeed, useClass: CSVDatafeed }
   ]
 })
-export class ChartComponent implements AfterViewInit, OnDestroy {
+export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestroy {
   loading: boolean;
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
@@ -44,8 +44,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-    private layoutService: LayoutService
   ) {
+    super();
+    this.tabTitle = 'Chart';
   }
 
   protected loadFiles(): Promise<any> {
@@ -56,13 +57,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadFiles()
       .then(() => this.loadChart())
       .catch(e => console.log(e));
-
-
-    this.layoutService.onStateChange$.pipe(
-      untilDestroyed(this)
-    ).subscribe(() => {
-      this.handleResize();
-    });
   }
 
   saveState() {
@@ -100,7 +94,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
       this.chart.instrument = event.value;
-
+      this.tabTitle = event.value.symbol;
     });
 
     this._themesHandler.themeChange$
