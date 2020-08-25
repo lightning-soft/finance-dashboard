@@ -10,5 +10,14 @@ body.#{$themeName} {
     .divider {
       background: $lightBackground;
     }
+
+    .dot-status {
+      background: $fallingColor;
+
+      &.dot-connected {
+        background: $risingColor;
+      }
+
+    }
   }
 }

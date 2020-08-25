@@ -36,6 +36,7 @@ export class NavbarComponent {
     const modal = this.modal.create({
       nzTitle: null,
       nzContent: AccountsComponent,
+      nzCloseIcon: null,
       nzFooter: null,
       nzWidth: 720,
     });

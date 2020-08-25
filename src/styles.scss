@@ -30,6 +30,10 @@ body, html {
   visibility: hidden;
 }
 
+.ant-modal-content {
+  background: none;
+}
+
 .ant-modal-body {
   background: none;
   box-shadow: none;

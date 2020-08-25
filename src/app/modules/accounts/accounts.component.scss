@@ -8,6 +8,7 @@ $selectMarginBottom: 15px;
   height: 100%;
   overflow: auto;
   width: 100%;
+  border-radius: 4px;
   padding: 10px;
 
   ::ng-deep {
@@ -27,7 +28,7 @@ $selectMarginBottom: 15px;
     cursor: pointer;
     width: 200px;
     display: flex;
-    font-size: 22px;
+    font-size: 35px;
     line-height: 1;
     align-items: center;
     border-radius: 4px;
