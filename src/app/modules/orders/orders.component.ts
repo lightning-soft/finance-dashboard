@@ -1,8 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { OrderItem } from './models/OrderItem';
-import { OrdersRepository } from 'communication';
+import {Component} from '@angular/core';
+import {UntilDestroy} from '@ngneat/until-destroy';
+import {OrderItem} from './models/OrderItem';
+import {IOrder, OrdersRepository} from 'communication';
+import {ItemsComponent} from '../core/components';
+import {IPaginationParams} from '../communication/common';
 
+interface IOrderParams extends IPaginationParams {
+  status: string;
+}
 
 @UntilDestroy()
 @Component({
@@ -10,38 +15,42 @@ import { OrdersRepository } from 'communication';
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
-export class OrdersComponent implements OnInit, OnDestroy {
+export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
 
   _isList = false;
 
-  items: OrderItem[] = [];
-  orders = [];
-  status = 'Open';
+  private _status = 'Open';
+
+  get status() {
+    return this._status;
+  }
+
+  set status(value: string) {
+    if (value === this.status) {
+      return;
+    }
+    this._status = value;
+    this.items = [];
+    this.refresh();
+  }
+
+  get params(): IOrderParams {
+    return {...this._params, status: this.status};
+  }
+
+  getOrders() {
+    return this.items.map(item => {
+      return new OrderItem(item);
+    });
+  }
 
   constructor(
-    private repository: OrdersRepository,
+    public repository: OrdersRepository,
   ) {
-  }
+    super();
+    this.autoLoadData = {onInit: true};
 
-
-  ngOnInit(): void {
-    this.repository.getItems()
-      .pipe(untilDestroyed(this))
-      .subscribe(res => {
-        this.orders = res.data;
-
-        this.orders.forEach(
-          (order) => {
-            this.items.push(new OrderItem(order));
-          }
-        );
-      });
-
-  }
-
-
-  ngOnDestroy(): void {
   }
 
 }

@@ -15,7 +15,7 @@ export class FakeOrdersRepository extends FakeRepository<IOrder> {
           size: 0.000507551,
           executed: 0.000507551,
           symbol: 'BTCUSD',
-          status: 'Open',
+          status: (i % 2 === 0) ? 'Open' : 'Close',
           type: 'Market'
         }
       );

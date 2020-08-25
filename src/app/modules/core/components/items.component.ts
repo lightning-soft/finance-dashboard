@@ -74,7 +74,7 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
     }
 
     refresh() {
-        this.loadData(this._params);
+        this.loadData(this.params);
     }
 
     protected _onQueryParamsChanged(params?: any) {
