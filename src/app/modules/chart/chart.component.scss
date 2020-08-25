@@ -50,14 +50,26 @@ $toolbarMargin: 4px;
   }
 
   ::ng-deep {
-    .scxPanelTitle .scxToggleIndicatorTitles {
-      position: absolute;
-      top: 60px;
-      left: 25px;
-    }
 
-    .scxPanelTitle .scxIndicatorTitle {
-      padding-left: 20px;
+    .scxPanelTitle {
+      position: absolute;
+      z-index: 20;
+      margin-top: 60px;
+      padding: 1px 5px 0 0;
+      margin-left: 10px;
+
+      >div>*{
+        display: inline-block;
+
+      }
+      .scxToggleIndicatorTitles {
+        margin-top: 3px;
+        margin-left: 4px;
+      }
+
+      .scxPanelTitleCaption {
+        margin-left: 5px;
+      }
     }
   }
 
@@ -65,10 +77,6 @@ $toolbarMargin: 4px;
     display: none;
   }
 
-  ::ng-deep .scxPanelTitle .scxSymbolTitle {
-    margin-top: 80px;
-    margin-left: 20px;
-  }
 
   .scxRootContainer.scxFullWindow {
     height: 100% !important;
