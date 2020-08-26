@@ -191,7 +191,6 @@ export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestr
     }
   }
 
-  @HostBinding('window:resize')
   handleResize() {
     this.setNeedUpdate();
   }

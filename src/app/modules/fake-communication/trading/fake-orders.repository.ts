@@ -1,5 +1,5 @@
-import { IOrder } from '../../communication/trading/models';
-import { FakeRepository } from '../common/fake.repository';
+import {IOrder, OrderSide, OrderStatus, OrderType} from '../../communication/trading/models';
+import {FakeRepository} from '../common/fake.repository';
 
 export class FakeOrdersRepository extends FakeRepository<IOrder> {
   protected async _getItems(): Promise<IOrder[]> {
@@ -9,14 +9,14 @@ export class FakeOrdersRepository extends FakeRepository<IOrder> {
       array.push(
         {
           id: i,
-          side: (i % 2 === 0) ? 'BUY' : 'SELL',
+          side: (i % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
           price: 1.10538,
           priceIn: 1.10538,
           size: 0.000507551,
           executed: 0.000507551,
           symbol: 'BTCUSD',
-          status: (i % 2 === 0) ? 'Open' : 'Close',
-          type: 'Market'
+          status: (i % 2 === 0) ? OrderStatus.Open : OrderStatus.Close,
+          type: OrderType.Market
         }
       );
     }

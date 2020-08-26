@@ -84,7 +84,7 @@ export class CSVDatafeed extends Datafeed {
         StockChartX.getAllInstruments = () => instruments.data;
       }),
       map(i => i.data)
-    )
+    );
   }
 
 
@@ -176,7 +176,7 @@ export class CSVDatafeed extends Datafeed {
     const chart = request.chart;
     const instrument = getInstrument(request);
     this._ngZone.runOutsideAngular(() => {
-      this.realtimeSubscription[instrument.symbol] = interval(100).subscribe(() => {
+      this.realtimeSubscription[instrument.symbol] = interval(300).subscribe(() => {
         // setInterval(() => {
         this._ngZone.runOutsideAngular(() => {
           const lastBar = this._getLastBar(chart, chart?.instrument?.symbol == instrument?.symbol ? null : instrument);

@@ -79,7 +79,7 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
 
     getItems(params?: { skip: number, take: number }): Observable<IPaginationResponse<T>> {
         this._getItemsParams = params;
-        const { skip = 0, take = 10 } = params || {};
+        const { skip = 0, take = 100000000 } = params || {};
 
         const keys = Object.keys(this._store);
         const items = keys
