@@ -15,7 +15,6 @@ export abstract class Cell implements ICell {
   value = '';
   class = '';
   colSpan = 0;
-  click: Function;
   _bold: boolean;
 
 

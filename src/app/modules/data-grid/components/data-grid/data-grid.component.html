@@ -1,5 +1,5 @@
 <cdk-virtual-scroll-viewport [itemSize]="20">
-  <table>
+  <table  #tableContainer>
     <thead>
       <tr>
         <!-- <th [style.top]="inverseTranslation" width='100'>index</th> -->
@@ -12,10 +12,15 @@
     </thead>
 
     <tbody>
-      <tr *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
+      <tr
+        [attr.data-row]="i"
+        *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
         <!-- <td>{{i}}</td> -->
         <ng-container *ngFor="let column of columns; let j = index">
-          <td [attr.colspan]="item[column].colSpan" (click)="item[column].click && item[column].click(item)"
+          <td
+
+            [attr.data-column]="column"
+            [attr.colspan]="item[column].colSpan"
             *ngIf="item[column]" class="column cell" [ngClass]="column">
             <span *itemViewBuilder="item && item[column]" [ngClass]="item[column].class" class="data">
               {{item[column].value}}

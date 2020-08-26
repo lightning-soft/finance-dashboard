@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angu
 import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent } from 'core';
 import { PositionItem } from './models/position.item';
+import { CellClickDataGridHandler, Events } from '../data-grid';
 
 @Component({
   selector: 'position-list',
@@ -9,7 +10,7 @@ import { PositionItem } from './models/position.item';
   styleUrls: ['./positions.component.scss'],
 })
 export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit, OnDestroy {
-  headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'click'];
+  headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'close'];
 
   _isList = false;
 
@@ -28,6 +29,13 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
 
   positions: PositionItem[] = [];
   positionsMap = new Map<string, PositionItem>();
+
+  handlers = [
+    new CellClickDataGridHandler<PositionItem>({
+      column: 'close',
+      handler: (item) => this.deleteItem(item.position),
+    }),
+  ];
 
   constructor(
     protected _repository: PositionsRepository,
@@ -58,7 +66,6 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     //   });
     // }
   }
-
   _replaceItems(items: IPosition[]) {
     this.positions = items.map(i => new PositionItem(i));
   }
