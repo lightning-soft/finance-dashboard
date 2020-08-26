@@ -39,6 +39,8 @@ export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestr
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 
+  showOrderForm = true;
+
   constructor(
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,

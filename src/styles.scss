@@ -23,7 +23,7 @@ body, html {
 }
 
 .d-none {
-  display: none;
+  display: none !important;
 }
 .visibility-hidden{
   visibility: hidden;
