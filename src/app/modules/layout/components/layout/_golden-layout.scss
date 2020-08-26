@@ -46,15 +46,7 @@
       .lm_drag_handle {
         width: 100% !important;
         height: 200px !important;
-        top: -100px !important;
-      }
-
-      &:before {
-        transform: translateX(-50%) translateY(-50%) !important;
-      }
-
-      &:after {
-        top: 0 !important;
+        top: -92.5px !important;
       }
     }
 
@@ -62,16 +54,9 @@
       .lm_drag_handle {
         height: 100% !important;
         width: 200px !important;
-        left: -100px !important;
+        left: -92.5px !important;
       }
 
-      &:before {
-        left: -50%;
-      }
-
-      &:after {
-        left: -10% !important;
-      }
     }
   }
 
