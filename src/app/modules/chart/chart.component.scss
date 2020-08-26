@@ -20,17 +20,19 @@ $toolbarMargin: 4px;
   width: 20px;
   position: absolute;
   right: 7px;
-  bottom: 5px;
+  bottom: 7px;
   z-index: 27;
   height: 20px;
-  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .icon-arrow-right, .icon-arrow-left{
+    font-size: 14px;
+
+  }
 }
-.icon-show{
-  font-size: 14px;
-}
+
 
 
 
@@ -78,7 +80,7 @@ $toolbarMargin: 4px;
     .scxPanelTitle {
       position: absolute;
       z-index: 20;
-      margin-top: 60px;
+      margin-top: 50px;
       padding: 1px 5px 0 0;
       margin-left: 10px;
 
