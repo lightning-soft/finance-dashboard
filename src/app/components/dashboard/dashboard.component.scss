@@ -7,7 +7,7 @@
 $layoutMarginTop: 10px;
 
 layout{
-  margin-top: $layoutMarginTop;
+  padding-top: $layoutMarginTop;
   height: calc(100% - #{$layoutMarginTop * 2});
 }
 
