@@ -161,7 +161,7 @@ export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestr
     if (!chartContainer || !chartContainer.nativeElement) {
       return null;
     }
-
+    StockChartX.ThemeStore.load = () => console.warn('TODO: Add autoload false to StockChartX');
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
       datafeed: this.datafeed,
