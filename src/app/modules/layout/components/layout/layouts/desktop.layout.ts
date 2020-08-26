@@ -156,6 +156,7 @@ export class DesktopLayout extends Layout {
       // Initialize the layout.
       goldenLayout.init();
       this.goldenLayout = goldenLayout;
+      (window as any).goldenLayout = goldenLayout;
     } catch (e) {
       console.error(e);
       throw e;

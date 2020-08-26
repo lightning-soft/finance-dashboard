@@ -25,28 +25,19 @@ export class DashboardComponent implements AfterViewInit {
     content: [
       {
         type: 'row',
-        content: [
-          {
-            type: 'component',
-            componentName: Components.Chart
-          },
-          // {
-          //   type: 'component',
-          //   componentName: Components.Chart
-          // },
-         /* {
-            type: 'component',
-            componentName: Components.Watchlist
-          },*/
-          {
-            type: 'component',
-            componentName: Components.Orders
-          },
-          /*{
-            type: 'component',
-            componentName: Components.OrderForm
-          }*/
-        ]
+        content: new Array(4).fill(1).map(() => ({
+          type: 'column',
+          content: [
+            {
+              type: 'component',
+              componentName: Components.Chart
+            },
+            {
+              type: 'component',
+              componentName: Components.Chart
+            },
+          ]
+        })),
       },
     ]
   };
