@@ -6,6 +6,10 @@
 body.#{$themeName} :host {
   background-color: $tabBackground;
   padding: 15px;
+  .icon-container{
+    background: $lightBackground;
+    color: $textColorSecondary;
+  }
 }
 
 @mixin dropdownMenu() {
