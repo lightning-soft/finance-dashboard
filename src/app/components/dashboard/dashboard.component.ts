@@ -25,7 +25,7 @@ export class DashboardComponent implements AfterViewInit {
     content: [
       {
         type: 'row',
-        content: new Array(4).fill(1).map(() => ({
+        content: new Array(1).fill(1).map(() => ({
           type: 'column',
           content: [
             {

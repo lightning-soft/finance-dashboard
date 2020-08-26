@@ -9,22 +9,20 @@ export class PositionItem {
   unrealized: Cell;
   realized: Cell;
   total: Cell;
-  click = new IconCell('icon-close');
-  id: string | number | string[] | number[];
+  close = new IconCell('icon-close');
+  position: IPosition;
 
-  constructor(position?: IPosition, clickHandler?: Function) {
+  constructor(position?: IPosition) {
     if (!position) {
       return;
     }
     this.update(position);
-    if (clickHandler)
-      this.click.click = clickHandler;
   }
 
   update(position: IPosition) {
+    this.position = position;
     this.account = new DataCell();
     this.account.updateValue(position.account);
-    this.id = position.id;
     const fields = ['price', 'size', 'unrealized', 'realized', 'total'];
     for (let key of fields) {
       this[key] = new NumberCell();
