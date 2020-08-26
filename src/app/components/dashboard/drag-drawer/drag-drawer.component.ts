@@ -23,23 +23,23 @@ export class DragDrawerComponent implements AfterViewInit {
         '    Chart',
       component: Components.Chart
     },
-    {
-      text: 'Market \n' +
-        'Watch',
-      icon: 'icon-watch',
-      component: Components.Watchlist
-    },
-    {
-      text: ' Orders\n' +
-        'Book',
-      icon: 'icon-orders',
-      component: Components.Orders
-    },
-    {
-      text: 'Positions',
-      icon: 'icon-position',
-      component: Components.Positions
-    },
+    // {
+    //   text: 'Market \n' +
+    //     'Watch',
+    //   icon: 'icon-watch',
+    //   component: Components.Watchlist
+    // },
+    // {
+    //   text: ' Orders\n' +
+    //     'Book',
+    //   icon: 'icon-orders',
+    //   component: Components.Orders
+    // },
+    // {
+    //   text: 'Positions',
+    //   icon: 'icon-position',
+    //   component: Components.Positions
+    // },
     /*{
       text: 'Make order',
       icon: 'icon-orders',
