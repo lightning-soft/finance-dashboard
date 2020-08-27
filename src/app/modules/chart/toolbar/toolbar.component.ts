@@ -73,7 +73,7 @@ export class ToolbarComponent implements OnInit {
 
 
 
-  instuments: IInstrument[] = [];
+  instruments: IInstrument[] = [];
 
   @Input() chart: IChart;
 
@@ -175,11 +175,13 @@ export class ToolbarComponent implements OnInit {
     this._instrumentsRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
-        (values) => {
-          if (search != null)
-            values = values.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
+        (res) => {
+          if (search != null) {
+            const items = res.data.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
 
-          this.instuments = values.slice(0, 100);
+            this.instruments = items.slice(0, 100);
+          } else
+            this.instruments = []; // todo fix this
         },
         (e) => console.error('error', e),
       );

@@ -28,7 +28,6 @@ export class DragDrawerComponent implements AfterViewInit {
         'Watch',
       icon: 'icon-watch',
       component: Components.Watchlist
-
     },
     {
       text: ' Orders\n' +
@@ -41,11 +40,11 @@ export class DragDrawerComponent implements AfterViewInit {
       icon: 'icon-position',
       component: Components.Positions
     },
-    {
+    /*{
       text: 'Make order',
       icon: 'icon-orders',
       component: Components.OrderForm
-    }
+    }*/
   ];
 
   ngAfterViewInit() {

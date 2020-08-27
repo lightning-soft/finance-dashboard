@@ -1,5 +1,5 @@
 import {DataCell, NumberCell} from 'data-grid';
-import {IOrder} from 'communication';
+import {IOrder, OrderSide} from 'communication';
 
 export class OrderItem {
   symbol = new DataCell();
@@ -16,11 +16,12 @@ export class OrderItem {
   }
 
   update(order: IOrder) {
-    ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type']
+    ['symbol', 'size', 'executed', 'price', 'priceIn', 'status', 'type']
       .forEach((item, index) => {
           this[item].updateValue(order[item]);
       });
-    this.side.class = this.side.value.toLowerCase() === 'buy' ? 'up' : 'down';
+    this.side.updateValue(order.side === OrderSide.Buy ? 'Buy' : 'Sell');
+    this.side.class = order.side ===  OrderSide.Buy ? 'up' : 'down';
 
   }
 

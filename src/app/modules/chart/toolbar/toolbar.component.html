@@ -5,7 +5,7 @@
       (click)="autoComplete.select()"
       class="instrument-bar__arrow icon-arrow-dropdown"></i>
     <nz-autocomplete nzOverlayClassName="toolbar-dropdown" #auto [compareWith]="compareInstrument">
-      <nz-auto-option *ngFor="let option of instuments" [nzValue]="option" [nzLabel]="option.name">
+      <nz-auto-option *ngFor="let option of instruments" [nzValue]="option" [nzLabel]="option.name">
         {{option.name}}
       </nz-auto-option>
     </nz-autocomplete>

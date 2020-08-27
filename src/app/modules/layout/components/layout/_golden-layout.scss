@@ -1,3 +1,5 @@
+$tabHeight: 30px;
+
 ::ng-deep {
   $width0: 100%; // Appears 3 times
   $width1: 20px; // Appears 2 times
@@ -23,6 +25,7 @@
     float: left;
   }
 
+
   // Single Pane content (area in which final dragged content is contained)
   .lm_content {
     overflow: hidden;
@@ -44,15 +47,18 @@
     .lm_vertical {
       .lm_drag_handle {
         width: 100% !important;
-
-
+        height: 200px !important;
+        top: -92.5px !important;
       }
     }
 
     .lm_horizontal {
       .lm_drag_handle {
         height: 100% !important;
+        width: 200px !important;
+        left: -92.5px !important;
       }
+
     }
   }
 
@@ -71,7 +77,7 @@
   // Separator line (handle to change pane size)
   .lm_splitter {
     position: relative;
-    z-index: 12;
+    z-index: 40;
 
 
     &.lm_vertical {
@@ -85,6 +91,7 @@
         mask-image: url("../../../../../assets/img/svg/resize_vertical.svg");
         mask-repeat: no-repeat;
       }
+
       &:after {
         content: '';
         height: 1px;
@@ -726,6 +733,7 @@
 ::ng-deep .lm_tab {
   border: 1px solid transparent;
   border-bottom: none;
+  height: $tabHeight !important;
 }
 
 ::ng-deep {

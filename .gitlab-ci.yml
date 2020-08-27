@@ -4,7 +4,7 @@ stages:
     - install
     # - test
     - build
-    # - deploy
+    - deploy
 
 .libs-cache:
     tags:
@@ -62,7 +62,6 @@ build-web-ssr:
         - npm run build:ssr
     # after_script:
     #     - npm run test:ssr
-
 # .deploy:
 #     image: docker:latest
 #     stage: deploy
@@ -89,3 +88,22 @@ build-web-ssr:
 #     only:
 #         - develop
 #         - master
+
+deploy:
+    stage: deploy
+    services:
+        - docker:dind
+    image: docker:latest
+    cache:
+        paths:
+            - dist/
+    only: 
+        - charts
+    script:
+        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker build --tag $CONTAINER_IMAGE:latest .
+        - docker push $CONTAINER_IMAGE:latest
+        - docker logout
+    tags:
+        - docker

@@ -1,13 +1,18 @@
-import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {OrderFormComponent} from './order-form.component';
-import {Components, ComponentStore, LazyModule} from '../lazy-modules';
-import {ReactiveFormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Components, ComponentStore, LazyModule } from '../lazy-modules';
+import { OrderFormComponent } from './components/order-form/order-form.component';
+import { PositionsComponent } from './components/positions/positions.component';
 
 @NgModule({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+  ],
   declarations: [
-    OrderFormComponent
+    PositionsComponent,
+    OrderFormComponent,
   ],
   entryComponents: [
     OrderFormComponent

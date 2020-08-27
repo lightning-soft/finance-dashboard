@@ -31,7 +31,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         untilDestroyed(this)
       )
       .subscribe(
-        (instruments: IInstrument[]) => this.addToWatchlist(instruments),
+        (response) => this.addToWatchlist(response.data),
         (e) => console.error(e)
       );
 

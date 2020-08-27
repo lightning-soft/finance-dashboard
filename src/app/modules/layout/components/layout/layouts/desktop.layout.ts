@@ -118,12 +118,6 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(comp.location.nativeElement));
 
-          for (let e of ['open', 'destroy', 'close', 'hide', 'show'])
-            container.on(e, tab => {
-              // todo: remove this, it jsut hotfix
-              console.log('container event', e, tab);
-              window.dispatchEvent(new Event('resize'));
-            });
           container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
           this._addMobileTabDraggingSupport(container.tab);
 
@@ -162,6 +156,7 @@ export class DesktopLayout extends Layout {
       // Initialize the layout.
       goldenLayout.init();
       this.goldenLayout = goldenLayout;
+      (window as any).goldenLayout = goldenLayout;
     } catch (e) {
       console.error(e);
       throw e;

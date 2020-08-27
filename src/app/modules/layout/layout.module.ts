@@ -3,7 +3,6 @@ import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/
 import { LayoutComponent } from './components/layout/layout.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
-import { LayoutService } from './layout.service';
 import { LoaderModule } from 'ui';
 
 let entryComponents = [
@@ -36,7 +35,6 @@ export class LayoutModule {
           useExisting: GoldenLayoutHandler,
           multi: false
         },
-        LayoutService,
         GoldenLayoutHandler,
       ]
     };

@@ -24,9 +24,11 @@ export let styles = {
   StockChartX: [
     {
       href: `./assets/StockChartX/css/StockChartX.min.css`
-    }, {
+    },
+    {
       href: `./assets/StockChartX/css/StockChartX.UI.min.css`
-    }, {
+    },
+    {
       href: `./assets/StockChartX/css/StockChartX.External.min.css`
     }
   ] as IStyle[]
