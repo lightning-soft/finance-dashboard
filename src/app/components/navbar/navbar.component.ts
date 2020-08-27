@@ -40,7 +40,6 @@ export class NavbarComponent {
       nzFooter: null,
       nzWidth: 720,
     });
-    const instance = modal.getContentComponent();
 
   }
 }

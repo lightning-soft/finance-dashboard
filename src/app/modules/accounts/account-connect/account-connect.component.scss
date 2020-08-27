@@ -1,0 +1,76 @@
+@import "themes/index";
+
+$inputMargin: 15px;
+
+:host, .wrapper {
+  width: 100%;
+  height: 100%;
+  display: block;
+  padding: 10px;
+}
+
+.icon-arrow-back {
+  font-size: 8px;
+  margin-right: 5px;
+
+}
+
+.wrapper {
+  padding: 30px;
+}
+
+:host {
+  ::ng-deep {
+    nz-select {
+      width: 100%;
+      border-radius: 4px;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      border-radius: 4px;
+    }
+  }
+}
+
+button {
+  font-size: 16px;
+  height: 40px;
+  border-radius: 6px;
+  line-height: 22px;
+  text-transform: uppercase;
+  font-weight: bold;
+
+}
+
+.confirm-wrapper {
+  display: flex;
+  margin-top: 20px;
+  flex-direction: column;
+
+  input {
+    width: calc(50% - #{$inputMargin});
+  }
+}
+
+.back-navigation, .input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.back-navigation {
+  margin-bottom: 30px;
+}
+
+.input-wrapper {
+  margin-top: 20px;
+
+  > *:first-child {
+    margin-right: $inputMargin;
+    width: 100%;
+  }
+
+  > *:last-child {
+    margin-left: $inputMargin;
+    width: 100%;
+  }
+}

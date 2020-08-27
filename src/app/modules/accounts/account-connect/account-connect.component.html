@@ -1,0 +1,45 @@
+<div class="wrapper">
+  <div class="back-navigation">
+    <i class="icon-arrow-back"></i>
+    Create Account
+  </div>
+
+  <form [formGroup]="form">
+    <div class="input-wrapper">
+      <input
+        formControlName="login"
+        nz-input placeholder="Login"/>
+      <input
+        formControlName="server"
+        nz-input placeholder="Server"/>
+    </div>
+    <div class="input-wrapper">
+      <div>
+        <label for="password">Password</label>
+        <input formControlName="password" type="password" id="password" nz-input placeholder="Password"/>
+      </div>
+
+      <div>
+        <label for="broker">Broker</label>
+        <nz-select
+          formControlName="broker"
+          [nzShowArrow]="false"
+          nzDropdownClassName="toolbar-dropdown" id="broker">
+          <nz-option nzValue="MT4" nzLabel="Mt4"></nz-option>
+          <nz-option nzValue="MT5" nzLabel="Mt5"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+    <div class="confirm-wrapper">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password"
+             formControlName="repeatPassword"
+             id="confirmPassword" nz-input placeholder="Confirm Password"/>
+    </div>
+
+    <div class="input-wrapper">
+      <button class="cancel">Cancel</button>
+      <button class="create">Create</button>
+    </div>
+  </form>
+</div>

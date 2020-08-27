@@ -1,0 +1,26 @@
+
+body.#{$themeName} {
+
+  :host {
+    background: $tabBackground;
+
+    .wrapper {
+      background: $bodyBackground;
+    }
+
+
+    .create {
+      background: $risingColor;
+    }
+
+    .cancel {
+      background: $fallingColor;
+    }
+
+    nz-select {
+      background-color: $tabBackground !important;
+      color: $textColor !important;
+    }
+  }
+
+}
