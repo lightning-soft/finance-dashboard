@@ -1,10 +1,11 @@
-import { Injectable, Injector, OnDestroy, OnInit, Optional, ChangeDetectorRef } from '@angular/core';
+import {  Injector, OnDestroy, OnInit,  ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { debounceTime, finalize } from 'rxjs/operators';
 import { isEqual } from 'underscore';
 import { IIdObject } from '../models';
-import { NotifierService, Repository } from '../services';
+import { Repository } from '../services';
+import { NotifierService } from 'ui';
 
 type HideLoader = () => void;
 
@@ -272,7 +273,7 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     }
 
     protected _navigateOnSuccessAction(item?: T) {
-        window.history.back();
+       // window.history.back();
     }
 
     protected _onQueryParamsChanged(params?: any) {

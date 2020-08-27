@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { WatchlistItem } from './models/watchlist.item';
+import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {Datafeed, Id, IInstrument, InstrumentsRepository, IQuote} from 'communication';
+import {WatchlistItem} from './models/watchlist.item';
+import {NotifierService} from '../ui';
 
 
 @UntilDestroy()
@@ -20,7 +21,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
-    private _datafeed: Datafeed
+    private _datafeed: Datafeed,
+    protected cd: ChangeDetectorRef,
+    public notifier: NotifierService
+
   ) {
   }
 
@@ -74,7 +78,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }
-
     this.items = [...items, ...this.items];
     this.subscribeForRealtime(instruments);
   }
@@ -98,6 +101,11 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         item.processQuote(quote);
       }
     }
+  }
+
+  @HostListener('window:resize')
+  handleResize() {
+    this.cd.detectChanges();
   }
 
   ngOnDestroy(): void {

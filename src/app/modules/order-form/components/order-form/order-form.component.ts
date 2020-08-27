@@ -2,6 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { IInstrument, IOrder, IPosition, OrdersRepository } from 'communication';
 import { FormComponent } from 'core';
+import {NotifierService} from '../../../ui';
 
 @Component({
   selector: 'order-form',
@@ -34,7 +35,8 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   constructor(
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
-    protected _injector: Injector
+    protected _injector: Injector,
+    public notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;

@@ -8,6 +8,7 @@ import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
+import { NotifierModule } from 'ui';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { ThemesHandler } from 'themes';
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     NzModalModule,
     BrowserAnimationsModule,
+    NotifierModule,
     LayoutModule.forRoot(),
     LoadingModule.forRoot(),
     FakeCommunicationModule.forRoot(),

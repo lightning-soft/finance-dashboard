@@ -2,6 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { IInstrument, IPosition, PositionsRepository, Side } from 'communication';
 import { ItemsComponent } from 'core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import {NotifierService} from '../../../ui';
 
 @UntilDestroy()
 @Component({
@@ -29,7 +30,9 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
 
   constructor(
     protected _repository: PositionsRepository,
-    protected _injector: Injector
+    protected _injector: Injector,
+    public notifier: NotifierService,
+
   ) {
     super();
     this.autoLoadData = false;

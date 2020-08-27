@@ -7,7 +7,7 @@ import { WatchlistComponent } from './watchlist.component';
 @NgModule({
   imports: [
     CommonModule,
-    DataGridModule
+    DataGridModule,
   ],
   exports: [
     WatchlistComponent,

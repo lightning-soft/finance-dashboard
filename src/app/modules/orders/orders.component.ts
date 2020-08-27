@@ -4,6 +4,7 @@ import { OrderItem } from './models/OrderItem';
 import { IOrder, OrdersRepository } from 'communication';
 import { ItemsComponent } from '../core/components';
 import { IPaginationParams } from '../communication/common';
+import {NotifierService} from '../ui';
 
 interface IOrderParams extends IPaginationParams {
   status: string;
@@ -47,6 +48,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   constructor(
     public repository: OrdersRepository,
+    public notifier: NotifierService
+
   ) {
     super();
     this.autoLoadData = { onInit: true };

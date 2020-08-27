@@ -3,6 +3,7 @@ import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent, ViewItemsBuilder } from 'core';
 import {CellClickDataGridHandler, DataCell} from '../data-grid';
 import { PositionItem } from './models/position.item';
+import {NotifierService} from '../ui';
 
 class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   isGrouped = false;
@@ -84,7 +85,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
   constructor(
     protected _repository: PositionsRepository,
     protected _changeDetectorRef: ChangeDetectorRef,
-    protected injector: Injector
+    protected injector: Injector,
+    public notifier: NotifierService
   ) {
     super();
     this.builder.colSpan = this.headers.length - 1;
