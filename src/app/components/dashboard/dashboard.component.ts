@@ -34,7 +34,7 @@ export class DashboardComponent implements AfterViewInit {
             },
             {
               type: 'component',
-              componentName: Components.Chart
+              componentName: Components.Watchlist
             },
           ]
         })),

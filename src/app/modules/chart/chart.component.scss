@@ -27,14 +27,24 @@ $toolbarMargin: 4px;
   align-items: center;
   justify-content: center;
 
-  .icon-arrow-right, .icon-arrow-left{
+  .icon-arrow-right, .icon-arrow-left {
     font-size: 14px;
 
   }
 }
 
+:host ::ng-deep{
+  .disappearing {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    padding: 0;
+  }
 
-
+  order-form {
+    transition: all 0.3s;
+  }
+}
 
 
 .chart-container {
