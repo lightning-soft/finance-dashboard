@@ -14,6 +14,10 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
 
     builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
+    get items() {
+        return this.builder.items;
+    }
+
     protected queryParams: P = {} as P;
     protected _params: P;
 
@@ -91,11 +95,13 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
 
     protected _handleUpdateItem(items: T[]) {
         this.builder.handleUpdateItems(items);
+        this.detectChanges();
     }
 
 
     protected _handleCreateItems(items: T[]) {
         this.builder.handleCreateItems(items);
+        this.detectChanges();
 
         // const createdItems = Array.isArray(item) ? item.length : 1;
         // this.totalItems = this.totalItems + createdItems;
@@ -103,6 +109,7 @@ export abstract class ItemsComponent<T extends IIdObject, P extends IPaginationP
 
     protected _handleDeleteItems(items: T[]) {
         this.builder.handleDeleteItems(items);
+        this.detectChanges();
         // const deletedItems = Array.isArray(items) ? items.length : 1;
         // this.totalItems = this.totalItems - deletedItems;
     }

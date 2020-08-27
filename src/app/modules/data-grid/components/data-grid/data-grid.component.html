@@ -2,7 +2,7 @@
   <table  #tableContainer>
     <thead>
       <tr>
-        <!-- <th [style.top]="inverseTranslation" width='100'>index</th> -->
+        <th [style.top]="inverseTranslation" width='100'>index</th>
         <th [style.top]="inverseTranslation" *ngFor="let column of columns; let i = index" class="head cell"
           [title]=" column" width='100'>
           <span class="data">{{column}}</span>
@@ -15,10 +15,9 @@
       <tr
         [attr.data-row]="i"
         *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
-        <!-- <td>{{i}}</td> -->
+        <td>{{item.id}}</td>
         <ng-container *ngFor="let column of columns; let j = index">
           <td
-
             [attr.data-column]="column"
             [attr.colspan]="item[column].colSpan"
             *ngIf="item[column]" class="column cell" [ngClass]="column">

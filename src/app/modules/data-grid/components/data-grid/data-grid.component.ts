@@ -8,7 +8,7 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { Subject} from 'rxjs';
+import { Subject } from 'rxjs';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -25,7 +25,7 @@ export interface DataGridItem {
     })
   }]
 })
-export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy{
+export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy {
   rowHeight = 35;
 
   onDestroy$ = new Subject();
@@ -70,8 +70,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     ];
   }
 
-  trackByFn(index) {
-    return index;
+  trackByFn(item) {
+    return item.id;
   }
 
   public get inverseTranslation(): string {

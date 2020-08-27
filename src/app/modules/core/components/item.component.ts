@@ -49,18 +49,18 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
         console.warn('Implement _handleErrorDelete', error);
     }
 
-    protected _handleUpdateItem(item: T): boolean {
-        if (!item || !this.item || this.item.id !== item.id)
-            return false;
+    protected _handleUpdateItems(item: T[]) {
+        // if (!item || !this.item || this.item.id !== item.id)
+        //     return false;
 
-        this.item = { ...this.item, ...item };
-        return true;
+        // this.item = { ...this.item, ...item };
+        // return true;
     }
 
-    protected _handleDeleteItem(item: IIdObject) {
-        const id = item && item.id;
-        if (id == null || !this.item || this.item.id !== id)
-            return;
+    protected _handleDeleteItems(item: IIdObject[]) {
+        // const id = item && item.id;
+        // if (id == null || !this.item || this.item.id !== id)
+        //     return;
 
         this._navigateOnSuccessAction(); // todo: temporary solution (need test)
     }

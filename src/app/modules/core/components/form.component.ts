@@ -155,7 +155,7 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
 
         this._create(obj).pipe(finalize(hide), finalize(this._makeUnchanged())).subscribe(
             (res) => {
-                this._handleCreateItem({ ...obj, ...res });
+                this._handleCreateItems({ ...obj, ...res });
                 this._handleSuccessCreate(res);
             },
             error => this._handleErrorCreate(error)
@@ -171,7 +171,7 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
                 finalize(this._makeUnchanged())
             ).subscribe(
                 (res) => {
-                    this._handleUpdateItem({ ...obj, ...res });
+                    this._handleUpdateItems([{ ...obj, ...res }]);
                     this._handleSuccessUpdate();
                 },
                 error => this._handleUpdateError(error)
@@ -311,14 +311,12 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
         return () => this.valueChanged = false;
     }
 
-    protected _handleUpdateItem(item: T): boolean {
-        if (!super._handleUpdateItem(item))
-            return false;
-
-        const autoSave = this.autoSave;
-        this.autoSave = false;
-        this.setForm(item, false);
-        this.autoSave = autoSave;
-        return true;
+    protected _handleUpdateItems(item: T[]) {
+        super._handleUpdateItems(item);
+        //     const autoSave = this.autoSave;
+        //     this.autoSave = false;
+        //     this.setForm(item, false);
+        //     this.autoSave = autoSave;
+        //     return true;
     }
 }

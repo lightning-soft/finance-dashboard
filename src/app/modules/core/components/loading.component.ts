@@ -1,4 +1,4 @@
-import {  Injector, OnDestroy, OnInit,  ChangeDetectorRef } from '@angular/core';
+import { Injector, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { debounceTime, finalize } from 'rxjs/operators';
@@ -184,7 +184,7 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
             .pipe(finalize(hide))
             .subscribe(
                 () => {
-                    this._handleDeleteItem(item);
+                    this._handleDeleteItems([item]);
                     this._showSuccessDelete();
                 },
                 err => {
@@ -246,9 +246,10 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     //         this._handleUpdateItem(message.payload);
     // }
 
-    // protected _handleUpdateItem(item: I) {
-    //     console.warn('Implement _handleUpdateItem');
-    // }
+    protected _handleUpdateItems(items: I[]) {
+        console.warn('Implement _handleUpdateItem');
+        this.detectChanges();
+    }
 
     // protected _handleRealtimeCreateItem(message: IRealtimeMessage<I>) {
     //     if (message && message.payload && this.needHandleCreateItem(message.payload))
@@ -259,8 +260,9 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     //     return true;
     // }
 
-    protected _handleCreateItem(item: I | I[]) {
+    protected _handleCreateItems(item: I[]) {
         console.warn('Implement _handleCreateItem');
+        this.detectChanges();
     }
 
     // protected _handleRealtimeDeleteItem(message: IRealtimeMessage<IIdObject>) {
@@ -268,12 +270,13 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     //         this._handleDeleteItem(message.payload);
     // }
 
-    protected _handleDeleteItem(item: IIdObject) {
+    protected _handleDeleteItems(items: IIdObject[]) {
         this._navigateOnSuccessAction();
+        this.detectChanges();
     }
 
     protected _navigateOnSuccessAction(item?: T) {
-       // window.history.back();
+        // window.history.back();
     }
 
     protected _onQueryParamsChanged(params?: any) {
@@ -292,11 +295,13 @@ export abstract class LoadingComponent<T, I extends IIdObject = any> implements 
     }
 
     showSuccess(messageOrKey: string) {
-        this.notifier.showSuccess(this._getTranslateKey(messageOrKey));
+        // this.notifier.showSuccess(this._getTranslateKey(messageOrKey));
+        this.notifier.showSuccess('Success');
     }
 
     showError(messageOrKey: any, defaultMessage?) {
-        this.notifier.showError(this._getTranslateKey(messageOrKey), this._getTranslateKey(defaultMessage));
+        // this.notifier.showError(this._getTranslateKey(messageOrKey), this._getTranslateKey(defaultMessage));
+        this.notifier.showError(this._getTranslateKey(messageOrKey), 'Error');
     }
 
     protected _getTranslateKey(key) {
