@@ -35,8 +35,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     this.autoLoadData = false;
   }
 
-  getPositionsBySide(side: Side){
-    return this.items.filter(item => item.side === side);
+  getPositionsBySide(side: Side) {
+    return this.builder.items.filter(item => item.side === side);
   }
 
   private _handleInstrumentChange() {
