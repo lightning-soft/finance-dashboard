@@ -1,8 +1,59 @@
 import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { IPosition, PositionsRepository } from 'communication';
-import { ItemsComponent } from 'core';
+import { ItemsComponent, ViewItemsBuilder } from 'core';
+import {CellClickDataGridHandler, DataCell} from '../data-grid';
 import { PositionItem } from './models/position.item';
-import { CellClickDataGridHandler, Events } from '../data-grid';
+
+class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
+  isGrouped = false;
+  colSpan = 0;
+
+  constructor() {
+    super(true);
+  }
+
+  _cast(item: IPosition): PositionItem {
+    return new PositionItem(item);
+  }
+
+  toggleGrouped(value) {
+    if (this.isGrouped === value)
+      return;
+
+    this.isGrouped = value;
+    if (this.isGrouped)
+      this._groupItems();
+    else
+      this._ungroupItems();
+
+  }
+
+  _groupItems() {
+    const _map = new Map<string, PositionItem[]>();
+
+    for (const [key, item] of this._itemsMap) {
+      const instruemntId = item.position.account;
+
+      if (!_map.has(instruemntId))
+        _map.set(instruemntId, [item]);
+      else _map.get(instruemntId).push(item);
+    }
+
+    this.items = [];
+    for (const [key, items] of _map) {
+      const groupedItem = new PositionItem();
+      groupedItem.account  = new DataCell();
+      groupedItem.account.updateValue(key);
+      groupedItem.account.bold = true;
+      groupedItem.account.colSpan = this.colSpan;
+      this.items.push(groupedItem, ...items);
+    }
+  }
+
+  _ungroupItems() {
+    this.items = Array.from(this._itemsMap.values());
+  }
+}
 
 @Component({
   selector: 'position-list',
@@ -12,23 +63,15 @@ import { CellClickDataGridHandler, Events } from '../data-grid';
 export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit, OnDestroy {
   headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'close'];
 
-  _isList = false;
+  builder = new PositionViewBuilder();
 
   set isList(isList) {
-    if (isList === this._isList) {
-      return;
-    }
-
-    this._isList = isList;
-    this._handleIsListChange();
+    this.builder.toggleGrouped(!isList);
   }
 
   get isList() {
-    return this._isList;
+    return !this.builder.isGrouped;
   }
-
-  positions: PositionItem[] = [];
-  positionsMap = new Map<string, PositionItem>();
 
   handlers = [
     new CellClickDataGridHandler<PositionItem>({
@@ -37,12 +80,14 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     }),
   ];
 
+
   constructor(
     protected _repository: PositionsRepository,
     protected _changeDetectorRef: ChangeDetectorRef,
     protected injector: Injector
   ) {
     super();
+    this.builder.colSpan = this.headers.length - 1;
     this.autoLoadData = { onInit: true };
   }
 
@@ -66,13 +111,13 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     //   });
     // }
   }
-  _replaceItems(items: IPosition[]) {
-    this.positions = items.map(i => new PositionItem(i));
-  }
+  // _replaceItems(items: IPosition[]) {
+  //   this.positions = items.map(i => new PositionItem(i));
+  // }
 
-  _addItems(items: IPosition[]) {
-    this.positions = [...this.positions, ...items.map(i => new PositionItem(i))];
-  }
+  // _addItems(items: IPosition[]) {
+  //   this.positions = [...this.positions, ...items.map(i => new PositionItem(i))];
+  // }
 
   createGroupHeader(key) {
     // const dataCell = new DataCell();
@@ -82,19 +127,4 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     // return dataCell;
   }
 
-  _generateList() {
-
-  }
-
-  _generateGroupedList() {
-
-  }
-
-  _handleIsListChange() {
-    if (this.isList) {
-      this._generateList();
-    } else {
-      this._generateGroupedList();
-    }
-  }
 }

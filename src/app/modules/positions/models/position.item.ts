@@ -1,8 +1,13 @@
-import { Cell, DataCell, NumberCell } from 'data-grid';
 import { IPosition } from 'communication';
+import { Id } from 'core';
+import { Cell, DataCell, NumberCell } from 'data-grid';
 import { IconCell } from '../../data-grid/models/cells/icon.cell';
 
 export class PositionItem {
+  get id(): Id {
+    return this.position.id;
+  }
+
   account: Cell;
   price: Cell;
   size: Cell;
@@ -11,6 +16,7 @@ export class PositionItem {
   total: Cell;
   close = new IconCell('icon-close');
   position: IPosition;
+
 
   constructor(position?: IPosition) {
     if (!position) {
