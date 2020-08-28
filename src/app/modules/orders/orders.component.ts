@@ -4,7 +4,7 @@ import { OrderItem } from './models/OrderItem';
 import { IOrder, OrdersRepository } from 'communication';
 import { ItemsComponent } from '../core/components';
 import { IPaginationParams } from '../communication/common';
-import {NotifierService} from '../ui';
+import { NotifierService } from 'notifier';
 
 interface IOrderParams extends IPaginationParams {
   status: string;

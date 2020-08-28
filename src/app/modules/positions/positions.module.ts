@@ -3,7 +3,6 @@ import {NgModule} from '@angular/core';
 import {DataGridModule} from 'data-grid';
 import {Components, ComponentStore, LazyModule} from 'lazy-modules';
 import {PositionsComponent} from './positions.component';
-import {NotifierModule} from '../ui';
 
 @NgModule({
     imports: [

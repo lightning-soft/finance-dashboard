@@ -2,7 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { IInstrument, IPosition, PositionsRepository, Side } from 'communication';
 import { ItemsComponent } from 'core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import {NotifierService} from '../../../ui';
+import { NotifierService } from 'notifier';
 
 @UntilDestroy()
 @Component({

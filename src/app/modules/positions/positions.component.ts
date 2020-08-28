@@ -3,7 +3,7 @@ import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent, ViewItemsBuilder } from 'core';
 import {CellClickDataGridHandler, DataCell} from '../data-grid';
 import { PositionItem } from './models/position.item';
-import {NotifierService} from '../ui';
+import { NotifierService } from 'notifier';
 
 class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   isGrouped = false;

@@ -35,6 +35,9 @@
       "ui": [
         "src/app/modules/ui/index"
       ],
+      "notifier": [
+        "src/app/modules/ui/notifier/index"
+      ],
       "lazy-modules": [
         "src/app/modules/lazy-modules/index"
       ],

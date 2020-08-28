@@ -5,7 +5,7 @@ import { debounceTime, finalize } from 'rxjs/operators';
 import { isEqual } from 'underscore';
 import { IIdObject } from '../models';
 import { Repository } from '../services';
-import { NotifierService } from 'ui';
+import { NotifierService } from 'notifier';
 
 type HideLoader = () => void;
 

@@ -2,7 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { IInstrument, IOrder, IPosition, OrdersRepository } from 'communication';
 import { FormComponent } from 'core';
-import {NotifierService} from '../../../ui';
+import { NotifierService } from 'notifier';
 
 @Component({
   selector: 'order-form',

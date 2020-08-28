@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Datafeed, Id, IInstrument, InstrumentsRepository, IQuote} from 'communication';
-import {WatchlistItem} from './models/watchlist.item';
-import {NotifierService} from '../ui';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
+import { WatchlistItem } from './models/watchlist.item';
+import { NotifierService } from 'notifier';
 
 
 @UntilDestroy()

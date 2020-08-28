@@ -8,7 +8,7 @@ import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
-import { NotifierModule } from 'ui';
+import { NotifierModule } from 'notifier';
 
 @NgModule({
   declarations: [
