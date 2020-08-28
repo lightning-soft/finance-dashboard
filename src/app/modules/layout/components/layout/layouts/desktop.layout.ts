@@ -118,11 +118,11 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(comp.location.nativeElement));
 
-          /*for (let e of ['open', 'destroy', 'close', 'hide', 'show'])
+          for (let e of ['show'])
             container.on(e, tab => {
               console.log('container event', e, tab);
               window.dispatchEvent(new Event('resize'));
-            });*/
+            });
           container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
           this._addMobileTabDraggingSupport(container.tab);
 

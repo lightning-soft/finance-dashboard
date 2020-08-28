@@ -50,9 +50,9 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
     }
 
     protected _handleUpdateItems(item: T[]) {
-        // if (!item || !this.item || this.item.id !== item.id)
+        // if (!item || !this.item || !item.map(i => i.id).includes(this.item.id ))
         //     return false;
-
+        //
         // this.item = { ...this.item, ...item };
         // return true;
     }

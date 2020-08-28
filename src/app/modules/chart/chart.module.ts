@@ -5,7 +5,7 @@ import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { NzAutocompleteModule, NzButtonModule, NzDropDownModule, NzIconModule, NzInputModule, NzSelectModule } from 'ng-zorro-antd';
 import { FormsModule } from '@angular/forms';
-import {OrderFormModule} from '../order-form/order-form.module';
+import { OrderFormModule } from '../order-form/order-form.module';
 
 @NgModule({
     imports: [
