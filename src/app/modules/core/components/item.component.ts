@@ -49,18 +49,32 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
         console.warn('Implement _handleErrorDelete', error);
     }
 
-    protected _handleUpdateItems(item: T[]) {
-        // if (!item || !this.item || !item.map(i => i.id).includes(this.item.id ))
-        //     return false;
-        //
-        // this.item = { ...this.item, ...item };
-        // return true;
+    protected _handleUpdateItems(items: T[]) {
+      const item = items.find(i => i.id === this.item.id);
+      if (!items || !this.item || item)
+            return false;
+
+      this.item = { ...this.item, ...item };
+      return true;
     }
 
-    protected _handleDeleteItems(item: IIdObject[]) {
-        // const id = item && item.id;
-        // if (id == null || !this.item || this.item.id !== id)
-        //     return;
+  protected _handleCreateItems(items: T[]) {
+      let item;
+      if (Array.isArray(items) && items.length) {
+        item = items[0];
+      } else {
+        item = items as any;
+      }
+      if (item)
+        this.item = {...item};
+  }
+    protected _handleDeleteItems(items: IIdObject[]) {
+        if (!items || !items.length)
+          return;
+
+        const ids = items.map(i => i.id);
+        if (!this.item || !ids.includes(this.item.id))
+            return;
 
         this._navigateOnSuccessAction(); // todo: temporary solution (need test)
     }

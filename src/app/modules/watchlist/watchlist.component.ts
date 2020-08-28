@@ -3,6 +3,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
 import { NotifierService } from 'notifier';
+import { CellClickDataGridHandler, Events } from '../data-grid';
+import { LayoutHandler } from '../layout';
+import { Components } from '../lazy-modules';
 
 
 @UntilDestroy()
@@ -23,10 +26,20 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     private _instrumentsRepository: InstrumentsRepository,
     private _datafeed: Datafeed,
     protected cd: ChangeDetectorRef,
-    public notifier: NotifierService
+    public notifier: NotifierService,
+    private layoutHandler: LayoutHandler
 
   ) {
   }
+  handlers = [
+    new CellClickDataGridHandler<IInstrument>({
+      column: 'name',
+      events: [Events.DoubleClick],
+      handler: (_) => {
+        this.layoutHandler.create(Components.Chart);
+      },
+    }),
+  ];
 
   ngOnInit(): void {
     this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));

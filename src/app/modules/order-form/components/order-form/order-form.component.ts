@@ -50,17 +50,26 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     const fb = this.fb;
     return fb.group(
       {
-        volume: fb.control(this.step, Validators.min(this.step)),
+        symbol: fb.control(null, Validators.required),
+        size: fb.control(this.step, Validators.min(this.step)),
         operation: fb.control(null, Validators.required)
       }
     );
   }
 
+  apply(e?) {
+    super.apply(e);
+  }
 
   addVolume(value) {
     const result = +(value + this.volume).toFixed(1);
     if (result >= 0.1) {
-      this.form.patchValue({ volume: result });
+      this.form.patchValue({size: result});
     }
+  }
+
+  submit(operation: string) {
+    this.form.patchValue({operation, symbol: this.instrument.id});
+    this.apply();
   }
 }

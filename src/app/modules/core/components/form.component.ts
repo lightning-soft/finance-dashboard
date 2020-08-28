@@ -49,7 +49,7 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
             ...DefaultLoadingItemConfig.autoLoadData,
             onInit: false,
         },
-        autoSave: true,
+        autoSave: false,
     };
 
     get autoSave() {
@@ -313,10 +313,10 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
 
     protected _handleUpdateItems(item: T[]) {
         super._handleUpdateItems(item);
-        // const autoSave = this.autoSave;
-        // this.autoSave = false;
-        // this.setForm(item, false);
-        // this.autoSave = autoSave;
-        // return true;
+        const autoSave = this.autoSave;
+        this.autoSave = false;
+        this.setForm(item, false);
+        this.autoSave = autoSave;
+        return true;
     }
 }
