@@ -1,3 +1,4 @@
+<!-- {{builder.items | json}} -->
 <div class="list-type">
   <div [class.active]="isList" (click)="isList = true" class="list"><i class="icon-list"></i>List
   </div>
@@ -6,4 +7,4 @@
   </div>
 </div>
 
-<data-grid [items]="builder.items" [handlers]="handlers" [columns]="headers"></data-grid>
+<data-grid [items]="items" [handlers]="handlers" [columns]="headers"></data-grid>

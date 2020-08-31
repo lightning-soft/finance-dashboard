@@ -1,7 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
 import { WatchlistItem } from './models/watchlist.item';
+import { NotifierService } from 'notifier';
+import { CellClickDataGridHandler, Events } from '../data-grid';
+import { LayoutHandler } from '../layout';
+import { Components } from '../lazy-modules';
 
 
 @UntilDestroy()
@@ -20,9 +24,22 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
-    private _datafeed: Datafeed
+    private _datafeed: Datafeed,
+    protected cd: ChangeDetectorRef,
+    public notifier: NotifierService,
+    private layoutHandler: LayoutHandler
+
   ) {
   }
+  handlers = [
+    new CellClickDataGridHandler<IInstrument>({
+      column: 'name',
+      events: [Events.DoubleClick],
+      handler: (_) => {
+        this.layoutHandler.create(Components.Chart);
+      },
+    }),
+  ];
 
   ngOnInit(): void {
     this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
@@ -74,7 +91,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }
-
     this.items = [...items, ...this.items];
     this.subscribeForRealtime(instruments);
   }

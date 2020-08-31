@@ -39,5 +39,21 @@ body.#{$themeName} {
     background-color: $tabBackground !important;
     color: $textColor !important;
   }
+
+  .ant-notification-hook-holder, .ant-notification-notice {
+    background-color: $tabBackground !important;
+  }
+
+  .ant-notification-notice-close, .ant-notification-notice-with-icon .ant-notification-notice-message {
+    color: $textColor !important;
+  }
+
+  .anticon.ant-notification-notice-icon-success {
+    color: $risingColor;
+  }
+
+  .anticon.ant-notification-notice-icon-error {
+    color: $fallingColor;
+  }
 }
 

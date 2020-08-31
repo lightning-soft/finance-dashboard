@@ -4,8 +4,8 @@ import { Cell, DataCell, NumberCell } from 'data-grid';
 import { IconCell } from '../../data-grid/models/cells/icon.cell';
 
 export class PositionItem {
-  get id(): Id {
-    return this.position.id;
+  get id(): Id | undefined {
+    return this.position && this.position.id;
   }
 
   account: Cell;

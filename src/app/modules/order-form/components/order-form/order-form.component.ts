@@ -2,6 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { IInstrument, IOrder, IPosition, OrdersRepository } from 'communication';
 import { FormComponent } from 'core';
+import { NotifierService } from 'notifier';
 
 @Component({
   selector: 'order-form',
@@ -34,7 +35,8 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   constructor(
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
-    protected _injector: Injector
+    protected _injector: Injector,
+    public notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;
@@ -48,17 +50,26 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     const fb = this.fb;
     return fb.group(
       {
-        volume: fb.control(this.step, Validators.min(this.step)),
+        symbol: fb.control(null, Validators.required),
+        size: fb.control(this.step, Validators.min(this.step)),
         operation: fb.control(null, Validators.required)
       }
     );
   }
 
+  apply(e?) {
+    super.apply(e);
+  }
 
   addVolume(value) {
     const result = +(value + this.volume).toFixed(1);
     if (result >= 0.1) {
-      this.form.patchValue({ volume: result });
+      this.form.patchValue({size: result});
     }
+  }
+
+  submit(operation: string) {
+    this.form.patchValue({operation, symbol: this.instrument.id});
+    this.apply();
   }
 }

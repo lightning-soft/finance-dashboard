@@ -39,6 +39,7 @@ export abstract class DataGridHandler<T = any> {
 }
 export interface DataClickHandlerConfig {
   column?: string;
+  events?: Events[];
   handler: (data: CellClickData, event?: MouseEvent) => void;
 }
 
@@ -57,6 +58,8 @@ export class CellClickHandler extends ClickHandler {
     super();
     this._handler = config.handler;
     this._column = config.column;
+    if (config.events)
+      this.events = config.events;
   }
 
   handleEvent(event: MouseEvent) {
@@ -98,6 +101,7 @@ export interface CellClickData {
 
 export interface CellClickDataGridHandlerConfig<T> extends IDataGridHandlerConfig<T> {
   column: string;
+  events?: Events[];
 }
 
 export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
@@ -107,6 +111,7 @@ export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
     super(config);
     this.tableHandler = new CellClickHandler({
       column: config.column,
+      events: config.events,
       handler: (data) => this._handleClick(data)
     });
   }

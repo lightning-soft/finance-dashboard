@@ -10,7 +10,7 @@
         <div class="item-volume">{{position.size}}</div>
         <div class="item-price">${{position.price}}</div>
       </div>
-      <i (click)="deleteItem(position)" class="icon-close"></i>
+      <i (click)="deleteItem(position, $event)" class="icon-close"></i>
     </div>
   </div>
 </div>

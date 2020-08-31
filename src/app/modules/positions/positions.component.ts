@@ -3,6 +3,7 @@ import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent, ViewItemsBuilder } from 'core';
 import {CellClickDataGridHandler, DataCell} from '../data-grid';
 import { PositionItem } from './models/position.item';
+import { NotifierService } from 'notifier';
 
 class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   isGrouped = false;
@@ -84,47 +85,17 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
   constructor(
     protected _repository: PositionsRepository,
     protected _changeDetectorRef: ChangeDetectorRef,
-    protected injector: Injector
+    protected injector: Injector,
+    public notifier: NotifierService
   ) {
     super();
     this.builder.colSpan = this.headers.length - 1;
     this.autoLoadData = { onInit: true };
   }
 
-  private generateGroupItems() {
-    // this.items = [];
-    // const positions = this.positions;
-
-    // const groupKey = 'account';
-    // const groupedPositions = groupBy(positions, groupKey);
-
-    // for (let key in groupedPositions) {
-    //   const positionItem = new PositionItem();
-
-    //   positionItem[groupKey] = this.createGroupHeader(key);
-    //   positionItem.click.click = this.deleteItem.bind(this);
-    //   positionItem.id = groupedPositions[key].map(item => item.id);
-    //   this.items.push(positionItem);
-
-    //   groupedPositions[key].forEach((item) => {
-    //     this.items.push(new PositionItem(item, this.deleteItem.bind(this)));
-    //   });
-    // }
-  }
-  // _replaceItems(items: IPosition[]) {
-  //   this.positions = items.map(i => new PositionItem(i));
-  // }
-
-  // _addItems(items: IPosition[]) {
-  //   this.positions = [...this.positions, ...items.map(i => new PositionItem(i))];
-  // }
-
-  createGroupHeader(key) {
-    // const dataCell = new DataCell();
-    // dataCell.updateValue(key);
-    // dataCell.bold = true;
-    // dataCell.colSpan = this.headers.length - 1;
-    // return dataCell;
+  deleteItem(item: IPosition, event?) {
+    if (item && item.id != null)
+      super.deleteItem(item, event);
   }
 
 }

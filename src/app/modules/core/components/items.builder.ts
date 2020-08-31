@@ -81,19 +81,25 @@ export class GenericItemsBuilder implements IItemsBuilder<IIdObject, IIdObject> 
         if (this._isNotArray(items))
             return;
 
-        for (const item of items) {
-            try {
-                const itemId = (typeof item === 'object' ? item.id : item);
-                const index = this.items.findIndex(t => t.id === itemId);
-
-                if (index !== -1) {
-                    this.items.splice(index, 1);
+        const ids = items.map(item => (typeof item === 'object' ? item.id : item));
+        this.items = this.items.filter(item => ids.every(id => item.id !== id));
+        if (this._useMap)
+            for (const item of items) {
+                try {
+                    const itemId = (typeof item === 'object' ? item.id : item);
                     this._itemsMap.delete(itemId);
+
+                    // const index = this.items.findIndex(t => t.id === itemId);
+
+                    // if (index !== -1) {
+                    //     this.items.splice(index, 1);
+                    //     this._itemsMap.delete(itemId);
+                    // }
+
+                } catch (e) {
+                    console.error('error', e);
                 }
-            } catch (e) {
-                console.error('error', e);
             }
-        }
     }
 }
 

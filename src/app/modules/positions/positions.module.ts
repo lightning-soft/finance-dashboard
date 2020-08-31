@@ -6,8 +6,8 @@ import {PositionsComponent} from './positions.component';
 
 @NgModule({
     imports: [
-        CommonModule,
-        DataGridModule,
+      CommonModule,
+      DataGridModule,
     ],
   exports: [
     PositionsComponent
