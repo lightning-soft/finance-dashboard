@@ -1,6 +1,6 @@
-import {IBaseItem} from '../../common';
+import { IBaseItem } from '../../common';
 
-export interface IOrder extends IBaseItem{
+export interface IOrder extends IBaseItem {
   symbol: string;
   side: OrderSide;
   size: number;
@@ -10,12 +10,16 @@ export interface IOrder extends IBaseItem{
   status: OrderStatus;
   type: OrderType;
 }
-export enum OrderSide{
-  Buy, Sell
+
+export enum OrderSide {
+  Buy = 'Buy', Sell = 'Sell'
 }
-export enum OrderType{
-  Market,
+
+export enum OrderType {
+  Market = 'Market',
+  Else = 'Else'
 }
-export enum OrderStatus{
-  Open, Close
+
+export enum OrderStatus {
+  Open = 'Open', Close = 'Close'
 }

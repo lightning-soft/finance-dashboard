@@ -155,7 +155,7 @@ export abstract class FormComponent<T extends IIdObject> extends ItemComponent<T
 
         this._create(obj).pipe(finalize(hide), finalize(this._makeUnchanged())).subscribe(
             (res) => {
-                this._handleCreateItems({ ...obj, ...res });
+                this._handleCreateItems([{ ...obj, ...res }]);
                 this._handleSuccessCreate(res);
             },
             error => this._handleErrorCreate(error)

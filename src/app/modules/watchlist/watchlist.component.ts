@@ -116,11 +116,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('window:resize')
-  handleResize() {
-    this.cd.detectChanges();
-  }
-
   ngOnDestroy(): void {
     this.subscriptions.forEach(item => item());
   }

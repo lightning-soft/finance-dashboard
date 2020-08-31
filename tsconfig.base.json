@@ -38,6 +38,9 @@
       "notifier": [
         "src/app/modules/ui/notifier/index"
       ],
+      "trading-ui": [
+        "src/app/modules/trading-ui/index"
+      ],
       "lazy-modules": [
         "src/app/modules/lazy-modules/index"
       ],

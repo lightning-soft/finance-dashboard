@@ -58,16 +58,17 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
       return true;
     }
 
-  protected _handleCreateItems(items: T[]) {
+    protected _handleCreateItems(items: T[]) {
       let item;
-      if (Array.isArray(items) && items.length) {
+      if (isArray(items))
         item = items[0];
-      } else {
+       else
         item = items as any;
-      }
+
       if (item)
         this.item = {...item};
   }
+
     protected _handleDeleteItems(items: IIdObject[]) {
         if (!items || !items.length)
           return;
@@ -83,3 +84,7 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
         return super._handleLoadingError(error);
     }
 }
+
+const isArray = (items) => {
+ return  Array.isArray(items) && items.length;
+};
