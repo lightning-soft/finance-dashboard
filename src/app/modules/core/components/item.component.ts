@@ -59,14 +59,14 @@ export abstract class ItemComponent<T extends IIdObject> extends LoadingComponen
     }
 
     protected _handleCreateItems(items: T[]) {
-      let item;
-      if (isArray(items))
-        item = items[0];
-       else
-        item = items as any;
+        let item;
+        if (isArray(items))
+          item = items[0];
+         else
+          item = items as any;
 
-      if (item)
-        this.item = {...item};
+        if (item)
+          this.item = {...item};
   }
 
     protected _handleDeleteItems(items: IIdObject[]) {

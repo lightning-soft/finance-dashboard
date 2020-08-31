@@ -32,6 +32,9 @@
       "core": [
         "src/app/modules/core/index"
       ],
+      "order-form": [
+        "src/app/modules/order-form/index"
+      ],
       "ui": [
         "src/app/modules/ui/index"
       ],
