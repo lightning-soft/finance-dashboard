@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LazyLoadingService } from 'lazy-assets';
-import { LoadingService } from 'lazy-modules';
+import { Components, LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { DesktopLayout } from './layouts/desktop.layout';
 import { Layout } from './layouts/layout';
@@ -113,8 +113,8 @@ export class LayoutComponent implements OnInit, IDropable {
       this.layout.handleEvent(event);
   }
 
-  saveState(): any {
-    return this.layout && this.layout.saveState();
+  getState(): any {
+    return this.layout && this.layout.getState();
   }
 
   loadEmptyState() {
@@ -124,7 +124,8 @@ export class LayoutComponent implements OnInit, IDropable {
     this.layout.loadEmptyState();
   }
 
-  async loadState(state: any) {
+  async loadState() {
+    const state = this._layoutHandler.loadConfig() || defaultSettings;
     if (!this.layout)
       this._initLayout();
 
@@ -134,8 +135,41 @@ export class LayoutComponent implements OnInit, IDropable {
     this._initSubscribers = [];
     return result;
   }
+
+  // This is used because ngOnDestroy is not being triggered during page close/refresh
+  @HostListener('window:beforeunload')
+  beforeUnloadHandler() {
+    this._layoutHandler.save(this.getState());
+  }
 }
 
-function isInput(element: Element): boolean {
-  return element && element.tagName === 'INPUT';
-}
+const defaultSettings = {
+  settings: {
+    showPopoutIcon: false,
+    showMaximiseIcon: true,
+    responsiveMode: 'always'
+  },
+  dimensions: {
+    headerHeight: 30,
+    borderWidth: 15,
+    minItemWidth: 210,
+  },
+  content: [
+    {
+      type: 'row',
+      content: new Array(1).fill(1).map(() => ({
+        type: 'column',
+        content: [
+          {
+            type: 'component',
+            componentName: Components.Chart
+          },
+          {
+            type: 'component',
+            componentName: Components.Positions
+          },
+        ]
+      })),
+    },
+  ]
+};

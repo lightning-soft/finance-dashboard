@@ -37,7 +37,7 @@ export class PhoneLayout extends Layout {
     this.addComponent(state.activeComponent);
   }
 
-  saveState(): MobileLayoutState {
+  getState(): MobileLayoutState {
     if (this._activeComponent && this._componentRef && this._componentRef.instance)
       this._state[this._activeComponent] = this._componentRef.instance.saveState();
 

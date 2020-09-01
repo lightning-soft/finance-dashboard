@@ -168,7 +168,7 @@ export class DesktopLayout extends Layout {
     }
   }
 
-  saveState(): any {
+  getState(): any {
     if (!this.goldenLayout || !this.goldenLayout.root) {
       return;
     }
