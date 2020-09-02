@@ -11,11 +11,11 @@ export class FakePositionsRepository extends FakeRepository<IPosition> {
           id: i,
           side: (i % 2 === 0) ? Side.Long : Side.Short,
           account: (i % 2 === 0) ? 'EURUSD' : 'BTCUSD',
-          price: 11721.62,
-          size: 2.132,
-          realized: 1100,
-          unrealized: 9500,
-          total: 8400
+          price: +(Math.random() * 100).toFixed(3),
+          size: +(Math.random() * 10).toFixed(3),
+          realized: +(Math.random() * 10).toFixed(3),
+          unrealized: +(Math.random() * 10).toFixed(3),
+          total: +(Math.random() * 10).toFixed(3),
         }
       );
     }

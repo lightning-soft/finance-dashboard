@@ -1,7 +1,6 @@
 <form [formGroup]="form" class="volume-background">
   <div (click)="addVolume(-this.step)" class="minus">-</div>
   <div class="volume">
-    <div>Volume</div>
     <div class="value">{{volume}}</div>
   </div>
   <div (click)="addVolume(this.step)" class="add">+</div>

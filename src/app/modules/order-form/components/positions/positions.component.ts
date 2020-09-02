@@ -47,7 +47,18 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
   }
 
   deleteAll(side?: Side) {
-    console.log(side);
+    let items = this.items;
+    if (side != null)
+      items = items.filter(i => i.side === side);
+
+    this.repository.deleteMany({ ids: items.map(i => i.id) })
+      .subscribe(
+        () => {
+          this._handleDeleteItems(items);
+          this._showSuccessDelete();
+        },
+        err => this._handleDeleteError(err),
+      );
   }
 
   trackByFn(item) {

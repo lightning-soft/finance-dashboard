@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent, ViewItemsBuilder } from 'core';
-import {CellClickDataGridHandler, DataCell} from '../data-grid';
+import { CellClickDataGridHandler, DataCell } from '../data-grid';
 import { PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
 
@@ -43,7 +43,8 @@ class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
     this.items = [];
     for (const [key, items] of _map) {
       const groupedItem = new PositionItem();
-      groupedItem.account  = new DataCell();
+      (groupedItem as any).symbol = key as any; // for now using for grouping TODO: use another class for grouped element
+      groupedItem.account = new DataCell();
       groupedItem.account.updateValue(key);
       groupedItem.account.bold = true;
       groupedItem.account.colSpan = this.colSpan;
@@ -77,7 +78,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
   handlers = [
     new CellClickDataGridHandler<PositionItem>({
       column: 'close',
-      handler: (item) => this.deleteItem(item.position),
+      handler: (item) => this.delete(item),
     }),
   ];
 
@@ -93,9 +94,24 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     this.autoLoadData = { onInit: true };
   }
 
-  deleteItem(item: IPosition, event?) {
-    if (item && item.id != null)
-      super.deleteItem(item, event);
+  delete(item: PositionItem) {
+    if (!item)
+      return;
+
+    if (item.position)
+      this.deleteItem(item.position);
+    else {
+      const _items = this.items.filter(i => i.symbol === (item as any).symbol);
+      this.repository
+        .deleteMany({ ids: _items.map(i => i.id) })
+        .subscribe(
+          () => {
+            this._handleDeleteItems(_items);
+            this._showSuccessDelete();
+          },
+          err => this._handleDeleteError(err)
+        );
+    }
   }
 
 }
