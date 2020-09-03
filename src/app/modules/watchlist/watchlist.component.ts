@@ -4,7 +4,7 @@ import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'commun
 import { WatchlistItem } from './models/watchlist.item';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, Events } from '../data-grid';
-import { LayoutHandler } from '../layout';
+import { LayoutElement, LayoutHandler } from '../layout';
 import { Components } from '../lazy-modules';
 
 
@@ -14,11 +14,13 @@ import { Components } from '../lazy-modules';
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss'],
 })
+@LayoutElement()
 export class WatchlistComponent implements OnInit, OnDestroy {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
+
 
   private subscriptions = [] as Function[];
 

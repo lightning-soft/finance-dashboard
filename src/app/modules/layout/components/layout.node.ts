@@ -11,12 +11,15 @@ declare namespace GoldenLayout {
 export interface IStateProvider<T> {
 
 }
+export interface ILayoutNode {
+  tabTitle: string;
+}
 
 export abstract class LayoutNode implements IStateProvider<any> {
 
   private componentRef: ComponentRef<typeof LayoutNode>;
 
-  private _tabTitle?: string = null;
+  private _tabTitle = null;
 
   get tabTitle(): string {
     return this._tabTitle;
@@ -27,23 +30,26 @@ export abstract class LayoutNode implements IStateProvider<any> {
       return;
 
     this._tabTitle = value;
-    if (this._goldenLayoutContainer)
-      this._goldenLayoutContainer.setTitle(value);
+    if (this._layoutContainer)
+      this._layoutContainer.setTitle(value);
   }
 
-  private _goldenLayoutContainer: GoldenLayout.Container;
+  private _layoutContainer: GoldenLayout.Container;
 
-  get goldenLayoutContainer(): GoldenLayout.Container {
-    return this._goldenLayoutContainer;
+  set layoutContainer(value: GoldenLayout.Container){
+    this._layoutContainer = value;
+  }
+  get layoutContainer(): GoldenLayout.Container {
+    return this._layoutContainer;
   }
 
-  set goldenLayoutContainer(value: GoldenLayout.Container) {
-    this._goldenLayoutContainer = value;
-    this._subscribeGoldenContainerLayoutEvents(value);
-    this._initGoldenContainerLayoutEvents(value);
-  }
+  events: Subject<any>;
 
-  events = new Subject();
+  setLayoutContainer(value){
+    this._layoutContainer = value;
+    this._subscribeContainerLayoutEvents(value);
+    this._initContainerLayoutEvents(value);
+  }
 
   saveState(): any {
     return null;
@@ -89,7 +95,8 @@ export abstract class LayoutNode implements IStateProvider<any> {
     }
   }
 
-  private _subscribeGoldenContainerLayoutEvents(container: GoldenLayout.Container) {
+  private _subscribeContainerLayoutEvents(container: GoldenLayout.Container) {
+    this.events = new Subject();
     container.on('popup', () => this._openPopup(container));
     container.on('event', (event) => {
       this._broadcastEvent(event);
@@ -133,14 +140,15 @@ export abstract class LayoutNode implements IStateProvider<any> {
     this.events.next(event);
   }
 
-  private _initGoldenContainerLayoutEvents(container: GoldenLayout.Container) {
-    container.setTitle(this._tabTitle);
+  private _initContainerLayoutEvents(container: GoldenLayout.Container) {
+    if (this._tabTitle)
+      container.setTitle(this._tabTitle);
   }
 
   _removeItself() {
     try {
-      if (this._goldenLayoutContainer)
-        this._goldenLayoutContainer.close();
+      if (this._layoutContainer)
+        this._layoutContainer.close();
     } catch (e) {
       console.error(e);
     }
@@ -149,4 +157,16 @@ export abstract class LayoutNode implements IStateProvider<any> {
   // @trigger('hide-dropdown')
   _hideDropdowns() {
   }
+}
+
+export function LayoutElement() {
+  return function (derivedCtor: any) {
+
+    Object.getOwnPropertyNames(LayoutNode.prototype)
+      .forEach(name => {
+        if (name !== 'constructor') {
+          derivedCtor.prototype[name] = LayoutNode.prototype[name];
+        }
+      });
+  };
 }
