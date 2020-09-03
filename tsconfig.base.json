@@ -35,6 +35,9 @@
       "order-form": [
         "src/app/modules/order-form/index"
       ],
+      "storage": [
+        "src/app/modules/storage/index"
+      ],
       "ui": [
         "src/app/modules/ui/index"
       ],

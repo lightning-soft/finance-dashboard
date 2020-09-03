@@ -4,6 +4,8 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
 import { LoaderModule } from 'ui';
+import { StorageModule } from 'storage';
+import { LocalLayoutStore, ILayoutStore } from './store';
 
 let entryComponents = [
   LayoutComponent,
@@ -13,12 +15,17 @@ let entryComponents = [
     imports: [
         CommonModule,
         LoaderModule,
+        StorageModule
     ],
   declarations: [
     ...entryComponents
   ],
   providers: [
-    SystemJsNgModuleLoader
+    SystemJsNgModuleLoader,
+    {
+      provide: ILayoutStore,
+      useClass: LocalLayoutStore
+    }
   ],
   exports: [
     LayoutComponent,
