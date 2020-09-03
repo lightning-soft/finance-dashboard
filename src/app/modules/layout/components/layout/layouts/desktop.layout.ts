@@ -76,8 +76,9 @@ export class DesktopLayout extends Layout {
 
   handleResize() {
     super.handleResize();
-    if (this.goldenLayout)
+    if (this.goldenLayout) {
       this.goldenLayout.updateSize();
+    }
   }
 
   handleEvent(event) {
@@ -118,16 +119,19 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(comp.location.nativeElement));
 
-          for (let e of ['show'])
+          for (let e of ['show']) {
             container.on(e, tab => {
               console.log('container event', e, tab);
               window.dispatchEvent(new Event('resize'));
             });
+          }
           container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
           this._addMobileTabDraggingSupport(container.tab);
 
           instance.componentRef = componentRef;
-          instance.goldenLayoutContainer = container;
+
+          if (instance.setLayoutContainer)
+            instance.setLayoutContainer(container);
 
           if (instance.loadState) {
             instance.loadState(componentState);
@@ -148,7 +152,6 @@ export class DesktopLayout extends Layout {
 
     try {
       const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
-
 
 
       goldenLayout.getComponent = (name) => {
@@ -237,7 +240,7 @@ export class DesktopLayout extends Layout {
     const dragElement = $(tab.element).find(`.${DragTabClass}`);
 
     dragListener.off('dragStart', origin, tab);
-    const onDragStart = function (x, y) {
+    const onDragStart = function(x, y) {
       dragElement.appendTo('body');
       origin.call(tab, x, y);
     };

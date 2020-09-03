@@ -5,6 +5,7 @@ import { IOrder, OrdersRepository } from 'communication';
 import { ItemsComponent } from '../core/components';
 import { IPaginationParams } from '../communication/common';
 import { NotifierService } from 'notifier';
+import { LayoutElement } from '../layout';
 
 interface IOrderParams extends IPaginationParams {
   status: string;
@@ -16,6 +17,7 @@ interface IOrderParams extends IPaginationParams {
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
+@LayoutElement()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
 
