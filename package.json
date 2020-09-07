@@ -38,11 +38,12 @@
     "@nguniversal/express-engine": "10.0.1",
     "express": "4.17.1",
     "ng-zorro-antd": "9.3.0",
+    "ngx-monaco-editor": "9.0.0",
     "rxjs": "6.6.2",
     "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
-    "zone.js": "0.10.3",
-    "underscore": "1.10.2"
+    "underscore": "1.10.2",
+    "zone.js": "0.10.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1000.5",

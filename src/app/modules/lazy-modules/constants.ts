@@ -5,7 +5,8 @@ export const Modules = {
   Watchlist: 'watchlist',
   Positions: 'positions',
   Orders: 'orders',
-  OrderForm: 'order-form'
+  OrderForm: 'order-form',
+  Scripting: 'scripting',
 };
 
 export const Components = {
@@ -13,7 +14,8 @@ export const Components = {
   Watchlist: 'watchlist',
   Positions: 'positions',
   Orders: 'orders',
-  OrderForm: 'order-form'
+  OrderForm: 'order-form',
+  Scripting: 'scripting',
 };
 
 export const modulesStore: IModules[] = [
@@ -45,6 +47,12 @@ export const modulesStore: IModules[] = [
     module: Modules.OrderForm,
     components: [
       Components.OrderForm,
+    ]
+  },
+  {
+    module: Modules.Scripting,
+    components: [
+      Components.Scripting,
     ]
   },
 ];
