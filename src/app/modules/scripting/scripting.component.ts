@@ -1,7 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {EditorComponent} from 'ngx-monaco-editor';
-import {Themes, ThemesHandler} from '../themes';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { EditorComponent } from 'ngx-monaco-editor';
+import { Themes, ThemesHandler } from '../themes';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 declare const monaco: any;
 
@@ -12,7 +12,7 @@ declare const monaco: any;
   styleUrls: ['./scripting.component.scss']
 })
 export class ScriptingComponent implements OnInit {
-  @ViewChild(EditorComponent, {static: true})
+  @ViewChild(EditorComponent, { static: true })
   monacoComponent: EditorComponent;
   code = this.getCode();
   editorOptions: any = {
@@ -40,7 +40,7 @@ export class ScriptingComponent implements OnInit {
       base: 'vs-dark', // can also be vs or hc-black
       inherit: true, // can also be false to completely replace the builtin rules
       rules: [
-        {background: '21232D'} as any
+        { background: '21232D' } as any
       ],
       colors: {
         'editor.foreground': '#000000',
