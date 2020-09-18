@@ -97,8 +97,9 @@ deploy:
     cache:
         paths:
             - dist/
-    only: 
+    only:
         - charts
+        - ci
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
