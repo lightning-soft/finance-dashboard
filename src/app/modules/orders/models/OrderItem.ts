@@ -1,5 +1,6 @@
-import {DataCell, NumberCell} from 'data-grid';
-import {IOrder, OrderSide} from 'communication';
+import { DataCell, NumberCell } from 'data-grid';
+import { IOrder, OrderSide } from 'communication';
+import { PriceStatus } from 'trading-ui';
 
 export class OrderItem {
   symbol = new DataCell();
@@ -16,12 +17,11 @@ export class OrderItem {
   }
 
   update(order: IOrder) {
-    ['symbol', 'size', 'executed', 'price', 'priceIn', 'status', 'type']
+    ['symbol', 'size', 'executed', 'price', 'priceIn', 'side', 'status', 'type']
       .forEach((item, index) => {
-          this[item].updateValue(order[item]);
+        this[item].updateValue(order[item]);
       });
-    this.side.updateValue(order.side === OrderSide.Buy ? 'Buy' : 'Sell');
-    this.side.class = order.side ===  OrderSide.Buy ? 'up' : 'down';
+    this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
 
   }
 

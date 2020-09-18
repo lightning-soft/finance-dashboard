@@ -2,6 +2,7 @@ import { Component, Injector, Input } from '@angular/core';
 import { IInstrument, IPosition, PositionsRepository, Side } from 'communication';
 import { ItemsComponent } from 'core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { NotifierService } from 'notifier';
 
 @UntilDestroy()
 @Component({
@@ -29,14 +30,16 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
 
   constructor(
     protected _repository: PositionsRepository,
-    protected _injector: Injector
+    protected _injector: Injector,
+    public notifier: NotifierService,
+
   ) {
     super();
     this.autoLoadData = false;
   }
 
-  getPositionsBySide(side: Side){
-    return this.items.filter(item => item.side === side);
+  getPositionsBySide(side: Side) {
+    return this.builder.items.filter(item => item.side === side);
   }
 
   private _handleInstrumentChange() {
@@ -44,7 +47,18 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
   }
 
   deleteAll(side?: Side) {
-    console.log(side);
+    let items = this.items;
+    if (side != null)
+      items = items.filter(i => i.side === side);
+
+    this.repository.deleteMany({ ids: items.map(i => i.id) })
+      .subscribe(
+        () => {
+          this._handleDeleteItems(items);
+          this._showSuccessDelete();
+        },
+        err => this._handleDeleteError(err),
+      );
   }
 
   trackByFn(item) {

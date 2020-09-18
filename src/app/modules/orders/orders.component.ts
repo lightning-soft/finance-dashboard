@@ -1,9 +1,11 @@
-import {Component} from '@angular/core';
-import {UntilDestroy} from '@ngneat/until-destroy';
-import {OrderItem} from './models/OrderItem';
-import {IOrder, OrdersRepository} from 'communication';
-import {ItemsComponent} from '../core/components';
-import {IPaginationParams} from '../communication/common';
+import { Component } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { OrderItem } from './models/OrderItem';
+import { IOrder, OrdersRepository } from 'communication';
+import { ItemsComponent } from '../core/components';
+import { IPaginationParams } from '../communication/common';
+import { NotifierService } from 'notifier';
+import { LayoutElement } from '../layout';
 
 interface IOrderParams extends IPaginationParams {
   status: string;
@@ -15,6 +17,7 @@ interface IOrderParams extends IPaginationParams {
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
+@LayoutElement()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
 
@@ -31,25 +34,27 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
       return;
     }
     this._status = value;
-    this.items = [];
+    this.builder.replaceItems([]);
     this.refresh();
   }
 
   get params(): IOrderParams {
-    return {...this._params, status: this.status};
+    return { ...this._params, status: this.status };
   }
 
   getOrders() {
-    return this.items.map(item => {
+    return this.builder.items.map(item => {
       return new OrderItem(item);
     });
   }
 
   constructor(
     public repository: OrdersRepository,
+    public notifier: NotifierService
+
   ) {
     super();
-    this.autoLoadData = {onInit: true};
+    this.autoLoadData = { onInit: true };
 
   }
 

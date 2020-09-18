@@ -23,6 +23,7 @@ export class DragDrawerComponent implements AfterViewInit {
         '    Chart',
       component: Components.Chart
     },
+
     // {
     //   text: 'Market \n' +
     //     'Watch',

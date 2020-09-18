@@ -32,8 +32,20 @@
       "core": [
         "src/app/modules/core/index"
       ],
+      "order-form": [
+        "src/app/modules/order-form/index"
+      ],
+      "storage": [
+        "src/app/modules/storage/index"
+      ],
       "ui": [
         "src/app/modules/ui/index"
+      ],
+      "notifier": [
+        "src/app/modules/ui/notifier/index"
+      ],
+      "trading-ui": [
+        "src/app/modules/trading-ui/index"
       ],
       "lazy-modules": [
         "src/app/modules/lazy-modules/index"

@@ -1,3 +1,5 @@
+$tabHeight: 30px;
+
 ::ng-deep {
   $width0: 100%; // Appears 3 times
   $width1: 20px; // Appears 2 times
@@ -46,15 +48,7 @@
       .lm_drag_handle {
         width: 100% !important;
         height: 200px !important;
-        top: -100px !important;
-      }
-
-      &:before {
-        transform: translateX(-50%) translateY(-50%) !important;
-      }
-
-      &:after {
-        top: 0 !important;
+        top: -92.5px !important;
       }
     }
 
@@ -62,16 +56,9 @@
       .lm_drag_handle {
         height: 100% !important;
         width: 200px !important;
-        left: -100px !important;
+        left: -92.5px !important;
       }
 
-      &:before {
-        left: -50%;
-      }
-
-      &:after {
-        left: -10% !important;
-      }
     }
   }
 
@@ -746,6 +733,7 @@
 ::ng-deep .lm_tab {
   border: 1px solid transparent;
   border-bottom: none;
+  height: $tabHeight !important;
 }
 
 ::ng-deep {

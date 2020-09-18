@@ -2,8 +2,8 @@
   <div class="chart-container">
     <app-toolbar [chart]="chart"></app-toolbar>
     <div class="chart" #chartContainer></div>
-    <div *ngIf="enableOrderForm" 
-    (click)="showOrderForm = !showOrderForm" 
+    <div *ngIf="enableOrderForm"
+    (click)="showOrderForm = !showOrderForm"
     class="icon-container">
       <i [class.icon-arrow-left]="!showOrderForm"
          [class.icon-arrow-right]="showOrderForm"></i>
@@ -11,6 +11,6 @@
   </div>
 
   <order-form *ngIf="enableOrderForm"
-    [class.d-none]="!showOrderForm"
+    [class.disappearing]="!showOrderForm"
     [instrument]="instrument"></order-form>
 </div>
