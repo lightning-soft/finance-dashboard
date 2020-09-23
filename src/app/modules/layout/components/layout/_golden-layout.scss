@@ -67,9 +67,11 @@ $tabHeight: 30px;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 40;
+    z-index: 41;
   }
-
+  .lm_maximised + .lm_item{
+    display: none;
+  }
   .lm_maximise_placeholder {
     display: none;
   }
