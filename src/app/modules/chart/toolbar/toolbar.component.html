@@ -11,8 +11,14 @@
     </nz-autocomplete>
 
   </div>
-
-  <div class="pane">
+  <div
+       (click)="showToolbar = !showToolbar"
+       [class.opened]="showToolbar"
+       class="icon-container">
+    <i [class.icon-arrow-left]="!showToolbar"
+       [class.icon-arrow-right]="showToolbar"></i>
+  </div>
+  <div *ngIf="showToolbar" class="pane">
     <div class="pane__compare-instruments">
       <button nz-button (click)='compareInstrumentDialog()'>
         <span class="scx-icon icon-compare-instruments"></span>

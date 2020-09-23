@@ -14,6 +14,8 @@ declare const StockChartX;
 })
 export class ToolbarComponent implements OnInit {
 
+  showToolbar = true;
+
   timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
