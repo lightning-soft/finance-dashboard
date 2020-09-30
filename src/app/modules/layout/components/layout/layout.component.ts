@@ -115,8 +115,8 @@ export class LayoutComponent implements OnInit, IDropable {
       this.layout.handleEvent(event);
   }
 
-  saveState(): any {
-    return this.layout && this.layout.saveState();
+  getState(): any {
+    return this.layout && this.layout.getState();
   }
 
   loadEmptyState() {
@@ -141,12 +141,13 @@ export class LayoutComponent implements OnInit, IDropable {
   // This is used because ngOnDestroy is not being triggered during page close/refresh
   @HostListener('window:beforeunload')
   beforeUnloadHandler() {
-    this.layoutStore.setItem(this.saveState()).toPromise();
+    this._layoutHandler.save(this.getState());
   }
 }
 
 const defaultSettings = {
   settings: {
+    showPopoutIcon: false,
     showMaximiseIcon: true,
     responsiveMode: 'always'
   },

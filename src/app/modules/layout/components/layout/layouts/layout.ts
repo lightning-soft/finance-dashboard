@@ -37,7 +37,7 @@ export abstract class Layout implements IDropable {
     return factory.create(this.viewContainer.injector);
   }
 
-  abstract saveState(): any;
+  abstract getState(): any;
 
   abstract async loadState(state: any);
 
