@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit } from '@angular/core';
 import { IPosition, PositionsRepository } from 'communication';
 import { ItemsComponent, ViewItemsBuilder } from 'core';
+import { LayoutNode } from 'layout';
+import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, DataCell } from '../data-grid';
 import { PositionItem } from './models/position.item';
-import { NotifierService } from 'notifier';
-import { ILayoutNode, LayoutElement } from '../layout';
 
 class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   isGrouped = false;
@@ -67,7 +67,7 @@ class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   templateUrl: './positions.component.html',
   styleUrls: ['./positions.component.scss'],
 })
-@LayoutElement()
+@LayoutNode()
 export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit {
   headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'close'];
 

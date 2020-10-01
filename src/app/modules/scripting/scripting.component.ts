@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { EditorComponent } from 'ngx-monaco-editor';
-import { Themes, ThemesHandler } from '../themes';
+import { Component, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { LayoutNode } from 'layout';
+import { EditorComponent } from 'ngx-monaco-editor';
+import { LayoutNodeEvent } from '../layout/components/layout-node.event';
+import { Themes, ThemesHandler } from '../themes';
 
 declare const monaco: any;
 
@@ -11,7 +13,8 @@ declare const monaco: any;
   templateUrl: './scripting.component.html',
   styleUrls: ['./scripting.component.scss']
 })
-export class ScriptingComponent implements OnInit {
+@LayoutNode()
+export class ScriptingComponent {
   @ViewChild(EditorComponent, { static: true })
   monacoComponent: EditorComponent;
   code = this.getCode();
@@ -28,7 +31,9 @@ export class ScriptingComponent implements OnInit {
       .subscribe(value => window.monaco && (monaco.editor.setTheme(getEditorTheme(value))));
   }
 
-  ngOnInit(): void {
+  handleNodeEvent(name: LayoutNodeEvent) {
+    if (name === LayoutNodeEvent.Resize)
+      (this.monacoComponent as any)._editor.layout();
   }
 
   getCode(): string {
