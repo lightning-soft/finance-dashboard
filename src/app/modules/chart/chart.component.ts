@@ -1,20 +1,24 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { Themes, ThemesHandler } from 'themes';
 import { CSVDatafeed } from './datafeed/CsvDatafeed';
 import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { environment } from 'src/environments/environment';
-import { ThemesHandler, Themes } from 'themes';
-import { LayoutNode } from 'layout';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
 
 const EVENTS_SUFFIX = '.scxComponent';
+
+// tslint:disable-next-line: no-empty-interface
+export interface ChartComponent extends ILayoutNode {
+}
 
 @UntilDestroy()
 @Component({
@@ -25,7 +29,8 @@ const EVENTS_SUFFIX = '.scxComponent';
     { provide: Datafeed, useClass: CSVDatafeed }
   ]
 })
-export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestroy {
+@LayoutNode()
+export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
@@ -48,7 +53,6 @@ export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestr
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
   ) {
-    super();
     this.tabTitle = 'Chart';
   }
 
@@ -192,8 +196,9 @@ export class ChartComponent extends LayoutNode implements AfterViewInit, OnDestr
     }
   }
 
-  handleResize() {
-    this.setNeedUpdate();
+  handleNodeEvent(name: LayoutNodeEvent) {
+    if (name === LayoutNodeEvent.Resize)
+      this.setNeedUpdate();
   }
 
   loadState(state?) {

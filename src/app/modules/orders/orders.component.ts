@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { OrderItem } from './models/OrderItem';
 import { IOrder, OrdersRepository } from 'communication';
-import { ItemsComponent } from '../core/components';
-import { IPaginationParams } from '../communication/common';
+import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { LayoutElement } from '../layout';
+import { IPaginationParams } from '../communication/common';
+import { ItemsComponent } from '../core/components';
+import { OrderItem } from './models/OrderItem';
 
 interface IOrderParams extends IPaginationParams {
   status: string;
@@ -17,7 +17,7 @@ interface IOrderParams extends IPaginationParams {
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
-@LayoutElement()
+@LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
 

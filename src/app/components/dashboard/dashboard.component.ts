@@ -1,7 +1,6 @@
-import { AfterViewInit, Component, ViewChild, forwardRef } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { LayoutComponent } from 'layout';
-import { Components } from 'lazy-modules';
-import { ThemesHandler, Themes } from 'themes';
+import { Themes, ThemesHandler } from 'themes';
 
 @Component({
   selector: 'dashboard',

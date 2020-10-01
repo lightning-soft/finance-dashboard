@@ -1,12 +1,10 @@
 import {
-  ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
   ElementRef,
   HostListener,
   NgZone,
   OnInit,
-  SystemJsNgModuleLoader,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
@@ -14,10 +12,10 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LazyLoadingService } from 'lazy-assets';
 import { Components, LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
-import { DesktopLayout } from './layouts/desktop.layout';
-import { Layout } from './layouts/layout';
-import { IDropable } from './layouts/dropable';
 import { ILayoutStore } from '../../store';
+import { DesktopLayout } from './layouts/desktop.layout';
+import { IDropable } from './layouts/dropable';
+import { Layout } from './layouts/layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -37,19 +35,14 @@ export class LayoutComponent implements OnInit, IDropable {
   private _initSubscribers = [];
   layout: Layout;
 
-  constructor(private _factoryResolver: ComponentFactoryResolver,
-    private _changeDetectorRef: ChangeDetectorRef,
-    private _elementRef: ElementRef,
+  constructor(
+    private _factoryResolver: ComponentFactoryResolver,
     private viewContainer: ViewContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver,
     private ngZone: NgZone,
-    private _loader: SystemJsNgModuleLoader,
     private _lazyLoadingService: LazyLoadingService,
     private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
-    // private readonly injector: Injector,
     private _creationsService: LoadingService,
-    // private _contextMenuTrigger: ContextMenuTrigger
   ) {
   }
 
