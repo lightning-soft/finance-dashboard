@@ -1,7 +1,8 @@
 import { ComponentRef } from '@angular/core';
 import { LayoutNodeEvent } from './layout-node.event';
-import { Subject } from 'rxjs';
 
+// todo: remove this namespace
+// tslint:disable-next-line: no-namespace
 declare namespace GoldenLayout {
   interface Container {
     [key: string]: any;
@@ -12,12 +13,19 @@ export interface IStateProvider<T> {
 
 }
 export interface ILayoutNode {
-  tabTitle: string;
+  tabTitle?: string;
+  handleNodeEvent(name: LayoutNodeEvent, event);
 }
 
-export abstract class LayoutNode implements IStateProvider<any> {
+// tslint:disable-next-line: no-empty-interface
+interface _LayoutNode extends ILayoutNode {
 
-  private componentRef: ComponentRef<typeof LayoutNode>;
+}
+
+// tslint:disable-next-line: class-name
+abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
+
+  private componentRef: ComponentRef<typeof _LayoutNode>;
 
   private _tabTitle = null;
 
@@ -36,16 +44,15 @@ export abstract class LayoutNode implements IStateProvider<any> {
 
   private _layoutContainer: GoldenLayout.Container;
 
-  set layoutContainer(value: GoldenLayout.Container){
+  set layoutContainer(value: GoldenLayout.Container) {
     this._layoutContainer = value;
   }
+
   get layoutContainer(): GoldenLayout.Container {
     return this._layoutContainer;
   }
 
-  events: Subject<any>;
-
-  setLayoutContainer(value){
+  setLayoutContainer(value) {
     this._layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
@@ -58,17 +65,10 @@ export abstract class LayoutNode implements IStateProvider<any> {
   loadState(state?: any) {
   }
 
-  // handlerOpen() {}
-  handleResize() {
-  }
-
   handleDestroy() {
     if (this.componentRef)
       this.componentRef.destroy();
   }
-
-  // handleClose() {}
-  // handleTab() {}
 
   handleHide() {
     // if (this.componentRef)
@@ -80,64 +80,29 @@ export abstract class LayoutNode implements IStateProvider<any> {
     //   this.componentRef.changeDetectorRef.reattach();
   }
 
-  // @trigger('openPopup')
-  private _openPopup(container: GoldenLayout.Container) {
-    if (!container)
-      return;
-
-    try {
-      container.setState(this.saveState());
-      this._removeItself();
-
-      return { content: [(container as any)._config] };
-    } catch (e) {
-      return null;
+  private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
+    console.log(name, event);
+    switch (name) {
+      case LayoutNodeEvent.Destroy:
+        this.handleDestroy();
+        break;
+      case LayoutNodeEvent.Hide:
+        this.handleHide();
+        break;
+      case LayoutNodeEvent.Show:
+        this.handleShow();
+        break;
+      case LayoutNodeEvent.ExtendState:
+        this.layoutContainer.setState(this.saveState());
+        break;
     }
+
+    if (this.handleNodeEvent)
+      this.handleNodeEvent(name, event);
   }
 
   private _subscribeContainerLayoutEvents(container: GoldenLayout.Container) {
-    this.events = new Subject();
-    container.on('popup', () => this._openPopup(container));
-    container.on('event', (event) => {
-      this._broadcastEvent(event);
-    });
-    container.on('open', () => {
-      this._hideDropdowns();
-    });
-    container.on(LayoutNodeEvent.Resize, () => {
-      this.handleResize();
-      this._hideDropdowns();
-      this._broadcastEvent(LayoutNodeEvent.Resize);
-    });
-    container.on('destroy', () => {
-      this.handleDestroy();
-    });
-    container.on('close', () => {
-      this._hideDropdowns();
-    });
-    container.on('tab', () => {
-      this._hideDropdowns();
-    });
-    container.on('hide', () => {
-      this.handleHide();
-      this._hideDropdowns();
-    });
-    container.on(LayoutNodeEvent.Show, () => {
-      this.handleShow();
-      let _loadMoreIfNeed = (this as any)._loadMoreIfNeed;
-
-      if (_loadMoreIfNeed)
-        _loadMoreIfNeed();
-
-      this._broadcastEvent(LayoutNodeEvent.Show);
-    });
-    container.on('extendState', () => {
-      container.setState(this.saveState());
-    });
-  }
-
-  private _broadcastEvent(event) {
-    this.events.next(event);
+    container.on('__all', (name, event) => this._handleLayoutNodeEvent(name, event));
   }
 
   private _initContainerLayoutEvents(container: GoldenLayout.Container) {
@@ -153,19 +118,15 @@ export abstract class LayoutNode implements IStateProvider<any> {
       console.error(e);
     }
   }
-
-  // @trigger('hide-dropdown')
-  _hideDropdowns() {
-  }
 }
 
-export function LayoutElement() {
+export function LayoutNode() {
   return function (derivedCtor: any) {
 
-    Object.getOwnPropertyNames(LayoutNode.prototype)
+    Object.getOwnPropertyNames(_LayoutNode.prototype)
       .forEach(name => {
         if (name !== 'constructor') {
-          derivedCtor.prototype[name] = LayoutNode.prototype[name];
+          derivedCtor.prototype[name] = _LayoutNode.prototype[name];
         }
       });
   };

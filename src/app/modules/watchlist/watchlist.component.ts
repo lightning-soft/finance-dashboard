@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { WatchlistItem } from './models/watchlist.item';
+import { LayoutNode, LayoutHandler } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, Events } from '../data-grid';
-import { LayoutElement, LayoutHandler } from '../layout';
 import { Components } from '../lazy-modules';
+import { WatchlistItem } from './models/watchlist.item';
 
 
 @UntilDestroy()
@@ -14,7 +14,7 @@ import { Components } from '../lazy-modules';
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss'],
 })
-@LayoutElement()
+@LayoutNode()
 export class WatchlistComponent implements OnInit, OnDestroy {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
