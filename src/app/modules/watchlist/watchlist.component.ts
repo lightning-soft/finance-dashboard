@@ -1,11 +1,12 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { LayoutNode, LayoutHandler } from 'layout';
+import { LayoutNode, LayoutHandler, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
+import { DataGrid } from 'data-grid';
 
 
 @UntilDestroy()
@@ -23,6 +24,9 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
 
   private subscriptions = [] as Function[];
+
+  @ViewChild(DataGrid)
+  private _dataGrid: DataGrid;
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
@@ -116,6 +120,11 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         item.processQuote(quote);
       }
     }
+  }
+
+  handleNodeEvent(name: LayoutNodeEvent) {
+    if (name === LayoutNodeEvent.Resize)
+      this._dataGrid.layout();
   }
 
   ngOnDestroy(): void {

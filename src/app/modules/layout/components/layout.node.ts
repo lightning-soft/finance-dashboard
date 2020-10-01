@@ -27,7 +27,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private componentRef: ComponentRef<typeof _LayoutNode>;
 
-  private _tabTitle = null;
+  private _tabTitle: string = null;
 
   get tabTitle(): string {
     return this._tabTitle;
@@ -120,9 +120,8 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 }
 
-export function LayoutNode() {
-  return function (derivedCtor: any) {
-
+export function LayoutNode(): <T extends { new(...args: any) }>(constructor: T) => void {
+  return (derivedCtor: any) => {
     Object.getOwnPropertyNames(_LayoutNode.prototype)
       .forEach(name => {
         if (name !== 'constructor') {
