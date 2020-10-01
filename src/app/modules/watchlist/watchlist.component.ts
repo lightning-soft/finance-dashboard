@@ -1,13 +1,12 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { LayoutNode, LayoutHandler, LayoutNodeEvent } from 'layout';
+import { DataGrid } from 'data-grid';
+import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
-import { DataGrid } from 'data-grid';
-
 
 @UntilDestroy()
 @Component({
