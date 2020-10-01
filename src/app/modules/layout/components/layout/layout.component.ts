@@ -147,7 +147,7 @@ export class LayoutComponent implements OnInit, IDropable {
 
 const defaultSettings = {
   settings: {
-    showPopoutIcon: false,
+    showPopoutIcon: true,
     showMaximiseIcon: true,
     responsiveMode: 'always'
   },
