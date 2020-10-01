@@ -147,7 +147,6 @@ export class DesktopLayout extends Layout {
     try {
       const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
 
-
       goldenLayout.getComponent = (name) => {
         return this.createComponentInitCallback(name);
       };
