@@ -48,6 +48,11 @@ export class LayoutComponent implements OnInit, IDropable {
 
   ngOnInit() {
     (window as any).l = this;
+    
+    window.onbeforeunload = () => { 
+      this.beforeUnloadHandler() 
+    }
+
     // this.ngZone.runOutsideAngular(() =>
     this._layoutHandler
       .handleCreate
@@ -132,7 +137,6 @@ export class LayoutComponent implements OnInit, IDropable {
   }
 
   // This is used because ngOnDestroy is not being triggered during page close/refresh
-  @HostListener('window:beforeunload')
   beforeUnloadHandler() {
     this._layoutHandler.save(this.getState());
   }

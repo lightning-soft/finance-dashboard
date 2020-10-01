@@ -650,7 +650,11 @@ $tabHeight: 30px;
 
     // Icon to PopOut Pane, so move it to a different Browser Window
     .lm_popout {
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=);
+      // background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=);
+      mask-image: url("../../../../../assets/img/svg/maximaze.svg");
+      mask-size: 100%;
+      margin-right: 5px;
+      mask-repeat: no-repeat;
     }
 
     // Icon to Maximize Pane, so it will fill the entire GoldenLayout Container
