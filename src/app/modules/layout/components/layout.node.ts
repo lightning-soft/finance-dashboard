@@ -80,26 +80,9 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     //   this.componentRef.changeDetectorRef.reattach();
   }
 
-  private _openPopup(container: GoldenLayout.Container) {
-    if (!container)
-      return;
-
-    try {
-      container.setState(this.saveState());
-      this._removeItself();
-
-      return { content: [(container as any)._config] };
-    } catch (e) {
-      return null;
-    }
-  }
-
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
     console.log(name, event);
     switch (name) {
-      case LayoutNodeEvent.Popup:
-        this._openPopup(this.layoutContainer);
-        break;
       case LayoutNodeEvent.Destroy:
         this.handleDestroy();
         break;
