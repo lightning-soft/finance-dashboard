@@ -44,14 +44,6 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _layoutContainer: GoldenLayout.Container;
 
-  set layoutContainer(value: GoldenLayout.Container) {
-    this._layoutContainer = value;
-  }
-
-  get layoutContainer(): GoldenLayout.Container {
-    return this._layoutContainer;
-  }
-
   setLayoutContainer(value) {
     this._layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
@@ -95,10 +87,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
-    console.log(name, event);
+    console.log(name, event, this._layoutContainer);
     switch (name) {
       case LayoutNodeEvent.Popup:
-        this._openPopup(this.layoutContainer);
+        this._openPopup(this._layoutContainer);
         break;
       case LayoutNodeEvent.Destroy:
         this.handleDestroy();
@@ -110,7 +102,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         this.handleShow();
         break;
       case LayoutNodeEvent.ExtendState:
-        this.layoutContainer.setState(this.saveState());
+        this._layoutContainer.setState(this.saveState());
         break;
     }
 
