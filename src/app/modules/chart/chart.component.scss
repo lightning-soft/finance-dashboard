@@ -86,6 +86,10 @@ $toolbarMargin: 4px;
     order-form {
       height: 100%;
     }
+    
+    .scxChartPanel ~ .scxChartPanel .scxPanelTitle {
+      margin-top: 5px;
+    }
 
     .scxPanelTitle {
       position: absolute;
@@ -96,7 +100,6 @@ $toolbarMargin: 4px;
 
       > div > * {
         display: inline-block;
-
       }
 
       .scxToggleIndicatorTitles {
