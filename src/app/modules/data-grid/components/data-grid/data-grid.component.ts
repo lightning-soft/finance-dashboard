@@ -94,7 +94,6 @@ export class DataGrid<T extends DataGridItem = any> implements OnInit, AfterView
   initHandlers(): IHandler[] {
     const handlers = [];
 
-
     if (!Array.isArray(this.handlers))
       this.handlers = [];
 
@@ -140,6 +139,11 @@ export class DataGrid<T extends DataGridItem = any> implements OnInit, AfterView
       element.addEventListener(event, fn);
       this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
     }
+  }
+
+  layout() {
+    this.viewPort.checkViewportSize();
+    // this._changeDetector.detectChanges();
   }
 
   ngOnDestroy(): void {

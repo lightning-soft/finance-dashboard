@@ -1,22 +1,21 @@
 import {
-  ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
   ElementRef,
   HostListener,
   NgZone,
   OnInit,
-  SystemJsNgModuleLoader,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LazyLoadingService } from 'lazy-assets';
-import { LoadingService } from 'lazy-modules';
+import { Components, LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
+import { ILayoutStore } from '../../store';
 import { DesktopLayout } from './layouts/desktop.layout';
-import { Layout } from './layouts/layout';
 import { IDropable } from './layouts/dropable';
+import { Layout } from './layouts/layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -36,18 +35,14 @@ export class LayoutComponent implements OnInit, IDropable {
   private _initSubscribers = [];
   layout: Layout;
 
-  constructor(private _factoryResolver: ComponentFactoryResolver,
-    private _changeDetectorRef: ChangeDetectorRef,
-    private _elementRef: ElementRef,
+  constructor(
+    private _factoryResolver: ComponentFactoryResolver,
     private viewContainer: ViewContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver,
     private ngZone: NgZone,
-    private _loader: SystemJsNgModuleLoader,
     private _lazyLoadingService: LazyLoadingService,
     private _layoutHandler: GoldenLayoutHandler,
-    // private readonly injector: Injector,
+    private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
-    // private _contextMenuTrigger: ContextMenuTrigger
   ) {
   }
 
@@ -113,8 +108,8 @@ export class LayoutComponent implements OnInit, IDropable {
       this.layout.handleEvent(event);
   }
 
-  saveState(): any {
-    return this.layout && this.layout.saveState();
+  getState(): any {
+    return this.layout && this.layout.getState();
   }
 
   loadEmptyState() {
@@ -124,7 +119,8 @@ export class LayoutComponent implements OnInit, IDropable {
     this.layout.loadEmptyState();
   }
 
-  async loadState(state: any) {
+  async loadState() {
+    const state = await this.layoutStore.getItem().toPromise() || defaultSettings;
     if (!this.layout)
       this._initLayout();
 
@@ -134,8 +130,44 @@ export class LayoutComponent implements OnInit, IDropable {
     this._initSubscribers = [];
     return result;
   }
+
+  /**
+   * HostListener is used because ngOnDestroy is not being triggered during page close/refresh
+   * If in this function error occurred then will be shown a confirm dialog with a message "Changes that you made may not be saved."
+   */
+  @HostListener('window:beforeunload')
+  beforeUnloadHandler() {
+    this._layoutHandler.save(this.getState());
+  }
 }
 
-function isInput(element: Element): boolean {
-  return element && element.tagName === 'INPUT';
-}
+const defaultSettings = {
+  settings: {
+    showPopoutIcon: true,
+    showMaximiseIcon: true,
+    responsiveMode: 'always'
+  },
+  dimensions: {
+    headerHeight: 30,
+    borderWidth: 15,
+    minItemWidth: 210,
+  },
+  content: [
+    {
+      type: 'row',
+      content: new Array(1).fill(1).map(() => ({
+        type: 'column',
+        content: [
+          {
+            type: 'component',
+            componentName: Components.Chart
+          },
+          {
+            type: 'component',
+            componentName: Components.Scripting
+          },
+        ]
+      })),
+    },
+  ]
+};

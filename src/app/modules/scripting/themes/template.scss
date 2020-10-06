@@ -1,0 +1,12 @@
+body.#{$themeName} {
+
+  :host {
+    background-color: $tabBackground;
+
+   ::ng-deep data-grid {
+      background: $gridBackground;
+    }
+
+  }
+
+}

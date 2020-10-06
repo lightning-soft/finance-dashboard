@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { WatchlistItem } from './models/watchlist.item';
+import { DataGrid } from 'data-grid';
+import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, Events } from '../data-grid';
-import { LayoutHandler } from '../layout';
 import { Components } from '../lazy-modules';
-
+import { WatchlistItem } from './models/watchlist.item';
 
 @UntilDestroy()
 @Component({
@@ -14,13 +14,18 @@ import { Components } from '../lazy-modules';
   templateUrl: './watchlist.component.html',
   styleUrls: ['./watchlist.component.scss'],
 })
+@LayoutNode()
 export class WatchlistComponent implements OnInit, OnDestroy {
   headers = ['name', 'ask', 'bid', 'timestamp'];
 
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
 
+
   private subscriptions = [] as Function[];
+
+  @ViewChild(DataGrid)
+  private _dataGrid: DataGrid;
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
@@ -114,6 +119,11 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         item.processQuote(quote);
       }
     }
+  }
+
+  handleNodeEvent(name: LayoutNodeEvent) {
+    if (name === LayoutNodeEvent.Resize)
+      this._dataGrid.layout();
   }
 
   ngOnDestroy(): void {

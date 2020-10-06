@@ -20,6 +20,11 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-monaco-editor/assets/monaco",
+                "output": "./assets/monaco/"
+              },
               "src/favicon.ico",
               "src/lib",
               "src/assets"
@@ -179,5 +184,8 @@
     "@schematics/angular:component": {
       "styleext": "scss"
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
