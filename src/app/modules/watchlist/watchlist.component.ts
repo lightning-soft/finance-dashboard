@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
+import { Id } from 'communication'; //Error
+import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { DataGrid } from 'data-grid';
 import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';

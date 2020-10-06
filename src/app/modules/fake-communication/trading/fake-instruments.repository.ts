@@ -1,4 +1,4 @@
-import { IInstrument } from 'communication';
+import { IInstrument } from 'trading'; //Error
 import { IPaginationResponse } from 'core';
 import { from, Observable } from 'rxjs';
 import { FakeRepository } from '../common';

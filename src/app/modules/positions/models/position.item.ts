@@ -1,4 +1,4 @@
-import { IPosition } from 'communication';
+import { IPosition } from 'trading'; //Error
 import { Id } from 'core';
 import { Cell, DataCell, NumberCell } from 'data-grid';
 import { IconCell } from '../../data-grid/models/cells/icon.cell';

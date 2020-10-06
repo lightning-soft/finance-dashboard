@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { InstrumentsRepository, IInstrument } from 'communication';
+import { InstrumentsRepository, IInstrument } from 'trading'; //Error
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
