@@ -3,11 +3,23 @@
     <thead>
       <tr>
         <th [style.top]="inverseTranslation" width='100' appResizeble>index</th>
-        <th [style.top]="inverseTranslation" *ngFor="let column of columns; let i = index" class="head cell"
+        <th [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell"
           [title]="column" width='100' appResizeble>
-          <div class="data">{{column}}</div>
+          <div class="data">{{column}}<i (click)="delete(ind)" nz-icon nzType="delete"></i></div>
         </th>
-        <th [style.top]="inverseTranslation">
+        <th [style.top]="inverseTranslation" class="head cell">
+          <button nz-button [nzType]="'primary'" (click)="showModal()"><i nz-icon nzType="plus"></i></button>
+          <nz-modal [(nzVisible)]="isVisible" nzTitle="Add options" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+            <nz-transfer
+              [nzDataSource]="list"
+              [nzDisabled]="disabled"
+              [nzTitles]="['Source', 'Target']"
+              (nzSelectChange)="select($event)"
+              [nzSelectedKeys]="['0', '2']"
+              (nzChange)="change($event)"
+            >
+            </nz-transfer>
+          </nz-modal>
          </th>
       </tr>
     </thead>

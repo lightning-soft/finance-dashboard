@@ -39,8 +39,11 @@ body, html {
   width: auto !important;
 }
 
-.ant-modal-content {
-  width: 230px;
+.ant-modal-content{
+  width: 430px !important;
+  position: fixed !important;
+  left: 50% !important;
+  top: 40% !important;
 }
 
 
