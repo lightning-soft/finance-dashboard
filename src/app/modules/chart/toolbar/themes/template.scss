@@ -5,6 +5,11 @@ body.#{$themeName} {
 
   :host {
 
+    .icon-container {
+      background: $tabBackground;
+      color: $textColor;
+    }
+
     .icon-arrow-dropdown {
       color: $borderColor;
     }
@@ -15,6 +20,12 @@ body.#{$themeName} {
         color: $textColor;
       }
 
+    }
+
+    .icon-container {
+      &:after {
+        background-color: $borderColor;
+      }
     }
 
     .pane {

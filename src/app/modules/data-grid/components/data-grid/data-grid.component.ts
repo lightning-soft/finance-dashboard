@@ -9,6 +9,7 @@ import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
 import { Subject } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -48,6 +49,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   private _subscribedEvents = [];
 
+  constructor(private _changeDetector: ChangeDetectorRef) {
+
+  }
+
   ngAfterViewInit(): void {
     this._handlers = this.initHandlers() || [];
     for (let handler of this._handlers) {
@@ -57,7 +62,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   initHandlers(): IHandler[] {
     const handlers = [];
-
 
     if (!Array.isArray(this.handlers))
       this.handlers = [];
@@ -104,6 +108,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       element.addEventListener(event, fn);
       this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
     }
+  }
+
+  layout() {
+    this.viewPort.checkViewportSize();
+    // this._changeDetector.detectChanges();
   }
 
   ngOnDestroy(): void {

@@ -16,7 +16,7 @@
       <tr
         [attr.data-row]="i"
         *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
-        <td>{{item.id}}</td>
+        <!-- <td>{{item.id}}</td> -->
         <ng-container *ngFor="let column of columns; let j = index">
           <td
             [attr.data-column]="column"

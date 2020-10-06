@@ -37,13 +37,13 @@ export class DesktopLayout extends Layout {
       return;
     }
 
-    const goldenLayout = this.goldenLayout,
-      content = goldenLayout.selectedItem || goldenLayout.root.contentItems[0],
-      item = {
-        type: 'component',
-        componentName,
-        componentState: null
-      };
+    const goldenLayout = this.goldenLayout;
+    const content = goldenLayout.selectedItem || goldenLayout.root.contentItems[0];
+    const item = {
+      type: 'component',
+      componentName,
+      componentState: null
+    };
 
     try {
       if (content) {
@@ -76,8 +76,9 @@ export class DesktopLayout extends Layout {
 
   handleResize() {
     super.handleResize();
-    if (this.goldenLayout)
+    if (this.goldenLayout) {
       this.goldenLayout.updateSize();
+    }
   }
 
   handleEvent(event) {
@@ -91,8 +92,8 @@ export class DesktopLayout extends Layout {
       goldenLayout.selectItem(goldenLayout.root && goldenLayout.root.contentItems && goldenLayout.root.contentItems[0]);
     }
 
-    const item = goldenLayout.selectedItem,
-      activeItem: any = item && item.getActiveContentItem ? item.getActiveContentItem() : item;
+    const item = goldenLayout.selectedItem;
+    const activeItem: any = item && item.getActiveContentItem ? item.getActiveContentItem() : item;
 
     if (activeItem && activeItem.container) {
       activeItem.container.emit('event', event);
@@ -110,24 +111,21 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(loader.location.nativeElement));
 
-          const comp = await this._creationsService.getComponentRef(name),
-            componentRef = this.viewContainer.insert(comp.hostView),
-            instance: any = comp.instance;
+          const comp = await this._creationsService.getComponentRef(name);
+          const componentRef = this.viewContainer.insert(comp.hostView);
+          const instance: any = comp.instance;
 
           container
             .getElement()
             .append($(comp.location.nativeElement));
 
-          for (let e of ['show'])
-            container.on(e, tab => {
-              console.log('container event', e, tab);
-              window.dispatchEvent(new Event('resize'));
-            });
           container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
           this._addMobileTabDraggingSupport(container.tab);
 
           instance.componentRef = componentRef;
-          instance.goldenLayoutContainer = container;
+
+          if (instance.setLayoutContainer)
+            instance.setLayoutContainer(container);
 
           if (instance.loadState) {
             instance.loadState(componentState);
@@ -149,8 +147,6 @@ export class DesktopLayout extends Layout {
     try {
       const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));
 
-
-
       goldenLayout.getComponent = (name) => {
         return this.createComponentInitCallback(name);
       };
@@ -168,7 +164,7 @@ export class DesktopLayout extends Layout {
     }
   }
 
-  saveState(): any {
+  getState(): any {
     if (!this.goldenLayout || !this.goldenLayout.root) {
       return;
     }

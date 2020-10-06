@@ -9,7 +9,7 @@ import { PositionsComponent } from './components/positions/positions.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-  ],
+    ],
   declarations: [
     PositionsComponent,
     OrderFormComponent,

@@ -14,7 +14,7 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   positions = [] as IPosition[];
 
   get volume() {
-    return this.form.value.volume;
+    return this.form.value.size;
   }
 
   private _instrument: IInstrument;
@@ -62,14 +62,15 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   }
 
   addVolume(value) {
-    const result = +(value + this.volume).toFixed(1);
-    if (result >= 0.1) {
-      this.form.patchValue({size: result});
-    }
+    let volume = +(value + this.volume).toFixed(1);
+    if (volume < this.step)
+      volume = this.step;
+
+    this.form.patchValue({ size: volume });
   }
 
   submit(operation: string) {
-    this.form.patchValue({operation, symbol: this.instrument.id});
+    this.form.patchValue({ operation, symbol: this.instrument.id });
     this.apply();
   }
 }
