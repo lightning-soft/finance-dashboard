@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
 import { DataGrid } from 'data-grid';
@@ -24,6 +25,8 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   private subscriptions = [] as Function[];
 
+  public instrumentName: string = '';
+
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
 
@@ -37,11 +40,19 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   ) {
   }
   handlers = [
-    new CellClickDataGridHandler<IInstrument>({
+    new CellClickDataGridHandler<WatchlistItem>({
       column: 'name',
       events: [Events.DoubleClick],
-      handler: (_) => {
+      handler: (watchlistItem: WatchlistItem) => {
         this.layoutHandler.create(Components.Chart);
+      },
+    }),
+    new CellClickDataGridHandler<WatchlistItem>({
+      column: null,
+      events: [Events.ContextMenu],
+      handler: (watchlistItem: WatchlistItem) => {
+        console.log(watchlistItem)
+        this.delete(watchlistItem);
       },
     }),
   ];
@@ -81,6 +92,21 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     //     } as any);
     //   }
     // }, 100)
+  }
+
+  addNewInstrument(form: NgForm): void {
+    const instrumentName = form.control.value.instrumentName;
+
+    if (instrumentName.trim()) {
+      const newInstrument: IInstrument = {
+        name: instrumentName.toUpperCase(),
+        tickSize: 0.1,
+        id: Date.now(),
+      }
+      
+      this.addToWatchlist(newInstrument);
+      form.reset();
+    }
   }
 
   addToWatchlist(instruments: IInstrument | IInstrument[]) {

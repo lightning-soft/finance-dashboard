@@ -1,3 +1,10 @@
-<data-grid [items]="items"
-           [handlers]="handlers"
-           [columns]="headers"></data-grid>
+<data-grid 
+  [items]="items"
+  [handlers]="handlers"
+  [columns]="headers"
+>
+  <form class="new-instrument-form" #f="ngForm" (ngSubmit)="addNewInstrument(f)">
+    <input name="instrumentName" ngModel required #first="ngModel">
+    <button>Submit</button>
+  </form>
+</data-grid>
