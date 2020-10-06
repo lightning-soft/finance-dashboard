@@ -2,12 +2,13 @@
   <table  #tableContainer>
     <thead>
       <tr>
-        <th [style.top]="inverseTranslation" width='100'>index</th>
+        <th [style.top]="inverseTranslation" width='100' appResizeble>index</th>
         <th [style.top]="inverseTranslation" *ngFor="let column of columns; let i = index" class="head cell"
-          [title]=" column" width='100'>
-          <span class="data">{{column}}</span>
+          [title]="column" width='100' appResizeble>
+          <div class="data">{{column}}</div>
         </th>
-        <th [style.top]="inverseTranslation" style="width: 100%"></th>
+        <th [style.top]="inverseTranslation">
+         </th>
       </tr>
     </thead>
 
