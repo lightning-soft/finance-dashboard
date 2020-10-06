@@ -1,4 +1,3 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -42,7 +41,7 @@
         "src/app/modules/ui/index"
       ],
       "notifier": [
-        "src/app/modules/ui/notifier/index"
+        "projects/notifier/index"
       ],
       "trading-ui": [
         "src/app/modules/trading-ui/index"
@@ -54,13 +53,22 @@
         "src/app/modules/lazy-assets/index"
       ],
       "communication": [
-        "src/app/modules/communication/index"
+        "projects/communication/index"
       ],
       "fake-communication": [
         "src/app/modules/fake-communication/index"
       ],
       "layout": [
         "src/app/modules/layout/index"
+      ],
+      "search-select": [
+        "projects/search-select/index"
+      ],
+      "base-components": [
+        "projects/base-components/index"
+      ],
+      "trading": [
+        "src/app/modules/trading/index"
       ]
     }
   }
