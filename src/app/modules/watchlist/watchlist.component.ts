@@ -112,7 +112,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     if (instrument) {
       this.addToWatchlist(instrument);
     }
-    console.log(instrument)
   }
 
   addToWatchlist(instruments: IInstrument | IInstrument[]) {
@@ -128,7 +127,8 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }
-    this.items = [...items, ...this.items];
+
+    this.items = [...this.items, ...items];
     this.subscribeForRealtime(instruments);
   }
 
