@@ -52,9 +52,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-  ) {
-    this.tabTitle = 'Chart';
-  }
+  ) {}
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.loadScx();
@@ -101,7 +99,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
       this.chart.instrument = event.value;
-      this.tabTitle = event.value.symbol;
+      this.setTabTitle(event.value.symbol)
     });
 
     this._themesHandler.themeChange$
@@ -124,7 +122,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         }
 
         if (value.stockChartXState) {
-          chart.loadState(value.stockChartXState);
+          chart.loadState(value.stockChartXState);        
         } else if (StockChartX.Indicator.registeredIndicators.VOL) {
           chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
         }
@@ -164,6 +162,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     if (!chartContainer || !chartContainer.nativeElement) {
       return null;
+    }
+
+    if (state && state.instrument) {
+      this.setTabTitle(state.instrument.symbol)
+    } else {
+      this.setTabTitle('AAPL')
     }
 
     return new StockChartX.Chart({

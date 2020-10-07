@@ -15,7 +15,7 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
-  tabTitle?: string;
+  setTabTitle(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
 }
 
@@ -30,19 +30,6 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private componentRef: ComponentRef<typeof _LayoutNode>;
 
   private _tabTitle: string = null;
-
-  get tabTitle(): string {
-    return this._tabTitle;
-  }
-
-  set tabTitle(value: string) {
-    if (this._tabTitle === value)
-      return;
-
-    this._tabTitle = value;
-    if (this._layoutContainer)
-      this._layoutContainer.setTitle(value);
-  }
 
   private _layoutContainer: GoldenLayout.Container;
 
@@ -98,6 +85,15 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private _initContainerLayoutEvents(container: GoldenLayout.Container) {
     if (this._tabTitle)
       container.setTitle(this._tabTitle);
+  }
+
+  setTabTitle(value: string) {
+    if (this._tabTitle === value)
+      return;
+
+    this._tabTitle = value;
+    if (this._layoutContainer)
+      this._layoutContainer.setTitle(value);
   }
 
   _removeItself() {
