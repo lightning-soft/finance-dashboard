@@ -3,8 +3,10 @@
   [handlers]="handlers"
   [columns]="headers"
 >
-  <form class="new-instrument-form" #f="ngForm" (ngSubmit)="addNewInstrument(f)">
-    <input name="instrumentName" ngModel required #first="ngModel">
-    <button>Submit</button>
-  </form>
+  <search-select
+    [repository]="_instrumentsRepository"
+    (itemChange)="addNewInstrument($event)"
+  >
+  </search-select>
+
 </data-grid>

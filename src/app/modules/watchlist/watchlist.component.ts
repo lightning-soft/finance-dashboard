@@ -1,11 +1,10 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication'; //Error
-import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { DataGrid } from 'data-grid';
 import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
+import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
@@ -23,7 +22,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
 
-
   private subscriptions = [] as Function[];
 
   public instrumentName: string = '';
@@ -32,7 +30,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   private _dataGrid: DataGrid;
 
   constructor(
-    private _instrumentsRepository: InstrumentsRepository,
+    public _instrumentsRepository: InstrumentsRepository,
     private _datafeed: Datafeed,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
@@ -95,19 +93,26 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     // }, 100)
   }
 
-  addNewInstrument(form: NgForm): void {
-    const instrumentName = form.control.value.instrumentName;
+  // addNewInstrument(form: NgForm): void {
+  //   const instrumentName = form.control.value.instrumentName;
 
-    if (instrumentName.trim()) {
-      const newInstrument: IInstrument = {
-        name: instrumentName.toUpperCase(),
-        tickSize: 0.1,
-        id: Date.now(),
-      }
+  //   if (instrumentName.trim()) {
+  //     const newInstrument: IInstrument = {
+  //       name: instrumentName.toUpperCase(),
+  //       tickSize: 0.1,
+  //       id: Date.now(),
+  //     }
       
-      this.addToWatchlist(newInstrument);
-      form.reset();
+  //     this.addToWatchlist(newInstrument);
+  //     form.reset();
+  //   }
+  // }
+
+  addNewInstrument(instrument: IInstrument): void {
+    if (instrument) {
+      this.addToWatchlist(instrument);
     }
+    console.log(instrument)
   }
 
   addToWatchlist(instruments: IInstrument | IInstrument[]) {

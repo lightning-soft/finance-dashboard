@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { Components, ComponentStore, LazyModule } from 'lazy-modules';
 import { WatchlistComponent } from './watchlist.component';
+import { SearchSelectModule } from 'search-select'
 
 @NgModule({
   imports: [
     CommonModule,
     DataGridModule,
-    FormsModule
+    FormsModule,
+    SearchSelectModule
   ],
   exports: [
     WatchlistComponent,
