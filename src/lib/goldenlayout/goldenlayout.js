@@ -1995,7 +1995,7 @@
      * @returns {String} URL
      */
     _createUrl: function (storageKey) {
-      return document.location.origin + '/popup?gl-window=' + storageKey;
+      return './popup?gl-window=' + storageKey;
     },
 
     /**
