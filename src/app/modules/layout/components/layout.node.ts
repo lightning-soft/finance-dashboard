@@ -9,16 +9,18 @@ declare namespace GoldenLayout {
   }
 }
 
-export interface IStateProvider<T> {
-
+export interface IStateProvider<T = any> {
+  saveState(): T;
+  loadState(state: T);
 }
+
 export interface ILayoutNode {
   tabTitle?: string;
   handleNodeEvent(name: LayoutNodeEvent, event);
 }
 
 // tslint:disable-next-line: no-empty-interface
-interface _LayoutNode extends ILayoutNode {
+interface _LayoutNode extends ILayoutNode, IStateProvider {
 
 }
 
@@ -50,13 +52,6 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     this._initContainerLayoutEvents(value);
   }
 
-  saveState(): any {
-    return null;
-  }
-
-  loadState(state?: any) {
-  }
-
   handleDestroy() {
     if (this.componentRef)
       this.componentRef.destroy();
@@ -85,7 +80,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         this.handleShow();
         break;
       case LayoutNodeEvent.ExtendState:
-        this._layoutContainer.setState(this.saveState());
+        if (this.saveState)
+          this._layoutContainer.setState(this.saveState());
+        else
+          console.error(`Implement save state for ${this.constructor.name}`);
         break;
     }
 

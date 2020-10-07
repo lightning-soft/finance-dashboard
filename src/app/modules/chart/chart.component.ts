@@ -81,9 +81,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadChart() {
-    const { _elementRef, loadedState } = this,
-      state = loadedState && loadedState.value,
-      chart = this.chart = this._initChart(state);
+    const { loadedState } = this;
+    const state = loadedState && loadedState.value;
+    const chart = this.chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
       this.datafeed.loadInstruments()
@@ -109,25 +109,25 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .subscribe(value => chart.theme = getScxTheme(value));
 
     this.loadedState
-      .pipe(
-        untilDestroyed(this)
-      ).subscribe(value => {
+      .pipe(untilDestroyed(this))
+      .subscribe(value => {
         if (!value) {
           return;
         }
 
-        // if (value.instrument && value.instrument.id != null) {
-        // }
+        if (value.instrument && value.instrument.id != null) {
+          chart.instrument = value.instrument; // todo: test it
+        }
 
-        // if (value.timeFrame != null) {
-        //   chart.timeFrame = value.timeFrame;
-        // }
+        if (value.timeFrame != null) {
+          chart.timeFrame = value.timeFrame;
+        }
 
-        // if (value.stockChartXState) {
-        //   chart.loadState(value.stockChartXState);
-        // } else if (StockChartX.Indicator.registeredIndicators.VOL) {
-        //   chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
-        // }
+        if (value.stockChartXState) {
+          chart.loadState(value.stockChartXState);
+        } else if (StockChartX.Indicator.registeredIndicators.VOL) {
+          chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
+        }
       });
 
     let charts = [];
@@ -201,10 +201,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.setNeedUpdate();
   }
 
-  loadState(state?) {
+  loadState(state?: any) {
     this.loadedState.next(state);
   }
-
 
   ngOnDestroy(): void {
     this.destroy();
