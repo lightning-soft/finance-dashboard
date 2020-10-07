@@ -80,7 +80,7 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
 
   @Input()
   displayLabel(o: any) {
-    return '#' + o.id + ' ' + o.title;
+    return o.id;
   }
 
   constructor(protected _notifier: NotifierService) {
