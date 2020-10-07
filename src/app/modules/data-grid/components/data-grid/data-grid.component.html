@@ -1,18 +1,16 @@
 <cdk-virtual-scroll-viewport [itemSize]="20">
-  <table  #tableContainer>
-    <thead>
-      <tr>
-        <th [style.top]="inverseTranslation" width='100' appResizeble>index</th>
-        <th [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell"
-          [title]="column" width='100' appResizeble>
+  <section #tableContainer>
+      <div style="display: flex; flex-wrap: wrap">
+<!--        <div style="flex: 1 1 auto;" [style.top]="inverseTranslation" appResizeble>index</div>-->
+        <div style="flex: 1 1 auto" [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell th"
+          [title]="column">
           <div class="data">{{column}}<i (click)="delete(ind)" nz-icon nzType="delete"></i></div>
-        </th>
-        <th [style.top]="inverseTranslation" class="head cell">
-          <button nz-button [nzType]="'primary'" (click)="showModal()"><i nz-icon nzType="plus"></i></button>
+        </div>
+        <div [style.top]="inverseTranslation" class="head cell">
+          <button nz-button [nzType]="'primary'" (click)="showModal()"><i nz-icon nzType="setting"></i></button>
           <nz-modal [(nzVisible)]="isVisible" nzTitle="Add options" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
             <nz-transfer
               [nzDataSource]="list"
-              [nzDisabled]="disabled"
               [nzTitles]="['Source', 'Target']"
               (nzSelectChange)="select($event)"
               [nzSelectedKeys]="['0', '2']"
@@ -20,27 +18,24 @@
             >
             </nz-transfer>
           </nz-modal>
-         </th>
-      </tr>
-    </thead>
+         </div>
+      </div>
 
-    <tbody>
-      <tr
+      <div style="display: flex; flex-wrap: wrap"
         [attr.data-row]="i"
         *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
-        <!-- <td>{{item.id}}</td> -->
+<!--         <div style="flex: 1 1 auto;">{{item.id}}</div>-->
         <ng-container *ngFor="let column of columns; let j = index">
-          <td
+          <div style="flex: 1 1 auto;"
             [attr.data-column]="column"
             [attr.colspan]="item[column].colSpan"
             *ngIf="item[column]" class="column cell" [ngClass]="column">
-            <span *itemViewBuilder="item && item[column]" [ngClass]="item[column].class" class="data">
+            <div *itemViewBuilder="item && item[column]" [ngClass]="item[column].class" class="data">
               {{item[column].value}}
-            </span>
-          </td>
+            </div>
+          </div>
         </ng-container>
-        <td style="width: 100%"></td>
-      </tr>
-    </tbody>
-  </table>
+<!--        <div style="width: 100%"></div>-->
+      </div>
+  </section>
 </cdk-virtual-scroll-viewport>

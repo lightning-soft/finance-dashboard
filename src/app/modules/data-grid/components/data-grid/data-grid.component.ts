@@ -38,41 +38,39 @@ export class DataGrid<T extends DataGridItem = any> implements OnInit, AfterView
   handlers: DataGridHandler[] = [];
 
   @ViewChild(CdkVirtualScrollViewport)
-  public viewPort: CdkVirtualScrollViewport;
+  public viewPort: CdkVirtualScrollViewport | any;
 
   @Input()
   columns = [];
 
   @Input()
   items: T[];
-
   private _handlers = [];
 
   private _subscribedEvents = [];
   isVisible = false;
 
   ngOnInit() {
-    for (let i = 0; i < 20; i++) {
+    this.getList();
+  }
+  getList(){
+    for (const key in this.columns) {
+      const column = this.columns[key];
       this.list.push({
-        key: i.toString(),
-        title: `Option ${i + 1}`
+        key: key.toString(),
+        title: `${column}`
       });
     }
-
-    [2, 3].forEach(idx => (this.list[idx].direction = 'right'));
   }
-
   showModal(): void {
     this.isVisible = true;
   }
 
   handleOk(): void {
-    console.log('Button ok clicked!');
     this.isVisible = false;
   }
 
   handleCancel(): void {
-    console.log('Button cancel clicked!');
     this.isVisible = false;
   }
   select(ret: {}): void {

@@ -7,7 +7,7 @@ export class ResizebleDirective implements OnInit{
 
 
   @Input() resizableGrabWidth = 1;
-  @Input() resizableMinWidth = 100;
+  @Input() resizableMinWidth = 30;
 
   dragging = false;
 
