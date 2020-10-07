@@ -130,7 +130,7 @@
           <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu nzTitle="{{drawingInstrument.value}}">
             <ul class="toolbar-submenu">
               <li *ngFor="let item of drawingInstrument.items" nz-menu-item (click)="addDrawing(item)">
-                <span class=" scx-icon icon-drawing-{{item.toLowerCase()}}"></span>
+                <span class="scx-icon icon-drawing-{{item.toLowerCase()}}"></span>
                 <span>{{item}}</span>
               </li>
             </ul>
