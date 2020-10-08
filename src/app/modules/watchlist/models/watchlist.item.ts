@@ -1,6 +1,6 @@
 import { Cell, DateCell, NumberCell, ReadonlyCell } from 'data-grid';
 import { InstrumentNameCell, } from './instrument-name.cell';
-import { IQuote, IInstrument } from 'communication';
+import { IQuote, IInstrument } from 'trading'; //Error
 
 export class WatchlistItem {
     instrumentId: any;

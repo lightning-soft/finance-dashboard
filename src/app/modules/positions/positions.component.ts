@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Injector, OnInit } from '@angular/core';
-import { IPosition, PositionsRepository } from 'communication';
+import { IPosition, PositionsRepository } from 'trading'; //Error
 import { ItemsComponent, ViewItemsBuilder } from 'core';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
