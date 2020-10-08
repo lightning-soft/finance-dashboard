@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication'; //Error
-import { ContextMenuData, ContextMenuDataGridHandler, DataGrid } from 'data-grid';
+import { IContextMenuData, ContextMenuDataGridHandler, DataGrid } from 'data-grid';
 import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -9,6 +9,7 @@ import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from '../trading
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
+import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 
 @UntilDestroy()
 @Component({
@@ -28,10 +29,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
 
-  @ViewChild("menu", {static: false})
+  @ViewChild('menu', {static: false})
   private _menuTemplate: NzDropdownMenuComponent;
 
-  public selectedIstrumentName: string = '';
+  public selectedIstrumentName = '';
   private _selectedInstrument: WatchlistItem;
 
   constructor(
@@ -41,6 +42,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     public notifier: NotifierService,
     private layoutHandler: LayoutHandler,
     private nzContextMenuService: NzContextMenuService,
+    private contextMenuService: ContextMenuService
   ) {}
 
   handlers = [
@@ -51,14 +53,20 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         this.layoutHandler.create(Components.Chart);
       },
     }),
-    new ContextMenuDataGridHandler<ContextMenuData>({
-      handler: (data: ContextMenuData) => {
+    new ContextMenuDataGridHandler<IContextMenuData>({
+      handler: (data: IContextMenuData) => {
         const {item, event} = data;
 
-        this._selectedInstrument = item
-        this.selectedIstrumentName = item.name.value;
+        const menuList: IContextMenuInfo = {
+          event,
+          list: [
+            { title: 'Delete', action: () => {
+              this.delete(item);
+            }}
+          ]
+        };
 
-        this.nzContextMenuService.create(event, this._menuTemplate);
+        this.contextMenuService.showMenu(menuList);
       },
     }),
   ];
@@ -123,7 +131,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     if (instrument) {
       this.addToWatchlist(instrument);
       this.notifier.showSuccess(`Instrument ${instrument.name} added`);
-    } 
+    }
   }
 
   addToWatchlist(instruments: IInstrument | IInstrument[]) {
@@ -144,13 +152,11 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     this.subscribeForRealtime(instruments);
   }
 
-  delete(item?) {
-    const instrument: WatchlistItem = item ? item : this._selectedInstrument;
+  delete(item) {
+    this._itemsMap.delete(item.instrumentId);
+    this.items = this.items.filter(i => i.instrumentId !== item.instrumentId);
 
-    this._itemsMap.delete(instrument.instrumentId);
-    this.items = this.items.filter(i => i.instrumentId !== instrument.instrumentId);
-
-    this.notifier.showSuccess(`Instrument ${instrument.name.value} deleted`);
+    this.notifier.showSuccess(`Instrument ${item.name.value} deleted`);
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {

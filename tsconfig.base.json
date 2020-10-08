@@ -69,6 +69,9 @@
       ],
       "trading": [
         "src/app/modules/trading/index"
+      ],
+      "context-menu": [
+        "projects/context-menu/index"
       ]
     }
   }

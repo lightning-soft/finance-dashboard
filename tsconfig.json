@@ -42,6 +42,12 @@
     },
     {
       "path": "./projects/communication/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.spec.json"
     }
   ],
 }

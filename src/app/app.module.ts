@@ -7,6 +7,7 @@ import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
 import { NotifierModule } from 'notifier';
+import { ContextMenuModule } from 'context-menu';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent } from './components';
 
@@ -22,6 +23,7 @@ import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent 
     NzModalModule,
     BrowserAnimationsModule,
     NotifierModule,
+    ContextMenuModule,
     LayoutModule.forRoot(),
     LoadingModule.forRoot(),
     FakeCommunicationModule.forRoot(),
