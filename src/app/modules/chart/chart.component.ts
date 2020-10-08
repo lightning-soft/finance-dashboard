@@ -52,9 +52,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-  ) {
-    this.tabTitle = 'Chart';
-  }
+  ) {}
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.loadScx();
@@ -81,9 +79,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadChart() {
-    const { _elementRef, loadedState } = this,
-      state = loadedState && loadedState.value,
-      chart = this.chart = this._initChart(state);
+    const { loadedState } = this;
+    const state = loadedState && loadedState.value;
+    const chart = this.chart = this._initChart(state);
 
     if (this.datafeed instanceof CSVDatafeed)
       this.datafeed.loadInstruments()
@@ -101,7 +99,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
       this.chart.instrument = event.value;
-      this.tabTitle = event.value.symbol;
+      this.setTabTitle(event.value.symbol)
     });
 
     this._themesHandler.themeChange$
@@ -109,25 +107,25 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .subscribe(value => chart.theme = getScxTheme(value));
 
     this.loadedState
-      .pipe(
-        untilDestroyed(this)
-      ).subscribe(value => {
+      .pipe(untilDestroyed(this))
+      .subscribe(value => {
         if (!value) {
           return;
         }
 
-        // if (value.instrument && value.instrument.id != null) {
-        // }
+        if (value.instrument && value.instrument.id != null) {
+          chart.instrument = value.instrument; // todo: test it
+        }
 
-        // if (value.timeFrame != null) {
-        //   chart.timeFrame = value.timeFrame;
-        // }
+        if (value.timeFrame != null) {
+          chart.timeFrame = value.timeFrame;
+        }
 
-        // if (value.stockChartXState) {
-        //   chart.loadState(value.stockChartXState);
-        // } else if (StockChartX.Indicator.registeredIndicators.VOL) {
-        //   chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
-        // }
+        if (value.stockChartXState) {
+          chart.loadState(value.stockChartXState);        
+        } else if (StockChartX.Indicator.registeredIndicators.VOL) {
+          chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
+        }
       });
 
     let charts = [];
@@ -166,6 +164,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return null;
     }
 
+    if (state && state.instrument) {
+      this.setTabTitle(state.instrument.symbol)
+    } else {
+      this.setTabTitle('AAPL')
+    }
+
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
       datafeed: this.datafeed,
@@ -201,10 +205,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.setNeedUpdate();
   }
 
-  loadState(state?) {
+  loadState(state?: any) {
     this.loadedState.next(state);
   }
-
 
   ngOnDestroy(): void {
     this.destroy();
