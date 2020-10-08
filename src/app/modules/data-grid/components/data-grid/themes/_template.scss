@@ -1,9 +1,9 @@
 body.#{$themeName} :host {
-  th {
+  .head-flex {
     color: $textColorSecondary;
     background: $tabBackground;
   }
-  td{
+  div {
     color: $textColor;
   }
 }
