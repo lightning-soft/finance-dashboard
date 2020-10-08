@@ -10,3 +10,9 @@
   </search-select>
 
 </data-grid>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu>
+    <li (click)="delete()" nz-menu-item>Delete '{{selectedIstrumentName}}'</li>
+  </ul>
+</nz-dropdown-menu>

@@ -4,14 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { Components, ComponentStore, LazyModule } from 'lazy-modules';
 import { WatchlistComponent } from './watchlist.component';
-import { SearchSelectModule } from 'search-select'
+import { SearchSelectModule } from 'search-select';
+import { NzDropDownModule, NzContextMenuService } from 'ng-zorro-antd';
 
 @NgModule({
   imports: [
     CommonModule,
     DataGridModule,
     FormsModule,
-    SearchSelectModule
+    SearchSelectModule,
+    NzDropDownModule,
   ],
   exports: [
     WatchlistComponent,
@@ -22,6 +24,7 @@ import { SearchSelectModule } from 'search-select'
   entryComponents:[
   ],
   providers: [
+    NzContextMenuService
   ],
 })
 export class WatchlistModule implements LazyModule {

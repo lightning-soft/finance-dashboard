@@ -126,3 +126,36 @@ export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
       this.notify(item);
   }
 }
+
+export interface ContextMenuData {
+  item: any,
+  event: MouseEvent
+}
+
+export class ContextMenuDataGridHandler<T> extends DataGridHandler<T> {
+  tableHandler;
+
+  constructor(config: IDataGridHandlerConfig<T>) {
+    super(config);
+    this.tableHandler = new CellClickHandler({
+      column: null,
+      events: [Events.ContextMenu],
+      handler: (data, event) => this._handleClick(data, event)
+    });
+  }
+
+  private _handleClick(data: CellClickData, event: MouseEvent) {
+    if (!this.dataGrid || !data)
+      return;
+
+    const item = this.dataGrid.items[data.row];
+
+    const contextMenuData: ContextMenuData = {
+      item,
+      event
+    }
+
+    if (item)
+      this.notify(contextMenuData);
+  }
+}
