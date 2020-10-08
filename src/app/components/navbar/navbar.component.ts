@@ -13,9 +13,12 @@ export class NavbarComponent {
     return this.themeHandler.theme === Themes.Dark;
   }
 
+  public isVisible = true;
+
   @Input() isOpen;
 
   constructor(private themeHandler: ThemesHandler) {
+    this.checkVisibility()
   }
 
   switchTheme() {
@@ -28,5 +31,12 @@ export class NavbarComponent {
 
   toggleNavigationDrawer() {
     this.isOpen = !this.isOpen;
+  }
+
+  checkVisibility() {
+    if (window.location.href.includes('popup')) {
+      console.log('here');
+      this.isVisible = false;
+    }
   }
 }
