@@ -47,24 +47,24 @@ export class ToolbarComponent implements OnInit {
     {
       value: 'Chart market',
       items: [
-        'Dot', 'Square', 'Diamond', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Arrow', 'Note'
+        'Dot', 'Square', 'Diamond', 'Arrow-Up', 'Arrow-Down', 'Arrow-Left', 'Arrow-Right', 'Arrow', 'Note'
       ]
     },
     {
       value: 'Geometric',
-      items: ['LineSegment', 'HorizontalLine', 'VerticalLine',
-        'Rectangle', 'Triangle', 'Circle', 'Ellipse', 'Polygon', 'Polyline', 'Freehand', 'CyclicLines']
+      items: ['Line-Segment', 'Horizontal-Line', 'Vertical-Line',
+        'Rectangle', 'Triangle', 'Circle', 'Ellipse', 'Polygon', 'Polyline', 'Free-hand', 'Cyclic-Lines']
     },
     {
       value: 'Fibonacci',
-      items: ['FibonacciArcs', 'FibonacciEllipses',
-        'fibonacciRetracements', 'FibonacciFan', 'FibonacciTimeZone', 'FibonacciExtensions']
+      items: ['Fibonacci-Arcs', 'Fibonacci-Ellipsis',
+        'fibonacci-Retracements', 'Fibonacci-Fan', 'Fibonacci-Time-Zone', 'Fibonacci-Extensions']
     },
     {
       value: 'Trend Channel Drawings',
-      items: ['TrendChannel', 'AndrewPitchfork',
-        'ErrorChannel', 'RaffRegression', 'QuadrantLines',
-        'TironeLevels', 'SpeedLines', 'GannFan', 'TrendAngle']
+      items: ['Trend-Channel', 'Andrew-Pitchfork',
+        'Error-Channel', 'Raff-Regression', 'Quadrant-Lines',
+        'Tirone-Levels', 'Speed-Lines', 'Gann-Fan', 'Trend-Angle']
     },
     {
       value: 'General Drawings', items: [

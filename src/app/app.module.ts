@@ -4,9 +4,7 @@ import { registerLocaleData } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import en from '@angular/common/locales/en';
-import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
-import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent } from './components';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
@@ -15,6 +13,8 @@ import { NotifierModule } from 'notifier';
 import { IconDefinition } from '@ant-design/icons-angular';
 import * as AllIcons from '@ant-design/icons-angular/icons';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent } from './components';
 
 registerLocaleData(en);
 const antDesignIcons = AllIcons as {

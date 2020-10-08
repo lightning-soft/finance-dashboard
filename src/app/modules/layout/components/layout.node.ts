@@ -9,16 +9,18 @@ declare namespace GoldenLayout {
   }
 }
 
-export interface IStateProvider<T> {
-
+export interface IStateProvider<T = any> {
+  saveState(): T;
+  loadState(state: T);
 }
+
 export interface ILayoutNode {
-  tabTitle?: string;
+  setTabTitle(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
 }
 
 // tslint:disable-next-line: no-empty-interface
-interface _LayoutNode extends ILayoutNode {
+interface _LayoutNode extends ILayoutNode, IStateProvider {
 
 }
 
@@ -29,32 +31,12 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _tabTitle: string = null;
 
-  get tabTitle(): string {
-    return this._tabTitle;
-  }
-
-  set tabTitle(value: string) {
-    if (this._tabTitle === value)
-      return;
-
-    this._tabTitle = value;
-    if (this._layoutContainer)
-      this._layoutContainer.setTitle(value);
-  }
-
   private _layoutContainer: GoldenLayout.Container;
 
   setLayoutContainer(value) {
     this._layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
-  }
-
-  saveState(): any {
-    return null;
-  }
-
-  loadState(state?: any) {
   }
 
   handleDestroy() {
@@ -85,7 +67,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         this.handleShow();
         break;
       case LayoutNodeEvent.ExtendState:
-        this._layoutContainer.setState(this.saveState());
+        if (this.saveState)
+          this._layoutContainer.setState(this.saveState());
+        else
+          console.error(`Implement save state for ${this.constructor.name}`);
         break;
     }
 
@@ -100,6 +85,15 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private _initContainerLayoutEvents(container: GoldenLayout.Container) {
     if (this._tabTitle)
       container.setTitle(this._tabTitle);
+  }
+
+  setTabTitle(value: string) {
+    if (this._tabTitle === value)
+      return;
+
+    this._tabTitle = value;
+    if (this._layoutContainer)
+      this._layoutContainer.setTitle(value);
   }
 
   _removeItself() {
