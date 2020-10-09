@@ -7,17 +7,7 @@
           <div class="data">{{column}}<i (click)="delete(ind)" nz-icon nzType="delete"></i></div>
         </div>
         <div [style.top]="inverseTranslation" class="head cell head-flex-child">
-          <button nz-button [nzType]="'primary'" (click)="showModal()"><i nz-icon nzType="setting"></i></button>
-          <nz-modal [(nzVisible)]="isVisible" nzTitle="Add options" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
-            <nz-transfer
-              [nzDataSource]="list"
-              [nzTitles]="['Source', 'Target']"
-              (nzSelectChange)="select($event)"
-              [nzSelectedKeys]="['0', '2']"
-              (nzChange)="change($event)"
-            >
-            </nz-transfer>
-          </nz-modal>
+          <button nz-button [nzType]="'primary'" (click)="createComponentModal()"><i nz-icon nzType="setting"></i></button>
          </div>
       </div>
 
@@ -25,7 +15,7 @@
     flex-wrap: wrap"
         [attr.data-row]="i"
         *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
-<!--         <div style="flex: 1 1 auto;">{{item.id}}</div>-->
+<!--        <div style="flex: 1 1 auto;">{{item.id}}</div>-->
         <ng-container *ngFor="let column of columns; let j = index">
           <div
             [attr.data-column]="column"

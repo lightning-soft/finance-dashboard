@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   Component, ElementRef,
-  Input, OnDestroy, OnInit, ViewChild
+  Input, OnDestroy, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { ICell } from '../../models';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -10,6 +10,8 @@ import { IconComponent, iconComponentSelector } from '../../models/cells/compone
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
 import { Subject } from 'rxjs';
 import { TransferItem } from 'ng-zorro-antd/transfer';
+import { ModalComponent } from '../modal/modal.component';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -26,23 +28,19 @@ export interface DataGridItem {
     })
   }]
 })
-export class DataGrid<T extends DataGridItem = any> implements OnInit, AfterViewInit, OnDestroy {
+export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy {
   rowHeight = 35;
   list: TransferItem[] = [];
-  disabled = false;
   onDestroy$ = new Subject();
 
   @ViewChild('tableContainer') tableContainer: ElementRef;
 
   @Input()
   handlers: DataGridHandler[] = [];
-
+  @ViewChild(ModalComponent) modalComponent: ModalComponent;
   @ViewChild(CdkVirtualScrollViewport)
   public viewPort: CdkVirtualScrollViewport | any;
-
-  @Input()
-  columns = [];
-
+  @Input() columns = [];
   @Input()
   items: T[];
   private _handlers = [];
@@ -50,38 +48,29 @@ export class DataGrid<T extends DataGridItem = any> implements OnInit, AfterView
   private _subscribedEvents = [];
   isVisible = false;
 
-  ngOnInit() {
-    this.getList();
-  }
-  getList(){
-    for (const key in this.columns) {
-      const column = this.columns[key];
-      this.list.push({
-        key: key.toString(),
-        title: `${column}`
-      });
-    }
-  }
-  showModal(): void {
-    this.isVisible = true;
+  constructor(private modalService: NzModalService,
+              private viewContainerRef: ViewContainerRef) {
   }
 
-  handleOk(): void {
-    this.isVisible = false;
+  createComponentModal(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Select options',
+      nzContent: ModalComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        columns: this.columns
+      },
+    });
+    const instance = modal.getContentComponent();
+    modal.afterOpen.subscribe((def) => console.log('[afterOpen] emitted!'));
+    // Return a result when closed
+    modal.afterClose.subscribe(result => this.columns = result);
   }
 
-  handleCancel(): void {
-    this.isVisible = false;
-  }
-  select(ret: {}): void {
-    console.log('nzSelectChange', ret);
-  }
-  delete(i: number){
+  delete(i: number) {
     this.columns.splice(i, 1);
   }
-  change(ret: {}): void {
-    console.log('nzChange', ret);
-  }
+
   ngAfterViewInit(): void {
     this._handlers = this.initHandlers() || [];
     for (const handler of this._handlers) {

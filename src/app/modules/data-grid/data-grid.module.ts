@@ -6,14 +6,15 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { DataGrid } from './components/data-grid/data-grid.component';
 import { ItemViewBuilder } from './components/item-view-builder';
+/*import { ResizebleDirective } from './directives/resizeble.directive';*/
+import { DataGrid } from './components/data-grid/data-grid.component';
+import { ModalComponent } from './components/modal/modal.component';
 import { IconComponent } from './models/cells/components/icon-conponent';
-import { ResizebleDirective } from './directives/resizeble.directive';
-
 const entryComponents = [
   DataGrid,
   IconComponent,
+  ModalComponent,
 ];
 
 @NgModule({
@@ -28,7 +29,7 @@ const entryComponents = [
   ],
   declarations: [
     ItemViewBuilder,
-    ResizebleDirective,
+    // ResizebleDirective,
     ...entryComponents,
   ],
   entryComponents,

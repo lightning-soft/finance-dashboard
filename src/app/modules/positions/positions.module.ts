@@ -1,8 +1,8 @@
-import {CommonModule} from '@angular/common';
-import {NgModule} from '@angular/core';
-import {DataGridModule} from 'data-grid';
-import {Components, ComponentStore, LazyModule} from 'lazy-modules';
-import {PositionsComponent} from './positions.component';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { DataGridModule } from 'data-grid';
+import { Components, ComponentStore, LazyModule} from 'lazy-modules';
+import { PositionsComponent } from './positions.component';
 
 @NgModule({
     imports: [
