@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Datafeed, Id, IInstrument, InstrumentsRepository, IQuote } from 'communication';
-import { DataGrid } from 'data-grid';
+import { Id } from 'communication'; //Error
+import { ContextMenuData, ContextMenuDataGridHandler, DataGrid } from 'data-grid';
 import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
+import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from '../trading';
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
@@ -21,30 +23,49 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   items: WatchlistItem[] = [];
   private _itemsMap = new Map<Id, WatchlistItem>();
 
-
   private subscriptions = [] as Function[];
 
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
 
+  @ViewChild("menu", {static: false})
+  private _menuTemplate: NzDropdownMenuComponent;
+
+  public selectedIstrumentName: string = '';
+  private _selectedInstrument: WatchlistItem;
+
   constructor(
-    private _instrumentsRepository: InstrumentsRepository,
+    public _instrumentsRepository: InstrumentsRepository,
     private _datafeed: Datafeed,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
-    private layoutHandler: LayoutHandler
+    private layoutHandler: LayoutHandler,
+    private nzContextMenuService: NzContextMenuService,
+  ) {}
 
-  ) {
-  }
   handlers = [
-    new CellClickDataGridHandler<IInstrument>({
+    new CellClickDataGridHandler<WatchlistItem>({
       column: 'name',
       events: [Events.DoubleClick],
-      handler: (_) => {
+      handler: (watchlistItem: WatchlistItem) => {
         this.layoutHandler.create(Components.Chart);
       },
     }),
+    new ContextMenuDataGridHandler<ContextMenuData>({
+      handler: (data: ContextMenuData) => {
+        const {item, event} = data;
+
+        this._selectedInstrument = item
+        this.selectedIstrumentName = item.name.value;
+
+        this.nzContextMenuService.create(event, this._menuTemplate);
+      },
+    }),
   ];
+
+  closeMenu(): void {
+    this.nzContextMenuService.close();
+  }
 
   ngOnInit(): void {
     this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
@@ -83,6 +104,28 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     // }, 100)
   }
 
+  // addNewInstrument(form: NgForm): void {
+  //   const instrumentName = form.control.value.instrumentName;
+
+  //   if (instrumentName.trim()) {
+  //     const newInstrument: IInstrument = {
+  //       name: instrumentName.toUpperCase(),
+  //       tickSize: 0.1,
+  //       id: Date.now(),
+  //     }
+      
+  //     this.addToWatchlist(newInstrument);
+  //     form.reset();
+  //   }
+  // }
+
+  addNewInstrument(instrument: IInstrument): void {
+    if (instrument) {
+      this.addToWatchlist(instrument);
+      this.notifier.showSuccess(`Instrument ${instrument.name} added`);
+    } 
+  }
+
   addToWatchlist(instruments: IInstrument | IInstrument[]) {
     if (instruments == null) {
       throw new Error('Invalid instrument');
@@ -96,13 +139,18 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     for (const item of items) {
       this._itemsMap.set(item.instrumentId, item);
     }
-    this.items = [...items, ...this.items];
+
+    this.items = [...this.items, ...items];
     this.subscribeForRealtime(instruments);
   }
 
-  delete(item) {
-    this._itemsMap.delete(item.instrumentId);
-    this.items = this.items.filter(i => i.instrumentId !== item.instrumentId);
+  delete(item?) {
+    const instrument: WatchlistItem = item ? item : this._selectedInstrument;
+
+    this._itemsMap.delete(instrument.instrumentId);
+    this.items = this.items.filter(i => i.instrumentId !== instrument.instrumentId);
+
+    this.notifier.showSuccess(`Instrument ${instrument.name.value} deleted`);
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {

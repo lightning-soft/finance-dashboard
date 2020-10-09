@@ -18,6 +18,30 @@
     },
     {
       "path": "./tsconfig.server.json"
+    },
+    {
+      "path": "./projects/search-select/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/search-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notifier/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/notifier/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/base-components/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/base-components/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/communication/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/communication/tsconfig.spec.json"
     }
   ],
 }

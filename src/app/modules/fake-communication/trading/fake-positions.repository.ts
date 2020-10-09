@@ -1,4 +1,4 @@
-import { IPosition, Side } from '../../communication/trading/models';
+import { IPosition, Side } from '../../trading/trading/models'; //Error
 import { FakeRepository } from '../common/fake.repository';
 
 export class FakePositionsRepository extends FakeRepository<IPosition> {

@@ -1,4 +1,4 @@
-import {IOrder, OrderSide, OrderStatus, OrderType} from '../../communication/trading/models';
+import {IOrder, OrderSide, OrderStatus, OrderType} from '../../trading/trading/models'; //Error
 import {FakeRepository} from '../common/fake.repository';
 
 export class FakeOrdersRepository extends FakeRepository<IOrder> {
