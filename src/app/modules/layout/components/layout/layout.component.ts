@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LazyLoadingService } from 'lazy-assets';
-import { Components, LoadingService } from 'lazy-modules';
+import { LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
 import { DesktopLayout } from './layouts/desktop.layout';
@@ -160,11 +160,11 @@ const defaultSettings = {
         content: [
           {
             type: 'component',
-            componentName: Components.Chart
+            componentName: 'chart'
           },
           {
             type: 'component',
-            componentName: Components.Scripting
+            componentName: 'scripting'
           },
         ]
       })),

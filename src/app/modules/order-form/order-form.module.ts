@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Components, ComponentStore, LazyModule } from '../lazy-modules';
+import { ComponentStore, LazyModule } from 'lazy-modules';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { PositionsComponent } from './components/positions/positions.component';
 
@@ -9,7 +9,7 @@ import { PositionsComponent } from './components/positions/positions.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ],
+  ],
   declarations: [
     PositionsComponent,
     OrderFormComponent,
@@ -24,7 +24,7 @@ import { PositionsComponent } from './components/positions/positions.component';
 export class OrderFormModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      [Components.OrderForm]: OrderFormComponent
+      'order-form': OrderFormComponent
     };
   }
 }

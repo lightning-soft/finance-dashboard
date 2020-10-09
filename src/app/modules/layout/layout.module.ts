@@ -6,17 +6,21 @@ import { LayoutHandler } from './models/layout-handler';
 import { LoaderModule } from 'ui';
 import { StorageModule } from 'storage';
 import { LocalLayoutStore, ILayoutStore } from './store';
+import { LazyAssetsModule } from 'lazy-assets';
 
 let entryComponents = [
   LayoutComponent,
 ];
 
 @NgModule({
-    imports: [
-        CommonModule,
-        LoaderModule,
-        StorageModule
-    ],
+  imports: [
+    CommonModule,
+    LoaderModule,
+    StorageModule,
+    LazyAssetsModule.forConfig({
+      scripts: [{ src: `./lib/goldenlayout/goldenlayout.js` }]
+    })
+  ],
   declarations: [
     ...entryComponents
   ],
