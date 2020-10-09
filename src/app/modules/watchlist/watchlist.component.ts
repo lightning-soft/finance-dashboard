@@ -9,7 +9,7 @@ import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from '../trading
 import { CellClickDataGridHandler, Events } from '../data-grid';
 import { Components } from '../lazy-modules';
 import { WatchlistItem } from './models/watchlist.item';
-import { ContextMenuService, IContextMenuList } from 'context-menu';
+import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 
 @UntilDestroy()
 @Component({
@@ -57,7 +57,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
       handler: (data: IContextMenuData) => {
         const {item, event} = data;
 
-        const menuList: IContextMenuList = {
+        const menuList: IContextMenuInfo = {
           event,
           list: [
             { title: 'Delete', action: () => {

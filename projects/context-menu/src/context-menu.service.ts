@@ -6,7 +6,7 @@ export interface IContextMenuItem {
   action(): void;
 }
 
-export interface IContextMenuList {
+export interface IContextMenuInfo {
   event: MouseEvent;
   list: IContextMenuItem[];
 }
@@ -16,11 +16,11 @@ export interface IContextMenuList {
 })
 export class ContextMenuService {
 
-  public contextMenuSubject = new Subject<IContextMenuList>();
+  public contextMenuSubject = new Subject<IContextMenuInfo>();
 
   constructor() { }
 
-  public showMenu(contextMenuList: IContextMenuList): void {
+  public showMenu(contextMenuList: IContextMenuInfo): void {
     this.contextMenuSubject.next(contextMenuList);
   }
 

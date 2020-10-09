@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NzDropdownMenuComponent, NzContextMenuService } from 'ng-zorro-antd';
-import { ContextMenuService, IContextMenuItem, IContextMenuList } from './context-menu.service';
+import { ContextMenuService, IContextMenuItem, IContextMenuInfo } from './context-menu.service';
 
 @Component({
   selector: 'context-menu',
@@ -24,7 +24,7 @@ export class ContextMenuComponent implements OnInit {
     });
   }
 
-  showContextMenu(constextMenuList: IContextMenuList) {
+  showContextMenu(constextMenuList: IContextMenuInfo) {
     this.items = constextMenuList.list;
     this.nzContextMenuService.create(constextMenuList.event, this._menuTemplate);
   }
