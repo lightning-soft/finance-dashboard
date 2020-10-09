@@ -6,6 +6,7 @@ import { Components, ComponentStore, LazyModule } from 'lazy-modules';
 import { WatchlistComponent } from './watchlist.component';
 import { SearchSelectModule } from 'search-select';
 import { NzDropDownModule, NzContextMenuService } from 'ng-zorro-antd';
+import { ContextMenuModule } from 'context-menu';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { NzDropDownModule, NzContextMenuService } from 'ng-zorro-antd';
     FormsModule,
     SearchSelectModule,
     NzDropDownModule,
+    ContextMenuModule
   ],
   exports: [
     WatchlistComponent,
@@ -21,7 +23,7 @@ import { NzDropDownModule, NzContextMenuService } from 'ng-zorro-antd';
   declarations: [
     WatchlistComponent,
   ],
-  entryComponents:[
+  entryComponents: [
   ],
   providers: [
     NzContextMenuService

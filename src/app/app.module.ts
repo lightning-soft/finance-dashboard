@@ -9,6 +9,7 @@ import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
 import { NotifierModule } from 'notifier';
+import { ContextMenuModule } from 'context-menu';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { NotifierModule } from 'notifier';
     NzModalModule,
     BrowserAnimationsModule,
     NotifierModule,
+    ContextMenuModule,
     LayoutModule.forRoot(),
     LoadingModule.forRoot(),
     FakeCommunicationModule.forRoot(),
