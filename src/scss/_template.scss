@@ -39,7 +39,11 @@ body.#{$themeName} {
     background-color: $tabBackground !important;
     color: $textColor !important;
   }
+   .ant-modal-content, .ant-modal-header, .ant-transfer-list-header, .ant-transfer-list-body-not-found, .ant-empty-img-simple-path{
 
+    color: $textColorSecondary !important;
+    background: $tabBackground;
+  }
   .ant-notification-hook-holder, .ant-notification-notice {
     background-color: $tabBackground !important;
   }

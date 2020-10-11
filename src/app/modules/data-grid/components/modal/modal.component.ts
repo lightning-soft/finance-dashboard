@@ -5,11 +5,7 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 @Component({
   selector: 'modal-component',
   templateUrl: './modal.component.html',
-  styles: [`
-    button {
-      margin: 0 auto;
-    }
-  `]
+  styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent implements OnInit {
   @Input() title?: string;

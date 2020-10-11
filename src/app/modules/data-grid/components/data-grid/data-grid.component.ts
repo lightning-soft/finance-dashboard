@@ -108,7 +108,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _handleEvent(event) {
     if (!this._handlers)
       return;
-    for (let handler of this._handlers) {
+    for (const handler of this._handlers) {
       if (handler.events.some(e => e === event.type) && handler.handleEvent(event))
         return null;
     }

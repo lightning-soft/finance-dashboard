@@ -2,16 +2,16 @@
   <section #tableContainer>
       <div class="head-flex">
 <!--        <div style="flex: 1 1 auto;" [style.top]="inverseTranslation" appResizeble>index</div>-->
-        <div   [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell head-flex-child"
+        <div [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell head-flex-child"
           [title]="column">
           <div class="data">{{column}}<i (click)="delete(ind)" nz-icon nzType="delete"></i></div>
         </div>
         <div [style.top]="inverseTranslation" class="head cell head-flex-child">
-          <button nz-button [nzType]="'primary'" (click)="createComponentModal()"><i nz-icon nzType="setting"></i></button>
+          <button nz-button [nzType]="'primary'" (click)="createComponentModal()"><i class="icon-settings"></i></button>
          </div>
       </div>
 
-      <div style=" display: flex;
+      <div style="display: flex;
     flex-wrap: wrap"
         [attr.data-row]="i"
         *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">

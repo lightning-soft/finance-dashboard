@@ -7,8 +7,7 @@ cdk-virtual-scroll-viewport {
   height: 100%;
 }
 
-
-
+@import "themes/index";
 :host {
   .head-flex{
     display: flex !important;
