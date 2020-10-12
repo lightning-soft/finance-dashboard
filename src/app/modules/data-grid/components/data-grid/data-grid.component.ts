@@ -1,6 +1,6 @@
 import {
   AfterViewInit,
-  Component, ElementRef,
+  Component, ElementRef, HostBinding,
   Input, OnDestroy, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { ICell } from '../../models';
@@ -34,7 +34,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   onDestroy$ = new Subject();
 
   @ViewChild('tableContainer') tableContainer: ElementRef;
-
   @Input()
   handlers: DataGridHandler[] = [];
   @ViewChild(ModalComponent) modalComponent: ModalComponent;

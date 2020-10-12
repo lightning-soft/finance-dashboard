@@ -10,6 +10,7 @@ import { ItemViewBuilder } from './components/item-view-builder';
 import { DataGrid } from './components/data-grid/data-grid.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { IconComponent } from './models/cells/components/icon-conponent';
+import { ResizableModule } from './components/resizable/resizable.module';
 
 const entryComponents = [
   DataGrid,
@@ -21,6 +22,7 @@ const entryComponents = [
   imports: [
     CommonModule,
     ScrollingModule,
+    ResizableModule,
     NzTransferModule,
     NzMenuModule,
     NzButtonModule,

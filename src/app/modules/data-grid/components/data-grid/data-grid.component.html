@@ -2,8 +2,8 @@
   <table #tableContainer>
     <thead>
     <!--        <div style="flex: 1 1 auto;" [style.top]="inverseTranslation" appResizeble>index</div>-->
-    <tr draggable="true">
-      <th [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell data"
+    <tr>
+      <th style="border: 1px solid white" resizable [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell data"
           [title]="column">{{column}}
       </th>
       <th><span></span></th>
