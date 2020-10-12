@@ -47,7 +47,7 @@ export class DragDrawerComponent implements AfterViewInit {
     },
     {
       text: 'Scripting',
-      icon: 'icon-orders',
+      icon: 'icon-scripting',
       component: Components.Scripting
     },
     {
