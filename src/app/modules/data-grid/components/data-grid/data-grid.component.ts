@@ -66,11 +66,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     // Return a result when closed
     modal.afterClose.subscribe(result => this.columns = result);
   }
-
-  delete(i: number) {
-    this.columns.splice(i, 1);
-  }
-
   ngAfterViewInit(): void {
     this._handlers = this.initHandlers() || [];
     for (const handler of this._handlers) {

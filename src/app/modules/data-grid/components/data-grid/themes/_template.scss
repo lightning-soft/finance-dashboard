@@ -1,9 +1,9 @@
 body.#{$themeName} :host {
-  section {
+   th {
     color: $textColorSecondary;
     background: $tabBackground;
   }
-  div {
+   td {
     color: $textColor;
   }
 }

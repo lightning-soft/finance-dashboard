@@ -9,15 +9,6 @@ cdk-virtual-scroll-viewport {
 
 @import "themes/index";
 :host {
-  .head-flex{
-    display: flex !important;
-    flex-wrap: wrap !important;
-  }
-  .head-flex-child{
-    flex: 1 1 auto !important;
-    align-items: center;
-    justify-content: center;
-  }
   display: block;
   height: 100%;
   width: 100%;
@@ -58,8 +49,7 @@ cdk-virtual-scroll-viewport {
   }
 
   .data {
-    text-align: center !important;
-    justify-content: center !important;
+    text-align: left !important;
     white-space: nowrap;
     overflow: hidden;
     text-transform: capitalize;
@@ -106,7 +96,7 @@ cdk-virtual-scroll-viewport {
     //}
   }
 
-  section {
+  table {
     table-layout: fixed;
     width: 100%;
     font-family: arial, sans-serif;
@@ -114,7 +104,8 @@ cdk-virtual-scroll-viewport {
     height: 100%;
     // position: relative;
 
-    div {
+    th,
+    td {
       text-align: left;
       padding: 8px;
       font-size: 16px;
@@ -122,6 +113,25 @@ cdk-virtual-scroll-viewport {
       font-weight: normal;
       overflow: hidden;
       white-space: nowrap;
+    }
+    thead {
+      tr {
+      }
+    }
+
+    tr {
+      width: 100%;
+      //margin: 1px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &.selected {
+        cursor: pointer;
+        //outline: 1px solid rebeccapurple;
+      }
+
     }
 
   }
