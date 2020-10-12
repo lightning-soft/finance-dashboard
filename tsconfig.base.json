@@ -26,7 +26,7 @@
         "src/app/modules/data-grid/index"
       ],
       "themes": [
-        "src/app/modules/themes/index"
+        "projects/themes/index"
       ],
       "core": [
         "src/app/modules/core/index"
@@ -35,7 +35,7 @@
         "src/app/modules/order-form/index"
       ],
       "storage": [
-        "src/app/modules/storage/index"
+        "projects/storage/index"
       ],
       "ui": [
         "src/app/modules/ui/index"
@@ -47,10 +47,10 @@
         "src/app/modules/trading-ui/index"
       ],
       "lazy-modules": [
-        "src/app/modules/lazy-modules/index"
+        "projects/lazy-modules/index"
       ],
       "lazy-assets": [
-        "src/app/modules/lazy-assets/index"
+        "projects/lazy-assets/index"
       ],
       "communication": [
         "projects/communication/index"
@@ -69,6 +69,15 @@
       ],
       "trading": [
         "src/app/modules/trading/index"
+      ],
+      "context-menu": [
+        "projects/context-menu/index"
+      ],
+      "scripting": [
+        "projects/scripting/index"
+      ],
+      "watchlist": [
+        "projects/watchlist/index"
       ]
     }
   }

@@ -42,6 +42,48 @@
     },
     {
       "path": "./projects/communication/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/scripting/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/scripting/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/storage/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/storage/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lazy-modules/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lazy-modules/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lazy-assets/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lazy-assets/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/watchlist/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/watchlist/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/themes/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/themes/tsconfig.spec.json"
     }
   ],
 }

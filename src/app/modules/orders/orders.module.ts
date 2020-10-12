@@ -1,10 +1,10 @@
-import {CommonModule} from '@angular/common';
-import {NgModule} from '@angular/core';
-import {DataGridModule} from 'data-grid';
-import {Components, ComponentStore, LazyModule} from 'lazy-modules';
-import {OrdersComponent} from './orders.component';
-import {NzSelectModule} from 'ng-zorro-antd';
-import {FormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DataGridModule } from 'data-grid';
+import { ComponentStore, LazyModule } from 'lazy-modules';
+import { NzSelectModule } from 'ng-zorro-antd';
+import { OrdersComponent } from './orders.component';
 
 @NgModule({
   imports: [
@@ -24,7 +24,7 @@ import {FormsModule} from '@angular/forms';
 export class OrdersModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      [Components.Orders]: OrdersComponent
+      orders: OrdersComponent
     };
   }
 }

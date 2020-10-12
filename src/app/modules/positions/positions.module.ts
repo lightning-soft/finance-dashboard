@@ -1,14 +1,14 @@
-import {CommonModule} from '@angular/common';
-import {NgModule} from '@angular/core';
-import {DataGridModule} from 'data-grid';
-import {Components, ComponentStore, LazyModule} from 'lazy-modules';
-import {PositionsComponent} from './positions.component';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { DataGridModule } from 'data-grid';
+import { ComponentStore, LazyModule } from 'lazy-modules';
+import { PositionsComponent } from './positions.component';
 
 @NgModule({
-    imports: [
-      CommonModule,
-      DataGridModule,
-    ],
+  imports: [
+    CommonModule,
+    DataGridModule,
+  ],
   exports: [
     PositionsComponent
   ],
@@ -20,7 +20,7 @@ import {PositionsComponent} from './positions.component';
 export class PositionsModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      [Components.Positions]: PositionsComponent
+      positions: PositionsComponent
     };
   }
 }

@@ -127,9 +127,9 @@ export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
   }
 }
 
-export interface ContextMenuData {
-  item: any,
-  event: MouseEvent
+export interface IContextMenuData {
+  item: any;
+  event: MouseEvent;
 }
 
 export class ContextMenuDataGridHandler<T> extends DataGridHandler<T> {
@@ -150,10 +150,10 @@ export class ContextMenuDataGridHandler<T> extends DataGridHandler<T> {
 
     const item = this.dataGrid.items[data.row];
 
-    const contextMenuData: ContextMenuData = {
+    const contextMenuData: IContextMenuData = {
       item,
       event
-    }
+    };
 
     if (item)
       this.notify(contextMenuData);

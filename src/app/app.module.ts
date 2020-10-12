@@ -1,14 +1,16 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
+import { ContextMenuModule } from 'context-menu';
+import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { FakeCommunicationModule } from 'fake-communication';
-import { ThemesHandler } from 'themes';
-import { NotifierModule } from 'notifier';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent } from './components';
+import { NotifierModule } from 'notifier';
+import { ThemesHandler } from 'themes';
+import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
+import { Modules, modulesStore } from './modules';
 
 @NgModule({
   declarations: [
@@ -22,8 +24,34 @@ import { NavbarComponent, DashboardComponent, AppComponent, DragDrawerComponent 
     NzModalModule,
     BrowserAnimationsModule,
     NotifierModule,
+    ContextMenuModule,
     LayoutModule.forRoot(),
-    LoadingModule.forRoot(),
+    LoadingModule.forRoot([
+      {
+        path: Modules.Chart,
+        loadChildren: () => import('./modules/chart/chart.module').then(i => i.ChartModule)
+      },
+      {
+        path: Modules.Watchlist,
+        loadChildren: () => import('watchlist').then(i => i.WatchlistModule)
+      },
+      {
+        path: Modules.Positions,
+        loadChildren: () => import('./modules/positions/positions.module').then(i => i.PositionsModule)
+      },
+      {
+        path: Modules.Orders,
+        loadChildren: () => import('./modules/orders/orders.module').then(i => i.OrdersModule)
+      },
+      {
+        path: Modules.OrderForm,
+        loadChildren: () => import('./modules/order-form/order-form.module').then(i => i.OrderFormModule)
+      },
+      {
+        path: Modules.Scripting,
+        loadChildren: () => import('scripting').then(i => i.ScriptingModule)
+      }
+    ], modulesStore),
     FakeCommunicationModule.forRoot(),
     RouterModule.forRoot([
       {

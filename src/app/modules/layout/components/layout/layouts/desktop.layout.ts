@@ -1,9 +1,9 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
-import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentInitCallback } from '../layout.component';
 import { Layout } from './layout';
+import { LazyLoadingService } from 'lazy-assets';
 
 const DragTabClass = 'drag-tab-class';
 
@@ -142,7 +142,7 @@ export class DesktopLayout extends Layout {
 
   async loadState(config: any) {
     this._tryDestroy();
-    await this._lazyLoadingService.loadGoldenLayout();
+    await this._lazyLoadingService.load();
 
     try {
       const goldenLayout = new GoldenLayout(config, $(this.container.nativeElement));

@@ -52,10 +52,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-  ) {}
+  ) { }
 
   protected loadFiles(): Promise<any> {
-    return this._lazyLoaderService.loadScx();
+    return this._lazyLoaderService.load();
   }
 
   async ngAfterViewInit() {
@@ -122,7 +122,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         }
 
         if (value.stockChartXState) {
-          chart.loadState(value.stockChartXState);        
+          chart.loadState(value.stockChartXState);
         } else if (StockChartX.Indicator.registeredIndicators.VOL) {
           chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
         }
