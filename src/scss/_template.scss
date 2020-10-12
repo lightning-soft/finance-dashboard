@@ -44,6 +44,10 @@ body.#{$themeName} {
     color: $textColorSecondary !important;
     background: $tabBackground;
   }
+  .ant-select-show-search, .ant-select-dropdown, .ant-select-item-option-content, .ant-select-item{
+    color: $textColor !important;
+    background: $tabBackground;
+  }
   .ant-notification-hook-holder, .ant-notification-notice {
     background-color: $tabBackground !important;
   }
