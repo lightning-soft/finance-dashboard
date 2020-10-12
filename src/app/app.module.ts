@@ -48,6 +48,10 @@ import { Modules, modulesStore } from './modules';
         loadChildren: () => import('./modules/order-form/order-form.module').then(i => i.OrderFormModule)
       },
       {
+        path: Modules.Settings,
+        loadChildren: () => import('./modules/settings/settings.module').then(i => i.SettingsModule)
+      },
+      {
         path: Modules.Scripting,
         loadChildren: () => import('scripting').then(i => i.ScriptingModule)
       }

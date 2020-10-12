@@ -18,11 +18,7 @@ export class NavbarComponent {
   @Input() isOpen;
 
   constructor(private themeHandler: ThemesHandler) {
-    this.checkVisibility()
-  }
-
-  switchTheme() {
-    this.themeHandler.changeTheme(this.isDark ? Themes.Light : Themes.Dark);
+    this.checkVisibility();
   }
 
   closeDrawer() {

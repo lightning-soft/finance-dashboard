@@ -1,0 +1,8 @@
+
+<h4 class="change-theme">Change Theme</h4>
+<nz-select
+  nzDropdownClassName="toolbar-dropdown"
+  [nzShowArrow]="false"
+  [(ngModel)]="currentTheme" >
+  <nz-option *ngFor="let theme of themes" [nzValue]="theme" [nzLabel]="theme"></nz-option>
+</nz-select>
