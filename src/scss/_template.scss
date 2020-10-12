@@ -59,5 +59,15 @@ body.#{$themeName} {
   .anticon.ant-notification-notice-icon-error {
     color: $fallingColor;
   }
+
+  .cdk-overlay-container {
+    .ant-dropdown-menu,
+    .ant-select-dropdown,
+    .ant-dropdown-menu-item {
+      background: $lightBackground;
+      color: $textColor;
+      font-family: $fontFamily;
+    }
+  }
 }
 

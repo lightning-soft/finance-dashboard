@@ -1,6 +1,6 @@
 import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { IInstrument, IOrder, IPosition, OrdersRepository } from 'communication';
+import { IInstrument, IOrder, IPosition, OrdersRepository } from 'trading';
 import { FormComponent } from 'core';
 import { NotifierService } from 'notifier';
 

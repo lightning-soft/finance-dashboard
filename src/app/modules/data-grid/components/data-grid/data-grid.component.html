@@ -26,7 +26,15 @@
             </div>
           </div>
         </ng-container>
-<!--        <div style="width: 100%"></div>-->
-      </div>
-  </section>
+        <td style="width: 100%"></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4">
+          <ng-content select="search-select"></ng-content>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
 </cdk-virtual-scroll-viewport>

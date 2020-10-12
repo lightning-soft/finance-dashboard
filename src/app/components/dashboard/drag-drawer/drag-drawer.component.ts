@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { Components } from 'lazy-modules';
+import { Components } from '../../../modules';
 
 @UntilDestroy()
 @Component({

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { IOrder, OrdersRepository } from 'communication';
+import { IOrder, OrdersRepository } from 'trading'; //Error
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { IPaginationParams } from '../communication/common';
+import { IPaginationParams } from '../trading/common'; //Error
 import { ItemsComponent } from '../core/components';
 import { OrderItem } from './models/OrderItem';
 

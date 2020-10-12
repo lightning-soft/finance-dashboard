@@ -1,5 +1,5 @@
 import { DataCell, NumberCell } from 'data-grid';
-import { IOrder, OrderSide } from 'communication';
+import { IOrder, OrderSide } from 'trading'; //Error
 import { PriceStatus } from 'trading-ui';
 
 export class OrderItem {

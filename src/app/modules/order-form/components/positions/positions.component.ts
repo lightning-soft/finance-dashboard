@@ -1,5 +1,5 @@
 import { Component, Injector, Input } from '@angular/core';
-import { IInstrument, IPosition, PositionsRepository, Side } from 'communication';
+import { IInstrument, IPosition, PositionsRepository, Side } from 'trading'; //Error
 import { ItemsComponent } from 'core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { NotifierService } from 'notifier';
