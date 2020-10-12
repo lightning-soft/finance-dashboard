@@ -5,7 +5,6 @@ import { registerLocaleData } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import en from '@angular/common/locales/en';
 import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 import { LayoutModule } from 'layout';
@@ -13,8 +12,8 @@ import { LoadingModule } from 'lazy-modules';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
-import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { Modules, modulesStore } from './modules';
+import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 
 registerLocaleData(en);
 
