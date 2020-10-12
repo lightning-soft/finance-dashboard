@@ -1,0 +1,15 @@
+
+body.#{$themeName} {
+
+  :host {
+    nz-select {
+      background-colfor: $tabBackground !important;
+      color: $textColor !important;
+    }
+
+    .change-theme {
+      color: $textColor;
+    }
+  }
+
+}
