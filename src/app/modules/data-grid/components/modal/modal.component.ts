@@ -11,16 +11,12 @@ export class ModalComponent implements OnInit {
   @Input() title?: string;
   columns;
   list: TransferItem[] = [];
-  defaultList = [];
   constructor(private modal: NzModalRef) {
     this.columns = modal.getConfig().nzComponentParams.columns;
   }
   ngOnInit() {
     for (const i of this.columns) {
       this.list.push({
-        title: `${i}`,
-      });
-      this.defaultList.push({
         title: `${i}`,
       });
     }
