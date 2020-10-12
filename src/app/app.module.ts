@@ -1,12 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { registerLocaleData } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
-import en from '@angular/common/locales/en';
-import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
+import { NZ_I18N, en_US, NzI18nService } from 'ng-zorro-antd/i18n';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -15,7 +13,6 @@ import { ThemesHandler } from 'themes';
 import { Modules, modulesStore } from './modules';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 
-registerLocaleData(en);
 
 @NgModule({
   declarations: [
@@ -76,4 +73,9 @@ registerLocaleData(en);
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private i18n: NzI18nService) {
+  }
+  switchLanguage(){
+    this.i18n.setLocale(en_US);
+  }
 }
