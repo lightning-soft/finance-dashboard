@@ -50,11 +50,11 @@ export class DragDrawerComponent implements AfterViewInit {
       icon: 'icon-scripting',
       component: Components.Scripting
     },
-    {
+   /* {
       text: 'Settings',
       icon: 'icon-orders',
       component: Components.Settings
-    },
+    },*/
   ];
 
   ngAfterViewInit() {

@@ -78,6 +78,9 @@
       ],
       "watchlist": [
         "projects/watchlist/index"
+      ],
+      "settings": [
+        "src/app/modules/settings/index"
       ]
     }
   }
