@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
   ElementRef,
@@ -43,6 +44,7 @@ export class LayoutComponent implements OnInit, IDropable {
     private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
+    private _changeDetectorRef: ChangeDetectorRef,
   ) {
   }
 

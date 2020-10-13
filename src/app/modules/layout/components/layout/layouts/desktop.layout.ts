@@ -1,15 +1,17 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
-import { LoadingService } from 'lazy-modules';
+import { LazyLoadingService } from 'lazy-assets';
+import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
+import { LinkSelectComponent } from '../../link-select/link-select.component';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentInitCallback } from '../layout.component';
 import { Layout } from './layout';
-import { LazyLoadingService } from 'lazy-assets';
 
 const DragTabClass = 'drag-tab-class';
 
 export class DesktopLayout extends Layout {
   goldenLayout: GoldenLayout;
   canDragAndDrop = true;
+  private _linkSelectMap: Map<GoldenLayout.Container, HTMLElement> = new Map();
 
   constructor(
     factoryResolver: ComponentFactoryResolver,
@@ -119,17 +121,34 @@ export class DesktopLayout extends Layout {
             .getElement()
             .append($(comp.location.nativeElement));
 
-          container.on('tab', tab => this._addMobileTabDraggingSupport(tab));
-          this._addMobileTabDraggingSupport(container.tab);
-
           instance.componentRef = componentRef;
 
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(container);
 
           if (instance.loadState) {
-            instance.loadState(componentState);
+            instance.loadState(componentState.component);
           }
+
+          instance.link = componentState.link || 0;
+
+          const linkSelect = await this.getLinkSelect(container, instance);
+
+          const setLinkSelect = () => {
+            container.tab.element[0].prepend(linkSelect);
+          };
+
+          container.on('tab', setLinkSelect);
+
+          if (container.tab) {
+            setLinkSelect();
+          }
+
+          container.on('tab', tab => {
+            this._addMobileTabDraggingSupport(tab);
+          });
+
+          this._addMobileTabDraggingSupport(container.tab);
 
           loader.destroy();
         } catch (e) {
@@ -195,6 +214,38 @@ export class DesktopLayout extends Layout {
 
   loadEmptyState() {
     this.loadState(EmptyLayout);
+  }
+
+  async getLinkSelect(container: GoldenLayout.Container, instance: any) {
+    if (this._linkSelectMap.has(container)) {
+      return this._linkSelectMap.get(container);
+    }
+
+    const { ref, domElement, destroy } = await this._creationsService
+      .getDynamicComponent(LinkSelectComponent, [{
+        provide: DynamicComponentConfig,
+        useValue: {
+          data: {
+            value: instance.link,
+          },
+        },
+      }]);
+
+    this._linkSelectMap.set(container, domElement);
+
+    const subscription = ref.instance.handleChange.subscribe((link: number) => {
+      instance.link = link;
+    });
+
+    container.on('destroy', () => {
+      this._linkSelectMap.delete(container);
+
+      subscription.unsubscribe();
+
+      destroy();
+    });
+
+    return domElement;
   }
 
   private _addMobileTabDraggingSupport(tab: GoldenLayout.Tab) {
