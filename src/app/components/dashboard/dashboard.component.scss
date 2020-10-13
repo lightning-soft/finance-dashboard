@@ -4,11 +4,11 @@
   display: flex;
   flex-direction: column;
 }
-$layoutMarginTop: 10px;
+$layoutMarginTop: 6px;
 
 layout{
   padding-top: $layoutMarginTop;
-  height: calc(100% - #{$layoutMarginTop * 2});
+  height: calc(100% - #{$layoutMarginTop});
 }
 
 .dashboard-wrapper {

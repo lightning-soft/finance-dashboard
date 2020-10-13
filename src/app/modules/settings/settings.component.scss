@@ -1,0 +1,17 @@
+@import "themes/index";
+
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+  padding: 10px;
+
+  nz-select {
+    margin-top: 5px;
+    min-width: 60px;
+  }
+}
+
+
+

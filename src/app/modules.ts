@@ -7,6 +7,7 @@ export const Modules = {
   Orders: 'orders',
   OrderForm: 'order-form',
   Scripting: 'scripting',
+  Settings: 'settings',
 };
 
 export const Components = {
@@ -16,6 +17,7 @@ export const Components = {
   Orders: 'orders',
   OrderForm: 'order-form',
   Scripting: 'scripting',
+  Settings: 'settings',
 };
 
 export const modulesStore: IModules[] = [
@@ -55,4 +57,10 @@ export const modulesStore: IModules[] = [
       Components.Scripting,
     ]
   },
+  {
+    module: Modules.Settings,
+    components: [
+      Components.Settings,
+    ]
+  }
 ];
