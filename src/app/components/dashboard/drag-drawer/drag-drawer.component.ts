@@ -52,7 +52,7 @@ export class DragDrawerComponent implements AfterViewInit {
     },
     {
       text: 'Settings',
-      icon: 'icon-orders',
+      icon: 'icon-settings',
       component: Components.Settings
     },
   ];
