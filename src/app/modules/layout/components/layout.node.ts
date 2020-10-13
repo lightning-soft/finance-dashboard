@@ -1,4 +1,5 @@
 import { ComponentRef } from '@angular/core';
+import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 
 // todo: remove this namespace
@@ -10,19 +11,22 @@ declare namespace GoldenLayout {
 }
 
 export interface IStateProvider<T = any> {
-  saveState(): T;
-  loadState(state: T);
+  saveState?(): T;
+  loadState?(state: T);
 }
 
 export interface ILayoutNode {
   setTabTitle(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
+  broadcastLinkData(data: any);
 }
 
 // tslint:disable-next-line: no-empty-interface
-interface _LayoutNode extends ILayoutNode, IStateProvider {
+interface _LayoutNode extends ILayoutNode, IStateProvider, ILinkNode {
 
 }
+
+const linkDataObserver = new LinkDataObserver();
 
 // tslint:disable-next-line: class-name
 abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
@@ -33,15 +37,28 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _layoutContainer: GoldenLayout.Container;
 
+  link: number;
+
   setLayoutContainer(value) {
     this._layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
+    linkDataObserver.subscribe(this);
+  }
+
+  broadcastLinkData(data: any) {
+    linkDataObserver.emitLinkData({
+      creator: this,
+      data,
+      link: this.link,
+    });
   }
 
   handleDestroy() {
     if (this.componentRef)
       this.componentRef.destroy();
+
+    linkDataObserver.unsubscribe(this);
   }
 
   handleHide() {
@@ -67,10 +84,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         this.handleShow();
         break;
       case LayoutNodeEvent.ExtendState:
-        if (this.saveState)
-          this._layoutContainer.setState(this.saveState());
-        else
-          console.error(`Implement save state for ${this.constructor.name}`);
+        this._layoutContainer.setState({
+          link: this.link || 0,
+          component: this.saveState ? this.saveState() : {},
+        });
         break;
     }
 

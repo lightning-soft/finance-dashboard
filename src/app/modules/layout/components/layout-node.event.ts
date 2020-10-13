@@ -8,4 +8,5 @@ export enum LayoutNodeEvent {
   Close = 'close',
   Tab = 'tab',
   ExtendState = 'extendState',
+  LinkData = 'linkData',
 }

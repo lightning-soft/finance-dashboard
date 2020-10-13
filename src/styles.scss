@@ -12,6 +12,9 @@ body, html {
   box-sizing: border-box;
 }
 
+@import "scss/variables";
+
+@import "scss/colors";
 @import "scss/fonts";
 
 @import "scss/dark.theme";

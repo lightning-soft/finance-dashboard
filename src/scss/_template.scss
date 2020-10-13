@@ -56,6 +56,10 @@ body.#{$themeName} {
     color: $fallingColor;
   }
 
+  .ant-select {
+    color: $textColor;
+  }
+
   .cdk-overlay-container {
     .ant-dropdown-menu,
     .ant-select-dropdown,

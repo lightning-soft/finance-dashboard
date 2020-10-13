@@ -99,7 +99,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
       this.chart.instrument = event.value;
-      this.setTabTitle(event.value.symbol)
+      this.setTabTitle(event.value.symbol);
+
+      this.broadcastLinkData({
+        instrument: {
+          id: event.value.symbol,
+        },
+      });
     });
 
     this._themesHandler.themeChange$
@@ -165,9 +171,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     if (state && state.instrument) {
-      this.setTabTitle(state.instrument.symbol)
+      this.setTabTitle(state.instrument.symbol);
     } else {
-      this.setTabTitle('AAPL')
+      this.setTabTitle('Chart');
     }
 
     return new StockChartX.Chart({
@@ -188,6 +194,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     } as IChartConfig);
   }
 
+  update(data: IChartConfig) {
+    const { chart } = this;
+
+    if (!chart || !data) {
+      return;
+    }
+
+    const { instrument } = data;
+
+    if (instrument) {
+      chart.instrument = instrument;
+    }
+
+    chart.sendBarsRequest();
+  }
+
   refresh() {
     const { chart } = this;
 
@@ -201,8 +223,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {
-    if (name === LayoutNodeEvent.Resize)
-      this.setNeedUpdate();
+    switch (name) {
+      case LayoutNodeEvent.Resize:
+        this.setNeedUpdate();
+        break;
+    }
+  }
+
+  handleLinkData(data: any) {
+    this.update(data);
   }
 
   loadState(state?: any) {
