@@ -11,9 +11,21 @@
     </div>
   <span class="name">T-Platform</span>
 
-  <div class="user-menu">
+  <div nz-dropdown
+       nzOverlayClassName="toolbar-dropdown"
+       [nzDropdownMenu]="menu" class="user-menu">
     <img src="https://krausefx.com/assets/posts/profilePictures/FelixKrause2014.jpg"
          alt=""
          class="avatar">Username@name.com
+    <i class="icon-arrow-dropdown"></i>
   </div>
+
 </nav>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu nzSelectable>
+    <li nz-menu-item>Profile</li>
+    <li (click)="openSettings()" nz-menu-item>Settings</li>
+    <li nz-menu-divider></li>
+    <li nz-menu-item>Log out</li>
+  </ul>
+</nz-dropdown-menu>
