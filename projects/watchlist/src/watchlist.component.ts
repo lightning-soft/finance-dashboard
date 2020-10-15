@@ -3,11 +3,15 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
-import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
+import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
+
+export interface WatchlistComponent extends ILayoutNode {
+
+}
 
 @UntilDestroy()
 @Component({
@@ -49,6 +53,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
       events: [Events.DoubleClick],
       handler: (watchlistItem: WatchlistItem) => {
         this.layoutHandler.create('chart');
+
+        this._instrumentsRepository.getItemById(watchlistItem.instrumentId).subscribe(instrument => {
+          this.broadcastLinkData({ instrument });
+        });
       },
     }),
     new ContextMenuDataGridHandler<IContextMenuData>({
@@ -175,9 +183,14 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
-    if (name === LayoutNodeEvent.Resize)
-      this._dataGrid.layout();
+  handleNodeEvent(name: LayoutNodeEvent, event: any) {
+    switch (name) {
+      case LayoutNodeEvent.Resize:
+        this._dataGrid.layout();
+        break;
+      case LayoutNodeEvent.LinkData:
+        break;
+    }
   }
 
   ngOnDestroy(): void {

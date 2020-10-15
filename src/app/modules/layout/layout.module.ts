@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NzSelectModule } from 'ng-zorro-antd';
 import { LayoutComponent } from './components/layout/layout.component';
+import { LinkSelectComponent } from './components/link-select/link-select.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
 import { LoaderModule } from 'ui';
@@ -17,12 +20,15 @@ let entryComponents = [
     CommonModule,
     LoaderModule,
     StorageModule,
+    FormsModule,
+    NzSelectModule,
     LazyAssetsModule.forConfig({
       scripts: [{ src: `./lib/goldenlayout/goldenlayout.js` }]
     })
   ],
   declarations: [
-    ...entryComponents
+    ...entryComponents,
+    LinkSelectComponent,
   ],
   providers: [
     SystemJsNgModuleLoader,
