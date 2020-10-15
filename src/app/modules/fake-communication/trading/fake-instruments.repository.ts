@@ -21,4 +21,19 @@ export class FakeInstrumentsRepository extends FakeRepository<IInstrument> {
 
     return from(this._getItems().then(data => ({ data }) as any));
   }
+
+  getItemsByIds(ids: string[] | number[]): Observable<IInstrument[]> {
+    if (this.loaded)
+      return super.getItemsByIds(ids);
+
+    return from(
+      this._getItems()
+        .then((data: IInstrument[]) => {
+            return data.filter((instrument: IInstrument) => {
+              return (ids as string[]).includes(instrument.id as string);
+            });
+          }
+        )
+    );
+  }
 }

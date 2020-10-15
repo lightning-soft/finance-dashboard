@@ -31,7 +31,7 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 
-  getItemsByIds(ids: number[]): Observable<T[]> {
+  getItemsByIds(ids: number[] | string[]): Observable<T[]> {
     console.error('implement getItemsByIds');
     return of([]);
   }
