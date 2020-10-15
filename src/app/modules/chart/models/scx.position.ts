@@ -1,6 +1,6 @@
 import {ScxPositionKind} from './chart';
 import {PositionKind} from 'communication';
-import {OpenPosition} from '../../Trading/models/open.position';
+import {OpenPosition} from '../../trading/models/position';
 
 const PositionKindMap = {};
 PositionKindMap[PositionKind.Long] = ScxPositionKind.LONG;

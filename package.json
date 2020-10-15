@@ -1,16 +1,30 @@
 {
   "name": "angular-starter",
   "version": "10.0.5",
+  "description": "TradingChart",
+  "author": {
+    "email": "tech@avidi.tech",
+    "name": "tech"
+  },
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4200",
     "build": "npm run font && ng build",
+    "build-prod": "ng build --prod",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win --x64",
+    "dist:linux": "electron-builder --linux",
+    "postinstall": "electron-builder install-app-deps",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "electron": "electron .",
+    "electron-build": "ng build --base-href && electron .",
     "dev:ssr": "ng run angular-starter:serve-ssr",
     "serve:ssr": "node dist/angular-starter/server/main.js",
     "build:ssr": "ng build --prod && ng run angular-starter:server:production",
+    "electron:build": "npm run build:prod && electron-builder build",
     "prerender": "ng run angular-starter:prerender",
     "stats": "ng build --stats-json",
     "font": "node icon-generator.js",
@@ -36,6 +50,7 @@
     "@fortawesome/fontawesome-free": "5.14.0",
     "@ngneat/until-destroy": "8.0.1",
     "@nguniversal/express-engine": "10.0.1",
+    "electron-log": "^4.2.4",
     "express": "4.17.1",
     "ng-packagr": "^10.1.2",
     "ng-zorro-antd": "9.3.0",
@@ -56,7 +71,12 @@
     "@types/jasmine": "3.5.12",
     "@types/jasminewd2": "2.0.8",
     "@types/moment": "^2.13.0",
+    "app-builder-bin": "^3.5.10",
     "codelyzer": "6.0.0",
+    "electron": "10.1.3",
+    "electron-builder": "19.56.2",
+    "electron-installer-windows": "^3.0.0",
+    "electron-packager": "15.1.0",
     "jasmine-core": "3.6.0",
     "jasmine-spec-reporter": "5.0.2",
     "karma": "5.1.1",
@@ -70,5 +90,24 @@
     "tslint": "6.1.3",
     "typescript": "3.9.7",
     "webpack-bundle-analyzer": "3.8.0"
+  },
+  "build": {
+    "appId": "angular-starter",
+    "productName": "TradingChart",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": "deb",
+      "category": "Utility"
+    }
   }
 }

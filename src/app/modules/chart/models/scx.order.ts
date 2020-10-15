@@ -1,4 +1,4 @@
-import {Order} from '../../Orders/models/order';
+// import {Order} from '../../Orders/models/order';
 import {IScxOrder, ScxOrderAction, ScxOrderKind, ScxOrderState, ScxOrderTimeInForce} from './chart';
 import {IOrder, OrderAction, OrderKind, OrderState} from 'communication';
 import {TimeInForce} from '../../Communication/model/time-inforce';
