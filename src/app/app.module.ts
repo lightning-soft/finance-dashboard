@@ -10,7 +10,6 @@ import { LoadingModule } from 'lazy-modules';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
-import { Modules, modulesStore } from './modules';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { Modules, modulesStore } from './modules';
