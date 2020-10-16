@@ -81,6 +81,9 @@
       ],
       "settings": [
         "src/app/modules/settings/index"
+      ],
+      "global-handler": [
+        "projects/global-handler/index"
       ]
     }
   }
