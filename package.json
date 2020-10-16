@@ -17,7 +17,7 @@
     "electron-build": "ng build --base-href && electron .",
     "dist:win": "electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
-    "dist:mac": "electron-builder --platform darwin --icon",
+    "dist:mac": "electron-builder --platform mac",
     "postinstall": "electron-builder install-app-deps",
     "electron:win": "npm run electron-build && npm run dist:win",
     "electron:linux": "npm run electron-build && npm run dist:linux",
@@ -113,7 +113,7 @@
       "category": "Utility"
     },
     "mac": {
-      "type": "distribution"
+      "target": "default"
     }
   }
 }

@@ -94,7 +94,7 @@ const isMac = process.platform === 'darwin'
 const template = [
   // { role: 'appMenu' }
   ...(isMac ? [{
-    label: electron_1.app.name,
+    label: app.name,
     submenu: [
       {role: 'about'},
       {type: 'separator'},
