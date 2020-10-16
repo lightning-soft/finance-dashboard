@@ -9,6 +9,9 @@ import { NotifierService } from 'notifier';
 import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
+
+export interface WatchlistComponent extends ILayoutNode { }
+
 export interface IWatchlistState {
   componentName: string;
   items?: string[];
