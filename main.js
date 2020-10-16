@@ -24,9 +24,9 @@ function createWindow() {
     frame: true,
     alwaysOnTop: false,
     title: "AMS Trading Platform",
-    type: "desktop",
     // vibrancy: 'ultra-dark',
     show: false,
+    movable: true,
     icon: __dirname + '/src/assets/img/Logo.png'
   });
   mainWindow.once('focus', () => mainWindow.flashFrame(false))
@@ -50,14 +50,6 @@ function createWindow() {
   });
 }
 
-app.setUserTasks([{
-  program: process.execPath,
-  arguments: '--new-window',
-  iconPath: process.execPath,
-  iconIndex: 0,
-  title: 'New Window',
-  description: 'Create a new window'
-}])
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
