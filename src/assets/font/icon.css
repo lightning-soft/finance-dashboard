@@ -1,11 +1,11 @@
 @font-face {
   font-family: "icon";
-  src: url('icon.eot?t=1602615474956'); /* IE9*/
-  src: url('icon.eot?t=1602615474956#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("icon.woff2?t=1602615474956") format("woff2"),
-  url("icon.woff?t=1602615474956") format("woff"),
-  url('icon.ttf?t=1602615474956') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('icon.svg?t=1602615474956#icon') format('svg'); /* iOS 4.1- */
+  src: url('icon.eot?t=1603103176061'); /* IE9*/
+  src: url('icon.eot?t=1603103176061#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url("icon.woff2?t=1603103176061") format("woff2"),
+  url("icon.woff?t=1603103176061") format("woff"),
+  url('icon.ttf?t=1603103176061') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('icon.svg?t=1603103176061#icon') format('svg'); /* iOS 4.1- */
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -46,8 +46,8 @@
 .icon-resize:before { content: "\ea1b"; }
 .icon-resize_vertical:before { content: "\ea1c"; }
 .icon-scripting:before { content: "\ea1d"; }
-.icon-text:before { content: "\ea1e"; }
-.icon-unlink:before { content: "\ea1f"; }
-.icon-watch:before { content: "\ea20"; }
-.icon-zoom:before { content: "\ea21"; }
-.icon-settings:before { content: "\ea1d"; }
+.icon-settings:before { content: "\ea1e"; }
+.icon-text:before { content: "\ea1f"; }
+.icon-unlink:before { content: "\ea20"; }
+.icon-watch:before { content: "\ea21"; }
+.icon-zoom:before { content: "\ea22"; }
