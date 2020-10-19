@@ -27,11 +27,23 @@ body.#{$themeName} {
     }
   }
 
+  .ant-modal-close {
+    color: $textColor;
+  }
+
   .toolbar-dropdown {
     .ant-dropdown-menu, &.ant-select-dropdown {
-      background-color: $tabBackground !important;
+      background-color: $tabBackground;
       color: $textColor !important;
+      padding: 0;
+    }
 
+    .ant-select-dropdown {
+      background-color: $tabBackground !important;
+    }
+
+    .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+      background-color: $textColorSecondary;
     }
   }
 
@@ -44,8 +56,37 @@ body.#{$themeName} {
     background: $tabBackground;
     color: $textColor;
     -webkit-text-fill-color: $textColor;
-    -webkit-box-shadow: inset 0 0 0 50px $tabBackground !important;
+    box-shadow: inset 0 0 0 50px $tabBackground !important;
+  }
 
+  .ant-notification-hook-holder, .ant-notification-notice {
+    background-color: $tabBackground !important;
+  }
+
+  .ant-notification-notice-close, .ant-notification-notice-with-icon .ant-notification-notice-message {
+    color: $textColor !important;
+  }
+
+  .anticon.ant-notification-notice-icon-success {
+    color: $risingColor;
+  }
+
+  .anticon.ant-notification-notice-icon-error {
+    color: $fallingColor;
+  }
+
+  .ant-select {
+    color: $textColor;
+  }
+
+  .cdk-overlay-container {
+    .ant-dropdown-menu,
+    .ant-select-dropdown,
+    .ant-dropdown-menu-item {
+      background: $lightBackground;
+      color: $textColor;
+      font-family: $fontFamily;
+    }
   }
 }
 

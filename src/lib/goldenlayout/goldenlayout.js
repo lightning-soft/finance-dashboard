@@ -1245,7 +1245,7 @@
         this.isSubWindow = true;
         config = localStorage.getItem(windowConfigKey);
         config = JSON.parse(config);
-        config = (new lm.utils.ConfigMinifier()).unminifyConfig(config);
+        // config = (new lm.utils.ConfigMinifier()).unminifyConfig(config);
         localStorage.removeItem(windowConfigKey);
       }
 
@@ -1995,7 +1995,7 @@
      * @returns {String} URL
      */
     _createUrl: function (storageKey) {
-      return document.location.origin + '/popup?gl-window=' + storageKey;
+      return './popup?gl-window=' + storageKey;
     },
 
     /**
@@ -2005,7 +2005,7 @@
       var config = {content: this._config},
         storageKey = 'window-' + lm.utils.getUniqueId();
 
-      config = (new lm.utils.ConfigMinifier()).minifyConfig(config);
+      // config = (new lm.utils.ConfigMinifier()).minifyConfig(config);
 
       try {
         localStorage.setItem(storageKey, JSON.stringify(config));
@@ -3322,11 +3322,11 @@
      * @returns {lm.controls.BrowserPopout}
      */
     popout: function () {
-      this.container.emit('popup', this);
-      // this.container.emit('extendState');
-      // var browserPopout = this.layoutManager.createPopout(this);
-      // this.emitBubblingEvent('stateChanged');
-      // return browserPopout;
+      // this.container.emit('popup', this);
+      this.container.emit('extendState');
+      var browserPopout = this.layoutManager.createPopout(this);
+      this.emitBubblingEvent('stateChanged');
+      return browserPopout;
     },
 
     /**

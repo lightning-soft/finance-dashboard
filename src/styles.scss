@@ -12,6 +12,11 @@ body, html {
   box-sizing: border-box;
 }
 
+@import "scss/variables";
+
+@import "scss/colors";
+@import "scss/fonts";
+
 @import "scss/dark.theme";
 @import "scss/template";
 
@@ -55,6 +60,29 @@ button {
   border: none;
 }
 
+.ant-modal {
+  width: auto !important;
+  display: flex;
+  justify-content: center;
+}
+
+.ant-modal-content {
+  width: 500px;
+  box-shadow: none !important;
+}
+
+.ant-modal-body {
+  height: 400px;
+}
+
+.toolbar-dropdown {
+  .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+    margin: 0;
+    margin-left: 5%;
+    width: 90%;
+  }
+}
+
 html, body {
   height: 100%;
 }
@@ -63,6 +91,5 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-
 
 

@@ -1,9 +1,0 @@
-<div class="list-type">
-  <div [class.active]="isList" (click)="isList = true" class="list"><i class="icon-list"></i>List
-  </div>
-
-  <div [class.active]="!isList" (click)="isList = false" class="group"><i class="icon-folder"></i>Group
-  </div>
-</div>
-
-<data-grid [items]="positions" [handlers]="handlers" [columns]="headers"></data-grid>

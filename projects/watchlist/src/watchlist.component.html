@@ -1,0 +1,12 @@
+<data-grid 
+  [items]="items"
+  [handlers]="handlers"
+  [columns]="headers"
+>
+  <search-select
+    [repository]="_instrumentsRepository"
+    (itemChange)="addNewInstrument($event)"
+  >
+  </search-select>
+
+</data-grid>

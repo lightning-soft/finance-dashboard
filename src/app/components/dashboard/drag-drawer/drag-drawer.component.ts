@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { Components } from 'lazy-modules';
+import { Components } from '../../../modules';
 
 @UntilDestroy()
 @Component({
@@ -40,11 +40,21 @@ export class DragDrawerComponent implements AfterViewInit {
       icon: 'icon-position',
       component: Components.Positions
     },
-    /*{
+    {
       text: 'Make order',
       icon: 'icon-orders',
       component: Components.OrderForm
-    }*/
+    },
+    {
+      text: 'Scripting',
+      icon: 'icon-scripting',
+      component: Components.Scripting
+    },
+   /* {
+      text: 'Settings',
+      icon: 'icon-orders',
+      component: Components.Settings
+    },*/
   ];
 
   ngAfterViewInit() {

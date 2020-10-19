@@ -8,7 +8,7 @@ import {GoldenLayoutHandler} from '../../modules/layout/models/golden-layout-han
   styleUrls: ['./add.component.scss']
 })
 export class AddComponent  {
-  items =[];
+  items = [];
 
   constructor(private layoutHandler: GoldenLayoutHandler,
               private modal: NzModalService) { }
