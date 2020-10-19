@@ -90,6 +90,72 @@
     },
     {
       "path": "./projects/global-handler/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/chart/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/chart/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-grid/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-grid/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/fake-communication/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/fake-communication/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/trading/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/trading/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/layout/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/layout/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/order-form/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/order-form/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/orders/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/orders/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/positions/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/positions/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/settings/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/settings/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/trading-ui/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/trading-ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/ui/tsconfig.spec.json"
     }
   ],
 }
