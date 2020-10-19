@@ -25,6 +25,12 @@ export class ThemesHandler {
     return this._theme$.value;
   }
 
+  toggleTheme() {
+    const theme = this.theme === Themes.Dark ? Themes.Light : Themes.Dark;
+
+    this.changeTheme(theme);
+  }
+
   changeTheme(theme: Themes) {
     this._theme$.next(theme);
 
