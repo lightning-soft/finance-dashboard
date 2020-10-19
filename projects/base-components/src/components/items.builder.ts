@@ -3,6 +3,7 @@ import { IBaseItem } from 'communication';
 export interface IItemsBuilder<Item, ViewItem> {
   items: ViewItem[];
 
+  setParams(params: any);
   replaceItems(items: Item[]);
   addItems(items: Item[]);
   handleUpdateItems(items: Item[]);
@@ -10,29 +11,50 @@ export interface IItemsBuilder<Item, ViewItem> {
   handleDeleteItems(item: Item[]);
 }
 
+export interface IItemsBuilderParams<T> {
+  order?: 'asc' | 'desc';
+  filter?: (item: T) => boolean;
+  map?: (item: T) => any;
+}
+
 export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> {
   items: IBaseItem[] = [];
 
-  protected _itemsMap = new Map();
-  constructor(protected _useMap = false) { }
+  protected _items: IBaseItem[] = [];
+  protected _params: IItemsBuilderParams<IBaseItem> = {
+    order: 'asc',
+  };
+
+  setParams(params: IItemsBuilderParams<IBaseItem>) {
+    this._params = { ...this._params, ...params };
+  }
 
   replaceItems(items: IBaseItem[]) {
-    this.items = items;
-    this._itemsMap.clear();
-    this._addToMap(items);
+    this._items = items;
+    this._buildItems();
   }
 
   addItems(items: IBaseItem[]) {
-    this.items = [...items, ...this.items];
-    this._addToMap(items);
+    this._items = [...this._items, ...items];
+    this._buildItems();
   }
 
-  protected _addToMap(items: IBaseItem[]) {
-    if (!this._useMap)
-      return;
+  protected _buildItems() {
+    const { order, filter, map } = this._params;
 
-    for (const item of items)
-      this._itemsMap.set(item.id, item);
+    this.items = [...this._items];
+
+    if (filter) {
+      this.items = this.items.filter(filter);
+    }
+
+    if (map) {
+      this.items = this.items.map(map);
+    }
+
+    if (order === 'desc') {
+      this.items = this.items.reverse();
+    }
   }
 
   protected _isNotArray(items): boolean {
@@ -49,14 +71,12 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
 
     try {
       for (const item of items) {
-        const index = this.items.findIndex(t => t.id === item.id);
+        const index = this._items.findIndex(t => t.id === item.id);
 
         if (index !== -1) {
-          const newValue = { ...this.items[index], ...item };
-          this.items.splice(index, 1, newValue);
-          if (this._useMap) {
-            this._itemsMap.set(item.id, newValue);
-          }
+          const newValue = { ...this._items[index], ...item };
+          this._items.splice(index, 1, newValue);
+          this._buildItems();
         }
       }
     } catch (e) {
@@ -69,9 +89,9 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
       return;
 
     try {
-      items = items.filter(({ id }) => this.items.every(i => i.id !== id));
-      this.items = [...items, ...this.items];
-      this._addToMap(items);
+      items = items.filter(({ id }) => this._items.every(i => i.id !== id));
+      this._items = [...this._items, ...items];
+      this._buildItems();
     } catch (e) {
       console.error('error', e);
     }
@@ -82,24 +102,8 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
       return;
 
     const ids = items.map(item => (typeof item === 'object' ? item.id : item));
-    this.items = this.items.filter(item => ids.every(id => item.id !== id));
-    if (this._useMap)
-      for (const item of items) {
-        try {
-          const itemId = (typeof item === 'object' ? item.id : item);
-          this._itemsMap.delete(itemId);
-
-          // const index = this.items.findIndex(t => t.id === itemId);
-
-          // if (index !== -1) {
-          //     this.items.splice(index, 1);
-          //     this._itemsMap.delete(itemId);
-          // }
-
-        } catch (e) {
-          console.error('error', e);
-        }
-      }
+    this._items = this._items.filter(item => ids.every(id => item.id !== id));
+    this._buildItems();
   }
 }
 

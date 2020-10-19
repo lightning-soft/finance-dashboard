@@ -27,9 +27,9 @@ export abstract class ViewItemsBuilder<T extends IBaseItem, VM extends IViewItem
             return;
 
         for (const item of items) {
-            const vmItem = this._itemsMap.get(item.id);
+            const vmItem = this.items.find((_item) => _item.id === item.id);
             if (vmItem)
-                vmItem.updadte(item)
+                vmItem.update(item);
         }
     }
 

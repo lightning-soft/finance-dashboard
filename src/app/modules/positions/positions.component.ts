@@ -1,66 +1,10 @@
-import { ChangeDetectorRef, Component, Injector, OnInit } from '@angular/core';
-import { IPosition, PositionsRepository } from 'trading'; //Error
-import { ItemsComponent, ViewItemsBuilder } from 'core';
+import { ChangeDetectorRef, Component, Injector } from '@angular/core';
+import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
+import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, DataCell } from '../data-grid';
 import { PositionItem } from './models/position.item';
-
-class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
-  isGrouped = false;
-  colSpan = 0;
-
-  constructor() {
-    super(true);
-  }
-
-  _cast(item: IPosition): PositionItem {
-    return new PositionItem(item);
-  }
-
-  toggleGrouped(value) {
-    if (this.isGrouped === value) {
-      return;
-    }
-
-    this.isGrouped = value;
-    if (this.isGrouped) {
-      this._groupItems();
-    } else {
-      this._ungroupItems();
-    }
-
-  }
-
-  _groupItems() {
-    const _map = new Map<string, PositionItem[]>();
-
-    for (const [key, item] of this._itemsMap) {
-      const instruemntId = item.position.account;
-
-      if (!_map.has(instruemntId)) {
-        _map.set(instruemntId, [item]);
-      } else {
-        _map.get(instruemntId).push(item);
-      }
-    }
-
-    this.items = [];
-    for (const [key, items] of _map) {
-      const groupedItem = new PositionItem();
-      (groupedItem as any).symbol = key as any; // for now using for grouping TODO: use another class for grouped element
-      groupedItem.account = new DataCell();
-      groupedItem.account.updateValue(key);
-      groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.colSpan;
-      this.items.push(groupedItem, ...items);
-    }
-  }
-
-  _ungroupItems() {
-    this.items = Array.from(this._itemsMap.values());
-  }
-}
 
 @Component({
   selector: 'position-list',
@@ -68,17 +12,47 @@ class PositionViewBuilder extends ViewItemsBuilder<IPosition, PositionItem> {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit {
-  headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total', 'close'];
+export class PositionsComponent extends ItemsComponent<IPosition> {
+  builder = new GroupItemsBuilder();
 
-  builder = new PositionViewBuilder();
+  private _headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total'];
+
+  get headers() {
+    return this.status === PositionStatus.Open ? this._headers.concat('close') : this._headers;
+  }
+
+  private _isList = true;
 
   set isList(isList) {
-    this.builder.toggleGrouped(!isList);
+    this._isList = isList;
+
+    if (!isList) {
+      this.groupItems();
+    } else {
+      this.builder.ungroupItems();
+    }
   }
 
   get isList() {
-    return !this.builder.isGrouped;
+    return this._isList;
+  }
+
+  private _status: PositionStatus = PositionStatus.Open;
+
+  get status() {
+    return this._status;
+  }
+
+  set status(value: PositionStatus) {
+    if (value === this.status) {
+      return;
+    }
+    this._status = value;
+    this.refresh();
+  }
+
+  get params(): IPositionParams {
+    return { ...this._params, status: this.status };
   }
 
   handlers = [
@@ -88,20 +62,34 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     }),
   ];
 
-
   constructor(
     protected _repository: PositionsRepository,
     protected _changeDetectorRef: ChangeDetectorRef,
-    protected injector: Injector,
-    public notifier: NotifierService
+    protected _injector: Injector,
+    public notifier: NotifierService,
   ) {
     super();
-    this.builder.colSpan = this.headers.length - 1;
     this.autoLoadData = {onInit: true};
+
+    this.builder.setParams({
+      groupBy: ['account'],
+      order: 'desc',
+      filter: (item: IPosition) => item.status === this.status,
+      map: (item: IPosition) => new PositionItem(item),
+    });
   }
 
-  ngOnInit() {
-    super.ngOnInit();
+  groupItems() {
+    this.builder.groupItems('account', account => {
+      const groupedItem = new PositionItem();
+      (groupedItem as any).symbol = account; // for now using for grouping TODO: use another class for grouped element
+      groupedItem.account = new DataCell();
+      groupedItem.account.updateValue(account);
+      groupedItem.account.bold = true;
+      groupedItem.account.colSpan = this.headers.length - 1;
+
+      return groupedItem;
+    });
   }
 
   delete(item: PositionItem) {
@@ -112,17 +100,16 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     if (item.position) {
       this.deleteItem(item.position);
     } else {
-      const _items = this.items.filter(i => i.symbol === (item as any).symbol);
+      const ids = this.items
+        .filter(i => i.position && i.position.account === (item as any).symbol)
+        .map(i => i.position.id);
+
       this.repository
-        .deleteMany({ids: _items.map(i => i.id)})
+        .deleteMany({ ids })
         .subscribe(
-          () => {
-            this._handleDeleteItems(_items);
-            this._showSuccessDelete();
-          },
-          err => this._handleDeleteError(err)
+          () => this._showSuccessDelete(),
+          err => this._handleDeleteError(err),
         );
     }
   }
-
 }

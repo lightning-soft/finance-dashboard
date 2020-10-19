@@ -13,24 +13,28 @@
   }
 }
 
-.list-type {
+.tabs {
   display: flex;
   margin-bottom: 15px;
 
-  .group, .list {
+  .tab {
     display: flex;
     cursor: pointer;
     align-items: center;
     padding: 4px 10px;
     border-radius: 4px;
 
-    i {
+    &:not(:first-child) {
+      margin-left: 10px;
+    }
+
+    .tab-icon {
       margin-right: 8px;
     }
   }
+}
 
-  .group {
-    margin-left: 10px;
-  }
+.ant-select {
+  width: 140px;
 }
 

@@ -1,6 +1,6 @@
-import { Component, Injector, Input } from '@angular/core';
-import { IInstrument, IPosition, PositionsRepository, Side } from 'trading'; //Error
-import { ItemsComponent } from 'core';
+import { ChangeDetectorRef, Component, Injector, Input } from '@angular/core';
+import { IInstrument, IPosition, IPositionParams, PositionsRepository, PositionStatus, Side } from 'trading';
+import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { NotifierService } from 'notifier';
 
@@ -10,7 +10,9 @@ import { NotifierService } from 'notifier';
   templateUrl: './positions.component.html',
   styleUrls: ['./positions.scss'],
 })
-export class PositionsComponent extends ItemsComponent<IPosition> {
+export class PositionsComponent extends ItemsComponent<IPosition, IPositionParams> {
+  builder = new GroupItemsBuilder();
+
   sides = [Side.Short, Side.Long];
 
   private _instrument: IInstrument;
@@ -21,42 +23,46 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
       return;
 
     this._instrument = value;
-    this._handleInstrumentChange();
+    this.refresh();
   }
 
   get instrument(): IInstrument {
     return this._instrument;
   }
 
+  get params(): IPositionParams {
+    return {
+      ...this._params,
+      status: PositionStatus.Open,
+      instrument: this.instrument,
+    };
+  }
+
   constructor(
     protected _repository: PositionsRepository,
+    protected _changeDetectorRef: ChangeDetectorRef,
     protected _injector: Injector,
     public notifier: NotifierService,
-
   ) {
     super();
     this.autoLoadData = false;
-  }
 
-  getPositionsBySide(side: Side) {
-    return this.builder.items.filter(item => item.side === side);
-  }
-
-  private _handleInstrumentChange() {
-    this.loadData({ instrument: this.instrument });
+    this.builder.setParams({
+      groupBy: ['side'],
+      order: 'desc',
+      filter: (item: IPosition) => item.status !== PositionStatus.Close,
+    });
   }
 
   deleteAll(side?: Side) {
     let items = this.items;
-    if (side != null)
+    if (side !== null)
       items = items.filter(i => i.side === side);
 
-    this.repository.deleteMany({ ids: items.map(i => i.id) })
+    this.repository
+      .deleteMany({ ids: items.map(i => i.id) })
       .subscribe(
-        () => {
-          this._handleDeleteItems(items);
-          this._showSuccessDelete();
-        },
+        () => this._showSuccessDelete(),
         err => this._handleDeleteError(err),
       );
   }

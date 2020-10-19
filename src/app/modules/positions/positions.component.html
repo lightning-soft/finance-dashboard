@@ -1,9 +1,16 @@
 <!-- {{builder.items | json}} -->
-<div class="list-type">
-  <div [class.active]="isList" (click)="isList = true" class="list"><i class="icon-list"></i>List
+<div class="tabs">
+  <div class="tab">
+    <nz-select nzDropdownClassName="toolbar-dropdown" [(ngModel)]="status">
+      <nz-option nzValue="Open" nzLabel="Open"></nz-option>
+      <nz-option nzValue="Close" nzLabel="Close"></nz-option>
+    </nz-select>
   </div>
 
-  <div [class.active]="!isList" (click)="isList = false" class="group"><i class="icon-folder"></i>Group
+  <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List
+  </div>
+
+  <div [class.active]="!isList" (click)="isList = false" class="tab"><i class="tab-icon icon-folder"></i>Group
   </div>
 </div>
 
