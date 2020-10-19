@@ -14,7 +14,7 @@
     "build-prod": "ng build --prod",
     "pack": "electron-builder --dir",
     "electron": "electron .",
-    "electron-build": "ng build --base-href && electron .",
+    "electron-build": "ng build --prod && electron .",
     "dist:win": "electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
     "dist:mac": "electron-builder --platform mac",

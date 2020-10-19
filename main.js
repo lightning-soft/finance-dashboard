@@ -36,13 +36,11 @@ function createWindow() {
   // mainWindow.focus();
   // and load the index.html of the app.
   // mainWindow.loadFile(path.join(__dirname, "../index.html"));
-  // mainWindow.loadURL(
-  //   url.format({
-  //       pathname: path.join(__dirname, `dist/browser/index.html`),
-  //       protocol: "file:",
-  //       slashes: true
-  // }));
-  mainWindow.loadURL("https://demo:ZsfLXCUDDQY6ST39@modulus.resadsoft.com/platform/latest/");
+  mainWindow.loadURL(
+    url.format({
+        pathname: path.join(__dirname, `dist/browser/index.html`)
+  }));
+  // mainWindow.loadURL("https://demo:ZsfLXCUDDQY6ST39@modulus.resadsoft.com/platform/latest/");
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
   mainWindow.once('ready-to-show', function () {

@@ -25,7 +25,7 @@ let entryComponents = [
     NzSelectModule,
     GloabalHandlerModule,
     LazyAssetsModule.forConfig({
-      scripts: [{ src: `./lib/goldenlayout/goldenlayout.js` }]
+      scripts: []
     })
   ],
   declarations: [
