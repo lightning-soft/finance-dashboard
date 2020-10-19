@@ -35,6 +35,10 @@ export class NavbarComponent {
     this.isOpen = !this.isOpen;
   }
 
+  switchTheme() {
+    this.themeHandler.toggleTheme();
+  }
+
   openAccountDialog() {
     const modal = this.modalService.create({
       nzTitle: null,
