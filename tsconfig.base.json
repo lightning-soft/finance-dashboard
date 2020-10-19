@@ -93,6 +93,9 @@
       ],
       "positions": [
         "projects/positions/index"
+      ],
+      "accounts": [
+        "projects/accounts/index"
       ]
     }
   }

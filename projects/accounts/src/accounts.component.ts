@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { ItemsComponent } from 'core';
+import { ItemsComponent } from 'base-components';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { AccountRepository, IAccount } from '../communication';
+import { AccountRepository, IAccount } from 'trading';
 import { AccountConnectComponent } from './account-connect/account-connect.component';
 
 @UntilDestroy()
@@ -13,7 +13,6 @@ import { AccountConnectComponent } from './account-connect/account-connect.compo
 })
 export class AccountsComponent extends ItemsComponent<IAccount> implements OnDestroy {
 
-  items: IAccount[] = [];
   accounts = [];
   status = 'Open';
 

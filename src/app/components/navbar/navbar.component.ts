@@ -3,7 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { AccountsComponent } from '../../modules/accounts/accounts.component';
+import { AccountsComponent } from 'accounts';
 
 @UntilDestroy()
 @Component({

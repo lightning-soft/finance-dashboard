@@ -30,7 +30,7 @@ import { AccountsService } from './accounts.service';
 export class AccountsModule implements LazyModule {
   get components(): ComponentStore {
     return {
-     // [Components.Accounts]: AccountsComponent
+      accounts: AccountsComponent
     };
   }
 }

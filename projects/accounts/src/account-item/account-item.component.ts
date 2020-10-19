@@ -1,5 +1,5 @@
-import {Component, Input} from '@angular/core';
-import {IAccount} from 'communication';
+import { Component, Input } from '@angular/core';
+import { IAccount } from 'trading';
 
 @Component({
   selector: 'account-item',

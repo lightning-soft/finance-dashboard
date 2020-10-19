@@ -156,6 +156,12 @@
     },
     {
       "path": "./projects/ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/accounts/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/accounts/tsconfig.spec.json"
     }
   ],
 }

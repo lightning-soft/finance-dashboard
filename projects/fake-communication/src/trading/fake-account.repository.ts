@@ -1,4 +1,5 @@
-import { FakeRepository, IAccount } from 'communication';
+import { FakeRepository } from 'communication';
+import { IAccount } from 'trading';
 
 export class FakeAccountRepository extends FakeRepository<IAccount> {
 
