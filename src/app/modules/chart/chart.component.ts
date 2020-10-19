@@ -44,7 +44,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 
-  enableOrderForm = false;
+  enableOrderForm = true;
   showOrderForm = true;
 
   constructor(

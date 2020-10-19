@@ -1,8 +1,6 @@
-import { IInstrument } from 'trading'; //Error
-// import { IPaginationResponse } from 'core';
+import { FakeRepository, IPaginationResponse } from 'communication';
 import { from, Observable } from 'rxjs';
-import { FakeRepository } from '../common';
-import { IPaginationResponse } from 'projects/communication/src/common'; //Error
+import { IInstrument } from 'trading';
 
 export class FakeInstrumentsRepository extends FakeRepository<IInstrument> {
   loaded = false;

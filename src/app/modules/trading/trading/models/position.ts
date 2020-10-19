@@ -1,4 +1,6 @@
+import { IPaginationParams } from 'communication';
 import { IBaseItem } from '../../common';
+import { IInstrument } from './instruemnt';
 
 export enum Side {
   Short = 'short',
@@ -13,4 +15,14 @@ export interface IPosition extends IBaseItem {
   unrealized: number;
   total: number;
   side: Side;
+  status: PositionStatus;
+}
+
+export enum PositionStatus {
+  Open = 'Open', Close = 'Close'
+}
+
+export interface IPositionParams extends IPaginationParams {
+  status: PositionStatus;
+  instrument?: IInstrument;
 }

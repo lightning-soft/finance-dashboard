@@ -1,15 +1,10 @@
 import { Component } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { IOrder, OrdersRepository } from 'trading'; //Error
+import { IOrder, IOrderParams, OrdersRepository, OrderStatus } from 'trading';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { IPaginationParams } from '../trading/common'; //Error
-import { ItemsComponent } from '../core/components';
+import { ItemsComponent } from 'base-components';
 import { OrderItem } from './models/OrderItem';
-
-interface IOrderParams extends IPaginationParams {
-  status: string;
-}
 
 @UntilDestroy()
 @Component({
@@ -23,18 +18,17 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   _isList = false;
 
-  private _status = 'Open';
+  private _status: OrderStatus = OrderStatus.Open;
 
   get status() {
     return this._status;
   }
 
-  set status(value: string) {
+  set status(value: OrderStatus) {
     if (value === this.status) {
       return;
     }
     this._status = value;
-    this.builder.replaceItems([]);
     this.refresh();
   }
 
@@ -42,20 +36,17 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     return { ...this._params, status: this.status };
   }
 
-  getOrders() {
-    return this.builder.items.map(item => {
-      return new OrderItem(item);
-    });
-  }
-
   constructor(
     public repository: OrdersRepository,
-    public notifier: NotifierService
-
+    public notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = { onInit: true };
 
+    this.builder.setParams({
+      order: 'desc',
+      filter: (order: IOrder) => order.status === this.status,
+      map: (item: IOrder) => new OrderItem(item),
+    });
   }
-
 }

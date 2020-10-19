@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { InstrumentsRepository } from 'trading'; //Error
+import { InstrumentsRepository } from 'trading';
 import { interval, Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Datafeed, IDateFormat } from './Datafeed';

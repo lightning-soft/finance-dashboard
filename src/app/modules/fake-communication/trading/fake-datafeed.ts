@@ -1,5 +1,5 @@
-import { Id } from "communication"; //Error
-import { Datafeed } from "trading"; //Error
+import { Id } from 'communication';
+import { Datafeed } from 'trading';
 import { NgZone } from '@angular/core';
 
 export class FakeDatafeed extends Datafeed {

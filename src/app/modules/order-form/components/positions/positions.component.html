@@ -1,11 +1,11 @@
 <div class="position-container">
   <div *ngFor="let side of sides"
-       [class.visibility-hidden]="!getPositionsBySide(side).length"
+       [class.visibility-hidden]="!builder.getItems('side', side).length"
        class="list {{side}}">
     <div class="close-all">Close All <i (click)="deleteAll(side)" class="icon-close"></i></div>
 
     <div
-      *ngFor="let position of getPositionsBySide(side); trackBy: trackByFn" class="list-item ">
+      *ngFor="let position of builder.getItems('side', side); trackBy: trackByFn" class="list-item ">
       <div>
         <div class="item-volume">{{position.size}}</div>
         <div class="item-price">${{position.price}}</div>
@@ -14,5 +14,5 @@
     </div>
   </div>
 </div>
-<div *ngIf="builder.items.length" (click)="deleteAll()" class="close-all-positions">Close all positions</div>
+<div *ngIf="items.length" (click)="deleteAll()" class="close-all-positions">Close all positions</div>
 

@@ -1,6 +1,6 @@
 import { ModuleWithProviders, NgModule, NgZone } from '@angular/core';
-import { OrdersRepository, PositionsRepository } from 'trading'; //Error
-import { Datafeed, InstrumentsRepository } from '../trading'; //Error
+import { OrdersRepository, PositionsRepository } from 'trading';
+import { Datafeed, InstrumentsRepository } from '../trading';
 import { FakeDatafeed, FakeInstrumentsRepository, FakeOrdersRepository, FakePositionsRepository } from './trading';
 
 @NgModule({})

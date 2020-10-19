@@ -1,3 +1,4 @@
+import { IPaginationParams } from 'communication';
 import { IBaseItem } from '../../common';
 
 export interface IOrder extends IBaseItem {
@@ -22,4 +23,8 @@ export enum OrderType {
 
 export enum OrderStatus {
   Open = 'Open', Close = 'Close'
+}
+
+export interface IOrderParams extends IPaginationParams {
+  status: OrderStatus;
 }

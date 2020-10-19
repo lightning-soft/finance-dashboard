@@ -1,6 +1,6 @@
 import { Directive, OnDestroy, OnInit } from '@angular/core';
-import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload } from 'communication';
-import { Observable } from 'rxjs';
+import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
+import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
 import { IItemsBuilder, PaginationBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
@@ -19,6 +19,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   };
 
   builder: IItemsBuilder<T, any> = new PaginationBuilder<T>();
+
+  realtimeActionSubscription: Subscription;
 
   get items() {
     return this.builder.items;
@@ -60,6 +62,30 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     return this._total;
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+
+    this.realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
+      switch (action) {
+        case RealtimeAction.Create:
+          this._handleCreateItems(items);
+          break;
+        case RealtimeAction.Update:
+          this._handleUpdateItems(items);
+          break;
+        case RealtimeAction.Delete:
+          this._handleDeleteItems(items);
+          break;
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+
+    this.realtimeActionSubscription.unsubscribe();
+  }
+
   getParams(params?: any): P {
     return params;
   }
@@ -98,7 +124,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     super._onQueryParamsChanged(params);
   }
 
-  protected _handleUpdateItem(items: T[]) {
+  protected _handleUpdateItems(items: T[]) {
     this.builder.handleUpdateItems(items);
     this.detectChanges();
   }
