@@ -1,0 +1,74 @@
+/***************************
+***                      ***
+***  Dark theme settings ***
+***                      ***
+****************************/
+
+$themeName: "scxThemeDark";
+$isLightTheme: false;
+$textColor: #DDD;
+$dropdownTextColor: #fff;
+$dropdownIconColor: #FFF;
+$dropdownActiveIconColor: #fff;
+$dialogDividerColor: transparent;
+$dropdownBtnBorderColor: transparent;
+$spectrumBorderColor: #161616;
+$boxShadow: 0 0 11px -1px rgba(150, 150, 150, 0.8);
+$dropdownMenuTextColor: #D0D0D0;
+$dropdownMenuActiveBackgroundColor: #000;
+$dropDownMenuShadow: 0 1px 10px rgba(255, 255, 255, 0.175);
+$dropdownMenuItemTextColor: #D0D0D0;
+$dropdownMenuSelectedItemTextColor: #fff;
+$dropdownMenuSelectedItemBackgroundColor: #444c5f;
+$dropdownMenuHoverColor: #444c5f;
+$toolbarBorderColor: transparent;
+$borderColorActivated: #677082;
+$fullScreenBackgroundColor: #303644;
+$backgroundColor: #383E4B;
+$textColorOnHover: #FFF;
+$iconColorOnHover: #FFF;
+$btnWrapperBackground: #383E4B;
+$toolbarTextColor: #D0D0D0;
+$toolbarIconColor: #D0D0D0;
+$toolbarButtonsBorderColor: transparent;
+$toolbarButtonToggleBtnColor: transparent;
+$inputBackgroundColor: #292D38;
+$waitingBarBackgroundColor: rgba(0, 0, 0, 0.6);
+$waitingBarTextColor: #EEE;
+$waitingBarDotColor: #CCC;
+$disabledElementColor: #3f3f3f;
+$dropdownDisabledColor: #3C3C3C;
+$disabledTextColor: #666;
+$contextMenuDisabledTextColor: #666;
+$navigationBtnHoverColor: #FFF;
+$navigationDivHoverColor: rgb(45, 45, 45);
+$tabsItemColor: #DDD;
+$tabsActiveItemColor: #FFF;
+$tabsActiveItemHighlightColor: #03A9F4;
+$tabsBottomLineColor: rgba(255, 255, 255, .3);
+$instrumentSearchTextColor: #FFF;
+$timeFramePickerButtonTextColor: #c8c8c8;
+$timeFramePickerCustomValueTextColor: #c8c8c8;
+$timeFramePickerCustomValueBorderColor: #868686;
+$instrumentSearchResultsBorderColor: #626262;
+$instrumentSearchResultsHighlightedTextColor: #0DA4FA;
+$popoverArrowColor: rgba(255, 255, 255, .3);
+$buttonGroupActiveItemTextColor: #333;
+$buttonGroupActiveItemBackgroundColor: #FFF;
+$contextMenuBorderColor: rgba(255,255,255,.2);
+$contextMenuDividerColor: #373737;
+$colorPickerButtonHoverBorderColor: transparent;
+$colorPickerButtonHoverBackgroundColor: #2B2B2B;
+$switcheryBackgroundColor: #EAEAEA;
+$switcheryBorderColor: #DFDFDF;
+$dialogCloseButtonColor: #FFFFFF;
+$dialogCloseButtonShadow: 0 2px 0 #000000;
+$indicatorsDialogSearchIconBackgroundColor: #E6E6E6;
+$indicatorsDialogSearchIconBorderColor: #B7B7B7;
+$numericFieldArrowColor: #CCC;
+$watermarkInfoAndSymbol: rgb(61, 61, 61);
+$chartContainerBorder: 1px solid #333945;
+$scrollToolbarButtonShadowColor: rgba(255,255,255,0.2);
+$scrollToolbarButtonBackground: #2b2b2b;
+
+@import "../../../../src/scss/dark.theme";

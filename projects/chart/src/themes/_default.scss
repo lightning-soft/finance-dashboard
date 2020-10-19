@@ -1,0 +1,357 @@
+/***************************
+***                      ***
+***   Default settings   ***
+***                      ***
+****************************/
+
+$themeName: "scxThemeLight";
+$isLightTheme: true;
+$textColor: #DDD;
+$dropdownTextColor: #4a4a4a;
+$dropdownIconColor: #FFF;
+$dropdownActiveIconColor: #161616;
+$dialogDividerColor: transparent;
+$dropdownBtnBorderColor: #626262;
+$spectrumBorderColor: #161616;
+$boxShadow: 0 0 11px -1px rgba(150, 150, 150, 0.8);
+$dropdownMenuTextColor: #D0D0D0;
+$dropdownMenuActiveBackgroundColor: #000;
+$dropDownMenuShadow: 0 1px 10px rgba(255, 255, 255, 0.175);
+$dropdownMenuItemTextColor: #D0D0D0;
+$dropdownMenuSelectedItemTextColor: #4a4a4a;
+$dropdownMenuSelectedItemBackgroundColor: rgba(215, 219, 52, 1);
+$dropdownMenuHoverColor: rgba(215, 219, 52, .15);
+$toolbarBorderColor: transparent;
+$borderColorActivated: #5EC6E8;
+$fullScreenBackgroundColor: #000;
+$backgroundColor: #2B2B2B;
+$textColorOnHover: #FFF;
+$iconColorOnHover: #FFF;
+$btnWrapperBackground: #383e4b;
+$toolbarTextColor: #D0D0D0;
+$toolbarIconColor: #D0D0D0;
+$chartContainerBorder: 1px solid #333945;
+$toolbarButtonsBorderColor: transparent;
+$toolbarButtonToggleBtnColor: transparent;
+$inputBackgroundColor: #313131;
+$waitingBarBackgroundColor: rgba(0, 0, 0, 0.6);
+$waitingBarTextColor: #EEE;
+$waitingBarDotColor: #CCC;
+$disabledElementColor: #3f3f3f;
+$dropdownDisabledColor: #3C3C3C;
+$disabledTextColor: #666;
+$contextMenuDisabledTextColor: #666;
+$navigationBtnHoverColor: #FFF;
+$navigationDivHoverColor: rgb(45, 45, 45);
+$tabsItemColor: #DDD;
+$tabsActiveItemColor: #FFF;
+$tabsActiveItemHighlightColor: #03A9F4;
+$tabsBottomLineColor: rgba(255, 255, 255, .3);
+$instrumentSearchTextColor: #FFF;
+$timeFramePickerButtonTextColor: #c8c8c8;
+$timeFramePickerCustomValueTextColor: #c8c8c8;
+$timeFramePickerCustomValueBorderColor: #868686;
+$instrumentSearchResultsBorderColor: #626262;
+$instrumentSearchResultsHighlightedTextColor: #0DA4FA;
+$popoverArrowColor: rgba(255, 255, 255, .3);
+$buttonGroupActiveItemTextColor: #333;
+$buttonGroupActiveItemBackgroundColor: #FFF;
+$contextMenuBorderColor: rgba(255,255,255,.2);
+$contextMenuDividerColor: #373737;
+$colorPickerButtonHoverBorderColor: #AFAFAF;
+$colorPickerButtonHoverBackgroundColor: #2B2B2B;
+$switcheryBackgroundColor: #EAEAEA;
+$switcheryBorderColor: #DFDFDF;
+$dialogCloseButtonColor: #FFFFFF;
+
+@import "../../../../src/scss/light.theme";
+
+@mixin dropdownMenu() {
+  & > li {
+
+      &.selected {
+        background-color: $dropdownMenuSelectedItemBackgroundColor;
+        color: $dropdownTextColor;
+
+        & > a {
+          color: $textColorOnHover;
+
+          &:focus {
+            background-color: $dropdownMenuSelectedItemBackgroundColor;
+            color: $textColorOnHover;
+          }
+
+          &:hover {
+            color: $textColorOnHover;
+          }
+        }
+      }
+
+      & > a {
+        color: $toolbarTextColor;
+
+        &:hover {
+          background-color: $dropdownMenuHoverColor;
+          color: $textColorOnHover;
+        }
+
+        &:focus {
+          background-color: $dropdownMenuSelectedItemBackgroundColor;
+          color: $textColorOnHover;
+          outline-color: $dropdownMenuSelectedItemBackgroundColor;
+        }
+      }
+    }
+  }
+
+  .scxTimeFramePicker {
+
+    .scxToolbarButton-activateBtn {
+
+      span {
+        color: $timeFramePickerButtonTextColor;
+      }
+    }
+
+    .scxTimeFramePicker-CustomValueText {
+      color: $timeFramePickerCustomValueTextColor;
+      border-color: $timeFramePickerCustomValueBorderColor;
+    }
+  }
+
+  .scxToolbar-btn {
+    border-color: $toolbarButtonsBorderColor;
+    background-color: transparent;
+    text-align: center;
+
+    .scxToolbarButton-dropdownElement-image {
+      color: $toolbarIconColor;
+    }
+
+    &:hover {
+      background-color: $btnWrapperBackground;
+      border-color: $toolbarBorderColor;
+    }
+  }
+
+  .scxToolbarButton {
+    text-align: center;
+
+    &.scxToolbarButtonWithDropdown {
+
+      &.active {
+
+        .scxToolbarButton-toggleDropdownBtn {
+          border-bottom-color: $switcheryBorderColor;
+        }
+      }
+    }
+
+    &.active {
+
+      .scxToolbarButton-buttonWrapper {
+        border-color: $toolbarBorderColor;
+        background-color: $btnWrapperBackground;
+
+        .scxToolbarButton-toggleDropdownBtn {
+          border-color: $toolbarBorderColor;
+        }
+      }
+    }
+
+    .scxToolbarButton-buttonWrapper {
+
+      .scxToolbarButton-activateBtn {
+
+        .scxToolbarButton-dropdownElement-image {
+          color: $toolbarIconColor;
+        }
+      }
+
+      &.hover {
+        background-color: $btnWrapperBackground;
+        border-color: $toolbarBorderColor;
+
+        .scxToolbarButton-toggleDropdownBtn {
+          border-color: $toolbarBorderColor;
+        }
+      }
+    }
+
+    &.scxToolbarCanToggle {
+
+      .scxToolbarButton-buttonWrapper {
+
+        .scxToolbarButton-activateBtn {
+
+          .scxToolbarButton-dropdownElement-image {
+            color: $toolbarIconColor;
+          }
+        }
+      }
+
+      &.activated {
+
+        .scxToolbarButton-buttonWrapper {
+          border-color: $borderColorActivated;
+        }
+      }
+
+    }
+  }
+
+  .scxToolbarButton-buttonWrapper {
+    background-color: transparent;
+    border-color: $toolbarButtonsBorderColor;
+  }
+
+  .scxToolbarButton-activateBtn {
+    background-color: transparent;
+  }
+
+  .scxToolbarButton-dropdownWrapper {
+    color: $toolbarTextColor;
+    background-color: $backgroundColor;
+    border-color: $toolbarBorderColor;
+
+    &.activated, &.activated:before {
+      border-color: $borderColorActivated;
+    }
+
+    .scxTimeFramePicker-CustomValueWrapper {
+
+      .scxTimeFramePicker-CustomValueUnits {
+
+        .selectpicker {
+          color: $toolbarTextColor;
+          border-color: $dropdownBtnBorderColor;
+          background-color: $inputBackgroundColor;
+
+          &:active {
+            background-color: $dropdownMenuActiveBackgroundColor;
+          }
+        }
+
+      }
+
+      .scxTimeFramePicker-CustomValuePlus {
+        color: $toolbarTextColor;
+        border-color: $dropdownBtnBorderColor;
+        background-color: $inputBackgroundColor;
+
+        &:active {
+          background-color: $dropdownMenuActiveBackgroundColor;
+        }
+      }
+
+      .scxTimeFramePicker-CustomValueMinus {
+        color: $toolbarTextColor;
+        border-color: $dropdownBtnBorderColor;
+        background-color: $inputBackgroundColor;
+
+        &:active {
+          background-color: $dropdownMenuActiveBackgroundColor;
+        }
+      }
+
+      .scxTimeFramePicker-CustomValueText {
+        color: $toolbarTextColor;
+        border-color: $dropdownBtnBorderColor;
+        background-color: $inputBackgroundColor;
+      }
+    }
+  }
+
+  .scxToolbarButton-dropdownElement {
+
+    .scxToolbarButton-dropdownElement-image {
+      color: $dropdownIconColor;
+    }
+
+    &.active {
+      background-color: $dropdownMenuSelectedItemBackgroundColor;
+      color: $dropdownTextColor;
+
+      .scxToolbarButton-dropdownElement-image {
+        color: $dropdownActiveIconColor;
+      }
+
+      &:hover {
+        background-color: $dropdownMenuSelectedItemBackgroundColor;
+        color: $textColorOnHover;
+
+        .scxToolbarButton-dropdownElement-image {
+          color: $iconColorOnHover;
+        }
+      }
+    }
+
+    &:hover {
+      background-color: $dropdownMenuHoverColor;
+      color: $textColorOnHover;
+
+      .scxToolbarButton-dropdownElement-image {
+        color: $iconColorOnHover;
+      }
+    }
+  }
+
+  .scxTimeFramePicker-CustomValueUnits {
+
+    .dropdown-menu {
+      border-color: $dropdownBtnBorderColor;
+      background-color: $inputBackgroundColor;
+
+      &.hover {
+        background-color: $dropdownMenuHoverColor;
+        color: $textColorOnHover;
+      }
+
+      @include dropdownMenu();
+    }
+  }
+
+  .scxToolbarButtonWithDropdown {
+
+    .scxToolbarButton-toggleDropdownBtn {
+      border-left-color: $toolbarButtonToggleBtnColor;
+
+      .scxToolbarButton-dropdownElement-image {
+        color: $toolbarIconColor;
+      }
+    }
+
+    &.scxToolbarCanToggle {
+
+      &.activated {
+
+        .scxToolbarButton-toggleDropdownBtn {
+          border-color: $borderColorActivated;
+        }
+      }
+    }
+  }
+
+  .scxInstrumentSearchNoResults {
+    color: $textColor;
+  }
+
+  .scxInstrumentSearchResults {
+    background-color: $backgroundColor;
+    border-color: $instrumentSearchResultsBorderColor;
+    color: $textColor;
+    box-shadow: $boxShadow;
+
+    .scxInstrumentSearchItem {
+
+      &.active {
+        background-color: $dropdownMenuHoverColor;
+        color: $textColorOnHover;
+      }
+
+      .scxHighlightedText {
+        color: $instrumentSearchResultsHighlightedTextColor;
+      }
+    }
+  }
+
