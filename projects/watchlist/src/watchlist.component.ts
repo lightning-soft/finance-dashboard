@@ -3,11 +3,19 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
-import { LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
+import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
+
+
+export interface WatchlistComponent extends ILayoutNode { }
+
+export interface IWatchlistState {
+  componentName: string;
+  items?: string[];
+}
 
 @UntilDestroy()
 @Component({
@@ -49,6 +57,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
       events: [Events.DoubleClick],
       handler: (watchlistItem: WatchlistItem) => {
         this.layoutHandler.create('chart');
+
+        this._instrumentsRepository.getItemById(watchlistItem.instrumentId).subscribe(instrument => {
+          this.broadcastLinkData({ instrument });
+        });
       },
     }),
     new ContextMenuDataGridHandler<IContextMenuData>({
@@ -77,14 +89,8 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
-    this._instrumentsRepository.getItems()
-      .pipe(
-        untilDestroyed(this)
-      )
-      .subscribe(
-        (response) => this.addToWatchlist(response.data),
-        (e) => console.error(e)
-      );
+  }
+
 
     // for (let id = 0; id < 100; id++) {
     //   this.data.push(new WatchlistItem({ name: id.toString(), id }))
@@ -110,25 +116,28 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     //     } as any);
     //   }
     // }, 100)
-  }
 
-  // addNewInstrument(form: NgForm): void {
-  //   const instrumentName = form.control.value.instrumentName;
+// addNewInstrument(form: NgForm): void {
+//   const instrumentName = form.control.value.instrumentName;
 
-  //   if (instrumentName.trim()) {
-  //     const newInstrument: IInstrument = {
-  //       name: instrumentName.toUpperCase(),
-  //       tickSize: 0.1,
-  //       id: Date.now(),
-  //     }
+//   if (instrumentName.trim()) {
+//     const newInstrument: IInstrument = {
+//       name: instrumentName.toUpperCase(),
+//       tickSize: 0.1,
+//       id: Date.now(),
+//     }
 
-  //     this.addToWatchlist(newInstrument);
-  //     form.reset();
-  //   }
-  // }
+//     this.addToWatchlist(newInstrument);
+//     form.reset();
+//   }
+// }
 
   addNewInstrument(instrument: IInstrument): void {
-    if (instrument) {
+    if (!instrument) throw new Error('Invalid instrument');
+
+    if (this._itemsMap.has(instrument.id)) {
+      this.notifier.showSuccess(`Instrument ${instrument.name} already exist`);
+    } else {
       this.addToWatchlist(instrument);
       this.notifier.showSuccess(`Instrument ${instrument.name} added`);
     }
@@ -148,7 +157,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
       this._itemsMap.set(item.instrumentId, item);
     }
 
-    this.items = [...this.items, ...items];
+    this.items = [...this._itemsMap.values()];
     this.subscribeForRealtime(instruments);
   }
 
@@ -175,13 +184,49 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
-    if (name === LayoutNodeEvent.Resize)
-      this._dataGrid.layout();
+  handleNodeEvent(name: LayoutNodeEvent, event: any) {
+    switch (name) {
+      case LayoutNodeEvent.Resize:
+        this._dataGrid.layout();
+        break;
+      case LayoutNodeEvent.LinkData:
+        break;
+    }
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(item => item());
   }
+
+  saveState() {
+    return { items: [...this.items.map(item => item.instrumentId)] };
+  }
+
+  loadState(state?: IWatchlistState): void {
+    if (state && state.items) {
+      this._instrumentsRepository.getItemsByIds(state.items)
+        .pipe(
+          untilDestroyed(this)
+        )
+        .subscribe(
+          instruments => this.addToWatchlist(instruments),
+          (e) => console.error(e)
+        );
+    }
+    // else {
+    //   this._initalizeWatchlist();
+    // }
+  }
+
+  // private _initalizeWatchlist(): void {
+  //   this._instrumentsRepository.getItems()
+  //     .pipe(
+  //       untilDestroyed(this)
+  //     )
+  //     .subscribe(
+  //       (response) => this.addToWatchlist(response.data),
+  //       (e) => console.error(e)
+  //     );
+  // }
 
 }

@@ -8,10 +8,8 @@ body.#{$themeName} {
       background: $gridBackground;
     }
 
-    .list-type {
-
-      .list, .group {
-        // background: $lightBackground;
+    .tabs {
+      .tab {
         color: $textColorSecondary;
 
         &.active {

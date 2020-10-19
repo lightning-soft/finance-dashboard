@@ -1,5 +1,21 @@
-import { Compiler, ComponentFactory, ComponentRef, Injectable, Injector, NgModuleFactory, NgModuleRef, InjectionToken, Inject, Type } from '@angular/core';
+import {
+  Compiler,
+  ComponentFactory,
+  ComponentRef,
+  Injectable,
+  Injector,
+  NgModuleFactory,
+  NgModuleRef,
+  InjectionToken,
+  Inject,
+  Type,
+  ComponentFactoryResolver,
+  ApplicationRef,
+  EmbeddedViewRef,
+  StaticProvider,
+} from '@angular/core';
 import { LoadChildrenCallback, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { IModules } from './models';
 
 export abstract class LayoutNodeProvider {
@@ -16,7 +32,9 @@ export class LoadingService {
     @Inject(ModulesStoreToken) private _modules: IModules[],
     private router: Router,
     private _compiler: Compiler,
-    private readonly injector: Injector
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private appRef: ApplicationRef,
+    private readonly injector: Injector,
   ) { }
 
   private async _getModuleRef(modulePath: string): Promise<NgModuleRef<any>> {
@@ -76,4 +94,35 @@ export class LoadingService {
       ],
     }));
   }
+
+  async getDynamicComponent(
+    componentType: Type<any>,
+    providers: StaticProvider[],
+  ): Promise<any> {
+    const componentRef = this.componentFactoryResolver
+      .resolveComponentFactory(componentType)
+      .create(Injector.create({
+        providers,
+        parent: this.injector,
+      }));
+
+    this.appRef.attachView(componentRef.hostView);
+
+    const domElement = (componentRef.hostView as EmbeddedViewRef<any>)
+      .rootNodes[0] as HTMLElement;
+
+    return {
+      ref: componentRef,
+      domElement,
+      destroy: () => {
+        componentRef.destroy();
+
+        this.appRef.detachView(componentRef.hostView);
+      },
+    };
+  }
+}
+
+export class DynamicComponentConfig<D = any> {
+  data?: D;
 }

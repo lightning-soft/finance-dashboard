@@ -1,4 +1,4 @@
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { IBaseItem } from './item';
 import { IPaginationResponse } from './pagination';
 
@@ -11,11 +11,23 @@ export enum RealtimeAction {
   Update = 'updated',
   Delete = 'deleted',
 }
+
+export interface RealtimeActionData<T> {
+  action: RealtimeAction;
+  items: T[];
+}
+
 export abstract class Repository<T extends IBaseItem = any> {
 
-  protected _onCreate = this._bindRealtime(RealtimeAction.Create);
-  protected _onUpdate = this._bindRealtime(RealtimeAction.Update);
-  protected _onDelete = this._bindRealtime(RealtimeAction.Delete);
+  protected _subject: Subject<RealtimeActionData<T>> = new Subject();
+
+  protected _onCreate = this._bindEmit(RealtimeAction.Create);
+  protected _onUpdate = this._bindEmit(RealtimeAction.Update);
+  protected _onDelete = this._bindEmit(RealtimeAction.Delete);
+
+  subscribe(callback: (data: RealtimeActionData<T>) => void): Subscription {
+    return this._subject.subscribe(callback);
+  }
 
   abstract getItemById(id, query?: any): Observable<T>;
 
@@ -31,25 +43,23 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 
-  getItemsByIds(ids: number[]): Observable<T[]> {
+  getItemsByIds(ids: number[] | string[]): Observable<T[]> {
     console.error('implement getItemsByIds');
     return of([]);
   }
 
-  _emitRealtime(items, action: RealtimeAction) {
-    if (Array.isArray(items)) {
-      items.map(i => this._emitRealtime(i, action));
-    } else {
-      console.log('_emitRealtime', action, items);
-      // if (this._realtimeProvider)
-      //     this._realtimeProvider.notifyInternal({
-      //         payload: items,
-      //         type: RealtimeProvider.getType(action, suffix == null ? this._getType() : suffix)
-      //     });
-    }
+  deleteMany(params: any): Observable<boolean> {
+    throw new Error('Please implement deleteMany');
   }
 
-  protected _bindRealtime(action: RealtimeAction) {
-    return (item) => this._emitRealtime(item, action);
+  protected _bindEmit(action: RealtimeAction) {
+    return (data) => {
+      const items = Array.isArray(data) ? data : [data];
+
+      this._subject.next({
+        action,
+        items,
+      });
+    };
   }
 }

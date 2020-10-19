@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
   ElementRef,
@@ -16,6 +17,7 @@ import { ILayoutStore } from '../../store';
 import { DesktopLayout } from './layouts/desktop.layout';
 import { IDropable } from './layouts/dropable';
 import { Layout } from './layouts/layout';
+import { GlobalHandlerService } from 'global-handler';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -43,6 +45,8 @@ export class LayoutComponent implements OnInit, IDropable {
     private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _globalHandler: GlobalHandlerService
   ) {
   }
 

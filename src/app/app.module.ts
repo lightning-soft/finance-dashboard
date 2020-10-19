@@ -11,6 +11,7 @@ import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { Modules, modulesStore } from './modules';
+import { NzDropDownModule } from 'ng-zorro-antd';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,7 @@ import { Modules, modulesStore } from './modules';
     AppComponent,
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule.withServerTransition({appId: 'serverApp'}),
     NzModalModule,
     BrowserAnimationsModule,
     NotifierModule,
@@ -67,6 +68,7 @@ import { Modules, modulesStore } from './modules';
         component: DashboardComponent,
       },
     ]),
+    NzDropDownModule,
   ],
   providers: [
     ThemesHandler,

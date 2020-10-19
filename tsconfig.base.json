@@ -78,6 +78,12 @@
       ],
       "watchlist": [
         "projects/watchlist/index"
+      ],
+      "settings": [
+        "src/app/modules/settings/index"
+      ],
+      "global-handler": [
+        "projects/global-handler/index"
       ]
     }
   }

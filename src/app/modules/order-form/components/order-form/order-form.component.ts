@@ -1,7 +1,7 @@
 import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { IInstrument, IOrder, IPosition, OrdersRepository } from 'trading';
-import { FormComponent } from 'core';
+import { IInstrument, IOrder, OrderSide, IPosition, OrdersRepository } from 'trading';
+import { FormComponent } from 'base-components';
 import { NotifierService } from 'notifier';
 
 @Component({
@@ -12,6 +12,7 @@ import { NotifierService } from 'notifier';
 export class OrderFormComponent extends FormComponent<IOrder> {
   step = 0.1;
   positions = [] as IPosition[];
+  orderSide = OrderSide;
 
   get volume() {
     return this.form.value.size;
@@ -52,7 +53,7 @@ export class OrderFormComponent extends FormComponent<IOrder> {
       {
         symbol: fb.control(null, Validators.required),
         size: fb.control(this.step, Validators.min(this.step)),
-        operation: fb.control(null, Validators.required)
+        side: fb.control(null, Validators.required),
       }
     );
   }
@@ -69,8 +70,18 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     this.form.patchValue({ size: volume });
   }
 
-  submit(operation: string) {
-    this.form.patchValue({ operation, symbol: this.instrument.id });
+  submit(side: OrderSide) {
+    this.form.patchValue({ side, symbol: this.instrument.id });
     this.apply();
+  }
+
+  getDto() {
+    return this.getRawValue();
+  }
+
+  protected handleItem(item: IOrder): void {
+    super.handleItem(item);
+
+    this.needCreate = true;
   }
 }

@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { ThemesHandler, Themes } from 'themes';
+import { NzModalService } from 'ng-zorro-antd';
+import { SettingsComponent } from 'settings';
 
 @UntilDestroy()
 @Component({
@@ -17,7 +19,8 @@ export class NavbarComponent {
 
   @Input() isOpen;
 
-  constructor(private themeHandler: ThemesHandler) {
+  constructor(private themeHandler: ThemesHandler,
+              private modalService: NzModalService) {
     this.checkVisibility();
   }
 
@@ -34,5 +37,12 @@ export class NavbarComponent {
       console.log('here');
       this.isVisible = false;
     }
+  }
+
+  openSettings() {
+    this.modalService.create({
+      nzContent: SettingsComponent,
+      nzFooter: null,
+    });
   }
 }

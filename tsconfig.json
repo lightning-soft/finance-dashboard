@@ -84,6 +84,12 @@
     },
     {
       "path": "./projects/themes/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/global-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/global-handler/tsconfig.spec.json"
     }
   ],
 }
