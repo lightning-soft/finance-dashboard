@@ -10,6 +10,7 @@ import { LoaderModule } from 'ui';
 import { StorageModule } from 'storage';
 import { LocalLayoutStore, ILayoutStore } from './store';
 import { LazyAssetsModule } from 'lazy-assets';
+import { GloabalHandlerModule } from 'global-handler';
 
 let entryComponents = [
   LayoutComponent,
@@ -22,6 +23,7 @@ let entryComponents = [
     StorageModule,
     FormsModule,
     NzSelectModule,
+    GloabalHandlerModule,
     LazyAssetsModule.forConfig({
       scripts: [{ src: `./lib/goldenlayout/goldenlayout.js` }]
     })

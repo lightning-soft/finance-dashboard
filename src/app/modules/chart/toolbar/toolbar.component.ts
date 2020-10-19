@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { InstrumentsRepository, IInstrument } from 'trading'; //Error
+import { IInstrument, InstrumentsRepository } from 'trading'; //Error
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -13,6 +13,8 @@ declare const StockChartX;
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements OnInit {
+
+  private _drawingClassName: Map<string, string> = new Map();
 
   showToolbar = true;
 
@@ -47,33 +49,37 @@ export class ToolbarComponent implements OnInit {
     {
       value: 'Chart market',
       items: [
-        'Dot', 'Square', 'Diamond', 'Arrow-Up', 'Arrow-Down', 'Arrow-Left', 'Arrow-Right', 'Arrow', 'Note'
+        'dot', 'square', 'diamond', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'arrow', 'note'
       ]
     },
     {
       value: 'Geometric',
-      items: ['Line-Segment', 'Horizontal-Line', 'Vertical-Line',
-        'Rectangle', 'Triangle', 'Circle', 'Ellipse', 'Polygon', 'Polyline', 'Free-hand', 'Cyclic-Lines']
+      items: [
+        'lineSegment', 'horizontalLine', 'verticalLine',
+        'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
+      ]
     },
     {
       value: 'Fibonacci',
-      items: ['Fibonacci-Arcs', 'Fibonacci-Ellipsis',
-        'fibonacci-Retracements', 'Fibonacci-Fan', 'Fibonacci-Time-Zone', 'Fibonacci-Extensions']
+      items: [
+        'fibonacciArcs', 'fibonacciEllipses',
+        'fibonacciRetracements', 'fibonacciFan', 'fibonacciTimeZones', 'fibonacciExtensions'
+      ]
     },
     {
       value: 'Trend Channel Drawings',
-      items: ['Trend-Channel', 'Andrew-Pitchfork',
-        'Error-Channel', 'Raff-Regression', 'Quadrant-Lines',
-        'Tirone-Levels', 'Speed-Lines', 'Gann-Fan', 'Trend-Angle']
+      items: [
+        'trendChannel', 'andrewsPitchfork',
+        'errorChannel', 'raffRegression', 'quadrantLines',
+        'tironeLevels', 'speedLines', 'gannFan', 'trendAngle'
+      ]
     },
     {
       value: 'General Drawings', items: [
-        'Text', 'Image', 'Balloon', 'Measure'
+        'text', 'image', 'balloon', 'measure'
       ]
     }
   ];
-
-
 
   instruments: IInstrument[] = [];
 
@@ -150,7 +156,7 @@ export class ToolbarComponent implements OnInit {
     } else {
       return false;
     }
-  };
+  }
 
 
   compareTimeFrame = (obj1: ITimeFrame, obj2: ITimeFrame) => {
@@ -170,8 +176,7 @@ export class ToolbarComponent implements OnInit {
   }
 
 
-  constructor(private _instrumentsRepository: InstrumentsRepository) {
-  }
+  constructor(private _instrumentsRepository: InstrumentsRepository) { }
 
   _search(search?: string) {
     this._instrumentsRepository.getItems()
@@ -252,7 +257,7 @@ export class ToolbarComponent implements OnInit {
   addDrawing(name: string) {
     let chart = this.chart;
     chart.cancelUserDrawing();
-    let drawing = StockChartX.Drawing.deserialize({ className: getDrawingClassName(name) });
+    let drawing = StockChartX.Drawing.deserialize({ className: name });
     chart.startUserDrawing(drawing);
   }
 
@@ -264,8 +269,23 @@ export class ToolbarComponent implements OnInit {
   makeSnapshot() {
     this.chart.saveImage();
   }
-}
 
-function getDrawingClassName(string) {
-  return string.charAt(0).toLowerCase() + string.slice(1);
+  // private _mapDrawingInstruments(): void {
+  //   this.drawingInstruments.forEach(instrument => {
+  //     instrument.items.forEach(item => {
+  //       this._drawingClassName.set(item, this._transformToClassName(item));
+  //     });
+  //   });
+  // }
+
+  public transformToUIName(str: string): string {
+    const nameUI = str.replace(/[A-Z]/g, ' $&');
+    return nameUI[0].toUpperCase() + nameUI.slice(1);
+  }
+
+  public transformToClassName(str: string): string {
+    const className = str.replace(/[A-Z]/g, '-$&').toLowerCase();
+    return className;
+  }
+
 }
