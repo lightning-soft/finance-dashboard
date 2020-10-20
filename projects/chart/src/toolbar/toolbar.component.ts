@@ -198,8 +198,7 @@ export class ToolbarComponent implements OnInit {
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {
-    return timeFrame.interval +
-      timeFrame.periodicity;
+    return `${timeFrame.interval} ${timeFrame.periodicity}`;
   }
 
   compareInstrumentDialog() {

@@ -7,6 +7,7 @@ import { RITHMIC_API_URL } from 'communication';
 import { InstrumentsRepository } from 'trading';
 import { Datafeed, IDateFormat } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
+import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
@@ -42,12 +43,20 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   private _loadData(request: IBarsRequest) {
-    const { symbol, exchange } = request.chart.instrument;
+    const { instrument, timeFrame } = request.chart;
+
+    if (!instrument) {
+      throw new Error('Invalid instrument!');
+    }
+
+    const { symbol, exchange } = instrument;
+
+    const barSize = this._timeFrameToBarSize(timeFrame);
 
     const params = queryString.stringify({
       Exchange: exchange,
       Periodicity: 4,
-      BarSize: 1,
+      BarSize: barSize,
       BarCount: 1000,
     });
 
@@ -79,6 +88,27 @@ export class RithmicDatafeed extends Datafeed {
       },
       () => this.onRequstCanceled(request),
     );
+  }
+
+  private _timeFrameToBarSize(timeFrame: ITimeFrame): number {
+    const { interval: i, periodicity } = timeFrame;
+
+    switch (periodicity) {
+      case StockChartXPeriodicity.YEAR:
+        return i * 365;
+      case StockChartXPeriodicity.MONTH:
+        return i * 30;
+      case StockChartXPeriodicity.WEEK:
+        return i * 7;
+      case StockChartXPeriodicity.DAY:
+        return i;
+      case StockChartXPeriodicity.HOUR:
+        return i / 24;
+      case StockChartXPeriodicity.MINUTE:
+        return i / 24 / 60;
+      default:
+        return 1;
+    }
   }
 
   destroy() {

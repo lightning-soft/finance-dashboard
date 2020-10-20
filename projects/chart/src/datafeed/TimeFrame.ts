@@ -33,28 +33,28 @@ export const TimeSpan = {
 
 export const StockChartXPeriodicity = {
   /** Tick. */
-  TICK: 't',
+  TICK: 'tick',
 
   /** Second. */
-  SECOND: 's',
+  SECOND: 'second',
 
   /** Minute. */
-  MINUTE: '',
+  MINUTE: 'minute',
 
   /** Hour. */
-  HOUR: 'h',
+  HOUR: 'hour',
 
   /** Day. */
-  DAY: 'd',
+  DAY: 'day',
 
   /** Week. */
-  WEEK: 'w',
+  WEEK: 'week',
 
   /** Month. */
-  MONTH: 'm',
+  MONTH: 'month',
 
   /** Year. */
-  YEAR: 'y'
+  YEAR: 'year'
 };
 
 
