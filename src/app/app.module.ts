@@ -9,6 +9,7 @@ import { LoadingModule } from 'lazy-modules';
 import { FakeCommunicationModule } from 'fake-communication';
 import { ThemesHandler } from 'themes';
 import {NzDropDownModule} from 'ng-zorro-antd';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import {NzDropDownModule} from 'ng-zorro-antd';
     AppComponent,
   ],
     imports: [
+        HttpClientModule,
         BrowserModule.withServerTransition({appId: 'serverApp'}),
         NzModalModule,
         BrowserAnimationsModule,
