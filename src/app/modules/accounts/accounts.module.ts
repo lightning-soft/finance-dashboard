@@ -1,11 +1,12 @@
-import {NgModule} from '@angular/core';
-import {Components, ComponentStore, LazyModule} from 'lazy-modules';
-import {AccountsComponent} from './accounts.component';
-import {NzInputModule, NzSelectModule} from 'ng-zorro-antd';
-import {AccountItemComponent} from './account-item/account-item.component';
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ComponentStore, LazyModule } from 'lazy-modules';
+import { NzInputModule, NzSelectModule } from 'ng-zorro-antd';
 import { AccountConnectComponent } from './account-connect/account-connect.component';
-import {ReactiveFormsModule} from '@angular/forms';
+import { AccountItemComponent } from './account-item/account-item.component';
+import { AccountsComponent } from './accounts.component';
+import { AccountsService } from './accounts.service';
 
 @NgModule({
   imports: [
@@ -20,9 +21,11 @@ import {ReactiveFormsModule} from '@angular/forms';
   declarations: [
     AccountsComponent,
     AccountItemComponent,
-    AccountConnectComponent,
+    AccountConnectComponent
   ],
-
+  providers: [
+    AccountsService
+  ]
 })
 export class AccountsModule implements LazyModule {
   get components(): ComponentStore {
