@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { IPaginationResponse, Repository, RITHMIC_API_URL } from 'communication';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IInstrument } from '../models/instruemnt';
 
@@ -9,6 +9,24 @@ import { IInstrument } from '../models/instruemnt';
 export class InstrumentsRepository extends Repository<IInstrument> {
   constructor(private _httpClient: HttpClient) {
     super();
+  }
+
+  getItemById(id) {
+    return this._httpClient.get(`${RITHMIC_API_URL}Instrument/${id}`).pipe(
+      map((res: any) => res.result),
+    );
+  }
+
+  createItem() {
+    return of({} as IInstrument); // TODO
+  }
+
+  updateItem() {
+    return of({} as IInstrument); // TODO
+  }
+
+  deleteItem() {
+    return of(true); // TODO
   }
 
   getItems(params?: { skip?: number, take?: number, criteria?: string }): Observable<IPaginationResponse<IInstrument>> {
