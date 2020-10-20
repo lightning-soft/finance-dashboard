@@ -1,10 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {AccountRepository, IAccount, OrdersRepository} from 'communication';
-import {NzModalRef, NzModalService} from 'ng-zorro-antd/modal';
-import {AccountConnectComponent} from './account-connect/account-connect.component';
-import {ItemsComponent} from 'core';
-
+import { Component, OnDestroy } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { ItemsComponent } from 'core';
+import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
+import { AccountRepository, IAccount } from '../communication';
+import { AccountConnectComponent } from './account-connect/account-connect.component';
 
 @UntilDestroy()
 @Component({
@@ -19,15 +18,13 @@ export class AccountsComponent extends ItemsComponent<IAccount> implements OnDes
   status = 'Open';
 
   constructor(
-    public repository: AccountRepository,
+    public _repository: AccountRepository,
     private modal: NzModalRef,
     private modalService: NzModalService,
   ) {
     super();
     this.config.autoLoadData = {onInit: true};
   }
-
-
 
   ngOnDestroy(): void {
     this.modal.destroy();
