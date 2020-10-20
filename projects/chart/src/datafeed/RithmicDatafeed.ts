@@ -45,7 +45,6 @@ export class RithmicDatafeed extends Datafeed {
     const { symbol, exchange } = request.chart.instrument;
 
     const params = queryString.stringify({
-      symbol,
       Exchange: exchange,
       Periodicity: 4,
       BarSize: 1,

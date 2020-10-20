@@ -32,18 +32,17 @@ export class InstrumentsRepository extends Repository<IInstrument> {
   getItems(params?: { skip?: number, take?: number, criteria?: string }): Observable<IPaginationResponse<IInstrument>> {
     const criteria = params?.criteria || 'ES';
 
-    return this._httpClient.get(`${RITHMIC_API_URL}Instrument?criteria=${criteria}`)
-      .pipe(
-        map((res: any) => {
-          const data: IInstrument[] = res.result.map(({ symbol, exchange }) => ({
-            id: symbol,
-            name: symbol,
-            exchange,
-            tickSize: 0.01,
-          }));
+    return this._httpClient.get(`${RITHMIC_API_URL}Instrument?criteria=${criteria}`).pipe(
+      map((res: any) => {
+        const data: IInstrument[] = res.result.map(({ symbol, exchange }) => ({
+          id: symbol,
+          name: symbol,
+          exchange,
+          tickSize: 0.01,
+        }));
 
-          return { data } as IPaginationResponse;
-        })
-      );
+        return { data } as IPaginationResponse;
+      }),
+    );
   }
 }
