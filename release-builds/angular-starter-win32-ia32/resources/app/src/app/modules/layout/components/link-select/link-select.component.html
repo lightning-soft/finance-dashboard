@@ -1,0 +1,18 @@
+<nz-select
+  nzDropdownClassName="link-select-dropdown"
+  [nzBorderless]="true"
+  [nzShowArrow]="false"
+  [ngModel]="value"
+  (ngModelChange)="_handleChange($event)"
+>
+  <nz-option
+    *ngFor="let label of labels; let value = index"
+    [nzValue]="value"
+    [nzCustomContent]="true"
+  >
+    <span [class]="value ? 'text-' + label : ''">
+      <i class="media-middle icon-{{ !value ? 'unlink' : 'link' }}"></i>
+      {{ label }}
+    </span>
+  </nz-option>
+</nz-select>

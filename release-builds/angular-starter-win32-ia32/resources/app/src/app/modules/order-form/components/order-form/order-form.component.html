@@ -1,0 +1,22 @@
+<form [formGroup]="form" class="volume-background">
+  <div (click)="addVolume(-this.step)" class="minus">-</div>
+  <div class="volume">
+    <div class="value">{{volume}}</div>
+  </div>
+  <div (click)="addVolume(this.step)" class="add">+</div>
+</form>
+<div class="button-container">
+  <button (click)="submit(orderSide.Sell)" class="sell">
+    Sell
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+  <button (click)="submit(orderSide.Buy)" class="buy">
+    Buy
+    <div class="price">
+      1.24000
+    </div>
+  </button>
+</div>
+<positions [instrument]="instrument"></positions>

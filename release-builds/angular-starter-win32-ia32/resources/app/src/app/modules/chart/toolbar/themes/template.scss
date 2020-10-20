@@ -1,0 +1,61 @@
+@import "icons";
+
+body.#{$themeName} {
+
+
+  :host {
+
+    .icon-container {
+      background: $tabBackground;
+      color: $textColor;
+    }
+
+    .icon-arrow-dropdown {
+      color: $borderColor;
+    }
+
+    .instrument-bar {
+      input {
+        background-color: $tabBackground;
+        color: $textColor;
+      }
+
+    }
+
+    .icon-container {
+      &:after {
+        background-color: $borderColor;
+      }
+    }
+
+    .pane {
+      background-color: $tabBackground !important;
+      color: $textColor !important;
+
+      > div:not(:last-child) {
+
+        &:after {
+          background-color: $borderColor;
+        }
+      }
+
+      ::ng-deep {
+
+
+        nz-select {
+          background-colfor: $tabBackground !important;
+          color: $textColor !important;
+        }
+
+      }
+
+    }
+  }
+
+
+}
+
+::ng-deep body.#{$themeName} {
+
+
+}

@@ -1,0 +1,11 @@
+<aside
+  [class.side-navigation--open]="isOpen"
+  class="side-navigation">
+  <div
+    *ngFor="let item of items"
+    #add
+    class="side-navigation__item">
+    <i class="{{item.icon}}"></i>
+    {{item.text}}
+  </div>
+</aside>

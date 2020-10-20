@@ -1,0 +1,95 @@
+/*
+  This is a "Solution Style" tsconfig.json file, and is used by editors and TypeScript’s language server to improve development experience.
+  It is not intended to be used to perform a compilation.
+
+  To learn more about this file see: https://angular.io/config/solution-tsconfig.
+*/
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./e2e/tsconfig.json"
+    },
+    {
+      "path": "./tsconfig.server.json"
+    },
+    {
+      "path": "./projects/search-select/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/search-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notifier/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/notifier/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/base-components/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/base-components/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/communication/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/communication/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/context-menu/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/scripting/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/scripting/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/storage/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/storage/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lazy-modules/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lazy-modules/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lazy-assets/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lazy-assets/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/watchlist/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/watchlist/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/themes/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/themes/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/global-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/global-handler/tsconfig.spec.json"
+    }
+  ],
+}

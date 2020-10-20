@@ -1,0 +1,85 @@
+
+body.#{$themeName} {
+  background: $bodyBackground;
+  color: $textColor;
+  font-family: $fontFamily;
+
+  .up {
+    color: $risingColor;
+  }
+
+  .down {
+    color: $fallingColor;
+  }
+
+  .toolbar-dropdown nz-option-container {
+    background: $tabBackground !important;
+    width: 140px;
+
+    .ant-select-item-option-content {
+      color: $textColor !important;
+
+    }
+
+    .ant-select-item-option-selected {
+      color: inherit;
+      background: inherit;
+    }
+  }
+
+  .ant-modal-close {
+    color: $textColor;
+  }
+
+  .toolbar-dropdown {
+    .ant-dropdown-menu, &.ant-select-dropdown {
+      background-color: $tabBackground;
+      color: $textColor !important;
+      padding: 0;
+    }
+
+    .ant-select-dropdown {
+      background-color: $tabBackground !important;
+    }
+
+    .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+      background-color: $textColorSecondary;
+    }
+  }
+
+  .toolbar-submenu {
+    background-color: $tabBackground !important;
+    color: $textColor !important;
+  }
+
+  .ant-notification-hook-holder, .ant-notification-notice {
+    background-color: $tabBackground !important;
+  }
+
+  .ant-notification-notice-close, .ant-notification-notice-with-icon .ant-notification-notice-message {
+    color: $textColor !important;
+  }
+
+  .anticon.ant-notification-notice-icon-success {
+    color: $risingColor;
+  }
+
+  .anticon.ant-notification-notice-icon-error {
+    color: $fallingColor;
+  }
+
+  .ant-select {
+    color: $textColor;
+  }
+
+  .cdk-overlay-container {
+    .ant-dropdown-menu,
+    .ant-select-dropdown,
+    .ant-dropdown-menu-item {
+      background: $lightBackground;
+      color: $textColor;
+      font-family: $fontFamily;
+    }
+  }
+}
+

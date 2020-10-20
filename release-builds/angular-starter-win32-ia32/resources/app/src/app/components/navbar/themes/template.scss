@@ -1,0 +1,37 @@
+@import "src/scss/variables";
+
+body.#{$themeName} {
+
+  :host {
+    background: $tabBackground;
+
+    .navigation-bar {
+      color: $textColor;
+
+      height: $navbarHeight;
+
+      .logo {
+
+        border: 1px solid $logoColor;
+
+        color: $logoColor;
+
+      }
+
+
+      .add {
+        background: $borderColor;
+      }
+
+      .name {
+        color: $logoColor;
+      }
+
+
+    }
+
+  }
+
+
+}
+

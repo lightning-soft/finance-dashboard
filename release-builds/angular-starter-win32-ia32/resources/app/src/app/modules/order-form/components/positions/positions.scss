@@ -1,0 +1,79 @@
+@import "themes/index";
+
+:host {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.position-container {
+  display: flex;
+  margin-top: 10px;
+  overflow-y: auto;
+  justify-content: space-evenly;
+}
+
+.close-all-positions {
+  border-radius: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: auto;
+  font-size: 12px;
+  line-height: 16px;
+  padding-top: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  padding-bottom: 6px;
+
+}
+
+.list {
+  padding: 5px;
+  flex: 1;
+  font-weight: 400;
+
+  &:last-child {
+    margin-left: 7px;
+  }
+
+  i {
+    font-size: 12px;
+    line-height: 12px;
+    margin-left: 3px;
+    cursor: pointer;
+  }
+
+  .close-all {
+    padding: 5px 3px;
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 10px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+
+  }
+
+  .list-item {
+    display: flex;
+    padding-left: 3px;
+    margin-top: 5px;
+    padding-right: 3px;
+    justify-content: space-between;
+    align-items: center;
+
+    .item-volume {
+      font-size: 12px;
+      line-height: 100%;
+    }
+
+    .item-price {
+      font-size: 12px;
+      line-height: 100%;
+
+    }
+  }
+
+}

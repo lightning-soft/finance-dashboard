@@ -1,0 +1,35 @@
+body.#{$themeName} {
+  :host {
+    .volume-background {
+      color: $textColorSecondary;
+      background: $lightBackground;
+    }
+
+    .sell {
+      background: $fallingColor;
+      color: $buttonColor;
+    }
+
+    .buy {
+      background: $risingColor;
+      color: $buttonColor;
+    }
+
+    .volume {
+      .value {
+        color: $textColor;
+      }
+    }
+
+    .grid-list {
+      color: $textColor;
+
+
+    }
+
+
+
+
+  }
+
+}

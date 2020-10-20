@@ -1,0 +1,47 @@
+@import "themes/index";
+$selectHeightContainer: 32px;
+$selectMarginBottom: 15px;
+
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+  padding: 10px;
+
+  ::ng-deep {
+    nz-select-top-control {
+      border: none !important;
+      box-shadow: none !important;
+
+    }
+    data-grid{
+      height: calc(100% - #{$selectHeightContainer} - #{$selectMarginBottom});
+    }
+    .wrapper{
+      height: 100%;
+      padding-top: 10px;
+    }
+  }
+
+  .select-container{
+    position: relative;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-bottom: $selectMarginBottom;
+    height: $selectHeightContainer;
+    max-width: 140px;
+  }
+
+  .icon-arrow-dropdown{
+    position: absolute;
+    font-size: 4px;
+    cursor: pointer;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+}
+
+

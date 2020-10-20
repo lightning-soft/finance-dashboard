@@ -1,0 +1,39 @@
+<div id="scxCompareInstrumentDialog" class="modal scxDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+                <h4 id="scxCompareInstrument_headerTitle" data-i18n="compareInstrument.instrument"></h4>
+            </div>
+            <div class="modal-body scxCompareInstrumentDialog-body">
+                <div class="scxCompareInstrumentDialog_container_symbol scxTable">
+                    <label class="scxCompareInstrumentDialog_symbol_label scxTable_cell"  data-i18n="compareInstrument.symbol"></label>
+                    <input type="text" id="scxCompareInstrument_symbol" class="form-control">
+                </div>
+                <div class="scxCompareInstrumentDialog_container_color scxTable">
+                    <label class="scxCompareInstrumentDialog_lineColor_label scxTable_cell"  data-i18n="compareInstrument.lineColor"></label>
+                    <input id="scxCompareInstrument_lineColor" type="text" class="scxSpectrum">
+                </div>
+                <div class="scxCompareInstrumentDialog_container_lineWidth scxTable">
+                    <label class="scxCompareInstrumentDialog_lineWidth_label scxTable_cell"  data-i18n="compareInstrument.lineWidth"></label>
+                    <input id="scxCompareInstrument_lineWidth" class="form-control" type="text">
+                </div>
+                <div class="scxCompareInstrumentDialog_container_lineStyle scxTable">
+                    <label class="scxCompareInstrumentDialog_lineWidth_label scxTable_cell"  data-i18n="compareInstrument.lineStyle"></label>
+                    <select id="scxCompareInstrument_lineStyle" class="scxLineStyleSelector scxDropdown">
+                        <option value="solid" data-manuali18="graphics.line.style.solid">&nbsp;</option>
+                        <option value="dash" data-manuali18="graphics.line.style.dash">&nbsp;</option>
+                        <option value="dot" data-manuali18="graphics.line.style.dot">&nbsp;</option>
+                        <option value="dash-dot" data-manuali18="graphics.line.style.dashDot">&nbsp;</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer scxThemeDialog-footer">
+                <div class="scxCompareInstrumentDialog-footer-buttons">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="dialog.button.close"></button>
+                    <button type="button" class="btn btn-success" id="scxCompareInstrument_btn_add" data-i18n="dialog.button.add" data-dismiss="modal"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
