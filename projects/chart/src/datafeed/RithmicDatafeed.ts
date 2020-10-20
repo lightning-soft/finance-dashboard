@@ -23,10 +23,6 @@ export class RithmicDatafeed extends Datafeed {
     super();
   }
 
-  protected _dateFormat: IDateFormat = () => {
-    return 'D-MMM-YY';
-  }
-
   send(request: IBarsRequest) {
     super.send(request);
 
@@ -62,20 +58,14 @@ export class RithmicDatafeed extends Datafeed {
 
     this._httpClient.get(`${RITHMIC_API_URL}History/${symbol}?${params}`).pipe(
       map((res: any) => {
-        const locale = moment.locale();
-
-        moment.locale('en');
-
         const data = res.result.map(item => ({
-          date: moment(item.timestamp, this._dateFormat(request)).toDate(),
+          date: moment.utc(item.timestamp).toDate(),
           open: item.openPrice,
           close: item.closePrice,
           high: item.highPrice,
           low: item.lowPrice,
           volume: item.volume,
         }));
-
-        moment.locale(locale);
 
         return { data };
       }),
