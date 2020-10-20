@@ -35,7 +35,7 @@ export class AccountsService {
     //   connectionPointId: "string",
     // };
 
-    return this._request(reqBody, '');
+    return this._request(reqBody, data.server);
   }
 
   private _request(data: IConnectionRequestData, server: string): Observable<object> {
