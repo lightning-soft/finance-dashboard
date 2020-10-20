@@ -47,16 +47,17 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
     return new FormGroup({
       password: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       login: new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      server: new FormControl(null, [Validators.required]),
-      repeatPassword: new FormControl(null, [Validators.required]),
-      broker: new FormControl(null, [Validators.required]),
+      // server: new FormControl(null, [Validators.required]),
+      // repeatPassword: new FormControl(null, [Validators.required]),
+      // broker: new FormControl(null, [Validators.required]),
 
       // password: new FormControl(),
       // login: new FormControl(),
       // server: new FormControl(),
       // repeatPassword: new FormControl(),
       // broker: new FormControl(),
-    }, this._checkPasswords);
+    });
+    // }, this._checkPasswords);
   }
 
   public handleCancel(): void {

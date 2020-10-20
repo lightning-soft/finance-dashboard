@@ -3,13 +3,21 @@
 </div>
 <div class="wrapper">
 
-  <div class="back-navigation">
-    <i class="icon-arrow-back"></i>
-    Create Account
-  </div>
+  <h3>Rithmic</h3>
 
   <form [formGroup]="form">
     <div class="input-wrapper">
+      <div>
+        <label for="login">Login</label>
+        <input formControlName="login" type="text" id="login" nz-input />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input formControlName="password" type="password" id="password" nz-input />
+      </div>
+    </div>
+
+    <!-- <div class="input-wrapper">
       <input formControlName="login" nz-input placeholder="Login" />
       <input formControlName="server" nz-input placeholder="Server" />
     </div>
@@ -31,7 +39,7 @@
       <label for="confirmPassword">Confirm Password</label>
       <input type="password" formControlName="repeatPassword" id="confirmPassword" nz-input
         placeholder="Confirm Password" />
-    </div>
+    </div> -->
 
     <div class="input-wrapper">
       <button (click)="handleCancel()" class="cancel">Cancel</button>

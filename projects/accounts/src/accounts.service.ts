@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { RITHMIC_API_URL } from 'communication';
 import { Observable } from 'rxjs';
 import { IAccount } from 'trading';
 
@@ -35,8 +36,8 @@ export class AccountsService {
     //   connectionPointId: "string"
     // };
 
-    return this._request(reqBody, account.server);
-    // return this._request(reqBody, 'http://173.212.193.40:5005');
+    // return this._request(reqBody, account.server);
+    return this._request(reqBody, 'http://173.212.193.40:5005');
   }
 
   private _request(data: IConnectionRequestData, server: string): Observable<object> {
