@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { FormComponent } from 'base-components';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { AccountRepository, IAccount } from '../../communication';
+import { AccountRepository, IAccount } from 'trading';
 import { AccountsService } from '../accounts.service';
 
 enum FromStatus {
