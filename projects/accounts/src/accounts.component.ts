@@ -15,7 +15,6 @@ export class AccountsComponent extends ItemsComponent<IAccount> implements OnDes
 
   _accountConnectModal: NzModalRef = null;
 
-  items: IAccount[] = [];
   accounts = [];
   status = 'Open';
 
