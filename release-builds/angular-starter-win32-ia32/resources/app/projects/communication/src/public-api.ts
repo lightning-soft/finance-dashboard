@@ -1,8 +1,0 @@
-/*
- * Public API Surface of communication
- */
-
-export * from './common';
-export * from './fake';
-export * from './http';
-

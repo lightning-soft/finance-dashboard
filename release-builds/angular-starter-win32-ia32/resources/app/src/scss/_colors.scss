@@ -1,5 +1,0 @@
-@each $key, $value in $colors {
-  .text-#{$key} {
-    color: $value !important;
-  }
-}
