@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Subscription } from 'rxjs';
 import { InstrumentsRepository, IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
@@ -15,6 +16,8 @@ declare const StockChartX;
 export class ToolbarComponent implements OnInit {
 
   private _drawingClassName: Map<string, string> = new Map();
+
+  private _searchSubscription: Subscription;
 
   showToolbar = true;
 
@@ -105,7 +108,7 @@ export class ToolbarComponent implements OnInit {
 
     let oldSymbol = chart.instrument && chart.instrument.symbol.toUpperCase();
     let newSymbol = instrument.name.toUpperCase();
-    if (newSymbol !== chart.instrument.symbol) {
+    if (newSymbol !== chart.instrument?.symbol) {
 
       setTimeout(() => {
         chart.instrument = {
@@ -113,7 +116,6 @@ export class ToolbarComponent implements OnInit {
           id: instrument.id as any,
           symbol: instrument.name,
           company: '',
-          exchange: '',
         };
         chart.sendBarsRequest();
       });
@@ -178,17 +180,14 @@ export class ToolbarComponent implements OnInit {
 
   constructor(private _instrumentsRepository: InstrumentsRepository) { }
 
-  _search(search?: string) {
-    this._instrumentsRepository.getItems()
+  _search(criteria?: string) {
+    this._searchSubscription?.unsubscribe();
+
+    this._searchSubscription = this._instrumentsRepository.getItems({ criteria })
       .pipe(untilDestroyed(this))
       .subscribe(
         (res) => {
-          if (search != null) {
-            const items = res.data.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
-
-            this.instruments = items.slice(0, 100);
-          } else
-            this.instruments = []; // todo fix this
+          this.instruments = res.data.slice(0, 100);
         },
         (e) => console.error('error', e),
       );

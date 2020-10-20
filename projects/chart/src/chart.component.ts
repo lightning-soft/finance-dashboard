@@ -5,11 +5,12 @@ import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
-import { CSVDatafeed } from './datafeed/CsvDatafeed';
+import { RithmicDatafeed } from './datafeed/RithmicDatafeed';
 import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
+import { InstrumentsRepository } from 'trading';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -26,7 +27,8 @@ export interface ChartComponent extends ILayoutNode {
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss'],
   providers: [
-    { provide: Datafeed, useClass: CSVDatafeed }
+    { provide: Datafeed, useClass: RithmicDatafeed },
+    { provide: InstrumentsRepository },
   ]
 })
 @LayoutNode()
@@ -82,13 +84,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
-
-    if (this.datafeed instanceof CSVDatafeed)
-      this.datafeed.loadInstruments()
-        .pipe(
-          untilDestroyed(this)
-        )
-        .subscribe();
 
     this._setUnavaliableIfNeed();
 
@@ -185,11 +180,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       autoSave: false,
       autoLoad: false,
       timeFrame: state && state.timeFrame,
-      instrument: (state && state.instrument) || {
-        symbol: 'AAPL',
-        tickSize: 0.01,
-        id: 'AAPL',
-      },
+      instrument: state && state.instrument,
       theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
   }
