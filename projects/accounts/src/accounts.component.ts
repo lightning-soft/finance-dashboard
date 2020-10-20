@@ -13,6 +13,9 @@ import { AccountConnectComponent } from './account-connect/account-connect.compo
 })
 export class AccountsComponent extends ItemsComponent<IAccount> implements OnDestroy {
 
+  _accountConnectModal: NzModalRef = null;
+
+  items: IAccount[] = [];
   accounts = [];
   status = 'Open';
 
@@ -23,6 +26,7 @@ export class AccountsComponent extends ItemsComponent<IAccount> implements OnDes
   ) {
     super();
     this.config.autoLoadData = {onInit: true};
+    this.addAccount(); // Cut functionality
   }
 
   ngOnDestroy(): void {
@@ -36,6 +40,9 @@ export class AccountsComponent extends ItemsComponent<IAccount> implements OnDes
       nzCloseIcon: null,
       nzFooter: null,
       nzWidth: 720,
+    }).afterClose.subscribe((newAccount: IAccount) => {
+      if (newAccount) this.items.push(newAccount);
+      this.modal.close(); // Cut functionality
     });
   }
 }

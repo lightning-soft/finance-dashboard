@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IFormValues } from './account-connect/account-connect.component';
+import { IAccount } from '../communication/trading';
 
 export interface IConnectionRequestData {
   username: string;
@@ -22,20 +22,21 @@ export class AccountsService {
 
   constructor(private _http: HttpClient) { }
 
-  public request(data: IFormValues): Observable<object> {
+  public createAccount(account: IAccount, password: string): Observable<object> {
     const reqBody: IConnectionRequestData = {
-      username: data.login,
-      password: data.password,
+      username: account.name,
+      password,
       connectionPointId: ''
     };
 
     // const reqBody: IConnectionRequestData = {
-    //   username: "logami9524@abbuzz.com",
+    //   username: "nebasa9788@uniteditcare.com",
     //   password: "123456",
-    //   connectionPointId: "string",
+    //   connectionPointId: "string"
     // };
 
-    return this._request(reqBody, '');
+    return this._request(reqBody, account.server);
+    // return this._request(reqBody, 'http://173.212.193.40:5005');
   }
 
   private _request(data: IConnectionRequestData, server: string): Observable<object> {

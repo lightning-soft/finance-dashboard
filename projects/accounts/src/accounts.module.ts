@@ -7,6 +7,11 @@ import { AccountConnectComponent } from './account-connect/account-connect.compo
 import { AccountItemComponent } from './account-item/account-item.component';
 import { AccountsComponent } from './accounts.component';
 import { AccountsService } from './accounts.service';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzTransButtonModule } from 'ng-zorro-antd/core/trans-button';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @NgModule({
   imports: [
@@ -14,6 +19,11 @@ import { AccountsService } from './accounts.service';
     CommonModule,
     NzInputModule,
     ReactiveFormsModule,
+    NzSpinModule,
+    NzButtonModule,
+    NzTransButtonModule,
+    NzUploadModule,
+    NzAlertModule,
   ],
   exports: [
     AccountsComponent
@@ -24,7 +34,7 @@ import { AccountsService } from './accounts.service';
     AccountConnectComponent
   ],
   providers: [
-    AccountsService
+    AccountsService,
   ]
 })
 export class AccountsModule implements LazyModule {

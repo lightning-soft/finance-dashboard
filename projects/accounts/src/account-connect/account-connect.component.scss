@@ -74,3 +74,12 @@ button {
     width: 100%;
   }
 }
+
+.alert {
+  position: fixed;
+  width: 70%!important;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  top: -5px;
+}
