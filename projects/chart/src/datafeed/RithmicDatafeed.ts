@@ -5,20 +5,17 @@ import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { RITHMIC_API_URL } from 'communication';
 import { InstrumentsRepository } from 'trading';
-import { Datafeed, IDateFormat } from './Datafeed';
-import { IBarsRequest, IQuote, IRequest } from './models';
+import { Datafeed } from './Datafeed';
+import { IBarsRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
-  realtimeSubscription: { [key: string]: Subscription } = {};
-
   constructor(
     private _httpClient: HttpClient,
     private _instrumentsRepository: InstrumentsRepository,
-    private _ngZone: NgZone,
   ) {
     super();
   }
@@ -73,7 +70,6 @@ export class RithmicDatafeed extends Datafeed {
       (res: any) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
-          this.subscribeToRealtime(request);
         }
       },
       () => this.onRequstCanceled(request),
@@ -100,42 +96,4 @@ export class RithmicDatafeed extends Datafeed {
         return 1;
     }
   }
-
-  destroy() {
-    super.destroy();
-    for (const key in this.realtimeSubscription)
-      this.realtimeSubscription[key].unsubscribe();
-  }
-
-  subscribeToRealtime(request: IBarsRequest) {
-    const chart = request.chart;
-    const instrument = getInstrument(request);
-    this._ngZone.runOutsideAngular(() => {
-      this.realtimeSubscription[instrument.symbol] = interval(300).subscribe(() => {
-        // setInterval(() => {
-        this._ngZone.runOutsideAngular(() => {
-          const lastBar = this._getLastBar(chart, chart?.instrument?.symbol == instrument?.symbol ? null : instrument);
-          if (!lastBar)
-            return;
-          const price = lastBar.close + ((Math.random() * lastBar.close) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
-          const volume = lastBar.volume + ((Math.random() * lastBar.volume) / 10000 * ((Math.random() * 100) > 50 ? 1 : -1));
-
-          const newQuate = {
-            date: new Date(),
-            instrument,
-            volume,
-            price,
-          } as IQuote;
-
-          this.processQuote(chart, newQuate);
-        });
-      });
-      // }, 500);
-    });
-  }
-}
-
-
-function getInstrument(req: IRequest) {
-  return req.instrument ?? req.chart.instrument;
 }
