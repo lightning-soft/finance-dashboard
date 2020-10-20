@@ -40,6 +40,10 @@ export class AccountsService {
     return this._request(reqBody, 'http://173.212.193.40:5005');
   }
 
+  public logout(): Observable<any> {
+    return this._http.post(`${RITHMIC_API_URL}Connection/logout`, {});
+  }
+
   private _request(data: IConnectionRequestData, server: string): Observable<object> {
 
     const url = `${server}${DatafeedApi.CONNECTION}`;

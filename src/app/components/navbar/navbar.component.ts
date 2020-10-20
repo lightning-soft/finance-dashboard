@@ -3,7 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { AccountsComponent } from 'accounts';
+import { AccountsComponent, AccountsService } from 'accounts';
 
 @UntilDestroy()
 @Component({
@@ -23,6 +23,7 @@ export class NavbarComponent {
   constructor(
     private themeHandler: ThemesHandler,
     private modalService: NzModalService,
+    private accountsService: AccountsService,
   ) {
     this.checkVisibility();
   }
@@ -61,5 +62,12 @@ export class NavbarComponent {
       nzContent: SettingsComponent,
       nzFooter: null,
     });
+  }
+
+  logout() {
+    this.accountsService.logout().subscribe(
+      () => {},
+      (e) => console.error(e),
+    );
   }
 }
