@@ -39,6 +39,8 @@ export class RithmicDatafeed extends Datafeed {
     const { instrument, timeFrame } = request.chart;
 
     if (!instrument) {
+      this.cancel(request);
+
       throw new Error('Invalid instrument!');
     }
 
@@ -72,7 +74,7 @@ export class RithmicDatafeed extends Datafeed {
           this.onRequestCompleted(request, res.data);
         }
       },
-      () => this.onRequstCanceled(request),
+      () => this.cancel(request),
     );
   }
 
