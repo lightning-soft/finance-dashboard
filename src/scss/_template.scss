@@ -53,6 +53,13 @@ body.#{$themeName} {
   }
    .ant-modal-content, .ant-modal-header, .ant-transfer-list-header, .ant-transfer-list-body-not-found, .ant-empty-img-simple-path{
 
+  .ant-input, .ant-input:-webkit-autofill, .ant-input:-webkit-autofill:focus {
+    background: $tabBackground;
+    color: $textColor;
+    -webkit-text-fill-color: $textColor;
+    box-shadow: inset 0 0 0 50px $tabBackground !important;
+  }
+
     color: $textColorSecondary !important;
     background: $tabBackground;
   }

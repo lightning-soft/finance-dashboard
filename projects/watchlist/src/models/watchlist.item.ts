@@ -1,6 +1,6 @@
-import { Cell, DateCell, NumberCell, ReadonlyCell } from 'data-grid';
+import { Cell, DateCell, NumberCell } from 'data-grid';
 import { InstrumentNameCell, } from './instrument-name.cell';
-import { IQuote, IInstrument } from 'trading'; //Error
+import { IQuote, IInstrument } from 'trading';
 
 export class WatchlistItem {
     instrumentId: any;
@@ -18,7 +18,7 @@ export class WatchlistItem {
     }
 
     processQuote(quote: IQuote) {
-        if (!quote || quote.instrumentId != this.instrumentId)
+        if (!quote || quote.instrumentId !== this.instrumentId)
             return;
 
         this.ask.updateValue(quote.ask);

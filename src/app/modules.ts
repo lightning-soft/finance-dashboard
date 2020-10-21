@@ -6,6 +6,7 @@ export const Modules = {
   Positions: 'positions',
   Orders: 'orders',
   OrderForm: 'order-form',
+  Accounts: 'accounts',
   Scripting: 'scripting',
   Settings: 'settings',
 };
@@ -16,6 +17,7 @@ export const Components = {
   Positions: 'positions',
   Orders: 'orders',
   OrderForm: 'order-form',
+  Accounts: 'accounts',
   Scripting: 'scripting',
   Settings: 'settings',
 };
@@ -49,6 +51,12 @@ export const modulesStore: IModules[] = [
     module: Modules.OrderForm,
     components: [
       Components.OrderForm,
+    ]
+  },
+  {
+    module: Modules.Accounts,
+    components: [
+      Components.Accounts,
     ]
   },
   {

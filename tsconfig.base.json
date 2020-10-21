@@ -23,7 +23,7 @@
     ],
     "paths": {
       "data-grid": [
-        "src/app/modules/data-grid/index"
+        "projects/data-grid/index"
       ],
       "themes": [
         "projects/themes/index"
@@ -32,19 +32,19 @@
         "src/app/modules/core/index"
       ],
       "order-form": [
-        "src/app/modules/order-form/index"
+        "projects/order-form/index"
       ],
       "storage": [
         "projects/storage/index"
       ],
       "ui": [
-        "src/app/modules/ui/index"
+        "projects/ui/index"
       ],
       "notifier": [
         "projects/notifier/index"
       ],
       "trading-ui": [
-        "src/app/modules/trading-ui/index"
+        "projects/trading-ui/index"
       ],
       "lazy-modules": [
         "projects/lazy-modules/index"
@@ -56,10 +56,10 @@
         "projects/communication/index"
       ],
       "fake-communication": [
-        "src/app/modules/fake-communication/index"
+        "projects/fake-communication/index"
       ],
       "layout": [
-        "src/app/modules/layout/index"
+        "projects/layout/index"
       ],
       "search-select": [
         "projects/search-select/index"
@@ -68,7 +68,7 @@
         "projects/base-components/index"
       ],
       "trading": [
-        "src/app/modules/trading/index"
+        "projects/trading/index"
       ],
       "context-menu": [
         "projects/context-menu/index"
@@ -80,10 +80,22 @@
         "projects/watchlist/index"
       ],
       "settings": [
-        "src/app/modules/settings/index"
+        "projects/settings/index"
       ],
       "global-handler": [
         "projects/global-handler/index"
+      ],
+      "chart": [
+        "projects/chart/index"
+      ],
+      "orders": [
+        "projects/orders/index"
+      ],
+      "positions": [
+        "projects/positions/index"
+      ],
+      "accounts": [
+        "projects/accounts/index"
       ]
     }
   }

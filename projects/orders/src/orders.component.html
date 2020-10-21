@@ -1,0 +1,13 @@
+<div class="wrapper">
+  <div (click)="selectComponent.setOpenState(true)" class="select-container">
+    <nz-select
+      #selectComponent
+      [nzShowArrow]="false"
+      [nzDropdownClassName]="'toolbar-dropdown'" [(ngModel)]="status">
+      <nz-option nzValue="Open" nzLabel="Open"></nz-option>
+      <nz-option nzValue="Close" nzLabel="Close"></nz-option>
+    </nz-select>
+    <i class="icon-arrow-dropdown"></i>
+  </div>
+  <data-grid [items]="items" [columns]="headers"></data-grid>
+</div>

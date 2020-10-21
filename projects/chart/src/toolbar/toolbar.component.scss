@@ -1,0 +1,195 @@
+@import "themes/dark";
+@import "themes/template";
+
+@import "themes/light";
+@import "themes/template";
+
+:host {
+  position: absolute;
+  top: 10px;
+  z-index: 21;
+  left: 10px;
+
+  .icon-container {
+    position: relative;
+    height: 32px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-left: 10px;
+    width: 32px;
+    border-radius: 3px;
+
+    &.opened:after {
+      width: 1px;
+      position: absolute;
+      top: 15%;
+      content: '';
+      right: 0;
+      height: 70%;
+    }
+  }
+
+  ::ng-deep {
+    .ant-select-arrow .anticon > svg {
+      display: none;
+    }
+
+    .pane__image, .pane__compare-instruments, .pane__indicators {
+      .ant-btn {
+        padding: 4px 11px;
+      }
+    }
+
+    .ant-btn {
+      padding: 0 0 0 5px;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      background-color: transparent;
+      border: none;
+      padding: 0 0 0 5px;
+    }
+
+    .ant-select-arrow {
+      color: inherit;
+    }
+
+    .ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      box-shadow: none;
+    }
+
+    .instrument-bar {
+      input {
+        border: none;
+        border-radius: 3px;
+        height: 32px;
+        box-shadow: none;
+      }
+    }
+
+  }
+}
+
+::ng-deep {
+  .toolbar-dropdown nz-option-container {
+    width: 140px;
+
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      color: inherit;
+      font-weight: inherit;
+      background-color: inherit;
+    }
+  }
+
+  .toolbar-dropdown {
+    .scx-icon {
+      margin-right: 6px;
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+      background: inherit;
+    }
+
+  }
+
+  .toolbar-submenu {
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    .scx-icon {
+      margin-right: 6px;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+
+  }
+
+  .ant-select-item {
+    color: inherit;
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    color: inherit;
+    font-weight: inherit;
+    background-color: inherit;
+  }
+
+  .ant-dropdown-menu {
+    background-color: unset;
+    color: inherit;
+    box-shadow: none;
+  }
+
+  .ant-btn:hover, .ant-btn, .ant-btn:focus, .ant-btn-group {
+    color: inherit;
+    border: none;
+    box-shadow: none;
+
+    &:after {
+      display: none;
+    }
+  }
+}
+
+.pane {
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+
+  > div:not(:last-child) {
+    position: relative;
+    min-width: 42px;
+
+    &:after {
+      width: 1px;
+      position: absolute;
+      top: 15%;
+      content: '';
+      right: 0;
+      height: 70%;
+    }
+  }
+
+  &__zoom, &__drawing-instruments {
+    nz-button-group {
+      width: 100%;
+    }
+  }
+}
+
+.icon-arrow-dropdown {
+  font-size: 4px;
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
+}
+
+
+.toolbar-container {
+  display: flex;
+  align-items: center;
+}
+
+.instrument-bar {
+  width: 100px;
+  position: relative;
+
+  &__arrow {
+    position: absolute;
+    right: 10px;
+    font-size: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

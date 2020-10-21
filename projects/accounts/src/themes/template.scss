@@ -1,0 +1,16 @@
+
+body.#{$themeName} {
+
+  :host {
+    background: $tabBackground;
+
+    .wrapper {
+      background: $bodyBackground;
+    }
+
+    .add-account {
+      border: 2px solid $lightBackground;
+    }
+  }
+
+}
