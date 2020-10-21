@@ -1,0 +1,11 @@
+<div class="account-top">
+  <div [class.dot-connected]="account.connected" class="dot-status"></div>
+  <div class="account-name">{{account.name}}</div>
+  <button *ngIf="!account.connected">Connect</button>
+</div>
+<div class="divider"></div>
+<div>
+  <div>account: {{account.account}}</div>
+  <div>server: {{account.server}}</div>
+
+</div>

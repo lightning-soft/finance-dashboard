@@ -35,10 +35,24 @@ body, html {
   visibility: hidden;
 }
 
+.ant-modal-content {
+  background: none;
+}
+
+.ant-input {
+  border-radius: 0;
+}
+
 .ant-modal-body {
-  /* background: none;
-   box-shadow: none;*/
+  background: none;
+  box-shadow: none;
   padding: 0 !important;
+}
+
+button {
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .ant-modal {
@@ -48,12 +62,7 @@ body, html {
 }
 
 .ant-modal-content {
-  width: 500px;
   box-shadow: none !important;
-}
-
-.ant-modal-body {
-  height: 400px;
 }
 
 .toolbar-dropdown {

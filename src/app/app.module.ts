@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -6,12 +7,12 @@ import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
+import { NzDropDownModule } from 'ng-zorro-antd';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { Modules, modulesStore } from './modules';
-import { NzDropDownModule } from 'ng-zorro-antd';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { NzDropDownModule } from 'ng-zorro-antd';
     AppComponent,
   ],
   imports: [
+    HttpClientModule,
     BrowserModule.withServerTransition({appId: 'serverApp'}),
     NzModalModule,
     BrowserAnimationsModule,
@@ -30,7 +32,7 @@ import { NzDropDownModule } from 'ng-zorro-antd';
     LoadingModule.forRoot([
       {
         path: Modules.Chart,
-        loadChildren: () => import('./modules/chart/chart.module').then(i => i.ChartModule)
+        loadChildren: () => import('chart').then(i => i.ChartModule)
       },
       {
         path: Modules.Watchlist,
@@ -38,19 +40,19 @@ import { NzDropDownModule } from 'ng-zorro-antd';
       },
       {
         path: Modules.Positions,
-        loadChildren: () => import('./modules/positions/positions.module').then(i => i.PositionsModule)
+        loadChildren: () => import('positions').then(i => i.PositionsModule)
       },
       {
         path: Modules.Orders,
-        loadChildren: () => import('./modules/orders/orders.module').then(i => i.OrdersModule)
+        loadChildren: () => import('orders').then(i => i.OrdersModule)
       },
       {
         path: Modules.OrderForm,
-        loadChildren: () => import('./modules/order-form/order-form.module').then(i => i.OrderFormModule)
+        loadChildren: () => import('order-form').then(i => i.OrderFormModule)
       },
       {
         path: Modules.Settings,
-        loadChildren: () => import('./modules/settings/settings.module').then(i => i.SettingsModule)
+        loadChildren: () => import('settings').then(i => i.SettingsModule)
       },
       {
         path: Modules.Scripting,
