@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { RITHMIC_API_URL } from 'communication';
 import { InstrumentsRepository } from 'trading';
@@ -49,10 +49,9 @@ export class RithmicDatafeed extends Datafeed {
     }
 
     if (kind === 'moreBars') {
-      of({}).pipe(delay(1000)).subscribe(
-        () => this._handleSuccess(request),
-        () => this._handleError(request),
-      );
+      setTimeout(() => {
+        this._handleSuccess(request);
+      }, 1000);
 
       return;
     }
