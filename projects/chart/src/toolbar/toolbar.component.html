@@ -24,14 +24,23 @@
         <span class="scx-icon icon-compare-instruments"></span>
       </button>
     </div>
-    <div
-      class="pane_time-frame">
+    <div class="pane_time-frame">
       <nz-select
         #frame
         [nzShowArrow]="false"
         [compareWith]="compareTimeFrame"
-        nzDropdownClassName="toolbar-dropdown" [(ngModel)]="timeFrame">
-        <nz-option *ngFor="let option of timeFrameOptions" [nzValue]="option" [nzLabel]="getTimeFrame(option)">
+        nzDropdownClassName="toolbar-dropdown" 
+        [(ngModel)]="timeFrame"
+        [nzCustomTemplate]="timeFrameTemplate"
+      >
+        <ng-template #timeFrameTemplate let-selected>
+          {{ getShortTimeFrame(selected.nzValue) }}
+        </ng-template>
+        <nz-option 
+          *ngFor="let option of timeFrameOptions" 
+          [nzValue]="option" 
+          [nzLabel]="getTimeFrame(option)"
+        >
         </nz-option>
       </nz-select>
       <i (click)="frame.setOpenState(true)" class="icon-arrow-dropdown"></i>
