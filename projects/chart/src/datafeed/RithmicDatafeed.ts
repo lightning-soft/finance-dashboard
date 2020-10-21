@@ -1,7 +1,7 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { interval, Observable, Subscription } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { delay, map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { RITHMIC_API_URL } from 'communication';
 import { InstrumentsRepository } from 'trading';
@@ -13,6 +13,9 @@ declare let StockChartX: any;
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
+  private _data: any[] = [];
+  private _offset = 0;
+
   constructor(
     private _httpClient: HttpClient,
     private _instrumentsRepository: InstrumentsRepository,
@@ -36,12 +39,22 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   private _loadData(request: IBarsRequest) {
-    const { instrument, timeFrame } = request.chart;
+    const { kind, count, chart } = request;
+    const { instrument, timeFrame } = chart;
 
     if (!instrument) {
       this.cancel(request);
 
       throw new Error('Invalid instrument!');
+    }
+
+    if (kind === 'moreBars') {
+      of({}).pipe(delay(1000)).subscribe(
+        () => this._handleSuccess(request),
+        () => this._handleError(request),
+      );
+
+      return;
     }
 
     const { symbol, exchange } = instrument;
@@ -52,7 +65,7 @@ export class RithmicDatafeed extends Datafeed {
       Exchange: exchange,
       Periodicity: 4,
       BarSize: barSize,
-      BarCount: 1000,
+      BarCount: count * 10,
     });
 
     this._httpClient.get(`${RITHMIC_API_URL}History/${symbol}?${params}`).pipe(
@@ -68,14 +81,27 @@ export class RithmicDatafeed extends Datafeed {
 
         return { data };
       }),
+      tap((res: any) => this._data = res.data),
     ).subscribe(
-      (res: any) => {
-        if (this.isRequestAlive(request)) {
-          this.onRequestCompleted(request, res.data);
-        }
-      },
-      () => this.cancel(request),
+      () => this._handleSuccess(request),
+      () => this._handleError(request),
     );
+  }
+
+  private _handleSuccess(request) {
+    if (this.isRequestAlive(request)) {
+      const { length } = this._data;
+      const offset = length - this._offset - 1;
+      const data = this._data.slice(offset - request.count, offset);
+
+      this._offset += request.count;
+
+      this.onRequestCompleted(request, data);
+    }
+  }
+
+  private _handleError(request) {
+    this.cancel(request);
   }
 
   private _timeFrameToBarSize(timeFrame: ITimeFrame): number {
