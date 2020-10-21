@@ -7,6 +7,17 @@ import { IChart } from '../models/chart';
 
 declare const StockChartX;
 
+const periodicityMap = new Map([
+  ['t', 't'],
+  ['s', 's'],
+  ['', 'm'],
+  ['h', 'h'],
+  ['d', 'D'],
+  ['m', 'M'],
+  ['y', 'Y'],
+  ['w', 'W'],
+]);
+
 @UntilDestroy()
 @Component({
   selector: 'app-toolbar',
@@ -201,6 +212,10 @@ export class ToolbarComponent implements OnInit {
     const label = TimeFrame.periodicityToString(timeFrame.periodicity);
 
     return `${timeFrame.interval} ${label}`;
+  }
+
+  getShortTimeFrame(timeFrame: ITimeFrame): string {
+    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
   }
 
   compareInstrumentDialog() {

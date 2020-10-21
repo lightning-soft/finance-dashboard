@@ -173,6 +173,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
+      keyboardEventsEnabled: false, // todo: handle key shortcut
       datafeed: this.datafeed,
       showToolbar: false,
       showScrollbar: false,
