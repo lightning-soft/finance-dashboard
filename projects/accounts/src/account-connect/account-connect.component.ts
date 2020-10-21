@@ -45,6 +45,8 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
       return;
     }
 
+    this.errMessage = '';
+
     this.showSpinner();
 
     const { login, password } = this.formValue;
@@ -52,11 +54,12 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
     this._rithmicApiService.login(login, password).subscribe(
       () => {
         this._modal.close();
+        this.hideSpinner();
       },
       (e) => {
         this.errMessage = e.message;
+        this.hideSpinner();
       },
-      () => this.hideSpinner(),
     );
   }
 
