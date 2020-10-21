@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
@@ -10,9 +11,25 @@ import { IPaginationResponse } from '../common';
   providedIn: 'root',
 })
 export class RithmicApiService {
+  connectionSubject: Subject<boolean> = new Subject();
+
   private _apiUrl = 'https://rithmic.avidi.tech/api/';
 
   constructor(private _httpClient: HttpClient) {}
+
+  handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
+    const isConnected: boolean = !!+localStorage.getItem('isConnected');
+
+    callback(isConnected);
+
+    if (instance) {
+      return this.connectionSubject
+        .pipe(untilDestroyed(instance))
+        .subscribe(callback);
+    }
+
+    return this.connectionSubject.subscribe(callback);
+  }
 
   login(username: string, password: string): Observable<any> {
     const body = {
@@ -20,11 +37,15 @@ export class RithmicApiService {
       password,
     };
 
-    return this._httpClient.post(`${this._apiUrl}Connection`, body);
+    return this._httpClient.post(`${this._apiUrl}Connection`, body).pipe(
+      tap(() => this._handleConnection(true)),
+    );
   }
 
   logout(): Observable<any> {
-    return this._httpClient.post(`${this._apiUrl}Connection/logout`, {});
+    return this._httpClient.post(`${this._apiUrl}Connection/logout`, {}).pipe(
+      tap(() => this._handleConnection(false)),
+    );
   }
 
   getInstrument(id: string): Observable<IInstrument> {
@@ -65,5 +86,11 @@ export class RithmicApiService {
         return { data } as IPaginationResponse<any>;
       }),
     );
+  }
+
+  private _handleConnection(isConnected: boolean) {
+    this.connectionSubject.next(isConnected);
+
+    localStorage.setItem('isConnected', `${+isConnected}`);
   }
 }
