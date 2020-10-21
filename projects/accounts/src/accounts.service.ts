@@ -11,9 +11,9 @@ export interface IConnectionRequestData {
 }
 
 export enum DatafeedApi {
-  CONNECTION = '/api/Connection',
-  HISTORY = '/api/History/',
-  INSTRUMENT = '/api/Instrument'
+  CONNECTION = 'Connection',
+  HISTORY = 'History/',
+  INSTRUMENT = 'Instrument'
 }
 
 @Injectable({
@@ -37,7 +37,7 @@ export class AccountsService {
     // };
 
     // return this._request(reqBody, account.server);
-    return this._request(reqBody, 'http://173.212.193.40:5005');
+    return this._request(reqBody, RITHMIC_API_URL);
   }
 
   public logout(): Observable<any> {
