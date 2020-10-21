@@ -10,7 +10,7 @@ import { IPaginationResponse } from '../common';
   providedIn: 'root',
 })
 export class RithmicApiService {
-  private _apiUrl = 'http://173.212.193.40:5005/api/';
+  private _apiUrl = 'https://rithmic.avidi.tech/api/';
 
   constructor(private _httpClient: HttpClient) {}
 
