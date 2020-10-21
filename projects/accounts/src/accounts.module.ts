@@ -6,7 +6,6 @@ import { NzInputModule, NzSelectModule } from 'ng-zorro-antd';
 import { AccountConnectComponent } from './account-connect/account-connect.component';
 import { AccountItemComponent } from './account-item/account-item.component';
 import { AccountsComponent } from './accounts.component';
-import { AccountsService } from './accounts.service';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -33,9 +32,6 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
     AccountItemComponent,
     AccountConnectComponent
   ],
-  providers: [
-    AccountsService,
-  ]
 })
 export class AccountsModule implements LazyModule {
   get components(): ComponentStore {

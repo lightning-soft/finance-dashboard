@@ -3,7 +3,8 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { AccountsComponent, AccountsService } from 'accounts';
+import { AccountsComponent } from 'accounts';
+import { RithmicApiService } from 'communication';
 
 @UntilDestroy()
 @Component({
@@ -23,7 +24,7 @@ export class NavbarComponent {
   constructor(
     private themeHandler: ThemesHandler,
     private modalService: NzModalService,
-    private accountsService: AccountsService,
+    private _rithmicApiService: RithmicApiService,
   ) {
     this.checkVisibility();
   }
@@ -41,7 +42,7 @@ export class NavbarComponent {
   }
 
   openAccountDialog() {
-    const modal = this.modalService.create({
+    this.modalService.create({
       nzTitle: null,
       nzContent: AccountsComponent,
       nzCloseIcon: null,
@@ -65,7 +66,7 @@ export class NavbarComponent {
   }
 
   logout() {
-    this.accountsService.logout().subscribe(
+    this._rithmicApiService.logout().subscribe(
       () => {},
       (e) => console.error(e),
     );

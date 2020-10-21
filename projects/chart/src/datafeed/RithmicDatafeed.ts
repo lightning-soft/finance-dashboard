@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import queryString from 'query-string';
-import { RITHMIC_API_URL } from 'communication';
+import { RithmicApiService } from 'communication';
 import { InstrumentsRepository } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest } from './models';
@@ -15,7 +13,7 @@ declare let StockChartX: any;
 export class RithmicDatafeed extends Datafeed {
 
   constructor(
-    private _httpClient: HttpClient,
+    private _rithmicApiService: RithmicApiService,
     private _instrumentsRepository: InstrumentsRepository,
   ) {
     super();
@@ -47,11 +45,8 @@ export class RithmicDatafeed extends Datafeed {
     }
 
     if (kind === 'moreBars') {
-      // setTimeout(() => {
-      //   // this._handleSuccess(request);
-      // }, 1000);
-
       this.cancel(request);
+
       return;
     }
 
@@ -59,40 +54,21 @@ export class RithmicDatafeed extends Datafeed {
 
     const barSize = this._timeFrameToBarSize(timeFrame);
 
-    const params = queryString.stringify({
+    const params = {
       Exchange: exchange,
       Periodicity: 4,
       BarSize: barSize,
-      BarCount: count * 10,
-    });
+      BarCount: count,
+    };
 
-    this._httpClient.get(`${RITHMIC_API_URL}History/${symbol}?${params}`).pipe(
-      map((res: any) => {
-        return res.result.map(item => ({
-          date: moment.utc(item.timestamp).toDate(),
-          open: item.openPrice,
-          close: item.closePrice,
-          high: item.highPrice,
-          low: item.lowPrice,
-          volume: item.volume,
-        }));
-      }),
-    ).subscribe(
-      (data) => this._handleSuccess(request, data),
-      () => this._handleError(request),
+    this._rithmicApiService.getHistory(symbol, params).subscribe(
+      (res) => {
+        if (this.isRequestAlive(request)) {
+          this.onRequestCompleted(request, res.data);
+        }
+      },
+      () => this.cancel(request),
     );
-  }
-
-  private _handleSuccess(request, data) {
-    if (this.isRequestAlive(request)) {
-      const { length } = data;
-
-      this.onRequestCompleted(request, data);
-    }
-  }
-
-  private _handleError(request) {
-    this.cancel(request);
   }
 
   private _timeFrameToBarSize(timeFrame: ITimeFrame): number {

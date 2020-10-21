@@ -5,5 +5,5 @@
 export * from './common';
 export * from './fake';
 export * from './http';
-export * from './constants';
+export * from './services';
 
