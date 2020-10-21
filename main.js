@@ -14,17 +14,10 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new electron.BrowserWindow({
     height: 800,
-    // webPreferences: {
-    //   preload: path.join(__dirname, "preload.js"),
-    //   nodeIntegration: false,
-    //   contextIsolation: true,
-    //   enableRemoteModule: false
-    // },
     width: 1600,
     frame: true,
     alwaysOnTop: false,
     title: "AMS Trading Platform",
-    // vibrancy: 'ultra-dark',
     show: false,
     movable: true,
     icon: app.getAppPath() + '/src/assets/img/Logo.png'
@@ -35,13 +28,13 @@ function createWindow() {
   // mainWindow.blur();
   // mainWindow.focus();
   // and load the index.html of the app.
-  // mainWindow.loadFile(path.join(__dirname, "../index.html"));
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, '/dist/browser/index.html'),
-      protocol: "file:",
-      slashes: true
-    })).then();
+  mainWindow.loadFile(path.join(__dirname, "/dist/browser/index.html"));
+  // mainWindow.loadURL(
+  //   url.format({
+  //     pathname: path.join(__dirname, '/dist/browser/index.html'),
+  //     protocol: "file:",
+  //     slashes: true
+  //   })).then();
    // mainWindow.loadURL("https://demo:ZsfLXCUDDQY6ST39@modulus.resadsoft.com/platform/latest/");
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
