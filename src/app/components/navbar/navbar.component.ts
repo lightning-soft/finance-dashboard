@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { ThemesHandler, Themes } from 'themes';
-import {AccountsComponent} from '../../modules/accounts/accounts.component';
-import {NzModalService} from 'ng-zorro-antd';
+import { NzModalService } from 'ng-zorro-antd';
+import { SettingsComponent } from 'settings';
+import { Themes, ThemesHandler } from 'themes';
+import { AccountsComponent } from 'accounts';
 
 @UntilDestroy()
 @Component({
@@ -11,17 +12,19 @@ import {NzModalService} from 'ng-zorro-antd';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
+  @Input() isOpen;
+
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
   }
 
-  @Input() isOpen;
+  public isVisible = true;
 
-  constructor(private themeHandler: ThemesHandler, private modal: NzModalService) {
-  }
-
-  switchTheme() {
-    this.themeHandler.changeTheme(this.isDark ? Themes.Light : Themes.Dark);
+  constructor(
+    private themeHandler: ThemesHandler,
+    private modalService: NzModalService,
+  ) {
+    this.checkVisibility();
   }
 
   closeDrawer() {
@@ -32,14 +35,31 @@ export class NavbarComponent {
     this.isOpen = !this.isOpen;
   }
 
+  switchTheme() {
+    this.themeHandler.toggleTheme();
+  }
+
   openAccountDialog() {
-    const modal = this.modal.create({
+    const modal = this.modalService.create({
       nzTitle: null,
       nzContent: AccountsComponent,
       nzCloseIcon: null,
       nzFooter: null,
       nzWidth: 720,
     });
+  }
 
+  checkVisibility() {
+    if (window.location.href.includes('popup')) {
+      console.log('here');
+      this.isVisible = false;
+    }
+  }
+
+  openSettings() {
+    this.modalService.create({
+      nzContent: SettingsComponent,
+      nzFooter: null,
+    });
   }
 }

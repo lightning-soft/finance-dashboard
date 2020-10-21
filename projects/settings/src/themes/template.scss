@@ -1,0 +1,34 @@
+
+body.#{$themeName} {
+
+  :host {
+    background-color: $lightBackground;
+
+    nz-select {
+      background-colfor: $tabBackground !important;
+      color: $textColor !important;
+    }
+
+    .setting-list {
+      color: $textColor
+    }
+
+    .setting-item.active {
+      color: $activeColor;
+    }
+
+    .change-theme {
+      color: $textColor;
+    }
+
+    .select-container {
+      background: $lightBackground;
+
+    }
+
+    .right-side {
+      background: $tabBackground;
+    }
+  }
+
+}

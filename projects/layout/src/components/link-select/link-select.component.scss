@@ -1,0 +1,20 @@
+link-select {
+  position: relative;
+  top: -1px;
+  z-index: 2;
+
+  .ant-select-selector {
+    padding: 0 23px 0 7px !important;
+    margin: 0 -8px;
+  }
+}
+
+.link-select-dropdown {
+  .cdk-virtual-scroll-viewport {
+    height: 166px !important;
+  }
+
+  .ant-select-dropdown {
+    width: 150px;
+  }
+}

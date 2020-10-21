@@ -12,6 +12,11 @@ body, html {
   box-sizing: border-box;
 }
 
+@import "scss/variables";
+
+@import "scss/colors";
+@import "scss/fonts";
+
 @import "scss/dark.theme";
 @import "scss/template";
 
@@ -34,11 +39,6 @@ body, html {
   background: none;
 }
 
-.ant-select-single:not(.ant-select-customize-input) .ant-select-selector, .ant-input {
-  border: none;
-  box-shadow: none !important;
-}
-
 .ant-input {
   border-radius: 0;
 }
@@ -55,6 +55,24 @@ button {
   border: none;
 }
 
+.ant-modal {
+  width: auto !important;
+  display: flex;
+  justify-content: center;
+}
+
+.ant-modal-content {
+  box-shadow: none !important;
+}
+
+.toolbar-dropdown {
+  .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+    margin: 0;
+    margin-left: 5%;
+    width: 90%;
+  }
+}
+
 html, body {
   height: 100%;
 }
@@ -63,6 +81,5 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-
 
 

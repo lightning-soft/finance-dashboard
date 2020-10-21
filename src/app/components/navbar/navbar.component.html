@@ -1,4 +1,4 @@
-<nav class="navigation-bar">
+<nav *ngIf="isVisible" class="navigation-bar">
   <div  (click)="toggleNavigationDrawer()" class="add">
     <div
       [class.open]="isOpen"
@@ -27,3 +27,11 @@
     </ul>
   </nz-dropdown-menu>
 </nav>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu nzSelectable>
+    <li nz-menu-item>Profile</li>
+    <li (click)="openSettings()" nz-menu-item>Settings</li>
+    <li nz-menu-divider></li>
+    <li nz-menu-item>Log out</li>
+  </ul>
+</nz-dropdown-menu>

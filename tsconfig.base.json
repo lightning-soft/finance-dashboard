@@ -1,4 +1,3 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -24,31 +23,79 @@
     ],
     "paths": {
       "data-grid": [
-        "src/app/modules/data-grid/index"
+        "projects/data-grid/index"
       ],
       "themes": [
-        "src/app/modules/themes/index"
+        "projects/themes/index"
       ],
       "core": [
         "src/app/modules/core/index"
       ],
+      "order-form": [
+        "projects/order-form/index"
+      ],
+      "storage": [
+        "projects/storage/index"
+      ],
       "ui": [
-        "src/app/modules/ui/index"
+        "projects/ui/index"
+      ],
+      "notifier": [
+        "projects/notifier/index"
+      ],
+      "trading-ui": [
+        "projects/trading-ui/index"
       ],
       "lazy-modules": [
-        "src/app/modules/lazy-modules/index"
+        "projects/lazy-modules/index"
       ],
       "lazy-assets": [
-        "src/app/modules/lazy-assets/index"
+        "projects/lazy-assets/index"
       ],
       "communication": [
-        "src/app/modules/communication/index"
+        "projects/communication/index"
       ],
       "fake-communication": [
-        "src/app/modules/fake-communication/index"
+        "projects/fake-communication/index"
       ],
       "layout": [
-        "src/app/modules/layout/index"
+        "projects/layout/index"
+      ],
+      "search-select": [
+        "projects/search-select/index"
+      ],
+      "base-components": [
+        "projects/base-components/index"
+      ],
+      "trading": [
+        "projects/trading/index"
+      ],
+      "context-menu": [
+        "projects/context-menu/index"
+      ],
+      "scripting": [
+        "projects/scripting/index"
+      ],
+      "watchlist": [
+        "projects/watchlist/index"
+      ],
+      "settings": [
+        "projects/settings/index"
+      ],
+      "global-handler": [
+        "projects/global-handler/index"
+      ],
+      "chart": [
+        "projects/chart/index"
+      ],
+      "orders": [
+        "projects/orders/index"
+      ],
+      "positions": [
+        "projects/positions/index"
+      ],
+      "accounts": [
+        "projects/accounts/index"
       ]
     }
   }
