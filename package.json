@@ -95,7 +95,6 @@
     "typescript": "3.9.7",
     "webpack-bundle-analyzer": "3.8.0"
   },
-  "proxy": "http://173.212.193.40:5005",
   "build": {
     "appId": "angular-starter",
     "productName": "TradingChart",
