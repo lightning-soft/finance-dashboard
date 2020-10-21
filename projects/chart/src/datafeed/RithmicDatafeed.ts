@@ -13,8 +13,6 @@ declare let StockChartX: any;
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
-  private _data: any[] = [];
-  private _offset = 0;
 
   constructor(
     private _httpClient: HttpClient,
@@ -49,10 +47,11 @@ export class RithmicDatafeed extends Datafeed {
     }
 
     if (kind === 'moreBars') {
-      setTimeout(() => {
-        this._handleSuccess(request);
-      }, 1000);
+      // setTimeout(() => {
+      //   // this._handleSuccess(request);
+      // }, 1000);
 
+      this.cancel(request);
       return;
     }
 
@@ -69,7 +68,7 @@ export class RithmicDatafeed extends Datafeed {
 
     this._httpClient.get(`${RITHMIC_API_URL}History/${symbol}?${params}`).pipe(
       map((res: any) => {
-        const data = res.result.map(item => ({
+        return res.result.map(item => ({
           date: moment.utc(item.timestamp).toDate(),
           open: item.openPrice,
           close: item.closePrice,
@@ -77,23 +76,16 @@ export class RithmicDatafeed extends Datafeed {
           low: item.lowPrice,
           volume: item.volume,
         }));
-
-        return { data };
       }),
-      tap((res: any) => this._data = res.data),
     ).subscribe(
-      () => this._handleSuccess(request),
+      (data) => this._handleSuccess(request, data),
       () => this._handleError(request),
     );
   }
 
-  private _handleSuccess(request) {
+  private _handleSuccess(request, data) {
     if (this.isRequestAlive(request)) {
-      const { length } = this._data;
-      const offset = length - this._offset - 1;
-      const data = this._data.slice(offset - request.count, offset);
-
-      this._offset += request.count;
+      const { length } = data;
 
       this.onRequestCompleted(request, data);
     }
