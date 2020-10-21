@@ -14,7 +14,8 @@ const periodicityMap = new Map([
   ['h', 'h'],
   ['d', 'D'],
   ['m', 'M'],
-  ['y', 'Y']
+  ['y', 'Y'],
+  ['w', 'W'],
 ]);
 
 @UntilDestroy()

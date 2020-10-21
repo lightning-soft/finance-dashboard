@@ -1,1 +1,1 @@
-export const RITHMIC_API_URL = 'http://173.212.193.40:5005/api/';
+export const RITHMIC_API_URL = 'https://rithmic.avidi.tech/api/';
