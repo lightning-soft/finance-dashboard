@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
 import { InstrumentsRepository, IInstrument } from 'trading';
-import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
+import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
 declare const StockChartX;
@@ -21,7 +21,7 @@ export class ToolbarComponent implements OnInit {
 
   showToolbar = true;
 
-  timeFrameOptions = [
+  private timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
     { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
@@ -198,7 +198,9 @@ export class ToolbarComponent implements OnInit {
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {
-    return `${timeFrame.interval} ${timeFrame.periodicity}`;
+    const label = TimeFrame.periodicityToString(timeFrame.periodicity);
+
+    return `${timeFrame.interval} ${label}`;
   }
 
   compareInstrumentDialog() {
