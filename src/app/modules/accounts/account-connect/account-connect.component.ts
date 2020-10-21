@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { FormComponent } from 'core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { AccountRepository } from '../../communication';
+import { AccountRepository, IAccount } from '../../communication';
 import { AccountsService } from '../accounts.service';
 
 enum FromStatus {
@@ -10,11 +10,15 @@ enum FromStatus {
   INVALID = 'INVALID'
 }
 
+export interface IConnectionResponse {
+  result: boolean;
+  error: object | null;
+}
+
 export interface IFormValues {
   password: string;
   login: string;
   server: string;
-  repeatPassword: string;
   broker: string;
 }
 @Component({
@@ -24,10 +28,17 @@ export interface IFormValues {
 })
 export class AccountConnectComponent extends FormComponent<any> implements OnDestroy {
 
+  // Stop native call to method '_create()'
+  public needCreate = false;
+
+  public isLoading = false;
+
+  public errMessage: string;
+
   constructor(
     private modal: NzModalRef,
     public _repository: AccountRepository,
-    private _accountService: AccountsService
+    private _accountService: AccountsService,
   ) {
     super();
   }
@@ -39,12 +50,13 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
       server: new FormControl(null, [Validators.required]),
       repeatPassword: new FormControl(null, [Validators.required]),
       broker: new FormControl(null, [Validators.required]),
-    }, this._checkPasswords);
-  }
 
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this.modal.destroy();
+      // password: new FormControl(),
+      // login: new FormControl(),
+      // server: new FormControl(),
+      // repeatPassword: new FormControl(),
+      // broker: new FormControl(),
+    }, this._checkPasswords);
   }
 
   public handleCancel(): void {
@@ -53,23 +65,36 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
 
   public async handleSubmit() {
     try {
-      if (this.form.status !== FromStatus.VALID) throw new Error(FromStatus.INVALID);
+      if (this.form.status === FromStatus.INVALID) throw new Error('Check your data and try again');
+
+      const newAccount: IAccount = {
+        name: this.formValue.login,
+        account: this.formValue.login,
+        server: this.formValue.server,
+        id: Date.now(),
+      };
+
+      this.showSpinner();
 
       this._accountService
-        .request(this.formValue as IFormValues)
+        .createAccount(newAccount, this.formValue.password)
         .subscribe({
-          next: response => {
-            console.log(response, '<-- Here');
+          next: (response: IConnectionResponse) => {
+            console.log(response, '<-- Valid response');
+            this.hideSpinner();
+            this._repository.createItem(newAccount);
+            this.modal.close(newAccount);
           },
           error: err => {
             console.error(err);
-            this.modal.updateConfig({ nzTitle: err.message });
+            this.hideSpinner();
+            this.errMessage = err.message;
           }
         });
 
     } catch (error) {
       if (error.message === FromStatus.INVALID) console.log('Invalid form');
-      this.modal.updateConfig({ nzTitle: 'Alert!' });
+      this.errMessage = 'Check your data and try again!';
     }
   }
 
@@ -78,6 +103,14 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
     const repeatPassword = group.get('repeatPassword').value;
 
     return pass === repeatPassword ? null : { notSame: true };
+  }
+
+  public showSpinner(): void {
+    this.isLoading = true;
+  }
+
+  public hideSpinner(): void {
+    this.isLoading = false;
   }
 
 }
