@@ -116,6 +116,7 @@ export abstract class Datafeed implements IDatafeed {
    */
   cancel(request: IRequest) {
     this._requests.delete(request.id);
+    this.onRequstCanceled(request as IBarsRequest);
   }
 
   /**

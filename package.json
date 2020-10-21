@@ -32,7 +32,8 @@
     "stats": "ng build --stats-json",
     "font": "node icon-generator.js",
     "analyze": "webpack-bundle-analyzer dist/browser/stats.json",
-    "check-bundle": "npm run stats && npm run analyze"
+    "check-bundle": "npm run stats && npm run analyze",
+    "proxy": "ng serve --proxy-config proxy.conf.json"
   },
   "repository": {
     "type": "git",

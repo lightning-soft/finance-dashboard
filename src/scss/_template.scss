@@ -52,6 +52,13 @@ body.#{$themeName} {
     color: $textColor !important;
   }
 
+  .ant-input, .ant-input:-webkit-autofill, .ant-input:-webkit-autofill:focus {
+    background: $tabBackground;
+    color: $textColor;
+    -webkit-text-fill-color: $textColor;
+    box-shadow: inset 0 0 0 50px $tabBackground !important;
+  }
+
   .ant-notification-hook-holder, .ant-notification-notice {
     background-color: $tabBackground !important;
   }
