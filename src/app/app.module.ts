@@ -4,16 +4,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ContextMenuModule } from 'context-menu';
-import { FakeCommunicationModule } from 'fake-communication';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NZ_I18N, en_US, NzI18nService } from 'ng-zorro-antd/i18n';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzDropDownModule } from 'ng-zorro-antd';
-import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
-import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { Modules, modulesStore } from './modules';
 
 
