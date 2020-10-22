@@ -2,12 +2,9 @@ import { ComponentRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 
-// todo: remove this namespace
-// tslint:disable-next-line: no-namespace
-declare namespace GoldenLayout {
-  interface Container {
-    [key: string]: any;
-  }
+export interface IContainer {
+  setTitle(title: string);
+  close();
 }
 
 export interface IStateProvider<T = any> {
@@ -35,7 +32,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _tabTitle: string = null;
 
-  private _layoutContainer: GoldenLayout.Container;
+  private _layoutContainer: IContainer;
 
   link: number;
 
@@ -84,10 +81,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         this.handleShow();
         break;
       case LayoutNodeEvent.ExtendState:
-        this._layoutContainer.setState({
-          link: this.link || 0,
-          component: this.saveState ? this.saveState() : {},
-        });
+        // this._layoutContainer.setState({
+        //   link: this.link || 0,
+        //   component: this.saveState ? this.saveState() : {},
+        // });
         break;
     }
 
@@ -95,11 +92,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
       this.handleNodeEvent(name, event);
   }
 
-  private _subscribeContainerLayoutEvents(container: GoldenLayout.Container) {
+  private _subscribeContainerLayoutEvents(container) {
     container.on('__all', (name, event) => this._handleLayoutNodeEvent(name, event));
   }
 
-  private _initContainerLayoutEvents(container: GoldenLayout.Container) {
+  private _initContainerLayoutEvents(container) {
     if (this._tabTitle)
       container.setTitle(this._tabTitle);
   }

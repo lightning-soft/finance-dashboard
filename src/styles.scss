@@ -1,6 +1,9 @@
-body, html {
+body,
+html {
   font-weight: 400;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
   margin: 0;
   padding: 0;
 }
@@ -8,7 +11,9 @@ body, html {
 @import "~ng-zorro-antd/style/index.min.css";
 @import "assets/font/icon.css";
 
-*, *:after, *:before {
+*,
+*:after,
+*:before {
   box-sizing: border-box;
 }
 
@@ -66,14 +71,16 @@ button {
 }
 
 .toolbar-dropdown {
-  .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+  .ant-dropdown-menu-item-divider,
+  .ant-dropdown-menu-submenu-title-divider {
     margin: 0;
     margin-left: 5%;
     width: 90%;
   }
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -81,5 +88,3 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-
-

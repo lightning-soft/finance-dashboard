@@ -1,4 +1,4 @@
-$padding: 0;
+$padding: 7px;
 $activeColor: #2296f3;
 
 @import "golden-layout";
@@ -8,9 +8,8 @@ $activeColor: #2296f3;
   display: block;
   height: calc(100% - #{$navbarHeight});
   width: 100%;
+  background-color: #17181f;
   padding: $padding;
-  padding-left: 4px;
-  padding-right: 4px;
   position: relative;
   color: #ffffff;
 
@@ -24,6 +23,4 @@ $activeColor: #2296f3;
   //  padding: #{$padding} - 1px;
   //}
   //}
-
 }
-

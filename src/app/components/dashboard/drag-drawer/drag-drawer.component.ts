@@ -16,6 +16,7 @@ export class DragDrawerComponent implements AfterViewInit {
 
   @ViewChildren('add') viewItems;
 
+
   items = [
     {
       icon: 'icon-logo',
@@ -56,6 +57,10 @@ export class DragDrawerComponent implements AfterViewInit {
       component: Components.Settings
     },*/
   ];
+
+  create(item) {
+    this.layout.addComponent(item.component);
+  }
 
   ngAfterViewInit() {
     const layout = this.layout;

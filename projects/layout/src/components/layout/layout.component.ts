@@ -18,6 +18,7 @@ import { DesktopLayout } from './layouts/desktop.layout';
 import { IDropable } from './layouts/dropable';
 import { Layout } from './layouts/layout';
 import { GlobalHandlerService } from 'global-handler';
+import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -91,7 +92,9 @@ export class LayoutComponent implements OnInit, IDropable {
       //   this.layout = new PhoneLayout(this._factoryResolver, this._creationsService,
       //     this.viewContainer, this.container);
       // else
-      this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
+      // this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
+      //   this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
+      this.layout = new DockDesktopLayout(this._factoryResolver, this._creationsService,
         this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
     });
   }
