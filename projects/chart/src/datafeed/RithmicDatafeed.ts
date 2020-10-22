@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { RithmicApiService } from 'communication';
@@ -9,6 +10,7 @@ import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
+@UntilDestroy()
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
 
@@ -20,9 +22,13 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
-    super.send(request);
+    this._rithmicApiService.handleConnection(isConnected => {
+      if (isConnected) {
+        super.send(request);
 
-    this._loadData(request);
+        this._loadData(request);
+      }
+    }, this);
   }
 
   loadInstruments(): Observable<any[]> {
