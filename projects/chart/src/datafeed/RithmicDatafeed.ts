@@ -5,7 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
 import { InstrumentsRepository } from 'trading';
 import { Datafeed } from './Datafeed';
-import { IBarsRequest, IRequest } from './models';
+import { IBarsRequest, IQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
@@ -29,11 +29,6 @@ export class RithmicDatafeed extends Datafeed {
         super.send(request);
 
         this._loadData(request);
-        if (!this._webSocketService.isConnected) {
-          this._webSocketService.setupConnection({
-            url: 'ws://173.212.193.40:5005/api/market'
-          });
-        }
         this.subscribeToRealtime(request);
       }
     }, this);
@@ -55,7 +50,9 @@ export class RithmicDatafeed extends Datafeed {
     if (!instrument) {
       this.cancel(request);
 
-      throw new Error('Invalid instrument!');
+      // throw new Error('Invalid instrument!');
+
+      return;
     }
 
     if (kind === 'moreBars') {
@@ -111,12 +108,20 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
     this._levelOneDatafeedService.subscribe([instrument]);
 
-    console.log('subscribe')
+    console.log('subscribe');
     this._levelOneDatafeedService.on((trade) => {
 
-      for (const quat of trade) {
-        // this.processQuote(chart, quate);
-        console.log(quat);
+      if (Array.isArray(trade)) {
+        for (const quote of trade) {
+          // this.processQuote(chart, quote);
+          console.log(quote);
+        }
+      } else {
+        console.log(trade);
+        const quote: IQuote = {
+          // ....trade
+        } as any;
+        // this.processQuote(chart, quote);
       }
     });
   }

@@ -37,16 +37,16 @@ export class LevelOneDataFeedService {
   subscribe(instruments) {
     const subscriptions = this._subscriptions;
 
-    for (const { id } of instruments)
+    for (const { id } of instruments.filter(Boolean)) {
       subscriptions[id] = (subscriptions[id] ?? 0) + 1;
-
+    }
     this._webSocketService.subscribe(instruments);
   }
 
   unsubscribe(instruments) {
     const subscriptions = this._subscriptions;
 
-    for (const { id } of instruments) {
+    for (const { id } of instruments.filter(Boolean)) {
       subscriptions[id] = (subscriptions[id] ?? 1) - 1;
       if (subscriptions[id] < 1) this._webSocketService.unsubscribe(id);
     }

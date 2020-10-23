@@ -24,7 +24,7 @@ export class WebSocketService {
 
   constructor() { }
 
-  public setupConnection(wsConfig: IWebSocketConfig) {
+  public setupConnection(wsConfig: IWebSocketConfig, onOpen?: () => void) {
 
     this.config = {
       url: wsConfig.url,
@@ -38,12 +38,15 @@ export class WebSocketService {
         next: () => {
           this.isConnected = true;
           this.connection$.next(true);
+          if (onOpen)
+            onOpen();
           console.log('WebSocket connected!');
         }
       }
     };
 
     this.websocket$ = new WebSocketSubject(this.config);
+    this.websocket$.subscribe();
     this.isConnected = true;
   }
 
@@ -54,7 +57,7 @@ export class WebSocketService {
   public subscribe(instruments) {
     const subscribeRequest = {
       Type: WSMessageTypes.SUBSCRIBE,
-      Instruments: instruments.map(instrument => ({
+      Instruments: instruments.filter(Boolean).map(instrument => ({
         Symbol: instrument.symbol,
         Exchange: instrument.exchange,
         ProductCode: null,
@@ -84,6 +87,13 @@ export class WebSocketService {
     if (this.isConnected) {
       this.websocket$.next(data);
     } else {
+      if (!this.isConnected) {
+        this.setupConnection({
+          url: 'ws://173.212.193.40:5005/api/market'
+        }, () => {
+          this._sendMessage(data);
+        });
+      }
       console.error('Send error!');
     }
   }
