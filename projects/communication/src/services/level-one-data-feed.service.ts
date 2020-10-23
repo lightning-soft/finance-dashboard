@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { IInstrument } from 'trading';
 import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
@@ -13,6 +14,11 @@ export interface ITrade {
 export type OnTradeFn = (trades: ITrade) => void;
 export type UnsubscribeFn = () => void;
 
+enum WSMessageTypes {
+  SUBSCRIBE = 0,
+  UNSUBSCRIBE = 1,
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,10 +28,7 @@ export class LevelOneDataFeedService {
   private _executors: OnTradeFn[] = [];
 
   constructor(private _webSocketService: WebSocketService) {
-    this._webSocketService.connection$.subscribe(isConnected => {
-      if (isConnected)
-        this._webSocketService.on(this._handleTread.bind(this));
-    });
+    this._webSocketService.on(this._handleTread.bind(this));
   }
 
   on(fn: OnTradeFn): UnsubscribeFn {
@@ -36,21 +39,44 @@ export class LevelOneDataFeedService {
     };
   }
 
-  subscribe(instruments) {
+  subscribe(instruments: IInstrument[]) {
     const subscriptions = this._subscriptions;
 
     for (const { id } of instruments.filter(Boolean)) {
       subscriptions[id] = (subscriptions[id] ?? 0) + 1;
+      if (subscriptions[id] === 1) {
+        const request = {
+          Type: 0, // subscribe
+          Instruments: instruments.map(instrument => ({
+            Symbol: instrument.symbol,
+            Exchange: instrument.exchange,
+            ProductCode: null,
+          }))
+        };
+
+        this._webSocketService.send(request);
+      }
     }
-    this._webSocketService.subscribe(instruments);
   }
 
-  unsubscribe(instruments) {
+  unsubscribe(instruments: IInstrument[]) {
     const subscriptions = this._subscriptions;
 
     for (const { id } of instruments.filter(Boolean)) {
       subscriptions[id] = (subscriptions[id] ?? 1) - 1;
-      if (subscriptions[id] < 1) this._webSocketService.unsubscribe(id);
+      if (subscriptions[id] === 0) {
+        const request = {
+          Type: 1, // unsubscribe
+          Instruments: instruments.filter(Boolean).map(instrument => ({
+            Symbol: instrument.symbol,
+            Exchange: instrument.exchange,
+            ProductCode: null,
+          }))
+        };
+
+
+        this._webSocketService.send(request);
+      }
     }
   }
 

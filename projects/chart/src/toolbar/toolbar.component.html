@@ -5,8 +5,8 @@
       (click)="autoComplete.select()"
       class="instrument-bar__arrow icon-arrow-dropdown"></i>
     <nz-autocomplete nzOverlayClassName="toolbar-dropdown" #auto [compareWith]="compareInstrument">
-      <nz-auto-option *ngFor="let option of instruments" [nzValue]="option" [nzLabel]="option.name">
-        {{option.name}}
+      <nz-auto-option *ngFor="let option of instruments" [nzValue]="option" [nzLabel]="option.symbol">
+        {{option.symbol}}
       </nz-auto-option>
     </nz-autocomplete>
 
@@ -29,16 +29,16 @@
         #frame
         [nzShowArrow]="false"
         [compareWith]="compareTimeFrame"
-        nzDropdownClassName="toolbar-dropdown" 
+        nzDropdownClassName="toolbar-dropdown"
         [(ngModel)]="timeFrame"
         [nzCustomTemplate]="timeFrameTemplate"
       >
         <ng-template #timeFrameTemplate let-selected>
           {{ getShortTimeFrame(selected.nzValue) }}
         </ng-template>
-        <nz-option 
-          *ngFor="let option of timeFrameOptions" 
-          [nzValue]="option" 
+        <nz-option
+          *ngFor="let option of timeFrameOptions"
+          [nzValue]="option"
           [nzLabel]="getTimeFrame(option)"
         >
         </nz-option>
