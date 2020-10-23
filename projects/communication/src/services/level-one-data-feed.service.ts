@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Id } from 'communication';
 import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
