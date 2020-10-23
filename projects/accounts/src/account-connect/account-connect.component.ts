@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { FormComponent } from 'base-components';
-import { RithmicApiService } from 'communication';
+import { RithmicApiService, WebSocketService } from 'communication';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { AccountRepository } from 'trading';
 
@@ -19,6 +19,7 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
     protected _repository: AccountRepository,
     private _modal: NzModalRef,
     private _rithmicApiService: RithmicApiService,
+    private _webSocketService: WebSocketService
   ) {
     super();
   }
@@ -53,6 +54,7 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
 
     this._rithmicApiService.login(login, password).subscribe(
       () => {
+        this._webSocketService.setupConnection({ url: 'ws://173.212.193.40:5005/api/market' });
         this._modal.close();
         this.hideSpinner();
       },

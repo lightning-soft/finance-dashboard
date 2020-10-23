@@ -20,7 +20,10 @@ export class LevelOneDataFeedService {
   private _executors: OnTradeFn[] = [];
 
   constructor(private _webSocketService: WebSocketService) {
-    this._webSocketService.on(this._handleTread.bind(this));
+    this._webSocketService.connection$.subscribe(isConnected => {
+      if (isConnected)
+        this._webSocketService.on(this._handleTread.bind(this));
+    });
   }
 
   on(fn: OnTradeFn): UnsubscribeFn {

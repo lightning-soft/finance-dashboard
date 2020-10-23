@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { WebSocketSubject, WebSocketSubjectConfig } from 'rxjs/webSocket';
 
 enum WSMessageTypes {
@@ -16,9 +17,10 @@ export interface IWebSocketConfig {
 export class WebSocketService {
 
   private config: WebSocketSubjectConfig<any>;
-
   private websocket$: WebSocketSubject<any>;
-  private isConnected: boolean;
+
+  public connection$: Subject<boolean> = new Subject();
+  public isConnected = false;
 
   constructor() { }
 
@@ -29,17 +31,20 @@ export class WebSocketService {
       closeObserver: {
         next: () => {
           this.websocket$ = null;
+          console.log('WebSocket connection closed');
         }
       },
       openObserver: {
         next: () => {
           this.isConnected = true;
+          this.connection$.next(true);
           console.log('WebSocket connected!');
         }
       }
     };
 
     this.websocket$ = new WebSocketSubject(this.config);
+    this.isConnected = true;
   }
 
   public on(cb) {
@@ -49,16 +54,27 @@ export class WebSocketService {
   public subscribe(instruments) {
     const subscribeRequest = {
       Type: WSMessageTypes.SUBSCRIBE,
-      Instruments: instruments
+      Instruments: instruments.map(instrument => ({
+        Symbol: instrument.symbol,
+        Exchange: instrument.exchange,
+        ProductCode: null,
+      }))
     };
+
+    console.log(subscribeRequest);
 
     this._sendMessage(subscribeRequest);
   }
 
   public unsubscribe(instruments) {
+
     const unsubscribeRequest = {
       Type: WSMessageTypes.UNSUBSCRIBE,
-      Instruments: instruments
+      Instruments: instruments.map(instrument => ({
+        Symbol: instrument.symbol,
+        Exchange: instrument.exchange,
+        ProductCode: null,
+      }))
     };
 
     this._sendMessage(unsubscribeRequest);

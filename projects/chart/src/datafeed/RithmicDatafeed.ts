@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { RithmicApiService } from 'communication';
+import { LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
 import { InstrumentsRepository } from 'trading';
 import { Datafeed } from './Datafeed';
-import { IBarsRequest } from './models';
+import { IBarsRequest, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
@@ -17,6 +17,8 @@ export class RithmicDatafeed extends Datafeed {
   constructor(
     private _rithmicApiService: RithmicApiService,
     private _instrumentsRepository: InstrumentsRepository,
+    private _levelOneDatafeedService: LevelOneDataFeedService,
+    private _webSocketService: WebSocketService
   ) {
     super();
   }
@@ -27,6 +29,12 @@ export class RithmicDatafeed extends Datafeed {
         super.send(request);
 
         this._loadData(request);
+        if (!this._webSocketService.isConnected) {
+          this._webSocketService.setupConnection({
+            url: 'ws://173.212.193.40:5005/api/market'
+          });
+        }
+        this.subscribeToRealtime(request);
       }
     }, this);
   }
@@ -96,5 +104,24 @@ export class RithmicDatafeed extends Datafeed {
       default:
         return 1;
     }
+  }
+
+  subscribeToRealtime(request: IBarsRequest) {
+    const chart = request.chart;
+    const instrument = this._getInstrument(request);
+    this._levelOneDatafeedService.subscribe([instrument]);
+
+    console.log('subscribe')
+    this._levelOneDatafeedService.on((trade) => {
+
+      for (const quat of trade) {
+        // this.processQuote(chart, quate);
+        console.log(quat);
+      }
+    });
+  }
+
+  private _getInstrument(req: IRequest) {
+    return req.instrument ?? req.chart.instrument;
   }
 }
