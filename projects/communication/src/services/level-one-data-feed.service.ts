@@ -3,12 +3,15 @@ import { Id } from 'communication';
 import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
-  price: number;
-  time: Date;
-  instrumentId: Id;
+  Price: number;
+  Timestamp: Date;
+  Volume: number;
+  Instrument: any;
+  AskInfo: any;
+  BidInfo: any;
 }
 
-export type OnTradeFn = (trades: ITrade[]) => void;
+export type OnTradeFn = (trades: ITrade[] | ITrade) => void;
 export type UnsubscribeFn = () => void;
 
 @Injectable({
