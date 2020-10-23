@@ -3,12 +3,15 @@ import { Id } from 'communication';
 import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
-  price: number;
-  time: Date;
-  instrumentId: Id;
+  Price: number;
+  Timestamp: Date;
+  Volume: number;
+  Instrument: any;
+  AskInfo: any;
+  BidInfo: any;
 }
 
-export type OnTradeFn = (trades: ITrade[]) => void;
+export type OnTradeFn = (trades: ITrade) => void;
 export type UnsubscribeFn = () => void;
 
 @Injectable({
@@ -53,8 +56,12 @@ export class LevelOneDataFeedService {
   }
 
   private _handleTread(trades) {
-    for (const executor of this._executors)
-      executor(trades);
+    try {
+      for (const executor of this._executors)
+        executor(JSON.parse(trades.data));
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
 }

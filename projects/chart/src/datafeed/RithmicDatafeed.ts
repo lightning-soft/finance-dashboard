@@ -1,8 +1,8 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { ITrade, LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
 import { InstrumentsRepository } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
@@ -28,8 +28,15 @@ export class RithmicDatafeed extends Datafeed {
       if (isConnected) {
         super.send(request);
 
+        if (!this._webSocketService.isConnected) {
+          this._webSocketService.connect({ url: 'ws://173.212.193.40:5005/api/market' }, () => {
+            this.subscribeToRealtime(request);
+          });
+        } else {
+          this.subscribeToRealtime(request);
+        }
         this._loadData(request);
-        this.subscribeToRealtime(request);
+
       }
     }, this);
   }
@@ -76,6 +83,9 @@ export class RithmicDatafeed extends Datafeed {
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
+          this._webSocketService.connect({ url: 'ws://173.212.193.40:5005/api/market' }, () => {
+            this.subscribeToRealtime(request);
+          });
         }
       },
       () => this.cancel(request),
@@ -108,21 +118,23 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
     this._levelOneDatafeedService.subscribe([instrument]);
 
-    console.log('subscribe');
-    this._levelOneDatafeedService.on((trade) => {
+    this._levelOneDatafeedService.on((trade: ITrade) => {
+      if (isNaN(trade.Price)) return;
 
-      if (Array.isArray(trade)) {
-        for (const quote of trade) {
-          // this.processQuote(chart, quote);
-          console.log(quote);
+      const quote: IQuote = {
+        price: trade.Price,
+        volume: trade.Volume,
+        date: new Date(trade.Timestamp),
+        instrument: {
+          symbol: trade.Instrument.Symbol,
+          company: trade.Instrument.Symbol,
+          Exchange: trade.Instrument.Exchange,
+          tickSize: 0.2,
+          id: Date.now,
         }
-      } else {
-        console.log(trade);
-        const quote: IQuote = {
-          // ....trade
-        } as any;
-        // this.processQuote(chart, quote);
-      }
+      } as any;
+      this.processQuote(chart, quote);
+
     });
   }
 
