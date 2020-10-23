@@ -47,7 +47,6 @@ export class WebSocketService {
 
     this.websocket$ = new WebSocketSubject(this.config);
     this.websocket$.subscribe();
-    this.isConnected = true;
   }
 
   public on(cb) {
@@ -84,6 +83,12 @@ export class WebSocketService {
   }
 
   private _sendMessage(data: any = {}): void {
+    // if (this.isConnected) {
+    //   this.websocket$.next(data);
+    // } else {
+    //   console.error('Send error');
+    // }
+
     if (this.isConnected) {
       this.websocket$.next(data);
     } else {
