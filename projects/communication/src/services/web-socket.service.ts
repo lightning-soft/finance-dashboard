@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WebSocketSubject, WebSocketSubjectConfig } from 'rxjs/webSocket';
 
 enum WSMessageTypes {
   SUBSCRIBE = 0,
@@ -9,49 +8,41 @@ enum WSMessageTypes {
 
 export interface IWebSocketConfig {
   url: string;
+  protocols?: string;
 }
+
+export type ConnectionId = number;
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
 
-  private config: WebSocketSubjectConfig<any>;
-  private websocket$: WebSocketSubject<any>;
+  private websocket: WebSocket;
 
   public connection$: Subject<boolean> = new Subject();
   public isConnected = false;
 
   constructor() { }
 
-  public setupConnection(wsConfig: IWebSocketConfig, onOpen?: () => void) {
+  public connect(wsConfig: IWebSocketConfig, onOpen?: () => void) {
+    if (this.isConnected) return;
 
-    this.config = {
-      url: wsConfig.url,
-      closeObserver: {
-        next: () => {
-          this.websocket$ = null;
-          console.log('WebSocket connection closed');
-        }
-      },
-      openObserver: {
-        next: () => {
-          this.isConnected = true;
-          this.connection$.next(true);
-          if (onOpen)
-            onOpen();
-          console.log('WebSocket connected!');
-        }
-      }
+    this.websocket = new WebSocket(wsConfig.url, wsConfig?.protocols);
+    this.websocket.onopen = (event: Event) => {
+      onOpen();
+      this.connection$.next(true);
+      this.isConnected = true;
     };
 
-    this.websocket$ = new WebSocketSubject(this.config);
-    this.websocket$.subscribe();
-    this.isConnected = true;
+    this.websocket.onclose = (event: Event) => {
+      this.isConnected = false;
+      this.connection$.next(false);
+    };
   }
 
   public on(cb) {
-    this.websocket$.subscribe(message => cb(message));
+    this.websocket.onmessage = message => cb(message);
   }
 
   public subscribe(instruments) {
@@ -64,13 +55,10 @@ export class WebSocketService {
       }))
     };
 
-    console.log(subscribeRequest);
-
-    this._sendMessage(subscribeRequest);
+    this._send(subscribeRequest);
   }
 
   public unsubscribe(instruments) {
-
     const unsubscribeRequest = {
       Type: WSMessageTypes.UNSUBSCRIBE,
       Instruments: instruments.map(instrument => ({
@@ -80,21 +68,15 @@ export class WebSocketService {
       }))
     };
 
-    this._sendMessage(unsubscribeRequest);
+    this._send(unsubscribeRequest);
   }
 
-  private _sendMessage(data: any = {}): void {
+  private _send(data: any = {}): void {
+
     if (this.isConnected) {
-      this.websocket$.next(data);
+      this.websocket.send(JSON.stringify(data));
     } else {
-      if (!this.isConnected) {
-        this.setupConnection({
-          url: 'ws://173.212.193.40:5005/api/market'
-        }, () => {
-          this._sendMessage(data);
-        });
-      }
-      console.error('Send error!');
+      console.error('Send error');
     }
   }
 }
