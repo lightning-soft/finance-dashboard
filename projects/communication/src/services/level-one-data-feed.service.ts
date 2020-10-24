@@ -11,7 +11,7 @@ export interface ITrade {
   BidInfo: any;
 }
 
-export type OnTradeFn = (trades: ITrade[] | ITrade) => void;
+export type OnTradeFn = (trades: ITrade) => void;
 export type UnsubscribeFn = () => void;
 
 @Injectable({
@@ -56,8 +56,12 @@ export class LevelOneDataFeedService {
   }
 
   private _handleTread(trades) {
-    for (const executor of this._executors)
-      executor(trades);
+    try {
+      for (const executor of this._executors)
+        executor(JSON.parse(trades.data));
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
 }
