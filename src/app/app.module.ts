@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { CommunicationModule } from 'communication';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
@@ -23,6 +24,7 @@ import { Modules, modulesStore } from './modules';
   ],
   imports: [
     HttpClientModule,
+    CommunicationModule,
     BrowserModule.withServerTransition({appId: 'serverApp'}),
     NzModalModule,
     BrowserAnimationsModule,
