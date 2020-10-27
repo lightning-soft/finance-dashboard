@@ -3,7 +3,7 @@ import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { EmptyLayout } from '../empty-layout';
 import { Layout } from './layout';
-import { WindowManager } from 'simple-window-manager'
+import { WindowManager } from 'simple-window-manager';
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
@@ -88,7 +88,7 @@ export class DockDesktopLayout extends Layout {
           const window = this.dockManager.createWindow({
             width: 500,
             height: 500,
-            title: componentName,
+            title: componentName[0].toUpperCase() + componentName.slice(1),
           });
 
           window.content.appendChild(comp.location.nativeElement);
