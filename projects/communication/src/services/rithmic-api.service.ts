@@ -6,6 +6,7 @@ import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
+import { CommunicationConfig } from '../http';
 
 @Injectable({
   providedIn: 'root',
@@ -13,9 +14,14 @@ import { IPaginationResponse } from '../common';
 export class RithmicApiService {
   connectionSubject: Subject<boolean> = new Subject();
 
-  private _apiUrl = 'https://rithmic.avidi.tech/api/';
+  private _apiUrl: string;
 
-  constructor(private _httpClient: HttpClient) { }
+  constructor(
+    private _httpClient: HttpClient,
+    private _communicationConfig: CommunicationConfig,
+  ) {
+    this._apiUrl = this._communicationConfig.rithmic.http.url;
+  }
 
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
     const isConnected: boolean = !!+localStorage.getItem('isConnected');
