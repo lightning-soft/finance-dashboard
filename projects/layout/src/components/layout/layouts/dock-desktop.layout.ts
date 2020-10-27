@@ -179,7 +179,7 @@ export class DockDesktopLayout extends Layout {
         parent: nativeElement,
         backgroundWindow: 'grey',
       });
-      content.snap();
+      content.snap({ spacing: 3 });
 
       this.dockManager = content;
       (window as any).dockManager = content;
