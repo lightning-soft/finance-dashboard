@@ -1,7 +1,7 @@
-import { IBaseItem } from '../../common'
+import { IBaseItem } from '../../common';
 
 export interface IInstrument extends IBaseItem {
-    name: string;
-    exchange: string;
-    tickSize: number;
+  symbol: string;
+  exchange: string;
+  tickSize: number;
 }

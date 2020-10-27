@@ -6,10 +6,10 @@ export class InstrumentNameCell extends Cell {
 
   constructor(instrument: IInstrument) {
     super();
-    this.value = instrument.name;
+    this.value = instrument.symbol;
   }
 
   updateValue(instrument: IInstrument) {
-    this.value = instrument.name;
+    this.value = instrument.symbol;
   }
 }

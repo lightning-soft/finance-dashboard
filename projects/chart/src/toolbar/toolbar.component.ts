@@ -119,14 +119,14 @@ export class ToolbarComponent implements OnInit {
 
 
     let oldSymbol = chart.instrument && chart.instrument.symbol.toUpperCase();
-    let newSymbol = instrument.name.toUpperCase();
+    let newSymbol = instrument.symbol.toUpperCase();
     if (newSymbol !== chart.instrument?.symbol) {
 
       setTimeout(() => {
         chart.instrument = {
           ...instrument,
           id: instrument.id as any,
-          symbol: instrument.name,
+          symbol: instrument.symbol,
           company: '',
         };
         chart.sendBarsRequest();

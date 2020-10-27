@@ -10,6 +10,7 @@ import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
+
 @UntilDestroy()
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
@@ -28,7 +29,7 @@ export class RithmicDatafeed extends Datafeed {
       if (isConnected) {
         super.send(request);
 
-        if (!this._webSocketService.isConnected) {
+        if (!this._webSocketService.connected) {
           this._webSocketService.connect({ url: 'ws://173.212.193.40:5005/api/market' }, () => {
             this.subscribeToRealtime(request);
           });

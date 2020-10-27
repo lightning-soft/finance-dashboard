@@ -136,10 +136,10 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     if (!instrument) throw new Error('Invalid instrument');
 
     if (this._itemsMap.has(instrument.id)) {
-      this.notifier.showSuccess(`Instrument ${instrument.name} already exist`);
+      this.notifier.showSuccess(`Instrument ${instrument.symbol} already exist`);
     } else {
       this.addToWatchlist(instrument);
-      this.notifier.showSuccess(`Instrument ${instrument.name} added`);
+      this.notifier.showSuccess(`Instrument ${instrument.symbol} added`);
     }
   }
 

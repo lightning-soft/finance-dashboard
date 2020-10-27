@@ -54,8 +54,8 @@ export class AccountConnectComponent extends FormComponent<any> implements OnDes
 
     this._rithmicApiService.login(login, password).subscribe(
       () => {
-        // this._webSocketService.setupConnection({ url: 'ws://173.212.193.40:5005/api/market' });
-        // this._modal.close();
+        this._webSocketService.connect({ url: 'ws://173.212.193.40:5005/api/market' });
+        this._modal.close();
         this.hideSpinner();
       },
       (e) => {

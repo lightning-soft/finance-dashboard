@@ -15,7 +15,7 @@ export class RithmicApiService {
 
   private _apiUrl = 'https://rithmic.avidi.tech/api/';
 
-  constructor(private _httpClient: HttpClient) {}
+  constructor(private _httpClient: HttpClient) { }
 
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
     const isConnected: boolean = !!+localStorage.getItem('isConnected');
@@ -59,7 +59,7 @@ export class RithmicApiService {
       map((res: any) => {
         const data = res.result.map(({ symbol, exchange }) => ({
           id: symbol,
-          name: symbol,
+          symbol,
           exchange,
           tickSize: 0.01,
         }));
