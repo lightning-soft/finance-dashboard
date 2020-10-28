@@ -59,6 +59,7 @@
     "@fortawesome/fontawesome-free": "5.14.0",
     "@ngneat/until-destroy": "8.0.1",
     "@nguniversal/express-engine": "10.0.1",
+    "bootstrap": "^4.5.3",
     "electron-log": "^4.2.4",
     "express": "4.17.1",
     "ng-packagr": "^10.1.2",
