@@ -1,0 +1,60 @@
+body.#{$themeName} {
+
+  .frame .container {
+    background-color: $tabBackground;
+    padding: 0 4px 4px 4px;
+
+    & > header {
+      justify-content: space-between;
+      align-items: center;
+      height: 28px;
+
+      .frame-manager {
+        width: 20px;
+        height: 20px;
+        background-color: $bodyBackground;
+        border-radius: 2px;
+        margin-right: 6px;
+      }
+
+      .title {
+        flex-grow: 1;
+        flex-shrink: 1;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 16px;
+      }
+
+      .tool-bar {
+        flex-grow: 1;
+      }
+
+      .control-bar {
+
+
+        i.icon-close {
+          width: 10px;
+          height: 10px;
+          mask-image: url("../assets/img/svg/close.svg");
+          mask-size: 80%;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
+        i.icon-maximize {
+          width: 10px;
+          height: 10px;
+          mask-image: url("../assets/img/svg/full-screen.svg");
+          mask-size: 80%;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
+      }
+    }
+
+    & > section {
+      background-color: $bodyBackground;
+      border-radius: 4px;
+      height: 100%;
+    }
+  }
+}

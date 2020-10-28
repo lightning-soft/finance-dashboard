@@ -1,3 +1,4 @@
+@import "./frames";
 
 body.#{$themeName} {
   background: $bodyBackground;
@@ -79,29 +80,29 @@ body.#{$themeName} {
     color: $textColor;
   }
 
-  .layout-container > div {
-    & > div:nth-child(2) ~ div {
-      padding: 4px;
-      background-color: $tabBackground!important; //FIX drop simple-window-
+  // .layout-container > div {
+  //   & > div:nth-child(2) ~ div {
+  //     padding: 4px;
+  //     background-color: $tabBackground!important; //FIX drop simple-window-
 
-      header {
-        background-color: $tabBackground!important;
-        height: 24px!important;
-        padding: 0px;
-        font-weight: 600!important;
-        align-items: flex-start!important;
+  //     header {
+  //       background-color: $tabBackground!important;
+  //       height: 24px!important;
+  //       padding: 0px;
+  //       font-weight: 600!important;
+  //       align-items: flex-start!important;
 
-        span {
-          font-size: 14px!important;
-          color: $textColor!important;
-        }
-      }
-      section {
-        border-radius: 4px;
-        background-color: $bodyBackground!important;
-      }
-    }
-  }
+  //       span {
+  //         font-size: 14px!important;
+  //         color: $textColor!important;
+  //       }
+  //     }
+  //     section {
+  //       border-radius: 4px;
+  //       background-color: $bodyBackground!important;
+  //     }
+  //   }
+  // }
 
   .cdk-overlay-container {
     .ant-dropdown-menu,
