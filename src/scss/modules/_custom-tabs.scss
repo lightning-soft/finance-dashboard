@@ -1,0 +1,22 @@
+.custom-tabs {
+  .ant-tabs-bar {
+    margin: 0 0 8px !important;
+  }
+
+  .ant-tabs-nav {
+    width: 100%;
+
+    & > div {
+      display: flex;
+      width: 100%;
+    }
+  }
+
+  .ant-tabs-tab {
+    flex-basis: 0;
+    flex-grow: 1;
+    padding: 6px 0 !important;
+    margin: 0 8px !important;
+    text-align: center;
+  }
+}
