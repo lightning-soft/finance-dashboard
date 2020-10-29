@@ -5,7 +5,7 @@ const app = electron.app;
 const url = require("url");
 const electron_log_1 = require("electron-log");
 const path = require("path");
-
+const {BrowserWindow} = electron;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 
@@ -16,7 +16,7 @@ let win;
 function createWindow() {
   const size = electron.screen.getPrimaryDisplay().workAreaSize;
 
-  win = new electron.BrowserWindow({
+  win = new BrowserWindow({
     x: 0,
     y: 0,
     width: size.width,
@@ -47,12 +47,14 @@ function createWindow() {
 
   } else {
     win.loadURL(url.format({
-      pathname: path.join(__dirname, 'dist/index.html'),
+      pathname: path.join(__dirname, 'dist/browser/index.html'),
       protocol: 'file:',
       slashes: true
     }));
   }
-
+  win.once('ready-to-show', function () {
+    win.show();
+  });
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store window
