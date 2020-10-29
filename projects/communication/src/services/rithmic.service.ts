@@ -6,16 +6,19 @@ import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
+import { Broker } from './broker';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RithmicApiService {
+export class RithmicService extends Broker {
   connectionSubject: Subject<boolean> = new Subject();
 
   private _apiUrl = 'https://rithmic.avidi.tech/api/';
 
-  constructor(private _httpClient: HttpClient) { }
+  constructor(private _httpClient: HttpClient) {
+    super();
+  }
 
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
     const isConnected: boolean = !!+localStorage.getItem('isConnected');
@@ -31,7 +34,7 @@ export class RithmicApiService {
     return this.connectionSubject.subscribe(callback);
   }
 
-  login(username: string, password: string): Observable<any> {
+  connect(username: string, password: string): Observable<any> {
     const body = {
       username,
       password,
@@ -42,7 +45,7 @@ export class RithmicApiService {
     );
   }
 
-  logout(): Observable<any> {
+  disconnect(): Observable<any> {
     return this._httpClient.post(`${this._apiUrl}Connection/logout`, {}).pipe(
       tap(() => this._handleConnection(false)),
     );
