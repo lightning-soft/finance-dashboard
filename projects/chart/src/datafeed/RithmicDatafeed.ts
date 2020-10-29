@@ -35,9 +35,7 @@ export class RithmicDatafeed extends Datafeed {
         super.send(request);
 
         if (!this._webSocketService.connected) {
-          this._webSocketService.connect({ url: `${this._wsUrl}market` }, () => {
-            this.subscribeToRealtime(request);
-          });
+          this._webSocketService.connect(() => this.subscribeToRealtime(request));
         } else {
           this.subscribeToRealtime(request);
         }
@@ -89,9 +87,7 @@ export class RithmicDatafeed extends Datafeed {
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
-          this._webSocketService.connect({ url: `${this._wsUrl}market` }, () => {
-            this.subscribeToRealtime(request);
-          });
+          this._webSocketService.connect(() => this.subscribeToRealtime(request));
         }
       },
       () => this.cancel(request),
