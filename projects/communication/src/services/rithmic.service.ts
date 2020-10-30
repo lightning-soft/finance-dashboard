@@ -7,11 +7,12 @@ import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
 import { CommunicationConfig } from '../http';
+import { Broker } from './broker';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RithmicApiService {
+export class RithmicService extends Broker {
   connectionSubject: Subject<boolean> = new Subject();
 
   private _apiUrl: string;
@@ -20,6 +21,8 @@ export class RithmicApiService {
     private _httpClient: HttpClient,
     private _communicationConfig: CommunicationConfig,
   ) {
+    super();
+
     this._apiUrl = this._communicationConfig.rithmic.http.url;
   }
 
@@ -37,7 +40,7 @@ export class RithmicApiService {
     return this.connectionSubject.subscribe(callback);
   }
 
-  login(username: string, password: string): Observable<any> {
+  connect(username: string, password: string): Observable<any> {
     const body = {
       username,
       password,
@@ -48,7 +51,7 @@ export class RithmicApiService {
     );
   }
 
-  logout(): Observable<any> {
+  disconnect(): Observable<any> {
     return this._httpClient.post(`${this._apiUrl}Connection/logout`, {}).pipe(
       tap(() => this._handleConnection(false)),
     );
