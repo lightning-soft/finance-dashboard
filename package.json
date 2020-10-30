@@ -27,7 +27,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dev:ssr": "ng run angular-starter:serve-ssr",
-    "serve:ssr": "node dist/angular-starter/server/main.js",
+    "serve:ssr": "node inspect dist/server/main.js",
     "build:ssr": "ng build --prod && ng run angular-starter:server:production",
     "prerender": "ng run angular-starter:prerender",
     "stats": "ng build --stats-json",
