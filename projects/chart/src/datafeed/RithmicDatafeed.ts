@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicService, WebSocketService } from 'communication';
+import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { InstrumentsRepository } from 'trading';
@@ -18,7 +18,7 @@ export class RithmicDatafeed extends Datafeed {
   private _wsUrl: string;
 
   constructor(
-    private _rithmicService: RithmicService,
+    private _rithmicApiService: RithmicApiService,
     private _instrumentsRepository: InstrumentsRepository,
     private _levelOneDatafeedService: LevelOneDataFeedService,
     private _webSocketService: WebSocketService,
@@ -30,7 +30,7 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
-    this._rithmicService.handleConnection(isConnected => {
+    this._rithmicApiService.handleConnection(isConnected => {
       if (isConnected) {
         super.send(request);
 
@@ -85,7 +85,7 @@ export class RithmicDatafeed extends Datafeed {
       BarCount: count,
     };
 
-    this._rithmicService.getHistory(symbol, params).subscribe(
+    this._rithmicApiService.getHistory(symbol, params).subscribe(
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);

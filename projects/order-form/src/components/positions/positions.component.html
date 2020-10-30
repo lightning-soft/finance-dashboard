@@ -1,6 +1,6 @@
 <div class="position-container">
   <div *ngFor="let side of sides"
-       [class.invisible]="!builder.getItems('side', side).length"
+       [class.visibility-hidden]="!builder.getItems('side', side).length"
        class="list {{side}}">
     <div class="close-all">Close All <i (click)="deleteAll(side)" class="icon-close"></i></div>
 
