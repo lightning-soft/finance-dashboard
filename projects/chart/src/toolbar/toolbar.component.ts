@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
-import { RithmicService } from 'communication';
+import { RithmicApiService } from 'communication';
 import { InstrumentsRepository, IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
@@ -192,7 +192,7 @@ export class ToolbarComponent implements OnInit {
 
   constructor(
     private _instrumentsRepository: InstrumentsRepository,
-    private _rithmicService: RithmicService,
+    private _rithmicApiService: RithmicApiService,
   ) { }
 
   _search(criteria?: string) {
@@ -209,7 +209,7 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._rithmicService.handleConnection(isConnected => {
+    this._rithmicApiService.handleConnection(isConnected => {
       if (isConnected) {
         this._search();
       }

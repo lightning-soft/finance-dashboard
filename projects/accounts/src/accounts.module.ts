@@ -2,25 +2,35 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzTabsModule, NzTransferModule } from 'ng-zorro-antd';
+import { NzInputModule, NzSelectModule } from 'ng-zorro-antd';
+import { AccountConnectComponent } from './account-connect/account-connect.component';
+import { AccountItemComponent } from './account-item/account-item.component';
 import { AccountsComponent } from './accounts.component';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzTransButtonModule } from 'ng-zorro-antd/core/trans-button';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @NgModule({
   imports: [
+    NzSelectModule,
     CommonModule,
-    ReactiveFormsModule,
-    NzButtonModule,
-    NzCollapseModule,
-    NzFormModule,
     NzInputModule,
-    NzTabsModule,
-    NzTransferModule,
+    ReactiveFormsModule,
+    NzSpinModule,
+    NzButtonModule,
+    NzTransButtonModule,
+    NzUploadModule,
+    NzAlertModule,
   ],
   exports: [
-    AccountsComponent,
+    AccountsComponent
   ],
   declarations: [
     AccountsComponent,
+    AccountItemComponent,
+    AccountConnectComponent
   ],
 })
 export class AccountsModule implements LazyModule {

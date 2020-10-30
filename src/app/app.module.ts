@@ -33,10 +33,6 @@ import { Modules, modulesStore } from './modules';
     LayoutModule.forRoot(),
     LoadingModule.forRoot([
       {
-        path: Modules.Accounts,
-        loadChildren: () => import('accounts').then(i => i.AccountsModule)
-      },
-      {
         path: Modules.Chart,
         loadChildren: () => import('chart').then(i => i.ChartModule)
       },

@@ -1,0 +1,23 @@
+body.#{$themeName} {
+  :host {
+    background: $tabBackground;
+    color: $textColor;
+
+    button {
+      background: $lightBackground;
+    }
+
+    .divider {
+      background: $lightBackground;
+    }
+
+    .dot-status {
+      background: $fallingColor;
+
+      &.dot-connected {
+        background: $risingColor;
+      }
+
+    }
+  }
+}

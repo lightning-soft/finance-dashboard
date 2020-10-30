@@ -22,7 +22,8 @@
   <nz-dropdown-menu #menu="nzDropdownMenu">
     <ul nz-menu nzSelectable>
       <li (click)="switchTheme()"  nz-menu-item>Change theme</li>
-      <li (click)="openAccounts()" nz-menu-item>Accounts</li>
+      <li (click)="openAccountDialog()" nz-menu-item>Accounts</li>
+      <li (click)="logout()" nz-menu-item>Logout</li>
     </ul>
   </nz-dropdown-menu>
 </nav>

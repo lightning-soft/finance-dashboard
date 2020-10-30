@@ -1,22 +1,3 @@
-@import "scss/variables";
-
-@import "~bootstrap/scss/bootstrap-grid.scss";
-
-@import "~ng-zorro-antd/style/index.min.css";
-@import "assets/font/icon.css";
-
-@import "scss/utilities";
-@import "scss/colors";
-@import "scss/fonts";
-@import "scss/animations";
-@import "scss/modules";
-
-@import "scss/dark.theme";
-@import "scss/template";
-
-@import "scss/light.theme";
-@import "scss/template";
-
 body,
 html {
   font-weight: 400;
@@ -27,10 +8,36 @@ html {
   padding: 0;
 }
 
+@import "~ng-zorro-antd/style/index.min.css";
+@import "assets/font/icon.css";
+
 *,
 *:after,
 *:before {
   box-sizing: border-box;
+}
+
+@import "scss/variables";
+
+@import "scss/colors";
+@import "scss/fonts";
+
+@import "scss/dark.theme";
+@import "scss/template";
+
+@import "scss/light.theme";
+@import "scss/template";
+
+.text-bold {
+  font-weight: 600;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.visibility-hidden {
+  visibility: hidden;
 }
 
 .ant-modal-content {
