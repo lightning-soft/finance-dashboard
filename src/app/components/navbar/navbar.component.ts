@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { RithmicService } from 'communication';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { RithmicService } from 'communication';
-import { LayoutComponent } from 'layout';
 
 @UntilDestroy()
 @Component({
@@ -14,8 +13,6 @@ import { LayoutComponent } from 'layout';
 })
 export class NavbarComponent {
   @Input() layout;
-
-  time: number;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -29,7 +26,6 @@ export class NavbarComponent {
     private _rithmicService: RithmicService,
   ) {
     this.checkVisibility();
-    setInterval(() => this.time = Date.now(), 1000);
   }
 
   // closeDrawer() {
