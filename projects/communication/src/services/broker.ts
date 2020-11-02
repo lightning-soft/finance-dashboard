@@ -47,7 +47,7 @@ export abstract class Broker {
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
     const connections = this._getConnections();
 
-    const isConnected = connections.indexOf(this._getKey()) !== -1;
+    const isConnected = connections.includes(this._getKey());
 
     callback(isConnected);
 
@@ -67,7 +67,7 @@ export abstract class Broker {
 
     let connections = this._getConnections();
 
-    if (connections.indexOf(key) === -1) {
+    if (!connections.includes(key)) {
       connections = isConnected ? [...connections, key] : connections.filter(c => c !== key);
 
       localStorage.setItem('connections', JSON.stringify(connections));
