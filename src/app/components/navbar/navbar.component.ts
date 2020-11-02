@@ -3,8 +3,8 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { AccountsComponent } from 'accounts';
-import { RithmicApiService } from 'communication';
+import { RithmicService } from 'communication';
+import { LayoutComponent } from 'layout';
 
 @UntilDestroy()
 @Component({
@@ -14,6 +14,7 @@ import { RithmicApiService } from 'communication';
 })
 export class NavbarComponent {
   @Input() isOpen;
+  @Input() layout: LayoutComponent;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -24,7 +25,7 @@ export class NavbarComponent {
   constructor(
     private themeHandler: ThemesHandler,
     private modalService: NzModalService,
-    private _rithmicApiService: RithmicApiService,
+    private _rithmicService: RithmicService,
   ) {
     this.checkVisibility();
   }
@@ -41,14 +42,8 @@ export class NavbarComponent {
     this.themeHandler.toggleTheme();
   }
 
-  openAccountDialog() {
-    this.modalService.create({
-      nzTitle: null,
-      nzContent: AccountsComponent,
-      nzCloseIcon: null,
-      nzFooter: null,
-      nzWidth: 720,
-    });
+  openAccounts() {
+    this.layout.addComponent('accounts');
   }
 
   checkVisibility() {
@@ -63,12 +58,5 @@ export class NavbarComponent {
       nzContent: SettingsComponent,
       nzFooter: null,
     });
-  }
-
-  logout() {
-    this._rithmicApiService.logout().subscribe(
-      () => {},
-      (e) => console.error(e),
-    );
   }
 }

@@ -7,7 +7,7 @@ import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout'
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NotifierService } from 'notifier';
-import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
+import { DatafeedRepository, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 

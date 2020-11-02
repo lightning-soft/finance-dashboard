@@ -5,12 +5,10 @@ import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
-import { RithmicDatafeed } from './datafeed/RithmicDatafeed';
-import { Datafeed } from './datafeed/Datafeed';
+import { Datafeed, InstrumentsRepository, RithmicDatafeed } from 'trading';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
-import { InstrumentsRepository } from 'trading';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
