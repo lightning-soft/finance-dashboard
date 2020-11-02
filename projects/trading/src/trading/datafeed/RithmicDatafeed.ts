@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicService, WebSocketService } from 'communication';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { InstrumentsRepository } from 'trading';
+import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicService, WebSocketService } from 'communication';
+import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
+import { InstrumentsRepository } from '../repositories';
 import { Datafeed } from './Datafeed';
-import { IBarsRequest, IQuote, IRequest } from './models';
-import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 

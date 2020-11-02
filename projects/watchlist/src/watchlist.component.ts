@@ -6,7 +6,7 @@ import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events,
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { Datafeed, IInstrument, InstrumentsRepository, IQuote } from 'trading';
+import { DatafeedRepository, IInstrument, InstrumentsRepository, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 
@@ -43,7 +43,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     public _instrumentsRepository: InstrumentsRepository,
-    private _datafeed: Datafeed,
+    private _datafeed: DatafeedRepository,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
     private layoutHandler: LayoutHandler,
