@@ -1,17 +1,58 @@
 <nav *ngIf="isVisible" class="navigation-bar">
-  <div  (click)="toggleNavigationDrawer()" class="add">
-    <div
-      [class.open]="isOpen"
-      class="plus">
-      +
+  <div class="navbar-manager">
+    <app-navbar-controller></app-navbar-controller>
+  </div>
+  <div class="logo">  
+  </div>
+  <div class="create-frame">
+    <app-drag-drawer *ngIf="layout" [layout]="layout"></app-drag-drawer>
+  </div>
+  <div class="frames-manager">
+    <div class="frame">
+      <i class="icon-widget-dom"></i>
+    </div>
+    <div class="frame">
+      <i class="icon-widget-orders"></i>
+    </div>
+    <div class="frame">
+      <i class="icon-widget-market-watch"></i>
+    </div>
+    <div class="frame">
+      <i class="icon-widget-positions"></i>
+    </div>
+    <div class="frame">
+      <i class="icon-widget-watchlist"></i>
+    </div>
+    <div class="frame">
+      <i class="icon-widget-chart"></i>
+      <a class="icon-arrow-down"></a>
     </div>
   </div>
-  <div class="logo">
-    <i class="icon-logo"></i>
-    </div>
-  <span class="name">T-Platform</span>
+  <div class="search">
+    <button class="icon-search"></button>
+  </div>
+  <div class="connection">
+    <div class="indicator disconnect"></div>
+    <div class="title">Rithmic</div>
+  </div>
+  <div class="preferences">
+    <app-trade-lock></app-trade-lock>
 
-  <div nzOverlayClassName="toolbar-dropdown"
+    <button class="icon-setting"></button>
+
+    <app-notification-list></app-notification-list>
+    <app-account></app-account>
+  </div>
+  <div class="time">
+    <app-clock></app-clock>
+  </div>
+  <div class="control">
+    <button class="icon-minimize-window"></button>
+    <button class="icon-maximize-window"></button>
+    <button class="icon-close-window"></button>
+  </div>
+
+  <!-- <div nzOverlayClassName="toolbar-dropdown"
        nzTrigger="click"
        nz-dropdown [nzDropdownMenu]="menu" class="user-menu">
     <img src="https://krausefx.com/assets/posts/profilePictures/FelixKrause2014.jpg"
@@ -25,13 +66,13 @@
       <li (click)="openAccountDialog()" nz-menu-item>Accounts</li>
       <li (click)="logout()" nz-menu-item>Logout</li>
     </ul>
-  </nz-dropdown-menu>
+  </nz-dropdown-menu> -->
 </nav>
-<nz-dropdown-menu #menu="nzDropdownMenu">
+<!-- <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu nzSelectable>
     <li nz-menu-item>Profile</li>
     <li (click)="openSettings()" nz-menu-item>Settings</li>
     <li nz-menu-divider></li>
     <li nz-menu-item>Log out</li>
   </ul>
-</nz-dropdown-menu>
+</nz-dropdown-menu> -->

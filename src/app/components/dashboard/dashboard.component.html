@@ -1,6 +1,5 @@
-<app-navbar #bar></app-navbar>
+<app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
 <div class="dashboard-wrapper">
-  <app-drag-drawer *ngIf="layout" [layout]="layout" [isOpen]="bar.isOpen" (hide)="bar.closeDrawer()"></app-drag-drawer>
   <layout #layout></layout>
 </div>
 <context-menu></context-menu>

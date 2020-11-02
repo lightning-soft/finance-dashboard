@@ -11,8 +11,18 @@ import { NzDropDownModule } from 'ng-zorro-antd';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
-import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { Modules, modulesStore } from './modules';
+import { 
+  AppComponent, 
+  DashboardComponent, 
+  DragDrawerComponent, 
+  NavbarComponent,
+  AccountComponent,
+  TradeLockComponent,
+  NavbarControllerComponent,
+  ClockComponent,
+  NotificationListComponent
+} from './components';
 
 @NgModule({
   declarations: [
@@ -20,6 +30,11 @@ import { Modules, modulesStore } from './modules';
     DashboardComponent,
     DragDrawerComponent,
     AppComponent,
+    AccountComponent,
+    TradeLockComponent,
+    NavbarControllerComponent,
+    ClockComponent,
+    NotificationListComponent,
   ],
   imports: [
     HttpClientModule,
@@ -30,6 +45,10 @@ import { Modules, modulesStore } from './modules';
     ContextMenuModule,
     LayoutModule.forRoot(),
     LoadingModule.forRoot([
+      {
+        path: Modules.Accounts,
+        loadChildren: () => import('accounts').then(i => i.AccountsModule)
+      },
       {
         path: Modules.Chart,
         loadChildren: () => import('chart').then(i => i.ChartModule)

@@ -13,7 +13,9 @@ import { RithmicApiService } from 'communication';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Input() isOpen;
+  @Input() layout;
+
+  time: number;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -27,15 +29,16 @@ export class NavbarComponent {
     private _rithmicApiService: RithmicApiService,
   ) {
     this.checkVisibility();
+    setInterval(() => this.time = Date.now(), 1000);
   }
 
-  closeDrawer() {
-    this.isOpen = false;
-  }
+  // closeDrawer() {
+  //   this.isOpen = false;
+  // }
 
-  toggleNavigationDrawer() {
-    this.isOpen = !this.isOpen;
-  }
+  // toggleNavigationDrawer() {
+  //   this.isOpen = !this.isOpen;
+  // }
 
   switchTheme() {
     this.themeHandler.toggleTheme();
