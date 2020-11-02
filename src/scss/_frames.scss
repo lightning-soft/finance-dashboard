@@ -1,7 +1,29 @@
 body.#{$themeName} {
 
+  .frame {
+    .resize-up,
+    .resize-down {
+      cursor: ns-resize;
+    }
+
+    .resize-left,
+    .resize-right {
+      cursor: ew-resize;
+    }
+
+    .resize-left-up,
+    .resize-right-down {
+      cursor: nwse-resize;
+    }
+
+    .resize-left-down,
+    .resize-right-up {
+      cursor: nesw-resize;
+    }
+  }
+  
   .frame .container {
-    background-color: $tabBackground;
+    background-color: $tabFrameColor;
     padding: 0 4px 4px 4px;
 
     & > header {
@@ -12,7 +34,7 @@ body.#{$themeName} {
       .frame-manager {
         width: 20px;
         height: 20px;
-        background-color: #1B1D22; // FIX COLORS
+        background-color: $tabBackground;
         border-radius: 2px;
         margin-right: 6px;
         flex-shrink: 0;
@@ -25,6 +47,7 @@ body.#{$themeName} {
         font-weight: 600;
         line-height: 16px;
         margin-right: 8px;
+        color: $titleColor;
       }
 
       .tool-bar {
@@ -44,12 +67,11 @@ body.#{$themeName} {
       }
 
       .control-bar {
-
-
+        
         i.icon-close {
           width: 10px;
           height: 10px;
-          mask-image: url("../assets/img/svg/close.svg");
+          mask-image: url("../assets/img/svg/close-window.svg");
           mask-size: 80%;
           mask-repeat: no-repeat;
           mask-position: center;
@@ -57,7 +79,7 @@ body.#{$themeName} {
         i.icon-maximize {
           width: 10px;
           height: 10px;
-          mask-image: url("../assets/img/svg/full-screen.svg");
+          mask-image: url("../assets/img/svg/full-screen-window.svg");
           mask-size: 80%;
           mask-repeat: no-repeat;
           mask-position: center;
@@ -66,7 +88,7 @@ body.#{$themeName} {
     }
 
     & > section {
-      background-color: $bodyBackground;
+      background-color: $tabBackground;
       border-radius: 4px;
       height: 100%;
     }
