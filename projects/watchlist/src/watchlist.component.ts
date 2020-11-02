@@ -44,7 +44,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     public _instrumentsRepository: InstrumentsRepository,
-    private _datafeed: Datafeed,
     private _levelOneDatafeed: LevelOneDataFeedService,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
