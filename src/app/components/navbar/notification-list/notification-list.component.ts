@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NotificationListComponent implements OnInit {
 
-  notifications = [{id: 1, text: 'fasdf'}];
+  notifications = [];
   visible = false;
 
   constructor() { }
