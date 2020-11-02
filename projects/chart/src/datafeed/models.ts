@@ -1,4 +1,17 @@
-import { IStockChartXInstrument } from './IInstrument';
+export interface IDatafeed {
+  send(request: IRequest);
+
+  cancel(request: IRequest);
+}
+
+export interface IStockChartXInstrument {
+  symbol: string;
+  company: string;
+  exchange: string;
+  tickSize: number;
+  id: number;
+  digits?: number;
+}
 
 export interface IQuote {
   Ask: number;
