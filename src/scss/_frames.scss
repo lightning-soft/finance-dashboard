@@ -1,23 +1,23 @@
 body.#{$themeName} {
 
   .frame {
-    .resize-up,
-    .resize-down {
+    &.resize-up,
+    &.resize-down {
       cursor: ns-resize;
     }
 
-    .resize-left,
-    .resize-right {
+    &.resize-left,
+    &.resize-right {
       cursor: ew-resize;
     }
 
-    .resize-left-up,
-    .resize-right-down {
+    &.resize-left-up,
+    &.resize-right-down {
       cursor: nwse-resize;
     }
 
-    .resize-left-down,
-    .resize-right-up {
+    &.resize-left-down,
+    &.resize-right-up {
       cursor: nesw-resize;
     }
   }
