@@ -38,6 +38,13 @@ body.#{$themeName} {
         border-radius: 2px;
         margin-right: 6px;
         flex-shrink: 0;
+        line-height: 20px;
+        text-align: center;
+
+        i {
+          font-size: 12px;
+          color: $textColor;
+        }
       }
 
       .title {
@@ -66,24 +73,9 @@ body.#{$themeName} {
         }
       }
 
-      .control-bar {
-        
-        i.icon-close {
-          width: 10px;
-          height: 10px;
-          mask-image: url("../assets/img/svg/close-window.svg");
-          mask-size: 80%;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
-        i.icon-maximize {
-          width: 10px;
-          height: 10px;
-          mask-image: url("../assets/img/svg/full-screen-window.svg");
-          mask-size: 80%;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
+      .control-bar i{
+        font-size: 12px;
+        margin-left: 8px;
       }
     }
 
