@@ -1,25 +1,28 @@
-import 'zone.js/dist/zone-node';
-
 import { ngExpressEngine } from '@nguniversal/express-engine';
 import * as express from 'express';
+import { readFile, readFileSync } from 'fs';
 import { join } from 'path';
-
+import 'zone.js/dist/zone-node';
 import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
-import { existsSync } from 'fs';
+
 
 function setCustomHeadersToStaticFiles(res, path) {
   console.log(path, path.match(/StockChartX.+.js/));
   if (path.match(/StockChartX.+.js/)) {
     // Custom Cache-Control for HTML files
-    res.setHeader('Content-Type', 'text/javascript')
+    res.setHeader('Content-Type', 'text/javascript');
   }
 }
+const dev = false;
+
 // The Express app is exported so that it can be used by serverless Functions.
 export function app() {
   const server = express();
-  const distFolder = join(process.cwd(), './browser');
-  const indexHtml = existsSync(join(distFolder, 'index.html')) ? 'index.html' : 'index';
+  const distFolder = join(process.cwd(), '', 'browser');
+  const indexHtml = join(distFolder, dev ? 'dist' : '', 'index.html');
+  const template = readFileSync(indexHtml).toString(); // index from browser build!
+  console.log(indexHtml);
 
   // Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
   server.engine('html', ngExpressEngine({
@@ -39,7 +42,16 @@ export function app() {
 
   // All regular routes use the Universal engine
   server.get('*', (req, res) => {
-    res.render(indexHtml, { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] });
+    res.render(indexHtml,
+      { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] },
+      (err, html) => {
+        // if (err)
+        //   throw err;
+
+        console.error('render error', err, html);
+        res.send(template);
+      });
+
   });
 
   return server;

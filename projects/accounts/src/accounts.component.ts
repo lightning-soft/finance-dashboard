@@ -1,47 +1,89 @@
-import { Component, OnDestroy } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { ItemsComponent } from 'base-components';
-import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { AccountRepository, IAccount } from 'trading';
-import { AccountConnectComponent } from './account-connect/account-connect.component';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BrokerService } from 'communication';
+import { TransferItem } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
+import { AccountRepository } from 'trading';
 
 @UntilDestroy()
 @Component({
-  selector: 'account-list',
+  selector: 'accounts',
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
 })
-export class AccountsComponent extends ItemsComponent<IAccount> implements OnDestroy {
+export class AccountsComponent implements OnInit {
 
-  _accountConnectModal: NzModalRef = null;
-
-  accounts = [];
-  status = 'Open';
+  items: TransferItem[] = [
+    {
+      key: 'rithmic',
+      title: 'Rithmic',
+    },
+  ];
 
   constructor(
-    public _repository: AccountRepository,
-    private modal: NzModalRef,
-    private modalService: NzModalService,
-  ) {
-    super();
-    this.config.autoLoadData = {onInit: true};
-    this.addAccount(); // Cut functionality
-  }
+    protected _route: ActivatedRoute,
+    protected _repository: AccountRepository,
+    private _brokerService: BrokerService,
+    private fb: FormBuilder,
+    private notifier: NotifierService,
+  ) {}
 
-  ngOnDestroy(): void {
-    this.modal.destroy();
-  }
+  ngOnInit() {
+    this.items.forEach(item => {
+      const { key } = item;
 
-  addAccount() {
-    this.modalService.create({
-      nzTitle: null,
-      nzContent: AccountConnectComponent,
-      nzCloseIcon: null,
-      nzFooter: null,
-      nzWidth: 720,
-    }).afterClose.subscribe((newAccount: IAccount) => {
-      if (newAccount) this.items.push(newAccount);
-      this.modal.close(); // Cut functionality
+      item.isLoading = false;
+
+      item.form = this.fb.group({
+        login: [null],
+        password: [null],
+      });
+
+      this._brokerService.get(key).handleConnection(connected => {
+        item.connected = connected;
+      }, this);
     });
+  }
+
+  togglePanel(item: TransferItem) {
+    item.active = !item.active;
+  }
+
+  connect(item: TransferItem) {
+    const { login, password } = item.form.value;
+
+    item.isLoading = true;
+
+    this._brokerService.get(item.key).connect(login, password)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        () => {
+          item.form.reset();
+          item.active = false;
+          item.isLoading = false;
+        },
+        (res) => {
+          this.notifier.showError(res.error.error.message);
+          item.isLoading = false;
+        },
+      );
+  }
+
+  disconnect(item: TransferItem) {
+    item.isLoading = true;
+
+    this._brokerService.get(item.key).disconnect()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        () => {
+          item.isLoading = false;
+        },
+        (res) => {
+          this.notifier.showError(res.error.error.message);
+          item.isLoading = false;
+        },
+      );
   }
 }

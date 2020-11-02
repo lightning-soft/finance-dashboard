@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { CommunicationConfig } from '../http';
 
 export interface IWebSocketConfig {
   url: string;
@@ -24,12 +25,18 @@ export class WebSocketService {
 
   private _listeners: IWSListener[] = [];
 
-  constructor() { }
+  constructor(private _config: CommunicationConfig) { }
 
-  public connect(wsConfig: IWebSocketConfig, onOpen?: () => void) {
-    if (this.connection$.value) return;
+  connect(onOpen?: () => void) {
+    if (this.connection$.value) {
+      if (onOpen)
+        onOpen();
 
-    this._websocket = new WebSocket(wsConfig.url, wsConfig?.protocols);
+      return;
+    }
+
+    const url = this._config.rithmic.ws.url;
+    this._websocket = new WebSocket(url);
     this._websocket.onopen = (event: Event) => {
       if (onOpen)
         onOpen();
