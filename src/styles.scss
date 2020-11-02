@@ -27,6 +27,11 @@ html {
   padding: 0;
 }
 
+body {
+  padding-top: 42px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
 *,
 *:after,
 *:before {
@@ -70,14 +75,4 @@ button {
     margin-left: 5%;
     width: 90%;
   }
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
