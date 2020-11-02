@@ -91,6 +91,9 @@
       "chart": [
         "projects/chart/index"
       ],
+      "chart/models": [
+        "projects/chart/models"
+      ],
       "orders": [
         "projects/orders/index"
       ],

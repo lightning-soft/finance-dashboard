@@ -1,0 +1,35 @@
+.indicator {
+  display: inline-block;
+  position: relative;
+  width: 12px;
+  height: 12px;
+  color: $text-muted;
+  transition: color 0.4s;
+
+  &-active {
+    color: $success;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0.3;
+    border-radius: 50%;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    background: currentColor;
+    border-radius: 50%;
+  }
+}

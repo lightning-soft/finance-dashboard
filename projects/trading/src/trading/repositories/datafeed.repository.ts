@@ -16,7 +16,7 @@ class Subscription {
     }
 }
 
-export abstract class Datafeed {
+export abstract class DatafeedRepository {
     protected _subscribers = new Map<Id, Subscription[]>();
     protected _quoteSubscribers = [];
 

@@ -1,8 +1,8 @@
 import { Id } from 'communication';
-import { Datafeed } from 'trading';
+import { DatafeedRepository } from 'trading';
 import { NgZone } from '@angular/core';
 
-export class FakeDatafeed extends Datafeed {
+export class FakeDatafeed extends DatafeedRepository {
     protected _subscribedInstruments = [];
 
     protected _lastPrices = new Map<Id, number>();

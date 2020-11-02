@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IBar, IChart } from '../models/chart';
-import { IBarsRequest, IRequest, RequestKind, BarsUpdateKind, IQuote } from './models';
-import { IStockChartXInstrument } from './IInstrument';
+import { BarsUpdateKind, IBar, IBarsRequest, IChart, IQuote, IRequest, IStockChartXInstrument, RequestKind } from 'chart/models';
 export type IDateFormat = (request: IRequest) => string;
 
 export interface IKeyValuePair<TKey, TValue> {

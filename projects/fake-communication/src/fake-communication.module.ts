@@ -1,5 +1,5 @@
 import { ModuleWithProviders, NgModule, NgZone } from '@angular/core';
-import { AccountRepository, Datafeed, InstrumentsRepository, OrdersRepository, PositionsRepository } from 'trading';
+import { AccountRepository, DatafeedRepository, InstrumentsRepository, OrdersRepository, PositionsRepository } from 'trading';
 import { FakeAccountRepository, FakeDatafeed, FakeInstrumentsRepository, FakeOrdersRepository, FakePositionsRepository } from './trading';
 
 @NgModule({})
@@ -13,7 +13,7 @@ export class FakeCommunicationModule {
                     useClass: FakeInstrumentsRepository,
                 },
                 {
-                    provide: Datafeed,
+                    provide: DatafeedRepository,
                     useClass: FakeDatafeed,
                     deps: [NgZone],
                 },
