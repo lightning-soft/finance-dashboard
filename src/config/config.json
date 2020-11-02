@@ -6,7 +6,7 @@
       "url": "https://rithmic-dev.amstradinggroup.com/api/"
     },
     "ws": {
-      "url": "ws://173.212.193.40:5005/api/"
+      "url": "wss://rithmic-dev.amstradinggroup.com/api/"
     }
   }
 }
