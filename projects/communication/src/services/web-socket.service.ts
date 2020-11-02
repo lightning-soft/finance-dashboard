@@ -41,7 +41,7 @@ export class WebSocketService {
       if (onOpen)
         onOpen();
 
-      const apiKey = {Id: '03aea4bdf9681c64abdd402d0b3a49dab0c8526c3135b701b3a9d7ad89fd8737'};
+      const apiKey = { Id: '03aea4bdf9681c64abdd402d0b3a49dab0c8526c3135b701b3a9d7ad89fd8737' };
       this._websocket.send(JSON.stringify(apiKey));
       this.connection$.next(true);
     };

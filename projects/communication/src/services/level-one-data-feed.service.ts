@@ -46,7 +46,7 @@ export class LevelOneDataFeedService {
       subscriptions[id] = (subscriptions[id] ?? 0) + 1;
       if (subscriptions[id] === 1) {
         const request = {
-          Type: 0, // subscribe
+          Type: 'subscribe', // subscribe
           Instruments: instruments.map(instrument => ({
             Symbol: instrument.symbol,
             Exchange: instrument.exchange,
@@ -66,7 +66,7 @@ export class LevelOneDataFeedService {
       subscriptions[id] = (subscriptions[id] ?? 1) - 1;
       if (subscriptions[id] === 0) {
         const request = {
-          Type: 1, // unsubscribe
+          Type: 'unsubscribe', // unsubscribe
           Instruments: instruments.filter(Boolean).map(instrument => ({
             Symbol: instrument.symbol,
             Exchange: instrument.exchange,
