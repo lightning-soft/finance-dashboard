@@ -1,43 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { untilDestroyed } from '@ngneat/until-destroy';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
-import { CommunicationConfig } from '../http';
 import { Broker } from './broker';
+
+declare const moment: any;
 
 @Injectable({
   providedIn: 'root',
 })
 export class RithmicService extends Broker {
-  connectionSubject: Subject<boolean> = new Subject();
-
-  private _apiUrl: string;
-
-  constructor(
-    private _httpClient: HttpClient,
-    private _communicationConfig: CommunicationConfig,
-  ) {
-    super();
-
-    this._apiUrl = this._communicationConfig.rithmic.http.url;
-  }
-
-  handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
-    const isConnected: boolean = !!+localStorage.getItem('isConnected');
-
-    callback(isConnected);
-
-    if (instance) {
-      return this.connectionSubject
-        .pipe(untilDestroyed(instance))
-        .subscribe(callback);
-    }
-
-    return this.connectionSubject.subscribe(callback);
+  protected _getKey(): string {
+    return 'rithmic';
   }
 
   connect(username: string, password: string): Observable<any> {
@@ -47,24 +23,32 @@ export class RithmicService extends Broker {
     };
 
     return this._httpClient.post(`${this._apiUrl}Connection`, body).pipe(
-      tap(() => this._handleConnection(true)),
+      tap((res) => {
+        this._apiKey = res.result.apiKey;
+
+        this._handleConnection(true);
+      }),
     );
   }
 
   disconnect(): Observable<any> {
-    return this._httpClient.post(`${this._apiUrl}Connection/logout`, {}).pipe(
-      tap(() => this._handleConnection(false)),
+    return this._httpClient.post(`${this._apiUrl}Connection/logout`, {}, this._httpOptions).pipe(
+      tap(() => {
+        this._apiKey = null;
+
+        this._handleConnection(false);
+      }),
     );
   }
 
   getInstrument(id: string): Observable<IInstrument> {
-    return this._httpClient.get(`${this._apiUrl}Instrument/${id}`).pipe(
+    return this._httpClient.get(`${this._apiUrl}Instrument/${id}`, this._httpOptions).pipe(
       map((res: any) => res.result),
     );
   }
 
   getInstruments(criteria = 'ES'): Observable<IPaginationResponse<IInstrument>> {
-    return this._httpClient.get(`${this._apiUrl}Instrument?criteria=${criteria}`).pipe(
+    return this._httpClient.get(`${this._apiUrl}Instrument?criteria=${criteria}`, this._httpOptions).pipe(
       map((res: any) => {
         const data = res.result.map(({ symbol, exchange }) => ({
           id: symbol,
@@ -81,7 +65,7 @@ export class RithmicService extends Broker {
   getHistory(symbol: string, params: any): Observable<IPaginationResponse<any>> {
     const _params = queryString.stringify(params);
 
-    return this._httpClient.get(`${this._apiUrl}History/${symbol}?${_params}`).pipe(
+    return this._httpClient.get(`${this._apiUrl}History/${symbol}?${_params}`, this._httpOptions).pipe(
       map((res: any) => {
         const data = res.result.map(item => ({
           date: moment.utc(item.timestamp).toDate(),
@@ -95,11 +79,5 @@ export class RithmicService extends Broker {
         return { data } as IPaginationResponse<any>;
       }),
     );
-  }
-
-  private _handleConnection(isConnected: boolean) {
-    this.connectionSubject.next(isConnected);
-
-    localStorage.setItem('isConnected', `${+isConnected}`);
   }
 }
