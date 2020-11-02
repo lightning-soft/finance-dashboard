@@ -4,8 +4,14 @@
 .navigation-bar {
   display: flex;
   align-items: center;
-  max-height: 42px;
   background-color: $tabFrameColor;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 42px;
+  max-height: 42px;
 
   .logo {
     display: flex;

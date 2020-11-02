@@ -84,11 +84,17 @@ export class DockDesktopLayout extends Layout {
 
           // const linkSelect = await this.getLinkSelect(container, instance);
 
+          // TMP icon
+          const frameManager = document.createElement('i');
+          frameManager.className = `icon-widget-${componentName}`;
 
           const window = this.dockManager.createWindow({
             width: 500,
             height: 500,
             title: componentName[0].toUpperCase() + componentName.slice(1),
+            frameManager,
+            minimizable: true,
+            y: 50,
           });
 
           window.content.appendChild(comp.location.nativeElement);

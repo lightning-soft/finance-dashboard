@@ -33,16 +33,16 @@ export class DragDrawerComponent {
       name: 'Positions',
       component: Components.Positions
     },
-    {
-      icon: 'icon-orders',
-      name: 'Order form',
-      component: Components.OrderForm
-    },
-    {
-      icon: 'icon-scripting',
-      name: 'Scripting',
-      component: Components.Scripting
-    }
+    // {
+    //   icon: 'icon-orders',
+    //   name: 'Order form',
+    //   component: Components.OrderForm
+    // },
+    // {
+    //   icon: 'icon-scripting',
+    //   name: 'Scripting',
+    //   component: Components.Scripting
+    // }
   ];
 
   create(item) {
