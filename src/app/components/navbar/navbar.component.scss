@@ -43,6 +43,7 @@
   .frames-manager {
     display: flex;
     margin: 0 16px;
+    flex-grow: 1;
 
      & > .frame {
       display: flex;
@@ -69,15 +70,6 @@
         font-size: 6px;
       };
 
-    }
-  }
-
-  .search {
-    padding: 0 10px;
-    flex-grow: 1;
-    border-left: 1px solid $lightBackground;
-    button {
-      background-color: transparent;
     }
   }
 
