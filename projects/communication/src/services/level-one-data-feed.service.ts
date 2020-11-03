@@ -3,20 +3,22 @@ import { IInstrument } from 'trading';
 import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
-  Price: number;
   Timestamp: Date;
-  Volume: number;
   Instrument: any;
-  AskInfo: any;
-  BidInfo: any;
+  AskInfo: IInfo;
+  BidInfo: IInfo;
 }
-
+export interface IInfo {
+  Volume: number;
+  Price: number;
+  OrderCount: number;
+}
 export type OnTradeFn = (trades: ITrade) => void;
 export type UnsubscribeFn = () => void;
 
 enum WSMessageTypes {
-  SUBSCRIBE = 0,
-  UNSUBSCRIBE = 1,
+  SUBSCRIBE = 'subscribe',
+  UNSUBSCRIBE = 'unsubscribe',
 }
 
 @Injectable({
@@ -46,12 +48,13 @@ export class LevelOneDataFeedService {
       subscriptions[id] = (subscriptions[id] ?? 0) + 1;
       if (subscriptions[id] === 1) {
         const request = {
-          Type: 'subscribe', // subscribe
+          Type: WSMessageTypes.SUBSCRIBE, // subscribe
           Instruments: instruments.map(instrument => ({
             Symbol: instrument.symbol,
             Exchange: instrument.exchange,
             ProductCode: null,
-          }))
+          })),
+          Timestamp: new Date()
         };
 
         this._webSocketService.send(request);
@@ -66,12 +69,13 @@ export class LevelOneDataFeedService {
       subscriptions[id] = (subscriptions[id] ?? 1) - 1;
       if (subscriptions[id] === 0) {
         const request = {
-          Type: 'unsubscribe', // unsubscribe
+          Type: WSMessageTypes.UNSUBSCRIBE, // unsubscribe
           Instruments: instruments.filter(Boolean).map(instrument => ({
             Symbol: instrument.symbol,
             Exchange: instrument.exchange,
             ProductCode: null,
-          }))
+          })),
+          Timestamp: new Date()
         };
 
 
