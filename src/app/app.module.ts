@@ -3,7 +3,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { CommunicationModule } from 'communication';
+import { CommunicationConfig, CommunicationModule } from 'communication';
+import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
@@ -14,6 +15,8 @@ import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
 import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
 import { Modules, modulesStore } from './modules';
+import { AppConfig } from './app.config';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -30,6 +33,16 @@ import { Modules, modulesStore } from './modules';
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    ConfigModule.configure({
+      path: environment.config || 'config/config.json',
+      configClass: AppConfig,
+    }),
+    CommunicationModule.forRoot([
+      {
+        provide: CommunicationConfig,
+        useExisting: AppConfig,
+      }
+    ]),
     LayoutModule.forRoot(),
     LoadingModule.forRoot([
       {

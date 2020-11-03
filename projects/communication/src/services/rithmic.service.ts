@@ -6,8 +6,10 @@ import { map, tap } from 'rxjs/operators';
 import queryString from 'query-string';
 import { IInstrument } from 'trading';
 import { IPaginationResponse } from '../common';
-import { CommunicationConfig } from '../http';
 import { Broker } from './broker';
+import { CommunicationConfig } from '../http';
+
+declare const moment: any;
 
 @Injectable({
   providedIn: 'root',
@@ -19,11 +21,11 @@ export class RithmicService extends Broker {
 
   constructor(
     private _httpClient: HttpClient,
-    private _communicationConfig: CommunicationConfig,
+    private _config: CommunicationConfig,
   ) {
     super();
 
-    this._apiUrl = this._communicationConfig.rithmic.http.url;
+    this._apiUrl = this._config.rithmic.http.url;
   }
 
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
