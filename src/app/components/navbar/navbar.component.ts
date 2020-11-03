@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { RithmicService } from 'communication';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
@@ -23,7 +22,6 @@ export class NavbarComponent {
   constructor(
     private themeHandler: ThemesHandler,
     private modalService: NzModalService,
-    private _rithmicService: RithmicService,
   ) {
     this.checkVisibility();
   }

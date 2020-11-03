@@ -63,6 +63,7 @@
     "electron-log": "^4.2.4",
     "express": "4.17.1",
     "ng-zorro-antd": "9.3.0",
+    "ngx-cookie-service": "10.1.1",
     "ngx-monaco-editor": "9.0.0",
     "rxjs": "6.6.2",
     "simple-window-manager": "git+https://git.avidi.tech/Taras/simple-window-manager.git",

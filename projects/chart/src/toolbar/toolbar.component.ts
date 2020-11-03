@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
-import { RithmicService } from 'communication';
-import { InstrumentsRepository, IInstrument } from 'trading';
+import { BrokerService, InstrumentsRepository } from 'communication';
+import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -191,25 +191,25 @@ export class ToolbarComponent implements OnInit {
 
 
   constructor(
+    private _brokerService: BrokerService,
     private _instrumentsRepository: InstrumentsRepository,
-    private _rithmicService: RithmicService,
-  ) { }
+  ) {}
 
-  _search(criteria?: string) {
+  _search(criteria = '') {
     this._searchSubscription?.unsubscribe();
 
     this._searchSubscription = this._instrumentsRepository.getItems({ criteria })
       .pipe(untilDestroyed(this))
       .subscribe(
         (res) => {
-          this.instruments = res.data.slice(0, 100);
+          this.instruments = res.data;
         },
         (e) => console.error('error', e),
       );
   }
 
   ngOnInit(): void {
-    this._rithmicService.handleConnection(isConnected => {
+    this._brokerService.getActive().handleConnection(isConnected => {
       if (isConnected) {
         this._search();
       }
