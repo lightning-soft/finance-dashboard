@@ -21,7 +21,8 @@ button {
   
 }
 
-.lock-alert {
+.lock-alert,
+.unlock-alert {
   position: absolute;
   bottom: -50px;
   left: 50%;
@@ -31,7 +32,6 @@ button {
   height: 35px;
   text-align: center;
   line-height: 35px;
-  background-color: $fallingColor;
   border-radius: 2px;
   opacity: .5;
 
@@ -46,6 +46,22 @@ button {
     transform: translateX(-50%);
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
+    
+  }
+}
+
+.lock-alert {
+  background-color: $fallingColor;
+
+  &::before {
     border-bottom: 6px solid $fallingColor;
+  }
+}
+
+.unlock-alert {
+  background-color: $risingColor;
+
+  &::before {
+    border-bottom: 6px solid $risingColor;
   }
 }
