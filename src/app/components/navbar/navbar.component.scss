@@ -1,23 +1,26 @@
 @import "../../../scss/dark.theme";
 @import "themes/index";
 
+:host {
+  height: 42px;
+  display: block;
+}
+
 .navigation-bar {
   display: flex;
   align-items: center;
   background-color: $tabFrameColor;
-  position: absolute;
   left: 0;
   top: 0;
   z-index: 1;
   width: 100%;
-  height: 42px;
   max-height: 42px;
 
   .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('../../../assets/img/svg/deltaview.svg');
+    background-image: url("../../../assets/img/svg/deltaview.svg");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -27,13 +30,13 @@
     transform: translateY(2px);
   }
 
-  .navbar-manager button{
+  .navbar-manager button {
     background-color: transparent;
   }
 
   .create-frame {
     border-right: 1px solid $lightBackground;
-    border-left: 1px solid $lightBackground; 
+    border-left: 1px solid $lightBackground;
     padding: 0 16px;
     color: $textColor60;
     font-size: 16px;
@@ -44,7 +47,7 @@
     display: flex;
     margin: 0 16px;
 
-     & > .frame {
+    & > .frame {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -67,8 +70,7 @@
         width: 12px;
         line-height: 28px;
         font-size: 6px;
-      };
-
+      }
     }
   }
 
@@ -120,14 +122,14 @@
           background-color: $successColor;
         }
       }
-  
+
       &::before {
-        content: '';
+        content: "";
         display: block;
         border-radius: 5px;
         width: 10px;
         height: 10px;
-        opacity: .3;
+        opacity: 0.3;
         transform: translate(-2px, -2px);
       }
     }
@@ -137,7 +139,7 @@
     display: flex;
     flex-wrap: nowrap;
     border-right: 1px solid $lightBackground;
-    border-left: 1px solid $lightBackground; 
+    border-left: 1px solid $lightBackground;
 
     button {
       padding: 0 12px;
@@ -145,13 +147,12 @@
       position: relative;
 
       & > .icon-ellipse {
-        font-size: .5em;
+        font-size: 0.5em;
         color: $fallingColor;
         position: absolute;
         left: 50%;
         top: 2%;
       }
-      
     }
   }
 
@@ -210,7 +211,7 @@
     object-fit: cover;
   }
 
-  .icon-arrow-dropdown{
+  .icon-arrow-dropdown {
     font-size: 5px;
     margin-top: 3px;
     margin-left: 12px;

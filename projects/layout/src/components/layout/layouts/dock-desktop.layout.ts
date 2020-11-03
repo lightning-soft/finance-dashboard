@@ -90,7 +90,8 @@ export class DockDesktopLayout extends Layout {
 
           const maximizeButton = '<i class="icon-full-screen-window"></i>';
           const restoreButton = '<i class="icon-maximize-window"></i>';
-          const minimizeButton = '<i class="icon-minimize-window"></i>';
+          // const minimizeButton = '<i class="icon-minimize-window"></i>';
+          const minimizeButton = '';
           const closeButton = '<i class="icon-close-window"></i>';
 
           const window = this.dockManager.createWindow({
@@ -104,6 +105,7 @@ export class DockDesktopLayout extends Layout {
             minimizeButton,
             closeButton,
             y: 50,
+            x: 50,
           });
 
           window.content.appendChild(comp.location.nativeElement);
@@ -198,6 +200,7 @@ export class DockDesktopLayout extends Layout {
 
       this.dockManager = content;
       (window as any).dockManager = content;
+      (window as any).wm = content;
     } catch (e) {
       console.error(e);
       throw e;
