@@ -1,0 +1,31 @@
+<button 
+  class="icon-user-icon"
+  nz-dropdown 
+  nzTrigger="click" 
+  [nzClickHide]="false" 
+  [nzDropdownMenu]="menu"
+  [(nzVisible)]="visible"
+>
+</button>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="side-navigation">
+    <li 
+      class="change-name" 
+      nz-menu-item 
+    >
+      Nickname 
+      <button 
+        class="icon-edit"
+        (click)="changeName()"
+      ></button>
+    </li>
+    <li 
+      nz-menu-item 
+      class="log-out" 
+      (click)="logout()"
+    >
+      <i class="icon-log-out"></i> 
+      Log out
+    </li>
+  </ul>
+</nz-dropdown-menu>

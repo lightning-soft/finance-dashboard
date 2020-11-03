@@ -1,0 +1,51 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+:host-context { 
+  position: relative;
+}
+
+button {
+  padding: 1px 12px;
+  margin: 0;
+  background-color: $tabFrameColor;
+  position: relative;
+
+  & > .icon-ellipse {
+    font-size: .5em;
+    color: $fallingColor;
+    position: absolute;
+    left: 50%;
+    top: 2%;
+  }
+  
+}
+
+.lock-alert {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  width: 146px;
+  height: 35px;
+  text-align: center;
+  line-height: 35px;
+  background-color: $fallingColor;
+  border-radius: 2px;
+  opacity: .5;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid $fallingColor;
+  }
+}

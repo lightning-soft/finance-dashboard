@@ -1,1 +1,1 @@
-export * from './datafeed';
+export * from './datafeed.repository';

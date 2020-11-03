@@ -1,8 +1,5 @@
-import {IStockChartXInstrument} from '../datafeed/IInstrument';
-import {IDatafeed} from '../datafeed/Datafeed';
-
-import {IStockChartXTimeFrame} from '../datafeed/models';
-import {IChartConfig} from './chart.config';
+import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
+import { IChartConfig } from './chart.config';
 
 
 export enum ScxOrderAction {

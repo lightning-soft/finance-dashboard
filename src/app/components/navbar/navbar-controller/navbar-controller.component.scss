@@ -1,0 +1,37 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+button {
+  padding: 1px 12px;
+  margin: 0;
+  background-color: $tabFrameColor;
+  position: relative;
+
+  & > .icon-ellipse {
+    font-size: .5em;
+    color: $fallingColor;
+    position: absolute;
+    left: 50%;
+    top: 2%;
+  }
+  
+}
+
+.navbar-controller {
+  background-color: $tabBackground!important;
+  border-radius: 2px;
+  min-width: 90px;
+  transform: translate(10px, 5px);
+  
+  li {
+    background-color: transparent;
+    color: $textColor;
+    padding: 5px 15px;
+    margin: 0;
+  }
+
+  i {
+    font-size: 11px;
+    margin: 0 5px 0 0;
+  }
+}

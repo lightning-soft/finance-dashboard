@@ -24,13 +24,7 @@ let entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
-    LazyAssetsModule.forConfig({
-      scripts: [{ src: `./lib/dock-spawn/es5/dock-spawn-ts.js` }],
-      styles: [
-        { href: `./lib/dock-spawn/css/dock-manager-style.css` },
-        { href: `./lib/dock-spawn/css/dock-manager.css` }
-      ]
-    })
+    LazyAssetsModule.forConfig({})
   ],
   declarations: [
     ...entryComponents,

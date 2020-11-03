@@ -1,12 +1,13 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Id, InstrumentsRepository } from 'communication';
+import { Id, InstrumentsRepository, LevelOneDataFeedService } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
-import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzContextMenuService } from 'ng-zorro-antd';
+import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NotifierService } from 'notifier';
-import { Datafeed, IInstrument, IQuote } from 'trading';
+import { IInstrument, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 
@@ -43,7 +44,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     public _instrumentsRepository: InstrumentsRepository,
-    private _datafeed: Datafeed,
+    private _levelOneDatafeed: LevelOneDataFeedService,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
     private layoutHandler: LayoutHandler,
@@ -88,7 +89,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(this._datafeed.on((quotes) => this._processQuotes(quotes)));
+    this.subscriptions.push(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
   }
 
 
@@ -170,7 +171,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   subscribeForRealtime(instruments: IInstrument[]) {
     for (const instrument of instruments) {
-      this._datafeed.subscribe(instrument);
+      this._levelOneDatafeed.subscribe([instrument]);
     }
   }
 

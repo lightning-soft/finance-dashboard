@@ -1,6 +1,4 @@
-import {IStockChartXInstrument} from '../datafeed/IInstrument';
-import {IDatafeed} from '../datafeed/Datafeed';
-import {IStockChartXTimeFrame} from '../datafeed/models';
+import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 
 export interface IChartConfig {
   datafeed?: IDatafeed;
