@@ -46,6 +46,7 @@
   .frames-manager {
     display: flex;
     margin: 0 16px;
+    flex-grow: 1;
 
     & > .frame {
       display: flex;
