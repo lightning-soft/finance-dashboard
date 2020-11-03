@@ -3,7 +3,6 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { RithmicService } from 'communication';
 import { LayoutComponent } from 'layout';
 
 @UntilDestroy()
@@ -25,7 +24,6 @@ export class NavbarComponent {
   constructor(
     private themeHandler: ThemesHandler,
     private modalService: NzModalService,
-    private _rithmicService: RithmicService,
   ) {
     this.checkVisibility();
   }

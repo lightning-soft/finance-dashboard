@@ -1,31 +1,34 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { IPaginationResponse, Repository, RithmicService } from 'communication';
-import { IInstrument } from '../models/instruemnt';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IInstrument } from 'trading';
+import { IPaginationResponse } from '../common';
+import { BrokerRepository } from './broker.repository';
 
-@Injectable()
-export class InstrumentsRepository extends Repository<IInstrument> {
-  constructor(private _rithmicService: RithmicService) {
-    super();
+@Injectable({
+  providedIn: 'root',
+})
+export class InstrumentsRepository extends BrokerRepository<IInstrument> {
+  protected _itemName = 'Instrument';
+
+  getItemById(id): Observable<IInstrument> {
+    return super.getItemById(id).pipe(
+      map((res: any) => res.result),
+    );
   }
 
-  getItemById(id) {
-    return this._rithmicService.getInstrument(id);
-  }
+  getItems(params?): Observable<IPaginationResponse<IInstrument>> {
+    return super.getItems(params).pipe(
+      map((res: any) => {
+        const data = res.result.map(({ symbol, exchange }) => ({
+          id: symbol,
+          symbol,
+          exchange,
+          tickSize: 0.01,
+        }));
 
-  createItem() {
-    return of({} as IInstrument); // TODO
-  }
-
-  updateItem() {
-    return of({} as IInstrument); // TODO
-  }
-
-  deleteItem() {
-    return of(true); // TODO
-  }
-
-  getItems(params?: { criteria?: string }): Observable<IPaginationResponse<IInstrument>> {
-    return this._rithmicService.getInstruments(params.criteria);
+        return { data } as IPaginationResponse<IInstrument>;
+      }),
+    );
   }
 }

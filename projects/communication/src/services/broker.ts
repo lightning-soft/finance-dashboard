@@ -1,14 +1,23 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { CommunicationConfig } from '../http';
+import { BrokerRepository, HistoryRepository, InstrumentsRepository } from '../repositories';
+
+export enum Broker {
+  Rithmic = 'rithmic',
+}
 
 @Injectable()
-export abstract class Broker {
-  protected _apiUrl: string;
+export abstract class BaseBroker {
+  protected _key: Broker;
   protected _connectionSubject: Subject<boolean> = new Subject();
+
+  protected get _apiUrl(): string {
+    return this._config[this._key].http.url;
+  }
 
   protected get _apiKey(): string {
     return this._cookieService.get('apiKey');
@@ -30,24 +39,35 @@ export abstract class Broker {
     };
   }
 
+  private _repositories: BrokerRepository[];
+
   constructor(
-    protected _httpClient: HttpClient,
+    protected _injector: Injector,
+    protected _http: HttpClient,
     protected _cookieService: CookieService,
     protected _config: CommunicationConfig,
+    protected _instrumentsRepository: InstrumentsRepository,
   ) {
-    this._apiUrl = this._config[this._getKey()].http.url;
+    this._repositories = [
+      this._injector.get(InstrumentsRepository),
+      this._injector.get(HistoryRepository),
+    ];
   }
-
-  protected abstract _getKey(): string;
 
   abstract connect(login: string, password: string): Observable<any>;
 
   abstract disconnect(): Observable<any>;
 
+  activate() {
+    this._repositories.forEach(repository => {
+      repository.switch(this._key);
+    });
+  }
+
   handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
     const connections = this._getConnections();
 
-    const isConnected = connections.includes(this._getKey());
+    const isConnected = connections.includes(this._key);
 
     callback(isConnected);
 
@@ -63,24 +83,27 @@ export abstract class Broker {
   protected _handleConnection(isConnected: boolean) {
     this._connectionSubject.next(isConnected);
 
-    const key = this._getKey();
+    const key = this._key;
+    const connections = this._getConnections();
 
-    let connections = this._getConnections();
-
-    if (!connections.includes(key)) {
-      connections = isConnected ? [...connections, key] : connections.filter(c => c !== key);
-
-      localStorage.setItem('connections', JSON.stringify(connections));
+    if (isConnected) {
+      if (!connections.includes(key)) {
+        this._setConnections([...connections, key]);
+      }
+    } else {
+      this._setConnections(connections.filter(c => c !== key));
     }
   }
 
   protected _getConnections(): string[] {
-    return (() => {
-      try {
-        return JSON.parse(localStorage.getItem('connections')) as string[] || [];
-      } catch {
-        return [];
-      }
-    })();
+    try {
+      return JSON.parse(localStorage.getItem('connections')) as string[] || [];
+    } catch {
+      return [];
+    }
+  }
+
+  protected _setConnections(connections: string[]) {
+    localStorage.setItem('connections', JSON.stringify(connections));
   }
 }

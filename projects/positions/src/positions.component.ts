@@ -1,10 +1,11 @@
 import { ChangeDetectorRef, Component, Injector } from '@angular/core';
-import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, PositionStatus } from 'trading';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { CellClickDataGridHandler, DataCell } from 'data-grid';
 import { PositionItem } from './models/position.item';
+import { PositionsRepository } from 'communication';
 
 @Component({
   selector: 'position-list',

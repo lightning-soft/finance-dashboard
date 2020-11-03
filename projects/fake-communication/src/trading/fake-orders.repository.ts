@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { NumberHelper } from 'base-components';
-import { RealtimeAction } from 'communication';
-import { IOrder, IPosition, OrderSide, OrderStatus, OrderType, PositionsRepository, Side } from 'trading';
+import { PositionsRepository, RealtimeAction } from 'communication';
+import { IOrder, IPosition, OrderSide, OrderStatus, OrderType, Side } from 'trading';
 import { FakeTradingRepository } from './fake-trading.repository';
 
 const { randomFixedNumber } = NumberHelper;

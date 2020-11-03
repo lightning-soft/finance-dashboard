@@ -10,7 +10,6 @@ import { Datafeed } from './datafeed/Datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
-import { InstrumentsRepository } from 'trading';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -28,7 +27,6 @@ export interface ChartComponent extends ILayoutNode {
   styleUrls: ['./chart.component.scss'],
   providers: [
     { provide: Datafeed, useClass: RithmicDatafeed },
-    { provide: InstrumentsRepository },
   ]
 })
 @LayoutNode()

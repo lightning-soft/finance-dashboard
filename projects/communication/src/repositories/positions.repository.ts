@@ -1,5 +1,6 @@
-import { Repository } from 'communication';
-import { IPosition } from '../models';
+import { IPosition } from 'trading';
+import { Repository } from '../common';
+
 
 export abstract class PositionsRepository extends Repository<IPosition> {
 
