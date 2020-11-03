@@ -1,4 +1,4 @@
-$padding: 7px;
+$padding: 0;
 $activeColor: #2296f3;
 
 @import "golden-layout";
@@ -6,7 +6,8 @@ $activeColor: #2296f3;
 
 :host {
   display: block;
-  height: calc(100% - #{$navbarHeight});
+  // height: calc(100% - #{$navbarHeight});
+  height: 100%;
   width: 100%;
   background-color: #17181f;
   padding: $padding;

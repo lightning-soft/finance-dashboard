@@ -4,16 +4,9 @@
   display: flex;
   flex-direction: column;
 }
-$layoutMarginTop: 6px;
-
-layout{
-  padding-top: $layoutMarginTop;
-  height: calc(100% - #{$layoutMarginTop});
-}
 
 .dashboard-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
 }
-

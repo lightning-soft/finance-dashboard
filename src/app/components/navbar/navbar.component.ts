@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { RithmicService } from 'communication';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { RithmicService } from 'communication';
-import { LayoutComponent } from 'layout';
 
 @UntilDestroy()
 @Component({
@@ -13,8 +12,7 @@ import { LayoutComponent } from 'layout';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Input() isOpen;
-  @Input() layout: LayoutComponent;
+  @Input() layout;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -30,13 +28,13 @@ export class NavbarComponent {
     this.checkVisibility();
   }
 
-  closeDrawer() {
-    this.isOpen = false;
-  }
+  // closeDrawer() {
+  //   this.isOpen = false;
+  // }
 
-  toggleNavigationDrawer() {
-    this.isOpen = !this.isOpen;
-  }
+  // toggleNavigationDrawer() {
+  //   this.isOpen = !this.isOpen;
+  // }
 
   switchTheme() {
     this.themeHandler.toggleTheme();

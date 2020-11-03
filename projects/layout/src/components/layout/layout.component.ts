@@ -10,14 +10,13 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { GlobalHandlerService } from 'global-handler';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
-import { DesktopLayout } from './layouts/desktop.layout';
 import { IDropable } from './layouts/dropable';
 import { Layout } from './layouts/layout';
-import { GlobalHandlerService } from 'global-handler';
 import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;

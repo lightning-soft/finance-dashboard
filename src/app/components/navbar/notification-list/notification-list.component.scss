@@ -1,0 +1,51 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+button {
+  padding: 1px 12px;
+  margin: 0;
+  background-color: $tabFrameColor;
+  position: relative;
+
+  & > .icon-ellipse {
+    font-size: .5em;
+    color: $fallingColor;
+    position: absolute;
+    left: 50%;
+    top: 2%;
+  }
+  
+}
+
+.notifications {
+  background-color: $tabFrameColor;
+  padding: 4px;
+  min-width: 200px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 4px;
+
+    .title {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    .control button {
+      font-size: 12px;
+      padding: 0;
+      background-color: transparent;
+    }
+  }
+  .notifications-list,
+  .empty-list {
+    background-color: $tabBackground;
+    border-radius: 4px;
+  }
+
+  .empty-list {
+    text-align: center;
+    padding: 60px 45px;
+  }
+}
+

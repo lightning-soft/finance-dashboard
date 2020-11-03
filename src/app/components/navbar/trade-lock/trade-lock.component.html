@@ -1,0 +1,11 @@
+<button 
+  class="icon-{{lockIcons[+unlocked]}}"
+  (click)="handleLock()"
+>
+</button>
+<div
+  class="lock-alert"
+  *ngIf="showAlert"
+>
+  Trading is locked
+</div>
