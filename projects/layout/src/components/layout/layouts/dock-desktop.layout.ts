@@ -88,12 +88,21 @@ export class DockDesktopLayout extends Layout {
           const frameManager = document.createElement('i');
           frameManager.className = `icon-widget-${componentName}`;
 
+          const maximizeButton = '<i class="icon-full-screen-window"></i>';
+          const restoreButton = '<i class="icon-maximize-window"></i>';
+          const minimizeButton = '<i class="icon-minimize-window"></i>';
+          const closeButton = '<i class="icon-close-window"></i>';
+
           const window = this.dockManager.createWindow({
             width: 500,
             height: 500,
             title: componentName[0].toUpperCase() + componentName.slice(1),
             frameManager,
             minimizable: true,
+            restoreButton,
+            maximizeButton,
+            minimizeButton,
+            closeButton,
             y: 50,
           });
 
