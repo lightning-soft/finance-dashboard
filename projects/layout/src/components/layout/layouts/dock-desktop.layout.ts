@@ -73,9 +73,6 @@ export class DockDesktopLayout extends Layout {
 
           instance.componentRef = componentRef;
 
-          // if (instance.setLayoutContainer)
-          //   instance.setLayoutContainer(container);
-
           // if (instance.loadState) {
           //   instance.loadState(componentState.component);
           // }
@@ -104,9 +101,12 @@ export class DockDesktopLayout extends Layout {
             maximizeButton,
             minimizeButton,
             closeButton,
-            y: 50,
+            y: 70,
             x: 50,
           });
+
+          if (instance.setLayoutContainer)
+            instance.setLayoutContainer(window);
 
           window.content.appendChild(comp.location.nativeElement);
 
