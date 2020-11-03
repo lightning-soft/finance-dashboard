@@ -1,6 +1,9 @@
 @import "scss/variables";
 
-@import "~bootstrap/scss/bootstrap-grid.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/utilities";
 
 @import "~ng-zorro-antd/style/index.min.css";
 @import "assets/font/icon.css";
