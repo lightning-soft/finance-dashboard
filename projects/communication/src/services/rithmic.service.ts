@@ -65,8 +65,10 @@ export class RithmicService extends Broker {
     );
   }
 
-  getInstruments(criteria = 'ES'): Observable<IPaginationResponse<IInstrument>> {
-    return this._httpClient.get(`${this._apiUrl}Instrument?criteria=${criteria}`).pipe(
+  getInstruments(criteria = 'ESZ0'): Observable<IPaginationResponse<IInstrument>> {
+    const skip = 0;
+    const take = 50;
+    return this._httpClient.get(`${this._apiUrl}Instrument?criteria=${criteria}&skip=${skip}&take=${take}`).pipe(
       map((res: any) => {
         const data = res.result.map(({ symbol, exchange }) => ({
           id: symbol,
