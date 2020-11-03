@@ -13,10 +13,11 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
 import { ThemesHandler } from 'themes';
 import { Modules, modulesStore } from './modules';
-import { 
-  AppComponent, 
-  DashboardComponent, 
-  DragDrawerComponent, 
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import {
+  AppComponent,
+  DashboardComponent,
+  DragDrawerComponent,
   NavbarComponent,
   AccountComponent,
   TradeLockComponent,
@@ -24,6 +25,7 @@ import {
   ClockComponent,
   NotificationListComponent
 } from './components';
+import { SettingsComponent } from './components/modals/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -36,8 +38,10 @@ import {
     NavbarControllerComponent,
     ClockComponent,
     NotificationListComponent,
+    SettingsComponent,
   ],
   imports: [
+    NzSelectModule,
     HttpClientModule,
     CommunicationModule,
     BrowserModule.withServerTransition({appId: 'serverApp'}),
