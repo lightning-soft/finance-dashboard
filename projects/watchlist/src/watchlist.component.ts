@@ -1,13 +1,13 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import {Id, LevelOneDataFeedService} from 'communication';
+import { Id, InstrumentsRepository, LevelOneDataFeedService } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NotifierService } from 'notifier';
-import { DatafeedRepository, IInstrument, InstrumentsRepository, IQuote } from 'trading';
+import { IInstrument, IQuote } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 

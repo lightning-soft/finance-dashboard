@@ -6,10 +6,6 @@
   color: $text-muted;
   transition: color 0.4s;
 
-  &-active {
-    color: $success;
-  }
-
   &:before {
     content: '';
     position: absolute;

@@ -2,10 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { BrokerService } from 'communication';
+import { AccountRepository, Broker, BrokerService } from 'communication';
 import { TransferItem } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { AccountRepository } from 'trading';
 
 @UntilDestroy()
 @Component({
@@ -17,7 +16,7 @@ export class AccountsComponent implements OnInit {
 
   items: TransferItem[] = [
     {
-      key: 'rithmic',
+      key: Broker.Rithmic,
       title: 'Rithmic',
     },
   ];

@@ -37,7 +37,7 @@
             (click)="onItemSelect(item)"
           >
             <div class="d-flex align-items-center">
-              <span class="indicator ml-1 mr-2" [class.indicator-active]="item.connected"></span>
+              <span class="indicator ml-1 mr-2" [class.text-success]="item.connected"></span>
               <strong class="ml-1">{{ item.title }}</strong>
             </div>
             <div class="small text-muted" (click)="$event.stopPropagation()">
