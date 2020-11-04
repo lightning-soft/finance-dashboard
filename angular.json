@@ -31,7 +31,6 @@
               "src/config"
             ],
             "styles": [
-              "node_modules/bootstrap/scss/bootstrap-grid.scss",
               "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
               "node_modules/ng-zorro-antd/ng-zorro-antd.dark.css",
               "src/styles.scss"
