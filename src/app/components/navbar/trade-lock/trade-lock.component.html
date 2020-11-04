@@ -4,8 +4,8 @@
 >
 </button>
 <div
-  class="lock-alert"
-  *ngIf="showAlert"
+  class="{{alert?.type}}-alert"
+  *ngIf="alert?.visible"
 >
-  Trading is locked
+  {{alert?.text}}
 </div>

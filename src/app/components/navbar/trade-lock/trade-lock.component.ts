@@ -1,4 +1,23 @@
 import { Component, OnInit } from '@angular/core';
+import { TimeoutError } from 'rxjs';
+
+type Alert = {
+  visible: boolean,
+  text: string,
+  type: string
+};
+
+const lock = {
+  visible: true,
+  text: 'Trading is locked',
+  type: 'lock',
+};
+
+const unlock = {
+  visible: true,
+  text: 'Trading is unlocked',
+  type: 'unlock',
+};
 
 @Component({
   selector: 'app-trade-lock',
@@ -10,7 +29,9 @@ export class TradeLockComponent implements OnInit {
   lockIcons: [string, string] = ['lock', 'unlock'];
   unlocked = false;
 
-  showAlert = false;
+  private timerId;
+
+  alert: Alert;
 
   constructor() { }
 
@@ -18,16 +39,20 @@ export class TradeLockComponent implements OnInit {
   }
 
   handleLock(): void {
-    console.log(`Todo -> set trading state to ${!this.unlocked}`)
+    console.log(`Todo -> set trading state to ${!this.unlocked}`);
+
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+
     this.unlocked = !this.unlocked;
 
-    if (!this.unlocked) {
-      this.showAlert = true;
+    this.alert = this.unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
 
-      setTimeout(() => {
-        this.showAlert = false;
-      }, 3000);
-    }
+    this.timerId = setTimeout(() => {
+      this.alert.visible = false;
+    }, 1500);
   }
 
 }

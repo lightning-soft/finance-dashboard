@@ -1,0 +1,39 @@
+<button nz-button (click)="showModal()" class="icon-setting-gear"></button>
+<nz-modal 
+  [(nzVisible)]="isVisible" 
+  [nzTitle]="modalTitle"
+  nzWrapClassName="center-modal setting-modal"
+  (nzOnCancel)="hideModal()"
+>
+  <div class="container">
+    <ul class="tabs">
+      <li class="active">General</li>
+      <li>Hotkeys</li>
+    </ul>
+
+    <!-- General -->
+    <ul class="tab-content">
+      <li>
+        <div class="title">THEME</div>
+        <nz-select class="select" ngModel="lucy">
+          <nz-option nzValue="dark" nzLabel="Dark"></nz-option>
+          <nz-option nzValue="light" nzLabel="Light"></nz-option>
+        </nz-select>
+      </li>
+      <li>
+        <div class="title">LANGUAGE</div>
+        <nz-select class="select" ngModel="en-GB">
+          <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
+        </nz-select> <!-- modal dropdown here -->
+      </li>
+      <li>
+        <label><input type="checkbox"> Auto save settings every 5 minutes</label>
+        <label><input type="checkbox"> Setting 2</label>
+        <label><input type="checkbox"> Setting 3</label>
+      </li>
+    </ul>
+  </div>
+  <div *nzModalFooter>
+  </div>
+</nz-modal>
+
