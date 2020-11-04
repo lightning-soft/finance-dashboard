@@ -1,7 +1,7 @@
 FROM node:12.0-alpine as runner
 WORKDIR /app
 # Copy dependency definitions
-COPY ./dist /app
+COPY ./dist/browser /app
 RUN ls -la
 # Serve the app
-CMD ["node", "./server/main.js"]
+CMD ["node", "./index.js"]

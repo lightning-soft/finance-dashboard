@@ -7,6 +7,7 @@ import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 
 
+
 function setCustomHeadersToStaticFiles(res, path) {
   console.log(path, path.match(/StockChartX.+.js/));
   if (path.match(/StockChartX.+.js/)) {
