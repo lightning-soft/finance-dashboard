@@ -3,6 +3,15 @@ import { LoadingService } from 'lazy-modules';
 import { IDropable } from './dropable';
 import { LoaderComponent } from 'ui';
 
+export type ComponentOptions = {
+  name: string;
+  type?: string;
+  icon?: string;
+  minimizeBtn?: boolean;
+  maximizeBtn?: boolean;
+  closeBtn?: boolean;
+};
+
 export abstract class Layout implements IDropable {
   canDragAndDrop = false;
 
@@ -12,7 +21,7 @@ export abstract class Layout implements IDropable {
     protected container: ElementRef) {
   }
 
-  abstract addComponent(item: string);
+  abstract addComponent(componentOptions: ComponentOptions);
 
   handleResize() {
 

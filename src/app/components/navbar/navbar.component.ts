@@ -27,24 +27,23 @@ export class NavbarComponent {
     this.checkVisibility();
   }
 
-  // closeDrawer() {
-  //   this.isOpen = false;
-  // }
-
-  // toggleNavigationDrawer() {
-  //   this.isOpen = !this.isOpen;
-  // }
-
   switchTheme() {
     this.themeHandler.toggleTheme();
   }
 
   openAccounts() {
-    this.layout.addComponent('accounts');
+    this.layout.addComponent({
+      name: 'accounts',
+      maximizeBtn: false,
+    });
   }
 
   openSettings() {
-    this.layout.addComponent('settings');
+    this.layout.addComponent({
+      name: 'settings',
+      icon: 'icon-setting-gear',
+      maximizeBtn: false,
+    });
   }
 
   checkVisibility() {
@@ -53,11 +52,4 @@ export class NavbarComponent {
       this.isVisible = false;
     }
   }
-
-  // openSettings() {
-  //   this.modalService.create({
-  //     nzContent: SettingsComponent,
-  //     nzFooter: null,
-  //   });
-  // }
 }

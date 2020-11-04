@@ -46,6 +46,6 @@ export class DragDrawerComponent {
   ];
 
   create(item) {
-    this.layout.addComponent(item.component);
+    this.layout.addComponent({name: item.component, type: 'widget'});
   }
 }
