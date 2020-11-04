@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { LayoutComponent } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
@@ -11,7 +12,7 @@ import { Themes, ThemesHandler } from 'themes';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Input() layout;
+  @Input() layout: LayoutComponent;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -42,6 +43,10 @@ export class NavbarComponent {
     this.layout.addComponent('accounts');
   }
 
+  openSettings() {
+    this.layout.addComponent('settings');
+  }
+
   checkVisibility() {
     if (window.location.href.includes('popup')) {
       console.log('here');
@@ -49,10 +54,10 @@ export class NavbarComponent {
     }
   }
 
-  openSettings() {
-    this.modalService.create({
-      nzContent: SettingsComponent,
-      nzFooter: null,
-    });
-  }
+  // openSettings() {
+  //   this.modalService.create({
+  //     nzContent: SettingsComponent,
+  //     nzFooter: null,
+  //   });
+  // }
 }

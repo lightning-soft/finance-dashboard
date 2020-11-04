@@ -1,81 +1,81 @@
+
 @import "themes/index";
 
 :host {
   display: block;
   height: 100%;
-  overflow: auto;
   width: 100%;
+  overflow: auto;
 
-  .layout {
-    display: flex;
+  .settings {
     height: 100%;
-  }
+    display: flex;
+    background-color: transparent;
 
-  nz-select {
-    min-width: 60px;
-  }
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
 
-  .select-container {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 6px;
-    min-width: 120px;
-    cursor: pointer;
-    position: relative;
-
-    i {
-      position: absolute;
-      right: 10px;
-    }
-  }
-
-  ::ng-deep {
-    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      border: none;
-      box-shadow: none;
-    }
-  }
-
-  i {
-    font-size: 5px;
-  }
-
-  .setting-list {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .setting-item {
-    font-size: 14px;
-    line-height: 19px;
-    cursor: pointer;
-
-    &.active {
-      font-weight: 600;
+      li {
+        font-size: 12px;
+      }
     }
 
-    &:not(:first-child) {
-      margin-top: 10px;
+    .tabs {
+      border-radius: 4px;
+      background-color: #1B1D22;
+      width: 180px;
+      padding: 12px 8px;
+      
+      li {
+        border-radius: 2px;
+        padding: 4px 8px;
+        margin-bottom: 1px;
+        cursor: pointer;
+
+        &.active,
+        &:hover {
+          background-color: #24262C;
+        }
+      }
     }
-  }
 
-  .change-theme {
-    margin-right: 10px;
-    font-weight: 600;
-  }
+    .tab-content {
+      padding: 0 16px;
+      flex-grow: 1;
 
-  .left-side {
-    min-width: 120px;
-    padding-top: 25px;
-    padding-left: 15px;
-  }
+      li {
+        display: flex;
+        flex-direction: column;
+        padding: 2px 0 10px;
 
-  .right-side {
-    padding-top: 20px;
-    padding-left: 20px;
-    width: 100%;
+        .title {
+          margin-bottom: 6px;
+        }
+
+        ::ng-deep .select {
+          border-radius: 2px;
+          background-color: #101114;
+          color: #FFFFFF;
+          width: 180px;
+
+          .ant-select-selector {
+            border: none;
+            font-size: 12px;
+            height: 24px;
+          }
+        }
+
+        &:not(:last-child) {
+          border-bottom: 1px solid #51535A;
+          margin-bottom: 10px;
+        }
+      }
+    }
   }
 }
 
-
-
+.frame.settings {
+  background-color: pink;
+}

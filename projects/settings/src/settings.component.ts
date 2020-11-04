@@ -14,6 +14,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class SettingsComponent {
   themes = [Themes.Dark, Themes.Light];
 
+  tabs = ['general', 'hotkeys'];
+  selectedTab = 'general';
+
   private _currentTheme;
 
   get currentTheme() {
