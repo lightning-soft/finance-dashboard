@@ -67,6 +67,16 @@
           }
         }
 
+        label {
+          font-weight: normal;
+          color: #A1A2A5;
+        }
+
+        input[type="checkbox"] {
+          margin-right: 6px;
+          transform: translateY(2px);
+        }
+
         &:not(:last-child) {
           border-bottom: 1px solid #51535A;
           margin-bottom: 10px;
@@ -74,8 +84,4 @@
       }
     }
   }
-}
-
-.frame.settings {
-  background-color: pink;
 }
