@@ -1,57 +1,36 @@
-var http = require('http');
-var fs = require('fs');
-var path = require('path');
+var httpServer = require('http-server');
+const mime = require('mime');
 
-http.createServer(function (request, response) {
-    console.log('request starting...');
+const lookup = mime.lookup;
+mime.lookup = function () {
+  const file = arguments[0];
+  if (file.match(/StockChartX.+.js/))
+    return 'text/javascript';
 
-    var filePath = '.' + request.url;
-    if (filePath == './')
-        filePath = './index.html';
+  return lookup.apply(this, arguments);
+}
 
-    var extname = path.extname(filePath);
-    var contentType = 'text/html';
-    switch (extname) {
-        case '.js':
-            contentType = 'text/javascript';
-            // contentType = 'application/x-javascript';
-            break;
-        case '.css':
-            contentType = 'text/css';
-            break;
-        case '.json':
-            contentType = 'application/json';
-            break;
-        case '.png':
-            contentType = 'image/png';
-            break;
-        case '.jpg':
-            contentType = 'image/jpg';
-            break;
-        case '.wav':
-            contentType = 'audio/wav';
-            break;
-    }
+const charsets = mime.charsets.lookup;
+mime.charsets.lookup = function () {
+  if (arguments[0] === 'text/javascript')
+    return null;
 
-    fs.readFile(filePath, function(error, content) {
-        if (error) {
-            if(error.code == 'ENOENT'){
-                fs.readFile('./404.html', function(error, content) {
-                    response.writeHead(200, { 'Content-Type': contentType });
-                    response.end(content, 'utf-8');
-                });
-            }
-            else {
-                response.writeHead(500);
-                response.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
-                response.end();
-            }
-        }
-        else {
-            response.writeHead(200, { 'Content-Type': contentType });
-            response.end(content, 'utf-8');
-        }
-    });
+  return charsets.apply(this, arguments);
+}
 
-}).listen(8125);
+var server = httpServer.createServer({
+  root: './',
+  robots: true,
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': 'true'
+  },
+  // before: [
+  //   function (req, res) {
+  //     res.emit('next');
+  //   },
+  // ]
+});
+
+server.listen(8125);
 console.log('Server running at http://127.0.0.1:8125/');
