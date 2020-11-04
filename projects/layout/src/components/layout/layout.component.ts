@@ -48,6 +48,7 @@ export class LayoutComponent implements OnInit, IDropable {
     private _changeDetectorRef: ChangeDetectorRef,
     private _globalHandler: GlobalHandlerService
   ) {
+    (window as any).LayoutComponent = this;
   }
 
   ngOnInit() {
@@ -143,7 +144,7 @@ export class LayoutComponent implements OnInit, IDropable {
    */
   @HostListener('window:beforeunload')
   beforeUnloadHandler() {
-    this._layoutHandler.save(this.getState());
+    this.layoutStore.setItem(this.getState());
   }
 }
 
