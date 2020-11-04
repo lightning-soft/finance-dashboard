@@ -9,6 +9,7 @@
   "main": "main.js",
   "scripts": {
     "ng": "ng",
+    "clean": "rm -rf ./node_modules && rm ./package-lock.json",
     "start": "ng serve --port 4200",
     "build": "npm run font && ng build",
     "build:prod": "ng build --prod",
@@ -60,6 +61,7 @@
     "@fortawesome/fontawesome-free": "5.14.0",
     "@ngneat/until-destroy": "8.0.1",
     "@nguniversal/express-engine": "10.0.1",
+    "simple-window-manager": "git+https://gitlab.aviditech:BP53_Z2DxNHjB46tyqDd@git.avidi.tech/Taras/simple-window-manager.git#8357477317373ca8f61cb9b5bd9944cbadfd8a2c",
     "bootstrap": "^4.5.3",
     "electron-log": "^4.2.4",
     "express": "4.17.1",
@@ -67,7 +69,6 @@
     "ngx-cookie-service": "10.1.1",
     "ngx-monaco-editor": "9.0.0",
     "rxjs": "6.6.2",
-    "simple-window-manager": "git+https://git.avidi.tech/Taras/simple-window-manager.git",
     "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
     "underscore": "1.10.2",
