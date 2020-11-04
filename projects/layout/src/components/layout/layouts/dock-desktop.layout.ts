@@ -2,7 +2,7 @@ import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { EmptyLayout } from '../empty-layout';
-import { Layout } from './layout';
+import { ComponentOptions, Layout } from './layout';
 import { WindowManager } from 'simple-window-manager';
 
 export class DockDesktopLayout extends Layout {
@@ -21,7 +21,7 @@ export class DockDesktopLayout extends Layout {
     super(factoryResolver, creationsService, viewContainer, container);
   }
 
-  addComponent(componentNameOrConfig: any) {
+  addComponent(componentNameOrConfig: ComponentOptions | any) {
     let componentName: string;
     let componentState: any;
     let config: any;
@@ -31,9 +31,10 @@ export class DockDesktopLayout extends Layout {
     else {
       const { component, ..._config } = componentNameOrConfig;
       config = _config;
-      componentState = component.state;
-      componentName = component.name;
+      componentState = component?.state;
+      componentName = component?.name;
     }
+
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {
     //   // edge don't support obfuscated code StockChartX
     //   // possible solution - add scripts in index.html
@@ -56,24 +57,38 @@ export class DockDesktopLayout extends Layout {
           // const linkSelect = await this.getLinkSelect(container, instance);
 
           // TMP icon
-          const frameManager = document.createElement('i');
-          frameManager.className = `icon-widget-${componentName}`;
+          let frameManager;
 
-          const maximizeButton = '<i class="icon-full-screen-window"></i>';
+          let maximizeButton;
+          let maximizable = false;
+
+          // if (componentOptions.type === 'widget') {
+          //   frameManager = document.createElement('i');
+          //   frameManager.className = `icon-widget-${componentName}`;
+
+          //   maximizeButton = '<i class="icon-full-screen-window"></i>';
+          //   maximizable = true;
+          // } else if (componentOptions.icon) {
+          //   frameManager = document.createElement('i');
+          //   frameManager.className = componentOptions.icon;
+          // }
+
           const restoreButton = '<i class="icon-maximize-window"></i>';
-          // const minimizeButton = '<i class="icon-minimize-window"></i>';
-          const minimizeButton = '';
           const closeButton = '<i class="icon-close-window"></i>';
 
-          const window = this.dockManager.createWindow({
+          // const winClassName = componentOptions.type;
+
+          const windowOptions = {
             width: 500,
             height: 500,
             title: componentName[0].toUpperCase() + componentName.slice(1),
             frameManager,
+            // classNames: { win: winClassName },
             minimizable: true,
+            maximizable,
             restoreButton,
             maximizeButton,
-            minimizeButton,
+            minimizeButton: '',
             closeButton,
             y: 70,
             x: 50,
@@ -82,7 +97,9 @@ export class DockDesktopLayout extends Layout {
               state: instance.getState && instance.getState(),
               name: componentName,
             }),
-          });
+          }
+
+          const window = this.dockManager.createWindow(windowOptions);
 
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(window);
