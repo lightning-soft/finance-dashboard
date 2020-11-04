@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { IOrder, IOrderParams, OrdersRepository, OrderStatus } from 'trading';
+import { IOrder, IOrderParams, OrderStatus } from 'trading';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { ItemsComponent } from 'base-components';
 import { OrderItem } from './models/OrderItem';
+import { OrdersRepository } from 'communication';
 
 @UntilDestroy()
 @Component({

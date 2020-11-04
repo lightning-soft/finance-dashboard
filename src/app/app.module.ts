@@ -3,7 +3,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { CommunicationModule } from 'communication';
+import { CommunicationConfig, CommunicationModule } from 'communication';
+import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
@@ -11,9 +12,22 @@ import { LoadingModule } from 'lazy-modules';
 import { NzDropDownModule } from 'ng-zorro-antd';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NotifierModule } from 'notifier';
+import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
-import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
+import { AppConfig } from './app.config';
 import { Modules, modulesStore } from './modules';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import {
+  AccountComponent,
+  ClockComponent,
+  AppComponent,
+  DashboardComponent,
+  DragDrawerComponent,
+  NavbarComponent,
+  NavbarControllerComponent,
+  NotificationListComponent, TradeLockComponent
+} from './components';
+import { SettingsComponent } from './components/modals/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -21,15 +35,32 @@ import { Modules, modulesStore } from './modules';
     DashboardComponent,
     DragDrawerComponent,
     AppComponent,
+    AccountComponent,
+    TradeLockComponent,
+    NavbarControllerComponent,
+    ClockComponent,
+    NotificationListComponent,
+    SettingsComponent,
   ],
   imports: [
+    NzSelectModule,
     HttpClientModule,
     CommunicationModule,
-    BrowserModule.withServerTransition({appId: 'serverApp'}),
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
     NzModalModule,
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    ConfigModule.configure({
+      path: environment.config || 'config/config.json',
+      configClass: AppConfig,
+    }),
+    CommunicationModule.forRoot([
+      {
+        provide: CommunicationConfig,
+        useExisting: AppConfig,
+      }
+    ]),
     LayoutModule.forRoot(),
     LoadingModule.forRoot([
       {

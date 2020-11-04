@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
+import { BrokerService, HistoryRepository, InstrumentsRepository, ITrade, LevelOneDataFeedService, WebSocketService } from 'communication';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicService, WebSocketService } from 'communication';
-import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
-import { InstrumentsRepository } from '../repositories';
 import { Datafeed } from './Datafeed';
 
 declare let StockChartX: any;
@@ -14,22 +13,18 @@ declare let StockChartX: any;
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
 
-  private _wsUrl: string;
-
   constructor(
-    private _rithmicService: RithmicService,
+    private _brokerService: BrokerService,
     private _instrumentsRepository: InstrumentsRepository,
+    private _historyRepository: HistoryRepository,
     private _levelOneDatafeedService: LevelOneDataFeedService,
     private _webSocketService: WebSocketService,
-    private _communicationConfig: CommunicationConfig,
   ) {
     super();
-
-    this._wsUrl = this._communicationConfig.rithmic.ws.url;
   }
 
   send(request: IBarsRequest) {
-    this._rithmicService.handleConnection(isConnected => {
+    this._brokerService.getActive().handleConnection(isConnected => {
       if (isConnected) {
         super.send(request);
 
@@ -82,7 +77,7 @@ export class RithmicDatafeed extends Datafeed {
       BarCount: count,
     };
 
-    this._rithmicService.getHistory(symbol, params).subscribe(
+    this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
@@ -120,7 +115,7 @@ export class RithmicDatafeed extends Datafeed {
     this._levelOneDatafeedService.subscribe([instrument]);
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (isNaN(trade.AskInfo.Price && trade.BidInfo.Price)) return;
+      if (isNaN(trade.AskInfo.Price) || isNaN(trade.BidInfo.Price)) return;
 
       const quote: IQuote = {
         askInfo: {

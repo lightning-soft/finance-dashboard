@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { Components } from '../../../modules';
@@ -9,68 +9,43 @@ import { Components } from '../../../modules';
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements AfterViewInit {
+export class DragDrawerComponent {
   @Input() layout: LayoutComponent;
-  @Input() isOpen = false;
-  @Output() hide = new EventEmitter();
-
-  @ViewChildren('add') viewItems;
-
 
   items = [
     {
-      icon: 'icon-logo',
-      text: 'Trading \n' +
-        '    Chart',
+      icon: 'icon-widget-chart',
+      name: 'Chart',
       component: Components.Chart
     },
     {
-      text: 'Market \n' +
-        'Watch',
-      icon: 'icon-watch',
+      icon: 'icon-widget-watchlist',
+      name: 'Watchlist',
       component: Components.Watchlist
     },
     {
-      text: ' Orders\n' +
-        'Book',
-      icon: 'icon-orders',
+      icon: 'icon-widget-orders',
+      name: 'Orders',
       component: Components.Orders
     },
     {
-      text: 'Positions',
-      icon: 'icon-position',
+      icon: 'icon-widget-positions',
+      name: 'Positions',
       component: Components.Positions
     },
-    {
-      text: 'Make order',
-      icon: 'icon-orders',
-      component: Components.OrderForm
-    },
-    {
-      text: 'Scripting',
-      icon: 'icon-scripting',
-      component: Components.Scripting
-    },
-   /* {
-      text: 'Settings',
-      icon: 'icon-orders',
-      component: Components.Settings
-    },*/
+    // {
+    //   icon: 'icon-orders',
+    //   name: 'Order form',
+    //   component: Components.OrderForm
+    // },
+    // {
+    //   icon: 'icon-scripting',
+    //   name: 'Scripting',
+    //   component: Components.Scripting
+    // }
   ];
 
   create(item) {
     this.layout.addComponent(item.component);
-  }
-
-  ngAfterViewInit() {
-    const layout = this.layout;
-    layout.on('init', () => {
-      layout.on('componentCreated', () => this.hide.emit());
-      if (layout.canDragAndDrop) {
-        this.viewItems._results.forEach((item, index) => {
-          layout.createDragSource(item.nativeElement, this.items[index].component);
-        });
-      }
-    });
   }
 }
