@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TimeoutError } from 'rxjs';
 
 type Alert = {
   visible: boolean,
@@ -28,7 +29,7 @@ export class TradeLockComponent implements OnInit {
   lockIcons: [string, string] = ['lock', 'unlock'];
   unlocked = false;
 
-  private timerId: number;
+  private timerId;
 
   alert: Alert;
 
