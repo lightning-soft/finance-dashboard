@@ -66,8 +66,8 @@ export class DockDesktopLayout extends Layout {
           //   frameManager = document.createElement('i');
           //   frameManager.className = `icon-widget-${componentName}`;
 
-          //   maximizeButton = '<i class="icon-full-screen-window"></i>';
-          //   maximizable = true;
+          maximizeButton = '<i class="icon-full-screen-window"></i>';
+          maximizable = true;
           // } else if (componentOptions.icon) {
           //   frameManager = document.createElement('i');
           //   frameManager.className = componentOptions.icon;

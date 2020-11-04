@@ -214,6 +214,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   handleNodeEvent(name: LayoutNodeEvent) {
     switch (name) {
       case LayoutNodeEvent.Resize:
+      case LayoutNodeEvent.Maximize:
+      case LayoutNodeEvent.Restore:
         this.setNeedUpdate();
         break;
     }
