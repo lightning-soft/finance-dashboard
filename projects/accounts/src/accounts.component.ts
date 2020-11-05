@@ -63,8 +63,8 @@ export class AccountsComponent implements OnInit {
           item.active = false;
           item.isLoading = false;
         },
-        (res) => {
-          this.notifier.showError(res.error.error.message);
+        (error) => {
+          this.notifier.showError(error);
           item.isLoading = false;
         },
       );

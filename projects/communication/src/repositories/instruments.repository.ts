@@ -27,7 +27,7 @@ export class InstrumentsRepository extends BrokerRepository<IInstrument> {
           tickSize: 0.01,
         }));
 
-        return { data } as IPaginationResponse<IInstrument>;
+        return { data, } as IPaginationResponse<IInstrument>;
       }),
     );
   }

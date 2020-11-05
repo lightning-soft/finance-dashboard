@@ -27,17 +27,17 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
     let params = {};
-    const { id = null, ...query } = obj;
+    const { id = null, ...query } = obj ?? {};
 
     if (query) {
       if (query.skip != null) {
         query.offset = query.skip;
-        delete query.skip;
+        // delete query.skip;
       }
 
       if (query.take != null) {
         query.limit = query.take;
-        delete query.take;
+        // delete query.take;
       }
 
       params = new HttpParams({ fromObject: query });

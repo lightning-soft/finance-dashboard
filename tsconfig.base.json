@@ -102,6 +102,9 @@
       ],
       "accounts": [
         "projects/accounts/index"
+      ],
+      "instrument-select": [
+        "projects/instrument-select/index"
       ]
     }
   }
