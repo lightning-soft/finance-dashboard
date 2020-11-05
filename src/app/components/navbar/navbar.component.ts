@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
-import { SettingsComponent } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 
 @UntilDestroy()
