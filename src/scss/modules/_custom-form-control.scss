@@ -1,12 +1,16 @@
 body .custom-form-control {
-  .ant-input {
-    border-color: transparent;
+  width: 100%;
+
+  .ant-input,
+  .ant-select-selector {
+    border-color: transparent !important;
     background: $dark !important;
     box-shadow: none !important;
-    border-radius: 2px;
+    border-radius: 2px !important;
+  }
 
-    &:focus {
-      border-color: $primary;
-    }
+  .ant-input:focus,
+  &.ant-select-focused .ant-select-selector {
+    border-color: $primary !important;
   }
 }

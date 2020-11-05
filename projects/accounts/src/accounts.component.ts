@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Injector, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountRepository, Broker, BrokerService } from 'communication';
-import { TransferItem } from 'ng-zorro-antd';
-import { NotifierService } from 'notifier';
+import { GroupItemsBuilder, ItemsComponent } from 'base-components';
+import { Broker, ConnectionsRepository, IConnection } from 'communication';
 
 @UntilDestroy()
 @Component({
@@ -12,76 +10,96 @@ import { NotifierService } from 'notifier';
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
 })
-export class AccountsComponent implements OnInit {
+export class AccountsComponent extends ItemsComponent<IConnection> implements OnInit {
 
-  items: TransferItem[] = [
+  builder = new GroupItemsBuilder();
+
+  form: FormGroup;
+  isLoading = false;
+
+  brokers: any[] = [
     {
       key: Broker.Rithmic,
       title: 'Rithmic',
     },
   ];
 
+  selectedItem: IConnection = null;
+
   constructor(
-    protected _route: ActivatedRoute,
-    protected _repository: AccountRepository,
-    private _brokerService: BrokerService,
+    protected _repository: ConnectionsRepository,
+    protected _injector: Injector,
     private fb: FormBuilder,
-    private notifier: NotifierService,
-  ) {}
+  ) {
+    super();
+
+    this.autoLoadData = {
+      onInit: true,
+    };
+  }
 
   ngOnInit() {
-    this.items.forEach(item => {
-      const { key } = item;
+    super.ngOnInit();
 
-      item.isLoading = false;
+    this.builder.setParams({
+      groupBy: ['broker'],
+    });
 
-      item.form = this.fb.group({
-        login: [null],
-        password: [null],
-      });
-
-      this._brokerService.get(key).handleConnection(connected => {
-        item.connected = connected;
-      }, this);
+    this.form = this.fb.group({
+      name: [null],
+      username: [null],
+      password: [null],
+      connectionPointId: [null],
     });
   }
 
-  togglePanel(item: TransferItem) {
-    item.active = !item.active;
+  openCreateForm(event: MouseEvent, broker: Broker) {
+    event.stopPropagation();
+
+    this.form.reset();
+
+    this.selectedItem = { broker } as IConnection;
   }
 
-  connect(item: TransferItem) {
-    const { login, password } = item.form.value;
+  selectItem(item: IConnection) {
+    this.selectedItem = item;
 
-    item.isLoading = true;
+    this.form.reset();
 
-    this._brokerService.get(item.key).connect(login, password)
+    const value = Object.keys(this.form.value).reduce((accum, key) => {
+      accum[key] = item[key];
+
+      return accum;
+    }, {});
+
+    this.form.setValue(value);
+  }
+
+  handleSubmit() {
+    const action = !this.selectedItem.id ? 'createItem' : 'connect';
+
+    this._request(action);
+  }
+
+  disconnect() {
+    this._request('disconnect');
+  }
+
+  private _request(action: string) {
+    this.isLoading = true;
+
+    this._repository.switch(this.selectedItem.broker);
+
+    this._repository[action]({ ...this.selectedItem, ...this.form.value })
       .pipe(untilDestroyed(this))
       .subscribe(
         () => {
-          item.form.reset();
-          item.active = false;
-          item.isLoading = false;
-        },
-        (error) => {
-          this.notifier.showError(error);
-          item.isLoading = false;
-        },
-      );
-  }
-
-  disconnect(item: TransferItem) {
-    item.isLoading = true;
-
-    this._brokerService.get(item.key).disconnect()
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        () => {
-          item.isLoading = false;
+          this.form.reset();
+          this.isLoading = false;
         },
         (res) => {
           this.notifier.showError(res.error.error.message);
-          item.isLoading = false;
+          this.isLoading = false;
         },
       );
   }
