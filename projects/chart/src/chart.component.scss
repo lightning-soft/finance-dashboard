@@ -54,12 +54,22 @@ $toolbarMargin: 4px;
   width: 100%;
   position: relative;
 }
-
+.chart-container::selection {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
 .component-container {
   display: flex;
   height: 100%;
 }
-
+//.component-container::selection {
+//  position: fixed;
+//  width: 100%;
+//  height: 100%;
+//}
 .scxToolbar-multiDropdown,
 .scxToolbarButton-dropdownElementsContainer,
 .scxTimeFramePicker-dropdownContainer {
@@ -86,7 +96,7 @@ $toolbarMargin: 4px;
     order-form {
       height: 100%;
     }
-    
+
     .scxChartPanel ~ .scxChartPanel .scxPanelTitle {
       margin-top: 5px;
     }
