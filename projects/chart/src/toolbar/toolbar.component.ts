@@ -209,11 +209,11 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._brokerService.getActive().handleConnection(isConnected => {
-      if (isConnected) {
-        this._search();
-      }
-    }, this);
+    // this._brokerService.getActive().handleConnection(isConnected => {
+    //   if (isConnected) {
+    //     this._search();
+    //   }
+    // }, this);
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {
