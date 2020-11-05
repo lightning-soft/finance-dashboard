@@ -18,6 +18,14 @@ export abstract class BrokerRepository<T extends IBaseItem = any> extends HttpRe
     return this._cookieService.get('apiKey');
   }
 
+  protected set _apiKey(apiKey: string) {
+    if (apiKey) {
+      this._cookieService.set('apiKey', apiKey);
+    } else {
+      this._cookieService.delete('apiKey');
+    }
+  }
+
   protected get _httpOptions() {
     return {
       headers: {
