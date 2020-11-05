@@ -45,7 +45,19 @@ $toolbarMargin: 4px;
     transition: all 0.3s;
   }
 }
-
+::ng-deep {
+  .resize-up, .resize-down, .resize-left, .resize-left-up, .resize-left-down, .resize-right, .resize-right-up, .resize-right-down{
+    .chart-container {
+      &:after {
+        content: "";
+        position: fixed;
+        height: 94%;
+        width: 99%;
+        z-index: 99;
+      }
+    }
+  }
+}
 .component-container {
   display: flex;
   height: 100%;
@@ -56,13 +68,6 @@ $toolbarMargin: 4px;
   height: 100%;
   width: 100%;
   position: relative;
-  &::after {
-    content: "";
-    position: fixed;
-    height: 100%;
-    width: 100%;
-    z-index: 99;
-  }
   &:hover {
     cursor: grab;
   }
