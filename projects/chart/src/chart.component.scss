@@ -53,23 +53,17 @@ $toolbarMargin: 4px;
   height: 100%;
   width: 100%;
   position: relative;
+  &:hover {
+    cursor: grab;
+  }
+  &:before {
+    content: "";
+    position: fixed;
+    height: 100%;
+    width: 100%;
+  }
 }
-.chart-container::selection {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  position: relative;
-}
-.component-container {
-  display: flex;
-  height: 100%;
-}
-//.component-container::selection {
-//  position: fixed;
-//  width: 100%;
-//  height: 100%;
-//}
+
 .scxToolbar-multiDropdown,
 .scxToolbarButton-dropdownElementsContainer,
 .scxTimeFramePicker-dropdownContainer {
