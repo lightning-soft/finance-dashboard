@@ -59,7 +59,9 @@ build-web-ssr:
         paths:
             - dist/
     script:
-        - npm run build:ssr
+        # - npm run build:ssr
+        - npm install --save-dev @angular-devkit/build-angular
+        - npm run build:static
     # after_script:
     #     - npm run test:ssr
 # .deploy:

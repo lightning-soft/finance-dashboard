@@ -1,24 +1,36 @@
-<div class="layout">
-  <div class="left-side">
-    <ul class="setting-list">
-      <li class="setting-item active">General</li>
-      <li class="setting-item">Setting 2</li>
-      <li class="setting-item">Setting 3</li>
-      <li class="setting-item">Setting 4</li>
-    </ul>
-  </div>
-  <div class="right-side">
-    <span class="change-theme">Change Theme</span>
-    <div (click)="selectComponent.setOpenState(true)" class="select-container">
-      <nz-select
-        #selectComponent
-        nzDropdownClassName="toolbar-dropdown"
-        [nzShowArrow]="false"
-        [(ngModel)]="currentTheme">
-        <nz-option *ngFor="let theme of themes" [nzValue]="theme" [nzLabel]="theme"></nz-option>
-      </nz-select>
-      <i class="icon-arrow-dropdown"></i>
-    </div>
+<div class="settings">
+  <ul class="tabs">
+    <li class="active">General</li>
+    <li>Hotkeys</li>
+  </ul>
 
-  </div>
+  <ul class="tab-content">
+    <li>
+      <div class="title">THEME</div>
+        <nz-select
+          class="select"
+          nzSize="small" 
+          [(ngModel)]="currentTheme"
+        >
+          <nz-option 
+            *ngFor="let theme of themes" 
+            [nzValue]="theme" 
+            [nzLabel]="theme"
+          >
+          </nz-option>
+        </nz-select>
+        <i class="icon-arrow-dropdown"></i>
+    </li>
+    <li>
+      <div class="title">LANGUAGE</div>
+      <nz-select nzSize="small" class="select" ngModel="en-GB">
+        <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
+      </nz-select> 
+    </li>
+    <li>
+      <label><input type="checkbox"> Auto save settings every 5 minutes</label>
+      <label><input type="checkbox"> Setting 2</label>
+      <label><input type="checkbox"> Setting 3</label>
+    </li>
+  </ul>
 </div>

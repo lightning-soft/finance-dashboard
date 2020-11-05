@@ -27,7 +27,6 @@ import {
   NavbarControllerComponent,
   NotificationListComponent, TradeLockComponent
 } from './components';
-import { SettingsComponent } from './components/modals/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +39,6 @@ import { SettingsComponent } from './components/modals/settings/settings.compone
     NavbarControllerComponent,
     ClockComponent,
     NotificationListComponent,
-    SettingsComponent,
   ],
   imports: [
     NzSelectModule,

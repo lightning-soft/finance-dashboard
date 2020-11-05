@@ -9,4 +9,7 @@ export enum LayoutNodeEvent {
   Tab = 'tab',
   ExtendState = 'extendState',
   LinkData = 'linkData',
+
+  Maximize = 'maximize',
+  Restore = 'restore', // undo maximize
 }

@@ -16,7 +16,7 @@ import { LoadingService } from 'lazy-modules';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
 import { IDropable } from './layouts/dropable';
-import { Layout } from './layouts/layout';
+import { ComponentOptions, Layout } from './layouts/layout';
 import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
@@ -48,23 +48,14 @@ export class LayoutComponent implements OnInit, IDropable {
     private _changeDetectorRef: ChangeDetectorRef,
     private _globalHandler: GlobalHandlerService
   ) {
+    (window as any).LayoutComponent = this;
   }
 
-  ngOnInit() {
-    (window as any).l = this;
-    // this.ngZone.runOutsideAngular(() =>
-    this._layoutHandler
-      .handleCreate
-      .pipe(
-        untilDestroyed(this)
-      )
-      .subscribe(name => this.addComponent(name));
-    // );
-  }
+  ngOnInit() { }
 
-  addComponent(name: string) {
+  addComponent(options: ComponentOptions) {
     if (this.layout)
-      this.layout.addComponent(name);
+      this.layout.addComponent(options);
   }
 
   createDragSource(element, item) {
@@ -143,7 +134,7 @@ export class LayoutComponent implements OnInit, IDropable {
    */
   @HostListener('window:beforeunload')
   beforeUnloadHandler() {
-    this._layoutHandler.save(this.getState());
+    this.layoutStore.setItem(this.getState());
   }
 }
 
