@@ -56,11 +56,12 @@ $toolbarMargin: 4px;
   height: 100%;
   width: 100%;
   position: relative;
-  &:before {
+  &::after {
     content: "";
     position: fixed;
     height: 100%;
     width: 100%;
+    z-index: 99;
   }
   &:hover {
     cursor: grab;
