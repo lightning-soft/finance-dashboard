@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
-import { InstrumentSelectComponent } from './instrument-select.component';
-import { NzAutocompleteModule } from 'ng-zorro-antd';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InstrumentSelectComponent } from './instrument-select.component';
+import { NzSelectModule } from 'ng-zorro-antd';
 
 @NgModule({
   declarations: [
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   ],
   imports: [
     CommonModule,
-    NzAutocompleteModule,
+    NzSelectModule,
     FormsModule,
   ],
   exports: [
