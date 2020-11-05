@@ -1,8 +1,155 @@
 <div class="toolbar-container">
 
-  <instrument-select [(instrument)]='instrument'></instrument-select>
+  <div class="tool btn-group">
+    <nz-button-group
+      nzTrigger="click"
+      nzOverlayClassName="toolbar-dropdown" 
+      nz-dropdown 
+      [nzDropdownMenu]="menu2"
+      nzPlacement="bottomRight"
+    >
+      <button nz-button>
+        <span class="icon-tool-drawings"></span>
+      </button>
+      <i class="icon-arrow-down"></i>
+    </nz-button-group>
 
-</div>
+    <nz-dropdown-menu #menu2="nzDropdownMenu">
+      <ul nz-menu>
+        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu nzTitle="{{drawingInstrument.value}}">
+          <ul class="toolbar-submenu">
+            <li *ngFor="let item of drawingInstrument.items" nz-menu-item (click)="addDrawing(item)">
+              <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
+              <span>{{transformToUIName(item)}}</span>
+            </li>
+          </ul>
+        </li>
+
+        <li nz-menu-item (click)="removeDrawing()">Delete All Drawings</li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+
+  <instrument-select class="tool" [(instrument)]='instrument'></instrument-select>
+
+  <div class="tool select">
+    <nz-select
+      #frame
+      [nzShowArrow]="false"
+      [compareWith]="compareTimeFrame"
+      nzDropdownClassName="toolbar-dropdown"
+      [(ngModel)]="timeFrame"
+      [nzCustomTemplate]="timeFrameTemplate"
+      nzSize="small"
+    >
+      <ng-template #timeFrameTemplate let-selected>
+        {{ getShortTimeFrame(selected.nzValue) }}
+      </ng-template>
+      <nz-option
+        *ngFor="let option of timeFrameOptions"
+        [nzValue]="option"
+        [nzLabel]="getTimeFrame(option)"
+      >
+      </nz-option>
+    </nz-select>
+    <i (click)="frame.setOpenState(true)" class="icon-arrow-down"></i>
+  </div>  
+
+  <div class="tool select">
+    <nz-select 
+      #price 
+      [nzCustomTemplate]="defaultTemplate"
+      nzDropdownClassName="toolbar-dropdown" 
+      [(ngModel)]="priceStyle"
+      nzSize="small"
+    >
+      <nz-option 
+        *ngFor="let option of priceStyles" 
+        [nzValue]="option" 
+        [nzLabel]="option" 
+        nzCustomContent
+        (click)="changePriceStyle(option)"
+      >
+        <span class="scx-icon icon-{{option}}"></span>
+        {{option}}
+      </nz-option>
+    </nz-select>
+    <i (click)="price.setOpenState(true)" class="icon-arrow-down"></i>
+  </div>
+
+
+  <div class="tool btn-group">
+    <nz-button-group>
+      <button 
+        nz-button 
+        nzPlacement="bottomRight" 
+        (click)="openIndicatorDialog()"
+      >
+        <span class="icon-tool-indicators"></span>
+      </button>
+      <i class="icon-arrow-down"></i>
+    </nz-button-group>
+  </div>
+
+
+  <div class="tool btn-group">
+    <nz-button-group
+      nzPlacement="bottomRight"
+      nzTrigger="click"
+      nzOverlayClassName="toolbar-dropdown"
+      nz-dropdown [nzDropdownMenu]="menu1"
+    >
+      <button nz-button>
+        <span class="icon-tool-zoom"></span>
+      </button>
+      <i class="icon-arrow-down"></i>
+    </nz-button-group>
+
+
+    <nz-dropdown-menu #menu1="nzDropdownMenu">
+      <ul nz-menu>
+        <li 
+          *ngFor="let option of zoomOptions" 
+          nz-menu-item 
+          (click)="zoom(option)"
+        >
+          <span class="scx-icon icon-zoom-{{option}}"></span>
+          {{option}}
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+
+ 
+  <div class="tool select">
+    <nz-select 
+      #cross 
+      [nzCustomTemplate]="defaultTemplate" 
+      nzDropdownClassName="toolbar-dropdown"
+      [(ngModel)]="iconCross"
+      nzSize="small"
+    >
+      <nz-option 
+        *ngFor="let option of iconCrosses"
+        [nzValue]="option"
+        [nzLabel]="option" 
+        nzCustomContent
+      >
+        <span class="scx-icon icon-{{option}}"></span>
+        {{option}}
+      </nz-option>
+    </nz-select>
+    <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>
+  </div>
+  
+  <div class="tool photo">
+    <nz-button-group nzSize='small'>
+      <button nz-button nzType="link" (click)="makeSnapshot()">
+        <span class="icon-tool-camera"></span>
+      </button>
+    </nz-button-group>
+  </div>
+  
 <ng-template #defaultTemplate let-selected>
   <span class="scx-icon icon-{{selected.nzValue}}"></span>
 </ng-template>
