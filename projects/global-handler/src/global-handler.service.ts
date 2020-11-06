@@ -27,11 +27,11 @@ export class GlobalHandlerService {
   }
 
   private _sendMessageToPopups(msg: IMessage): void {
-    const openPopouts = (window as any).goldenLayout.openPopouts;
+    // const openPopouts = (window as any).goldenLayout.openPopouts;
 
-    openPopouts.forEach(openPopout => {
-      openPopout._popoutWindow[this.POPUP_HANDLER_NAME](msg);
-    });
+    // openPopouts.forEach(openPopout => {
+    //   openPopout._popoutWindow[this.POPUP_HANDLER_NAME](msg);
+    // });
   }
 
   private _handlePopupEvent(msg: IMessage) {

@@ -1,5 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
-import { BaseBroker, Broker } from './broker';
+import { Broker } from './broker';
+import { BaseBroker } from './base_broker';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,7 @@ export class BrokerService {
 
   private _injectedBrokers: { [key in Broker]?: BaseBroker } = {};
 
-  constructor(private _injector: Injector) {}
+  constructor(private _injector: Injector) { }
 
   get(key: Broker): BaseBroker {
     if (!this._injectedBrokers[key]) {
