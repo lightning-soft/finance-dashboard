@@ -1,5 +1,9 @@
 @import "themes/index";
 
+:host {
+  position: relative;
+}
+
 .instrument-search-btn {
   min-width: 90px;
   background-color: $tabFrameColor;
@@ -27,8 +31,9 @@
   overflow: hidden;
   border-radius: 2px;
   position: absolute;
-  top: 27px;
+  top: 22px;
   left: 0;
+  z-index: 100;
   transform: translateY(4px);
 
   input {
