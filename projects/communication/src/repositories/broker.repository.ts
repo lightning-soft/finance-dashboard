@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { IBaseItem } from '../common';
 import { CommunicationConfig, HttpRepository } from '../http';
-import { Broker } from '../services';
+import { Broker } from '../services/broker';
 
 @Injectable()
 export abstract class BrokerRepository<T extends IBaseItem = any> extends HttpRepository<T> {
-  protected _key: Broker;
+  protected _key: Broker = Broker.Rithmic;
   protected _itemName: string;
 
   protected get _baseUrl(): string {
