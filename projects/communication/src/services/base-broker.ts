@@ -4,7 +4,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable, Subject } from 'rxjs';
 import { CommunicationConfig } from '../http';
 import { BrokerRepository, HistoryRepository, InstrumentsRepository } from '../repositories';
-import { Broker } from './base-broker';
+import { Broker } from './broker';
 
 @Injectable()
 export abstract class BaseBroker {
