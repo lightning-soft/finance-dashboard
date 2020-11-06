@@ -46,7 +46,7 @@ $toolbarMargin: 4px;
   }
 }
 ::ng-deep {
-  .resize-up, .resize-down, .resize-left, .resize-left-up, .resize-left-down, .resize-right, .resize-right-up, .resize-right-down{
+  div[class*="resize-"]{
     .chart-container {
       &:after {
         content: "";
