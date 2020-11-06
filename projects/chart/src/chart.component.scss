@@ -46,7 +46,7 @@ $toolbarMargin: 4px;
   }
 }
 ::ng-deep {
-  div[class*="resize-"], div[class*="move"] {
+  div[class*="resize-"], div.frame .wm-container header {
     .chart-container {
       &:before {
         content: "";

@@ -1,9 +1,6 @@
 body.#{$themeName} {
 
   .frame {
-    &.move {
-      cursor: grab;
-    }
     &.resize-up,
     &.resize-down {
       cursor: ns-resize;
@@ -22,6 +19,9 @@ body.#{$themeName} {
     &.resize-left-down,
     &.resize-right-up {
       cursor: nesw-resize;
+    }
+    & header {
+      cursor: move;
     }
   }
 
