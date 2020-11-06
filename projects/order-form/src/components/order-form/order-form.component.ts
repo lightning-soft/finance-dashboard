@@ -1,9 +1,8 @@
 import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { IInstrument, IOrder, OrderSide, IPosition } from 'trading';
 import { FormComponent } from 'base-components';
-import { NotifierService } from 'notifier';
 import { OrdersRepository } from 'communication';
+import { IInstrument, IOrder, OrderDuration, OrderSide, OrderType } from 'trading';
 
 @Component({
   selector: 'order-form',
@@ -11,9 +10,10 @@ import { OrdersRepository } from 'communication';
   styleUrls: ['./order-form.component.scss']
 })
 export class OrderFormComponent extends FormComponent<IOrder> {
+  OrderDurations = Object.values(OrderDuration);
+  OrderTypes = Object.values(OrderType);
   step = 0.1;
-  positions = [] as IPosition[];
-  orderSide = OrderSide;
+  OrderSide = OrderSide;
 
   get volume() {
     return this.form.value.size;
@@ -38,7 +38,6 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    public notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;
@@ -52,8 +51,11 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     const fb = this.fb;
     return fb.group(
       {
+        accountId: fb.control(null, Validators.required),
         symbol: fb.control(null, Validators.required),
-        size: fb.control(this.step, Validators.min(this.step)),
+        type: fb.control(OrderType.Market, Validators.required),
+        quantity: fb.control(this.step, Validators.min(this.step)),
+        duration: fb.control(OrderDuration.GTC, Validators.required),
         side: fb.control(null, Validators.required),
       }
     );

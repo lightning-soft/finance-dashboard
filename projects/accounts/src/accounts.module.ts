@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzTabsModule, NzTransferModule } from 'ng-zorro-antd';
+import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzSelectModule, NzTabsModule, NzTransferModule } from 'ng-zorro-antd';
 import { AccountsComponent } from './accounts.component';
 
 @NgModule({
@@ -13,6 +13,7 @@ import { AccountsComponent } from './accounts.component';
     NzCollapseModule,
     NzFormModule,
     NzInputModule,
+    NzSelectModule,
     NzTabsModule,
     NzTransferModule,
   ],

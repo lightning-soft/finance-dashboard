@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { NumberHelper } from 'base-components';
 import { PositionsRepository, RealtimeAction } from 'communication';
-import { IOrder, IPosition, OrderSide, OrderStatus, OrderType, Side } from 'trading';
+import { IOrder, IPosition, OrderDuration, OrderSide, OrderStatus, OrderType, Side } from 'trading';
 import { FakeTradingRepository } from './fake-trading.repository';
 
 const { randomFixedNumber } = NumberHelper;
@@ -29,15 +29,16 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
 
   closeOrder(order: IOrder) {
     this.deleteItem(+order.id).subscribe();
-    this.createItem({ ...order, status: OrderStatus.Close }).subscribe();
+    this.createItem({ ...order, status: OrderStatus.Canceled }).subscribe();
   }
 
   createOrderFromPosition(position: IPosition) {
     const order = {
       side: position.side === Side.Long ? OrderSide.Buy : OrderSide.Sell,
       price: position.price,
-      size: position.size,
+      quantity: position.size,
       symbol: position.account,
+      duration: OrderDuration.GTD,
     } as IOrder;
 
     (order as any).closePosition = true;
@@ -69,10 +70,10 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
       side: (id % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
       price: randomFixedNumber(100),
       priceIn: randomFixedNumber(100),
-      size: 0.1,
-      executed: 0.1,
+      quantity: 0.1,
+      duration: OrderDuration.GTC,
       symbol: 'BTCUSD',
-      status: OrderStatus.Open,
+      status: OrderStatus.Pending,
       type: OrderType.Market,
     };
   }
@@ -88,7 +89,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
           };
 
           orders.forEach(order => {
-            if (order.status !== OrderStatus.Open) {
+            if (order.status !== OrderStatus.Pending) {
               return;
             }
 
@@ -96,8 +97,8 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
               closeOrderAndCreatePosition,
               this.closeOrder,
             ] : [
-              this.closeOrder,
-            ];
+                this.closeOrder,
+              ];
 
             this._processItem(order, callbacks);
           });

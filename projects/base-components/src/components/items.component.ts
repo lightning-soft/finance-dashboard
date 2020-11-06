@@ -2,10 +2,8 @@ import { Directive, OnDestroy, OnInit } from '@angular/core';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
-import { IItemsBuilder, PaginationBuilder } from './items.builder';
+import { IItemsBuilder, ItemsBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
-
-export type ResponseHandling = 'append' | 'prepend' | null;
 
 @Directive()
 export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationParams = any>
@@ -18,7 +16,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     total: 1,
   };
 
-  builder: IItemsBuilder<T, any> = new PaginationBuilder<T>();
+  builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
   realtimeActionSubscription: Subscription;
 

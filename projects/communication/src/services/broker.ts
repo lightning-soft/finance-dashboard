@@ -19,26 +19,6 @@ export abstract class BaseBroker {
     return this._config[this._key].http.url;
   }
 
-  protected get _apiKey(): string {
-    return this._cookieService.get('apiKey');
-  }
-
-  protected set _apiKey(apiKey: string) {
-    if (apiKey) {
-      this._cookieService.set('apiKey', apiKey);
-    } else {
-      this._cookieService.delete('apiKey');
-    }
-  }
-
-  protected get _httpOptions() {
-    return {
-      headers: {
-        'Api-Key': this._apiKey,
-      },
-    };
-  }
-
   private _repositories: BrokerRepository[];
 
   constructor(
@@ -62,48 +42,5 @@ export abstract class BaseBroker {
     this._repositories.forEach(repository => {
       repository.switch(this._key);
     });
-  }
-
-  handleConnection(callback: (isConnected: boolean) => void, instance = null): Subscription {
-    const connections = this._getConnections();
-
-    const isConnected = connections.includes(this._key);
-
-    callback(isConnected);
-
-    if (instance) {
-      return this._connectionSubject
-        .pipe(untilDestroyed(instance))
-        .subscribe(callback);
-    }
-
-    return this._connectionSubject.subscribe(callback);
-  }
-
-  protected _handleConnection(isConnected: boolean) {
-    this._connectionSubject.next(isConnected);
-
-    const key = this._key;
-    const connections = this._getConnections();
-
-    if (isConnected) {
-      if (!connections.includes(key)) {
-        this._setConnections([...connections, key]);
-      }
-    } else {
-      this._setConnections(connections.filter(c => c !== key));
-    }
-  }
-
-  protected _getConnections(): string[] {
-    try {
-      return JSON.parse(localStorage.getItem('connections')) as string[] || [];
-    } catch {
-      return [];
-    }
-  }
-
-  protected _setConnections(connections: string[]) {
-    localStorage.setItem('connections', JSON.stringify(connections));
   }
 }

@@ -69,7 +69,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
-    console.log(name, event, this._layoutContainer);
+    // console.log(name, event, this._layoutContainer);
     switch (name) {
       case LayoutNodeEvent.Destroy:
         this.handleDestroy();

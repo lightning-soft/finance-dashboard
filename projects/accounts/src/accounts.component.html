@@ -1,94 +1,81 @@
-<nz-transfer
-  class="custom-transfer"
-  [nzDataSource]="items"
-  [nzShowSelectAll]="false"
-  [nzTitles]="['All', 'Current']"
-  [nzRenderList]="[renderList, renderList]"
->
-  <ng-template
-    #renderList
-    let-items
-    let-direction="direction"
-    let-onItemSelect="onItemSelect"
-  >
-    <div class="small text-uppercase px-3 py-1">
-      {{ direction === 'left' ? 'All' : 'Current' }}
+<div class="custom-panels">
+  <div class="custom-panel">
+    <div class="custom-panel-header">
+      All
     </div>
-    <div class="custom-transfer-list">
-      <div *ngIf="direction === 'left'">
-        <div
-          *ngFor="let item of items"
-          class="custom-transfer-item"
-          [class.custom-transfer-item-active]="item.checked"
-          (click)="onItemSelect(item)"
+    <div class="custom-panel-body">
+      <nz-collapse class="custom-collapse-ghost">
+        <nz-collapse-panel
+          *ngFor="let broker of brokers"
+          [nzHeader]="broker.title"
+          [nzExtra]="createButton"
+          [nzShowArrow]="!!builder.getItems('broker', broker.key).length"
         >
-          {{ item.title }}
-        </div>
-      </div>
-      <nz-collapse class="custom-collapse" *ngIf="direction === 'right'">
-        <div
-          *ngFor="let item of items"
-          class="custom-collapse-item"
-          [class.custom-collapse-item-active]="item.active"
-        >
-          <div
-            class="d-flex align-items-center justify-content-between custom-transfer-item"
-            [class.custom-transfer-item-active]="item.checked"
-            (click)="onItemSelect(item)"
-          >
-            <div class="d-flex align-items-center">
-              <span class="indicator ml-1 mr-2" [class.text-success]="item.connected"></span>
-              <strong class="ml-1">{{ item.title }}</strong>
-            </div>
-            <div class="small text-muted" (click)="$event.stopPropagation()">
-              <span class="link" (click)="togglePanel(item)" *ngIf="!item.connected">
-                <span *ngIf="!item.active">connect</span>
-                <i class="icon-close font-size-inherit" *ngIf="item.active"></i>
-              </span>
-              <span
-                class="d-flex align-items-center"
-                (click)="disconnect(item)"
-                *ngIf="item.connected"
-              >
-                <span class="spinner mr-2" *ngIf="item.isLoading"></span>
-                <span [class.link]="!item.isLoading">disconnect</span>
-              </span>
+          <ng-template #createButton>
+            <span class="small link" (click)="openCreateForm($event, broker.key)">
+              <i class="icon-add font-size-inherit"></i>
+            </span>
+          </ng-template>
+          <div>
+            <div
+              *ngFor="let item of builder.getItems('broker', broker.key)"
+              class="selectable-item pl-5 mt-1"
+              [class.selectable-item-active]="item === selectedItem"
+              (click)="selectItem(item)"
+            >
+              {{ item.name }}
             </div>
           </div>
-          <nz-collapse-panel [nzActive]="item.active">
-            <nz-tabset class="custom-tabs">
-              <nz-tab nzTitle="Demo">
-                <form
-                  nz-form
-                  [formGroup]="item.form"
-                  [class.loading-block]="item.isLoading"
-                  (submit)="connect(item)"
-                >
-                  <div class="mb-1">
-                    <small class="text-muted px-3 mb-1">Login</small>
-                    <nz-form-control class="custom-form-control">
-                      <input type="text" nz-input formControlName="login">
-                    </nz-form-control>
-                  </div>
-                  <div class="mb-3">
-                    <small class="text-muted px-3 mb-1">Password</small>
-                    <nz-form-control class="custom-form-control">
-                      <input type="password" nz-input formControlName="password">
-                    </nz-form-control>
-                  </div>
-                  <button
-                    nz-button
-                    nzType="primary"
-                    nzBlock
-                    class="ant-btn ant-btn-primary text-uppercase"
-                  >Connect</button>
-                </form>
-              </nz-tab>
-              <nz-tab nzTitle="Real"></nz-tab>
-            </nz-tabset>
-          </nz-collapse-panel>
-        </div>
+        </nz-collapse-panel>
       </nz-collapse>
     </div>
-  </ng-template>
-</nz-transfer>
+  </div>
+  <div class="custom-panel">
+    <div class="custom-panel-header">
+      Properties
+    </div>
+    <div class="custom-panel-body">
+      <div class="h-100 p-2 bg-light rounded">
+        <form
+          nz-form
+          [formGroup]="form"
+          [class.loading-block]="isLoading"
+          (submit)="handleSubmit()"
+          *ngIf="selectedItem && !selectedItem.connected"
+        >
+          <div class="mb-1">
+            <small class="text-muted px-3 mb-1">Connection name</small>
+            <nz-form-control class="custom-form-control">
+              <input type="text" nz-input formControlName="name">
+            </nz-form-control>
+          </div>
+          <div class="mb-1">
+            <small class="text-muted px-3 mb-1">Login</small>
+            <nz-form-control class="custom-form-control">
+              <input type="text" nz-input formControlName="username">
+            </nz-form-control>
+          </div>
+          <div class="mb-1">
+            <small class="text-muted px-3 mb-1">Password</small>
+            <nz-form-control class="custom-form-control">
+              <input type="password" nz-input formControlName="password">
+            </nz-form-control>
+          </div>
+          <div class="mb-1">
+            <small class="text-muted px-3 mb-1">Server</small>
+            <nz-select class="custom-form-control" formControlName="connectionPointId">
+              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
+              <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
+            </nz-select>
+          </div>
+          <button
+            nz-button
+            nzType="primary"
+            nzBlock
+            class="ant-btn ant-btn-primary text-uppercase mt-3"
+          >Connect</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

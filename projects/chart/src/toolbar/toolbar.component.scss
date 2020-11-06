@@ -10,27 +10,6 @@
   z-index: 21;
   left: 10px;
 
-  .icon-container {
-    position: relative;
-    height: 32px;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin-left: 10px;
-    width: 32px;
-    border-radius: 3px;
-
-    &.opened:after {
-      width: 1px;
-      position: absolute;
-      top: 15%;
-      content: '';
-      right: 0;
-      height: 70%;
-    }
-  }
-
   ::ng-deep {
     .ant-select-arrow .anticon > svg {
       display: none;
@@ -42,14 +21,14 @@
       }
     }
 
-    .ant-btn {
-      padding: 0 0 0 5px;
-    }
+    // .ant-btn {
+    //   padding: 0;
+    // }
 
     .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
       background-color: transparent;
       border: none;
-      padding: 0 0 0 5px;
+      // padding: 0 0 0 5px;
     }
 
     .ant-select-arrow {
@@ -110,7 +89,16 @@
       display: inline-block;
     }
 
+  }
 
+  .ant-btn,
+  .ant-select-selection-search {
+    height: 22px!important;
+  }
+
+  .ant-btn > span,
+  .ant-select-selection-item {
+    font-size: 11px!important;
   }
 
   .ant-select-item {
@@ -138,58 +126,53 @@
       display: none;
     }
   }
-}
 
-.pane {
-  display: flex;
-  align-items: center;
-  border-radius: 3px;
+  .ant-btn {
+    border-radius: 2px!important;
+  }
 
-  > div:not(:last-child) {
-    position: relative;
-    min-width: 42px;
+  .btn-group .ant-btn {
+    margin: 0;
+    padding: 0 20px 0 4px;
+  }
 
-    &:after {
-      width: 1px;
-      position: absolute;
-      top: 15%;
-      content: '';
-      right: 0;
-      height: 70%;
+  .ant-select-selector {
+    height: 22px!important;
+    font-size: 12px!important;
+
+    input {
+      height: 22px;
     }
   }
 
-  &__zoom, &__drawing-instruments {
-    nz-button-group {
-      width: 100%;
-    }
+  .tool.select {
+    width: 45px;
+  }
+
+  .tool span[class^="icon-"] {
+    font-size: 12px!important;
   }
 }
 
-.icon-arrow-dropdown {
-  font-size: 4px;
+.icon-arrow-down {
   position: absolute;
-  cursor: pointer;
+  right: 5px;
   top: 50%;
-  right: 7px;
   transform: translateY(-50%);
+  font-size: 8px;
 }
-
 
 .toolbar-container {
   display: flex;
   align-items: center;
 }
 
-.instrument-bar {
-  width: 100px;
+.tool {
+  background-color: #24262C;
+  border-radius: 2px;
+  margin-right: 4px;
+  padding: 0;
   position: relative;
-
-  &__arrow {
-    position: absolute;
-    right: 10px;
-    font-size: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
+  height: 22px;
+  line-height: 22px;
 }

@@ -1,6 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
 import { BaseBroker, Broker } from './broker';
-import { RithmicService } from './rithmic.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +7,7 @@ import { RithmicService } from './rithmic.service';
 export class BrokerService {
   private _activeKey: Broker;
 
-  private _brokers: { [key in Broker]?: new (...args: any[]) => BaseBroker } = {
-    rithmic: RithmicService,
-  };
+  private _brokers: { [key in Broker]?: new (...args: any[]) => BaseBroker } = {};
 
   private _injectedBrokers: { [key in Broker]?: BaseBroker } = {};
 

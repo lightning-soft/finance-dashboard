@@ -53,7 +53,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
       side: order.side === OrderSide.Sell ? Side.Short : Side.Long,
       account: order.symbol,
       price: order.price,
-      size: order.size,
+      size: order.quantity,
     } as IPosition;
 
     this.createItem(position).subscribe();
