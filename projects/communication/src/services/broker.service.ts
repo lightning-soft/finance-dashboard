@@ -1,6 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { Broker } from './broker';
-import { BaseBroker } from './base_broker';
+import { BaseBroker } from './base-broker';
 
 @Injectable({
   providedIn: 'root',
