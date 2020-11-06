@@ -5,7 +5,9 @@
 }
 
 .instrument-search-btn {
-  min-width: 90px;
+  width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: $tabFrameColor;
   border-radius: 2px;
   color: $titleColor;
