@@ -1,6 +1,9 @@
 body.#{$themeName} {
 
   .frame {
+    &.move {
+      cursor: grab;
+    }
     &.resize-up,
     &.resize-down {
       cursor: ns-resize;

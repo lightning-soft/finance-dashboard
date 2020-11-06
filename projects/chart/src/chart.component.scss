@@ -46,14 +46,15 @@ $toolbarMargin: 4px;
   }
 }
 ::ng-deep {
-  div[class*="resize-"]{
+  div[class*="resize-"], div[class*="move"] {
     .chart-container {
-      &:after {
+      &:before {
         content: "";
         position: fixed;
         height: 94%;
         width: 99%;
         z-index: 99;
+        background-color: #0c6ce4;
       }
     }
   }
