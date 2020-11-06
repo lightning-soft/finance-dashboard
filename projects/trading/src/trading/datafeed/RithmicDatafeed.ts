@@ -24,19 +24,19 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
-    this._brokerService.getActive().handleConnection(isConnected => {
-      if (isConnected) {
-        super.send(request);
+    // this._brokerService.getActive().handleConnection(isConnected => {
+    //   if (isConnected) {
+    //     super.send(request);
 
-        if (!this._webSocketService.connected) {
-          this._webSocketService.connect(() => this.subscribeToRealtime(request));
-        } else {
-          this.subscribeToRealtime(request);
-        }
-        this._loadData(request);
+    //     if (!this._webSocketService.connected) {
+    //       this._webSocketService.connect(() => this.subscribeToRealtime(request));
+    //     } else {
+    //       this.subscribeToRealtime(request);
+    //     }
+    //     this._loadData(request);
 
-      }
-    }, this);
+    //   }
+    // }, this);
   }
 
   loadInstruments(): Observable<any[]> {

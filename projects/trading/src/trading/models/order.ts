@@ -4,25 +4,42 @@ import { IBaseItem } from '../../common';
 export interface IOrder extends IBaseItem {
   symbol: string;
   side: OrderSide;
-  size: number;
-  executed: number;
+  quantity: number;
   price: number;
   priceIn: number;
   status: OrderStatus;
   type: OrderType;
+  duration: OrderDuration;
 }
 
 export enum OrderSide {
-  Buy = 'Buy', Sell = 'Sell'
+  Buy = 'Buy',
+  Sell = 'Sell'
+}
+
+export enum OrderDuration {
+  GTD = 'GTD',
+  GTC = 'GTC',
+  FOK = 'FOK',
+  IOC = 'IOC',
 }
 
 export enum OrderType {
   Market = 'Market',
-  Else = 'Else'
+  Limit = 'Limit',
+  StopMarket = 'StopMarket',
+  StopLimit = 'StopLimit',
+  MIT = 'MIT',
+  LIT = 'LIT',
 }
 
 export enum OrderStatus {
-  Open = 'Open', Close = 'Close'
+  Pending = 'Pending',
+  New = 'New',
+  PartialFilled = 'PartialFilled',
+  Filled = 'Filled',
+  Canceled = 'Canceled',
+  Rejected = 'Rejected',
 }
 
 export interface IOrderParams extends IPaginationParams {

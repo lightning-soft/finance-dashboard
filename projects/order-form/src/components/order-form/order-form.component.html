@@ -1,22 +1,44 @@
-<form [formGroup]="form" class="volume-background">
-  <div (click)="addVolume(-this.step)" class="minus">-</div>
-  <div class="volume">
-    <div class="value">{{volume}}</div>
-  </div>
-  <div (click)="addVolume(this.step)" class="add">+</div>
-</form>
+<form [formGroup]="form">
+
+<nz-select class="input" nzPlaceHolder="Select a account" formControlName="accountId">
+  <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
+  <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
+  <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
+</nz-select>
+
+<nz-select class="input" nzPlaceHolder="Select a symbol" formControlName="accountId">
+  <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
+  <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
+  <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
+</nz-select>
+
+<nz-select class="input" nzPlaceHolder="Select a type" formControlName="type">
+  <nz-option *ngFor="let item of OrderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
+</nz-select>
+
+<nz-select class="input" nzPlaceHolder="TIF" formControlName="duration">
+  <nz-option *ngFor="let item of OrderDurations" [nzLabel]="item" [nzValue]="item"></nz-option>
+</nz-select>
+
+<nz-input-number
+  class="input"
+  formControlName="quantity"
+  [nzStep]="step"
+  nzPlaceHolder="Quantity"
+></nz-input-number>
+
 <div class="button-container">
-  <button (click)="submit(orderSide.Sell)" class="sell">
+  <button (click)="submit(OrderSide.Sell)" class="sell">
     Sell
     <div class="price">
       1.24000
     </div>
   </button>
-  <button (click)="submit(orderSide.Buy)" class="buy">
+  <button (click)="submit(OrderSide.Buy)" class="buy">
     Buy
     <div class="price">
       1.24000
     </div>
   </button>
 </div>
-<positions [instrument]="instrument"></positions>
+

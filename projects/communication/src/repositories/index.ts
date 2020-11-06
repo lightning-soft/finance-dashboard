@@ -1,3 +1,4 @@
+export * from './connections.repository';
 export * from './broker.repository';
 export * from './account.repository';
 export * from './history.repository';

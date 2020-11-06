@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IOrder, IOrderParams, OrderStatus } from 'trading';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { ItemsComponent } from 'base-components';
 import { OrderItem } from './models/OrderItem';
-import { OrdersRepository } from 'communication';
+import { OrdersRepository, LevelOneDataFeedService } from 'communication';
 
 @UntilDestroy()
 @Component({
@@ -19,7 +19,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   _isList = false;
 
-  private _status: OrderStatus = OrderStatus.Open;
+  private _status: OrderStatus = OrderStatus.Pending;
 
   get status() {
     return this._status;
@@ -38,8 +38,9 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   }
 
   constructor(
-    public repository: OrdersRepository,
-    public notifier: NotifierService,
+    protected _repository: OrdersRepository,
+    protected _injector: Injector,
+    private _levelOneDatafeedService: LevelOneDataFeedService,
   ) {
     super();
     this.autoLoadData = { onInit: true };

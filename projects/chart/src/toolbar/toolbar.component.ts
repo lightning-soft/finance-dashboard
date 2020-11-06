@@ -33,7 +33,7 @@ export class ToolbarComponent implements OnInit {
 
   showToolbar = true;
 
-  private timeFrameOptions = [
+  timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
     { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
@@ -209,11 +209,11 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._brokerService.getActive().handleConnection(isConnected => {
-      if (isConnected) {
-        this._search();
-      }
-    }, this);
+    // this._brokerService.getActive().handleConnection(isConnected => {
+    //   if (isConnected) {
+    //     this._search();
+    //   }
+    // }, this);
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {

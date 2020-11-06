@@ -33,6 +33,11 @@ export class DragDrawerComponent {
       name: 'Positions',
       component: Components.Positions
     },
+    {
+      icon: 'icon-widget-positions',
+      name: 'Create order',
+      component: Components.OrderForm
+    },
     // {
     //   icon: 'icon-orders',
     //   name: 'Order form',

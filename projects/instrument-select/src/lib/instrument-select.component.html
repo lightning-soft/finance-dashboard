@@ -1,0 +1,31 @@
+<button (click)="toggleSearch()" class="instrument-search-btn">
+  {{instrument || 'Search'}}
+  <i class="icon-arrow-{{isHidden ? 'down' : 'up' }}"></i>
+</button>
+<div 
+  class="instrument-search-container"
+  [hidden]="isHidden"
+  (click)="$event.stopPropagation()"
+>
+  <input 
+    #searchInput
+    [(ngModel)]="searchString" 
+    (input)="onSearch(searchString)"
+    (focus)="onSearch(searchString)"
+    (keydown.enter)="select(items[0])"
+  >
+  <ul 
+    #searchList
+    (scroll)="lazyLoad()"
+  >
+    <li 
+      class="option"
+      *ngFor="let o of items" 
+      data-value="JSON.parse(o)"
+      (click)="select(o)"
+    >
+      {{o.symbol}}
+    </li>
+    <li *ngIf="loading">loading...</li>
+  </ul>
+</div>
