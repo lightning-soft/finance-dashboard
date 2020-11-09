@@ -1,14 +1,14 @@
 import { Injectable, Injector } from '@angular/core';
-import { Broker } from '../models';
-import { BrokerRepository, HistoryRepository } from '../repositories';
+import { Broker } from 'trading';
+import { BrokerRepository } from '../repositories';
 
 @Injectable()
-export class BrokerService {
+export class RealBrokerService {
   private _repositories: BrokerRepository[];
 
   constructor(private _injector: Injector) {
     this._repositories = [
-      this._injector.get(HistoryRepository),
+
     ];
   }
 

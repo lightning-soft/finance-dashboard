@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { WebSocketService } from 'communication';
 import { IInstrument } from 'trading';
-import { WebSocketService } from './web-socket.service';
 
 export interface ITrade {
   Timestamp: Date;
@@ -24,7 +24,7 @@ enum WSMessageTypes {
 @Injectable({
   providedIn: 'root'
 })
-export class LevelOneDataFeedService {
+export class RealLevelOneDataFeed {
 
   private _subscriptions = {};
   private _executors: OnTradeFn[] = [];

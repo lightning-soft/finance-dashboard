@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { ExcludeId, IPaginationResponse } from '../common';
-import { IConnection } from '../models';
-import { BrokerRepository } from './broker.repository';
+import { IConnection } from 'trading';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class ConnectionsRepository extends BrokerRepository<IConnection> {
+@Injectable()
+export class RealConnectionsRepository extends HttpRepository<IConnection> {
   connection: BehaviorSubject<IConnection>;
+
+  _apiKey;
 
   protected _itemName = 'Connection';
 

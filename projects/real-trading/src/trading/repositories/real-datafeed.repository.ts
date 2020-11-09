@@ -16,7 +16,7 @@ class Subscription {
     }
 }
 
-export abstract class DatafeedRepository {
+export class RealDatafeedRepository {
     protected _subscribers = new Map<Id, Subscription[]>();
     protected _quoteSubscribers = [];
 
@@ -60,6 +60,6 @@ export abstract class DatafeedRepository {
             this._subscribers.get(quote.instrumentId).forEach(s => s.executable && s.execute(quote));
     }
 
-    protected abstract _subscribe(instruemntId: Id);
-    protected abstract _unsubscribe(instruemntId: Id);
+    protected _subscribe(instruemntId: Id) {}
+    protected _unsubscribe(instruemntId: Id) {}
 }

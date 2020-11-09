@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
+import { CommunicationConfig, HttpRepository, IBaseItem } from 'communication';
 import { CookieService } from 'ngx-cookie-service';
-import { IBaseItem } from '../common';
-import { CommunicationConfig, HttpRepository } from '../http';
-import { Broker } from '../models';
+import { Broker } from 'trading';
 
 @Injectable()
-export abstract class BrokerRepository<T extends IBaseItem = any> extends HttpRepository<T> {
+export class RealBrokerRepository<T extends IBaseItem = any> extends HttpRepository<T> {
   protected _key: Broker = Broker.Rithmic;
   protected _itemName: string;
 

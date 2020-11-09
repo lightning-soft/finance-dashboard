@@ -1,21 +1,19 @@
 import { Injectable, Injector } from '@angular/core';
 import { Broker } from '../models';
-import { BrokerRepository } from './brokers.repository';
-import { HistoryRepository } from './history.repository';
+import { BrokersRepository } from './brokers.repository';
 
 @Injectable()
 export class BrokerService {
-  private _repositories: BrokerRepository[];
+  private _repositories: BrokersRepository[];
 
   constructor(private _injector: Injector) {
     this._repositories = [
-      this._injector.get(HistoryRepository),
     ];
   }
 
   activate(key: Broker) {
     this._repositories.forEach(repository => {
-      repository.switch(key);
+      // repository.switch(key);
     });
   }
 }

@@ -1,7 +1,7 @@
+import { HttpRepository } from 'communication';
 import { IPosition } from 'trading';
-import { Repository } from '../common';
 
 
-export abstract class PositionsRepository extends Repository<IPosition> {
+export class RealPositionsRepository extends HttpRepository<IPosition> {
 
 }

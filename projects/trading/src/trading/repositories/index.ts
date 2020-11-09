@@ -1,4 +1,5 @@
 export * from './account.repository';
+export * from './broker.service';
 export * from './brokers.repository';
 export * from './connections.repository';
 export * from './datafeed.repository';
