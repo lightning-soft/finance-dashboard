@@ -1,10 +1,9 @@
 import { Component, Injector } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
-import { LevelOneDataFeedService, OrdersRepository } from 'communication';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, OrderStatus } from 'trading';
+import { IOrder, IOrderParams, LevelOneDataFeedService, OrdersRepository, OrderStatus } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
 

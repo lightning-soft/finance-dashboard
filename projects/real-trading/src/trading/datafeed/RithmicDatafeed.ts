@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
-import { ConnectionsRepository, HistoryRepository, ITrade, LevelOneDataFeedService, WebSocketService } from 'communication';
-import { InstrumentsRepository } from 'trading';
+import { WebSocketService } from 'communication';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import {
+  ConnectionsRepository, HistoryRepository,
+  InstrumentsRepository, ITrade,
+  LevelOneDataFeedService
+} from 'trading';
 import { Datafeed } from './Datafeed';
 
 declare let StockChartX: any;
@@ -13,7 +17,6 @@ declare let StockChartX: any;
 @UntilDestroy()
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
-
   constructor(
     private _connectionsRepository: ConnectionsRepository,
     private _instrumentsRepository: InstrumentsRepository,
@@ -25,21 +28,21 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
-    this._connectionsRepository.connection
-      .pipe(untilDestroyed(this))
-      .subscribe(item => {
-        if (item?.connected) {
-          super.send(request);
+    // this._connectionsRepository.connection
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(item => {
+    //     if (item?.connected) {
+    //       super.send(request);
 
-          if (!this._webSocketService.connected) {
-            this._webSocketService.connect(() => this.subscribeToRealtime(request));
-          } else {
-            this.subscribeToRealtime(request);
-          }
+    //       if (!this._webSocketService.connected) {
+    //         this._webSocketService.connect(() => this.subscribeToRealtime(request));
+    //       } else {
+    //         this.subscribeToRealtime(request);
+    //       }
 
-          this._loadData(request);
-        }
-      });
+    //       this._loadData(request);
+    //     }
+    //   });
   }
 
   loadInstruments(): Observable<any[]> {

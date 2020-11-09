@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { FakeRepository } from '../fake';
-import { Broker, IBroker } from '../models';
+import { Broker, IBroker } from 'trading';
+import { FakeRepository } from 'communication';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BrokersRepository extends FakeRepository<IBroker> {
+export class RealBrokersRepository extends FakeRepository<IBroker> {
   protected async _getItems() {
     return [
       {

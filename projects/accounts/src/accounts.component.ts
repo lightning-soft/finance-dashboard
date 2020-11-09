@@ -2,10 +2,11 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection, Id } from 'communication';
+import { Id } from 'communication';
 import { NzModalService } from 'ng-zorro-antd';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
 
 @UntilDestroy()
 @Component({
@@ -13,7 +14,7 @@ import { finalize } from 'rxjs/operators';
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
 })
-export class AccountsComponent extends ItemsComponent<IConnection> implements OnInit {
+export class AccountsComponent extends ItemsComponent<IBroker> implements OnInit {
 
   builder = new GroupItemsBuilder();
   form: FormGroup;
@@ -23,7 +24,7 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   selectedBroker: IBroker;
 
   constructor(
-    protected _repository: ConnectionsRepository,
+    protected _repository: BrokersRepository,
     protected _injector: Injector,
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
@@ -107,21 +108,21 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   }
 
   create() {
-    this._dispatch((item) => {
-      return this._repository.createItem(item);
-    });
+    // this._dispatch((item) => {
+    //   return this._repository.createItem(item);
+    // });
   }
 
   connect() {
-    this._dispatch((item) => {
-      return this._repository.connect(item);
-    });
+    // this._dispatch((item) => {
+    //   return this._repository.connect(item);
+    // });
   }
 
   disconnect() {
-    this._dispatch((item) => {
-      return this._repository.disconnect(item);
-    });
+    // this._dispatch((item) => {
+    //   return this._repository.disconnect(item);
+    // });
   }
 
   delete(event: MouseEvent, item: IConnection) {
@@ -135,9 +136,9 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
-        this._dispatch(() => {
-          return this._repository.deleteItem(+item.id);
-        }, item);
+        // this._dispatch(() => {
+        //   return this._repository.deleteItem(+item.id);
+        // }, item);
       },
     });
   }
@@ -145,9 +146,9 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   toggleFavourite(event: MouseEvent, item: IConnection) {
     event.stopPropagation();
 
-    this._dispatch(() => {
-      return this._repository.updateItem({ ...item, favourite: !item.favourite });
-    }, item);
+    // this._dispatch(() => {
+    //   return this._repository.updateItem({ ...item, favourite: !item.favourite });
+    // }, item);
   }
 
   private _dispatch(action: (item: IConnection) => Observable<any>, item: IConnection = null) {
@@ -156,7 +157,7 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
 
     this.isLoading[id] = true;
 
-    this._repository.switch(_item.broker);
+    // this._repository.switch(_item.broker);
 
     action({ ..._item, ...this.form.value })
       .pipe(

@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { ConnectionsRepository } from 'communication';
 import { Subscription } from 'rxjs';
-import { IInstrument, InstrumentsRepository } from 'trading';
+import { BrokersRepository, IInstrument, InstrumentsRepository } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -191,7 +190,7 @@ export class ToolbarComponent implements OnInit {
 
 
   constructor(
-    private _connectionsRepository: ConnectionsRepository,
+    private _connectionsRepository: BrokersRepository,
     private _instrumentsRepository: InstrumentsRepository,
   ) {}
 

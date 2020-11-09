@@ -1,4 +1,4 @@
-import { IBaseItem } from '../common';
+import { IBaseItem } from 'communication';
 import { Broker } from './broker.enum';
 
 export interface IConnection extends IBaseItem {

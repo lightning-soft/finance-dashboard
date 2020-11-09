@@ -1,8 +1,7 @@
 import { Component, Injector, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormComponent } from 'base-components';
-import { OrdersRepository } from 'communication';
-import { IInstrument, IOrder, OrderDuration, OrderSide, OrderType } from 'trading';
+import { IInstrument, IOrder, OrderDuration, OrderSide, OrdersRepository, OrderType } from 'trading';
 
 @Component({
   selector: 'order-form',

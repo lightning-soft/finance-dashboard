@@ -2,9 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { Broker } from '../models';
 import { BrokerRepository, HistoryRepository } from '../repositories';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class BrokerService {
   private _repositories: BrokerRepository[];
 
