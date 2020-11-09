@@ -16,10 +16,16 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  color: rgba($white, 0.65);
+
+  &-fixed {
+    width: 200px;
+    flex-basis: auto !important;
+    flex-grow: 0 !important;
+  }
 
   &-header {
     padding: 2px 8px;
-    color: rgba($white, 0.65);
     font-size: 11px;
     text-transform: uppercase;
   }

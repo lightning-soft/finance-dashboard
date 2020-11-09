@@ -14,11 +14,15 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     return {};
   }
 
+  onInit() {}
+
   constructor(
     @Inject(HttpClient) protected _http: HttpClient,
     @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
   ) {
     super();
+
+    this.onInit();
   }
 
   getItemById(id: number | string, query?: any): Observable<T> {

@@ -42,11 +42,14 @@
   }
 
   .ant-collapse-header {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding: 4px 16px 4px 24px !important;
 
     &:hover {
       background: $light;
+    }
+
+    .ant-collapse-arrow {
+      left: 7px !important;
     }
   }
 

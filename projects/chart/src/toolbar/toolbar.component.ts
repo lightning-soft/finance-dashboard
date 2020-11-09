@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
-import { BrokerService, InstrumentsRepository } from 'communication';
+import { ConnectionsRepository, InstrumentsRepository } from 'communication';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
@@ -191,7 +191,7 @@ export class ToolbarComponent implements OnInit {
 
 
   constructor(
-    private _brokerService: BrokerService,
+    private _connectionsRepository: ConnectionsRepository,
     private _instrumentsRepository: InstrumentsRepository,
   ) {}
 
@@ -209,11 +209,13 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this._brokerService.getActive().handleConnection(isConnected => {
-    //   if (isConnected) {
-    //     this._search();
-    //   }
-    // }, this);
+    this._connectionsRepository.connection
+      .pipe(untilDestroyed(this))
+      .subscribe(item => {
+        if (item?.connected) {
+          this._search();
+        }
+      });
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {

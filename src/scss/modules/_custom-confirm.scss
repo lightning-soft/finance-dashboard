@@ -1,0 +1,35 @@
+.custom-confirm {
+  .ant-modal {
+    top: 200px;
+  }
+
+  .ant-modal-content {
+    width: 344px;
+    padding: 20px 24px;
+    background: $light;
+    box-shadow: 0 4px 8px rgba($dark, 0.5) !important;
+    border-radius: 2px;
+  }
+
+  .ant-modal-confirm-content {
+    margin: 0 !important;
+    text-align: center;
+    color: $white;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .ant-modal-confirm-btns {
+    float: none;
+    text-align: center;
+
+    .ant-btn {
+      width: 124px;
+
+      & + .ant-btn {
+        margin-left: 12px;
+      }
+    }
+  }
+}
