@@ -2,7 +2,10 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { Broker, ConnectionsRepository, IConnection } from 'communication';
+import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection, Id } from 'communication';
+import { NzModalService } from 'ng-zorro-antd';
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @UntilDestroy()
 @Component({
@@ -13,23 +16,18 @@ import { Broker, ConnectionsRepository, IConnection } from 'communication';
 export class AccountsComponent extends ItemsComponent<IConnection> implements OnInit {
 
   builder = new GroupItemsBuilder();
-
   form: FormGroup;
-  isLoading = false;
-
-  brokers: any[] = [
-    {
-      key: Broker.Rithmic,
-      title: 'Rithmic',
-    },
-  ];
-
-  selectedItem: IConnection = null;
+  isLoading: { [key: number]: boolean } = {};
+  selectedItem: IConnection;
+  brokers: IBroker[];
+  selectedBroker: IBroker;
 
   constructor(
     protected _repository: ConnectionsRepository,
     protected _injector: Injector,
+    private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
+    private modal: NzModalService,
   ) {
     super();
 
@@ -50,7 +48,17 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
       username: [null],
       password: [null],
       connectionPointId: [null],
+      aggregatedQuotes: [null],
+      gateway: [null],
+      autoSavePassword: [null],
+      connectOnStartUp: [null],
     });
+
+    this._brokersRepository.getItems()
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        this.brokers = res.data;
+      });
   }
 
   openCreateForm(event: MouseEvent, broker: Broker) {
@@ -59,15 +67,26 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
     this.form.reset();
 
     this.selectedItem = { broker } as IConnection;
+    this.selectBroker(broker);
   }
 
-  selectItem(item: IConnection) {
-    this.selectedItem = item;
-
+  selectItem(id: Id) {
     this.form.reset();
 
-    const value = Object.keys(this.form.value).reduce((accum, key) => {
-      accum[key] = item[key];
+    const item = this.items.find(i => i.id === id);
+
+    if (!item) {
+      this.selectedItem = null;
+      this.selectedBroker = null;
+
+      return;
+    }
+
+    this.selectedItem = item;
+    this.selectBroker(item.broker);
+
+    const value = Object.keys(this.form.controls).reduce((accum, key) => {
+      accum[key] = item[key] || null;
 
       return accum;
     }, {});
@@ -75,31 +94,91 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
     this.form.setValue(value);
   }
 
-  handleSubmit() {
-    const action = !this.selectedItem.id ? 'createItem' : 'connect';
+  selectBroker(broker: Broker) {
+    this.selectedBroker = this.brokers.find(b => b.name === broker);
+  }
 
-    this._request(action);
+  handleSubmit() {
+    if (!this.selectedItem.id) {
+      this.create();
+    } else {
+      this.connect();
+    }
+  }
+
+  create() {
+    this._dispatch((item) => {
+      return this._repository.createItem(item);
+    });
+  }
+
+  connect() {
+    this._dispatch((item) => {
+      return this._repository.connect(item);
+    });
   }
 
   disconnect() {
-    this._request('disconnect');
+    this._dispatch((item) => {
+      return this._repository.disconnect(item);
+    });
   }
 
-  private _request(action: string) {
-    this.isLoading = true;
+  delete(event: MouseEvent, item: IConnection) {
+    event.stopPropagation();
 
-    this._repository.switch(this.selectedItem.broker);
+    this.modal.confirm({
+      nzWrapClassName: 'custom-confirm',
+      nzIconType: '',
+      nzContent: `Are you sure want to delete connection ${item.name}?`,
+      nzOkText: 'Delete',
+      nzCancelText: 'Cancel',
+      nzAutofocus: null,
+      nzOnOk: () => {
+        this._dispatch(() => {
+          return this._repository.deleteItem(+item.id);
+        }, item);
+      },
+    });
+  }
 
-    this._repository[action]({ ...this.selectedItem, ...this.form.value })
-      .pipe(untilDestroyed(this))
+  toggleFavourite(event: MouseEvent, item: IConnection) {
+    event.stopPropagation();
+
+    this._dispatch(() => {
+      return this._repository.updateItem({ ...item, favourite: !item.favourite });
+    }, item);
+  }
+
+  private _dispatch(action: (item: IConnection) => Observable<any>, item: IConnection = null) {
+    const _item = item || this.selectedItem;
+    const { id } = _item;
+
+    this.isLoading[id] = true;
+
+    this._repository.switch(this.selectedBroker.name);
+
+    action({ ..._item, ...this.form.value })
+      .pipe(
+        untilDestroyed(this),
+        finalize(() => {
+          delete this.isLoading[id];
+        }),
+      )
       .subscribe(
-        () => {
-          this.form.reset();
-          this.isLoading = false;
+        (res) => {
+          const { selectedItem } = this;
+
+          if (item) {
+            if (selectedItem) {
+              this.selectItem(selectedItem.id);
+            }
+          } else {
+            this.selectItem(selectedItem.id || res.id);
+          }
         },
         (res) => {
           this.notifier.showError(res.error.error.message);
-          this.isLoading = false;
         },
       );
   }

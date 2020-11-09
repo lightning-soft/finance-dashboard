@@ -1,4 +1,7 @@
 .selectable-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 4px 8px;
   border-radius: 2px;
   cursor: pointer;
@@ -11,5 +14,26 @@
 
   &-active {
     background: lighten($light, 5%) !important;
+  }
+
+  &-action {
+    display: inline-block;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 12px;
+
+    &:not(:last-child) {
+      margin-right: 8px;
+    }
+
+    &:hover,
+    &-active {
+      color: $primary;
+    }
+  }
+
+  &:hover &-action,
+  &-action-active {
+    opacity: 1;
   }
 }

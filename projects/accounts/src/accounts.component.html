@@ -1,5 +1,5 @@
 <div class="custom-panels">
-  <div class="custom-panel">
+  <div class="custom-panel custom-panel-fixed">
     <div class="custom-panel-header">
       All
     </div>
@@ -9,21 +9,40 @@
           *ngFor="let broker of brokers"
           [nzHeader]="broker.title"
           [nzExtra]="createButton"
-          [nzShowArrow]="!!builder.getItems('broker', broker.key).length"
+          [nzShowArrow]="!!builder.getItems('broker', broker.name).length"
         >
           <ng-template #createButton>
-            <span class="small link" (click)="openCreateForm($event, broker.key)">
+            <span class="small link" (click)="openCreateForm($event, broker.name)">
               <i class="icon-add font-size-inherit"></i>
             </span>
           </ng-template>
           <div>
             <div
-              *ngFor="let item of builder.getItems('broker', broker.key)"
-              class="selectable-item pl-5 mt-1"
-              [class.selectable-item-active]="item === selectedItem"
-              (click)="selectItem(item)"
+              *ngFor="let item of builder.getItems('broker', broker.name)"
+              class="selectable-item pl-4 mt-1"
+              [class.selectable-item-active]="item.id === selectedItem?.id"
+              [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
+              (click)="selectItem(item.id)"
             >
-              {{ item.name }}
+              <div class="position-relative">
+                <span class="indicator text-success prefix" *ngIf="item.connected"></span>
+                {{ item.name }}
+              </div>
+              <div>
+                <span
+                  class="selectable-item-action"
+                  (click)="delete($event, item)"
+                >
+                  <i class="icon-minus font-size-inherit"></i>
+                </span>
+                <span
+                  class="selectable-item-action"
+                  [class.selectable-item-action-active]="item.favourite"
+                  (click)="toggleFavourite($event, item)"
+                >
+                  <i class="icon-tool-circle font-size-inherit"></i>
+                </span>
+              </div>
             </div>
           </div>
         </nz-collapse-panel>
@@ -35,39 +54,64 @@
       Properties
     </div>
     <div class="custom-panel-body">
-      <div class="h-100 p-2 bg-light rounded">
+      <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">
+        <img
+          class="img-responsive d-table mx-auto my-2"
+          src="assets/img/brokers/{{ selectedBroker.logo }}"
+          [alt]="selectedBroker.title"
+          *ngIf="selectedBroker?.logo"
+        />
         <form
           nz-form
           [formGroup]="form"
-          [class.loading-block]="isLoading"
+          [class.loading-block]="isLoading[selectedItem?.id]"
           (submit)="handleSubmit()"
-          *ngIf="selectedItem && !selectedItem.connected"
+          *ngIf="!selectedItem.connected"
         >
           <div class="mb-1">
-            <small class="text-muted px-3 mb-1">Connection name</small>
+            <small class="text-muted px-2 mb-1">Connection name</small>
             <nz-form-control class="custom-form-control">
               <input type="text" nz-input formControlName="name">
             </nz-form-control>
           </div>
           <div class="mb-1">
-            <small class="text-muted px-3 mb-1">Login</small>
+            <small class="text-muted px-2 mb-1">Login</small>
             <nz-form-control class="custom-form-control">
               <input type="text" nz-input formControlName="username">
             </nz-form-control>
           </div>
           <div class="mb-1">
-            <small class="text-muted px-3 mb-1">Password</small>
+            <small class="text-muted px-2 mb-1">Password</small>
             <nz-form-control class="custom-form-control">
               <input type="password" nz-input formControlName="password">
             </nz-form-control>
           </div>
           <div class="mb-1">
-            <small class="text-muted px-3 mb-1">Server</small>
+            <small class="text-muted px-2 mb-1">Server</small>
             <nz-select class="custom-form-control" formControlName="connectionPointId">
               <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
               <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
             </nz-select>
           </div>
+          <label class="custom-checkbox mb-1">
+            <input type="checkbox" formControlName="aggregatedQuotes">
+            <span>Aggregated Quotes</span>
+          </label>
+          <div class="mb-1">
+            <small class="text-muted px-2 mb-1">Gateway</small>
+            <nz-select class="custom-form-control" formControlName="gateway">
+              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
+              <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
+            </nz-select>
+          </div>
+          <label class="custom-checkbox mb-1">
+            <input type="checkbox" formControlName="autoSavePassword">
+            <span>Auto save password</span>
+          </label>
+          <label class="custom-checkbox mb-1">
+            <input type="checkbox" formControlName="connectOnStartUp">
+            <span>Connect on start up</span>
+          </label>
           <button
             nz-button
             nzType="primary"
@@ -75,6 +119,37 @@
             class="ant-btn ant-btn-primary text-uppercase mt-3"
           >Connect</button>
         </form>
+        <div *ngIf="selectedItem.connected">
+          <div class="p-3 bg-secondary rounded">
+            <div>
+              <span class="text-muted">Status:</span>&nbsp;
+              <span class="d-inline-flex align-items-center">
+                <span class="indicator text-success mr-2"></span>
+                Connected
+              </span>
+            </div>
+            <div>
+              <span class="text-muted">Login:</span>&nbsp;
+              {{ selectedItem.username }}
+            </div>
+            <div>
+              <span class="text-muted">Server:</span>&nbsp;
+              {{ selectedItem.connectionPointId }}
+            </div>
+          </div>
+          <button
+            nz-button
+            nzType="primary"
+            nzBlock
+            class="bg-secondary text-uppercase mt-3"
+            [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
+            (click)="disconnect()"
+          >Disconnect</button>
+        </div>
+        <div class="text-muted" *ngIf="selectedBroker?.description">
+          <div class="divider mb-2"></div>
+          <div class="text-small text-center" [innerHTML]="selectedBroker.description"></div>
+        </div>
       </div>
     </div>
   </div>

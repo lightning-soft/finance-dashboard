@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { IBaseItem } from '../common';
 import { CommunicationConfig, HttpRepository } from '../http';
-import { Broker } from '../services/broker';
+import { Broker } from '../models';
 
 @Injectable()
 export abstract class BrokerRepository<T extends IBaseItem = any> extends HttpRepository<T> {

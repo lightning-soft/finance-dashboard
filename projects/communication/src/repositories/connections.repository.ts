@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { catchError, delay, map, tap } from 'rxjs/operators';
 import { ExcludeId, IPaginationResponse } from '../common';
 import { IConnection } from '../models';
 import { BrokerRepository } from './broker.repository';
@@ -9,7 +9,15 @@ import { BrokerRepository } from './broker.repository';
   providedIn: 'root',
 })
 export class ConnectionsRepository extends BrokerRepository<IConnection> {
+  connection: BehaviorSubject<IConnection>;
+
   protected _itemName = 'Connection';
+
+  onInit() {
+    const connectedItem = this._getItems().find(i => i.connected);
+
+    this.connection = new BehaviorSubject(connectedItem);
+  }
 
   getItems(): Observable<IPaginationResponse<IConnection>> {
     const data = this._getItems();
@@ -21,22 +29,39 @@ export class ConnectionsRepository extends BrokerRepository<IConnection> {
 
   createItem(item: ExcludeId<IConnection>): Observable<IConnection> {
     return this._connect(item).pipe(
-      tap(i => this._createItem(i)),
+      map(i => this._createItem(i)),
+    );
+  }
+
+  updateItem(item: IConnection): Observable<IConnection> {
+    this._updateItem(item);
+
+    return of(item);
+  }
+
+  deleteItem(id: number): Observable<any> {
+    return this._disconnect().pipe(
+      catchError(() => of({ id })),
+      tap(() => this._deleteItem(id)),
     );
   }
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
-      tap(i => this._updateItem(i)),
+      tap(i => {
+        this._updateItem(i);
+        this.connection.next(i);
+      }),
     );
   }
 
   disconnect(item: IConnection): Observable<any> {
-    return this._http.post(`${this._baseUrl}logout`, {}, this._httpOptions).pipe(
-      tap(() => {
-        this._apiKey = null;
+    const _item = { ...item, connected: false };
 
-        this._updateItem({ ...item, connected: false });
+    return this._disconnect().pipe(
+      tap(() => {
+        this._updateItem(_item);
+        this.connection.next(_item);
       }),
     );
   }
@@ -50,7 +75,15 @@ export class ConnectionsRepository extends BrokerRepository<IConnection> {
     );
   }
 
-  protected _createItem(item: ExcludeId<IConnection>) {
+  protected _disconnect(): Observable<any> {
+    return this._http.post(`${this._getRESTURL()}logout`, {}, this._httpOptions).pipe(
+      tap(() => {
+        this._apiKey = null;
+      }),
+    );
+  }
+
+  protected _createItem(item: ExcludeId<IConnection>): IConnection {
     const items = this._getItems().map(i => ({ ...i, connected: false }));
 
     const id = this._getLastId(items) + 1;
@@ -63,6 +96,8 @@ export class ConnectionsRepository extends BrokerRepository<IConnection> {
     if (items) {
       this._onUpdate(items);
     }
+
+    return _item;
   }
 
   protected _updateItem(item: IConnection) {
@@ -72,7 +107,7 @@ export class ConnectionsRepository extends BrokerRepository<IConnection> {
       }
 
       if (item.connected) {
-        return { ...i, conntected: false };
+        return { ...i, connected: false };
       }
 
       return i;
@@ -83,6 +118,14 @@ export class ConnectionsRepository extends BrokerRepository<IConnection> {
     this._onUpdate(
       item.connected ? items : items.find(i => i.id === item.id)
     );
+  }
+
+  protected _deleteItem(id: number) {
+    const items = this._getItems().filter(i => i.id !== id);
+
+    this._setItems(items);
+
+    this._onDelete({ id });
   }
 
   protected _getItems(): IConnection[] {

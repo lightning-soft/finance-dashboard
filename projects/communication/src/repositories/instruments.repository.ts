@@ -17,8 +17,13 @@ export class InstrumentsRepository extends BrokerRepository<IInstrument> {
     );
   }
 
-  getItems(params?): Observable<IPaginationResponse<IInstrument>> {
-    return super.getItems(params).pipe(
+  getItems(params = {}): Observable<IPaginationResponse<IInstrument>> {
+    const _params = {
+      criteria: '',
+      ...params,
+    };
+
+    return super.getItems(_params).pipe(
       map((res: any) => {
         const data = res.result.map(({ symbol, exchange }) => ({
           id: symbol,
