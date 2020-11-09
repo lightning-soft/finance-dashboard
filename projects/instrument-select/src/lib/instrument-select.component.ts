@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { ItemsComponent } from 'base-components';
-import { InstrumentsRepository } from 'communication';
+import { InstrumentsRepository } from 'trading';
 import { IInstrument } from 'trading';
 
 @Component({

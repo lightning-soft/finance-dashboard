@@ -17,6 +17,7 @@ import { ThemesHandler } from 'themes';
 import { AppConfig } from './app.config';
 import { Modules, modulesStore } from './modules';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { RealTradingModule } from 'real-trading';
 import {
   AccountComponent,
   ClockComponent,
@@ -59,6 +60,8 @@ import {
         useExisting: AppConfig,
       }
     ]),
+    FakeCommunicationModule.forRoot(),
+    RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
     LoadingModule.forRoot([
       {
@@ -94,7 +97,6 @@ import {
         loadChildren: () => import('scripting').then(i => i.ScriptingModule)
       }
     ], modulesStore),
-    FakeCommunicationModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '',

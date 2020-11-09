@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
 import { ConnectionsRepository, HistoryRepository, ITrade, LevelOneDataFeedService, WebSocketService } from 'communication';
-import { InstrumentsRepository } from '../repositories/instruments.repository';
+import { InstrumentsRepository } from 'trading';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Datafeed } from './Datafeed';

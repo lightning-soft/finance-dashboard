@@ -1,15 +1,29 @@
 import { Injectable } from '@angular/core';
+import { HttpRepository, IPaginationResponse } from 'communication';
+import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IInstrument } from 'trading';
-import { IPaginationResponse } from '../common';
-import { BrokerRepository } from './broker.repository';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class InstrumentsRepository extends BrokerRepository<IInstrument> {
-  protected _itemName = 'Instrument';
+@Injectable()
+export class RealInstrumentsRepository extends HttpRepository<IInstrument> {
+  protected get _baseUrl(): string {
+    return this._communicationConfig.rithmic.http.url + 'Instrument';
+  }
+
+  protected get _apiKey(): string {
+    const _cookieService = this._injector.get(CookieService);
+    return _cookieService.get('apiKey');
+  }
+
+  protected get _httpOptions() {
+    return {
+      headers: {
+        'Api-Key': this._apiKey,
+      },
+    };
+  }
+
 
   getItemById(id): Observable<IInstrument> {
     return super.getItemById(id).pipe(

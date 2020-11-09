@@ -1,6 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { Broker } from '../models';
-import { BrokerRepository, HistoryRepository, InstrumentsRepository } from '../repositories';
+import { BrokerRepository, HistoryRepository } from '../repositories';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,6 @@ export class BrokerService {
 
   constructor(private _injector: Injector) {
     this._repositories = [
-      this._injector.get(InstrumentsRepository),
       this._injector.get(HistoryRepository),
     ];
   }

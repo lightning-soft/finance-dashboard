@@ -1,5 +1,5 @@
 import { Id } from "communication";
-import { IInstrument, IQuote } from "../models";
+import { IInstrument, IQuote } from "trading";
 
 type UnsubscribeFn = () => void;
 type SubscribeFn = (quote: IQuote) => void;

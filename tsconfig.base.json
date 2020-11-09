@@ -103,6 +103,9 @@
       "accounts": [
         "projects/accounts/index"
       ],
+      "real-trading": [
+        "projects/real-trading/index"
+      ],
       "instrument-select": [
         "projects/instrument-select/index"
       ]

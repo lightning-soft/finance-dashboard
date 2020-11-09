@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ConnectionsRepository } from 'communication';
 import { Subscription } from 'rxjs';
-import { ConnectionsRepository, InstrumentsRepository } from 'communication';
-import { IInstrument } from 'trading';
+import { IInstrument, InstrumentsRepository } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { IBaseItem } from '../common';
 import { CommunicationConfig, HttpRepository } from '../http';
@@ -37,9 +37,10 @@ export abstract class BrokerRepository<T extends IBaseItem = any> extends HttpRe
   constructor(
     protected _http: HttpClient,
     protected _config: CommunicationConfig,
+    protected _injector: Injector,
     protected _cookieService: CookieService,
   ) {
-    super(_http, _config);
+    super(_http, _config, _injector);
   }
 
   switch(key: Broker) {
