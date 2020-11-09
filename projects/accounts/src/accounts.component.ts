@@ -156,7 +156,7 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
 
     this.isLoading[id] = true;
 
-    this._repository.switch(this.selectedBroker.name);
+    this._repository.switch(_item.broker);
 
     action({ ..._item, ...this.form.value })
       .pipe(
