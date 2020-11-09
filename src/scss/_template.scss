@@ -73,6 +73,24 @@ body.#{$themeName} {
     color: $textColor;
   }
 
+  .cdk-virtual-scroll-viewport {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $lightBackground;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: $textColorSecondary;
+    }
+  }
+
   // .layout-container > div {
   //   & > div:nth-child(2) ~ div {
   //     padding: 4px;

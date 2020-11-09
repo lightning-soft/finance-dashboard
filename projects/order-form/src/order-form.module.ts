@@ -5,6 +5,7 @@ import { ComponentStore, LazyModule } from 'lazy-modules';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { PositionsComponent } from './components/positions/positions.component';
 import { NzInputNumberComponent, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
+import { InstrumentSelectModule } from 'instrument-select';
 
 @NgModule({
   imports: [
@@ -12,6 +13,7 @@ import { NzInputNumberComponent, NzInputNumberModule, NzSelectModule } from 'ng-
     ReactiveFormsModule,
     NzSelectModule,
     NzInputNumberModule,
+    InstrumentSelectModule
   ],
   declarations: [
     PositionsComponent,

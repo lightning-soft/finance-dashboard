@@ -55,6 +55,7 @@ body.#{$themeName} {
         font-weight: 600;
         line-height: 16px;
         margin: 0 8px 0 4px;
+        white-space: nowrap;
         color: $titleColor;
       }
 
@@ -95,9 +96,5 @@ body.#{$themeName} {
       border-radius: 4px;
       height: 100%;
     }
-  }
-
-  .frame.widget .frame-manager {
-    background-color: $tabBackground;
   }
 }

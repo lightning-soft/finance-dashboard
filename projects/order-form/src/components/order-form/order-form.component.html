@@ -1,44 +1,61 @@
 <form [formGroup]="form">
 
-<nz-select class="input" nzPlaceHolder="Select a account" formControlName="accountId">
+<div class="param">
+  <div class="title">Account</div>
+  <nz-select class="input" nzPlaceHolder="Select a account" formControlName="accountId" nzSize="small">
+    <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
+    <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
+    <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
+  </nz-select>
+</div>
+
+<!-- <nz-select class="input" nzPlaceHolder="Select a symbol" formControlName="accountId">
   <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
   <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
   <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
-</nz-select>
+</nz-select> -->
+<div class="param">
+  <div class="title">Symbol</div>
+  <instrument-select [(instrument)]="instrument"></instrument-select>
+</div>
 
-<nz-select class="input" nzPlaceHolder="Select a symbol" formControlName="accountId">
-  <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
-  <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
-  <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
-</nz-select>
+<div class="param">
+  <div class="title">Type</div>
+  <nz-select class="input" nzPlaceHolder="Select a type" formControlName="type" nzSize="small">
+    <nz-option *ngFor="let item of OrderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
+  </nz-select>
+</div>
 
-<nz-select class="input" nzPlaceHolder="Select a type" formControlName="type">
-  <nz-option *ngFor="let item of OrderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
-</nz-select>
+<div class="param">
+  <div class="title">Quantity</div>
+  <nz-input-number
+    nzSize="small"
+    class="input"
+    formControlName="quantity"
+    [nzStep]="step"
+    nzPlaceHolder="Quantity"
+  ></nz-input-number>
+</div>
 
-<nz-select class="input" nzPlaceHolder="TIF" formControlName="duration">
-  <nz-option *ngFor="let item of OrderDurations" [nzLabel]="item" [nzValue]="item"></nz-option>
-</nz-select>
-
-<nz-input-number
-  class="input"
-  formControlName="quantity"
-  [nzStep]="step"
-  nzPlaceHolder="Quantity"
-></nz-input-number>
+<div class="param">
+  <div class="title">TIF</div>
+  <nz-select class="input" nzPlaceHolder="TIF" formControlName="duration" nzSize="small">
+    <nz-option *ngFor="let item of OrderDurations" [nzLabel]="item" [nzValue]="item"></nz-option>
+  </nz-select>
+</div>
 
 <div class="button-container">
   <button (click)="submit(OrderSide.Sell)" class="sell">
     Sell
-    <div class="price">
+    <!-- <div class="price">
       1.24000
-    </div>
+    </div> -->
   </button>
   <button (click)="submit(OrderSide.Buy)" class="buy">
     Buy
-    <div class="price">
+    <!-- <div class="price">
       1.24000
-    </div>
+    </div> -->
   </button>
 </div>
 

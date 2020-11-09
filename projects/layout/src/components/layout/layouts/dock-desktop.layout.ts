@@ -52,6 +52,7 @@ export class DockDesktopLayout extends Layout {
           const instance: any = comp.instance;
 
           instance.componentRef = componentRef;
+          instance.layout = this;
           // instance.link = componentState.link || 0;
 
           // const linkSelect = await this.getLinkSelect(container, instance);
@@ -77,6 +78,7 @@ export class DockDesktopLayout extends Layout {
           const closeButton = '<i class="icon-close-window"></i>';
 
           // const winClassName = componentOptions.type;
+          const toolbarInstruments = instance.getToolbarComponent ? await instance.getToolbarComponent() : null;
 
           const windowOptions = {
             width: 500,
@@ -90,6 +92,7 @@ export class DockDesktopLayout extends Layout {
             maximizeButton,
             minimizeButton: '',
             closeButton,
+            toolbarInstruments,
             y: 70,
             x: 50,
             ...config,
@@ -97,7 +100,7 @@ export class DockDesktopLayout extends Layout {
               state: instance.getState && instance.getState(),
               name: componentName,
             }),
-          }
+          };
 
           const window = this.dockManager.createWindow(windowOptions);
 
