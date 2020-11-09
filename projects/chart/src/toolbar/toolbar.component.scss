@@ -91,12 +91,12 @@
 
   }
 
-  .ant-btn,
+  //.ant-btn,
   .ant-select-selection-search {
-    height: 22px!important;
+    height: 22px;
   }
 
-  .ant-btn > span,
+  //.ant-btn > span,
   .ant-select-selection-item {
     font-size: 11px!important;
   }
@@ -136,14 +136,14 @@
     padding: 0 20px 0 4px;
   }
 
-  .ant-select-selector {
-    height: 22px!important;
-    font-size: 12px!important;
-
-    input {
-      height: 22px;
-    }
-  }
+  //.ant-select-selector {
+  //  height: 22px!important;
+  //  font-size: 12px!important;
+  //
+  //  input {
+  //    height: 22px;
+  //  }
+  //}
 
   .tool.select {
     width: 45px;
