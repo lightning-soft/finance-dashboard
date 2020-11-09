@@ -40,7 +40,10 @@
                   [class.selectable-item-action-active]="item.favourite"
                   (click)="toggleFavourite($event, item)"
                 >
-                  <i class="icon-tool-circle font-size-inherit"></i>
+                  <i class="font-size-inherit" [ngClass]="{
+                    'icon-star-o': !item.favourite,
+                    'icon-star': item.favourite
+                  }"></i>
                 </span>
               </div>
             </div>

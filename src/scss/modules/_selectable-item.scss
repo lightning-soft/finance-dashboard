@@ -26,7 +26,10 @@
       margin-right: 8px;
     }
 
-    &:hover,
+    &:hover {
+      color: $white;
+    }
+
     &-active {
       color: $primary;
     }
