@@ -20,12 +20,14 @@ body.#{$themeName} {
     &.resize-right-up {
       cursor: nesw-resize;
     }
+    & header {
+      cursor: move;
+    }
   }
 
   .frame .wm-container {
     background-color: $tabFrameColor;
-    padding: 0 4px 4px 4px;
-
+    padding: 4px;
     & > header {
       justify-content: space-between;
       align-items: center;
