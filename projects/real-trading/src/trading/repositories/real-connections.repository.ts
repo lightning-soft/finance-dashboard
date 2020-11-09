@@ -1,22 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, delay, map, tap } from 'rxjs/operators';
-import { IConnection } from 'trading';
+import { Observable, of } from 'rxjs';
+import { delay, map, tap } from 'rxjs/operators';
+import { Broker, IConnection } from 'trading';
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
-  connection: BehaviorSubject<IConnection>;
-
-  _apiKey;
-
-  protected _itemName = 'Connection';
-
-  onInit() {
-    const connectedItem = this._getItems().find(i => i.connected);
-
-    this.connection = new BehaviorSubject(connectedItem);
-  }
 
   getItems(): Observable<IPaginationResponse<IConnection>> {
     const data = this._getItems();
@@ -27,9 +16,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   createItem(item: ExcludeId<IConnection>): Observable<IConnection> {
-    return this._connect(item).pipe(
-      map(i => this._createItem(i)),
-    );
+    return of(this._createItem(item));
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
@@ -39,47 +26,55 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   deleteItem(id: number): Observable<any> {
-    return this._disconnect().pipe(
-      catchError(() => of({ id })),
-      tap(() => this._deleteItem(id)),
-    );
+    // return throwError('Implement');
+
+    return this._deleteItem(id);
   }
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
       tap(i => {
         this._updateItem(i);
-        this.connection.next(i);
       }),
     );
   }
 
   disconnect(item: IConnection): Observable<any> {
-    const _item = { ...item, connected: false };
+    const _item = { ...item, connected: false, connectionData: null };
 
-    return this._disconnect().pipe(
-      tap(() => {
-        this._updateItem(_item);
-        this.connection.next(_item);
-      }),
+    return this._disconnect(item).pipe(
+      map(() => _item),
+      tap(() => this._updateItem(_item)),
     );
   }
 
   protected _connect(item: ExcludeId<IConnection>): Observable<any> {
-    return this._http.post(this._getRESTURL(), item).pipe(
-      tap((res: any) => {
-        this._apiKey = res.result.apiKey;
-      }),
-      map(() => ({ ...item, password: null, connected: true })),
+    return this._http.post(this._getUrl(item.broker), item).pipe(
+      map((res: any) => ({
+        ...item,
+        password: null,
+        connected: true,
+        connectionData: res.result,
+      })),
     );
   }
 
-  protected _disconnect(): Observable<any> {
-    return this._http.post(`${this._getRESTURL()}logout`, {}, this._httpOptions).pipe(
-      tap(() => {
-        this._apiKey = null;
-      }),
-    );
+  protected _disconnect(item: IConnection): Observable<any> {
+    const data = item.connectionData;
+    const apiKey = data.apiKey;
+
+    return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
+      headers: {
+        'Api-Key': apiKey,
+      },
+    });
+  }
+
+  _getUrl(broker: Broker) {
+    if (broker == null)
+      throw new Error('Invalid broker');
+
+    return this._communicationConfig[broker].http.url + 'Connection';
   }
 
   protected _createItem(item: ExcludeId<IConnection>): IConnection {
@@ -119,12 +114,13 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     );
   }
 
-  protected _deleteItem(id: number) {
+  protected _deleteItem(id: number): Observable<any> {
     const items = this._getItems().filter(i => i.id !== id);
 
     this._setItems(items);
 
     this._onDelete({ id });
+    return of({ id });
   }
 
   protected _getItems(): IConnection[] {
