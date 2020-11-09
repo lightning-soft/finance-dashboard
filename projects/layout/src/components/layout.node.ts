@@ -2,6 +2,8 @@ import { ComponentRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 
+declare const $: any;
+
 export interface IContainer {
   setTitle(title: string);
   close();
@@ -70,6 +72,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
     // console.log(name, event, this._layoutContainer);
+    const $componentContainer = $('.wm-container > section');
     switch (name) {
       case LayoutNodeEvent.Destroy:
         this.handleDestroy();
@@ -79,6 +82,12 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         break;
       case LayoutNodeEvent.Show:
         this.handleShow();
+        break;
+      case LayoutNodeEvent.MoveStart:
+        $componentContainer.addClass('pointer-events-none');
+        break;
+      case LayoutNodeEvent.MoveEnd:
+        $componentContainer.removeClass('pointer-events-none');
         break;
       case LayoutNodeEvent.ExtendState:
         // this._layoutContainer.setState({

@@ -7,6 +7,8 @@ export enum LayoutNodeEvent {
   Destroy = 'destroy',
   Close = 'close',
   Tab = 'tab',
+  MoveStart = 'move-start',
+  MoveEnd = 'move-end',
   ExtendState = 'extendState',
   LinkData = 'linkData',
 
