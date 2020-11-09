@@ -40,10 +40,10 @@ export class RealTradingModule {
           provide: InstrumentsRepository,
           useClass: RealInstrumentsRepository,
         },
-        {
-          provide: DatafeedRepository,
-          useClass: RealDatafeedRepository,
-        },
+        // {
+        //   provide: DatafeedRepository,
+        //   useClass: RealDatafeedRepository,
+        // },
         {
           provide: InstrumentsRepository,
           useClass: RealInstrumentsRepository,

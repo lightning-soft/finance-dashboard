@@ -81,6 +81,9 @@ export class GroupItemsBuilder extends GenericItemsBuilder implements IGroupItem
       groupBy.forEach(key => {
         this._groups[key] = this.items.reduce((accum, item) => {
           const value = item[key];
+          if (value == null)
+            return accum;
+
           const _value = typeof value === 'object' ? value.value : value;
           const _accum = accum[_value] || [];
 
