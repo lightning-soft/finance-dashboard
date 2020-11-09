@@ -176,3 +176,8 @@
   height: 22px;
   line-height: 22px;
 }
+
+
+::ng-deep app-toolbar instrument-select button{
+  width: 100px;
+}

@@ -8,6 +8,8 @@ export type ComponentOptions = {
     name: string;
     state?: any;
   },
+  width?: number;
+  height?: number;
   type?: string;
   icon?: string;
   minimizeBtn?: boolean;
