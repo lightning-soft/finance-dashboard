@@ -4,7 +4,7 @@
   [nzClickHide]="false"
   [nzDropdownMenu]="menu"
 >
-  <div *ngIf="time; else block">{{ time | date: "H:mm:ss" }}</div>
+  <div *ngIf="time; else block">{{ time | date: "HH:mm:ss" }}</div>
   <ng-template #block><span>--:--:--</span></ng-template>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
