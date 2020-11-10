@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzSelectModule, NzTabsModule, NzTransferModule } from 'ng-zorro-antd';
 import { AccountsComponent } from './accounts.component';
@@ -16,6 +17,7 @@ import { AccountsComponent } from './accounts.component';
     NzSelectModule,
     NzTabsModule,
     NzTransferModule,
+    ScrollingModule,
   ],
   exports: [
     AccountsComponent,

@@ -4,6 +4,7 @@
       All
     </div>
     <div class="custom-panel-body">
+    <cdk-virtual-scroll-viewport [itemSize]="">
       <nz-collapse class="custom-collapse-ghost">
         <nz-collapse-panel
           *ngFor="let broker of brokers"
@@ -50,6 +51,7 @@
           </div>
         </nz-collapse-panel>
       </nz-collapse>
+      </cdk-virtual-scroll-viewport>
     </div>
   </div>
   <div class="custom-panel">
@@ -57,6 +59,7 @@
       Properties
     </div>
     <div class="custom-panel-body">
+      <cdk-virtual-scroll-viewport [itemSize]="">
       <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">
         <img
           class="img-responsive d-table mx-auto my-2"
@@ -154,6 +157,7 @@
           <div class="text-small text-center" [innerHTML]="selectedBroker.description"></div>
         </div>
       </div>
+      </cdk-virtual-scroll-viewport>
     </div>
   </div>
 </div>
