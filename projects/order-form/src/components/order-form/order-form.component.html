@@ -2,7 +2,12 @@
 
 <div class="param">
   <div class="title">Account</div>
-  <nz-select class="input" nzPlaceHolder="Select a account" formControlName="accountId" nzSize="small">
+  <nz-select 
+    class="input" 
+    nzPlaceHolder="Select a account" 
+    formControlName="accountId" 
+    nzSize="small"
+  >
     <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
     <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
     <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
@@ -21,9 +26,41 @@
 
 <div class="param">
   <div class="title">Type</div>
-  <nz-select class="input" nzPlaceHolder="Select a type" formControlName="type" nzSize="small">
+  <nz-select 
+    class="input"
+    nzPlaceHolder="Select a type" 
+    formControlName="type" 
+    nzSize="small"
+  >
     <nz-option *ngFor="let item of OrderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
   </nz-select>
+</div>
+
+<div 
+  *ngIf="form.value.type === 'Limit' || form.value.type === 'StopMarket' || form.value.type === 'StopLimit'"
+  class="param"
+>
+  <div class="title">Price</div>
+
+  <div class="quantity-group">
+    <nz-input-number
+      *ngIf="form.value.type === 'StopMarket' || form.value.type === 'StopLimit'" 
+      nzSize="small"
+      class="input"
+      formControlName="stopPrice"
+      [nzStep]="step"
+      nzPlaceHolder="Stop price"
+    ></nz-input-number>
+
+    <nz-input-number
+      *ngIf="form.value.type === 'Limit' || form.value.type === 'StopLimit'" 
+      nzSize="small"
+      class="input"
+      formControlName="limitPrice"
+      [nzStep]="step"
+      nzPlaceHolder="Limit price"
+    ></nz-input-number>
+  </div>
 </div>
 
 <div class="param">
