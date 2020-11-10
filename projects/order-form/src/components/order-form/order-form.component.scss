@@ -69,6 +69,19 @@ button {
   .param {
     margin-bottom: 8px;
 
+    .quantity-group {
+      display: flex;
+      
+      nz-input-number {
+        width: auto!important;
+        flex-grow: 1;
+
+        &:nth-child(2) {
+          margin-left: 8px!important;
+        }
+      }
+    }
+
     &:first-child {
       margin-bottom: 24px;
 
