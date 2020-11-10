@@ -7,6 +7,7 @@
 .instrument-search-btn {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   background-color: $tabFrameColor;
   border-radius: 2px;
   color: $titleColor;
