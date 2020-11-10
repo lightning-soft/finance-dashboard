@@ -1,7 +1,16 @@
-import { HttpRepository } from 'communication';
 import { IPosition } from 'trading';
+import { BaseRepository } from './base-repository';
 
+export class RealPositionsRepository extends BaseRepository<IPosition> {
+  protected get suffix(): string {
+    return 'Position';
+  }
 
-export class RealPositionsRepository extends HttpRepository<IPosition> {
-
+  _getRepository() {
+    return new RealPositionsRepository(
+      this._http,
+      this._communicationConfig,
+      this._injector
+    );
+  }
 }

@@ -36,11 +36,12 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
   }
 
   ngOnInit() {
-    super.ngOnInit();
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() =>
         this._repository = this._repository.forConnection(this._accountsManager.getActiveConnection()));
+
+    super.ngOnInit();
   }
 
   toggleSearch() {
