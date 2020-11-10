@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
-import { AccountsManager } from '../../../accounts-manager/src/accounts-manager';
+import { AccountsManager } from 'accounts-manager';
 
 @Component({
   selector: 'instrument-select',

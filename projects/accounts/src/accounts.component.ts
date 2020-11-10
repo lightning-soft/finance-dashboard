@@ -57,6 +57,7 @@ export class AccountsComponent implements OnInit {
       );
 
     this._accountsManager.connections
+      .pipe(untilDestroyed(this))
       .subscribe(items => this.builder.replaceItems(items));
   }
 
