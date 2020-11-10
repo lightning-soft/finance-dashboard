@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
@@ -20,7 +20,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
   private _loadedParams;
 
   searchString: string;
-  isHidden = true;
+  isVisible = false;
 
   constructor(
     protected _injector: Injector,
@@ -31,8 +31,20 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
     this.autoLoadData = {
       onInit: true,
     };
+  }
 
-    this._hideSelect = this._hideSelect.bind(this);
+  @HostListener('window:click', ['$event'])
+  handleBlur(): void {
+    if (this.isVisible)
+      this.isVisible = false;
+  }
+
+  handleBubbling(event: Event): void {
+    event.stopPropagation();
+  }
+
+  toggleVisibility(): void {
+    this.isVisible = !this.isVisible;
   }
 
   ngOnInit() {
@@ -41,17 +53,6 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
       .pipe(untilDestroyed(this))
       .subscribe(() =>
         this._repository = this._repository.forConnection(this._accountsManager.getActiveConnection()));
-  }
-
-  toggleSearch() {
-    this.isHidden = !this.isHidden;
-
-    setTimeout(() => {
-      if (!this.isHidden) {
-        this.input.nativeElement.focus();
-        window.addEventListener('click', this._hideSelect);
-      }
-    }, 0);
   }
 
   onSearch(criteria: string) {
@@ -73,7 +74,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
 
   select(instrument: IInstrument) {
     this.instrumentChange.emit(instrument);
-    this._hideSelect();
+    this.toggleVisibility();
   }
 
   lazyLoad(): void {
@@ -93,11 +94,6 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
     };
 
     this.loadData(this._loadedParams);
-  }
-
-  private _hideSelect() {
-    this.isHidden = true;
-    window.removeEventListener('click', this._hideSelect);
   }
 }
 
