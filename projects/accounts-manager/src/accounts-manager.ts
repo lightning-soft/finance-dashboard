@@ -12,6 +12,10 @@ export class AccountsManager {
     protected _connectionsRepository: ConnectionsRepository
   ) { }
 
+  getActiveConnection() {
+    return this.connections.value.find(i => i.connected);
+  }
+
   async init() {
     return this._connectionsRepository.getItems()
       .pipe(tap((r: IPaginationResponse<IConnection>) => this.connections.next(r.data)))

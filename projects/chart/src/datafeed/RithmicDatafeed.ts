@@ -1,38 +1,41 @@
 import { Injectable } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { IBarsRequest, IQuote, IRequest, ITimeFrame, StockChartXPeriodicity } from 'chart/models';
-import { WebSocketService } from 'communication';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { BrokersRepository, HistoryRepository, ITrade, LevelOneDataFeedService } from 'trading';
-import { InstrumentsRepository } from '../repositories/instruments.repository';
+import { AccountsManager } from 'accounts-manager';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
+import {
+  HistoryRepository,
+  InstrumentsRepository, ITrade,
+  LevelOneDataFeedService
+} from 'trading';
 import { Datafeed } from './Datafeed';
-import { AccountsManager } from '../../../../accounts-manager/src/accounts-manager';
+import { IBarsRequest, IQuote, IRequest } from './models';
+import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
-
-@UntilDestroy()
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
-
+  private _destroy = new Subject();
   constructor(
     private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeedService: LevelOneDataFeedService,
-    private _webSocketService: WebSocketService,
   ) {
     super();
+
+    this._accountsManager.connections
+      .pipe(takeUntil(this._destroy))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this._historyRepository = this._historyRepository.forConnection(connection);
+      });
   }
 
   send(request: IBarsRequest) {
-    if (!this._webSocketService.connected) {
-      this._webSocketService.connect(() => this.subscribeToRealtime(request));
-    } else {
-      this.subscribeToRealtime(request);
-    }
-
+    super.send(request);
+    this.subscribeToRealtime(request);
     this._loadData(request);
   }
 
@@ -78,7 +81,7 @@ export class RithmicDatafeed extends Datafeed {
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
-          this._webSocketService.connect(() => this.subscribeToRealtime(request));
+          // this._webSocketService.connect(() => this.subscribeToRealtime(request)); // todo: test
         }
       },
       () => this.cancel(request),
@@ -141,5 +144,11 @@ export class RithmicDatafeed extends Datafeed {
 
   private _getInstrument(req: IRequest) {
     return req.instrument ?? req.chart.instrument;
+  }
+
+  destroy() {
+    super.destroy();
+    this._destroy.next();
+    this._destroy.complete();
   }
 }

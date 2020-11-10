@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { InstrumentsRepository } from 'trading';
-import { IBarsRequest, IQuote, IRequest } from 'chart/models';
+import { IBarsRequest, IQuote, IRequest } from './models';
 import { Datafeed, IDateFormat } from './Datafeed';
 
 declare let StockChartX: any;

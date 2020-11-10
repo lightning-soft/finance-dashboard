@@ -4,5 +4,5 @@ import { IBroker } from 'trading';
 
 @Injectable()
 export abstract class BrokersRepository extends Repository<IBroker> {
-  connection: any;
+
 }
