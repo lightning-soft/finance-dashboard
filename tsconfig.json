@@ -2,13 +2,7 @@
   "files": [],
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": ".",
-    "paths": {
-      "real-trading": [
-        "dist/real-trading/real-trading",
-        "dist/real-trading"
-      ]
-    }
+    "baseUrl": "."
   },
   "references": [
     {

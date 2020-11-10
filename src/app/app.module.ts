@@ -11,23 +11,28 @@ import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { NzDropDownModule } from 'ng-zorro-antd';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotifierModule } from 'notifier';
+import { RealTradingModule } from 'real-trading';
+import { AccountsManagerModule, AccountsManager } from 'accounts-manager';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { AppConfig } from './app.config';
-import { Modules, modulesStore } from './modules';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { RealTradingModule } from 'real-trading';
 import {
   AccountComponent,
-  ClockComponent,
-  AppComponent,
+  AppComponent, ClockComponent,
   DashboardComponent,
   DragDrawerComponent,
   NavbarComponent,
   NavbarControllerComponent,
   NotificationListComponent, TradeLockComponent
 } from './components';
+import { Modules, modulesStore } from './modules';
+import { APP_INITIALIZER } from '@angular/core';
+
+export function initAccounts(manager: AccountsManager): () => Promise<any> {
+  return () => manager.init();
+}
 
 @NgModule({
   declarations: [
@@ -54,6 +59,7 @@ import {
       path: environment.config || 'config/config.json',
       configClass: AppConfig,
     }),
+    AccountsManagerModule.forRoot(),
     CommunicationModule.forRoot([
       {
         provide: CommunicationConfig,
@@ -111,6 +117,12 @@ import {
   ],
   providers: [
     ThemesHandler,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initAccounts,
+      multi: true,
+      deps: [AccountsManager],
+    },
   ],
   bootstrap: [AppComponent]
 })

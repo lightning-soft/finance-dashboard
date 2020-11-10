@@ -1259,6 +1259,46 @@
           }
         }
       }
+    },
+    "accounts-manager": {
+      "projectType": "library",
+      "root": "projects/accounts-manager",
+      "sourceRoot": "projects/accounts-manager/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/accounts-manager/tsconfig.lib.json",
+            "project": "projects/accounts-manager/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/accounts-manager/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/accounts-manager/src/test.ts",
+            "tsConfig": "projects/accounts-manager/tsconfig.spec.json",
+            "karmaConfig": "projects/accounts-manager/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/accounts-manager/tsconfig.lib.json",
+              "projects/accounts-manager/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "angular-starter",

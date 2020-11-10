@@ -7,6 +7,7 @@ import { map, tap } from 'rxjs/operators';
 import { BrokersRepository, HistoryRepository, ITrade, LevelOneDataFeedService } from 'trading';
 import { InstrumentsRepository } from '../repositories/instruments.repository';
 import { Datafeed } from './Datafeed';
+import { AccountsManager } from '../../../../accounts-manager/src/accounts-manager';
 
 declare let StockChartX: any;
 
@@ -16,7 +17,7 @@ declare let StockChartX: any;
 export class RithmicDatafeed extends Datafeed {
 
   constructor(
-    private _connectionsRepository: BrokersRepository,
+    private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeedService: LevelOneDataFeedService,
@@ -26,21 +27,13 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
-    this._connectionsRepository.connection
-      .pipe(untilDestroyed(this))
-      .subscribe(item => {
-        if (item?.connected) {
-          super.send(request);
+    if (!this._webSocketService.connected) {
+      this._webSocketService.connect(() => this.subscribeToRealtime(request));
+    } else {
+      this.subscribeToRealtime(request);
+    }
 
-          if (!this._webSocketService.connected) {
-            this._webSocketService.connect(() => this.subscribeToRealtime(request));
-          } else {
-            this.subscribeToRealtime(request);
-          }
-
-          this._loadData(request);
-        }
-      });
+    this._loadData(request);
   }
 
   loadInstruments(): Observable<any[]> {

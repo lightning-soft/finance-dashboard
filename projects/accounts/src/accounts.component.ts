@@ -1,11 +1,12 @@
 import { Component, Injector, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { GroupItemsBuilder, ItemsComponent } from 'base-components';
+import { AccountsManager } from 'accounts-manager';
+import { GroupItemsBuilder } from 'base-components';
 import { NzModalService } from 'ng-zorro-antd';
-import { Observable } from 'rxjs';
+import { NotifierService } from 'notifier';
 import { finalize } from 'rxjs/operators';
-import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection } from 'trading';
+import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
 
 @UntilDestroy()
 @Component({
@@ -13,7 +14,7 @@ import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection 
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
 })
-export class AccountsComponent extends ItemsComponent<IConnection> implements OnInit {
+export class AccountsComponent implements OnInit {
 
   builder = new GroupItemsBuilder();
   form: FormGroup;
@@ -23,26 +24,20 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   selectedBroker: IBroker;
 
   constructor(
-    protected _repository: ConnectionsRepository,
-    protected _connectionsRepository: ConnectionsRepository,
+    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
+    protected _notifier: NotifierService,
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
     private modal: NzModalService,
   ) {
-    super();
-
-    this.autoLoadData = {
-      onInit: true,
-    };
   }
 
   ngOnInit() {
-    super.ngOnInit();
-
     this.builder.setParams({ groupBy: ['broker'] });
 
     this.form = this.fb.group({
+      id: [null],
       name: [null],
       username: [null],
       password: [null],
@@ -58,8 +53,11 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
       .pipe(untilDestroyed(this))
       .subscribe(
         res => this.brokers = res.data,
-        err => this.notifier.showError(err)
+        err => this._notifier.showError(err)
       );
+
+    this._accountsManager.connections
+      .subscribe(items => this.builder.replaceItems(items));
   }
 
   openCreateForm(event: MouseEvent, broker: Broker) {
@@ -109,12 +107,12 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   }
 
   create() {
-    return this._connectionsRepository.createItem(this.form.value)
+    return this._accountsManager.createConnection(this.form.value)
       .pipe(this.showItemLoader(this.selectedItem))
       .subscribe(
         (item: any) => {
           console.log(item);
-          this.builder.handleCreateItems([item]);
+          // this.builder.handleCreateItems([item]);
           this.selectItem(item);
           this.connect();
         },
@@ -122,34 +120,29 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   }
 
   connect() {
-    // this._dispatch((item) => {
-    return this._connectionsRepository.connect(this.form.value)
+    return this._accountsManager.connect(this.form.value)
       .pipe(this.showItemLoader(this.selectedItem))
       .subscribe(
         (data: IConnection) => {
           const item = { ...this.selectedItem, connected: true, connectionData: data.connectionData };
-          this.builder.handleUpdateItems([item]);
+          // this.builder.handleUpdateItems([item]);
           this.selectedItem = item;
         },
         err => this._notifier.showError(err)
       );
-    // return this._repository.connect(item);
-    // });
   }
 
   disconnect() {
-    // this._dispatch((item) => {
-    return this._connectionsRepository.disconnect(this.selectedItem)
+    return this._accountsManager.disconnect(this.selectedItem)
       .pipe(this.showItemLoader(this.selectedItem))
       .subscribe(
         () => {
           const _item = this.selectedItem;
           this.selectedItem = { ..._item, connected: false };
-          this.builder.handleUpdateItems([this.selectedItem]);
+          // this.builder.handleUpdateItems([this.selectedItem]);
         },
         err => this._notifier.showError(err)
-      );        // }, item);
-    // });
+      );
   }
 
   delete(event: MouseEvent, item: IConnection) {
@@ -163,11 +156,11 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
-        return this._connectionsRepository.deleteItem(+item.id)
+        return this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item))
           .subscribe(
             (_item) => {
-              this.builder.handleDeleteItems([item]);
+              // this.builder.handleDeleteItems([item]);
               console.log(item);
             },
             err => this._notifier.showError(err)
@@ -179,11 +172,11 @@ export class AccountsComponent extends ItemsComponent<IConnection> implements On
   toggleFavourite(event: MouseEvent, item: IConnection) {
     event.stopPropagation();
 
-    return this._connectionsRepository.updateItem({ ...item, favourite: !item.favourite })
+    return this._accountsManager.toggleFavourite({ ...item, favourite: !item.favourite })
       .pipe(this.showItemLoader(item))
       .subscribe(
         (item: any) => {
-          this.builder.handleUpdateItems([item]);
+          // this.builder.replaceItems([item]);
           console.log(item);
         },
         err => this._notifier.showError(err)
