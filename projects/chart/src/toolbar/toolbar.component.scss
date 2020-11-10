@@ -165,6 +165,12 @@
 .toolbar-container {
   display: flex;
   align-items: center;
+  opacity: 0;
+  transition: opacity .2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .tool {
