@@ -5,7 +5,7 @@ import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
-import { Datafeed, RithmicDatafeed } from 'trading';
+import { Datafeed, RithmicDatafeed } from './datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';

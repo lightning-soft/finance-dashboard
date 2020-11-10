@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable, Optional } from '@angular/core';
+import { Inject, Injectable, Injector, Optional } from '@angular/core';
 import { Id } from 'communication';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -8,17 +8,20 @@ import { CommunicationConfig } from './communication.config';
 
 @Injectable()
 export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> {
-  protected abstract get _baseUrl(): string;
+  protected get _baseUrl(): string {
+    throw new Error(`Implement baseUrl for ${this}`);
+  }
 
   protected get _httpOptions() {
     return {};
   }
 
-  onInit() {}
+  onInit() { }
 
   constructor(
     @Inject(HttpClient) protected _http: HttpClient,
     @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
+    @Optional() @Inject(Injector) protected _injector: Injector,
   ) {
     super();
 

@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
-import { ConnectionsRepository, InstrumentsRepository } from 'communication';
-import { IInstrument } from 'trading';
+import { IInstrument, InstrumentsRepository } from 'trading';
+import { AccountsManager } from '../../../accounts-manager/src/accounts-manager';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -191,9 +191,9 @@ export class ToolbarComponent implements OnInit {
 
 
   constructor(
-    private _connectionsRepository: ConnectionsRepository,
+    private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
-  ) {}
+  ) { }
 
   _search(criteria = '') {
     this._searchSubscription?.unsubscribe();
@@ -209,13 +209,10 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._connectionsRepository.connection
-      .pipe(untilDestroyed(this))
-      .subscribe(item => {
-        if (item?.connected) {
-          this._search();
-        }
-      });
+    this._accountsManager.connections.subscribe(() =>
+      this._instrumentsRepository = this._instrumentsRepository.forConnection(this._accountsManager.getActiveConnection()));
+    this._search();
+
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {

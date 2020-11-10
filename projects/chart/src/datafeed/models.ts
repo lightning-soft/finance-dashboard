@@ -1,8 +1,3 @@
-export interface IDatafeed {
-  send(request: IRequest);
-
-  cancel(request: IRequest);
-}
 
 export interface IStockChartXInstrument {
   symbol: string;
