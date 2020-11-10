@@ -27,11 +27,15 @@ body.#{$themeName} {
 
   .frame .wm-container {
     background-color: $tabFrameColor;
-    padding: 4px;
+    padding: 1px;
+    box-shadow: 0px 0px 10px $bodyBackground;
+    border: 1px solid $borderColor;
+    border-radius: 4px;
+
     & > header {
       justify-content: space-between;
       align-items: center;
-      min-height: 28px;
+      min-height: 23px;
 
       .frame-manager {
         border-radius: 2px;
@@ -39,9 +43,9 @@ body.#{$themeName} {
 
         i {
           display: block;
-          width: 20px;
-          height: 20px;
-          line-height: 20px;
+          width: 18px;
+          height: 18px;
+          line-height: 18px;
           text-align: center;
           font-size: 12px;
           color: $textColor;
@@ -54,7 +58,7 @@ body.#{$themeName} {
         font-size: 12px;
         font-weight: 600;
         line-height: 16px;
-        margin: 0 8px 0 4px;
+        margin: 0 8px 0 6px;
         white-space: nowrap;
         color: $titleColor;
       }
@@ -93,7 +97,7 @@ body.#{$themeName} {
 
     & > section {
       overflow: hidden !important;
-      border-radius: 4px;
+      border-radius: 2px;
       height: 100%;
     }
   }
