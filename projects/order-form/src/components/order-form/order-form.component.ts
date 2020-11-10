@@ -1,15 +1,19 @@
-import { Component, Injector, Input } from '@angular/core';
+import { Component, Injector, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormComponent } from 'base-components';
-import { OrdersRepository } from 'communication';
-import { IInstrument, IOrder, OrderDuration, OrderSide, OrderType } from 'trading';
+import { IInstrument, IOrder, OrderDuration, OrderSide, OrdersRepository, OrderType } from 'trading';
+
+enum DynamicControl {
+  LimitPrice = 'limitPrice',
+  StopPrice = 'stopPrice'
+}
 
 @Component({
   selector: 'order-form',
   templateUrl: './order-form.component.html',
   styleUrls: ['./order-form.component.scss']
 })
-export class OrderFormComponent extends FormComponent<IOrder> {
+export class OrderFormComponent extends FormComponent<IOrder> implements OnInit {
   OrderDurations = Object.values(OrderDuration);
   OrderTypes = Object.values(OrderType);
   step = 0.1;
@@ -57,6 +61,8 @@ export class OrderFormComponent extends FormComponent<IOrder> {
         quantity: fb.control(this.step, Validators.min(this.step)),
         duration: fb.control(OrderDuration.GTC, Validators.required),
         side: fb.control(null, Validators.required),
+        limitPrice: fb.control(null, Validators.required),
+        stopPrice: fb.control(null, Validators.required)
       }
     );
   }
@@ -79,7 +85,25 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   }
 
   getDto() {
-    return this.getRawValue();
+    let dto: IOrder;
+
+    dto = this.getRawValue();
+    dto = this.filterByOrderType(dto);
+
+    return dto;
+  }
+
+  private filterByOrderType(order: IOrder): IOrder {
+    const result = Object.assign({}, order);
+    const orderType = order.type;
+
+    if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
+      delete result[DynamicControl.LimitPrice];
+
+    if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
+      delete result[DynamicControl.StopPrice];
+
+    return result;
   }
 
   protected handleItem(item: IOrder): void {

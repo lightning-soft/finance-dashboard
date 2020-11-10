@@ -52,41 +52,89 @@
 }
 
 ::ng-deep {
-  .toolbar-dropdown nz-option-container {
-    width: 140px;
-
+  app-toolbar {
+    .toolbar-dropdown nz-option-container {
+      width: 140px;
+  
+      .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+        color: inherit;
+        font-weight: inherit;
+        background-color: inherit;
+      }
+    }
+  
+    .toolbar-dropdown {
+      .scx-icon {
+        margin-right: 6px;
+      }
+  
+      .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+        color: inherit;
+        background: inherit;
+      }
+  
+    }
+  
+    .toolbar-submenu {
+      .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+        color: inherit;
+      }
+  
+      span {
+        display: inline-block;
+      }
+  
+      .scx-icon {
+        margin-right: 6px;
+        margin-top: 2px;
+        display: inline-block;
+      }
+  
+    }
+  
+    .ant-btn,
+    .ant-select-selection-search {
+      height: 22px!important;
+    }
+  
+    .ant-btn > span,
+    .ant-select-selection-item {
+      font-size: 11px!important;
+    }
+  
+    .ant-select-item {
+      color: inherit;
+    }
+  
     .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
       color: inherit;
       font-weight: inherit;
       background-color: inherit;
     }
-  }
-
-  .toolbar-dropdown {
-    .scx-icon {
-      margin-right: 6px;
-    }
-
-    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+  
+    .ant-dropdown-menu {
+      background-color: unset;
       color: inherit;
-      background: inherit;
+      box-shadow: none;
     }
-
-  }
-
-  .toolbar-submenu {
-    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+  
+    .ant-btn:hover, .ant-btn, .ant-btn:focus, .ant-btn-group {
       color: inherit;
+      border: none;
+      box-shadow: none;
+  
+      &:after {
+        display: none;
+      }
     }
-
-    span {
-      display: inline-block;
+  
+    .ant-btn {
+      border-radius: 2px!important;
     }
-
-    .scx-icon {
-      margin-right: 6px;
-      margin-top: 2px;
-      display: inline-block;
+  
+    .btn-group .ant-btn {
+      margin: 0;
+      padding: 0 20px 0 4px;
     }
 
   }
@@ -165,6 +213,12 @@
 .toolbar-container {
   display: flex;
   align-items: center;
+  opacity: 0;
+  transition: opacity .2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .tool {

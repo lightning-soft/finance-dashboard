@@ -1,7 +1,8 @@
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import { untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
-import { InstrumentsRepository } from 'communication';
-import { IInstrument } from 'trading';
+import { IInstrument, InstrumentsRepository } from 'trading';
+import { AccountsManager } from 'accounts-manager';
 
 @Component({
   selector: 'instrument-select',
@@ -24,6 +25,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
   constructor(
     protected _injector: Injector,
     protected _repository: InstrumentsRepository,
+    protected _accountsManager: AccountsManager,
   ) {
     super();
     this.autoLoadData = {
@@ -31,6 +33,14 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
     };
 
     this._hideSelect = this._hideSelect.bind(this);
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() =>
+        this._repository = this._repository.forConnection(this._accountsManager.getActiveConnection()));
   }
 
   toggleSearch() {

@@ -23,7 +23,7 @@
               class="selectable-item pl-4 mt-1"
               [class.selectable-item-active]="item.id === selectedItem?.id"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
-              (click)="selectItem(item.id)"
+              (click)="selectItem(item)"
             >
               <div class="position-relative">
                 <span class="indicator text-success prefix" *ngIf="item.connected"></span>

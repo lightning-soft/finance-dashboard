@@ -1219,6 +1219,86 @@
           }
         }
       }
+    },
+    "real-trading": {
+      "projectType": "library",
+      "root": "projects/real-trading",
+      "sourceRoot": "projects/real-trading/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/real-trading/tsconfig.lib.json",
+            "project": "projects/real-trading/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/real-trading/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/real-trading/src/test.ts",
+            "tsConfig": "projects/real-trading/tsconfig.spec.json",
+            "karmaConfig": "projects/real-trading/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/real-trading/tsconfig.lib.json",
+              "projects/real-trading/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "accounts-manager": {
+      "projectType": "library",
+      "root": "projects/accounts-manager",
+      "sourceRoot": "projects/accounts-manager/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/accounts-manager/tsconfig.lib.json",
+            "project": "projects/accounts-manager/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/accounts-manager/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/accounts-manager/src/test.ts",
+            "tsConfig": "projects/accounts-manager/tsconfig.spec.json",
+            "karmaConfig": "projects/accounts-manager/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/accounts-manager/tsconfig.lib.json",
+              "projects/accounts-manager/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "angular-starter",
