@@ -1,5 +1,6 @@
 import { Component, Injector } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
@@ -46,6 +47,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     protected _injector: Injector,
     private _levelOneDatafeedService: LevelOneDataFeedService,
     private _loadingService: LoadingService,
+    private _accountsManager: AccountsManager,
   ) {
     super();
     this.autoLoadData = { onInit: true };
@@ -55,6 +57,17 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
       filter: (order: IOrder) => order.status === this.status,
       map: (item: IOrder) => new OrderItem(item),
     });
+  }
+
+  ngOnInit() {
+    this._accountsManager.connections
+    .pipe(untilDestroyed(this))
+    .subscribe(() => {
+      const connection = this._accountsManager.getActiveConnection();
+      this._repository = this._repository.forConnection(connection);
+    });
+
+    super.ngOnInit();
   }
 
   async getToolbarComponent() {

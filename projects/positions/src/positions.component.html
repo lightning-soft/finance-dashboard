@@ -5,6 +5,17 @@
       <nz-option nzValue="Open" nzLabel="Open"></nz-option>
       <nz-option nzValue="Close" nzLabel="Close"></nz-option>
     </nz-select>
+
+    <nz-select
+      class="input"
+      nzPlaceHolder="Select a account"
+      [(ngModel)]="accountId"
+      nzSize="small"
+    >
+    <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+    <!-- <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
+    <nz-option nzLabel="Tom" nzValue="tom"></nz-option> -->
+  </nz-select>
   </div>
 
   <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List
@@ -14,4 +25,4 @@
   </div>
 </div>
 
-<data-grid [items]="items" [handlers]="handlers" [columns]="headers"></data-grid>
+<data-grid [items]="builder.items" [handlers]="handlers" [columns]="headers"></data-grid>

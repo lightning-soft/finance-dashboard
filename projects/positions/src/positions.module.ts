@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
@@ -12,6 +12,7 @@ import { PositionsComponent } from './positions.component';
     DataGridModule,
     NzSelectModule,
     FormsModule,
+    ReactiveFormsModule,
   ],
   exports: [
     PositionsComponent
