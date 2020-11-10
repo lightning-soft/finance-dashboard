@@ -1,4 +1,4 @@
-import { IBaseItem } from '../../common';
+import { IBaseItem } from 'communication';
 
 export interface IAccount  extends IBaseItem {
   name: string;

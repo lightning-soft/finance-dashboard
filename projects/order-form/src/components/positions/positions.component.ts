@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, Injector, Input } from '@angular/core';
-import { IInstrument, IPosition, IPositionParams, PositionStatus, Side } from 'trading';
-import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { GroupItemsBuilder, ItemsComponent } from 'base-components';
+import { } from 'communication';
 import { NotifierService } from 'notifier';
-import { PositionsRepository } from 'communication';
+import { IInstrument, IPosition, IPositionParams, PositionsRepository, PositionStatus, Side } from 'trading';
 
 @UntilDestroy()
 @Component({

@@ -1,5 +1,5 @@
 import { IPaginationParams } from 'communication';
-import { IBaseItem } from '../../common';
+import { IBaseItem } from 'communication';
 import { IInstrument } from './instruemnt';
 
 export enum Side {

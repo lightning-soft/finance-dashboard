@@ -1,15 +1,14 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Id, InstrumentsRepository, LevelOneDataFeedService } from 'communication';
+import { Id } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NotifierService } from 'notifier';
-import { IInstrument, IQuote } from 'trading';
+import { IInstrument, InstrumentsRepository, IQuote, LevelOneDataFeedService } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
-
 
 export interface WatchlistComponent extends ILayoutNode { }
 
@@ -93,45 +92,45 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   }
 
 
-    // for (let id = 0; id < 100; id++) {
-    //   this.data.push(new WatchlistItem({ name: id.toString(), id }))
-    // }
+  // for (let id = 0; id < 100; id++) {
+  //   this.data.push(new WatchlistItem({ name: id.toString(), id }))
+  // }
 
-    // setInterval(() => {
-    //   const count = Math.floor(randomIntFromInterval(0, this.data.length))
-    //   const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
+  // setInterval(() => {
+  //   const count = Math.floor(randomIntFromInterval(0, this.data.length))
+  //   const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
 
-    //   for (let i = step; i < count; i += step) {
-    //     const item = this.data[i];
-    //     const updates = {};
+  //   for (let i = step; i < count; i += step) {
+  //     const item = this.data[i];
+  //     const updates = {};
 
-    //     for (const key of ['ask', 'bid']) {
-    //       const value = +item[key].value;
-    //       updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
-    //     }
+  //     for (const key of ['ask', 'bid']) {
+  //       const value = +item[key].value;
+  //       updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
+  //     }
 
-    //     item.processQuote({
-    //       instrumentId: i,
-    //       timestamp: new Date(),
-    //       ...updates,
-    //     } as any);
-    //   }
-    // }, 100)
+  //     item.processQuote({
+  //       instrumentId: i,
+  //       timestamp: new Date(),
+  //       ...updates,
+  //     } as any);
+  //   }
+  // }, 100)
 
-// addNewInstrument(form: NgForm): void {
-//   const instrumentName = form.control.value.instrumentName;
+  // addNewInstrument(form: NgForm): void {
+  //   const instrumentName = form.control.value.instrumentName;
 
-//   if (instrumentName.trim()) {
-//     const newInstrument: IInstrument = {
-//       name: instrumentName.toUpperCase(),
-//       tickSize: 0.1,
-//       id: Date.now(),
-//     }
+  //   if (instrumentName.trim()) {
+  //     const newInstrument: IInstrument = {
+  //       name: instrumentName.toUpperCase(),
+  //       tickSize: 0.1,
+  //       id: Date.now(),
+  //     }
 
-//     this.addToWatchlist(newInstrument);
-//     form.reset();
-//   }
-// }
+  //     this.addToWatchlist(newInstrument);
+  //     form.reset();
+  //   }
+  // }
 
   addNewInstrument(instrument: IInstrument): void {
     if (!instrument) throw new Error('Invalid instrument');

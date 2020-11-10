@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { CommunicationConfig } from '../http';
 
 export interface IWebSocketConfig {
@@ -41,13 +42,15 @@ export class WebSocketService {
       if (onOpen)
         onOpen();
 
-      const apiKey = { Id: '03aea4bdf9681c64abdd402d0b3a49dab0c8526c3135b701b3a9d7ad89fd8737' };
-      this._websocket.send(JSON.stringify(apiKey));
       this.connection$.next(true);
     };
 
     this._websocket.onclose = (event: Event) => {
       this.connection$.next(false);
+    };
+
+    this._websocket.onerror = (event: Event) => {
+      console.error('soket', event);
     };
 
     this._websocket.onmessage = (message) => {
@@ -73,6 +76,9 @@ export class WebSocketService {
 
     if (!this.connected || !payload) {
       console.warn(`Message didn\'t send `, payload);
+      this.connection$
+        .pipe(filter(i => i), take(1))
+        .subscribe((value) => this._websocket.send(payload));
       return;
     }
 

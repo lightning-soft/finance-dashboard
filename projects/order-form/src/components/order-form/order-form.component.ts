@@ -1,8 +1,7 @@
 import { Component, Injector, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormComponent } from 'base-components';
-import { OrdersRepository } from 'communication';
-import { IInstrument, IOrder, OrderDuration, OrderSide, OrderType } from 'trading';
+import { IInstrument, IOrder, OrderDuration, OrderSide, OrdersRepository, OrderType } from 'trading';
 
 enum DynamicControl {
   LimitPrice = 'limitPrice',

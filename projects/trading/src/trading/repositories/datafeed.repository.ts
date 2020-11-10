@@ -1,4 +1,4 @@
-import { Id } from "../../common";
+import { Id } from "communication";
 import { IInstrument, IQuote } from "../models";
 
 type UnsubscribeFn = () => void;

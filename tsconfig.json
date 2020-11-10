@@ -2,7 +2,7 @@
   "files": [],
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "references": [
     {
