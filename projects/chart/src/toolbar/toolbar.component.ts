@@ -212,7 +212,6 @@ export class ToolbarComponent implements OnInit {
     this._accountsManager.connections.subscribe(() =>
       this._instrumentsRepository = this._instrumentsRepository.forConnection(this._accountsManager.getActiveConnection()));
     this._search();
-
   }
 
   getTimeFrame(timeFrame: ITimeFrame): string {

@@ -68,13 +68,12 @@ export class RithmicDatafeed extends Datafeed {
 
     const { symbol, exchange } = instrument;
 
-    const barSize = this._timeFrameToBarSize(timeFrame);
-
     const params = {
       Exchange: exchange,
-      Periodicity: 4,
-      BarSize: barSize,
+      Periodicity: this._convertPeriodicity(timeFrame.periodicity),
+      BarSize: timeFrame.interval,
       BarCount: count,
+      Skip: 0,
     };
 
     this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
@@ -88,24 +87,23 @@ export class RithmicDatafeed extends Datafeed {
     );
   }
 
-  private _timeFrameToBarSize(timeFrame: ITimeFrame): number {
-    const { interval: i, periodicity } = timeFrame;
+  private _convertPeriodicity(periodicity: string): string {
 
     switch (periodicity) {
       case StockChartXPeriodicity.YEAR:
-        return i * 365;
+        return 'Yearly';
       case StockChartXPeriodicity.MONTH:
-        return i * 30;
+        return 'Mounthly';
       case StockChartXPeriodicity.WEEK:
-        return i * 7;
+        return 'Weekly';
       case StockChartXPeriodicity.DAY:
-        return i;
+        return 'Daily';
       case StockChartXPeriodicity.HOUR:
-        return i / 24;
+        return 'Hourly';
       case StockChartXPeriodicity.MINUTE:
-        return i / 24 / 60;
+        return 'Minute';
       default:
-        return 1;
+        throw new Error('Undefined periodicity ' + periodicity);
     }
   }
 
@@ -128,6 +126,7 @@ export class RithmicDatafeed extends Datafeed {
           volume: trade.BidInfo.Volume,
           order: trade.BidInfo.OrderCount
         },
+        price: (trade.BidInfo.Price + trade.AskInfo.Price) / 2,
         date: new Date(trade.Timestamp),
         instrument: {
           symbol: trade.Instrument.Symbol,

@@ -9,6 +9,7 @@ import { Datafeed, RithmicDatafeed } from './datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
+import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -177,8 +178,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
-      timeFrame: state && state.timeFrame,
-      instrument: state && state.instrument,
+      timeFrame: (state && state.timeFrame)
+        ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
+      instrument: (state && state.instrument) ?? {
+        id: 'ESZ0',
+        symbol: 'ESZ0',
+        exchange: 'CME',
+        tickSize: 0.01,
+      },
       theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
   }
