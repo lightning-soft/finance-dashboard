@@ -29,7 +29,9 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     protected _accountsManager: AccountsManager,
   ) {
     super();
-    this.autoLoadData = {};
+    this.autoLoadData = {
+      onInit: true,
+    };
   }
 
   ngOnInit() {
@@ -45,12 +47,6 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   }
 
   search(criteria: string) {
-    if (!criteria) {
-      this.builder.items = [];
-
-      return;
-    }
-
     this.loadData({
       criteria,
       skip: 0,
