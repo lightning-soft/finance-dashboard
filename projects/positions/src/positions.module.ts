@@ -5,6 +5,7 @@ import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
+import { AccountSelectModule } from 'account-select';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { PositionsComponent } from './positions.component';
     NzSelectModule,
     FormsModule,
     ReactiveFormsModule,
+    AccountSelectModule,
   ],
   exports: [
     PositionsComponent

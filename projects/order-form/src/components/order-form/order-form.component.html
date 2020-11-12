@@ -1,13 +1,14 @@
 <form class="h-100 p-2 bg-secondary rounded" [formGroup]="form">
   <div class="mb-1">
     <small class="text-muted">Account</small>
-    <nz-select
-      class="custom-form-control bg-light"
-      nzPlaceHolder="Select a account"
-      formControlName="accountId"
-    >
-      <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
-    </nz-select>
+    <!--<nz-select-->
+    <!--  class="custom-form-control bg-light"-->
+    <!--  nzPlaceHolder="Select a account"-->
+    <!--  formControlName="accountId"-->
+    <!-->-->
+    <!--  <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>-->
+    <!--</nz-select>-->
+    <account-select (accountChange)="handleAccountChange($event)"></account-select>
   </div>
   <div class="divider text-muted"></div>
   <div class="mb-1">

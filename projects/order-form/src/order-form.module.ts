@@ -6,6 +6,7 @@ import { OrderFormComponent } from './components/order-form/order-form.component
 import { PositionsComponent } from './components/positions/positions.component';
 import { NzButtonModule, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
 import { InstrumentSelectModule } from 'instrument-select';
+import { AccountSelectModule } from 'account-select';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { InstrumentSelectModule } from 'instrument-select';
     NzSelectModule,
     NzInputNumberModule,
     NzButtonModule,
-    InstrumentSelectModule
+    AccountSelectModule,
+    InstrumentSelectModule,
   ],
   declarations: [
     PositionsComponent,
