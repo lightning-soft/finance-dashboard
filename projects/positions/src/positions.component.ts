@@ -19,7 +19,7 @@ import { PositionItem } from './models/position.item';
 export class PositionsComponent extends ItemsComponent<IPosition> {
   builder = new GroupItemsBuilder();
 
-  private _headers = ['realisedPL', 'account', 'price', 'size', 'unrealized', 'realized', 'total'];
+  private _headers = ['account', 'price', 'size', 'realized', 'unrealized', 'total'];
 
   get headers() {
     return this.status === PositionStatus.Open ? this._headers.concat('close') : this._headers;
@@ -92,8 +92,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     this.builder.setParams({
       groupBy: ['account'],
       order: 'desc',
-      // filter: (item: IPosition) => item.status === this.status,
-      // map: (item: IPosition) => new PositionItem(item),
+      filter: (item: IPosition) => item.status === this.status,
+      map: (item: IPosition) => new PositionItem(item),
     });
   }
 

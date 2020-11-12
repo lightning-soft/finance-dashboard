@@ -1,6 +1,6 @@
 import { IPaginationResponse } from 'communication';
 import { map } from 'rxjs/operators';
-import { IPosition } from 'trading';
+import { IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 
 export class RealPositionsRepository extends BaseRepository<IPosition> {
@@ -20,7 +20,20 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
     params.id = params.accountId;
     delete params.accountId;
     return super.getItems(params).pipe(
-      map((res: any) => ({ data: res.result } as IPaginationResponse<IPosition>)),
+      map((res: any) => {
+        const data = res.result.map((item: any) => ({
+          account: item.account.id,
+          price: item.averageFillPrice,
+          size: item.volume,
+          realized: item.realisedPL,
+          unrealized: 0,
+          total: item.averageFillPrice,
+          side: item.type,
+          status: PositionStatus.Open,
+        }));
+
+        return { data } as IPaginationResponse<IPosition>;
+      }),
     );
   }
 }
