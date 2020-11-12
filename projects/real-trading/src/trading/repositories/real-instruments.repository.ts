@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { IPaginationResponse } from 'communication';
-import { Observable } from 'rxjs';
+import { Id, IPaginationResponse } from 'communication';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IInstrument } from 'trading';
 import { BaseRepository } from './base-repository';
@@ -43,5 +43,14 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
         return { data, } as IPaginationResponse<IInstrument>;
       }),
     );
+  }
+
+  getItemsByIds(ids?: Id[]): Observable<IInstrument[]> {
+    if (!ids || !ids.length) {
+      return of([]);
+    }
+
+    // return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
+    return forkJoin(ids.map(id => this.getItemById(id)));
   }
 }
