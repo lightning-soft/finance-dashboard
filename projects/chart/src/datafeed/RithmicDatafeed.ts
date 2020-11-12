@@ -110,7 +110,7 @@ export class RithmicDatafeed extends Datafeed {
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);
-    this._levelOneDatafeedService.subscribe([instrument]);
+    this._levelOneDatafeedService.subscribe(instrument);
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
       if (isNaN(trade.AskInfo.Price) || isNaN(trade.BidInfo.Price)) return;

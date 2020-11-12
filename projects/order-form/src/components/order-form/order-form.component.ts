@@ -9,11 +9,6 @@ import {
   ITrade, OrderDuration, OrderSide, OrdersRepository, OrderType
 } from 'trading';
 
-enum DynamicControl {
-  LimitPrice = 'limitPrice',
-  StopPrice = 'stopPrice'
-}
-
 @Component({
   selector: 'order-form',
   templateUrl: './order-form.component.html',
@@ -26,8 +21,8 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   step = 1;
   OrderSide = OrderSide;
 
-  bidPrice;
-  askPrice;
+  bidPrice: number;
+  askPrice: number;
 
   get volume() {
     return this.form.value.size;
@@ -42,9 +37,13 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     if (value?.id === this.instrument?.id)
       return;
 
-    const prevInstrument = this._instrument;
+    this._levelOneDatafeedService.unsubscribe(this._instrument);
+    this._levelOneDatafeedService.subscribe(value);
+
     this._instrument = value;
-    this._handleInstrumentChange(this._instrument, prevInstrument);
+
+    this.bidPrice = null;
+    this.askPrice = null;
   }
 
   get instrument(): IInstrument {
@@ -74,13 +73,6 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
         this._repository = this._repository.forConnection(connection);
       });
 
-    this.instrument = {
-      id: 'ESZ0',
-      symbol: 'ESZ0',
-      exchange: 'CME',
-      tickSize: 1,
-    };
-
     this._accountsRepository.getItems({ status: 'Active' })
       .pipe(untilDestroyed(this))
       .subscribe((response: IPaginationResponse<IAccount>) => {
@@ -90,9 +82,10 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
       });
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (trade?.Instrument?.Symbol !== this.instrument?.symbol
-        || isNaN(trade.BidInfo.Price)
-        || isNaN(trade.AskInfo.Price)) return;
+      if (!trade
+        || trade.Instrument?.Symbol !== this.instrument?.symbol
+        || isNaN(trade.BidInfo?.Price)
+        || isNaN(trade.AskInfo?.Price)) return;
 
 
       this.askPrice = trade.AskInfo.Price;
@@ -100,68 +93,38 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     });
   }
 
-  private _handleInstrumentChange(instrument: IInstrument, prevInstrument: IInstrument) {
-    this.bidPrice = '-';
-    this.askPrice = '-';
-    this._levelOneDatafeedService.subscribe([instrument]);
-    this._levelOneDatafeedService.unsubscribe([prevInstrument]);
-  }
-
   createForm() {
-    const fb = this.fb;
-    return fb.group(
-      {
-        accountId: fb.control(null, Validators.required),
-        symbol: fb.control(null, Validators.required),
-        type: fb.control(OrderType.Market, Validators.required),
-        quantity: fb.control(this.step, Validators.min(this.step)),
-        duration: fb.control(OrderDuration.GTC, Validators.required),
-        side: fb.control(null, Validators.required),
-        limitPrice: fb.control(null),
-        stopPrice: fb.control(null),
-        price: fb.control(null),
-      }
-    );
-  }
-
-  apply(e?) {
-    super.apply(e);
-  }
-
-  addVolume(value) {
-    let volume = +(value + this.volume).toFixed(1);
-    if (volume < this.step)
-      volume = this.step;
-
-    this.form.patchValue({ size: volume });
+    return this.fb.group({
+      accountId: [null],
+      type: [OrderType.Market],
+      quantity: [this.step],
+      duration: [OrderDuration.GTC],
+      side: [null],
+      limitPrice: [null],
+      stopPrice: [null],
+    });
   }
 
   submit(side: OrderSide) {
-    const price = side === OrderSide.Buy ? this.bidPrice : this.askPrice;
-    this.form.patchValue({ side, price, symbol: this.instrument.id });
+    this.form.patchValue({ side });
+
     this.apply();
   }
 
-  getDto() {
-    let dto: IOrder;
-
-    dto = this.getRawValue();
-    dto = this.filterByOrderType(dto);
-
-    return dto;
-  }
-
-  private filterByOrderType(order: IOrder): IOrder {
-    const result = Object.assign({}, order);
+  getDto(): IOrder {
+    const order = this.getRawValue();
     const orderType = order.type;
 
+    order.symbol = this.instrument?.symbol;
+    order.exchange = this.instrument?.exchange;
+
     if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
-      delete result[DynamicControl.LimitPrice];
+      delete order.limitPrice;
 
     if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
-      delete result[DynamicControl.StopPrice];
+      delete order.stopPrice;
 
-    return result;
+    return order;
   }
 
   protected handleItem(item: IOrder): void {
