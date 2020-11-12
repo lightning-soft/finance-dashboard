@@ -1,6 +1,7 @@
 <nz-select
-  nzPlaceHolder="Select a account"
-  nzSize="small"
+  [class]="className"
+  [nzSize]="size"
+  [nzPlaceHolder]="placeholder"
   [(ngModel)]="activeAccount"
   (ngModelChange)="select($event)"
 >
