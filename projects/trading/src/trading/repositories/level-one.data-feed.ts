@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IInstrument } from 'trading';
+import { Feed } from './feed';
 
 export interface ITrade {
   Timestamp: Date;
@@ -12,14 +13,9 @@ export interface IInfo {
   Price: number;
   OrderCount: number;
 }
-export type OnTradeFn = (trades: ITrade) => void;
-export type UnsubscribeFn = () => void;
 
 @Injectable()
-export abstract class LevelOneDataFeedService {
-
-  abstract on(fn: OnTradeFn): UnsubscribeFn;
-
+export abstract class LevelOneDataFeed  extends Feed<ITrade>{
   abstract subscribe(instrument: IInstrument);
 
   abstract unsubscribe(instrument: IInstrument);

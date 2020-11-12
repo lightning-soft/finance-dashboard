@@ -8,7 +8,7 @@ import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout'
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NotifierService } from 'notifier';
-import { IInstrument, InstrumentsRepository, IQuote, ITrade, LevelOneDataFeedService } from 'trading';
+import { IInstrument, InstrumentsRepository, IQuote, ITrade, LevelOneDataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 export interface WatchlistComponent extends ILayoutNode { }
@@ -48,7 +48,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   constructor(
     public _instrumentsRepository: InstrumentsRepository,
-    private _levelOneDatafeed: LevelOneDataFeedService,
+    private _levelOneDatafeed: LevelOneDataFeed,
     protected cd: ChangeDetectorRef,
     public notifier: NotifierService,
     private layoutHandler: LayoutHandler,

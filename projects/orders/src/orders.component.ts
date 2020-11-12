@@ -5,7 +5,7 @@ import { ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, LevelOneDataFeedService, OrdersRepository, OrderStatus } from 'trading';
+import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository, OrderStatus } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
 
@@ -57,7 +57,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    private _levelOneDatafeedService: LevelOneDataFeedService,
+    private _levelOneDatafeedService: LevelOneDataFeed,
+    private _ordersFeed: OrdersFeed,
     private _loadingService: LoadingService,
     private _accountsManager: AccountsManager,
   ) {
@@ -74,12 +75,13 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   ngOnInit() {
     this._accountsManager.connections
-    .pipe(untilDestroyed(this))
-    .subscribe(() => {
-      const connection = this._accountsManager.getActiveConnection();
-      this._repository = this._repository.forConnection(connection);
-    });
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._repository = this._repository.forConnection(connection);
+      });
 
+    this._ordersFeed.on((order) => console.log('order', order));
     super.ngOnInit();
   }
 

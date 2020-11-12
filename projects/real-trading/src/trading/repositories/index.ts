@@ -9,3 +9,5 @@ export * from './real-instruments.repository';
 export * from './real-level-one.data-feed';
 export * from './real-orders.repository';
 export * from './real-positions.repository';
+export * from './real-positions.feed';
+export * from './real-orders.feed';

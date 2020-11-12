@@ -1,12 +1,13 @@
 import { Component, Injector, Input, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { Id } from 'communication';
 import {
-  AccountRepository, IAccount, IInstrument, IOrder, LevelOneDataFeedService,
-  ITrade, OrderDuration, OrderSide, OrdersRepository, OrderType
+  IInstrument, IOrder,
+  ITrade, LevelOneDataFeed,
+  OrderDuration, OrderSide, OrdersRepository, OrderType
 } from 'trading';
 
 @Component({
@@ -47,7 +48,7 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   constructor(
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
-    protected _levelOneDatafeedService: LevelOneDataFeedService,
+    protected _levelOneDatafeedService: LevelOneDataFeed,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
   ) {

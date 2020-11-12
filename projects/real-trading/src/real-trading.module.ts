@@ -1,20 +1,20 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import {
   AccountRepository, BrokersRepository,
-  DatafeedRepository, HistoryRepository,
-  LevelOneDataFeedService,
+  ConnectionsRepository, HistoryRepository,
+  InstrumentsRepository, LevelOneDataFeed,
+  OrdersFeed,
   OrdersRepository,
-  PositionsRepository,
-  ConnectionsRepository,
-  InstrumentsRepository,
+  PositionsFeed,
+  PositionsRepository
 } from 'trading';
 import {
-  RealAccountRepository, RealBrokerRepository,
-  RealLevelOneDataFeed,
+  RealAccountRepository,
+  RealBrokersRepository, RealConnectionsRepository, RealHistoryRepository,
+  RealInstrumentsRepository, RealLevelOneDataFeed,
+  RealOrdersFeed,
   RealOrdersRepository,
-  RealPositionsRepository,
-  RealHistoryRepository, RealConnectionsRepository,
-  RealDatafeedRepository, RealInstrumentsRepository, RealBrokersRepository
+  RealPositionsFeed, RealPositionsRepository
 } from './trading/repositories';
 
 
@@ -57,7 +57,7 @@ export class RealTradingModule {
           useClass: RealInstrumentsRepository,
         },
         {
-          provide: LevelOneDataFeedService,
+          provide: LevelOneDataFeed,
           useClass: RealLevelOneDataFeed,
         },
         {
@@ -71,6 +71,14 @@ export class RealTradingModule {
         {
           provide: BrokersRepository,
           useClass: RealBrokersRepository,
+        },
+        {
+          provide: OrdersFeed,
+          useClass: RealOrdersFeed,
+        },
+        {
+          provide: PositionsFeed,
+          useClass: RealPositionsFeed,
         },
       ]
     };
