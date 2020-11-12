@@ -116,8 +116,15 @@ cdk-virtual-scroll-viewport {
       white-space: nowrap;
     }
 
-    thead {
-      tr {
+    ::ng-deep tfoot instrument-select div{
+      height: 200px;
+      
+      button {
+        width: 100%;
+      }
+      
+      .instrument-search-container {
+        width: 100%;
       }
     }
 

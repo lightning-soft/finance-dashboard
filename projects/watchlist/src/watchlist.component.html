@@ -2,12 +2,14 @@
   [items]="items"
   [handlers]="handlers"
   [columns]="headers"
+  [class.loading-block]="isLoading"
 >
-  <search-select
+  <!-- <search-select
     [repository]="_instrumentsRepository"
     (itemChange)="addNewInstrument($event)"
     placeholder="symbol"
   >
-  </search-select>
+  </search-select> -->
+  <instrument-select (instrumentChange)='addNewInstrument($event)'></instrument-select>
 
 </data-grid>
