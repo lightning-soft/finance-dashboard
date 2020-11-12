@@ -170,7 +170,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
 
   subscribeForRealtime(instruments: IInstrument[]) {
     for (const instrument of instruments) {
-      this._levelOneDatafeed.subscribe([instrument]);
+      this._levelOneDatafeed.subscribe(instrument);
     }
   }
 

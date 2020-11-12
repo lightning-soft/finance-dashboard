@@ -1,33 +1,24 @@
-<div (click)="handleBubbling($event)">
-  <button (click)="toggleVisibility()" class="instrument-search-btn">
-    {{instrument || 'Symbol'}}
-    <i class="icon-arrow-{{isVisible ? 'up' : 'down'}}"></i>
-  </button>
-  <div 
-    class="instrument-search-container"
-    [class.active]="isVisible"
-    (click)="$event.stopPropagation()"
-  >
-    <input 
-      #searchInput
-      [(ngModel)]="searchString" 
-      (input)="onSearch(searchString)"
-      (focus)="onSearch(searchString)"
-      (keydown.enter)="select(items[0])"
-    >
-    <ul 
-      #searchList
-      (scroll)="lazyLoad()"
-    >
-      <li 
-        class="option"
-        *ngFor="let o of items" 
-        data-value="JSON.parse(o)"
-        (click)="select(o)"
-      >
-        {{o.symbol}}
-      </li>
-      <li *ngIf="loading">loading...</li>
-    </ul>
-  </div>
-</div>
+<nz-select
+  [class]="className"
+  nzShowSearch
+  nzServerSearch
+  [nzSize]="size"
+  [nzPlaceHolder]="placeholder"
+  [nzLoading]="loading"
+  (nzOnSearch)="search($event)"
+  (nzScrollToBottom)="loadMore()"
+  [(ngModel)]="selectedValue"
+  (ngModelChange)="handleModelChange($event)"
+>
+  <nz-option
+    [nzValue]="instrument.id"
+    [nzLabel]="instrument.symbol"
+    nzHide
+    *ngIf="instrument"
+  ></nz-option>
+  <nz-option
+    *ngFor="let item of items"
+    [nzValue]="item.id"
+    [nzLabel]="item.symbol"
+  ></nz-option>
+</nz-select>

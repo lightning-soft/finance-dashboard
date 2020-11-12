@@ -20,8 +20,8 @@ export abstract class LevelOneDataFeedService {
 
   abstract on(fn: OnTradeFn): UnsubscribeFn;
 
-  abstract  subscribe(instruments: IInstrument[]);
+  abstract subscribe(instrument: IInstrument);
 
-  abstract unsubscribe(instruments: IInstrument[]);
+  abstract unsubscribe(instrument: IInstrument);
 }
 
