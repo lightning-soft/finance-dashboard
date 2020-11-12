@@ -4,8 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
+import { from } from 'rxjs';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrdersComponent } from './orders.component';
+import { AccountSelectModule } from 'account-select';
 
 @NgModule({
   imports: [
@@ -13,6 +15,7 @@ import { OrdersComponent } from './orders.component';
     DataGridModule,
     NzSelectModule,
     FormsModule,
+    AccountSelectModule,
   ],
   exports: [
     OrdersComponent,

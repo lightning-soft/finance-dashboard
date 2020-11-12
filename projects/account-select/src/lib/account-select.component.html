@@ -1,0 +1,8 @@
+<nz-select
+  nzPlaceHolder="Select a account"
+  nzSize="small"
+  [(ngModel)]="activeAccount"
+  (ngModelChange)="select($event)"
+>
+  <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+</nz-select>

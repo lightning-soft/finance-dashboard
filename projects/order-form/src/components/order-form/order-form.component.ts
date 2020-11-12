@@ -3,7 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
-import { IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import {
   AccountRepository, IAccount, IInstrument, IOrder, LevelOneDataFeedService,
   ITrade, OrderDuration, OrderSide, OrdersRepository, OrderType
@@ -54,7 +54,6 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected _levelOneDatafeedService: LevelOneDataFeedService,
-    protected _accountsRepository: AccountRepository,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
   ) {
@@ -69,16 +68,7 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
-        this._accountsRepository = this._accountsRepository.forConnection(connection);
         this._repository = this._repository.forConnection(connection);
-      });
-
-    this._accountsRepository.getItems({ status: 'Active' })
-      .pipe(untilDestroyed(this))
-      .subscribe((response: IPaginationResponse<IAccount>) => {
-        this.accounts = response.data;
-        const account = this.accounts[0];
-        this.form.patchValue({ accountId: account?.id });
       });
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
@@ -109,6 +99,10 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     this.form.patchValue({ side });
 
     this.apply();
+  }
+
+  handleAccountChange(accountId: Id): void {
+    this.form.patchValue({ accountId });
   }
 
   getDto(): IOrder {

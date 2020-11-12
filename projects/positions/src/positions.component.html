@@ -6,16 +6,17 @@
       <nz-option nzValue="Close" nzLabel="Close"></nz-option>
     </nz-select>
 
-    <nz-select
+    <!-- <nz-select
       class="input"
       nzPlaceHolder="Select a account"
       [(ngModel)]="accountId"
       nzSize="small"
     >
-    <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+    <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option> -->
     <!-- <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
     <nz-option nzLabel="Tom" nzValue="tom"></nz-option> -->
-  </nz-select>
+    <!-- </nz-select> -->
+    <account-select (accountChange)="handleAccountChange($event)"></account-select>
   </div>
 
   <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List

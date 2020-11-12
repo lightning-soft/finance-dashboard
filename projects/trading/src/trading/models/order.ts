@@ -1,4 +1,4 @@
-import { IPaginationParams } from 'communication';
+import { Id, IPaginationParams } from 'communication';
 import { IBaseItem } from 'communication';
 
 export interface IOrder extends IBaseItem {
@@ -45,5 +45,6 @@ export enum OrderStatus {
 }
 
 export interface IOrderParams extends IPaginationParams {
+  accountId: Id;
   status: OrderStatus;
 }
