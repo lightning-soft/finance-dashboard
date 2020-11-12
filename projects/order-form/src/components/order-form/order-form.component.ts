@@ -24,13 +24,7 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   bidPrice: number;
   askPrice: number;
 
-  get volume() {
-    return this.form.value.size;
-  }
-
   private _instrument: IInstrument;
-
-  accounts: IAccount[] = [];
 
   @Input()
   set instrument(value: IInstrument) {
@@ -87,7 +81,7 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     return this.fb.group({
       accountId: [null],
       type: [OrderType.Market],
-      quantity: [this.step],
+      quantity: [1],
       duration: [OrderDuration.GTC],
       side: [null],
       limitPrice: [null],

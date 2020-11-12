@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { Id, ItemComponent } from 'base-components';
@@ -13,6 +13,9 @@ import { AccountRepository, IAccount } from 'trading';
 })
 export class AccountSelectComponent extends ItemComponent<IAccount> implements OnInit {
 
+  @Input() placeholder = 'Select account';
+  @Input() className = '';
+  @Input() size = 'default';
   @Output() accountChange: EventEmitter<Id> = new EventEmitter();
 
   activeAccount: Id;
