@@ -85,11 +85,12 @@ export class RealLevelOneDataFeed {
   }
 
   private _handleTread(trades) {
-    try {
-      for (const executor of this._executors)
-        executor(JSON.parse(trades.data));
-    } catch (error) {
-      console.log(error.message);
+    for (const executor of this._executors) {
+      try {
+        executor(trades);
+      } catch (error) {
+        console.error('_handleTread', error);
+      }
     }
   }
 

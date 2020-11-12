@@ -54,8 +54,19 @@ export class WebSocketService {
     };
 
     this._websocket.onmessage = (message) => {
+      let data;
+
+      try {
+        data = JSON.parse(message.data);
+      } catch (e) {
+        console.error('Parse error', e);
+      }
+
+      if (!data)
+        return;
+
       for (const listener of this._listeners) {
-        listener(message);
+        listener(data);
       }
     };
   }
