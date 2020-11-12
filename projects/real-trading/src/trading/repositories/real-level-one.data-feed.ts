@@ -21,9 +21,7 @@ enum WSMessageTypes {
   UNSUBSCRIBE = 'unsubscribe',
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class RealLevelOneDataFeed {
 
   private _subscriptions = {};
@@ -41,44 +39,48 @@ export class RealLevelOneDataFeed {
     };
   }
 
-  subscribe(instrument: IInstrument) {
-    this._sendRequest(WSMessageTypes.SUBSCRIBE, instrument);
+  subscribe(data: IInstrument | IInstrument[]) {
+    this._sendRequest(WSMessageTypes.SUBSCRIBE, data);
   }
 
-  unsubscribe(instrument: IInstrument) {
-    this._sendRequest(WSMessageTypes.UNSUBSCRIBE, instrument);
+  unsubscribe(data: IInstrument | IInstrument[]) {
+    this._sendRequest(WSMessageTypes.UNSUBSCRIBE, data);
   }
 
-  private _sendRequest(type: WSMessageTypes, instrument: IInstrument) {
-    if (!instrument) {
-      return;
-    }
+  private _sendRequest(type: WSMessageTypes, data: IInstrument | IInstrument[]) {
+    const instruments = Array.isArray(data) ? data : [data];
 
-    const subscriptions = this._subscriptions;
-    const { id } = instrument;
+    instruments.forEach(instrument => {
+      if (!instrument) {
+        return;
+      }
 
-    const sendRequest = () => {
-      this._webSocketService.send({
-        Type: type,
-        Instruments: [instrument],
-        Timestamp: new Date(),
-      });
-    };
+      const subscriptions = this._subscriptions;
+      const { id } = instrument;
 
-    switch (type) {
-      case WSMessageTypes.SUBSCRIBE:
-        subscriptions[id] = (subscriptions[id] || 0) + 1;
-        if (subscriptions[id] === 1) {
-          sendRequest();
-        }
-        break;
-      case WSMessageTypes.UNSUBSCRIBE:
-        subscriptions[id] = (subscriptions[id] || 1) - 1;
-        if (subscriptions[id] === 0) {
-          sendRequest();
-        }
-        break;
-    }
+      const sendRequest = () => {
+        this._webSocketService.send({
+          Type: type,
+          Instruments: [instrument],
+          Timestamp: new Date(),
+        });
+      };
+
+      switch (type) {
+        case WSMessageTypes.SUBSCRIBE:
+          subscriptions[id] = (subscriptions[id] || 0) + 1;
+          if (subscriptions[id] === 1) {
+            sendRequest();
+          }
+          break;
+        case WSMessageTypes.UNSUBSCRIBE:
+          subscriptions[id] = (subscriptions[id] || 1) - 1;
+          if (subscriptions[id] === 0) {
+            sendRequest();
+          }
+          break;
+      }
+    });
   }
 
   private _handleTrades(trades) {
