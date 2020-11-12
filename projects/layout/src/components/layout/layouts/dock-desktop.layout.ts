@@ -1,9 +1,9 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
+import { WindowManager } from 'simple-window-manager';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentOptions, Layout } from './layout';
-import { WindowManager } from 'simple-window-manager';
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
@@ -77,6 +77,8 @@ export class DockDesktopLayout extends Layout {
           const restoreButton = '<i class="icon-maximize-window"></i>';
           const closeButton = '<i class="icon-close-window"></i>';
 
+          // const saveStateFn = instance.saveState ? instance.saveState.bind(instance) : () => {};
+
           // const winClassName = componentOptions.type;
           const toolbarInstruments = instance.getToolbarComponent ? await instance.getToolbarComponent() : null;
 
@@ -97,7 +99,7 @@ export class DockDesktopLayout extends Layout {
             x: 50,
             ...config,
             componentState: () => ({
-              state: instance.getState && instance.getState(),
+              state: instance.saveState && instance.saveState(),
               name: componentName,
             }),
           };

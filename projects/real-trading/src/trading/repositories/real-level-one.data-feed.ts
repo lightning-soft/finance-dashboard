@@ -21,9 +21,7 @@ enum WSMessageTypes {
   UNSUBSCRIBE = 'unsubscribe',
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class RealLevelOneDataFeed {
 
   private _subscriptions = {};
@@ -41,47 +39,48 @@ export class RealLevelOneDataFeed {
     };
   }
 
-  subscribe(instruments: IInstrument[]) {
-    const subscriptions = this._subscriptions;
-
-    for (const { id } of instruments.filter(Boolean)) {
-      subscriptions[id] = (subscriptions[id] ?? 0) + 1;
-      if (subscriptions[id] === 1) {
-        const request = {
-          Type: WSMessageTypes.SUBSCRIBE, // subscribe
-          Instruments: instruments.map(instrument => ({
-            Symbol: instrument.symbol,
-            Exchange: instrument.exchange,
-            ProductCode: null,
-          })),
-          Timestamp: new Date()
-        };
-
-        this._webSocketService.send(request);
-      }
-    }
+  subscribe(data: IInstrument | IInstrument[]) {
+    this._sendRequest(WSMessageTypes.SUBSCRIBE, data);
   }
 
-  unsubscribe(instruments: IInstrument[]) {
-    const subscriptions = this._subscriptions;
+  unsubscribe(data: IInstrument | IInstrument[]) {
+    this._sendRequest(WSMessageTypes.UNSUBSCRIBE, data);
+  }
 
-    for (const { id } of instruments.filter(Boolean)) {
-      subscriptions[id] = (subscriptions[id] ?? 1) - 1;
-      if (subscriptions[id] === 0) {
-        const request = {
-          Type: WSMessageTypes.UNSUBSCRIBE, // unsubscribe
-          Instruments: instruments.filter(Boolean).map(instrument => ({
-            Symbol: instrument.symbol,
-            Exchange: instrument.exchange,
-            ProductCode: null,
-          })),
-          Timestamp: new Date()
-        };
+  private _sendRequest(type: WSMessageTypes, data: IInstrument | IInstrument[]) {
+    const instruments = Array.isArray(data) ? data : [data];
 
-
-        this._webSocketService.send(request);
+    instruments.forEach(instrument => {
+      if (!instrument) {
+        return;
       }
-    }
+
+      const subscriptions = this._subscriptions;
+      const { id } = instrument;
+
+      const sendRequest = () => {
+        this._webSocketService.send({
+          Type: type,
+          Instruments: [instrument],
+          Timestamp: new Date(),
+        });
+      };
+
+      switch (type) {
+        case WSMessageTypes.SUBSCRIBE:
+          subscriptions[id] = (subscriptions[id] || 0) + 1;
+          if (subscriptions[id] === 1) {
+            sendRequest();
+          }
+          break;
+        case WSMessageTypes.UNSUBSCRIBE:
+          subscriptions[id] = (subscriptions[id] || 1) - 1;
+          if (subscriptions[id] === 0) {
+            sendRequest();
+          }
+          break;
+      }
+    });
   }
 
   private _handleTread(trades) {
@@ -93,6 +92,5 @@ export class RealLevelOneDataFeed {
       }
     }
   }
-
 }
 

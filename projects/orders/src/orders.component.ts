@@ -2,6 +2,7 @@ import { Component, Injector } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
+import { Id } from 'communication';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, LevelOneDataFeedService, OrdersRepository, OrderStatus } from 'trading';
@@ -17,6 +18,17 @@ import { OrderItem } from './models/OrderItem';
 @LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
+
+  private _accountId;
+
+  set accountId(accountId: Id) {
+    this._accountId = accountId;
+    this.loadData({ ...this.params, accountId });
+  }
+
+  get accountId() {
+    return this._accountId;
+  }
 
   _isList = false;
 
@@ -50,7 +62,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     private _accountsManager: AccountsManager,
   ) {
     super();
-    this.autoLoadData = { onInit: true };
+    // this.autoLoadData = { onInit: true };
+    this.autoLoadData = {};
 
     this.builder.setParams({
       order: 'desc',
@@ -95,5 +108,9 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     // });
 
     return domElement;
+  }
+
+  handleAccountChange(accountId: Id): void {
+    this.accountId = accountId;
   }
 }

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Injector } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
@@ -59,7 +59,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     return { ...this._params, status: this.status };
   }
 
-  accounts: IAccount[] = [];
+  // accounts: IAccount[] = [];
   private _accountId;
 
   set accountId(accountId) {
@@ -84,7 +84,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     protected _injector: Injector,
     public notifier: NotifierService,
     private _accountsManager: AccountsManager,
-    private _accountsRepository: AccountRepository,
+    // private _accountsRepository: AccountRepository,
   ) {
     super();
     this.autoLoadData = false;
@@ -103,15 +103,15 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
         this._repository = this._repository.forConnection(connection);
-        this._accountsRepository = this._accountsRepository.forConnection(connection);
+        // this._accountsRepository = this._accountsRepository.forConnection(connection);
       });
 
-    this._accountsRepository.getItems({ status: 'Active' })
-      .pipe(untilDestroyed(this))
-      .subscribe((response: IPaginationResponse<IAccount>) => {
-        this.accounts = response.data;
-        this.accountId = this.accounts[0]?.id;
-      });
+    // this._accountsRepository.getItems({ status: 'Active' })
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((response: IPaginationResponse<IAccount>) => {
+    //     this.accounts = response.data;
+    //     this.accountId = this.accounts[0]?.id;
+    //   });
 
     super.ngOnInit();
   }
@@ -148,5 +148,9 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
           err => this._handleDeleteError(err),
         );
     }
+  }
+
+  handleAccountChange(accountId: Id): void {
+    this.accountId = accountId;
   }
 }

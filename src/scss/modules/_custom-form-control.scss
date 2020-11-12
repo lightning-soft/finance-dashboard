@@ -1,16 +1,31 @@
 body .custom-form-control {
   width: 100%;
+  background: $dark;
+  border-radius: 2px;
 
   .ant-input,
+  &.ant-input-number,
   .ant-select-selector {
     border-color: transparent !important;
-    background: $dark !important;
+    background: none;
     box-shadow: none !important;
-    border-radius: 2px !important;
+    border-radius: 2px;
   }
 
   .ant-input:focus,
+  &.ant-input-number-focused,
   &.ant-select-focused .ant-select-selector {
     border-color: $primary !important;
+  }
+
+  .ant-input-number-handler-wrap {
+    border: 0;
+    opacity: 1;
+  }
+
+  .ant-input-number-handler {
+    height: 50% !important;
+    border: 0;
+    background: none;
   }
 }

@@ -4,8 +4,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { PositionsComponent } from './components/positions/positions.component';
-import { NzInputNumberComponent, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
+import { NzButtonModule, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
 import { InstrumentSelectModule } from 'instrument-select';
+import { AccountSelectModule } from 'account-select';
 
 @NgModule({
   imports: [
@@ -13,7 +14,9 @@ import { InstrumentSelectModule } from 'instrument-select';
     ReactiveFormsModule,
     NzSelectModule,
     NzInputNumberModule,
-    InstrumentSelectModule
+    NzButtonModule,
+    AccountSelectModule,
+    InstrumentSelectModule,
   ],
   declarations: [
     PositionsComponent,

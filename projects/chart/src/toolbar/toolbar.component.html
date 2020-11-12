@@ -30,7 +30,12 @@
     </nz-dropdown-menu>
   </div>
 
-  <instrument-select class="tool" [(instrument)]='instrument'></instrument-select>
+  <instrument-select
+    class="tool select"
+    size="small"
+    [instrument]="instrument"
+    (handleInstrumentChange)="instrument = $event"
+  ></instrument-select>
 
   <div class="tool select">
     <nz-select

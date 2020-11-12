@@ -13,4 +13,13 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
       this._injector
     );
   }
+
+  getItems(params) {
+    if (params?.accountId) {
+      params.id = params.accountId;
+      delete params.accountId;
+    }
+
+    return super.getItems(params);
+  }
 }

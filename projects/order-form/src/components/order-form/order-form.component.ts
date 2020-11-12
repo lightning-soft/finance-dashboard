@@ -3,16 +3,11 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
-import { IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import {
   AccountRepository, IAccount, IInstrument, IOrder, LevelOneDataFeedService,
   ITrade, OrderDuration, OrderSide, OrdersRepository, OrderType
 } from 'trading';
-
-enum DynamicControl {
-  LimitPrice = 'limitPrice',
-  StopPrice = 'stopPrice'
-}
 
 @Component({
   selector: 'order-form',
@@ -26,25 +21,23 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   step = 1;
   OrderSide = OrderSide;
 
-  bidPrice;
-  askPrice;
-
-  get volume() {
-    return this.form.value.size;
-  }
+  bidPrice: number;
+  askPrice: number;
 
   private _instrument: IInstrument;
-
-  accounts: IAccount[] = [];
 
   @Input()
   set instrument(value: IInstrument) {
     if (value?.id === this.instrument?.id)
       return;
 
-    const prevInstrument = this._instrument;
+    this._levelOneDatafeedService.unsubscribe(this._instrument);
+    this._levelOneDatafeedService.subscribe(value);
+
     this._instrument = value;
-    this._handleInstrumentChange(this._instrument, prevInstrument);
+
+    this.bidPrice = null;
+    this.askPrice = null;
   }
 
   get instrument(): IInstrument {
@@ -55,7 +48,6 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected _levelOneDatafeedService: LevelOneDataFeedService,
-    protected _accountsRepository: AccountRepository,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
   ) {
@@ -70,29 +62,14 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
-        this._accountsRepository = this._accountsRepository.forConnection(connection);
         this._repository = this._repository.forConnection(connection);
       });
 
-    this.instrument = {
-      id: 'ESZ0',
-      symbol: 'ESZ0',
-      exchange: 'CME',
-      tickSize: 1,
-    };
-
-    this._accountsRepository.getItems({ status: 'Active' })
-      .pipe(untilDestroyed(this))
-      .subscribe((response: IPaginationResponse<IAccount>) => {
-        this.accounts = response.data;
-        const account = this.accounts[0];
-        this.form.patchValue({ accountId: account?.id });
-      });
-
     this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (trade?.Instrument?.Symbol !== this.instrument?.symbol
-        || isNaN(trade.BidInfo.Price)
-        || isNaN(trade.AskInfo.Price)) return;
+      if (!trade
+        || trade.Instrument?.Symbol !== this.instrument?.symbol
+        || isNaN(trade.BidInfo?.Price)
+        || isNaN(trade.AskInfo?.Price)) return;
 
 
       this.askPrice = trade.AskInfo.Price;
@@ -100,68 +77,42 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     });
   }
 
-  private _handleInstrumentChange(instrument: IInstrument, prevInstrument: IInstrument) {
-    this.bidPrice = '-';
-    this.askPrice = '-';
-    this._levelOneDatafeedService.subscribe([instrument]);
-    this._levelOneDatafeedService.unsubscribe([prevInstrument]);
-  }
-
   createForm() {
-    const fb = this.fb;
-    return fb.group(
-      {
-        accountId: fb.control(null, Validators.required),
-        symbol: fb.control(null, Validators.required),
-        type: fb.control(OrderType.Market, Validators.required),
-        quantity: fb.control(this.step, Validators.min(this.step)),
-        duration: fb.control(OrderDuration.GTC, Validators.required),
-        side: fb.control(null, Validators.required),
-        limitPrice: fb.control(null),
-        stopPrice: fb.control(null),
-        price: fb.control(null),
-      }
-    );
-  }
-
-  apply(e?) {
-    super.apply(e);
-  }
-
-  addVolume(value) {
-    let volume = +(value + this.volume).toFixed(1);
-    if (volume < this.step)
-      volume = this.step;
-
-    this.form.patchValue({ size: volume });
+    return this.fb.group({
+      accountId: [null],
+      type: [OrderType.Market],
+      quantity: [1],
+      duration: [OrderDuration.GTC],
+      side: [null],
+      limitPrice: [null],
+      stopPrice: [null],
+    });
   }
 
   submit(side: OrderSide) {
-    const price = side === OrderSide.Buy ? this.bidPrice : this.askPrice;
-    this.form.patchValue({ side, price, symbol: this.instrument.id });
+    this.form.patchValue({ side });
+
     this.apply();
   }
 
-  getDto() {
-    let dto: IOrder;
-
-    dto = this.getRawValue();
-    dto = this.filterByOrderType(dto);
-
-    return dto;
+  handleAccountChange(accountId: Id): void {
+    this.form.patchValue({ accountId });
   }
 
-  private filterByOrderType(order: IOrder): IOrder {
-    const result = Object.assign({}, order);
+  getDto(): IOrder {
+    const order = this.getRawValue();
     const orderType = order.type;
 
+    order.symbol = this.instrument?.symbol;
+    order.exchange = this.instrument?.exchange;
+
     if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
-      delete result[DynamicControl.LimitPrice];
+      delete order.limitPrice;
 
     if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
-      delete result[DynamicControl.StopPrice];
+      delete order.stopPrice;
 
-    return result;
+    return order;
   }
 
   protected handleItem(item: IOrder): void {

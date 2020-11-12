@@ -1,10 +1,10 @@
+import { IBaseItem } from 'communication';
 
-export interface IStockChartXInstrument {
+export interface IStockChartXInstrument extends IBaseItem {
   symbol: string;
   company: string;
   exchange: string;
   tickSize: number;
-  id: number;
   digits?: number;
 }
 

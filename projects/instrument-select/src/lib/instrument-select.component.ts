@@ -1,26 +1,27 @@
-import { Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
-import { AccountsManager } from 'accounts-manager';
 
 @Component({
   selector: 'instrument-select',
   templateUrl: './instrument-select.component.html',
   styleUrls: ['./instrument-select.component.scss']
 })
-export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
+export class InstrumentSelectComponent extends ItemsComponent<IInstrument> implements OnInit {
 
-  @ViewChild('searchInput') input: ElementRef;
-  @ViewChild('searchList') list: ElementRef;
+  @Input() instrument: IInstrument = null;
+  @Input() placeholder = 'Select instrument';
+  @Input() className = '';
+  @Input() size = 'default';
+  @Output() handleInstrumentChange: EventEmitter<IInstrument> = new EventEmitter();
 
-  @Input() instrument: IInstrument;
-  @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
+  get loading(): boolean {
+    return this._loading;
+  }
 
-  private _loadedParams;
-
-  searchString: string;
-  isVisible = false;
+  selectedValue = this.instrument?.id;
 
   constructor(
     protected _injector: Injector,
@@ -33,68 +34,35 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> {
     };
   }
 
-  @HostListener('window:click', ['$event'])
-  handleBlur(): void {
-    if (this.isVisible)
-      this.isVisible = false;
-  }
-
-  handleBubbling(event: Event): void {
-    event.stopPropagation();
-  }
-
-  toggleVisibility(): void {
-    this.isVisible = !this.isVisible;
-  }
-
   ngOnInit() {
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
-      .subscribe(() =>
-        this._repository = this._repository.forConnection(this._accountsManager.getActiveConnection()));
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this._repository = this._repository.forConnection(connection);
+      });
 
     super.ngOnInit();
   }
 
-  onSearch(criteria: string) {
-    this._loadedParams = {
-      criteria: criteria ?? '',
+  search(criteria: string) {
+    this.loadData({
+      criteria,
       skip: 0,
-      take: 20
-    };
-    this.loadData(this._loadedParams);
+      take: 20,
+    });
   }
 
-  compareInstrument = (o1: any | string, o2: any) => {
-    if (o1) {
-      return typeof o1 === 'string' ? o1 === o2.id : o1.id === o2.id;
-    } else {
-      return false;
-    }
+  loadMore() {
+    this._params.skip += this._params.take;
+
+    this.loadData(this._params);
   }
 
-  select(instrument: IInstrument) {
-    this.instrumentChange.emit(instrument);
-    this.toggleVisibility();
-  }
+  handleModelChange(id: string) {
+    const instrument = this.items.find(i => i.id === id);
 
-  lazyLoad(): void {
-    if (this.loading) return;
-    const { clientHeight, scrollHeight, scrollTop } = this.list.nativeElement;
-
-    if (clientHeight + scrollTop > scrollHeight * 0.85)
-      this.loadMore();
-  }
-
-  private loadMore(): void {
-    const { skip, take } = this._loadedParams;
-    this._loadedParams = {
-      ...this._loadedParams,
-      skip: skip + 10,
-      take: 10,
-    };
-
-    this.loadData(this._loadedParams);
+    this.handleInstrumentChange.emit(instrument);
   }
 }
-
