@@ -1,4 +1,10 @@
-<button (click)="showOrdersForm()" class="new-orders">
-  <i class="icon-add"></i>
-</button>
-<account-select className="orders-account-select" (accountChange)="handleAccountChange($event)"></account-select>
+<div class="d-flex align-items-center">
+  <button (click)="showOrdersForm()" class="new-orders mr-2">
+    <i class="icon-add"></i>
+  </button>
+  <account-select 
+    className="custom-form-control" 
+    size="small" 
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
+</div>

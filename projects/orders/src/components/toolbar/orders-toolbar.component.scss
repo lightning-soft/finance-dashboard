@@ -1,5 +1,7 @@
-button {
-  background-color: #101114;
+@import '../../../../../src/scss/variables.scss';
+
+.new-orders {
+  background-color: $dark;
   border-radius: 2px;
   padding: 0;
   margin: 0;
