@@ -106,7 +106,7 @@ export class LoadingService {
         parent: this.injector,
       }));
 
-    // this.appRef.attachView(componentRef.hostView);
+    this.appRef.attachView(componentRef.hostView);
 
     const domElement = (componentRef.hostView as EmbeddedViewRef<any>)
       .rootNodes[0] as HTMLElement;
@@ -117,7 +117,7 @@ export class LoadingService {
       destroy: () => {
         componentRef.destroy();
 
-        // this.appRef.detachView(componentRef.hostView);
+        this.appRef.detachView(componentRef.hostView);
       },
     };
   }
