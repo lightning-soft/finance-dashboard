@@ -49,13 +49,12 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   search(criteria: string) {
     this.loadData({
       criteria,
-      skip: 0,
       take: 20,
     });
   }
 
   loadMore() {
-    this._params.skip += this._params.take;
+    this.skip += this._params.take;
 
     this.loadData(this._params);
   }
