@@ -34,14 +34,14 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
     if (typeof item !== 'object')
       throw new Error('Invalid order');
 
-    return this._http.patch<IOrder>(
+    return this._http.post<IOrder>(
       this._getRESTURL(`${item.id}/cancel`),
       null,
       {
         ...this._httpOptions,
         params: {
-          AccountId: item.accountId,
-        }
+          AccountId: item?.account?.id,
+        } as any
       })
       .pipe(tap(this._onUpdate));
   }

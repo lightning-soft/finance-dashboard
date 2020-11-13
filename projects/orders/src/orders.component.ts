@@ -23,8 +23,10 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     'duration',
     'filledQuantity',
     'quantity',
-    'side', 'status',
-    'type', 'exchange',
+    'side',
+    'status',
+    'type',
+    'exchange',
     'symbol',
     'fcmId',
     'ibId',
@@ -96,7 +98,13 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
         this._repository = this._repository.forConnection(connection);
       });
 
-    this._ordersFeed.on((order) => console.log('order', order));
+    this._ordersFeed.on((order) => {
+      console.log('order', order);
+      // if (this.items.some(i => i.id === order.id))
+      //   this.builder.handleUpdateItems([order]);
+      // else
+      //   this.builder.handleCreateItems([order]);
+    });
     super.ngOnInit();
   }
 

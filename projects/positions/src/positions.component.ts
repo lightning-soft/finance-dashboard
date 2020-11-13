@@ -150,6 +150,10 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     }
   }
 
+  protected _deleteItem(item: IPosition) {
+    return this.repository.deleteItem(item) ;
+  }
+
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
