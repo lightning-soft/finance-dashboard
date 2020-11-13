@@ -244,13 +244,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         )
         .subscribe(
           (instruments) => {
-            /**
-             * TMP add id to instrument
-             */
-            for (const instrument of instruments) {
-              instrument.id = instrument.symbol;
-            }
-
             this.addToWatchlist(instruments);
             this.isLoading = false;
           },
