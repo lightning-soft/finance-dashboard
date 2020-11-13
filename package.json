@@ -22,7 +22,7 @@
     "electron:win": "npm run build:prod && npm run package-win",
     "electron:linux": "npm run electron-build && npm run dist:linux",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=dest",
-    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=dest --version-string.ProductName=\"TradingChart\"",
+    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=false --out=dest --version-string.ProductName=\"TradingChart\"",
     "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/icon.png --prune=true --out=dest",
     "test": "ng test",
     "lint": "ng lint",
@@ -41,6 +41,18 @@
     "electron:serve": "npm run electron:serve-tsc && npx electron . --serve",
     "electron:local": "npm run build:prod && npx electron .",
     "electron:build": "npm run build:prod && electron-builder build"
+  },
+  "build": {
+    "appId": "com.angular-starter.app",
+    "win": {
+      "target": ["NSIS"],
+      "asar": true,
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "repository": {
     "type": "git",
@@ -65,9 +77,11 @@
     "electron-log": "^4.2.4",
     "express": "4.17.1",
     "http-server": "^0.12.3",
+    "jquery": "^3.5.1",
     "ng-zorro-antd": "9.3.0",
     "ngx-cookie-service": "10.1.1",
     "ngx-monaco-editor": "9.0.0",
+    "popper.js": "^1.16.1",
     "rxjs": "6.6.2",
     "simple-window-manager": "git+https://gitlab.aviditech:BP53_Z2DxNHjB46tyqDd@git.avidi.tech/Taras/simple-window-manager.git",
     "svgtofont": "^2.1.0",
@@ -88,7 +102,7 @@
     "app-builder-bin": "^3.5.10",
     "codelyzer": "6.0.0",
     "electron": "9.1.2",
-    "electron-builder": "22.8.1",
+    "electron-builder": "19.56.2",
     "electron-installer-windows": "^3.0.0",
     "electron-log": "^4.2.4",
     "electron-packager": "14.2.1",
