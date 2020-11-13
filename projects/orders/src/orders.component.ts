@@ -17,7 +17,19 @@ import { OrderItem } from './models/OrderItem';
 })
 @LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
-  headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
+  headers = [
+    'averageFillPrice',
+    'description',
+    'duration',
+    'filledQuantity',
+    'quantity',
+    'side', 'status',
+    'type', 'exchange',
+    'symbol',
+    'fcmId',
+    'ibId',
+    'id'
+  ];
 
   private _accountId;
 

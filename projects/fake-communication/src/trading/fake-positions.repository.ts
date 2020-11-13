@@ -50,7 +50,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
   createPositionFromOrder(order: IOrder) {
     const position = {
       side: order.side === OrderSide.Sell ? Side.Short : Side.Long,
-      account: order.symbol,
+      account: order.instrument.symbol,
       size: order.quantity,
     } as IPosition;
 
