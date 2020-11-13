@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { Id, ItemComponent } from 'base-components';
-import { IPaginationResponse } from 'communication';
+import { Id, ItemsComponent } from 'base-components';
 import { AccountRepository, IAccount } from 'trading';
 
 @UntilDestroy()
@@ -11,7 +10,7 @@ import { AccountRepository, IAccount } from 'trading';
   templateUrl: './account-select.component.html',
   styleUrls: ['account-select.component.scss'],
 })
-export class AccountSelectComponent extends ItemComponent<IAccount> implements OnInit {
+export class AccountSelectComponent extends ItemsComponent<IAccount> implements OnInit {
 
   @Input() placeholder = 'Select account';
   @Input() className = '';
@@ -20,7 +19,9 @@ export class AccountSelectComponent extends ItemComponent<IAccount> implements O
 
   activeAccount: Id;
 
-  accounts: IAccount[] = [];
+  get loading(): boolean {
+    return this._loading;
+  }
 
   constructor(
     protected _repository: AccountRepository,
@@ -34,17 +35,10 @@ export class AccountSelectComponent extends ItemComponent<IAccount> implements O
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
-        this._repository = this._repository.forConnection(connection);
+        this.repository = this._repository.forConnection(connection);
       });
 
-    this._repository.getItems({ status: 'Active' })
-      .pipe(untilDestroyed(this))
-      .subscribe((response: IPaginationResponse<IAccount>) => {
-        this.accounts = response.data;
-
-        this.select(this.accounts[0].id);
-      });
-
+    this.loadData({...this._params, status: 'Active'});
     super.ngOnInit();
   }
 
