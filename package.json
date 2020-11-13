@@ -1,7 +1,7 @@
 {
-  "name": "angular-starter",
+  "name": "deltaview",
   "version": "10.0.5",
-  "description": "TradingChart",
+  "description": "DeltaView by AMS",
   "author": {
     "email": "tech@avidi.tech",
     "name": "tech"
@@ -15,7 +15,7 @@
     "build:prod": "ng build --prod",
     "pack": "electron-builder --dir",
     "electron": "electron .",
-    "dist:win": "electron-builder --win --x64",
+    "dist:win": "rm -rf ./dest && npm run electron:win && electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
     "dist:mac": "electron-builder --platform mac",
     "postinstall": "electron-builder install-app-deps",
@@ -43,9 +43,13 @@
     "electron:build": "npm run build:prod && electron-builder build"
   },
   "build": {
-    "appId": "com.angular-starter.app",
+    "appId": "com.deltaview.app",
+    "productName": "DeltaView",
+    "copyright": "Copyright © 2020 AMS",
     "win": {
-      "target": ["NSIS"],
+      "target": [
+        "NSIS"
+      ],
       "asar": true,
       "requestedExecutionLevel": "requireAdministrator"
     },
@@ -53,10 +57,6 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ganatan/angular-example-ssr.git"
   },
   "private": true,
   "dependencies": {
