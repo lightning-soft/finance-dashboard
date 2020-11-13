@@ -39,7 +39,7 @@ export abstract class Repository<T extends IBaseItem = any> {
     return throwError(`Implement patchItem for ${this.constructor.name}`);
   }
 
-  abstract deleteItem(id: number | string): Observable<boolean>;
+  abstract deleteItem(id: number | string | T): Observable<boolean>;
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 

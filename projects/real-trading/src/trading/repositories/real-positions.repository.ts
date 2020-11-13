@@ -1,5 +1,5 @@
-import { IPaginationResponse } from 'communication';
-import { map } from 'rxjs/operators';
+import { Id, IPaginationResponse } from 'communication';
+import { map, tap } from 'rxjs/operators';
 import { IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -35,5 +35,23 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
         return { data } as IPaginationResponse<IPosition>;
       }),
     );
+  }
+
+  deleteItem(item: IPosition | Id) {
+    if (typeof item !== 'object')
+      throw new Error('Invalid order');
+
+    const accountId = item.account;
+    return this._http.patch<IPosition>(
+      this._getRESTURL(accountId),
+      null,
+      {
+        ...this._httpOptions,
+        // params: {
+        //   Symbol: item.symbol,
+        //   Exchange: item.exchange,
+        // }
+      })
+      .pipe(tap(this._onUpdate));
   }
 }
