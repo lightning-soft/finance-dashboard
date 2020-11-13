@@ -16,7 +16,7 @@ export class OrderItem {
   side = new DataCell();
   status = new DataCell();
   type = new DataCell();
-  close = new IconCell('icon-close');
+  close = new IconCell('icon-close-window');
   order: IOrder;
 
   constructor(order: IOrder) {
