@@ -68,13 +68,13 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
       if (!trade
-        || trade.Instrument?.Symbol !== this.instrument?.symbol
-        || isNaN(trade.BidInfo?.Price)
-        || isNaN(trade.AskInfo?.Price)) return;
+        || trade.instrument?.symbol !== this.instrument?.symbol
+        || isNaN(trade.bidInfo?.price)
+        || isNaN(trade.askInfo?.price)) return;
 
 
-      this.askPrice = trade.AskInfo.Price;
-      this.bidPrice = trade.BidInfo.Price;
+      this.askPrice = trade.askInfo.price;
+      this.bidPrice = trade.bidInfo.price;
     });
   }
 

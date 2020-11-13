@@ -244,13 +244,6 @@ export class WatchlistComponent implements OnInit, OnDestroy {
         )
         .subscribe(
           (instruments) => {
-            /**
-             * TMP add id to instrument
-             */
-            for (const instrument of instruments) {
-              instrument.id = instrument.symbol;
-            }
-
             this.addToWatchlist(instruments);
             this.isLoading = false;
           },
@@ -277,13 +270,13 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   // }
 
   private handleTrade(trade: ITrade): void {
-    const { AskInfo, BidInfo, Timestamp } = trade;
+    const { askInfo, bidInfo, timestamp } = trade;
 
-    const instrument = this._instruments.find((inst: IInstrument) => inst.symbol === trade.Instrument.Symbol);
+    const instrument = this._instruments.find((inst: IInstrument) => inst.symbol === trade.instrument.symbol);
     const watchlistItem = this._itemsMap.get(instrument.id);
 
-    watchlistItem.ask.updateValue(AskInfo.Price);
-    watchlistItem.bid.updateValue(BidInfo.Price);
-    watchlistItem.timestamp.updateValue(Timestamp);
+    watchlistItem.ask.updateValue(askInfo.price);
+    watchlistItem.bid.updateValue(bidInfo.price);
+    watchlistItem.timestamp.updateValue(timestamp);
   }
 }
