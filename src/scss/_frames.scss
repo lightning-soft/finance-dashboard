@@ -26,17 +26,16 @@ body.#{$themeName} {
   }
 
   .frame .wm-container {
+    overflow: hidden !important;
+    border-radius: 2px;
     background-color: $tabFrameColor;
-    padding: 0 1px 1px;
     box-shadow: 0px 0px 10px $bodyBackground;
     border: 1px solid $borderColor;
-    border-radius: 4px;
 
     & > header {
       align-items: center;
       overflow: visible !important;
-      border-bottom: 1px solid $borderColor;
-      padding: 1px 0;
+      padding: 1px;
 
       .frame-manager {
         border-radius: 2px;
@@ -80,9 +79,8 @@ body.#{$themeName} {
     }
 
     & > section {
-      overflow: hidden !important;
-      border-radius: 2px;
       height: 100%;
+      padding: 1px;
     }
   }
 }
