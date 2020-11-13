@@ -2,19 +2,6 @@ import { Id, IPaginationParams } from 'communication';
 import { IBaseItem } from 'communication';
 import { IInstrument } from './instruemnt';
 
-// export interface IOrder extends IBaseItem {
-//   accountId: string;
-//   symbol: string;
-//   exchange: string;
-//   side: OrderSide;
-//   quantity: number;
-//   limitPrice: number;
-//   stopPrice: number;
-//   status: OrderStatus;
-//   type: OrderType;
-//   duration: OrderDuration;
-// }
-
 export type OrderAccount = {
   fcmId: string;
   ibId: string;
@@ -33,7 +20,6 @@ export interface IOrder extends IBaseItem {
   side: OrderSide;
   status: OrderStatus;
   type: OrderType;
-  
   exchange: string;
   symbol: string;
 }
