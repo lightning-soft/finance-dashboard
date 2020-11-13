@@ -7,8 +7,9 @@
   [nzLoading]="loading"
   (nzOnSearch)="search($event)"
   (nzScrollToBottom)="loadMore()"
-  [(ngModel)]="selectedValue"
+  [(ngModel)]="value"
   (ngModelChange)="handleModelChange($event)"
+  (nzOpenChange)="handleOpenChange($event)"
 >
   <nz-option
     [nzValue]="instrument.id"
