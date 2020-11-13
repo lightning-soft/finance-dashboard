@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { IOrder } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -15,11 +16,16 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
   }
 
   getItems(params) {
+    params = { ...params };
     if (params?.accountId) {
       params.id = params.accountId;
+
       delete params.accountId;
     }
 
-    return super.getItems(params);
+    if (params.StartDate == null) params.StartDate = new Date(0).toUTCString();
+    if (params.EndDate == null) params.EndDate = new Date(Date.now()).toUTCString();
+
+    return super.getItems(params).pipe(map((response: any) => ({ data: response.result } as any)));
   }
 }

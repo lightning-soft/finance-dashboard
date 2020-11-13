@@ -1,11 +1,11 @@
-import { Component, Injector } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository, OrderStatus } from 'trading';
+import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
 
@@ -16,7 +16,7 @@ import { OrderItem } from './models/OrderItem';
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
+export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
   headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
 
   private _accountId;
@@ -36,22 +36,25 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   private _toolbarComponent: OrdersToolbarComponent;
 
-  private _status: OrderStatus = OrderStatus.Pending;
+  // private _status: OrderStatus = OrderStatus.Pending;
 
-  get status() {
-    return this._status;
-  }
+  // get status() {
+  //   return this._status;
+  // }
 
-  set status(value: OrderStatus) {
-    if (value === this.status) {
-      return;
-    }
-    this._status = value;
-    this.refresh();
-  }
+  // set status(value: OrderStatus) {
+  //   if (value === this.status) {
+  //     return;
+  //   }
+  //   this._status = value;
+  //   this.refresh();
+  // }
 
   get params(): IOrderParams {
-    return { ...this._params, status: this.status };
+    return {
+      ...this._params,
+      // status: this.status
+    };
   }
 
   constructor(
@@ -68,7 +71,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
     this.builder.setParams({
       order: 'desc',
-      filter: (order: IOrder) => order.status === this.status,
+      // filter: (order: IOrder) => order.status === this.status,
       map: (item: IOrder) => new OrderItem(item),
     });
   }

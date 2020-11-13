@@ -3,7 +3,7 @@
   [nzSize]="size"
   [nzPlaceHolder]="placeholder"
   [nzLoading]="loading"
-  [(ngModel)]="activeAccount"
+  [(ngModel)]="activeAccountId"
   (ngModelChange)="select($event)"
 >
   <nz-option *ngFor="let item of items" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>

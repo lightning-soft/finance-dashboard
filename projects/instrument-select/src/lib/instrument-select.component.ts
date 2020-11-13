@@ -44,6 +44,15 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
       });
 
     super.ngOnInit();
+
+    this.instrument = {
+      id: 'ESZ0',
+      symbol: 'ESZ0',
+      exchange: 'CME',
+      tickSize: 0.01,
+    };
+    this.builder.replaceItems([this.instrument]);
+    this.handleModelChange(this.instrument.id as any);
   }
 
   search(criteria: string) {

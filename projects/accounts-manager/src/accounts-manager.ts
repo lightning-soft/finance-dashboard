@@ -1,7 +1,8 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { IPaginationResponse } from 'communication';
-import { BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 @Injectable()
@@ -60,6 +61,13 @@ export class AccountsManager {
       .pipe(
         tap((item: any) => {
           this._updateConnection(item);
+        }),
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 401) {
+            this._updateConnection({ ...connection, connected: false });
+            return of(null);
+          } else
+            return throwError(err);
         })
       );
   }

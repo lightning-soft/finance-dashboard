@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
+import { WebSocketService } from 'communication';
 import { LayoutComponent } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
-import { WebSocketService } from 'communication';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { AccountsManager } from '../../../../projects/accounts-manager/src/accounts-manager';
 
 @Component({
   selector: 'dashboard',
