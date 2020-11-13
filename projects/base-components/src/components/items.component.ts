@@ -18,7 +18,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
 
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
-  realtimeActionSubscription: Subscription;
+  protected _realtimeActionSubscription: Subscription;
+  protected _dataSubscription: Subscription;
 
   get items() {
     return this.builder.items;
@@ -63,7 +64,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   ngOnInit() {
     super.ngOnInit();
 
-    this.realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
+    this._realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
       switch (action) {
         case RealtimeAction.Create:
           this._handleCreateItems(items);
@@ -81,7 +82,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   ngOnDestroy() {
     super.ngOnDestroy();
 
-    this.realtimeActionSubscription.unsubscribe();
+    this._realtimeActionSubscription.unsubscribe();
   }
 
   getParams(params?: any): P {
@@ -93,7 +94,9 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     const hide = this.showLoading(true);
     const loadingParams = this.getParams(params);
 
-    this._getItems(loadingParams)
+    this._dataSubscription?.unsubscribe();
+
+    this._dataSubscription = this._getItems(loadingParams)
       .pipe(
         first(),
         finalize(() => hide())

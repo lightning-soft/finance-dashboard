@@ -3,15 +3,15 @@ import { IInstrument } from 'trading';
 import { Feed } from './feed';
 
 export interface ITrade {
-  Timestamp: Date;
-  Instrument: any;
-  AskInfo: IInfo;
-  BidInfo: IInfo;
+  timestamp: Date;
+  instrument: any;
+  askInfo: IInfo;
+  bidInfo: IInfo;
 }
 export interface IInfo {
-  Volume: number;
-  Price: number;
-  OrderCount: number;
+  volume: number;
+  price: number;
+  orderCount: number;
 }
 
 @Injectable()
