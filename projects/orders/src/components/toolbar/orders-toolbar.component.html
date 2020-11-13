@@ -1,3 +1,4 @@
 <button (click)="showOrdersForm()" class="new-orders">
   <i class="icon-add"></i>
 </button>
+<account-select className="orders-account-select" (accountChange)="handleAccountChange($event)"></account-select>

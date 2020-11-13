@@ -9,6 +9,7 @@ import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
+import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 
 @UntilDestroy()
 @Component({
@@ -119,12 +120,15 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
   async getToolbarComponent() {
 
+    const toolbarConfig: OrdersToolbarConfig = {
+      layout: this.layout,
+      accountHandler: this.handleAccountChange.bind(this)
+    };
+
     const { ref, domElement, destroy } = await this._loadingService
       .getDynamicComponent(OrdersToolbarComponent, [{
         provide: DynamicComponentConfig,
-        useValue: {
-          data: { layout: this.layout },
-        },
+        useValue: { data: toolbarConfig },
       }]);
 
     this._toolbarComponent = ref.instance;
@@ -144,7 +148,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     return domElement;
   }
 
-  handleAccountChange(accountId: Id): void {
+  private handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
 
