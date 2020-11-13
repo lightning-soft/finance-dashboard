@@ -2,8 +2,9 @@
   [class]="className"
   [nzSize]="size"
   [nzPlaceHolder]="placeholder"
+  [nzLoading]="loading"
   [(ngModel)]="activeAccount"
   (ngModelChange)="select($event)"
 >
-  <nz-option *ngFor="let item of accounts" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+  <nz-option *ngFor="let item of items" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
 </nz-select>
