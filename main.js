@@ -25,8 +25,7 @@ function createWindow() {
     alwaysOnTop: false,
     title: "AMS Trading Platform",
     show: false,
-    movable: true,
-    icon: app.getAppPath() + '/src/assets/img/Logo.png'
+    movable: true
     // webPreferences: {
     //   nodeIntegration: true,
     //   allowRunningInsecureContent: (serve) ? true : false,

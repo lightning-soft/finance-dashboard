@@ -1,17 +1,27 @@
 import { Id, IPaginationParams } from 'communication';
 import { IBaseItem } from 'communication';
+import { IInstrument } from './instruemnt';
+
+export type OrderAccount = {
+  fcmId: string;
+  ibId: string;
+  id: string | number;
+  name: string;
+};
 
 export interface IOrder extends IBaseItem {
-  accountId: string;
-  symbol: string;
-  exchange: string;
-  side: OrderSide;
+  account: OrderAccount;
+  averageFillPrice: number;
+  description: string;
   quantity: number;
-  limitPrice: number;
-  stopPrice: number;
+  filledQuantity: number;
+  instrument: IInstrument;
+  duration: OrderDuration;
+  side: OrderSide;
   status: OrderStatus;
   type: OrderType;
-  duration: OrderDuration;
+  exchange: string;
+  symbol: string;
 }
 
 export enum OrderSide {

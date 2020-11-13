@@ -1,6 +1,6 @@
 <div class="wrapper">
   <div class="toolbar">
-    <div (click)="selectComponent.setOpenState(true)" class="select-container">
+    <!-- <div (click)="selectComponent.setOpenState(true)" class="select-container">
       <nz-select
         #selectComponent
         [nzShowArrow]="false"
@@ -9,10 +9,7 @@
         <nz-option nzValue="Close" nzLabel="Close"></nz-option>
       </nz-select>
       <i class="icon-arrow-dropdown"></i>
-    </div>
-    <div class="account">
-      <account-select (accountChange)="handleAccountChange($event)"></account-select>
-    </div>
+    </div> -->
   </div>
-  <data-grid [items]="items" [columns]="headers"></data-grid>
+  <data-grid [items]="builder.items" [handlers]="handlers" [columns]="headers"></data-grid>
 </div>
