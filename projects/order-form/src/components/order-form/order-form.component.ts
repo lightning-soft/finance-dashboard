@@ -107,11 +107,11 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     order.symbol = this.instrument?.symbol;
     order.exchange = this.instrument?.exchange;
 
-    if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
-      delete order.limitPrice;
+    // if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
+    //   delete order.limitPrice;
 
-    if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
-      delete order.stopPrice;
+    // if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
+    //   delete order.stopPrice;
 
     return order;
   }

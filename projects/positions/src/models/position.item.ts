@@ -13,7 +13,7 @@ export class PositionItem {
   unrealized: Cell;
   realized: Cell;
   total: Cell;
-  close = new IconCell('icon-close');
+  close = new IconCell('icon-close-window');
   position: IPosition;
 
 

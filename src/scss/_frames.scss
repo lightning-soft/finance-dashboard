@@ -27,15 +27,16 @@ body.#{$themeName} {
 
   .frame .wm-container {
     background-color: $tabFrameColor;
-    padding: 1px;
+    padding: 0 1px 1px;
     box-shadow: 0px 0px 10px $bodyBackground;
     border: 1px solid $borderColor;
     border-radius: 4px;
 
     & > header {
-      justify-content: space-between;
       align-items: center;
-      min-height: 23px;
+      overflow: visible !important;
+      border-bottom: 1px solid $borderColor;
+      padding: 1px 0;
 
       .frame-manager {
         border-radius: 2px;
@@ -53,8 +54,6 @@ body.#{$themeName} {
       }
 
       .title {
-        flex-grow: 1;
-        flex-shrink: 1;
         font-size: 12px;
         font-weight: 600;
         line-height: 16px;
@@ -63,24 +62,9 @@ body.#{$themeName} {
         color: $titleColor;
       }
 
-      .tool-bar {
-        flex: 1 1 100%;
-        display: flex;
-        flex-direction: row;
-
-        div {
-          background-color: $bodyBackground;
-          border-radius: 2px;
-          padding: 3px 8px;
-          font-size: 11px;
-          line-height: 15px;
-          height: 21px;
-          margin-right: 7px;
-        }
-      }
-
       .control-bar {
         display: flex;
+        margin-left: auto;
         margin-right: 2px;
 
         button {

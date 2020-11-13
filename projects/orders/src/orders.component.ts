@@ -3,11 +3,13 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { Id } from 'communication';
+import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
+import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 
 @UntilDestroy()
 @Component({
@@ -17,7 +19,22 @@ import { OrderItem } from './models/OrderItem';
 })
 @LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
-  headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
+  headers = [
+    'averageFillPrice',
+    'description',
+    'duration',
+    'filledQuantity',
+    'quantity',
+    'side',
+    'status',
+    'type',
+    'exchange',
+    'symbol',
+    'fcmId',
+    'ibId',
+    'id',
+    'close',
+  ];
 
   private _accountId;
 
@@ -57,6 +74,13 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     };
   }
 
+  handlers = [
+    new CellClickDataGridHandler<OrderItem>({
+      column: 'close',
+      handler: (item) => this.deleteItem(item.order),
+    }),
+  ];
+
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
@@ -84,18 +108,27 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
         this._repository = this._repository.forConnection(connection);
       });
 
-    this._ordersFeed.on((order) => console.log('order', order));
+    this._ordersFeed.on((order) => {
+      console.log('order', order);
+      // if (this.items.some(i => i.id === order.id))
+      //   this.builder.handleUpdateItems([order]);
+      // else
+      //   this.builder.handleCreateItems([order]);
+    });
     super.ngOnInit();
   }
 
   async getToolbarComponent() {
 
+    const toolbarConfig: OrdersToolbarConfig = {
+      layout: this.layout,
+      accountHandler: this.handleAccountChange.bind(this)
+    };
+
     const { ref, domElement, destroy } = await this._loadingService
       .getDynamicComponent(OrdersToolbarComponent, [{
         provide: DynamicComponentConfig,
-        useValue: {
-          data: { layout: this.layout },
-        },
+        useValue: { data: toolbarConfig },
       }]);
 
     this._toolbarComponent = ref.instance;
@@ -115,7 +148,11 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     return domElement;
   }
 
-  handleAccountChange(accountId: Id): void {
+  private handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
+  }
+
+  protected _deleteItem(item: IOrder) {
+    return this.repository.deleteItem(item) ;
   }
 }
