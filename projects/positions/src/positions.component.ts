@@ -2,11 +2,11 @@ import { ChangeDetectorRef, Component, Injector } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { Id } from 'communication';
 import { CellClickDataGridHandler, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { AccountRepository, IAccount, IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
 
 @Component({

@@ -3,6 +3,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { Id } from 'communication';
+import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
@@ -30,7 +31,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     'symbol',
     'fcmId',
     'ibId',
-    'id'
+    'id',
+    'close',
   ];
 
   private _accountId;
@@ -70,6 +72,13 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
       // status: this.status
     };
   }
+
+  handlers = [
+    new CellClickDataGridHandler<OrderItem>({
+      column: 'close',
+      handler: (item) => this.deleteItem(item.order),
+    }),
+  ];
 
   constructor(
     protected _repository: OrdersRepository,
@@ -137,5 +146,9 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
+  }
+
+  protected _deleteItem(item: IOrder) {
+    return this.repository.deleteItem(item) ;
   }
 }

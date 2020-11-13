@@ -14,5 +14,5 @@
       <account-select (accountChange)="handleAccountChange($event)"></account-select>
     </div>
   </div>
-  <data-grid [items]="items" [columns]="headers"></data-grid>
+  <data-grid [items]="builder.items" [handlers]="handlers" [columns]="headers"></data-grid>
 </div>
