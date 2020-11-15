@@ -1,17 +1,14 @@
 import { Component, Injector, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
+import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/OrderItem';
 import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 
-@UntilDestroy()
 @Component({
   selector: 'orders-list',
   templateUrl: './orders.component.html',
@@ -84,14 +81,11 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    private _levelOneDatafeedService: LevelOneDataFeed,
     private _ordersFeed: OrdersFeed,
     private _loadingService: LoadingService,
-    private _accountsManager: AccountsManager,
   ) {
     super();
-    // this.autoLoadData = { onInit: true };
-    this.autoLoadData = {};
+    this.autoLoadData = false;
 
     this.builder.setParams({
       order: 'desc',
@@ -101,13 +95,6 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   }
 
   ngOnInit() {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-        this._repository = this._repository.forConnection(connection);
-      });
-
     this._ordersFeed.on((order) => {
       console.log('order', order);
       // if (this.items.some(i => i.id === order.id))
