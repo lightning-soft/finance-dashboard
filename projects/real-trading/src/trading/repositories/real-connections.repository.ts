@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { delay, map, tap } from 'rxjs/operators';
@@ -25,7 +26,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     return of(item);
   }
 
-  deleteItem(id: number): Observable<any> {
+  deleteItem(id: Id): Observable<any> {
     // return throwError('Implement');
 
     return this._deleteItem(id);
@@ -114,7 +115,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     );
   }
 
-  protected _deleteItem(id: number): Observable<any> {
+  protected _deleteItem(id: Id): Observable<any> {
     const items = this._getItems().filter(i => i.id !== id);
 
     this._setItems(items);
