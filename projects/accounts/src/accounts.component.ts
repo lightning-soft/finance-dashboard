@@ -16,7 +16,7 @@ import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
 })
 export class AccountsComponent implements OnInit {
 
-  builder = new GroupItemsBuilder();
+  builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
   isLoading: { [key: number]: boolean } = {};
   selectedItem: IConnection;
@@ -52,51 +52,53 @@ export class AccountsComponent implements OnInit {
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
-        res => this.brokers = res.data,
+        res => {
+          this.brokers = res.data;
+          this.expandBrokers();
+        },
         err => this._notifier.showError(err)
       );
 
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
-      .subscribe(items => this.builder.replaceItems(items));
+      .subscribe(items => {
+        this.builder.replaceItems(items);
+        this.expandBrokers();
+      });
+  }
+
+  expandBrokers() {
+    if (!this.brokers) {
+      return;
+    }
+
+    this.brokers.map(broker => {
+      const hasActiveConnections = !!this.builder.getItems('broker', broker.name)
+        .find(i => i.connected);
+
+      if (hasActiveConnections) {
+        (broker as any).active = true;
+      }
+
+      return broker;
+    });
   }
 
   openCreateForm(event: MouseEvent, broker: Broker) {
     event.stopPropagation();
 
-    this.form.reset({ broker });
-
-    this.selectedItem = { broker } as IConnection;
-    this.selectBroker(broker);
+    this.selectItem({ broker } as IConnection);
   }
 
   selectItem(item: IConnection) {
-    if (!item) {
-      this.selectedItem = null;
-      this.selectedBroker = null;
+    this.selectedItem = item;
+    this.selectedBroker = item ? this.brokers.find(b => b.name === item.broker) : null;
 
-
-      const value = Object.keys(this.form.controls).reduce((accum, key) => {
-        accum[key] = item[key] || null;
-
-        return accum;
-      }, {});
-
-      const broker = item.broker;
-      this.selectBroker(broker); // todo
-
-      this.form.setValue({
-        ...value,
-        broker: broker ?? null,
-      });
-    } else {
-      this.selectedItem = item;
+    if (item) {
       this.form.reset(item);
+    } else {
+      this.form.reset();
     }
-  }
-
-  selectBroker(broker: Broker) {
-    this.selectedBroker = this.brokers.find(b => b.name === broker);
   }
 
   handleSubmit() {
@@ -108,41 +110,38 @@ export class AccountsComponent implements OnInit {
   }
 
   create() {
-    return this._accountsManager.createConnection(this.form.value)
-      .pipe(this.showItemLoader(this.selectedItem))
+    this._accountsManager.createConnection(this.form.value)
+      .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
-        (item: any) => {
-          console.log(item);
-          // this.builder.handleCreateItems([item]);
+        (item: IConnection) => {
           this.selectItem(item);
           this.connect();
         },
-        err => this._notifier.showError(err));
+        err => this._notifier.showError(err),
+      );
   }
 
   connect() {
-    return this._accountsManager.connect(this.form.value)
-      .pipe(this.showItemLoader(this.selectedItem))
+    this._accountsManager.connect(this.form.value)
+      .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
-        (data: IConnection) => {
-          const item = { ...this.selectedItem, connected: true, connectionData: data.connectionData };
-          // this.builder.handleUpdateItems([item]);
+        (item: IConnection) => {
           this.selectedItem = item;
         },
-        err => this._notifier.showError(err)
+        err => this._notifier.showError(err),
       );
   }
 
   disconnect() {
-    return this._accountsManager.disconnect(this.selectedItem)
-      .pipe(this.showItemLoader(this.selectedItem))
+    const item = this.selectedItem;
+
+    this._accountsManager.disconnect(item)
+      .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
         () => {
-          const _item = this.selectedItem;
-          this.selectedItem = { ..._item, connected: false };
-          // this.builder.handleUpdateItems([this.selectedItem]);
+          this.selectedItem = { ...item, connected: false };
         },
-        err => this._notifier.showError(err)
+        err => this._notifier.showError(err),
       );
   }
 
@@ -157,14 +156,13 @@ export class AccountsComponent implements OnInit {
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
-        return this._accountsManager.deleteConnection(item)
-          .pipe(this.showItemLoader(item))
+        this._accountsManager.deleteConnection(item)
+          .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
-            (_item) => {
-              // this.builder.handleDeleteItems([item]);
-              console.log(item);
+            () => {
+              this.selectItem(null);
             },
-            err => this._notifier.showError(err)
+            err => this._notifier.showError(err),
           );
       },
     });
@@ -173,14 +171,11 @@ export class AccountsComponent implements OnInit {
   toggleFavourite(event: MouseEvent, item: IConnection) {
     event.stopPropagation();
 
-    return this._accountsManager.toggleFavourite({ ...item, favourite: !item.favourite })
-      .pipe(this.showItemLoader(item))
+    this._accountsManager.toggleFavourite(item)
+      .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
-        (item: any) => {
-          // this.builder.replaceItems([item]);
-          console.log(item);
-        },
-        err => this._notifier.showError(err)
+        () => {},
+        err => this._notifier.showError(err),
       );
   }
 
