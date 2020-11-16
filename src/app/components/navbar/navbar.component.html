@@ -1,4 +1,4 @@
-<nav *ngIf="isVisible" class="navigation-bar">
+<nav class="navigation-bar">
   <div class="navbar-manager">
     <!-- <app-navbar-controller></app-navbar-controller> -->
   </div>
@@ -35,8 +35,11 @@
     </div>
 
   <div class="connection">
-    <div class="indicator"></div>
-    <div class="title" (click)="openAccounts()">Rithmic</div>
+    <div *ngIf="connection" class="indicator" [ngClass]="{
+      'text-success': connection && connection.connected,
+      'text-danger': connection && !connection.connected
+    }"></div>
+    <div class="title" (click)="openAccounts()">{{ connection ? connection.name : 'Connect' }}</div>
   </div>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>

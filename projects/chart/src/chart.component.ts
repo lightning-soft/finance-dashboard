@@ -10,6 +10,8 @@ import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
+import { LoadingService } from 'lazy-modules';
+import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -52,6 +54,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
+    protected _loadingService: LoadingService,
   ) { }
 
   protected loadFiles(): Promise<any> {
@@ -216,6 +219,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (chart.reload) {
       chart.reload();
     }
+  }
+
+  async getToolbarComponent() {
+    const { domElement } = await this._loadingService
+      .getDynamicComponent(WindowToolbarComponent);
+
+    return domElement;
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {
