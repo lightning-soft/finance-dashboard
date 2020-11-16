@@ -5,9 +5,8 @@ import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
-import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
+import { OrdersToolbarComponent, OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
-import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 
 @Component({
   selector: 'orders-list',

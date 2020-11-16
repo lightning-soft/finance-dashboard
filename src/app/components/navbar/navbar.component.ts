@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { Component, Input, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { LayoutComponent } from 'layout';
-import { NzModalService } from 'ng-zorro-antd';
 import { Themes, ThemesHandler } from 'themes';
+import { IConnection } from 'trading';
 
 @UntilDestroy()
 @Component({
@@ -10,20 +11,28 @@ import { Themes, ThemesHandler } from 'themes';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   @Input() layout: LayoutComponent;
+
+  connection: IConnection;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
   }
 
-  public isVisible = true;
-
   constructor(
     private themeHandler: ThemesHandler,
-    private modalService: NzModalService,
-  ) {
-    this.checkVisibility();
+    private _accountsManager: AccountsManager,
+  ) {}
+
+  ngOnInit() {
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe((connections) => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this.connection = connection || connections[0];
+      });
   }
 
   switchTheme() {
@@ -47,12 +56,5 @@ export class NavbarComponent {
       icon: 'icon-setting-gear',
       maximizeBtn: false,
     });
-  }
-
-  checkVisibility() {
-    if (window.location.href.includes('popup')) {
-      console.log('here');
-      this.isVisible = false;
-    }
   }
 }

@@ -97,7 +97,7 @@ export class LoadingService {
 
   async getDynamicComponent(
     componentType: Type<any>,
-    providers: StaticProvider[],
+    providers: StaticProvider[] = [],
   ): Promise<any> {
     const componentRef = this.componentFactoryResolver
       .resolveComponentFactory(componentType)

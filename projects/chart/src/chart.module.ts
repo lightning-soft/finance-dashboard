@@ -8,6 +8,7 @@ import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { InstrumentSelectModule } from 'instrument-select';
 
 // const environment = { scxPath: '' };
@@ -54,7 +55,8 @@ import { InstrumentSelectModule } from 'instrument-select';
   ],
   declarations: [
     ChartComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    WindowToolbarComponent,
   ],
   providers: [
   ],
