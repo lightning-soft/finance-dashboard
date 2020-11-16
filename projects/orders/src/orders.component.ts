@@ -1,5 +1,5 @@
 import { Component, Injector, OnInit } from '@angular/core';
-import { ItemsComponent } from 'base-components';
+import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
@@ -8,7 +8,6 @@ import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
 import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
-import { ViewItemsBuilder } from '../../base-components/src/components/items.builder';
 
 @Component({
   selector: 'orders-list',

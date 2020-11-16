@@ -11,10 +11,6 @@ export interface IItemsBuilder<Item, ViewItem> {
   handleDeleteItems(item: Item[]);
 }
 
-export interface IViewItem<T> extends IBaseItem {
-  update(item: T);
-}
-
 export interface IItemsBuilderParams<T> {
   order?: 'asc' | 'desc';
   filter?: (item: T) => boolean;
@@ -119,27 +115,6 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
 
 export class ItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {
   items: T[] = [];
-}
-
-export class ViewItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, IViewItem<T>> {
-  items: IViewItem<T>[] = [];
-
-  handleUpdateItems(items: T[]) {
-    if (this._isNotArray(items))
-      return;
-
-    try {
-      for (const item of items) {
-        const viewItem = this.items.find(t => t.id === item.id);
-        if (!viewItem)
-          continue;
-
-        viewItem.update(item);
-      }
-    } catch (e) {
-      console.error('error', e);
-    }
-  }
 }
 
 export class PaginationBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {
