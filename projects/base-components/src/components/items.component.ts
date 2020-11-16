@@ -2,7 +2,6 @@ import { Directive, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
-import { BaseRepository } from 'projects/real-trading/src/trading/repositories/base-repository';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
 import { IConnection } from 'trading';
@@ -103,7 +102,11 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
         const connection = this._accountsManager.getActiveConnection();
 
         if (connection) {
-          this._repository = (this._repository as BaseRepository<T>).forConnection(connection);
+          const repository = this._repository as any;
+
+          if (repository.forConnection) {
+            this._repository = repository.forConnection(connection);
+          }
 
           if ((this.config.autoLoadData || {}).onConnectionChange) {
             this.refresh();
