@@ -15,7 +15,7 @@
     "build:prod": "ng build --prod",
     "pack": "electron-builder --dir",
     "electron": "electron .",
-    "dist:win": "rm -rf ./dest && npm run electron:win && electron-builder --win --x64",
+    "dist:win": "rm -rf ./dest && rm -rf ./dist && npm run electron:win && electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
     "dist:mac": "electron-builder --platform mac",
     "postinstall": "electron-builder install-app-deps",
@@ -45,7 +45,32 @@
   "build": {
     "appId": "com.deltaview.app",
     "productName": "DeltaView",
-    "copyright": "Copyright © 2020 AMS",
+	"copyright": "Copyright © 2020 AMS",
+	"files": [
+		"dist/browser/**/*",
+		"package.json",
+		"main.js"
+	],
+	"linux": {
+		"target": [
+		  "AppImage",
+		  "deb"
+		]
+	},
+	"dmg": {
+		"contents": [
+		  {
+			"x": 110,
+			"y": 150
+		  },
+		  {
+			"x": 240,
+			"y": 150,
+			"type": "link",
+			"path": "/Applications"
+		  }
+		]
+	},
     "win": {
       "target": [
         "NSIS"
@@ -55,10 +80,11 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+	  "allowToChangeInstallationDirectory": true,
+	  "runAfterFinish": true
     }
   },
-  "private": true,
+  "private": false,
   "dependencies": {
     "@angular/animations": "10.0.8",
     "@angular/cdk": "10.1.2",
