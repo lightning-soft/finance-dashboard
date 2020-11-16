@@ -11,6 +11,10 @@ export interface IItemsBuilder<Item, ViewItem> {
   handleDeleteItems(item: Item[]);
 }
 
+export interface IViewItem<T> extends IBaseItem {
+  update(item: T);
+}
+
 export interface IItemsBuilderParams<T> {
   order?: 'asc' | 'desc';
   filter?: (item: T) => boolean;
@@ -30,13 +34,19 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
   }
 
   replaceItems(items: IBaseItem[]) {
-    this._items = items;
+    this._items = this._map(items);
     this._buildItems();
   }
 
   addItems(items: IBaseItem[]) {
-    this._items = [...this._items, ...items];
+    this._items = [...this._items, ...this._map(items)];
     this._buildItems();
+  }
+
+  protected _map(items) {
+    const { map } = this._params;
+
+    return map ? items.map(map) : items;
   }
 
   protected _buildItems() {
@@ -48,9 +58,9 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
       this.items = this.items.filter(filter);
     }
 
-    if (map) {
-      this.items = this.items.map(map);
-    }
+    // if (map) {
+    //   this.items = this.items.map(map);
+    // }
 
     if (order === 'desc') {
       this.items = this.items.reverse();
@@ -90,7 +100,7 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
 
     try {
       items = items.filter(({ id }) => this._items.every(i => i.id !== id));
-      this._items = [...this._items, ...items];
+      this._items = [...this._items, ...this._map(items)];
       this._buildItems();
     } catch (e) {
       console.error('error', e);
@@ -109,6 +119,27 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
 
 export class ItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {
   items: T[] = [];
+}
+
+export class ViewItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, IViewItem<T>> {
+  items: IViewItem<T>[] = [];
+
+  handleUpdateItems(items: T[]) {
+    if (this._isNotArray(items))
+      return;
+
+    try {
+      for (const item of items) {
+        const viewItem = this.items.find(t => t.id === item.id);
+        if (!viewItem)
+          continue;
+
+        viewItem.update(item);
+      }
+    } catch (e) {
+      console.error('error', e);
+    }
+  }
 }
 
 export class PaginationBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {

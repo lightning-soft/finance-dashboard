@@ -54,6 +54,9 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   protected _bindEmit(action: RealtimeAction) {
     return (data) => {
+      if (data == null)
+        return;
+
       const items = Array.isArray(data) ? data : [data];
 
       this._subject.next({

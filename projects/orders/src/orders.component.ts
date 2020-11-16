@@ -8,8 +8,9 @@ import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
-import { OrderItem } from './models/OrderItem';
+import { OrderItem } from './models/order.item';
 import { OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
+import { ViewItemsBuilder } from '../../base-components/src/components/items.builder';
 
 @UntilDestroy()
 @Component({
@@ -32,9 +33,11 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     'symbol',
     'fcmId',
     'ibId',
-    'id',
+    'identifier',
     'close',
   ];
+
+  builder = new ViewItemsBuilder();
 
   private _accountId;
 
@@ -110,10 +113,10 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
     this._ordersFeed.on((order) => {
       console.log('order', order);
-      // if (this.items.some(i => i.id === order.id))
-      //   this.builder.handleUpdateItems([order]);
-      // else
-      //   this.builder.handleCreateItems([order]);
+      if (this.items.some(i => i.id === order.id))
+        this.builder.handleUpdateItems([order]);
+      else
+        this.builder.handleCreateItems([order]);
     });
     super.ngOnInit();
   }
@@ -153,6 +156,10 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   }
 
   protected _deleteItem(item: IOrder) {
-    return this.repository.deleteItem(item) ;
+    return this.repository.deleteItem(item);
+  }
+
+  protected _handleDeleteItems(items) {
+    // handle by realtime
   }
 }

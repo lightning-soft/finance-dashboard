@@ -14,9 +14,7 @@ $selectMarginBottom: 15px;
       box-shadow: none !important;
 
     }
-    data-grid{
-      height: calc(100% - #{$selectHeightContainer} - #{$selectMarginBottom});
-    }
+
     .wrapper{
       height: 100%;
       padding-top: 10px;

@@ -71,12 +71,13 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _handleTread(data) {
-    if (data.Type !== this.type)
+    if (data.type !== this.type)
       return;
 
     for (const executor of this._executors) {
       try {
-        executor(data.Result);
+        if (data.result)
+          executor(data.result);
       } catch (error) {
         console.error('_handleTread', error);
       }

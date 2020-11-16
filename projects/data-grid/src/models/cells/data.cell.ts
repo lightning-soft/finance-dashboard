@@ -1,4 +1,4 @@
-import {Cell} from './cell';
+import { Cell } from './cell';
 
 export class DataCell<T = any> extends Cell {
   value: string;
@@ -11,7 +11,7 @@ export class DataCell<T = any> extends Cell {
   updateValue(value: T) {
     const newValue = this.transformFunction ? this.transformFunction(value) : value;
 
-    if (!newValue || this.value === newValue)
+    if (newValue == null || this.value === newValue)
       return;
 
     this.value = typeof newValue === 'string'
