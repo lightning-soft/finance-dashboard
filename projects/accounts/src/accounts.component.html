@@ -11,6 +11,7 @@
           [nzHeader]="broker.title"
           [nzExtra]="createButton"
           [nzShowArrow]="!!builder.getItems('broker', broker.name).length"
+          [nzActive]="broker.active"
         >
           <ng-template #createButton>
             <span class="small link" (click)="openCreateForm($event, broker.name)">

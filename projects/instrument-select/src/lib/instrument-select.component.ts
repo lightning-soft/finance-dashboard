@@ -1,6 +1,4 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { Id, ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
 
@@ -26,21 +24,12 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   constructor(
     protected _injector: Injector,
     protected _repository: InstrumentsRepository,
-    protected _accountsManager: AccountsManager,
   ) {
     super();
-    this.autoLoadData = {};
+    this.autoLoadData = false;
   }
 
   ngOnInit() {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
-        this._repository = this._repository.forConnection(connection);
-      });
-
     super.ngOnInit();
 
     if (this.instrument) {
@@ -60,7 +49,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   loadMore() {
     this.skip = this.items.length;
 
-    this.loadData(this._params);
+    this.loadData();
   }
 
   handleModelChange(id: Id) {

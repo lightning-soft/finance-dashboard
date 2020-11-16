@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output, Injector } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
+import { Component, EventEmitter, Input, Output, Injector } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { Id, ItemsComponent } from 'base-components';
-import { AccountRepository, IAccount } from 'trading';
+import { AccountRepository, IAccount, IConnection } from 'trading';
 import { IPaginationResponse } from 'communication';
 
 @UntilDestroy()
@@ -11,7 +10,7 @@ import { IPaginationResponse } from 'communication';
   templateUrl: './account-select.component.html',
   styleUrls: ['account-select.component.scss'],
 })
-export class AccountSelectComponent extends ItemsComponent<IAccount> implements OnInit {
+export class AccountSelectComponent extends ItemsComponent<IAccount> {
 
   @Input() placeholder = 'Select account';
   @Input() className = '';
@@ -22,23 +21,20 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> implements 
 
   constructor(
     protected _repository: AccountRepository,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
   ) {
     super();
+    this.autoLoadData = {
+      onConnectionChange: true,
+    };
+
+    this._params = { status: 'Active' };
   }
 
-  ngOnInit(): void {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-        this._repository = this._repository.forConnection(connection);
-
-        this.loadData({ ...this._params, status: 'Active' });
-      });
-
-    super.ngOnInit();
+  protected _handleConnection(connection: IConnection) {
+    if (!connection) {
+      this.activeAccountId = null;
+    }
   }
 
   protected _handleResponse(response: IPaginationResponse<IAccount>, params: any) {

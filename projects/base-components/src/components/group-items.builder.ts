@@ -11,9 +11,9 @@ export interface IGroupItemsBuilderParams<T> extends IItemsBuilderParams<T> {
   groupBy?: string[];
 }
 
-type IGroupItemsBuilderGroups = {
+type IGroupItemsBuilderGroups<T> = {
   [key: string]: {
-    [key: string]: IBaseItem[],
+    [key: string]: T[],
   },
 };
 
@@ -22,21 +22,21 @@ interface IGroupItemsBuilderGroupParams {
   groupItemMap: (item: string) => any;
 }
 
-export class GroupItemsBuilder extends GenericItemsBuilder implements IGroupItemsBuilder<IBaseItem, IBaseItem> {
-  items: IBaseItem[] = [];
+export class GroupItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IGroupItemsBuilder<T, T> {
+  items: T[] = [];
 
-  protected _groups: IGroupItemsBuilderGroups = {};
+  protected _groups: IGroupItemsBuilderGroups<T> = {};
   protected _groupParams: IGroupItemsBuilderGroupParams = null;
-  protected _params: IGroupItemsBuilderParams<IBaseItem> = {
+  protected _params: IGroupItemsBuilderParams<T> = {
     groupBy: [],
     order: 'asc',
   };
 
-  setParams(params: IGroupItemsBuilderParams<IBaseItem>) {
+  setParams(params: IGroupItemsBuilderParams<T>) {
     super.setParams(params);
   }
 
-  getItems(groupKey: string = null, groupValue: string = null): IBaseItem[] {
+  getItems(groupKey: string = null, groupValue: string = null): T[] {
     if (groupKey === null || groupValue === null) {
       return [];
     }
