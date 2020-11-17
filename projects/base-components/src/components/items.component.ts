@@ -68,23 +68,22 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   ngOnInit() {
-    this._accountsManager = this._injector.get(AccountsManager);
-
     this._subscribeToConnections();
 
-    this._realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
-      switch (action) {
-        case RealtimeAction.Create:
-          this._handleCreateItems(items);
-          break;
-        case RealtimeAction.Update:
-          this._handleUpdateItems(items);
-          break;
-        case RealtimeAction.Delete:
-          this._handleDeleteItems(items);
-          break;
-      }
-    });
+    if (this.repository)
+      this._realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
+        switch (action) {
+          case RealtimeAction.Create:
+            this._handleCreateItems(items);
+            break;
+          case RealtimeAction.Update:
+            this._handleUpdateItems(items);
+            break;
+          case RealtimeAction.Delete:
+            this._handleDeleteItems(items);
+            break;
+        }
+      });
 
     super.ngOnInit();
   }
@@ -96,6 +95,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   protected _subscribeToConnections() {
+    this._accountsManager = this._injector.get(AccountsManager);
+
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -104,7 +105,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
         if (connection) {
           const repository = this._repository as any;
 
-          if (repository.forConnection) {
+          if (repository && repository.forConnection) {
             this._repository = repository.forConnection(connection);
           }
 

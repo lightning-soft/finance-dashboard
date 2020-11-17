@@ -134,6 +134,10 @@ export class LayoutComponent implements OnInit, IDropable {
    */
   @HostListener('window:beforeunload')
   beforeUnloadHandler() {
+    this.saveState();
+  }
+
+  saveState(): void {
     this.layoutStore.setItem(this.getState());
   }
 }

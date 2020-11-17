@@ -3,6 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { LayoutComponent } from 'layout';
+import { SettignsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 
 @Component({
@@ -15,9 +16,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   @ViewChild(LayoutComponent) layout: LayoutComponent;
 
 
-  constructor(private _themesHandler: ThemesHandler,
+  constructor(
+    private _themesHandler: ThemesHandler,
     private _accountsManager: AccountsManager,
-    private _websocketService: WebSocketService) { }
+    private _websocketService: WebSocketService,
+    private _settingsService: SettignsService,
+  ) { }
 
   ngOnInit() {
     this._websocketService.connect();

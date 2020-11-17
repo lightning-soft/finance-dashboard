@@ -1,10 +1,9 @@
 <div class="settings">
   <ul class="tabs">
-    <li class="active">General</li>
-    <li>Hotkeys</li>
+    <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="activeTab = tab">{{tab}}</li>
   </ul>
 
-  <ul class="tab-content">
+  <ul class="tab-content" *ngIf="activeTab === 'general'">
     <li>
       <div class="title">THEME</div>
         <nz-select
@@ -23,14 +22,26 @@
     </li>
     <li>
       <div class="title">LANGUAGE</div>
-      <nz-select nzSize="small" class="select" ngModel="en-GB">
+      <nz-select nzSize="small" class="select" ngModel="en-GB" nzDisabled>
         <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
       </nz-select> 
     </li>
     <li>
-      <label><input type="checkbox"> Auto save settings every 5 minutes</label>
-      <label><input type="checkbox"> Setting 2</label>
-      <label><input type="checkbox"> Setting 3</label>
+      <label><input type="checkbox" [checked]=settings.autoSave (change)="toggleAutoSave($event.target.checked)"> Auto save settings every 5 minutes</label>
     </li>
   </ul>
+  <table class="tab-content table" *ngIf="activeTab === 'hotkeys'">
+    <thead class="header">
+      <tr>
+        <th>Action</th>
+        <th>Hotkey</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let entrey of settings.hotkeys">
+        <td>{{entrey[0]}}</td>
+        <td (dblclick)="changeHotke($event, entrey)">{{entrey[1]}}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
