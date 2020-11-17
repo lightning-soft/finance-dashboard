@@ -29,6 +29,8 @@ import {
 } from './components';
 import { Modules, modulesStore } from './modules';
 import { APP_INITIALIZER } from '@angular/core';
+import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
+import { SettingsModule } from 'settings';
 
 export function initAccounts(manager: AccountsManager): () => Promise<any> {
   return () => manager.init();
@@ -55,6 +57,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    SettingsModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
       configClass: AppConfig,
@@ -123,6 +126,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
       multi: true,
       deps: [AccountsManager],
     },
+    { provide: NZ_I18N, useValue: en_US }
   ],
   bootstrap: [AppComponent]
 })

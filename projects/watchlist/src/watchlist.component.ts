@@ -1,22 +1,23 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
+import { ItemsBuilder, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService, IContextMenuInfo } from 'context-menu';
 import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
-import { NotifierService } from 'notifier';
-import { IInstrument, InstrumentsRepository, IQuote, ITrade, LevelOneDataFeed } from 'trading';
+import { finalize, first } from 'rxjs/operators';
+import { IConnection, IInstrument, InstrumentsRepository, IQuote, LevelOneDataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
-
-export interface WatchlistComponent extends ILayoutNode { }
 
 export interface IWatchlistState {
   componentName: string;
   items?: string[];
 }
+
+export type SubscribtionHandler = (data?: any) => void;
 
 @UntilDestroy()
 @Component({
@@ -25,17 +26,27 @@ export interface IWatchlistState {
   styleUrls: ['./watchlist.component.scss'],
 })
 @LayoutNode()
-export class WatchlistComponent implements OnInit, OnDestroy {
-  headers = ['name', 'ask', 'bid', 'timestamp'];
+export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements ILayoutNode, OnInit, OnDestroy {
+  headers = [
+    'name',
+    'timestamp',
+    'ask',
+    'bid',
+    'volume',
+    'price',
+    'exchange',
+    'symbol',
+    'close',
+  ];
 
   isLoading = false;
 
-  items: WatchlistItem[] = [];
+  builder = new ItemsBuilder<WatchlistItem>();
 
   private _itemsMap: Map<Id, WatchlistItem> = new Map();
   private _instruments: IInstrument[] = [];
 
-  private subscriptions = [] as Function[];
+  private subscriptions: SubscribtionHandler[] = [];
 
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
@@ -47,45 +58,23 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   private _selectedInstrument: WatchlistItem;
 
   constructor(
-    public _instrumentsRepository: InstrumentsRepository,
+    protected instrumentRepository: InstrumentsRepository,
     private _levelOneDatafeed: LevelOneDataFeed,
     protected cd: ChangeDetectorRef,
-    public notifier: NotifierService,
     private layoutHandler: LayoutHandler,
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
     protected _accountsManager: AccountsManager,
-  ) { }
+    protected _injector: Injector,
+  ) {
+    super();
+    this.autoLoadData = false;
+  }
 
   handlers = [
     new CellClickDataGridHandler<WatchlistItem>({
-      column: 'name',
-      events: [Events.DoubleClick],
-      handler: (watchlistItem: WatchlistItem) => {
-        this.layoutHandler.create('chart');
-
-        this._instrumentsRepository.getItemById(watchlistItem.instrumentId).subscribe(instrument => {
-          this.broadcastLinkData({ instrument });
-        });
-      },
-    }),
-    new ContextMenuDataGridHandler<IContextMenuData>({
-      handler: (data: IContextMenuData) => {
-        const { item, event } = data;
-
-        const menuList: IContextMenuInfo = {
-          event,
-          list: [
-            {
-              title: 'Delete', action: () => {
-                this.delete(item);
-              }
-            }
-          ]
-        };
-
-        this.contextMenuService.showMenu(menuList);
-      },
+      column: 'close',
+      handler: (item) => this.delete(item),
     }),
   ];
 
@@ -93,72 +82,16 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     this.nzContextMenuService.close();
   }
 
+
   ngOnInit(): void {
-    this.initRepository();
-
-    // this.subscriptions.push(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
-
-    /**
-     * TEST DATA TRADE
-     */
-    // this.addNewInstrument({ symbol: "ESZ0", exchange: "CME", tickSize: 0.01, id: "ESZ0" });
+    this.subscriptions.push(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
   }
-
-  initRepository() {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() =>
-        this._instrumentsRepository = this._instrumentsRepository.forConnection(this._accountsManager.getActiveConnection()));
-  }
-
-  // for (let id = 0; id < 100; id++) {
-  //   this.data.push(new WatchlistItem({ name: id.toString(), id }))
-  // }
-
-  // setInterval(() => {
-  //   const count = Math.floor(randomIntFromInterval(0, this.data.length))
-  //   const step = Math.floor(randomIntFromInterval(0, this.data.length / 4)) + 1
-
-  //   for (let i = step; i < count; i += step) {
-  //     const item = this.data[i];
-  //     const updates = {};
-
-  //     for (const key of ['ask', 'bid']) {
-  //       const value = +item[key].value;
-  //       updates[key] = randomIntFromInterval(value - 0.1, value + 0.1);
-  //     }
-
-  //     item.processQuote({
-  //       instrumentId: i,
-  //       timestamp: new Date(),
-  //       ...updates,
-  //     } as any);
-  //   }
-  // }, 100)
-
-  // addNewInstrument(form: NgForm): void {
-  //   const instrumentName = form.control.value.instrumentName;
-
-  //   if (instrumentName.trim()) {
-  //     const newInstrument: IInstrument = {
-  //       name: instrumentName.toUpperCase(),
-  //       tickSize: 0.1,
-  //       id: Date.now(),
-  //     }
-
-  //     this.addToWatchlist(newInstrument);
-  //     form.reset();
-  //   }
-  // }
 
   addNewInstrument(instrument: IInstrument): void {
     if (!instrument) throw new Error('Invalid instrument');
 
-    if (this._itemsMap.has(instrument.id)) {
-      this.notifier.showSuccess(`Instrument ${instrument.symbol} already exist`);
-    } else {
+    if (!this._itemsMap.has(instrument.id)) {
       this.addToWatchlist(instrument);
-      this.notifier.showSuccess(`Instrument ${instrument.symbol} added`);
     }
   }
 
@@ -176,24 +109,17 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     }
 
     const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
+    this.builder.addItems(items);
+
     for (const item of items) {
-      this._itemsMap.set(item.instrumentId, item);
+      this._itemsMap.set(item.id, item);
     }
 
-    this.items = [...this._itemsMap.values()];
     this.subscribeForRealtime(instruments);
   }
 
   delete(item: WatchlistItem) {
-    const instrument = this._instruments.find((inst: IInstrument) => inst.id === item.instrumentId);
-
-    this._levelOneDatafeed.unsubscribe(instrument);
-    this._instruments = this._instruments.filter((inst: IInstrument) => inst.id !== item.instrumentId);
-
-    this._itemsMap.delete(item.instrumentId);
-    this.items = this.items.filter(i => i.instrumentId !== item.instrumentId);
-
-    this.notifier.showSuccess(`Instrument ${item.name.value} deleted`);
+    this.builder.handleDeleteItems([item]);
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {
@@ -206,7 +132,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     const quotesList = Array.isArray(quotes) ? quotes : [quotes];
 
     for (const quote of quotesList) {
-      const item = this._itemsMap.get(quote?.instrumentId);
+      const item = this.items.find((i: WatchlistItem) => i.instrument.symbol === quote.instrument.symbol);
 
       if (item) {
         item.processQuote(quote);
@@ -229,54 +155,35 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   }
 
   saveState() {
-    return { items: [...this.items.map(item => item.instrumentId)] };
+    return { items: [...this.items.map(item => item.id)] };
+  }
+
+  _handleConnection(connection: IConnection) {
+    this.instrumentRepository = this.instrumentRepository.forConnection(connection);
   }
 
   loadState(state?: IWatchlistState): void {
+    this._subscribeToConnections();
     if (state && state.items) {
-      this.isLoading = true;
-
-      this.initRepository();
-
-      this._instrumentsRepository.getItemsByIds(state.items)
-        .pipe(
-          untilDestroyed(this)
-        )
-        .subscribe(
-          (instruments) => {
-            this.addToWatchlist(instruments);
-            this.isLoading = false;
-          },
-          (e) => {
-            console.error(e);
-            this.isLoading = false;
-          },
-        );
+      this.loadInstruments(state.items);
     }
-    // else {
-    //   this._initalizeWatchlist();
-    // }
   }
 
-  // private _initalizeWatchlist(): void {
-  //   this._instrumentsRepository.getItems()
-  //     .pipe(
-  //       untilDestroyed(this)
-  //     )
-  //     .subscribe(
-  //       (response) => this.addToWatchlist(response.data),
-  //       (e) => console.error(e)
-  //     );
-  // }
+  loadInstruments(params) {
+    this._dataSubscription?.unsubscribe();
 
-  private handleTrade(trade: ITrade): void {
-    const { askInfo, bidInfo, timestamp } = trade;
-
-    const instrument = this._instruments.find((inst: IInstrument) => inst.symbol === trade.instrument.symbol);
-    const watchlistItem = this._itemsMap.get(instrument.id);
-
-    watchlistItem.ask.updateValue(askInfo.price);
-    watchlistItem.bid.updateValue(bidInfo.price);
-    watchlistItem.timestamp.updateValue(timestamp);
+    this._dataSubscription = this.instrumentRepository.getItemsByIds(params)
+      .pipe(
+        untilDestroyed(this),
+        first(),
+        finalize(this.showLoading(true))
+      )
+      .subscribe(
+        (response) => {
+          const data: WatchlistItem[] = response.map(i => new WatchlistItem(i));
+          this.builder.addItems(data);
+        },
+        (error) => this._handleLoadingError(error),
+      );
   }
 }

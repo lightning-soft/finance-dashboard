@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutNode } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { SettignsService } from './settings.service';
+import { SettingsData } from './types';
 
-
+const FIVE_MIN = 300000;
 @Component({
   selector: 'settings',
   templateUrl: './settings.component.html',
@@ -11,28 +13,44 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 })
 @UntilDestroy()
 @LayoutNode()
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
+
+  settings: SettingsData;
+
   themes = [Themes.Dark, Themes.Light];
 
   tabs = ['general', 'hotkeys'];
-  selectedTab = 'general';
 
-  private _currentTheme;
+  activeTab = 'general';
 
   get currentTheme() {
-    return this._currentTheme;
+    return this.settings.theme as Themes;
   }
 
-  set currentTheme(value: Themes) {
-    this.themeHandler.changeTheme(value);
-    this._currentTheme = value;
+  set currentTheme(theme: Themes) {
+    this.settingService.changeTheme(theme);
   }
 
-  constructor(public themeHandler: ThemesHandler) {
-    themeHandler.themeChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((theme) => {
-        this._currentTheme = theme;
-      });
+  constructor(
+    public themeHandler: ThemesHandler,
+    private settingService: SettignsService,
+  ) { }
+
+  ngOnInit(): void {
+    this.settings = this.settingService.settings;
+  }
+
+  toggleAutoSave(isAutoSave: boolean): void {
+    if (isAutoSave)
+      this.settingService.setAutoSave(FIVE_MIN);
+    else
+      this.settingService.removeAutoSave();
+  }
+
+  changeHotke(event: Event, entery): void {
+    /*
+     * To-do
+     *
+    */
   }
 }

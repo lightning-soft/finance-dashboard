@@ -12,7 +12,7 @@ import { LocalLayoutStore, ILayoutStore } from './store';
 import { LazyAssetsModule } from 'lazy-assets';
 import { GloabalHandlerModule } from 'global-handler';
 
-let entryComponents = [
+const entryComponents = [
   LayoutComponent,
 ];
 
@@ -24,7 +24,7 @@ let entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
-    LazyAssetsModule.forConfig({})
+    LazyAssetsModule.forConfig({}),
   ],
   declarations: [
     ...entryComponents,
@@ -35,7 +35,7 @@ let entryComponents = [
     {
       provide: ILayoutStore,
       useClass: LocalLayoutStore
-    }
+    },
   ],
   exports: [
     LayoutComponent,
