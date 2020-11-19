@@ -8,12 +8,12 @@
 >
 </button>
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <ul nz-menu class="side-navigation">
+  <ul *ngIf="isAuthenticated" nz-menu class="side-navigation">
     <li 
       class="change-name" 
       nz-menu-item 
     >
-      Nickname 
+      {{ userName }} 
       <button 
         class="icon-edit"
         (click)="changeName()"
@@ -26,6 +26,16 @@
     >
       <i class="icon-log-out"></i> 
       Log out
+    </li>
+  </ul>
+  <ul *ngIf="!isAuthenticated" nz-menu class="side-navigation">
+    <li 
+      class="change-name" 
+      nz-menu-item 
+    >
+      <a class="link" [href]="loginLink">
+        Login with Identity
+      </a>
     </li>
   </ul>
 </nz-dropdown-menu>
