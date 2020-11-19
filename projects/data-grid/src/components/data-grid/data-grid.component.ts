@@ -10,6 +10,7 @@ import { IconComponent, iconComponentSelector } from '../../models/cells/compone
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
 import { Subject } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -22,7 +23,8 @@ export interface DataGridItem {
   providers: [{
     provide: IViewBuilderStore,
     useValue: new ViewBuilderStore({
-      [iconComponentSelector]: IconComponent
+      [iconComponentSelector]: IconComponent,
+      [priceComponentSelector]: PriceComponent,
     })
   }]
 })

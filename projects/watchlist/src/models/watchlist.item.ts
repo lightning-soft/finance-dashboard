@@ -1,7 +1,8 @@
-import { Cell, DataCell, DateCell, IconCell, NumberCell } from 'data-grid';
+import { Cell, DataCell, DateCell, IconCell, NumberCell, PriceCell } from 'data-grid';
 import { InstrumentNameCell, } from './instrument-name.cell';
 import { IQuote, IInstrument } from 'trading';
 import { IBaseItem, Id } from 'communication';
+import { priceComponentSelector } from 'projects/data-grid/src/models/cells/components/price-component';
 
 export class WatchlistItem implements IBaseItem {
     id: Id;
@@ -12,7 +13,7 @@ export class WatchlistItem implements IBaseItem {
     ask: Cell = new NumberCell();
     bid: Cell = new NumberCell();
     volume: Cell = new NumberCell();
-    price: Cell = new NumberCell();
+    price: Cell = new NumberCell({component: priceComponentSelector});
     exchange: Cell = new DataCell();
     symbol: Cell = new DataCell();
     close: Cell = new IconCell('icon-close-window');
