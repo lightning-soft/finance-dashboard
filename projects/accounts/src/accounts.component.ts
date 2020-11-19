@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
+import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize } from 'rxjs/operators';
@@ -14,6 +15,7 @@ import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
 })
+@LayoutNode()
 export class AccountsComponent implements OnInit {
 
   builder = new GroupItemsBuilder<IConnection>();

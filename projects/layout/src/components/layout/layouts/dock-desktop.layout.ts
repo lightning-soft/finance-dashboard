@@ -1,9 +1,10 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
-import { LoadingService } from 'lazy-modules';
+import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { WindowManager } from 'simple-window-manager';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentOptions, Layout } from './layout';
+import { WindowHeaderComponent } from '../window-header/window-header.component';
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
@@ -15,8 +16,9 @@ export class DockDesktopLayout extends Layout {
     creationsService: LoadingService,
     viewContainer: ViewContainerRef,
     container: ElementRef,
+    private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
-    private _ngZone: NgZone
+    private _ngZone: NgZone,
   ) {
     super(factoryResolver, creationsService, viewContainer, container);
   }
@@ -80,7 +82,6 @@ export class DockDesktopLayout extends Layout {
           // const saveStateFn = instance.saveState ? instance.saveState.bind(instance) : () => {};
 
           // const winClassName = componentOptions.type;
-          const toolbarInstruments = instance.getToolbarComponent ? await instance.getToolbarComponent() : null;
 
           const windowOptions = {
             width: 500,
@@ -94,7 +95,6 @@ export class DockDesktopLayout extends Layout {
             maximizeButton,
             minimizeButton: '',
             closeButton,
-            toolbarInstruments,
             y: 70,
             x: 50,
             ...config,
@@ -113,7 +113,22 @@ export class DockDesktopLayout extends Layout {
             instance.loadState(componentState);
           }
 
-          window.content.appendChild(comp.location.nativeElement);
+          const { _container } = window;
+
+          _container.appendChild(comp.location.nativeElement);
+
+          this._loadingService.getDynamicComponent(WindowHeaderComponent, [{
+            provide: DynamicComponentConfig,
+            useValue: {
+              data: {
+                layoutNode: instance,
+              },
+            },
+          }]).then(({ domElement, destroy }) => {
+            _container.prepend(domElement);
+
+            window.on('close', () => destroy());
+          });
         } catch (e) {
           console.error(e);
           // container.close();
@@ -188,7 +203,7 @@ export class DockDesktopLayout extends Layout {
           backgroundWindow: 'grey',
         });
 
-        manager.snap({ spacing: 1 });
+        // manager.snap({ spacing: 1 });
 
         this.dockManager = manager;
         (window as any).dockManager = manager;

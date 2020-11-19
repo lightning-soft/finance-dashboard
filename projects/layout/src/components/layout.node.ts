@@ -34,12 +34,12 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _tabTitle: string = null;
 
-  private _layoutContainer: IContainer;
+  layoutContainer: IContainer;
 
   link: number;
 
   setLayoutContainer(value) {
-    this._layoutContainer = value;
+    this.layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
     linkDataObserver.subscribe(this);
@@ -115,14 +115,14 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
       return;
 
     this._tabTitle = value;
-    if (this._layoutContainer)
-      this._layoutContainer.setTitle(value);
+    if (this.layoutContainer)
+      this.layoutContainer.setTitle(value);
   }
 
   _removeItself() {
     try {
-      if (this._layoutContainer)
-        this._layoutContainer.close();
+      if (this.layoutContainer)
+        this.layoutContainer.close();
     } catch (e) {
       console.error(e);
     }

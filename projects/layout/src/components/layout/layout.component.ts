@@ -41,6 +41,7 @@ export class LayoutComponent implements OnInit, IDropable {
     private _factoryResolver: ComponentFactoryResolver,
     private viewContainer: ViewContainerRef,
     private ngZone: NgZone,
+    private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
     private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
@@ -85,7 +86,7 @@ export class LayoutComponent implements OnInit, IDropable {
       // this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
       //   this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
       this.layout = new DockDesktopLayout(this._factoryResolver, this._creationsService,
-        this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
+        this.viewContainer, this.container, this._loadingService, this._lazyLoadingService, this.ngZone);
     });
   }
 
