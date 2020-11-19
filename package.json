@@ -45,7 +45,9 @@
   "build": {
     "appId": "com.angular-starter.app",
     "win": {
-      "target": ["NSIS"],
+      "target": [
+        "NSIS"
+      ],
       "asar": true,
       "requestedExecutionLevel": "requireAdministrator"
     },
