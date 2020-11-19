@@ -1,16 +1,18 @@
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import {
   AfterViewInit,
   Component, ElementRef,
-  Input, OnDestroy, ViewChild
+  Input, OnDestroy, ViewChild, ViewContainerRef
 } from '@angular/core';
-import { ICell } from '../../models';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';
+import { ICell } from '../../models';
+import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
 import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
+import { ModalComponent } from '../modal/modal.component';
+import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
+import { DataGridHandler, Events, IHandler } from './data-grid.handler';
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -30,34 +32,44 @@ export interface DataGridItem {
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy {
   rowHeight = 35;
-
+  list: TransferItem[] = [];
   onDestroy$ = new Subject();
 
   @ViewChild('tableContainer') tableContainer: ElementRef;
-
   @Input()
   handlers: DataGridHandler[] = [];
-
+  @ViewChild(ModalComponent) modalComponent: ModalComponent;
   @ViewChild(CdkVirtualScrollViewport)
-  public viewPort: CdkVirtualScrollViewport;
-
-  @Input()
-  columns = [];
-
+  public viewPort: CdkVirtualScrollViewport | any;
+  @Input() columns = [];
   @Input()
   items: T[];
-
   private _handlers = [];
 
   private _subscribedEvents = [];
+  isVisible = false;
 
-  constructor(private _changeDetector: ChangeDetectorRef) {
-
+  constructor(private modalService: NzModalService,
+              private viewContainerRef: ViewContainerRef) {
   }
 
+  createComponentModal(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Select options',
+      nzContent: ModalComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        columns: this.columns
+      },
+    });
+    const instance = modal.getContentComponent();
+    modal.afterOpen.subscribe((def) => console.log('[afterOpen] emitted!'));
+    // Return a result when closed
+    modal.afterClose.subscribe(result => this.columns = result);
+  }
   ngAfterViewInit(): void {
     this._handlers = this.initHandlers() || [];
-    for (let handler of this._handlers) {
+    for (const handler of this._handlers) {
       handler.events.forEach(e => this._subscribeOnEvents(e));
     }
   }
@@ -80,32 +92,32 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     return item.id;
   }
 
-  public get inverseTranslation(): string {
-    if (!this.viewPort || !this.viewPort['_renderedContentOffset']) {
+  get inverseTranslation(): string {
+    if (!this.viewPort || !this.viewPort._renderedContentOffset) {
       return '-0px';
     }
 
-    const offset = this.viewPort['_renderedContentOffset'] + 1;
+    const offset = this.viewPort._renderedContentOffset + 1;
     return `-${offset}px`;
   }
 
   private _handleEvent(event) {
     if (!this._handlers)
       return;
-    for (let handler of this._handlers) {
+    for (const handler of this._handlers) {
       if (handler.events.some(e => e === event.type) && handler.handleEvent(event))
         return null;
     }
   }
 
   private _subscribeOnEvents(event: Events) {
-    let element = this.tableContainer && this.tableContainer.nativeElement;
+    const element = this.tableContainer && this.tableContainer.nativeElement;
     if (!element)
       return;
 
     if (this._subscribedEvents.every(e => e !== event)) {
       this._subscribedEvents.push(event);
-      let fn = (evt: Event) => this._handleEvent(evt);
+      const fn = (evt: Event) => this._handleEvent(evt);
 
       element.addEventListener(event, fn);
       this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));

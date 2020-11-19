@@ -1,0 +1,8 @@
+<nz-transfer
+  [nzDataSource]="list"
+  [nzTitles]="['Source', 'Target']"
+  [nzSelectedKeys]="['0', '2']"
+  (nzChange)="change($event)"
+>
+</nz-transfer>
+<button nz-button (click)="handleSubmit($event)">Submit</button>
