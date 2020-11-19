@@ -4,5 +4,5 @@
   [columns]="headers"
   [class.loading-block]="isLoading"
 >
-  <instrument-select (handleInstrumentChange)='addNewInstrument($event)'></instrument-select>
+  <instrument-select className="watchlist-instrument-select" (handleInstrumentChange)='addNewInstrument($event)'></instrument-select>
 </data-grid>
