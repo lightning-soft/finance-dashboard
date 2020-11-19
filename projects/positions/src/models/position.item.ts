@@ -1,19 +1,19 @@
-import { IPosition } from 'trading';
+import { IPosition, Side } from 'trading';
 import { Id } from 'base-components';
-import { Cell, DataCell, IconCell, NumberCell } from 'data-grid';
+import { DataCell, IconCell, NumberCell } from 'data-grid';
 
 export class PositionItem {
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
 
-  account: Cell;
-  price: Cell;
-  size: Cell;
-  unrealized: Cell;
-  realized: Cell;
-  total: Cell;
-  close = new IconCell('icon-close-window');
+  account = new DataCell();
+  price = new NumberCell();
+  size = new NumberCell();
+  unrealized = new NumberCell();
+  realized = new NumberCell();
+  total = new NumberCell();
+  close = new IconCell();
   position: IPosition;
 
 
@@ -26,13 +26,14 @@ export class PositionItem {
 
   update(position: IPosition) {
     this.position = position;
-    this.account = new DataCell();
-    this.account.updateValue(position.account);
+    this.account.updateValue(position.accountId);
     const fields = ['price', 'size', 'unrealized', 'realized', 'total'];
     for (let key of fields) {
-      this[key] = new NumberCell();
       this[key].updateValue(position[key]);
     }
+
+    const iconClass = position.side !== Side.Closed ? 'icon-close-window' : 'd-none';
+    this.close.updateClass(iconClass);
   }
 
 }

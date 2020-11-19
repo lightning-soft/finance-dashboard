@@ -1,12 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Id } from 'base-components';
-import { IPaginationResponse } from 'communication';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 @Injectable()
+@UntilDestroy()
 export class AccountsManager {
   connections = new BehaviorSubject<IConnection[]>([]);
 
@@ -20,37 +20,33 @@ export class AccountsManager {
 
   async init() {
     return this._connectionsRepository.getItems()
-      .pipe(tap((r: IPaginationResponse<IConnection>) => this.connections.next(r.data)))
+      .pipe(
+        tap(() => this._updateConnections()),
+      )
       .toPromise();
   }
 
   createConnection(connection: IConnection) {
     return this._connectionsRepository.createItem(connection)
       .pipe(
-        tap((item: IConnection) => {
-          this._createConnection(item);
-        })
+        tap(() => this._updateConnections()),
       );
   }
 
   connect(connection: IConnection) {
     return this._connectionsRepository.connect(connection)
       .pipe(
-        tap((item: IConnection) => {
-          this._updateConnection(item);
-        })
+        tap(() => this._updateConnections()),
       );
   }
 
   disconnect(connection: IConnection) {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        tap((item: IConnection) => {
-          this._updateConnection(item);
-        }),
+        tap(() => this._updateConnections()),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
-            this._updateConnection({ ...connection, connected: false });
+            this._updateConnections();
             return of(null);
           } else
             return throwError(err);
@@ -63,38 +59,20 @@ export class AccountsManager {
 
     return this._connectionsRepository.deleteItem(id)
       .pipe(
-        tap(() => {
-          this._deleteConnection(id);
-        })
+        tap(() => this._updateConnections()),
       );
   }
 
   toggleFavourite(connection: IConnection) {
     return this._connectionsRepository.updateItem({ ...connection, favourite: !connection.favourite })
       .pipe(
-        tap((item: IConnection) => {
-          this._updateConnection(item);
-        })
+        tap(() => this._updateConnections()),
       );
   }
 
-  protected _createConnection(connection: IConnection) {
-    if (!connection) return;
-
-    this.connections.next([...this.connections.value, connection]);
-  }
-
-  protected _updateConnection(connection: IConnection) {
-    if (!connection) return;
-
-    const connections = this.connections.value.map(i => {
-      return i.id === connection.id ? { ...i, ...connection } : i;
-    });
-
-    this.connections.next(connections);
-  }
-
-  protected _deleteConnection(id: Id) {
-    this.connections.next(this.connections.value.filter(i => i.id !== id));
+  protected _updateConnections() {
+    this._connectionsRepository.getItems()
+      .pipe(untilDestroyed(this))
+      .subscribe(res => this.connections.next(res.data));
   }
 }

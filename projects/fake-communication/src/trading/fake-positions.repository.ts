@@ -50,7 +50,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
   createPositionFromOrder(order: IOrder) {
     const position = {
       side: order.side === OrderSide.Sell ? Side.Short : Side.Long,
-      account: order.instrument.symbol,
+      accountId: order.instrument.symbol,
       size: order.quantity,
     } as IPosition;
 
@@ -61,7 +61,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
     const { status, instrument } = this._getItemsParams;
 
     return (!status || status === position.status)
-      && (!instrument || instrument.symbol === position.account);
+      && (!instrument || instrument.symbol === position.accountId);
   }
 
   protected async _getItems(): Promise<IPosition[]> {
@@ -76,7 +76,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
     return {
       id,
       side: (id % 2 === 0) ? Side.Long : Side.Short,
-      account: (id % 2 === 0) ? 'EURUSD' : 'BTCUSD',
+      accountId: (id % 2 === 0) ? 'EURUSD' : 'BTCUSD',
       price: randomFixedNumber(100),
       size: randomFixedNumber(),
       realized: randomFixedNumber(),

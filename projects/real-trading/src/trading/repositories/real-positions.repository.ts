@@ -21,17 +21,22 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
     delete params.accountId;
     return super.getItems(params).pipe(
       map((res: any) => {
-        const data = res.result.map((item: any) => ({
-          instrument: item.instrument,
-          account: item.account.id,
-          price: item.averageFillPrice,
-          size: item.volume,
-          realized: item.realisedPL,
-          unrealized: 0,
-          total: item.averageFillPrice,
-          side: item.type,
-          status: PositionStatus.Open,
-        }));
+        const data = res.result.map((item: any) => {
+          const { averageFillPrice: price, volume: size, instrument } = item;
+
+          return {
+            id: instrument.exchange + instrument.symbol,
+            instrument,
+            accountId: item.account.id,
+            price,
+            size,
+            realized: item.realisedPL,
+            unrealized: 0,
+            total: size * price,
+            side: item.type,
+            status: PositionStatus.Open,
+          };
+        });
 
         return { data } as IPaginationResponse<IPosition>;
       }),
@@ -42,9 +47,8 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
     if (typeof item !== 'object')
       throw new Error('Invalid position');
 
-    const accountId = item.account;
     return this._http.post<IPosition>(
-      this._getRESTURL(accountId),
+      this._getRESTURL(item.accountId),
       null,
       {
         ...this._httpOptions,

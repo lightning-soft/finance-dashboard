@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler } from 'data-grid';
@@ -14,7 +14,7 @@ import { OrderItem } from './models/order.item';
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
+export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   headers = [
     'averageFillPrice',
     'description',
@@ -82,7 +82,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    private _ordersFeed: OrdersFeed,
+    protected _datafeed: OrdersFeed,
     private _loadingService: LoadingService,
   ) {
     super();
@@ -90,20 +90,9 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
     this.builder.setParams({
       order: 'desc',
-      // filter: (order: IOrder) => order.status === this.status,
-      map: (item: IOrder) => new OrderItem(item),
+      wrap: (item: IOrder) => new OrderItem(item),
+      unwrap: (item: OrderItem) => item.order,
     });
-  }
-
-  ngOnInit() {
-    this._ordersFeed.on((order) => {
-      console.log('order', order);
-      if (this.items.some(i => i.id === order.id))
-        this.builder.handleUpdateItems([order]);
-      else
-        this.builder.handleCreateItems([order]);
-    });
-    super.ngOnInit();
   }
 
   async getToolbarComponent() {

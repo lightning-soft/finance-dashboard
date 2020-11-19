@@ -1,14 +1,15 @@
-import { IPaginationParams } from 'communication';
+import { Id, IPaginationParams } from 'communication';
 import { IBaseItem } from 'communication';
 import { IInstrument } from './instruemnt';
 
 export enum Side {
-  Short = 'short',
-  Long = 'long',
+  Short = 'Short',
+  Long = 'Long',
+  Closed = 'Closed',
 }
 
 export interface IPosition extends IBaseItem {
-  account: string;
+  accountId: Id;
   price: number;
   size: number;
   realized: number;

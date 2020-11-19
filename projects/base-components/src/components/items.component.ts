@@ -23,6 +23,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
   protected _accountsManager: AccountsManager;
+  protected _datafeed: any;
 
   protected _realtimeActionSubscription: Subscription;
   protected _dataSubscription: Subscription;
@@ -85,6 +86,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
         }
       });
 
+    this._subscribeToDatafeed();
+
     super.ngOnInit();
   }
 
@@ -121,6 +124,26 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   protected _handleConnection(connection: IConnection) {}
+
+  protected _subscribeToDatafeed() {
+    if (!this._datafeed) {
+      return;
+    }
+
+    this._datafeed.on((item: T) => {
+      console.log(this._datafeed.type, item);
+
+      const oldItem = this.items.find(i => i.id === item.id);
+
+      if (oldItem) {
+        const _oldItem = this.builder.unwrap(oldItem);
+
+        this._handleUpdateItems([this._datafeed.merge(_oldItem, item)]);
+      } else {
+        this._handleCreateItems([item]);
+      }
+    });
+  }
 
   loadData(params?: P) {
     this._params = params || this.params;
@@ -181,13 +204,13 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     // this.totalItems = this.totalItems - deletedItems;
   }
 
-  protected _handleResponse(response: IPaginationResponse<T>, params: any) {
+  protected _handleResponse(response: IPaginationResponse<T>, params: any = {}) {
     if (Array.isArray(response?.data)) {
       // if (response) {
       // this.totalItems = response.totalItems;
       // }
 
-      let { take, skip, page } = (params || {}) as IPaginationParams;
+      let { take, skip, page } = params as IPaginationParams;
       if (skip == null)
         skip = (page - 1) * take;
 

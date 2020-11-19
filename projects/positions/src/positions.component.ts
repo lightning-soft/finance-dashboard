@@ -1,9 +1,9 @@
-import { Component, Injector } from '@angular/core';
-import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { Id } from 'communication';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { ItemsComponent, ViewGroupItemsBuilder } from 'base-components';
+import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, ITrade, LevelOneDataFeed, PositionsFeed, PositionsRepository, PositionStatus, Side } from 'trading';
 import { PositionItem } from './models/position.item';
 
 @Component({
@@ -12,8 +12,8 @@ import { PositionItem } from './models/position.item';
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends ItemsComponent<IPosition> {
-  builder = new GroupItemsBuilder();
+export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit, OnDestroy {
+  builder = new ViewGroupItemsBuilder();
 
   private _headers = ['account', 'price', 'size', 'realized', 'unrealized', 'total'];
 
@@ -77,20 +77,73 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
   constructor(
     protected _repository: PositionsRepository,
     protected _injector: Injector,
+    protected _datafeed: PositionsFeed,
+    private _levelOneDatafeed: LevelOneDataFeed,
   ) {
     super();
     this.autoLoadData = false;
 
     this.builder.setParams({
-      groupBy: ['account'],
+      groupBy: ['accountId'],
       order: 'desc',
-      filter: (item: IPosition) => item.status === this.status,
-      map: (item: IPosition) => new PositionItem(item),
+      wrap: (item: IPosition) => new PositionItem(item),
+      unwrap: (item: PositionItem) => item.position,
+    });
+  }
+
+  ngOnInit() {
+    this._onLevelOneDatafeed();
+
+    super.ngOnInit();
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+
+    this._unsubscribeFromLevelOneDatafeed(this.items);
+  }
+
+  protected _onLevelOneDatafeed() {
+    this._levelOneDatafeed.on((trade: ITrade) => {
+      const { instrument } = trade;
+
+      if (!instrument) {
+        return;
+      }
+
+      const id = instrument.exchange + instrument.symbol;
+      const item = this.items.find(i => i.id === id)?.position;
+
+      if (!item) {
+        return;
+      }
+
+      const price = item.size
+        ? item.side === Side.Long ? trade.bidInfo.price : trade.askInfo.price
+        : 0;
+
+      const total = item.size * price;
+
+      const _item = { ...item, price, total };
+
+      this._handleUpdateItems([_item]);
+    });
+  }
+
+  protected _subscribeToLevelOneDatafeed(items: IPosition[]) {
+    items.forEach(item => {
+      this._levelOneDatafeed.subscribe(item.instrument);
+    });
+  }
+
+  protected _unsubscribeFromLevelOneDatafeed(items: IPosition[]) {
+    items.forEach(item => {
+      this._levelOneDatafeed.unsubscribe(item.instrument);
     });
   }
 
   groupItems() {
-    this.builder.groupItems('account', account => {
+    this.builder.groupItems('accountId', account => {
       const groupedItem = new PositionItem();
       (groupedItem as any).symbol = account; // for now using for grouping TODO: use another class for grouped element
       groupedItem.account = new DataCell();
@@ -129,5 +182,21 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
 
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
+  }
+
+  protected _handleResponse(response: IPaginationResponse<IPosition>) {
+    super._handleResponse(response);
+
+    this._subscribeToLevelOneDatafeed(response?.data);
+  }
+
+  protected _handleCreateItems(items: IPosition[]) {
+    super._handleCreateItems(items);
+
+    this._subscribeToLevelOneDatafeed(items);
+  }
+
+  protected _handleDeleteItems(items: IPosition[]) {
+    // handle by realtime
   }
 }

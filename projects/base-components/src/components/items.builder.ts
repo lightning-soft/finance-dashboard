@@ -1,69 +1,96 @@
 import { IBaseItem } from 'communication';
 
-export interface IItemsBuilder<Item, ViewItem> {
+export interface IItemsBuilder<Item, ViewItem = Item> {
   items: ViewItem[];
 
   setParams(params: any);
   replaceItems(items: Item[]);
   addItems(items: Item[]);
+  wrap(data: Item | Item[]);
+  unwrap(data: ViewItem | ViewItem[]);
   handleUpdateItems(items: Item[]);
   handleCreateItems(item: Item[]);
   handleDeleteItems(item: Item[]);
 }
 
-export interface IItemsBuilderParams<T> {
+export interface IItemsBuilderParams<T, VM> {
   order?: 'asc' | 'desc';
   filter?: (item: T) => boolean;
-  map?: (item: T) => any;
+  wrap?: (item: T) => VM;
+  unwrap?: (item: VM) => T;
 }
 
-export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> {
-  items: IBaseItem[] = [];
+export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> implements IItemsBuilder<T, VM> {
+  get items(): VM[] {
+    return this._items;
+  }
 
-  protected _items: IBaseItem[] = [];
-  protected _params: IItemsBuilderParams<IBaseItem> = {
+  protected _items: VM[] = [];
+
+  protected _params: IItemsBuilderParams<T, VM> = {
     order: 'asc',
   };
 
-  setParams(params: IItemsBuilderParams<IBaseItem>) {
+  setParams(params: IItemsBuilderParams<T, VM>) {
     this._params = { ...this._params, ...params };
   }
 
-  replaceItems(items: IBaseItem[]) {
-    this._items = this._map(items);
-    this._buildItems();
+  replaceItems(items: T[]) {
+    this._items = this._handle(items);
   }
 
-  addItems(items: IBaseItem[]) {
-    this._items = [...this._items, ...this._map(items)];
-    this._buildItems();
+  addItems(items: T[]) {
+    const parts = this._order([this._items, this._handle(items)]);
+
+    this._items = [...parts[0], ...parts[1]];
   }
 
-  protected _map(items) {
-    const { map } = this._params;
+  wrap(data: T | T[]): any {
+    const { wrap } = this._params;
 
-    return map ? items.map(map) : items;
-  }
-
-  protected _buildItems() {
-    const { order, filter, map } = this._params;
-
-    this.items = [...this._items];
-
-    if (filter) {
-      this.items = this.items.filter(filter);
+    if (!wrap) {
+      return data;
     }
 
-    // if (map) {
-    //   this.items = this.items.map(map);
-    // }
+    return Array.isArray(data) ? data.map(wrap) : wrap(data);
+  }
 
-    if (order === 'desc') {
-      this.items = this.items.reverse();
+  unwrap(data: VM | VM[]): any {
+    const { unwrap } = this._params;
+
+    if (!unwrap) {
+      return data;
+    }
+
+    return Array.isArray(data) ? data.map(unwrap) : unwrap(data);
+  }
+
+  protected _filter(items: T[]): T[] {
+    const { filter } = this._params;
+
+    return filter ? items.filter(filter) : items;
+  }
+
+  protected _order(items: any[]): any[] {
+    switch (this._params.order) {
+      case 'asc':
+        return items;
+      case 'desc':
+        return items.reverse();
     }
   }
 
-  protected _isNotArray(items): boolean {
+  protected _handle(items: T[]): any[] {
+    let _items = items;
+
+    _items = this._filter(_items);
+    _items = this.wrap(_items);
+    _items = this._order(_items);
+
+    return _items;
+  }
+
+  protected _isNotArray(items: any[]): boolean {
     if (Array.isArray(items))
       return false;
 
@@ -71,56 +98,52 @@ export class GenericItemsBuilder implements IItemsBuilder<IBaseItem, IBaseItem> 
     return true;
   }
 
-  handleUpdateItems(items: IBaseItem[]) {
-    if (this._isNotArray(items))
-      return;
+  handleUpdateItems(items: T[]) {
+    this._handleItems(items, () => {
+      const _items = this._handle(items);
 
-    try {
-      for (const item of items) {
+      for (const item of _items) {
         const index = this._items.findIndex(t => t.id === item.id);
 
         if (index !== -1) {
           const newValue = { ...this._items[index], ...item };
           this._items.splice(index, 1, newValue);
-          this._buildItems();
         }
       }
-    } catch (e) {
-      console.error('error', e);
-    }
+    });
   }
 
-  handleCreateItems(items: IBaseItem[]) {
+  handleCreateItems(items: T[]) {
+    this._handleItems(items, () => {
+      items = items.filter(({ id }) => this._items.every(i => i.id !== id));
+
+      this.addItems(items);
+    });
+  }
+
+  handleDeleteItems(items: T[]) {
+    this._handleItems(items, () => {
+      const ids = items.map(item => (typeof item === 'object' ? item.id : item));
+
+      this._items = this._items.filter(item => ids.every(id => item.id !== id));
+    });
+  }
+
+  protected _handleItems(items: T[], fn: (items: T[]) => void) {
     if (this._isNotArray(items))
       return;
 
     try {
-      items = items.filter(({ id }) => this._items.every(i => i.id !== id));
-      this._items = [...this._items, ...this._map(items)];
-      this._buildItems();
+      fn(items);
     } catch (e) {
       console.error('error', e);
     }
   }
-
-  handleDeleteItems(items: IBaseItem[]) {
-    if (this._isNotArray(items))
-      return;
-
-    const ids = items.map(item => (typeof item === 'object' ? item.id : item));
-    this._items = this._items.filter(item => ids.every(id => item.id !== id));
-    this._buildItems();
-  }
 }
 
-export class ItemsBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {
-  items: T[] = [];
-}
+export class PaginationBuilder<T extends IBaseItem, VM extends IBaseItem = T> extends ItemsBuilder<T, VM> {
 
-export class PaginationBuilder<T extends IBaseItem> extends GenericItemsBuilder implements IItemsBuilder<T, T> {
-  items: T[] = [];
-
-  addItems(items: any[]) {
+  addItems(items: T[]) {
     this.replaceItems(items);
   }
 }

@@ -5,7 +5,7 @@ import { IInstrument } from './instruemnt';
 export type OrderAccount = {
   fcmId: string;
   ibId: string;
-  id: string | number;
+  id: Id;
   name: string;
 };
 
