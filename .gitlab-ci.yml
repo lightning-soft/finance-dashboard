@@ -1,4 +1,4 @@
-image: teracy/angular-cli
+image: registry.gitlab.com/docker.hub/teracy/angular-cli
 
 stages:
     - install
@@ -94,8 +94,8 @@ build-web-ssr:
 deploy:
     stage: deploy
     services:
-        - docker:dind
-    image: docker:latest
+        - registry.gitlab.com/docker.hub/docker:dind
+    image: registry.gitlab.com/docker.hub/docker:latest
     cache:
         paths:
             - dist/
