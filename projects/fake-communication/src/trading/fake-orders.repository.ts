@@ -36,7 +36,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
     const order = {
       side: position.side === Side.Long ? OrderSide.Buy : OrderSide.Sell,
       quantity: position.size,
-      symbol: position.account,
+      symbol: position.accountId,
       duration: OrderDuration.GTD,
     } as IOrder;
 

@@ -113,8 +113,6 @@ export class RithmicDatafeed extends Datafeed {
     this._levelOneDatafeedService.subscribe(instrument);
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (isNaN(trade.askInfo.price) || isNaN(trade.bidInfo.price)) return;
-
       const quote: IQuote = {
         askInfo: {
           price: trade.askInfo.price,
