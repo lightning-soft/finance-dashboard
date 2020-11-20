@@ -10,7 +10,7 @@
 	  }
 	},
 	"identity": {
-    "url": "https://auth-dev.amstradinggroup.com/connect/authorize",
+    "url": "https://auth-dev.amstradinggroup.com/",
     "scope": [
       "openid", 
       "profile", 
@@ -19,7 +19,8 @@
       "userdata.api",
       "notification.api"
     ],
-    "clientId": "oidcCodeClient",
+	"clientId": "oidcCodeClient",
+	"clientSecret": "SuperSecretPassword",
     "responseType": "code",
     "redirectUri": "http://localhost:4200"
   }
