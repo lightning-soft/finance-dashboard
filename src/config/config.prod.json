@@ -22,6 +22,6 @@
 	"clientId": "oidcCodeClient",
 	"clientSecret": "SuperSecretPassword",
     "responseType": "code",
-    "redirectUri": "http://localhost:4200"
+    "redirectUri": "https://platform-dev.amstradinggroup.com"
   }
 }
