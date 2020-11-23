@@ -15,7 +15,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   private _executors: OnTradeFn<T>[] = [];
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService) {
-    this._webSocketService.on(this._handleTread.bind(this));
+    this._webSocketService.on(this._handleTrade.bind(this));
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -70,17 +70,33 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     });
   }
 
-  protected _handleTread(data) {
-    if (data.Type !== this.type)
+  protected _handleTrade(data) {
+    const { type, result } = data;
+
+    if (type !== this.type || !result || !this._filter(result))
       return;
+
+    const _result = this._map(result);
 
     for (const executor of this._executors) {
       try {
-        executor(data.Result);
+        executor(_result);
       } catch (error) {
-        console.error('_handleTread', error);
+        console.error('_handleTrade', error);
       }
     }
+  }
+
+  protected _filter(item: T): boolean {
+    return true;
+  }
+
+  protected _map(item: T): any {
+    return item;
+  }
+
+  merge(oldItem: I, newItem: I): I {
+    return newItem;
   }
 }
 

@@ -1,10 +1,14 @@
 import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
+import { IConnection } from 'trading';
 import { IItemsBuilder, ItemsBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
 
+@UntilDestroy()
 @Directive()
 export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationParams = any>
   extends LoadingComponent<P, T> implements OnInit, OnDestroy {
@@ -18,7 +22,11 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
 
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
-  realtimeActionSubscription: Subscription;
+  protected _accountsManager: AccountsManager;
+  protected _datafeed: any;
+
+  protected _realtimeActionSubscription: Subscription;
+  protected _dataSubscription: Subscription;
 
   get items() {
     return this.builder.items;
@@ -61,45 +69,96 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   ngOnInit() {
-    super.ngOnInit();
+    this._subscribeToConnections();
 
-    this.realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
-      switch (action) {
-        case RealtimeAction.Create:
-          this._handleCreateItems(items);
-          break;
-        case RealtimeAction.Update:
-          this._handleUpdateItems(items);
-          break;
-        case RealtimeAction.Delete:
-          this._handleDeleteItems(items);
-          break;
-      }
-    });
+    if (this.repository)
+      this._realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
+        switch (action) {
+          case RealtimeAction.Create:
+            this._handleCreateItems(items);
+            break;
+          case RealtimeAction.Update:
+            this._handleUpdateItems(items);
+            break;
+          case RealtimeAction.Delete:
+            this._handleDeleteItems(items);
+            break;
+        }
+      });
+
+    this._subscribeToDatafeed();
+
+    super.ngOnInit();
   }
 
   ngOnDestroy() {
     super.ngOnDestroy();
 
-    this.realtimeActionSubscription.unsubscribe();
+    this._realtimeActionSubscription.unsubscribe();
   }
 
-  getParams(params?: any): P {
-    return params;
+  protected _subscribeToConnections() {
+    this._accountsManager = this._injector.get(AccountsManager);
+
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        if (connection) {
+          const repository = this._repository as any;
+
+          if (repository && repository.forConnection) {
+            this._repository = repository.forConnection(connection);
+          }
+
+          if ((this.config.autoLoadData || {}).onConnectionChange) {
+            this.refresh();
+          }
+        } else {
+          this.builder.replaceItems([]);
+        }
+
+        this._handleConnection(connection);
+      });
+  }
+
+  protected _handleConnection(connection: IConnection) {}
+
+  protected _subscribeToDatafeed() {
+    if (!this._datafeed) {
+      return;
+    }
+
+    this._datafeed.on((item: T) => {
+      console.log(this._datafeed.type, item);
+
+      const oldItem = this.items.find(i => i.id === item.id);
+
+      if (oldItem) {
+        const _oldItem = this.builder.unwrap(oldItem);
+
+        this._handleUpdateItems([this._datafeed.merge(_oldItem, item)]);
+      } else {
+        this._handleCreateItems([item]);
+      }
+    });
   }
 
   loadData(params?: P) {
-    this._params = params;
-    const hide = this.showLoading(true);
-    const loadingParams = this.getParams(params);
+    this._params = params || this.params;
 
-    this._getItems(loadingParams)
+    const hide = this.showLoading(true);
+
+    this._dataSubscription?.unsubscribe();
+
+    this._dataSubscription = this._getItems(this._params)
       .pipe(
         first(),
         finalize(() => hide())
       )
       .subscribe(
-        (response) => this._handleResponse(response, loadingParams),
+        (response) => this._handleResponse(response, this._params),
         (error) => this._handleLoadingError(error),
       );
   }
@@ -109,7 +168,9 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   refresh() {
-    this.loadData(this.params);
+    this.skip = 0;
+
+    this.loadData();
   }
 
   protected _onQueryParamsChanged(params?: any) {
@@ -143,13 +204,13 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     // this.totalItems = this.totalItems - deletedItems;
   }
 
-  protected _handleResponse(response: IPaginationResponse<T>, params: any) {
+  protected _handleResponse(response: IPaginationResponse<T>, params: any = {}) {
     if (Array.isArray(response?.data)) {
       // if (response) {
       // this.totalItems = response.totalItems;
       // }
 
-      let { take, skip, page } = (params || {}) as IPaginationParams;
+      let { take, skip, page } = params as IPaginationParams;
       if (skip == null)
         skip = (page - 1) * take;
 

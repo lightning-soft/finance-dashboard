@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
-import { LayoutComponent } from 'layout';
-import { Themes, ThemesHandler } from 'themes';
-import { WebSocketService } from 'communication';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { AccountsManager } from '../../../../projects/accounts-manager/src/accounts-manager';
+import { AccountsManager } from 'accounts-manager';
+import { WebSocketService } from 'communication';
+import { LayoutComponent } from 'layout';
+import { SettignsService } from 'settings';
+import { Themes, ThemesHandler } from 'themes';
 
 @Component({
   selector: 'dashboard',
@@ -15,9 +16,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   @ViewChild(LayoutComponent) layout: LayoutComponent;
 
 
-  constructor(private _themesHandler: ThemesHandler,
+  constructor(
+    private _themesHandler: ThemesHandler,
     private _accountsManager: AccountsManager,
-    private _websocketService: WebSocketService) { }
+    private _websocketService: WebSocketService,
+    private _settingsService: SettignsService,
+  ) { }
 
   ngOnInit() {
     this._websocketService.connect();

@@ -1,8 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
+import { AuthModule, AuthService } from 'auth';
 import { CommunicationConfig, CommunicationModule } from 'communication';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
@@ -10,11 +12,13 @@ import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import { NzDropDownModule } from 'ng-zorro-antd';
+import { en_US, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotifierModule } from 'notifier';
 import { RealTradingModule } from 'real-trading';
-import { AccountsManagerModule, AccountsManager } from 'accounts-manager';
+import { first } from 'rxjs/operators';
+import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { AppConfig } from './app.config';
@@ -28,10 +32,43 @@ import {
   NotificationListComponent, TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
-import { APP_INITIALIZER } from '@angular/core';
+function generateLoginLink(config): string {
 
-export function initAccounts(manager: AccountsManager): () => Promise<any> {
-  return () => manager.init();
+  const { clientId, responseType, scope, redirectUri } = config;
+
+  const data = new URLSearchParams();
+
+  data.set('client_id', clientId);
+  data.set('response_type', responseType);
+  data.set('scope', scope.join(' '));
+  data.set('redirect_uri', redirectUri);
+
+  return `${config.url}connect/authorize?${data.toString()}`;
+}
+
+async function initAccounts(manager: AccountsManager) {
+  return manager.init();
+}
+
+async function initIdentityAccount(authService: AuthService, config: AppConfig) {
+  const queryParams = new URLSearchParams(window.location.search);
+  const code = queryParams.get('code');
+
+  if (code)
+    window.history.replaceState(null, null, '/');
+  else {
+    location.replace( generateLoginLink(config.identity) );
+  }
+
+  return authService.initialize(code);
+}
+
+export function initApp(config: AppConfig,manager: AccountsManager, authService: AuthService) {
+  return  async () => {
+    await config.getConfig().pipe(first()).toPromise();
+    await initIdentityAccount(authService, config);
+    await initAccounts(manager);
+  };
 }
 
 @NgModule({
@@ -55,6 +92,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    SettingsModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
       configClass: AppConfig,
@@ -69,6 +107,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     FakeCommunicationModule.forRoot(),
     RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
+    AuthModule.forRoot(),
     LoadingModule.forRoot([
       {
         path: Modules.Accounts,
@@ -111,7 +150,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
       {
         path: '**',
         component: DashboardComponent,
-      },
+      }
     ]),
     NzDropDownModule,
   ],
@@ -119,10 +158,15 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     ThemesHandler,
     {
       provide: APP_INITIALIZER,
-      useFactory: initAccounts,
+      useFactory: initApp,
       multi: true,
-      deps: [AccountsManager],
+      deps: [
+        AppConfig,
+        AccountsManager,
+        AuthService
+      ],
     },
+    { provide: NZ_I18N, useValue: en_US }
   ],
   bootstrap: [AppComponent]
 })

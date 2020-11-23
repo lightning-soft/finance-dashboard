@@ -1,7 +1,5 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { ItemsComponent } from 'base-components';
+import { Id, ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
 
 @Component({
@@ -21,48 +19,52 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     return this._loading;
   }
 
-  selectedValue = this.instrument?.id;
+  value = '';
 
   constructor(
     protected _injector: Injector,
     protected _repository: InstrumentsRepository,
-    protected _accountsManager: AccountsManager,
   ) {
     super();
-    this.autoLoadData = {
-      onInit: true,
-    };
+    this.autoLoadData = false;
   }
 
   ngOnInit() {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
-        this._repository = this._repository.forConnection(connection);
-      });
-
     super.ngOnInit();
+
+    if (this.instrument) {
+      this.value = this.instrument?.id as string;
+    }
   }
 
-  search(criteria: string) {
+  search(criteria = '') {
+    this.builder.replaceItems([]);
+
     this.loadData({
       criteria,
-      skip: 0,
       take: 20,
     });
   }
 
   loadMore() {
-    this._params.skip += this._params.take;
+    this.skip = this.items.length;
 
-    this.loadData(this._params);
+    this.loadData();
   }
 
-  handleModelChange(id: string) {
+  handleModelChange(id: Id) {
     const instrument = this.items.find(i => i.id === id);
 
     this.handleInstrumentChange.emit(instrument);
+  }
+
+  handleOpenChange(opened: boolean) {
+    if (opened) {
+      this.search();
+    } else {
+      setTimeout(() => {
+        this._dataSubscription?.unsubscribe();
+      });
+    }
   }
 }

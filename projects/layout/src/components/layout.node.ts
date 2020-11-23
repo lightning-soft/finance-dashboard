@@ -15,9 +15,9 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
-  setTabTitle(value: string);
+  setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
-  broadcastLinkData(data: any);
+  broadcastLinkData?(data: any);
 }
 
 // tslint:disable-next-line: no-empty-interface

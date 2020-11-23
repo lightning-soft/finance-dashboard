@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { CommunicationConfig, ICommunicationConfig, ICommunicationHttpConfig, ICommunicationWsConfig } from 'communication';
+import {
+  CommunicationConfig,
+  ICommunicationConfig,
+  ICommunicationHttpConfig,
+  ICommunicationWsConfig,
+  IIdentityConfig
+} from 'communication';
 import { Config } from 'config';
 
 @Injectable({
@@ -9,4 +15,5 @@ export class AppConfig extends Config implements CommunicationConfig {
   http: ICommunicationHttpConfig;
   ws: ICommunicationWsConfig;
   rithmic: ICommunicationConfig;
+  identity: IIdentityConfig;
 }

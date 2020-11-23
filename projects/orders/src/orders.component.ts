@@ -1,15 +1,13 @@
 import { Component, Injector } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { ItemsComponent } from 'base-components';
+import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
+import { CellClickDataGridHandler } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, LevelOneDataFeed, OrdersFeed, OrdersRepository, OrderStatus } from 'trading';
-import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
-import { OrderItem } from './models/OrderItem';
+import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
+import { OrdersToolbarComponent, OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
+import { OrderItem } from './models/order.item';
 
-@UntilDestroy()
 @Component({
   selector: 'orders-list',
   templateUrl: './orders.component.html',
@@ -17,7 +15,24 @@ import { OrderItem } from './models/OrderItem';
 })
 @LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
-  headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
+  headers = [
+    'averageFillPrice',
+    'description',
+    'duration',
+    'filledQuantity',
+    'quantity',
+    'side',
+    'status',
+    'type',
+    'exchange',
+    'symbol',
+    'fcmId',
+    'ibId',
+    'identifier',
+    'close',
+  ];
+
+  builder = new ViewItemsBuilder();
 
   private _accountId;
 
@@ -36,63 +51,61 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   private _toolbarComponent: OrdersToolbarComponent;
 
-  private _status: OrderStatus = OrderStatus.Pending;
+  // private _status: OrderStatus = OrderStatus.Pending;
 
-  get status() {
-    return this._status;
-  }
+  // get status() {
+  //   return this._status;
+  // }
 
-  set status(value: OrderStatus) {
-    if (value === this.status) {
-      return;
-    }
-    this._status = value;
-    this.refresh();
-  }
+  // set status(value: OrderStatus) {
+  //   if (value === this.status) {
+  //     return;
+  //   }
+  //   this._status = value;
+  //   this.refresh();
+  // }
 
   get params(): IOrderParams {
-    return { ...this._params, status: this.status };
+    return {
+      ...this._params,
+      // status: this.status
+    };
   }
+
+  handlers = [
+    new CellClickDataGridHandler<OrderItem>({
+      column: 'close',
+      handler: (item) => this.deleteItem(item.order),
+    }),
+  ];
 
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    private _levelOneDatafeedService: LevelOneDataFeed,
-    private _ordersFeed: OrdersFeed,
+    protected _datafeed: OrdersFeed,
     private _loadingService: LoadingService,
-    private _accountsManager: AccountsManager,
   ) {
     super();
-    // this.autoLoadData = { onInit: true };
-    this.autoLoadData = {};
+    this.autoLoadData = false;
 
     this.builder.setParams({
       order: 'desc',
-      filter: (order: IOrder) => order.status === this.status,
-      map: (item: IOrder) => new OrderItem(item),
+      wrap: (item: IOrder) => new OrderItem(item),
+      unwrap: (item: OrderItem) => item.order,
     });
-  }
-
-  ngOnInit() {
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-        this._repository = this._repository.forConnection(connection);
-      });
-
-    this._ordersFeed.on((order) => console.log('order', order));
-    super.ngOnInit();
   }
 
   async getToolbarComponent() {
 
+    const toolbarConfig: OrdersToolbarConfig = {
+      layout: this.layout,
+      accountHandler: this.handleAccountChange.bind(this)
+    };
+
     const { ref, domElement, destroy } = await this._loadingService
       .getDynamicComponent(OrdersToolbarComponent, [{
         provide: DynamicComponentConfig,
-        useValue: {
-          data: { layout: this.layout },
-        },
+        useValue: { data: toolbarConfig },
       }]);
 
     this._toolbarComponent = ref.instance;
@@ -112,7 +125,15 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     return domElement;
   }
 
-  handleAccountChange(accountId: Id): void {
+  private handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
+  }
+
+  protected _deleteItem(item: IOrder) {
+    return this.repository.deleteItem(item);
+  }
+
+  protected _handleDeleteItems(items) {
+    // handle by realtime
   }
 }

@@ -166,6 +166,12 @@
     },
     {
       "path": "./projects/account-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.spec.json"
     }
   ]
 }

@@ -4,12 +4,5 @@
   [columns]="headers"
   [class.loading-block]="isLoading"
 >
-  <!-- <search-select
-    [repository]="_instrumentsRepository"
-    (itemChange)="addNewInstrument($event)"
-    placeholder="symbol"
-  >
-  </search-select> -->
-  <instrument-select (instrumentChange)='addNewInstrument($event)'></instrument-select>
-
+  <instrument-select className="watchlist-instrument-select" (handleInstrumentChange)='addNewInstrument($event)'></instrument-select>
 </data-grid>

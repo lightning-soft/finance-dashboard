@@ -57,7 +57,7 @@ export abstract class RealDatafeedRepository {
             fn(quotes);
 
         for (const quote of quotes)
-            this._subscribers.get(quote.instrumentId).forEach(s => s.executable && s.execute(quote));
+            this._subscribers.get(quote.instrument?.id).forEach(s => s.executable && s.execute(quote));
     }
 
     protected abstract _subscribe(instruemntId: Id);

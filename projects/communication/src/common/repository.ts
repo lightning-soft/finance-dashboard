@@ -39,7 +39,7 @@ export abstract class Repository<T extends IBaseItem = any> {
     return throwError(`Implement patchItem for ${this.constructor.name}`);
   }
 
-  abstract deleteItem(id: number | string): Observable<boolean>;
+  abstract deleteItem(id: number | string | T): Observable<boolean>;
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 
@@ -54,6 +54,9 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   protected _bindEmit(action: RealtimeAction) {
     return (data) => {
+      if (data == null)
+        return;
+
       const items = Array.isArray(data) ? data : [data];
 
       this._subject.next({

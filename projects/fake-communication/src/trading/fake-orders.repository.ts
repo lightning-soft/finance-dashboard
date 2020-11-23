@@ -36,7 +36,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
     const order = {
       side: position.side === Side.Long ? OrderSide.Buy : OrderSide.Sell,
       quantity: position.size,
-      symbol: position.account,
+      symbol: position.accountId,
       duration: OrderDuration.GTD,
     } as IOrder;
 
@@ -66,16 +66,20 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
 
     return {
       id,
-      accountId: null,
+      account: {id: 'qwe'} as any,
       symbol: 'BTCUSD',
       exchange: null,
       side: (id % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
       quantity: 0.1,
-      limitPrice: randomFixedNumber(100),
-      stopPrice: randomFixedNumber(100),
+      averageFillPrice: randomFixedNumber(100),
+      filledQuantity: randomFixedNumber(100),
+      instrument: {id} as any,
+      // limitPrice: randomFixedNumber(100),
+      // stopPrice: randomFixedNumber(100),
       duration: OrderDuration.GTC,
       status: OrderStatus.Pending,
       type: OrderType.Market,
+      description: '',
     };
   }
 

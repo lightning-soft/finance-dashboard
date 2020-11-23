@@ -41,6 +41,14 @@
       }
     }
 
+    .table {
+      margin-left: 4px;
+
+      .header {
+        background-color: #1B1D22;
+      }
+    }
+
     .tab-content {
       padding: 0 16px;
       flex-grow: 1;

@@ -1,8 +1,6 @@
-import { ChangeDetectorRef, Component, Injector, Input } from '@angular/core';
+import { Component, Injector, Input } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { } from 'communication';
-import { NotifierService } from 'notifier';
 import { IInstrument, IPosition, IPositionParams, PositionsRepository, PositionStatus, Side } from 'trading';
 
 @UntilDestroy()
@@ -41,12 +39,12 @@ export class PositionsComponent extends ItemsComponent<IPosition, IPositionParam
 
   constructor(
     protected _repository: PositionsRepository,
-    protected _changeDetectorRef: ChangeDetectorRef,
     protected _injector: Injector,
-    public notifier: NotifierService,
   ) {
     super();
-    this.autoLoadData = false;
+    this.autoLoadData = {
+      onConnectionChange: true,
+    };
 
     this.builder.setParams({
       groupBy: ['side'],

@@ -3,6 +3,13 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { DynamicComponentConfig } from 'lazy-modules';
 
+export type CallbackFn = (event: any) => void;
+
+export type OrdersToolbarConfig = {
+  layout: LayoutComponent;
+  accountHandler: CallbackFn;
+};
+
 @UntilDestroy()
 @Component({
   selector: 'orders-toolbar',
@@ -13,8 +20,11 @@ export class OrdersToolbarComponent {
 
   private _layout: LayoutComponent;
 
-  constructor(@Inject(DynamicComponentConfig) private _config: DynamicComponentConfig) {
-    this._layout = _config.data.layout;
+  handleAccountChange: CallbackFn;
+
+  constructor(@Inject(DynamicComponentConfig) private _config: DynamicComponentConfig<OrdersToolbarConfig>) {
+    this._layout = this._config.data.layout;
+    this.handleAccountChange = this._config.data.accountHandler;
   }
 
   showOrdersForm(): void {

@@ -114,6 +114,9 @@
       ],
       "account-select": [
         "projects/account-select/index"
+      ],
+      "auth": [
+        "projects/auth/index"
       ]
     }
   }
