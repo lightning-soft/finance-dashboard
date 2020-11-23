@@ -88,19 +88,6 @@
     flex-grow: 1;
   }
 
-  .connection {
-    display: flex;
-    align-items: center;
-    margin: 0 18px;
-    cursor: pointer;
-
-    .title {
-      padding: 0 6px;
-      font-weight: 600;
-      color: $titleColor;
-    }
-  }
-
   .preferences {
     display: flex;
     flex-wrap: nowrap;

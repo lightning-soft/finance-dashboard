@@ -27,7 +27,10 @@
               (click)="selectItem(item)"
             >
               <div class="position-relative">
-                <span class="indicator text-success prefix" *ngIf="item.connected"></span>
+                <span class="indicator prefix" [ngClass]="{
+                  'text-success': item.connected,
+                  'text-danger': item.error
+                }" *ngIf="item.connected || item.error"></span>
                 {{ item.name }}
               </div>
               <div>

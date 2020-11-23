@@ -5,6 +5,7 @@ export interface IConnection extends IBaseItem {
   broker: Broker;
   name: string;
   username: string;
+  password?: string;
   connectionPointId: string;
   aggregatedQuotes: boolean;
   gateway: string;

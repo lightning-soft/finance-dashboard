@@ -7,8 +7,8 @@
   <div class="create-frame">
     <app-drag-drawer *ngIf="layout" [layout]="layout"></app-drag-drawer>
   </div>
-  <div class="frames-manager">
-    <!-- <div class="frame">
+  <!-- <div class="frames-manager">
+    <div class="frame">
       <i class="icon-widget-dom"></i>
     </div>
     <div class="frame">
@@ -31,16 +31,8 @@
   <!-- <div class="search">
     <button class="icon-search"></button>
   </div> -->
-  <div class="spacer"></div>
-    </div>
 
-  <div class="connection">
-    <div *ngIf="connection" class="indicator" [ngClass]="{
-      'text-success': connection && connection.connected,
-      'text-danger': connection && !connection.connected
-    }"></div>
-    <div class="title" (click)="openAccounts()">{{ connection ? connection.name : 'Connect' }}</div>
-  </div>
+  <app-connections></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
     <button (click)="openSettings()" class="icon-setting-gear"></button>

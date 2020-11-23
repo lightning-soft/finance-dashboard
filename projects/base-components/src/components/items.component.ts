@@ -22,6 +22,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
 
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
+  protected _clearOnDisconnect = true;
+
   protected _accountsManager: AccountsManager;
   protected _datafeed: any;
 
@@ -33,7 +35,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   // protected queryParams: P = {} as P;
-  protected _params: P;
+  protected _params: P = {} as P;
 
   get params(): P {
     return this._params;
@@ -49,7 +51,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   set skip(value: number) {
-    (this._params || {} as P).skip = value;
+    this._params = { ...this._params, skip: value };
   }
 
   private _total: number;
@@ -115,7 +117,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
           if ((this.config.autoLoadData || {}).onConnectionChange) {
             this.refresh();
           }
-        } else {
+        } else if (this._clearOnDisconnect) {
           this.builder.replaceItems([]);
         }
 
@@ -146,19 +148,19 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   loadData(params?: P) {
-    this._params = params || this.params;
+    this._params = params || this._params;
 
     const hide = this.showLoading(true);
 
     this._dataSubscription?.unsubscribe();
 
-    this._dataSubscription = this._getItems(this._params)
+    this._dataSubscription = this._getItems(this.params)
       .pipe(
         first(),
         finalize(() => hide())
       )
       .subscribe(
-        (response) => this._handleResponse(response, this._params),
+        (response) => this._handleResponse(response, this.params),
         (error) => this._handleLoadingError(error),
       );
   }
