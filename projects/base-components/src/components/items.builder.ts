@@ -3,7 +3,7 @@ import { IBaseItem } from 'communication';
 export interface IItemsBuilder<Item, ViewItem = Item> {
   items: ViewItem[];
 
-  setParams(params: any);
+  setParams(params: IItemsBuilderParams<Item, ViewItem>);
   replaceItems(items: Item[]);
   addItems(items: Item[]);
   wrap(data: Item | Item[]);
@@ -40,9 +40,7 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
   }
 
   addItems(items: T[]) {
-    const parts = this._order([this._items, this._handle(items)]);
-
-    this._items = [...parts[0], ...parts[1]];
+    this._items = this._order([this._items, this._handle(items)]);
   }
 
   wrap(data: T | T[]): any {
@@ -72,18 +70,25 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
   }
 
   protected _order(items: any[]): any[] {
-    switch (this._params.order) {
-      case 'asc':
-        return items;
-      case 'desc':
-        return items.reverse();
-    }
+    const _items = (() => {
+      switch (this._params.order) {
+        case 'asc':
+          return items;
+        case 'desc':
+          return items.reverse();
+      }
+    })();
+
+    return _items.reduce((accum, item) => accum.concat(item), []);
   }
 
-  protected _handle(items: T[]): any[] {
+  protected _handle(items: T[], skipFilter = false): any[] {
     let _items = items;
 
-    _items = this._filter(_items);
+    if (!skipFilter) {
+      _items = this._filter(_items);
+    }
+
     _items = this.wrap(_items);
     _items = this._order(_items);
 
@@ -100,17 +105,30 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
 
   handleUpdateItems(items: T[]) {
     this._handleItems(items, () => {
-      const _items = this._handle(items);
+      const { filter } = this._params;
+
+      const _items = this._handle(items, true);
 
       for (const item of _items) {
+        const isValidItem = !filter || filter(item);
         const index = this._items.findIndex(t => t.id === item.id);
 
         if (index !== -1) {
-          const newValue = { ...this._items[index], ...item };
-          this._items.splice(index, 1, newValue);
+          if (isValidItem) {
+            this.updateItem(item, index);
+          } else {
+            this._items.splice(index, 1);
+          }
+        } else if (isValidItem) {
+          this._items = this._order([this._items, item]);
         }
       }
     });
+  }
+
+  updateItem(item: VM, index: number) {
+    const newValue = { ...this._items[index], ...item };
+    this._items.splice(index, 1, newValue);
   }
 
   handleCreateItems(items: T[]) {

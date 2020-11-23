@@ -4,6 +4,7 @@ export * from './navbar/clock/clock.component';
 export * from './navbar/navbar-controller/navbar-controller.component';
 export * from './navbar/notification-list/notification-list.component';
 export * from './navbar/trade-lock/trade-lock.component';
+export * from './navbar/connections/connections.component';
 export * from './dashboard/dashboard.component';
 export * from './app-component/app.component';
 export * from './dashboard/drag-drawer/drag-drawer.component';

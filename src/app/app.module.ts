@@ -1,3 +1,4 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -25,6 +26,7 @@ import { AppConfig } from './app.config';
 import {
   AccountComponent,
   AppComponent, ClockComponent,
+  ConnectionsComponent,
   DashboardComponent,
   DragDrawerComponent,
   NavbarComponent,
@@ -63,7 +65,7 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   return authService.initialize(code);
 }
 
-export function initApp(config: AppConfig,manager: AccountsManager, authService: AuthService) {
+export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
   return  async () => {
     await config.getConfig().pipe(first()).toPromise();
     await initIdentityAccount(authService, config);
@@ -82,6 +84,7 @@ export function initApp(config: AppConfig,manager: AccountsManager, authService:
     NavbarControllerComponent,
     ClockComponent,
     NotificationListComponent,
+    ConnectionsComponent,
   ],
   imports: [
     NzSelectModule,
@@ -89,6 +92,8 @@ export function initApp(config: AppConfig,manager: AccountsManager, authService:
     CommunicationModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     NzModalModule,
+    NzDropDownModule,
+    ScrollingModule,
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,

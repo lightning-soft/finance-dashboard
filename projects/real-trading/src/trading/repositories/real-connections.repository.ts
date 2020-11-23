@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { catchError, delay, map, tap } from 'rxjs/operators';
 import { Broker, IConnection } from 'trading';
 
 @Injectable()
@@ -53,10 +53,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     return this._http.post(this._getUrl(item.broker), item).pipe(
       map((res: any) => ({
         ...item,
-        password: null,
         connected: true,
+        error: false,
         connectionData: res.result,
       })),
+      catchError(() => of({ ...item, error: true })),
     );
   }
 
@@ -98,7 +99,9 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   protected _updateItem(item: IConnection) {
     const items = this._getItems().map(i => {
       if (i.id === item.id) {
-        return { ...i, ...item };
+        const password = item.autoSavePassword ? item.password : null;
+
+        return { ...i, ...item, password };
       }
 
       if (item.connected) {

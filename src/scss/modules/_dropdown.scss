@@ -1,0 +1,26 @@
+.dropdown {
+  width: 216px;
+  height: 320px;
+  padding: 4px;
+  border: 1px solid $lighter;
+  background: $light;
+  border-radius: 2px;
+
+  .cdk-virtual-scroll-viewport {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ant-dropdown-menu {
+    padding: 0;
+    background: none;
+  }
+
+  .ant-dropdown-menu-item {
+    border-radius: 2px;
+
+    &:hover {
+      background: $secondary;
+    }
+  }
+}

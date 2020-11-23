@@ -2,6 +2,7 @@ import { IBaseItem } from 'communication';
 import { ItemsBuilder, IItemsBuilder, IItemsBuilderParams } from './items.builder';
 
 export interface IGroupItemsBuilder<Item, ViewItem> extends IItemsBuilder<Item, ViewItem> {
+  setParams(params: IGroupItemsBuilderParams<Item, ViewItem>);
   getItems(groupKey?: string, groupValue?: string): ViewItem[];
   groupItems(groupBy: string, groupItemMap: (item: string) => any);
   ungroupItems();
@@ -62,11 +63,10 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
     }
 
     Object.entries(group).forEach(([item, items]) => {
-      const _items = [groupItemMap(item), ...items];
-
-      const parts = this._order([this._groupedItems, _items]);
-
-      this._groupedItems = [...parts[0], ...parts[1]];
+      this._groupedItems = this._order([
+        this._groupedItems,
+        [groupItemMap(item), ...items],
+      ]);
     });
   }
 
