@@ -1,7 +1,7 @@
 {
-  "name": "angular-starter",
+  "name": "deltaview",
   "version": "10.0.5",
-  "description": "TradingChart",
+  "description": "DeltaView by AMS",
   "author": {
     "email": "tech@avidi.tech",
     "name": "tech"
@@ -15,7 +15,7 @@
     "build:prod": "ng build --prod",
     "pack": "electron-builder --dir",
     "electron": "electron .",
-    "dist:win": "electron-builder --win --x64",
+    "dist:win": "rm -rf ./dest && rm -rf ./dist && npm run electron:win && electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
     "dist:mac": "electron-builder --platform mac",
     "postinstall": "electron-builder install-app-deps",
@@ -43,7 +43,34 @@
     "electron:build": "npm run build:prod && electron-builder build"
   },
   "build": {
-    "appId": "com.angular-starter.app",
+    "appId": "com.deltaview.app",
+    "productName": "DeltaView",
+	"copyright": "Copyright © 2020 AMS",
+	"files": [
+		"dist/browser/**/*",
+		"package.json",
+		"main.js"
+	],
+	"linux": {
+		"target": [
+		  "AppImage",
+		  "deb"
+		]
+	},
+	"dmg": {
+		"contents": [
+		  {
+			"x": 110,
+			"y": 150
+		  },
+		  {
+			"x": 240,
+			"y": 150,
+			"type": "link",
+			"path": "/Applications"
+		  }
+		]
+	},
     "win": {
       "target": [
         "NSIS"
@@ -53,14 +80,11 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+	  "allowToChangeInstallationDirectory": true,
+	  "runAfterFinish": true
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ganatan/angular-example-ssr.git"
-  },
-  "private": true,
+  "private": false,
   "dependencies": {
     "@angular/animations": "10.0.8",
     "@angular/cdk": "10.1.2",
