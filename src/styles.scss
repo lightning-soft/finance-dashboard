@@ -44,31 +44,15 @@ html {
   box-sizing: border-box;
 }
 
-// .ant-modal-content {
-//   background: none;
-// }
-
 .ant-input {
   border-radius: 0;
 }
-
-// .ant-modal-body {
-//   background: none;
-//   box-shadow: none;
-//   padding: 0 !important;
-// }
 
 button {
   outline: none;
   box-shadow: none;
   border: none;
 }
-
-// .ant-modal {
-//   width: auto !important;
-//   display: flex;
-//   justify-content: center;
-// }
 
 .ant-modal-content {
   box-shadow: none !important;
@@ -80,5 +64,54 @@ button {
     margin: 0;
     margin-left: 5%;
     width: 90%;
+  }
+}
+
+.modal-data-grid {
+  text-align: center;
+
+  .ant-modal {
+    width: auto!important;
+    display: inline-block;
+    text-align: left;
+  }
+
+  .ant-modal-header,
+  .ant-modal-content  {
+    background-color: #24262C;
+  }
+
+  .ant-modal-content {
+
+    .ant-modal-body {
+      text-align: center;
+  
+      .ng-star-inserted {
+        text-align: left;
+      }
+    }
+  }
+
+  .ant-transfer-list-content {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #51535A;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #737377;
+    }
+  }
+
+  .ant-transfer-list,
+  .ant-transfer-list-header {    
+    background-color: #1B1D22;
   }
 }

@@ -113,6 +113,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     const modal = this.modalService.create({
       nzTitle: 'Columns',
       nzContent: ModalComponent,
+      nzWrapClassName: 'modal-data-grid',
       nzViewContainerRef: this.viewContainerRef,
       nzComponentParams: {
         columns: [...this.columns],
