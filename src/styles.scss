@@ -92,6 +92,13 @@ button {
     }
   }
 
+  .ant-empty {
+    &-image,
+    &-description {
+      text-align: center!important;
+    }
+  }
+
   .ant-transfer-list-content {
     &::-webkit-scrollbar {
       width: 2px;
