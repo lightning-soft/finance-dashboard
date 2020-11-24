@@ -23,9 +23,11 @@ const headers = [
   'symbol',
   'close',
 ];
+
 export interface IWatchlistState {
   componentName: string;
   items?: string[];
+  columns: Column[];
 }
 
 export type SubscribtionHandler = (data?: any) => void;
@@ -158,18 +160,24 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   }
 
   saveState() {
-    return { items: [...this.items.map(item => item.id)] };
-  }
-
-  _handleConnection(connection: IConnection) {
-    this.instrumentRepository = this.instrumentRepository.forConnection(connection);
+    return {
+      items: [...this.items.map(item => item.id)],
+      columns: this.columns
+    };
   }
 
   loadState(state?: IWatchlistState): void {
     this._subscribeToConnections();
-    if (state && state.items) {
+
+    if (state && state.items)
       this.loadInstruments(state.items);
-    }
+
+    if (state && state.columns)
+      this.columns = state.columns;
+  }
+
+  _handleConnection(connection: IConnection) {
+    this.instrumentRepository = this.instrumentRepository.forConnection(connection);
   }
 
   loadInstruments(params) {

@@ -159,4 +159,15 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
+
+  saveState() {
+    return { columns: this._columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this._columns = state.columns;
+  }
 }

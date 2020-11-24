@@ -152,4 +152,15 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   protected _handleDeleteItems(items) {
     // handle by realtime
   }
+
+  saveState() {
+    return { columns: this.columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this.columns = state.columns;
+  }
 }
