@@ -13,11 +13,11 @@ import {
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
-import { Column } from 'watchlist';
 import { ICell } from '../../models';
 import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
 import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
 import { ModalComponent } from '../modal/modal.component';
+import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 
 import {
@@ -120,9 +120,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     });
 
     modal.afterClose.subscribe(result => {
-      this.columns = [...result];
-      this.activeColumns = this.columns.filter((column: Column) => column.visible);
-      console.log(this.activeColumns);
+      if (result) {
+        this.columns = [...result];
+        this.activeColumns = this.columns.filter((column: Column) => column.visible);
+      }
     });
   }
 
