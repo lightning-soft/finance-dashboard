@@ -4,7 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
-import { CellClickDataGridHandler, DataGrid } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
@@ -27,11 +27,6 @@ export interface IWatchlistState {
   componentName: string;
   items?: string[];
 }
-
-export type Column = {
-  name: string,
-  visible: boolean
-};
 
 export type SubscribtionHandler = (data?: any) => void;
 

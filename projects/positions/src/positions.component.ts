@@ -1,10 +1,33 @@
 import { Component, Injector } from '@angular/core';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
-import { CellClickDataGridHandler, DataCell } from 'data-grid';
+
+import {
+  CellClickDataGridHandler,
+  Column,
+  DataCell
+} from 'data-grid';
+
 import { LayoutNode } from 'layout';
-import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
+
+import {
+  IPosition,
+  IPositionParams,
+  PositionsRepository,
+  PositionStatus,
+} from 'trading';
+
 import { PositionItem } from './models/position.item';
+
+
+const headers = [
+  'account',
+  'price',
+  'size',
+  'realized',
+  'unrealized',
+  'total',
+];
 
 @Component({
   selector: 'position-list',
@@ -15,10 +38,15 @@ import { PositionItem } from './models/position.item';
 export class PositionsComponent extends ItemsComponent<IPosition> {
   builder = new GroupItemsBuilder();
 
-  private _headers = ['account', 'price', 'size', 'realized', 'unrealized', 'total'];
+  private _columns: Column[] = [];
 
-  get headers() {
-    return this.status === PositionStatus.Open ? this._headers.concat('close') : this._headers;
+  get columns() {
+    const closeColumn: Column = {
+      name: 'Close',
+      visible: true,
+    };
+
+    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
 
   private _isList = true;
@@ -55,7 +83,6 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     return { ...this._params, status: this.status };
   }
 
-  // accounts: IAccount[] = [];
   private _accountId;
 
   set accountId(accountId) {
@@ -87,6 +114,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
       filter: (item: IPosition) => item.status === this.status,
       map: (item: IPosition) => new PositionItem(item),
     });
+
+    this._columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   groupItems() {
@@ -96,7 +125,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
       groupedItem.account = new DataCell();
       groupedItem.account.updateValue(account);
       groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.headers.length - 1;
+      groupedItem.account.colSpan = this.columns.length - 1;
 
       return groupedItem;
     });
