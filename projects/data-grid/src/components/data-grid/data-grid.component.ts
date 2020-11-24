@@ -1,9 +1,15 @@
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import {
   AfterViewInit,
-  Component, ElementRef,
-  Input, OnDestroy, OnInit, ViewChild, ViewContainerRef
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
+
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
@@ -13,7 +19,12 @@ import { IconComponent, iconComponentSelector } from '../../models/cells/compone
 import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
 import { ModalComponent } from '../modal/modal.component';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
+
+import {
+  DataGridHandler,
+  Events,
+  IHandler
+} from './data-grid.handler';
 
 export interface DataGridItem {
   [key: string]: ICell;
