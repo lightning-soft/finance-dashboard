@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
-import { Column } from 'watchlist';
+import { Column } from 'data-grid';
 
 @Component({
   selector: 'modal-component',
