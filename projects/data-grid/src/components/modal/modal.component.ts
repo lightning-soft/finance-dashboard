@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
+import { Column } from 'watchlist';
 
 @Component({
   selector: 'modal-component',
@@ -9,25 +10,39 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 })
 export class ModalComponent implements OnInit {
   @Input() title?: string;
-  columns;
-  list: TransferItem[] = [];
+
+  public columns: Column[];
+
+  public list: TransferItem[] = [];
+
   constructor(private modal: NzModalRef) {
     this.columns = modal.getConfig().nzComponentParams.columns;
   }
+
   ngOnInit() {
-    for (const i of this.columns) {
+    for (const column of this.columns) {
       this.list.push({
-        title: `${i}`,
+        title: column.name,
+        direction: column.visible ? 'right' : 'left',
       });
     }
   }
-  change(ret: any): void {
-    console.log('ret', ret);
-    if (ret.to === 'right') {
-      this.columns = ret.list.map(item => item.title);
-    }
-  }
-  handleSubmit(ret: {}) {
+
+  public handleCancel(): void {
     this.modal.close(this.columns);
+  }
+
+  public handleOk(): void {
+    this.confirmChanges();
+    this.modal.close(this.columns);
+  }
+
+  private confirmChanges() {
+    this.columns.map((column: Column) => {
+      const atList = this.list.find(i => i.title === column.name);
+
+      column.visible = atList.direction === 'left' ? false : true;
+      return column;
+    });
   }
 }

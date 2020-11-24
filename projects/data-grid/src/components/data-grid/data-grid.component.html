@@ -1,31 +1,50 @@
 <cdk-virtual-scroll-viewport [itemSize]="20">
   <table #tableContainer>
     <thead>
-    <!--        <div style="flex: 1 1 auto;" [style.top]="inverseTranslation" appResizeble>index</div>-->
     <tr>
-      <th resizable [style.top]="inverseTranslation" *ngFor="let column of columns; let ind = index" class="head cell data"
-          [title]="column">{{column}}
+      <th 
+        resizable 
+        [style.top]="inverseTranslation" 
+        *ngFor="let column of activeColumns; let ind = index" 
+        class="head cell data"
+        [title]="column">{{column.name}}
       </th>
       <th [style.top]="inverseTranslation" class="head cell">
-        <button nz-button [nzType]="'primary'" (click)="createComponentModal()"><i class="icon-settings"></i></button>
+        <button 
+          nz-button 
+          [nzType]="'primary'" 
+          (click)="createComponentModal()"
+        >
+          <i class="icon-settings"></i>
+        </button>
       </th>
     </tr>
     </thead>
 
     <tbody>
-    <tr [attr.data-row]="i"
-        *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" [className]="item.class">
-      <!--        <div style="flex: 1 1 auto;">{{item.id}}</div>-->
+    <tr 
+      [attr.data-row]="i"    
+      *cdkVirtualFor="let item of items; let i = index; trackBy: trackByFn" 
+      [className]="item.class"
+    >
       <ng-container *ngFor="let column of columns; let j = index">
         <td
           [attr.data-column]="column"
           [attr.colspan]="item[column].colSpan"
-          *ngIf="item[column]" class="column cell" [ngClass]="column">
-            <span *itemViewBuilder="item && item[column]" [ngClass]="item[column].class" class="data">
-              {{item[column].value}}
-            </span>
+          *ngIf="item[column]" 
+          class="column cell" 
+          [ngClass]="column"
+        >
+          <span 
+            *itemViewBuilder="item && item[column]" 
+            [ngClass]="item[column].class"
+            class="data"
+          >
+            {{item[column.name].value}}
+          </span>
         </td>
       </ng-container>
+      
       <td style="width: 100%"></td>
     </tr>
     </tbody>

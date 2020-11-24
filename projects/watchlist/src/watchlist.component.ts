@@ -3,8 +3,8 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
-import { ContextMenuService, IContextMenuInfo } from 'context-menu';
-import { CellClickDataGridHandler, ContextMenuDataGridHandler, DataGrid, Events, IContextMenuData } from 'data-grid';
+import { ContextMenuService } from 'context-menu';
+import { CellClickDataGridHandler, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
@@ -12,10 +12,26 @@ import { finalize, first } from 'rxjs/operators';
 import { IConnection, IInstrument, InstrumentsRepository, IQuote, LevelOneDataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
+const headers = [
+  'name',
+  'price',
+  'timestamp',
+  'ask',
+  'bid',
+  'volume',
+  'exchange',
+  'symbol',
+  'close',
+];
 export interface IWatchlistState {
   componentName: string;
   items?: string[];
 }
+
+export type Column = {
+  name: string,
+  visible: boolean
+};
 
 export type SubscribtionHandler = (data?: any) => void;
 
@@ -27,17 +43,7 @@ export type SubscribtionHandler = (data?: any) => void;
 })
 @LayoutNode()
 export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements ILayoutNode, OnInit, OnDestroy {
-  headers = [
-    'name',
-    'price',
-    'timestamp',
-    'ask',
-    'bid',
-    'volume',
-    'exchange',
-    'symbol',
-    'close',
-  ];
+  columns: Column[];
 
   isLoading = false;
 
@@ -69,6 +75,8 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   ) {
     super();
     this.autoLoadData = false;
+
+    this.columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   handlers = [

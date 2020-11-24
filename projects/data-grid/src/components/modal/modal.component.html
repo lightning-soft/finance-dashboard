@@ -1,8 +1,10 @@
 <nz-transfer
   [nzDataSource]="list"
-  [nzTitles]="['Source', 'Target']"
-  [nzSelectedKeys]="['0', '2']"
-  (nzChange)="change($event)"
+  [nzTitles]="['All', 'Selected']"
 >
 </nz-transfer>
-<button nz-button (click)="handleSubmit($event)">Submit</button>
+
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+  <button nz-button nzType="primary" (click)="handleOk()" [nzLoading]="isConfirmLoading">OK</button>
+</div>
