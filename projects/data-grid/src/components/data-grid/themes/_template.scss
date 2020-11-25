@@ -1,9 +1,9 @@
 body.#{$themeName} :host {
-  th {
+   th {
     color: $textColorSecondary;
     // background: $tabBackground;
   }
-  td{
+   td {
     color: $textColor;
   }
 }

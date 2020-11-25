@@ -2,47 +2,29 @@ $odd-background: #272b37;
 $even-background: #303644;
 $height: 36px;
 $grips-z-index: 20;
-
 cdk-virtual-scroll-viewport {
   height: 100%;
 }
 
 @import "themes/index";
-
 :host {
   display: block;
   height: 100%;
   width: 100%;
-  background: #17181f;
+  background: #1B1D22;
+
+  .head.cell .data {
+    font-weight: 700;
+  }
 
   .grid {
     height: 100%;
     width: 100%;
-    //padding-right: 18px; //scroll
   }
 
   .table-container {
-    // overflow-x: auto;
-    // overflow-y: auto;
     height: 100%;
   }
-
-  // .scroll {
-  //   z-index: $grips-z-index;
-  //   position: absolute;
-  //   right: 0;
-  //   top: 0;
-  //   bottom: 0;
-  //   overflow-x: hidden;
-  //   overflow-y: scroll;
-
-  //   .fake-container {
-  //     display: block;
-  //     background: transparent;
-  //     width: 1px;
-  //     height: 100%;
-  //   }
-  // }
 
   &.phone {
     .scroll {
@@ -51,13 +33,14 @@ cdk-virtual-scroll-viewport {
   }
 
   .data {
+    text-align: left !important;
     white-space: nowrap;
     overflow: hidden;
     text-transform: capitalize;
     text-overflow: ellipsis;
   }
 
-  th {
+  .th {
     position: sticky;
     top: 0;
     border-top: 0px !important;
@@ -69,7 +52,6 @@ cdk-virtual-scroll-viewport {
       width: 1px;
       z-index: $grips-z-index;
       height: 37px;
-      //background: grey;
 
       &:before {
         content: "";
@@ -86,15 +68,6 @@ cdk-virtual-scroll-viewport {
         height: 100%;
       }
     }
-
-    //&:nth-last-child(2) {
-    //  .grips {
-    //    &:before {
-    //      width: 10px;
-    //      left: -10px;
-    //    }
-    //  }
-    //}
   }
 
   table {
@@ -103,10 +76,9 @@ cdk-virtual-scroll-viewport {
     font-family: arial, sans-serif;
     border-collapse: collapse;
     height: 100%;
-    // position: relative;
 
-    td,
-    th {
+    th,
+    td {
       text-align: left;
       padding: 8px;
       font-size: 16px;
@@ -122,24 +94,18 @@ cdk-virtual-scroll-viewport {
       button {
         width: 100%;
       }
-      
-      .instrument-search-container {
-        width: 100%;
-      }
     }
 
     tr {
       width: 100%;
-      //margin: 1px;
-
       &:hover {
         cursor: pointer;
       }
 
       &.selected {
         cursor: pointer;
-        //outline: 1px solid rebeccapurple;
       }
     }
+
   }
 }

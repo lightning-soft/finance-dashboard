@@ -1,20 +1,22 @@
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
 import { CommunicationConfig, CommunicationModule } from 'communication';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzDropDownModule } from 'ng-zorro-antd';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotifierModule } from 'notifier';
 import { RealTradingModule } from 'real-trading';
-import { AccountsManagerModule, AccountsManager } from 'accounts-manager';
+import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { AppConfig } from './app.config';
@@ -28,13 +30,11 @@ import {
   NotificationListComponent, TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
-import { APP_INITIALIZER } from '@angular/core';
-import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
-import { SettingsModule } from 'settings';
 
 export function initAccounts(manager: AccountsManager): () => Promise<any> {
   return () => manager.init();
 }
+
 
 @NgModule({
   declarations: [
@@ -131,4 +131,9 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private i18n: NzI18nService) {
+  }
+  switchLanguage(){
+    this.i18n.setLocale(en_US);
+  }
 }

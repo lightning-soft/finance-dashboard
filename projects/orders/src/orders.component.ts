@@ -1,12 +1,29 @@
 import { Component, Injector, OnInit } from '@angular/core';
 import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
-import { CellClickDataGridHandler } from 'data-grid';
+import { CellClickDataGridHandler, Column } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent, OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
+
+const headers = [
+  'averageFillPrice',
+  'description',
+  'duration',
+  'filledQuantity',
+  'quantity',
+  'side',
+  'status',
+  'type',
+  'exchange',
+  'symbol',
+  'fcmId',
+  'ibId',
+  'identifier',
+  'close',
+];
 
 @Component({
   selector: 'orders-list',
@@ -15,22 +32,8 @@ import { OrderItem } from './models/order.item';
 })
 @LayoutNode()
 export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
-  headers = [
-    'averageFillPrice',
-    'description',
-    'duration',
-    'filledQuantity',
-    'quantity',
-    'side',
-    'status',
-    'type',
-    'exchange',
-    'symbol',
-    'fcmId',
-    'ibId',
-    'identifier',
-    'close',
-  ];
+
+  columns: Column[];
 
   builder = new ViewItemsBuilder();
 
@@ -93,6 +96,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
       // filter: (order: IOrder) => order.status === this.status,
       map: (item: IOrder) => new OrderItem(item),
     });
+
+    this.columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   ngOnInit() {
@@ -146,5 +151,16 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
   protected _handleDeleteItems(items) {
     // handle by realtime
+  }
+
+  saveState() {
+    return { columns: this.columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this.columns = state.columns;
   }
 }
