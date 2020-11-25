@@ -4,6 +4,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
 import { Id } from 'communication';
+import { LayoutNode } from 'layout';
 import {
   IInstrument, IOrder,
   ITrade, LevelOneDataFeed,
@@ -16,6 +17,7 @@ import {
   styleUrls: ['./order-form.component.scss']
 })
 @UntilDestroy()
+@LayoutNode()
 export class OrderFormComponent extends FormComponent<IOrder> implements OnInit {
   OrderDurations = Object.values(OrderDuration);
   OrderTypes = Object.values(OrderType);
