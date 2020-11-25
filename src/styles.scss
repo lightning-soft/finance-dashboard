@@ -59,6 +59,10 @@ button {
   box-shadow: none !important;
 }
 
+.wm-draggable {
+  cursor: move;
+}
+
 .toolbar-dropdown {
   .ant-dropdown-menu-item-divider,
   .ant-dropdown-menu-submenu-title-divider {
