@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       const addEventListener = window.addEventListener;
-      window.addEventListener = function (...args) {
+      window.addEventListener = function(...args) {
         const _this = this;
         return zone.runOutsideAngular(() => {
           return addEventListener.apply(_this, args);
