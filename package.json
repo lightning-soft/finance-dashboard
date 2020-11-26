@@ -45,7 +45,9 @@
   "build": {
     "appId": "com.angular-starter.app",
     "win": {
-      "target": ["NSIS"],
+      "target": [
+        "NSIS"
+      ],
       "asar": true,
       "requestedExecutionLevel": "requireAdministrator"
     },
@@ -83,7 +85,7 @@
     "ngx-monaco-editor": "9.0.0",
     "popper.js": "^1.16.1",
     "rxjs": "6.6.2",
-    "simple-window-manager": "git+https://gitlab.aviditech:BP53_Z2DxNHjB46tyqDd@git.avidi.tech/Taras/simple-window-manager.git",
+    "simple-window-manager": "https://git.avidi.tech/Taras/simple-window-manager/-/archive/fix-resize/simple-window-manager-fix-resize.tar.gz",
     "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
     "underscore": "1.10.2",

@@ -166,6 +166,12 @@
     },
     {
       "path": "./projects/account-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.spec.json"
     }
   ]
 }

@@ -19,6 +19,7 @@ import { RealTradingModule } from 'real-trading';
 import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
+import { WindowManagerModule } from 'window-manager';
 import { AppConfig } from './app.config';
 import {
   AccountComponent,
@@ -72,6 +73,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     FakeCommunicationModule.forRoot(),
     RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
+    WindowManagerModule.forRoot(),
     LoadingModule.forRoot([
       {
         path: Modules.Accounts,

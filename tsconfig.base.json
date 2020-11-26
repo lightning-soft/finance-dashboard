@@ -114,6 +114,9 @@
       ],
       "account-select": [
         "projects/account-select/index"
+      ],
+      "window-manager": [
+        "projects/window-manager/index"
       ]
     }
   }
