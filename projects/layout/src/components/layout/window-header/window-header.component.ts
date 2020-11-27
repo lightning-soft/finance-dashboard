@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DynamicComponentConfig } from 'lazy-modules';
-import { IContainer } from '../../layout.node';
+import { IWindow } from 'window-manager';
 
 @Component({
   selector: 'window-header',
@@ -10,7 +10,7 @@ import { IContainer } from '../../layout.node';
 export class WindowHeaderComponent implements OnInit {
 
   layoutNode: any;
-  window: IContainer;
+  window: IWindow;
   title: string;
 
   @ViewChild('toolbar') toolbar: ElementRef;

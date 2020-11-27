@@ -20,11 +20,12 @@ export type ComponentOptions = {
 export abstract class Layout implements IDropable {
   canDragAndDrop = false;
 
-  constructor(protected _factoryResolver: ComponentFactoryResolver,
+  constructor(
+    protected _factoryResolver: ComponentFactoryResolver,
     protected _creationsService: LoadingService,
     protected viewContainer: ViewContainerRef,
-    protected container: ElementRef) {
-  }
+    protected container: ElementRef
+  ) { }
 
   abstract addComponent(componentOptions: ComponentOptions);
 

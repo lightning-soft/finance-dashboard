@@ -4,8 +4,11 @@ import { LayoutNodeEvent } from './layout-node.event';
 
 declare const $: any;
 
+// To remove
 export interface IContainer {
   setTitle(title: string);
+  minimize();
+  maximize();
   close();
 }
 

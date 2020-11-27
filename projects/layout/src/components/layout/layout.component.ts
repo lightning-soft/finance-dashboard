@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
@@ -9,15 +10,16 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { GlobalHandlerService } from 'global-handler';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
+import { WindowManagerService } from 'window-manager';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
+import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 import { IDropable } from './layouts/dropable';
 import { ComponentOptions, Layout } from './layouts/layout';
-import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -26,7 +28,7 @@ export type ComponentInitCallback = (container: GoldenLayout.Container, componen
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit, IDropable {
+export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
   @ViewChild('container')
   container: ElementRef;
 
@@ -47,12 +49,17 @@ export class LayoutComponent implements OnInit, IDropable {
     private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _globalHandler: GlobalHandlerService
+    private _globalHandler: GlobalHandlerService,
+    private _windowManagerService: WindowManagerService,
   ) {
     (window as any).LayoutComponent = this;
   }
 
   ngOnInit() { }
+
+  ngAfterViewInit() {
+    this._windowManagerService.createWindowManager(this.container);
+  }
 
   addComponent(options: ComponentOptions) {
     if (this.layout)
@@ -85,8 +92,17 @@ export class LayoutComponent implements OnInit, IDropable {
       // else
       // this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
       //   this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
-      this.layout = new DockDesktopLayout(this._factoryResolver, this._creationsService,
-        this.viewContainer, this.container, this._loadingService, this._lazyLoadingService, this.ngZone);
+
+      this.layout = new DockDesktopLayout(
+        this._factoryResolver,
+        this._creationsService,
+        this.viewContainer,
+        this.container,
+        this._loadingService,
+        this._lazyLoadingService,
+        this.ngZone,
+        this._windowManagerService
+      );
     });
   }
 

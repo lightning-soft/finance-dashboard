@@ -50,8 +50,6 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
   _isList = false;
 
-  layout: LayoutComponent;
-
   private _toolbarComponent: OrdersToolbarComponent;
 
   // private _status: OrderStatus = OrderStatus.Pending;
@@ -109,36 +107,6 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
         this.builder.handleCreateItems([order]);
     });
     super.ngOnInit();
-  }
-
-  async getToolbarComponent() {
-
-    const toolbarConfig: OrdersToolbarConfig = {
-      layout: this.layout,
-      accountHandler: this.handleAccountChange.bind(this)
-    };
-
-    const { ref, domElement, destroy } = await this._loadingService
-      .getDynamicComponent(OrdersToolbarComponent, [{
-        provide: DynamicComponentConfig,
-        useValue: { data: toolbarConfig },
-      }]);
-
-    this._toolbarComponent = ref.instance;
-
-    // const subscription = ref.instance.handleChange.subscribe((link: number) => {
-    //   instance.link = link;
-    // });
-
-    // container.on('destroy', () => {
-    //   this._linkSelectMap.delete(container);
-
-    //   subscription.unsubscribe();
-
-    //   destroy();
-    // });
-
-    return domElement;
   }
 
   private handleAccountChange(accountId: Id): void {

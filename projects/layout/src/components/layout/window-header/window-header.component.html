@@ -2,6 +2,12 @@
   <div class="mr-3">{{ title }}</div>
   <div #toolbar class="mr-3"></div>
   <div class="ml-auto">
+    <span class="link" (click)="window.minimize()">
+      <i class="icon-minimize-window"></i>
+    </span>
+    <span class="link" (click)="window.maximize()">
+      <i [class]="window.maximized ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
+    </span>
     <span class="link" (click)="window.close()">
       <i class="icon-close-window"></i>
     </span>

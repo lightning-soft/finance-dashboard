@@ -1,0 +1,39 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+:host {
+  margin: 0 16px;
+  flex-grow: 1;
+  background-color: transparent!important;
+
+  .frames-manager {
+    display: flex;
+  
+
+    & > .frame {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 4px;
+      border-radius: 2px;
+      min-width: 28px;
+      height: 28px;
+      background-color: $tabBackground;
+      cursor: pointer;
+
+      i {
+        line-height: 28px;
+        margin: 0 6px;
+      }
+
+      a {
+        background-color: transparent;
+        color: $textColor;
+        display: block;
+        width: 12px;
+        line-height: 28px;
+        font-size: 6px;
+      }
+    }
+  }
+}

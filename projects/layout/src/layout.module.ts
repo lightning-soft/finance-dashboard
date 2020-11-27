@@ -11,6 +11,7 @@ import { StorageModule } from 'storage';
 import { LocalLayoutStore, ILayoutStore } from './store';
 import { LazyAssetsModule } from 'lazy-assets';
 import { GloabalHandlerModule } from 'global-handler';
+import { WindowManagerModule } from 'window-manager';
 
 const entryComponents = [
   LayoutComponent,
@@ -24,6 +25,7 @@ const entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
+    WindowManagerModule,
     LazyAssetsModule.forConfig({}),
   ],
   declarations: [

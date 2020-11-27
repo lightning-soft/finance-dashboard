@@ -1,19 +1,31 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { WindowManager } from 'simple-window-manager';
+import { EVENTS } from './enums';
+import { IWindow, IWindowManager } from './interfaces';
+import { Options, saveData } from './types';
 
 @Injectable()
 export class WindowManagerService {
-  private wm: WindowManager;
+  private wm: IWindowManager;
+
+  public windows: BehaviorSubject<IWindow[]> = new BehaviorSubject([]);
 
   get container(): HTMLElement {
     return this.wm.container;
   }
 
-  get windows() {
-    return this.wm.windows;
-  }
+  constructor() { }
 
-  constructor() {}
+  public createWindow(options: Options): IWindow {
+    const win = this.wm.createWindow(options);
+
+    this.windows.next(this.wm.windows);
+
+    win.on(EVENTS.CLOSE, () => this.windows.next(this.wm.windows));
+
+    return win;
+  }
 
   public createWindowManager(container): void {
     if (this.wm) {
@@ -23,17 +35,10 @@ export class WindowManagerService {
 
     this.wm = new WindowManager({
       parent: container.nativeElement,
-      backgroundWindow: 'grey',
     });
-
-    // // manager.snap({ spacing: 1 });
-
-    // this.dockManager = manager;
-    // (window as any).dockManager = manager;
-    // (window as any).wm = manager;
   }
 
-  public saveState(): any {
+  public saveState(): saveData {
     return this.wm.save();
   }
 }

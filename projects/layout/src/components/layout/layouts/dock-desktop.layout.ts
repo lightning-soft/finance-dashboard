@@ -1,15 +1,13 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { WindowManager } from 'simple-window-manager';
+import { EVENTS, Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
-import { ComponentOptions, Layout } from './layout';
 import { WindowHeaderComponent } from '../window-header/window-header.component';
+import { ComponentOptions, Layout } from './layout';
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
-
-  dockManager: any;
 
   constructor(
     factoryResolver: ComponentFactoryResolver,
@@ -19,6 +17,7 @@ export class DockDesktopLayout extends Layout {
     private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
     private _ngZone: NgZone,
+    private _windowManagerService: WindowManagerService,
   ) {
     super(factoryResolver, creationsService, viewContainer, container);
   }
@@ -53,48 +52,15 @@ export class DockDesktopLayout extends Layout {
           const componentRef = this.viewContainer.insert(comp.hostView);
           const instance: any = comp.instance;
 
-          instance.componentRef = componentRef;
-          instance.layout = this;
-          // instance.link = componentState.link || 0;
+          instance.componentRef = componentRef; // To remove
+          instance.layout = this; // To remove
 
-          // const linkSelect = await this.getLinkSelect(container, instance);
-
-          // TMP icon
-          let frameManager;
-
-          let maximizeButton;
-          let maximizable = false;
-
-          // if (componentOptions.type === 'widget') {
-          //   frameManager = document.createElement('i');
-          //   frameManager.className = `icon-widget-${componentName}`;
-
-          maximizeButton = '<i class="icon-full-screen-window"></i>';
-          maximizable = true;
-          // } else if (componentOptions.icon) {
-          //   frameManager = document.createElement('i');
-          //   frameManager.className = componentOptions.icon;
-          // }
-
-          const restoreButton = '<i class="icon-maximize-window"></i>';
-          const closeButton = '<i class="icon-close-window"></i>';
-
-          // const saveStateFn = instance.saveState ? instance.saveState.bind(instance) : () => {};
-
-          // const winClassName = componentOptions.type;
-
-          const windowOptions = {
+          const windowOptions: Options = {
             width: 500,
             height: 500,
             title: componentName[0].toUpperCase() + componentName.slice(1),
-            frameManager,
-            // classNames: { win: winClassName },
             minimizable: true,
-            maximizable,
-            restoreButton,
-            maximizeButton,
-            minimizeButton: '',
-            closeButton,
+            maximizable: true,
             y: 70,
             x: 50,
             ...config,
@@ -104,7 +70,7 @@ export class DockDesktopLayout extends Layout {
             }),
           };
 
-          const window = this.dockManager.createWindow(windowOptions);
+          const window = this._windowManagerService.createWindow(windowOptions);
 
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(window);
@@ -124,10 +90,10 @@ export class DockDesktopLayout extends Layout {
                 layoutNode: instance,
               },
             },
-          }]).then(({ domElement, destroy }) => {
+          }]).then(({ domElement, destroy, ref }) => {
             _container.prepend(domElement);
 
-            window.on('close', () => destroy());
+            window.on(EVENTS.CLOSE, () => destroy());
           });
         } catch (e) {
           console.error(e);
@@ -193,22 +159,23 @@ export class DockDesktopLayout extends Layout {
   }
 
   async loadState(config: any) {
+
     this._tryDestroy();
     await this._lazyLoadingService.load();
 
     try {
-      if (!this.dockManager) {
-        const manager = new WindowManager({
-          parent: this.container.nativeElement,
-          backgroundWindow: 'grey',
-        });
+      // if (!this.dockManager) {
+      //   // const manager = new WindowManager({
+      //   //   parent: this.container.nativeElement,
+      //   //   backgroundWindow: 'grey',
+      //   // });
 
-        // manager.snap({ spacing: 1 });
+      //   // // manager.snap({ spacing: 1 });
 
-        this.dockManager = manager;
-        (window as any).dockManager = manager;
-        (window as any).wm = manager;
-      }
+      //   // this.dockManager = manager;
+      //   // (window as any).dockManager = manager;
+      //   // (window as any).wm = manager;
+      // }
 
       if (config)
         this._load(config);
@@ -219,7 +186,7 @@ export class DockDesktopLayout extends Layout {
   }
 
   getState(): any {
-    return this.dockManager.save();
+    return this._windowManagerService.saveState();
   }
 
   _tryDestroy() {

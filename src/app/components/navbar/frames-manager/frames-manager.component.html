@@ -1,0 +1,45 @@
+<div class="frames-manager">
+  <!-- <div class="frame">
+    <i class="icon-widget-dom"></i>
+  </div> -->
+
+  <div class="frame" *ngIf="Orders.size === 1">
+    <i class="icon-widget-orders"></i>
+  </div>
+  <div class="frame" *ngIf="Orders.size > 1" nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+    <i class="icon-widget-orders"></i>
+    <a class="icon-arrow-down"></a>
+  </div>
+  <!-- <div class="frame" *ngIf="">
+    <i class="icon-widget-market-watch"></i>
+  </div> -->
+  <div class="frame" *ngIf="Positions.size">
+    <i class="icon-widget-positions"></i>
+  </div>
+  <div class="frame" *ngIf="Watchlist.size">
+    <i class="icon-widget-watchlist"></i>
+  </div>
+  <div class="frame" *ngIf="Chart.size">
+    <i class="icon-widget-chart"></i>
+    <a class="icon-arrow-down"></a>
+  </div>
+</div>
+
+
+<!-- <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+  <i class="icon-add"></i>
+</button> -->
+
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="side-navigation">
+    <li 
+      nz-menu-item 
+      *ngFor="let item of Orders.values()" 
+      class="side-navigation__item"
+      data-name="{{item.name}}"
+    >
+      <i class="{{item.icon}}"></i>
+    </li>
+  </ul>
+</nz-dropdown-menu>

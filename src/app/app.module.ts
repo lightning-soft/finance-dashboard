@@ -31,6 +31,7 @@ import {
   NotificationListComponent, TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
+import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 
 export function initAccounts(manager: AccountsManager): () => Promise<any> {
   return () => manager.init();
@@ -48,6 +49,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     NavbarControllerComponent,
     ClockComponent,
     NotificationListComponent,
+    FramesManagerComponent,
   ],
   imports: [
     NzSelectModule,
@@ -58,6 +60,7 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    WindowManagerModule,
     SettingsModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
@@ -73,7 +76,6 @@ export function initAccounts(manager: AccountsManager): () => Promise<any> {
     FakeCommunicationModule.forRoot(),
     RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
-    WindowManagerModule.forRoot(),
     LoadingModule.forRoot([
       {
         path: Modules.Accounts,
