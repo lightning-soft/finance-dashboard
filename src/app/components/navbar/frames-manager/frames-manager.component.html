@@ -1,45 +1,42 @@
 <div class="frames-manager">
-  <!-- <div class="frame">
-    <i class="icon-widget-dom"></i>
-  </div> -->
-
-  <div class="frame" *ngIf="Orders.size === 1">
-    <i class="icon-widget-orders"></i>
-  </div>
-  <div class="frame" *ngIf="Orders.size > 1" nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
-    <i class="icon-widget-orders"></i>
-    <a class="icon-arrow-down"></a>
-  </div>
-  <!-- <div class="frame" *ngIf="">
-    <i class="icon-widget-market-watch"></i>
-  </div> -->
-  <div class="frame" *ngIf="Positions.size">
-    <i class="icon-widget-positions"></i>
-  </div>
-  <div class="frame" *ngIf="Watchlist.size">
-    <i class="icon-widget-watchlist"></i>
-  </div>
-  <div class="frame" *ngIf="Chart.size">
-    <i class="icon-widget-chart"></i>
-    <a class="icon-arrow-down"></a>
-  </div>
-</div>
-
-
-<!-- <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
-  <i class="icon-add"></i>
-</button> -->
-
-
-<nz-dropdown-menu #menu="nzDropdownMenu">
-  <ul nz-menu class="side-navigation">
-    <li 
-      nz-menu-item 
-      *ngFor="let item of Orders.values()" 
-      class="side-navigation__item"
-      data-name="{{item.name}}"
+  <ng-container *ngFor="let windowTuple of windowTuples">
+    <div 
+      class="frame"
+      *ngIf="windowTuple[1].size"
     >
-      <i class="{{item.icon}}"></i>
-    </li>
-  </ul>
-</nz-dropdown-menu>
+      <ng-container *ngIf="windowTuple[1].size === 1">
+        <i
+          [class]="iconsMap[ windowTuple[0] ]"
+          (click)="handleClick( windowTuple[1].values()?.next()?.value )"
+        >
+        </i>
+      </ng-container>
+
+      <ng-container *ngIf="windowTuple[1].size > 1">
+        <i [class]="iconsMap[ windowTuple[0] ]"></i>
+        <a  
+          nz-dropdown 
+          [nzDropdownMenu]="menu"
+          nzTrigger="click"
+          class="icon-arrow-down"
+        >
+        </a>
+      </ng-container>
+      
+
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu class="windows-list">
+          <li 
+            nz-menu-item 
+            *ngFor="let window of windowTuple[1]" 
+            class="windows-list__item"
+            (click)="handleClick(window)"
+          >
+            <i class="{{iconsMap[ windowTuple[0] ]}}"></i>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+
+    </div>
+  </ng-container>
+</div>

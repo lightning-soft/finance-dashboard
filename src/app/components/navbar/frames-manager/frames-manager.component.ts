@@ -8,6 +8,8 @@ export enum WM_NODES {
   POSITIONS = 'Positions',
 }
 
+export type WindowTuple = [WM_NODES, Set<IWindow>];
+
 @Component({
   selector: 'app-frames-manager',
   templateUrl: './frames-manager.component.html',
@@ -15,10 +17,12 @@ export enum WM_NODES {
 })
 export class FramesManagerComponent implements AfterViewInit {
 
-  public [WM_NODES.CHART]: Set<IWindow> = new Set();
-  public [WM_NODES.WATCHLIST]: Set<IWindow> = new Set();
-  public [WM_NODES.ORDERS]: Set<IWindow> = new Set();
-  public [WM_NODES.POSITIONS]: Set<IWindow> = new Set();
+  public windowTuples: WindowTuple[] = [
+    [WM_NODES.CHART, new Set()],
+    [WM_NODES.WATCHLIST, new Set()],
+    [WM_NODES.POSITIONS, new Set()],
+    [WM_NODES.ORDERS, new Set()],
+  ];
 
   public iconsMap = {
     [WM_NODES.CHART]: 'icon-widget-chart',
@@ -29,17 +33,24 @@ export class FramesManagerComponent implements AfterViewInit {
 
   constructor(private windowManagerService: WindowManagerService) {
     this.windowManagerService.windows.subscribe(windows => {
-      console.log(windows);
-
-      for (const win of windows) {
-        this[win.winTitlebar.innerText]?.add(win);
-        win.on(EVENTS.CLOSE, () => this[win.winTitlebar.innerText].delete(win));
-      }
-
-      console.log(this);
+      this.sortWindows(windows);
     });
   }
 
   ngAfterViewInit(): void { }
 
+  public handleClick(window: IWindow): void {
+    window.minimize();
+  }
+
+  private sortWindows(windows: IWindow[]): void {
+    for (const window of windows) {
+      const windowTuple = this.windowTuples.find(item => item[0] === window.winTitlebar.innerText);
+
+      if (windowTuple){
+        windowTuple[1].add(window);
+        window.on(EVENTS.CLOSE, () => windowTuple[1].delete(window));
+      }
+    }
+  }
 }

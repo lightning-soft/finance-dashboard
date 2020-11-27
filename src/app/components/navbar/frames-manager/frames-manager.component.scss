@@ -19,21 +19,76 @@
       min-width: 28px;
       height: 28px;
       background-color: $tabBackground;
+      position: relative;
       cursor: pointer;
 
-      i {
+      & i {
         line-height: 28px;
         margin: 0 6px;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          z-index: 1;
+        }
       }
 
-      a {
+      & a {
         background-color: transparent;
         color: $textColor;
         display: block;
         width: 12px;
         line-height: 28px;
         font-size: 6px;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          z-index: 2;
+        }
       }
+    }
+  }
+}
+
+
+.windows-list {
+  position: absolute;
+  right: 0;
+  width: 40px;
+  padding: 4px 0 0 0;
+  border-radius: 2px;
+  z-index: 41;
+  transition: transform 0.3s ease-out;
+  background-color: $lightBackground!important;
+}
+
+.windows-list {
+
+  &__item {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 4px;
+    padding: 0;
+    font-size: 10px;
+    text-align: center;
+    line-height: 32px;
+    border-radius: 2px;
+    background-color: $tabFrameColor!important;
+
+    &:hover {
+      color: $titleColor!important;
+      background-color: $bodyBackground!important;
     }
   }
 }
