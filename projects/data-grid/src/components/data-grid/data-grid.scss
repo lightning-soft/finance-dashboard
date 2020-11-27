@@ -15,6 +15,10 @@ cdk-virtual-scroll-viewport {
   width: 100%;
   background: #17181f;
 
+  .head.cell .data {
+    font-weight: 700;
+  }
+
   .grid {
     height: 100%;
     width: 100%;
