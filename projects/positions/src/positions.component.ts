@@ -119,6 +119,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
+
+    this._columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   ngOnInit() {

@@ -1,4 +1,4 @@
-import { Component, Injector } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
@@ -98,38 +98,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     this.columns = headers.map(header => ({ name: header, visible: true }));
   }
 
-  async getToolbarComponent() {
-
-    const toolbarConfig: OrdersToolbarConfig = {
-      layout: this.layout,
-      accountHandler: this.handleAccountChange.bind(this)
-    };
-
-    const { ref, domElement, destroy } = await this._loadingService
-      .getDynamicComponent(OrdersToolbarComponent, [{
-        provide: DynamicComponentConfig,
-        useValue: { data: toolbarConfig },
-      }]);
-
-    this._toolbarComponent = ref.instance;
-
-    // const subscription = ref.instance.handleChange.subscribe((link: number) => {
-    //   instance.link = link;
-    // });
-
-    // container.on('destroy', () => {
-    //   this._linkSelectMap.delete(container);
-
-    //   subscription.unsubscribe();
-
-    //   destroy();
-    // });
-
-    return domElement;
-  }
-
   ngOnInit() {
-    this._ordersFeed.on((order) => {
+    this._datafeed.on((order) => {
       console.log('order', order);
       if (this.items.some(i => i.id === order.id))
         this.builder.handleUpdateItems([order]);
