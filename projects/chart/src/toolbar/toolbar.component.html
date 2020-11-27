@@ -3,8 +3,8 @@
   <div class="tool btn-group">
     <nz-button-group
       nzTrigger="click"
-      nzOverlayClassName="toolbar-dropdown" 
-      nz-dropdown 
+      nzOverlayClassName="toolbar-dropdown"
+      nz-dropdown
       [nzDropdownMenu]="menu2"
       nzPlacement="bottomRight"
     >
@@ -16,7 +16,8 @@
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
       <ul nz-menu>
-        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu nzTitle="{{drawingInstrument.value}}">
+        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu [nzTitle]="iconTitle">
+         <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
           <ul class="toolbar-submenu">
             <li *ngFor="let item of drawingInstrument.items" nz-menu-item (click)="addDrawing(item)">
               <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
@@ -24,8 +25,18 @@
             </li>
           </ul>
         </li>
-
-        <li nz-menu-item (click)="removeDrawing()">Delete All Drawings</li>
+        <li  nz-menu-item (click)="stayInDragMode()">
+          <i [style.color]="chart?.stayInDrawingMode ? '#0c6ce4': '#D0D0D2'" class="icon-pen"></i>
+        </li>
+        <li  nz-menu-item (click)="visible()">
+          <i [style.color]="chart?.showDrawings ? '#0c6ce4': '#D0D0D2'" class="icon-not-visible"></i>
+        </li>
+        <li nz-menu-item (click)="makeSnapshot()">
+          <i class="icon-tool-camera"></i>
+        </li>
+        <li nz-menu-item (click)="removeDrawing()">
+          <i class="icon-delete"></i>
+        </li>
       </ul>
     </nz-dropdown-menu>
   </div>
@@ -58,20 +69,20 @@
       </nz-option>
     </nz-select>
     <i (click)="frame.setOpenState(true)" class="icon-arrow-down"></i>
-  </div>  
+  </div>
 
   <div class="tool select">
-    <nz-select 
-      #price 
+    <nz-select
+      #price
       [nzCustomTemplate]="defaultTemplate"
-      nzDropdownClassName="toolbar-dropdown" 
+      nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="priceStyle"
       nzSize="small"
     >
-      <nz-option 
-        *ngFor="let option of priceStyles" 
-        [nzValue]="option" 
-        [nzLabel]="option" 
+      <nz-option
+        *ngFor="let option of priceStyles"
+        [nzValue]="option"
+        [nzLabel]="option"
         nzCustomContent
         (click)="changePriceStyle(option)"
       >
@@ -85,9 +96,9 @@
 
   <div class="tool btn-group">
     <nz-button-group>
-      <button 
-        nz-button 
-        nzPlacement="bottomRight" 
+      <button
+        nz-button
+        nzPlacement="bottomRight"
         (click)="openIndicatorDialog()"
       >
         <span class="icon-tool-indicators"></span>
@@ -113,9 +124,9 @@
 
     <nz-dropdown-menu #menu1="nzDropdownMenu">
       <ul nz-menu>
-        <li 
-          *ngFor="let option of zoomOptions" 
-          nz-menu-item 
+        <li
+          *ngFor="let option of zoomOptions"
+          nz-menu-item
           (click)="zoom(option)"
         >
           <span class="scx-icon icon-zoom-{{option}}"></span>
@@ -125,19 +136,19 @@
     </nz-dropdown-menu>
   </div>
 
- 
+
   <div class="tool select">
-    <nz-select 
-      #cross 
-      [nzCustomTemplate]="defaultTemplate" 
+    <nz-select
+      #cross
+      [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="iconCross"
       nzSize="small"
     >
-      <nz-option 
+      <nz-option
         *ngFor="let option of iconCrosses"
         [nzValue]="option"
-        [nzLabel]="option" 
+        [nzLabel]="option"
         nzCustomContent
       >
         <span class="scx-icon icon-{{option}}"></span>
@@ -146,7 +157,7 @@
     </nz-select>
     <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>
   </div>
-  
+
   <div class="tool photo">
     <nz-button-group nzSize='small'>
       <button nz-button nzType="link" (click)="makeSnapshot()">
@@ -154,7 +165,7 @@
       </button>
     </nz-button-group>
   </div>
-  
+
 <ng-template #defaultTemplate let-selected>
   <span class="scx-icon icon-{{selected.nzValue}}"></span>
 </ng-template>

@@ -48,7 +48,7 @@ export class ToolbarComponent {
 
   zoomOptions = ['dateRange', 'rect'];
 
-  // allDraings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
+  // allDrawings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
   //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
   //   "text", "image", "balloon", "measure", "measureTool", "fibonacciArcs", "fibonacciEllipses", "fibonacciRetracements", "fibonacciFan",
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
@@ -56,27 +56,31 @@ export class ToolbarComponent {
 
   drawingInstruments = [
     {
-      value: 'Chart market',
+      icon: 'chart-market',
+      name: 'Chart market',
       items: [
         'dot', 'square', 'diamond', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'arrow', 'note'
       ]
     },
     {
-      value: 'Geometric',
+      icon: 'geometric',
+      name: 'Geometric',
       items: [
         'lineSegment', 'horizontalLine', 'verticalLine',
         'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
       ]
     },
     {
-      value: 'Fibonacci',
+      icon: 'fibonacci',
+      name: 'Fibonacci',
       items: [
         'fibonacciArcs', 'fibonacciEllipses',
         'fibonacciRetracements', 'fibonacciFan', 'fibonacciTimeZones', 'fibonacciExtensions'
       ]
     },
     {
-      value: 'Trend Channel Drawings',
+      icon: 'trend-channel-drawing',
+      name: 'Trend Channel Drawings',
       items: [
         'trendChannel', 'andrewsPitchfork',
         'errorChannel', 'raffRegression', 'quadrantLines',
@@ -84,9 +88,24 @@ export class ToolbarComponent {
       ]
     },
     {
-      value: 'General Drawings', items: [
-        'text', 'image', 'balloon', 'measure'
-      ]
+      icon: 'text',
+      name: 'General-drawings',
+      items: ['text']
+    },
+    {
+      icon: 'add-image',
+      name: 'General-drawings',
+      items: [ 'image']
+    },
+    // {
+    //   icon: 'drawing-baloon',
+    //   name: 'General-drawings',
+    //   items: ['balloon']
+    // },
+    {
+      icon: 'measure',
+      name: 'General-drawings',
+      items: [ 'measure']
     }
   ];
 
@@ -240,7 +259,13 @@ export class ToolbarComponent {
     this.chart.removeDrawings();
     this.chart.setNeedsUpdate(true);
   }
-
+  stayInDragMode() {
+    this.chart.stayInDrawingMode = !this.chart.stayInDrawingMode;
+  }
+  visible() {
+    this.chart.showDrawings = !this.chart.showDrawings;
+    this.chart.setNeedsUpdate(true);
+  }
   makeSnapshot() {
     this.chart.saveImage();
   }
