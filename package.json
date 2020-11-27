@@ -45,32 +45,32 @@
   "build": {
     "appId": "com.deltaview.app",
     "productName": "DeltaView",
-	"copyright": "Copyright © 2020 AMS",
-	"files": [
-		"dist/browser/**/*",
-		"package.json",
-		"main.js"
-	],
-	"linux": {
-		"target": [
-		  "AppImage",
-		  "deb"
-		]
-	},
-	"dmg": {
-		"contents": [
-		  {
-			"x": 110,
-			"y": 150
-		  },
-		  {
-			"x": 240,
-			"y": 150,
-			"type": "link",
-			"path": "/Applications"
-		  }
-		]
-	},
+    "copyright": "Copyright © 2020 AMS",
+    "files": [
+      "dist/browser/**/*",
+      "package.json",
+      "main.js"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
     "win": {
       "target": [
         "NSIS"
@@ -80,8 +80,8 @@
     },
     "nsis": {
       "oneClick": false,
-	  "allowToChangeInstallationDirectory": true,
-	  "runAfterFinish": true
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": true
     }
   },
   "private": false,
@@ -109,7 +109,7 @@
     "ngx-monaco-editor": "9.0.0",
     "popper.js": "^1.16.1",
     "rxjs": "6.6.2",
-    "simple-window-manager": "https://git.avidi.tech/Taras/simple-window-manager/-/archive/fix-resize/simple-window-manager-fix-resize.tar.gz",
+    "simple-window-manager": "git+https://git.avidi.tech/Taras/simple-window-manager.git",
     "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
     "underscore": "1.10.2",
