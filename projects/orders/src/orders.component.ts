@@ -1,12 +1,29 @@
 import { Component, Injector } from '@angular/core';
 import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
-import { CellClickDataGridHandler } from 'data-grid';
+import { CellClickDataGridHandler, Column } from 'data-grid';
 import { LayoutComponent, LayoutNode } from 'layout';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
 import { OrdersToolbarComponent, OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
+
+const headers = [
+  'averageFillPrice',
+  'description',
+  'duration',
+  'filledQuantity',
+  'quantity',
+  'side',
+  'status',
+  'type',
+  'exchange',
+  'symbol',
+  'fcmId',
+  'ibId',
+  'identifier',
+  'close',
+];
 
 @Component({
   selector: 'orders-list',
@@ -14,23 +31,9 @@ import { OrderItem } from './models/order.item';
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
-  headers = [
-    'averageFillPrice',
-    'description',
-    'duration',
-    'filledQuantity',
-    'quantity',
-    'side',
-    'status',
-    'type',
-    'exchange',
-    'symbol',
-    'fcmId',
-    'ibId',
-    'identifier',
-    'close',
-  ];
+export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
+
+  columns: Column[];
 
   builder = new ViewItemsBuilder();
 
@@ -46,8 +49,6 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
   }
 
   _isList = false;
-
-  layout: LayoutComponent;
 
   private _toolbarComponent: OrdersToolbarComponent;
 
@@ -93,6 +94,8 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
       wrap: (item: IOrder) => new OrderItem(item),
       unwrap: (item: OrderItem) => item.order,
     });
+
+    this.columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   async getToolbarComponent() {
@@ -125,6 +128,17 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
     return domElement;
   }
 
+  ngOnInit() {
+    this._ordersFeed.on((order) => {
+      console.log('order', order);
+      if (this.items.some(i => i.id === order.id))
+        this.builder.handleUpdateItems([order]);
+      else
+        this.builder.handleCreateItems([order]);
+    });
+    super.ngOnInit();
+  }
+
   private handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
@@ -135,5 +149,16 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
 
   protected _handleDeleteItems(items) {
     // handle by realtime
+  }
+
+  saveState() {
+    return { columns: this.columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this.columns = state.columns;
   }
 }

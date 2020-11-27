@@ -1,7 +1,7 @@
 <data-grid 
   [items]="items"
   [handlers]="handlers"
-  [columns]="headers"
+  [columns]="columns"
   [class.loading-block]="isLoading"
 >
   <instrument-select className="watchlist-instrument-select" (handleInstrumentChange)='addNewInstrument($event)'></instrument-select>

@@ -1,6 +1,6 @@
 body.#{$themeName} {
 
-  .frame {
+  .wm-window {
     &.resize-up,
     &.resize-down {
       cursor: ns-resize;
@@ -25,7 +25,7 @@ body.#{$themeName} {
     }
   }
 
-  .frame .wm-container {
+  .wm-window .wm-container {
     overflow: hidden !important;
     border-radius: 2px;
     background-color: $tabFrameColor;

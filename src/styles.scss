@@ -12,6 +12,7 @@
 @import "scss/colors";
 @import "scss/fonts";
 @import "scss/animations";
+@import "scss/layout";
 @import "scss/modules";
 
 @import "scss/dark.theme";
@@ -44,18 +45,8 @@ html {
   box-sizing: border-box;
 }
 
-.ant-modal-content {
-  background: none;
-}
-
 .ant-input {
   border-radius: 0;
-}
-
-.ant-modal-body {
-  background: none;
-  box-shadow: none;
-  padding: 0 !important;
 }
 
 button {
@@ -64,14 +55,29 @@ button {
   border: none;
 }
 
-.ant-modal {
-  width: auto !important;
-  display: flex;
-  justify-content: center;
-}
-
 .ant-modal-content {
   box-shadow: none !important;
+}
+
+.wm-draggable {
+  cursor: move;
+}
+
+.wm-window[class*="resize-"] {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    background-color: cadetblue;
+    opacity: 0;
+    z-index: 9000000;
+  }
 }
 
 .toolbar-dropdown {
@@ -85,4 +91,59 @@ button {
 
 .watchlist-instrument-select.ant-select {
   width: 100%;
+}
+.modal-data-grid {
+  text-align: center;
+
+  .ant-modal {
+    width: auto!important;
+    display: inline-block;
+    text-align: left;
+  }
+
+  .ant-modal-header,
+  .ant-modal-content  {
+    background-color: #24262C;
+  }
+
+  .ant-modal-content {
+
+    .ant-modal-body {
+      text-align: center;
+  
+      .ng-star-inserted {
+        text-align: left;
+      }
+    }
+  }
+
+  .ant-empty {
+    &-image,
+    &-description {
+      text-align: center!important;
+    }
+  }
+
+  .ant-transfer-list-content {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #51535A;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #737377;
+    }
+  }
+
+  .ant-transfer-list,
+  .ant-transfer-list-header {    
+    background-color: #1B1D22;
+  }
 }

@@ -172,6 +172,12 @@
     },
     {
       "path": "./projects/auth/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.spec.json"
     }
   ]
 }

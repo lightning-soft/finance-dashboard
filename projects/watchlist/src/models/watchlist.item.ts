@@ -1,8 +1,8 @@
+import { Cell, DataCell, DateCell, IconCell, NumberCell, PriceCell } from 'data-grid';
+import { InstrumentNameCell, } from './instrument-name.cell';
+import { IQuote, IInstrument } from 'trading';
 import { IBaseItem, Id } from 'communication';
-import { Cell, DataCell, DateCell, IconCell, NumberCell } from 'data-grid';
 import { priceComponentSelector } from 'projects/data-grid/src/models/cells/components/price-component';
-import { IInstrument, IQuote } from 'trading';
-import { InstrumentNameCell } from './instrument-name.cell';
 
 export class WatchlistItem implements IBaseItem {
     id: Id;

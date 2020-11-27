@@ -7,13 +7,14 @@ import { RouterModule } from '@angular/router';
 import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
 import { AuthModule, AuthService } from 'auth';
 import { CommunicationConfig, CommunicationModule } from 'communication';
+import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzDropDownModule } from 'ng-zorro-antd';
-import { en_US, NZ_I18N } from 'ng-zorro-antd/i18n';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotifierModule } from 'notifier';
@@ -22,6 +23,7 @@ import { first } from 'rxjs/operators';
 import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
+import { WindowManagerModule } from 'window-manager';
 import { AppConfig } from './app.config';
 import {
   AccountComponent,
@@ -34,6 +36,12 @@ import {
   NotificationListComponent, TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
+
+
+
+/**
+ *  Move declaration to enother file
+ */
 function generateLoginLink(config): string {
 
   const { clientId, responseType, scope, redirectUri } = config;
@@ -73,6 +81,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
   };
 }
 
+
 @NgModule({
   declarations: [
     NavbarComponent,
@@ -85,6 +94,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ClockComponent,
     NotificationListComponent,
     ConnectionsComponent,
+    FramesManagerComponent,
   ],
   imports: [
     NzSelectModule,
@@ -97,6 +107,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    WindowManagerModule,
     SettingsModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
@@ -176,4 +187,9 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private i18n: NzI18nService) {
+  }
+  switchLanguage(){
+    this.i18n.setLocale(en_US);
+  }
 }

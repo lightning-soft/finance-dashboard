@@ -117,6 +117,9 @@
       ],
       "auth": [
         "projects/auth/index"
+      ],
+      "window-manager": [
+        "projects/window-manager/index"
       ]
     }
   }

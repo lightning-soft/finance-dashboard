@@ -1340,6 +1340,45 @@
         }
       }
     },
+    "window-manager": {
+      "projectType": "library",
+      "root": "projects/window-manager",
+      "sourceRoot": "projects/window-manager/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/window-manager/tsconfig.lib.json",
+            "project": "projects/window-manager/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/window-manager/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {"main": "projects/window-manager/src/test.ts",
+            "tsConfig": "projects/window-manager/tsconfig.spec.json",
+            "karmaConfig": "projects/window-manager/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": ["projects/window-manager/tsconfig.lib.json",
+              "projects/window-manager/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+
     "authentication": {
       "projectType": "library",
       "root": "projects/authentication",

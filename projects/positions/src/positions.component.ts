@@ -1,10 +1,36 @@
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  Injector,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+
 import { ItemsComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, DataCell } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { IPosition, IPositionParams, ITrade, LevelOneDataFeed, PositionsFeed, PositionsRepository, PositionStatus, Side } from 'trading';
+
+import {
+  IPosition,
+  IPositionParams,
+  ITrade,
+  LevelOneDataFeed,
+  PositionsFeed,
+  PositionsRepository,
+  PositionStatus,
+  Side
+} from 'trading';
+
 import { PositionItem } from './models/position.item';
+
+const headers = [
+  'account',
+  'price',
+  'size',
+  'realized',
+  'unrealized',
+  'total',
+];
 
 @Component({
   selector: 'position-list',
@@ -15,10 +41,15 @@ import { PositionItem } from './models/position.item';
 export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
-  private _headers = ['account', 'price', 'size', 'realized', 'unrealized', 'total'];
+  private _columns: Column[] = [];
 
-  get headers() {
-    return this.status === PositionStatus.Open ? this._headers.concat('close') : this._headers;
+  get columns() {
+    const closeColumn: Column = {
+      name: 'Close',
+      visible: true,
+    };
+
+    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
 
   private _isList = true;
@@ -55,7 +86,6 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     return { ...this._params, status: this.status };
   }
 
-  // accounts: IAccount[] = [];
   private _accountId;
 
   set accountId(accountId) {
@@ -140,6 +170,8 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     items.forEach(item => {
       this._levelOneDatafeed.unsubscribe(item.instrument);
     });
+
+    this._columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   groupItems() {
@@ -149,7 +181,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
       groupedItem.account = new DataCell();
       groupedItem.account.updateValue(account);
       groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.headers.length - 1;
+      groupedItem.account.colSpan = this.columns.length - 1;
 
       return groupedItem;
     });
@@ -198,5 +230,16 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
 
   protected _handleDeleteItems(items: IPosition[]) {
     // handle by realtime
+  }
+
+  saveState() {
+    return { columns: this._columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this._columns = state.columns;
   }
 }

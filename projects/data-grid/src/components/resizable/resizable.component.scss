@@ -1,0 +1,37 @@
+@import "../data-grid/themes/index";
+:host {
+  box-sizing: border-box;
+&:last-child .bar {
+   display: none;
+ }
+}
+
+.wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.content {
+  flex: 1;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin: 10px -10px 0 10px;
+  justify-self: flex-end;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background: $fallingColor;
+  background-clip: content-box;
+  cursor: w-resize;
+  opacity: 0;
+  transition: opacity .3s;
+
+&:hover,
+&:active {
+   opacity: 1;
+ }
+}
