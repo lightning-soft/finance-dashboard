@@ -13,8 +13,15 @@ cdk-virtual-scroll-viewport {
   width: 100%;
   background: #1B1D22;
 
-  .head.cell .data {
-    font-weight: 700;
+  .head.cell {
+
+    .data {
+      font-weight: 700;
+    }
+
+    .btn-setting:hover {
+      color: #FFFFFF;
+    }
   }
 
   .grid {
