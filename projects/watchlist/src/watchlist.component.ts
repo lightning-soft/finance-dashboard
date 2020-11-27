@@ -29,11 +29,11 @@ export type SubscribtionHandler = (data?: any) => void;
 export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements ILayoutNode, OnInit, OnDestroy {
   headers = [
     'name',
+    'price',
     'timestamp',
     'ask',
     'bid',
     'volume',
-    'price',
     'exchange',
     'symbol',
     'close',

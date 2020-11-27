@@ -27,14 +27,26 @@ export enum AddClassStrategy {
   RELATIVE_ZERO,
 }
 
+interface INumberConfig {
+  strategy?: AddClassStrategy;
+  component?: string;
+}
 export class NumberCell extends Cell {
   class: string;
   value: string;
+  component: string;
 
   _value: number;
 
-  constructor(private strategy = AddClassStrategy.RELATIVE_PREV_VALUE) {
+  private strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
+
+  constructor(config?: INumberConfig | AddClassStrategy) {
     super();
+    if (typeof config === 'object') {
+      this.strategy = config.strategy ?? AddClassStrategy.RELATIVE_PREV_VALUE;
+      this.component = config.component;
+    } else if (config != null)
+      this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
 
   updateValue(value: number) {
