@@ -1,4 +1,7 @@
 <div class="d-flex align-items-center w-100 wm-draggable">
+  <div [class]="iconsMap[title] ? 'window-icon' : ''">
+    <i [class]="iconsMap[title]"></i>
+  </div>
   <div class="mr-3">{{ title }}</div>
   <div #toolbar class="mr-3"></div>
   <div class="ml-auto">

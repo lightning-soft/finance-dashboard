@@ -6,6 +6,16 @@
   background: $light;
   box-shadow: 0 0 10px 1px $dark;
 
+  .window-icon {
+    background-color: #1B1D22;
+    border-radius: 2px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    margin-right: 8px;
+  }
+
   & > header {
     display: none !important;
   }
