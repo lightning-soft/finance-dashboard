@@ -29,15 +29,15 @@
     >
       <ng-container *ngFor="let column of columns; let j = index">
         <td
-          [attr.data-column]="column"
-          [attr.colspan]="item[column].colSpan"
-          *ngIf="item[column]" 
+          [attr.data-column]="column.name"
+          [attr.colspan]="item[column.name].colSpan"
+          *ngIf="item[column.name]" 
           class="column cell" 
-          [ngClass]="column"
+          [ngClass]="column.name"
         >
           <span 
-            *itemViewBuilder="item && item[column]" 
-            [ngClass]="item[column].class"
+            *itemViewBuilder="item" 
+            [ngClass]="item[column.name].class"
             class="data"
           >
             {{item[column.name].value}}
