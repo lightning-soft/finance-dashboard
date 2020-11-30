@@ -1,4 +1,4 @@
-import {Cell} from './cell';
+import { Cell } from './cell';
 import { iconComponentSelector } from './components/icon-conponent';
 export class IconCell extends Cell{
   component = iconComponentSelector;

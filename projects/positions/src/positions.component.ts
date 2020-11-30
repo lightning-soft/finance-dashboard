@@ -45,7 +45,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
 
   get columns() {
     const closeColumn: Column = {
-      name: 'Close',
+      name: 'close',
       visible: true,
     };
 
