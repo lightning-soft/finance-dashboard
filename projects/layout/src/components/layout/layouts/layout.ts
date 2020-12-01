@@ -15,6 +15,7 @@ export type ComponentOptions = {
   minimizeBtn?: boolean;
   maximizeBtn?: boolean;
   closeBtn?: boolean;
+  resizable?: boolean;
 };
 
 export abstract class Layout implements IDropable {
