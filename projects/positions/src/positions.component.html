@@ -1,5 +1,11 @@
   <!-- {{builder.items | json}} -->
-<window-header [window]="this"></window-header>
+<window-header [window]="this">
+  <button 
+    class="wm-header-btn icon-setting-gear"
+    (click)="grid.createComponentModal()"
+  >
+  </button>
+</window-header>
 
 <div class="tabs">
   <div class="tab">
@@ -13,4 +19,4 @@
   </div>
 </div>
 
-<data-grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+<data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>

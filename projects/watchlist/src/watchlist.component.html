@@ -1,10 +1,17 @@
-<window-header [window]="this"></window-header>
+<window-header [window]="this">
+  <button 
+    class="wm-header-btn icon-setting-gear"
+    (click)="grid.createComponentModal()"
+  >
+  </button>
+</window-header>
 
 <data-grid 
   [items]="items"
   [handlers]="handlers"
   [columns]="columns"
   [class.loading-block]="isLoading"
+  #grid
 >
   <instrument-select className="watchlist-instrument-select" (handleInstrumentChange)='addNewInstrument($event)'></instrument-select>
 </data-grid>
