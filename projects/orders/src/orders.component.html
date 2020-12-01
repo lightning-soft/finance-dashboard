@@ -1,4 +1,10 @@
-<window-header [window]="this"></window-header>
+<window-header [window]="this">
+  <button 
+    class="wm-header-btn icon-setting-gear"
+    (click)="grid.createComponentModal()"
+  >
+  </button>
+</window-header>
 <div class="wrapper">
   <div class="toolbar">
     <!-- <div (click)="selectComponent.setOpenState(true)" class="select-container">
@@ -12,5 +18,5 @@
       <i class="icon-arrow-dropdown"></i>
     </div> -->
   </div>
-  <data-grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+  <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
 </div>
