@@ -3,16 +3,6 @@
   flex-direction: column;
   border: 1px solid transparent;
 
-  .window-icon {
-    background-color: #1B1D22;
-    border-radius: 2px;
-    width: 26px;
-    height: 26px;
-    line-height: 26px;
-    text-align: center;
-    margin-right: 8px;
-  }
-
   & > header {
     display: none !important;
   }
@@ -20,8 +10,7 @@
   & > * > window-header {
     display: flex;
     align-items: center;
-    height: 32px;
-    padding: 0 8px;
+    padding: 1px 0 2px;
   }
 
   & > *:last-child {

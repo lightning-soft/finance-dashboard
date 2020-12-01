@@ -35,7 +35,8 @@ export class AccountsComponent implements OnInit {
     private fb: FormBuilder,
     private modal: NzModalService,
   ) {
-    this.setTabTitle('Accounts');
+    this.setTabTitle('Connections');
+    this.setTabIcon('icon-indicator');
   }
 
 
