@@ -8,7 +8,7 @@ import {
 import { ItemsComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
-import { LayoutNode } from 'layout';
+import { ILayoutNode, LayoutNode } from 'layout';
 
 import {
   IPosition,
@@ -31,6 +31,8 @@ const headers = [
   'unrealized',
   'total',
 ];
+
+export interface PositionsComponent extends ILayoutNode { }
 
 @Component({
   selector: 'position-list',
@@ -121,6 +123,9 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
     });
 
     this._columns = headers.map(header => ({ name: header, visible: true }));
+
+    this.setTabIcon('icon-widget-positions');
+    this.setTabTitle('Positions');
   }
 
   ngOnInit() {

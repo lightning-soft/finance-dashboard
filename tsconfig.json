@@ -178,6 +178,12 @@
     },
     {
       "path": "./projects/window-manager/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/window-header/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-header/tsconfig.spec.json"
     }
   ]
 }

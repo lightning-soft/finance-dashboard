@@ -6,6 +6,8 @@ import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
 import { AccountSelectModule } from 'account-select';
+import { LayoutModule } from 'layout';
+import { WindowHeaderModule } from 'window-header';
 
 @NgModule({
   imports: [
@@ -15,6 +17,8 @@ import { AccountSelectModule } from 'account-select';
     FormsModule,
     ReactiveFormsModule,
     AccountSelectModule,
+    LayoutModule,
+    WindowHeaderModule,
   ],
   exports: [
     PositionsComponent

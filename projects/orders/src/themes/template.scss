@@ -2,7 +2,7 @@
 body.#{$themeName} {
 
   :host {
-    background-color: $tabBackground;
+    background-color: $tabFrameColor;
 
     .wrapper {
       background: $gridBackground;

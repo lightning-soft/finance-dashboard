@@ -1,19 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LayoutModule } from 'layout';
 import { ComponentStore } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
+import { WindowHeaderModule } from 'window-header';
+import { SettingsStore } from './setting-store';
 import { SettingsComponent } from './settings.component';
 import { SettignsService } from './settings.service';
-import { SettingsStore } from './setting-store';
 
 @NgModule({
   imports: [
     CommonModule,
     NzSelectModule,
     FormsModule,
-    LayoutModule,
+    WindowHeaderModule,
   ],
   exports: [
     SettingsComponent,

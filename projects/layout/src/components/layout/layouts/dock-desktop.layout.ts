@@ -3,7 +3,7 @@ import { LazyLoadingService } from 'lazy-assets';
 import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
 import { EVENTS, Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
-import { WindowHeaderComponent } from '../window-header/window-header.component';
+import { WindowHeaderComponent } from 'window-header';
 import { ComponentOptions, Layout } from './layout';
 
 export class DockDesktopLayout extends Layout {
@@ -82,19 +82,6 @@ export class DockDesktopLayout extends Layout {
           const { _container } = window;
 
           _container.appendChild(comp.location.nativeElement);
-
-          this._loadingService.getDynamicComponent(WindowHeaderComponent, [{
-            provide: DynamicComponentConfig,
-            useValue: {
-              data: {
-                layoutNode: instance,
-              },
-            },
-          }]).then(({ domElement, destroy, ref }) => {
-            _container.prepend(domElement);
-
-            window.on(EVENTS.CLOSE, () => destroy());
-          });
         } catch (e) {
           console.error(e);
           // container.close();

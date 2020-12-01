@@ -4,7 +4,7 @@
 ***              ***
 *******************/
 body.#{$themeName} :host {
-  background-color: $tabBackground;
+  background-color: $tabFrameColor;
 
   .icon-container{
     background: $lightBackground;
