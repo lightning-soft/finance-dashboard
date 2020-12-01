@@ -61,6 +61,9 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       component: {
         name: 'accounts',
       },
+      resizable: false,
+      height: 665,
+      width: 600,
       maximizeBtn: false,
     });
   }
