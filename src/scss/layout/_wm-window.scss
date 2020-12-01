@@ -1,10 +1,7 @@
 .wm-window {
   display: flex;
   flex-direction: column;
-  padding: 1px;
-  border: 1px solid $lighter;
-  background: $light;
-  box-shadow: 0 0 10px 1px $dark;
+  border: 1px solid transparent;
 
   .window-icon {
     background-color: #1B1D22;
@@ -32,6 +29,10 @@
     flex-direction: column;
     flex-basis: 0;
     flex-grow: 1;
+    padding: 1px;
     overflow: auto;
+    background: $light;
+    border: 1px solid $lighter;
+    box-shadow: 0 0 10px 1px $dark;
   }
 }
