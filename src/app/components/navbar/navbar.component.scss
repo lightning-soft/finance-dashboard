@@ -37,10 +37,9 @@
   .create-frame {
     border-right: 1px solid $lightBackground;
     border-left: 1px solid $lightBackground;
-    padding: 0 16px;
     color: $textColor60;
     font-size: 16px;
-    line-height: 28px;
+    height: 28px;
   }
 
   .search {
@@ -61,11 +60,13 @@
     flex-wrap: nowrap;
     border-right: 1px solid $lightBackground;
     border-left: 1px solid $lightBackground;
+    height: 28px;
 
     button {
       padding: 0 12px;
       background-color: transparent;
       position: relative;
+      height: 28px;
 
       & > .icon-ellipse {
         font-size: 0.5em;

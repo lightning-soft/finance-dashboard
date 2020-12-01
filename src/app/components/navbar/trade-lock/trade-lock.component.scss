@@ -10,6 +10,7 @@ button {
   margin: 0;
   background-color: $tabFrameColor;
   position: relative;
+  height: 28px;
 
   & > .icon-ellipse {
     font-size: .5em;
