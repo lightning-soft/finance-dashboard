@@ -3,11 +3,13 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
-import { LayoutNode } from 'layout';
+import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize } from 'rxjs/operators';
 import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
+
+export interface AccountsComponent extends ILayoutNode { }
 
 @UntilDestroy()
 @Component({
@@ -33,7 +35,9 @@ export class AccountsComponent implements OnInit {
     private fb: FormBuilder,
     private modal: NzModalService,
   ) {
+    this.setTabTitle('Accounts');
   }
+
 
   ngOnInit() {
     this.builder.setParams({ groupBy: ['broker'] });

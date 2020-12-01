@@ -1,17 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { GloabalHandlerModule } from 'global-handler';
+import { LazyAssetsModule } from 'lazy-assets';
 import { NzSelectModule } from 'ng-zorro-antd';
+import { StorageModule } from 'storage';
+import { LoaderModule } from 'ui';
+import { WindowManagerModule } from 'window-manager';
 import { LayoutComponent } from './components/layout/layout.component';
 import { LinkSelectComponent } from './components/link-select/link-select.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
-import { LoaderModule } from 'ui';
-import { StorageModule } from 'storage';
-import { LocalLayoutStore, ILayoutStore } from './store';
-import { LazyAssetsModule } from 'lazy-assets';
-import { GloabalHandlerModule } from 'global-handler';
-import { WindowManagerModule } from 'window-manager';
+import { ILayoutStore, LocalLayoutStore } from './store';
+
+
+
 
 const entryComponents = [
   LayoutComponent,

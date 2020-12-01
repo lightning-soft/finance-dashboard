@@ -20,7 +20,7 @@
     display: none !important;
   }
 
-  & > window-header {
+  & > * > window-header {
     display: flex;
     align-items: center;
     height: 32px;
@@ -28,6 +28,8 @@
   }
 
   & > *:last-child {
+    display: flex;
+    flex-direction: column;
     flex-basis: 0;
     flex-grow: 1;
     overflow: auto;

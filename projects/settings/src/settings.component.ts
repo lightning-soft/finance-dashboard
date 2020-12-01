@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { LayoutNode } from 'layout';
+import { ILayoutNode, LayoutNode } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
 import { SettignsService } from './settings.service';
 import { SettingsData } from './types';
 
 const FIVE_MIN = 300000;
+
+export interface SettingsComponent extends ILayoutNode { }
 @Component({
   selector: 'settings',
   templateUrl: './settings.component.html',
@@ -34,7 +36,9 @@ export class SettingsComponent implements OnInit {
   constructor(
     public themeHandler: ThemesHandler,
     private settingService: SettignsService,
-  ) { }
+  ) {
+    this.setTabTitle('Settings');
+  }
 
   ngOnInit(): void {
     this.settings = this.settingService.settings;

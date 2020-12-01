@@ -6,6 +6,8 @@ declare const $: any;
 
 // To remove
 export interface IContainer {
+  maximized: object | boolean;
+  minimized: boolean;
   setTitle(title: string);
   minimize();
   maximize();
@@ -18,9 +20,16 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
+  setTabIcon?(icon: string);
+  getTabIcon?(): string;
+  getTabTitle?(): string;
   setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
   broadcastLinkData?(data: any);
+  maximize?();
+  minimize?();
+  close?();
+  isMaximized?();
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -35,7 +44,9 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private componentRef: ComponentRef<typeof _LayoutNode>;
 
-  private _tabTitle: string = null;
+  private _tabTitle: string;
+
+  private _tabIcon: string;
 
   layoutContainer: IContainer;
 
@@ -120,6 +131,34 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     this._tabTitle = value;
     if (this.layoutContainer)
       this.layoutContainer.setTitle(value);
+  }
+
+  setTabIcon(icon: string) {
+    this._tabIcon = icon;
+  }
+
+  getTabIcon(): string {
+    return this._tabIcon ?? '';
+  }
+
+  getTabTitle() {
+    return this._tabTitle ?? '';
+  }
+
+  isMaximized() {
+    return this.layoutContainer.maximized;
+  }
+
+  close() {
+    this.layoutContainer.close();
+  }
+
+  minimize() {
+    this.layoutContainer.minimize();
+  }
+
+  maximize() {
+    this.layoutContainer.maximize();
   }
 
   _removeItself() {

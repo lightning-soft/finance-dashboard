@@ -55,7 +55,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
     protected _loadingService: LoadingService,
-  ) { }
+  ) {
+    this.setTabIcon('icon-widget-chart');
+  }
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.load();

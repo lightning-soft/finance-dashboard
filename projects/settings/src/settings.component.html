@@ -1,3 +1,4 @@
+<window-header [window]="this"></window-header>
 <div class="settings">
   <ul class="tabs">
     <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="activeTab = tab">{{tab}}</li>

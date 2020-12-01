@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InstrumentSelectModule } from 'instrument-select';
 import { LazyAssetsModule } from 'lazy-assets';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzAutocompleteModule, NzButtonModule, NzDropDownModule, NzIconModule, NzInputModule, NzSelectModule } from 'ng-zorro-antd';
 import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
+import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
-import { InstrumentSelectModule } from 'instrument-select';
 
 // const environment = { scxPath: '' };
 
@@ -25,6 +26,7 @@ import { InstrumentSelectModule } from 'instrument-select';
     NzIconModule,
     OrderFormModule,
     InstrumentSelectModule,
+    WindowHeaderModule,
     LazyAssetsModule.forConfig({
       scripts: [
         {

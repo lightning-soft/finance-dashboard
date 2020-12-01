@@ -24,6 +24,8 @@ const headers = [
   'close',
 ];
 
+export interface WatchlistComponent extends ILayoutNode { }
+
 export interface IWatchlistState {
   componentName: string;
   items?: string[];
@@ -60,6 +62,13 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   public selecInstrumentmentName = '';
   private _selectedInstrument: WatchlistItem;
 
+  handlers = [
+    new CellClickDataGridHandler<WatchlistItem>({
+      column: 'close',
+      handler: (item) => this.delete(item),
+    }),
+  ];
+
   constructor(
     protected instrumentRepository: InstrumentsRepository,
     private _levelOneDatafeed: LevelOneDataFeed,
@@ -74,14 +83,10 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
     this.autoLoadData = false;
 
     this.columns = headers.map(header => ({ name: header, visible: true }));
-  }
 
-  handlers = [
-    new CellClickDataGridHandler<WatchlistItem>({
-      column: 'close',
-      handler: (item) => this.delete(item),
-    }),
-  ];
+    this.setTabIcon('icon-widget-watchlist');
+    this.setTabTitle('Watchlist');
+  }
 
   closeMenu(): void {
     this.nzContextMenuService.close();

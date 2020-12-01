@@ -2,10 +2,10 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { ItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
-import { LayoutComponent, LayoutNode } from 'layout';
-import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
+import { ILayoutNode, LayoutNode } from 'layout';
+import { LoadingService } from 'lazy-modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
-import { OrdersToolbarComponent, OrdersToolbarConfig } from './components/toolbar/orders-toolbar.component';
+import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
 
 const headers = [
@@ -24,6 +24,8 @@ const headers = [
   'identifier',
   'close',
 ];
+
+export interface OrdersComponent extends ILayoutNode { }
 
 @Component({
   selector: 'orders-list',
@@ -96,6 +98,9 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
     });
 
     this.columns = headers.map(header => ({ name: header, visible: true }));
+
+    this.setTabIcon('icon-widget-orders');
+    this.setTabTitle('Orders');
   }
 
   ngOnInit() {

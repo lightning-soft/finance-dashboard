@@ -4,12 +4,14 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
 import { Id } from 'communication';
-import { LayoutNode } from 'layout';
+import { ILayoutNode, LayoutNode } from 'layout';
 import {
   IInstrument, IOrder,
   ITrade, LevelOneDataFeed,
   OrderDuration, OrderSide, OrdersRepository, OrderType
 } from 'trading';
+
+export interface OrderFormComponent extends ILayoutNode { }
 
 @Component({
   selector: 'order-form',
@@ -56,6 +58,9 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   ) {
     super();
     this.autoLoadData = false;
+
+    this.setTabIcon('icon-widget-create-orders');
+    this.setTabTitle('Orders form');
   }
 
   ngOnInit() {

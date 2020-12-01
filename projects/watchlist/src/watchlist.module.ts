@@ -8,6 +8,7 @@ import { NzContextMenuService, NzDropDownModule } from 'ng-zorro-antd';
 import { SearchSelectModule } from 'search-select';
 import { WatchlistComponent } from './watchlist.component';
 import { InstrumentSelectModule } from 'instrument-select';
+import { WindowHeaderModule } from 'window-header';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { InstrumentSelectModule } from 'instrument-select';
     SearchSelectModule,
     NzDropDownModule,
     ContextMenuModule,
-    InstrumentSelectModule
+    InstrumentSelectModule,
+    WindowHeaderModule,
   ],
   exports: [
     WatchlistComponent,

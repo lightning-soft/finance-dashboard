@@ -120,6 +120,9 @@
       ],
       "window-manager": [
         "projects/window-manager/index"
+      ],
+      "window-header": [
+        "projects/window-header/index"
       ]
     }
   }
