@@ -76,7 +76,7 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
   return  async () => {
     await config.getConfig().pipe(first()).toPromise();
-    await initIdentityAccount(authService, config);
+    // await initIdentityAccount(authService, config);
     await initAccounts(manager);
   };
 }

@@ -8,4 +8,5 @@ import { ILayoutNode } from 'layout';
 })
 export class WindowHeaderComponent {
   @Input() window: ILayoutNode;
+  @Input() className: string;
 }

@@ -38,6 +38,7 @@ export class SettingsComponent implements OnInit {
     private settingService: SettignsService,
   ) {
     this.setTabTitle('Settings');
+    this.setTabIcon('icon-setting-gear');
   }
 
   ngOnInit(): void {

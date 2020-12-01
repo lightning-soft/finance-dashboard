@@ -1,18 +1,18 @@
-<div class="d-flex align-items-center w-100 wm-draggable">
+<div class="d-flex align-items-center w-100 wm-draggable {{className}}">
   <div [class]="window.getTabIcon() && 'window-icon'">
     <i [class]="window.getTabIcon()"></i>
   </div>
-  <div class="mr-3">{{ window.getTabTitle() }}</div>
+  <div class="mr-3 title">{{ window.getTabTitle() }}</div>
   <ng-content></ng-content>
   <div #toolbar class="mr-3"></div>
   <div class="ml-auto">
     <span class="link" (click)="window.minimize()">
       <i class="icon-minimize-window"></i>
     </span>
-    <span class="link ml-1" (click)="window.maximize()">
+    <span class="link" (click)="window.maximize()">
       <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
     </span>
-    <span class="link ml-1" (click)="window.close()">
+    <span class="link" (click)="window.close()">
       <i class="icon-close-window"></i>
     </span>
   </div>
