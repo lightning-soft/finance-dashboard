@@ -38,11 +38,8 @@ export class AuthService {
 
   public logOut(): Observable<any> {
     const { url } = this._appConfig.identity;
-    const headers = new HttpHeaders({
-      "authorization": "Bearer" + this._token
-    });
 
-    return this._http.post(`${url}account/logout`, { headers })
+    return this._http.post(`${url}account/logout`, {})
       .pipe(tap(res => this.isAuthenticated.next(false)));
   }
 
