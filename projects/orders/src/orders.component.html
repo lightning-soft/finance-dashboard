@@ -1,9 +1,15 @@
 <window-header className="widget" [window]="this">
   <button 
-    class="wm-header-btn icon-setting-gear"
+    class="wm-header-btn mr-2"
     (click)="grid.createComponentModal()"
   >
+    <i class="icon-setting-gear"></i>
   </button>
+  <account-select
+    size="small"
+    className="custom-form-control"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
 </window-header>
 <div class="wrapper">
   <div class="toolbar">

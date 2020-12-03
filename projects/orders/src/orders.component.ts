@@ -103,7 +103,7 @@ export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams
     this.setTabTitle('Orders');
   }
 
-  private handleAccountChange(accountId: Id): void {
+  handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
 

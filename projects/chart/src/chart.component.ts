@@ -13,6 +13,7 @@ import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { LoadingService } from 'lazy-modules';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { Orders, Positions } from './objects';
+import { Id } from 'communication';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -41,13 +42,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   chart: IChart;
 
-  private _accountId = 'NK22072';
+  private _accountId: Id;
 
-  get accountId() {
+  get accountId(): Id {
     return this._accountId;
   }
 
-  set accountId(value) {
+  set accountId(value: Id) {
     this._accountId = value;
 
     this._orders.refresh();
@@ -259,6 +260,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .getDynamicComponent(WindowToolbarComponent);
 
     return domElement;
+  }
+
+  handleAccountChange(accountId: Id) {
+    this.accountId = accountId;
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {

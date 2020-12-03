@@ -1,4 +1,12 @@
-<window-header className="widget" [window]="this"></window-header>
+<window-header className="widget" [window]="this">
+  <account-select
+    size="small"
+    class="mr-2"
+    className="custom-form-control"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
+  <app-window-toolbar></app-window-toolbar>
+</window-header>
 <div class="component-container">
   <div class="chart-container">
     <app-toolbar [chart]="chart"></app-toolbar>

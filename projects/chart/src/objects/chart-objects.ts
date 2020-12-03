@@ -89,6 +89,10 @@ export abstract class ChartObjects<T extends IBaseItem> {
   }
 
   protected _loadItems() {
+    if (!this._instance.accountId || !this._instance.instrument) {
+      return;
+    }
+
     this._repository.getItems(this._params)
       .pipe(untilDestroyed(this._instance))
       .subscribe((res: IPaginationResponse<T>) => {
