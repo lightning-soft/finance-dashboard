@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { Directive, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
@@ -11,7 +11,7 @@ import { LoadingComponent } from './loading.component';
 @UntilDestroy()
 @Directive()
 export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationParams = any>
-  extends LoadingComponent<P, T> implements OnInit, OnDestroy {
+  extends LoadingComponent<P, T> implements OnInit {
   public allItemsLoaded = false;
   public responsePayload: PaginationResponsePayload = {
     count: 0,
@@ -25,9 +25,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   protected _clearOnDisconnect = true;
 
   protected _accountsManager: AccountsManager;
-  protected _datafeed: any;
 
-  protected _realtimeActionSubscription: Subscription;
+  protected _repositorySubscription: Subscription;
   protected _dataSubscription: Subscription;
 
   get items() {
@@ -73,30 +72,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   ngOnInit() {
     this._subscribeToConnections();
 
-    if (this.repository)
-      this._realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
-        switch (action) {
-          case RealtimeAction.Create:
-            this._handleCreateItems(items);
-            break;
-          case RealtimeAction.Update:
-            this._handleUpdateItems(items);
-            break;
-          case RealtimeAction.Delete:
-            this._handleDeleteItems(items);
-            break;
-        }
-      });
-
-    this._subscribeToDatafeed();
-
     super.ngOnInit();
-  }
-
-  ngOnDestroy() {
-    super.ngOnDestroy();
-
-    this._realtimeActionSubscription.unsubscribe();
   }
 
   protected _subscribeToConnections() {
@@ -107,11 +83,15 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
 
-        if (connection) {
-          const repository = this._repository as any;
+        this._repositorySubscription?.unsubscribe();
 
-          if (repository && repository.forConnection) {
-            this._repository = repository.forConnection(connection);
+        if (connection) {
+          const repository = this.repository as any;
+
+          if (repository?.forConnection) {
+            this.repository = repository.forConnection(connection);
+
+            this._repositorySubscription = this._subscribeToRepository();
           }
 
           if ((this.config.autoLoadData || {}).onConnectionChange) {
@@ -127,24 +107,26 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
 
   protected _handleConnection(connection: IConnection) {}
 
-  protected _subscribeToDatafeed() {
-    if (!this._datafeed) {
+  protected _subscribeToRepository(): Subscription {
+    if (!this.repository) {
       return;
     }
 
-    this._datafeed.on((item: T) => {
-      console.log(this._datafeed.type, item);
-
-      const oldItem = this.items.find(i => i.id === item.id);
-
-      if (oldItem) {
-        const _oldItem = this.builder.unwrap(oldItem);
-
-        this._handleUpdateItems([this._datafeed.merge(_oldItem, item)]);
-      } else {
-        this._handleCreateItems([item]);
-      }
-    });
+    return this.repository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe(({ action, items }) => {
+        switch (action) {
+          case RealtimeAction.Create:
+            this._handleCreateItems(items);
+            break;
+          case RealtimeAction.Update:
+            this._handleUpdateItems(items);
+            break;
+          case RealtimeAction.Delete:
+            this._handleDeleteItems(items);
+            break;
+        }
+      });
   }
 
   loadData(params?: P) {

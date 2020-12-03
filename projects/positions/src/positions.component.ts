@@ -1,27 +1,14 @@
-import {
-  Component,
-  Injector,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-
-import { ItemsComponent, ViewGroupItemsBuilder } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { RealtimeItemsComponent, ViewGroupItemsBuilder } from 'base-components';
+import { Id } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
 import { ILayoutNode, LayoutNode } from 'layout';
-
-import {
-  IPosition,
-  IPositionParams,
-  ITrade,
-  LevelOneDataFeed,
-  PositionsFeed,
-  PositionsRepository,
-  PositionStatus,
-  Side
-} from 'trading';
-
+import { positionsLevelOneDataFeedHandler } from 'real-trading';
+import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
+
+
+
 
 const headers = [
   'account',
@@ -40,8 +27,10 @@ export interface PositionsComponent extends ILayoutNode { }
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends ItemsComponent<IPosition> implements OnInit, OnDestroy {
+export class PositionsComponent extends RealtimeItemsComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
+
+  protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
 
   private _columns: Column[] = [];
 
@@ -109,8 +98,7 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
   constructor(
     protected _repository: PositionsRepository,
     protected _injector: Injector,
-    protected _datafeed: PositionsFeed,
-    private _levelOneDatafeed: LevelOneDataFeed,
+    protected _dataFeed: PositionsFeed,
   ) {
     super();
     this.autoLoadData = false;
@@ -126,59 +114,6 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
-  }
-
-  ngOnInit() {
-    this._onLevelOneDatafeed();
-
-    super.ngOnInit();
-  }
-
-  ngOnDestroy() {
-    super.ngOnDestroy();
-
-    this._unsubscribeFromLevelOneDatafeed(this.items);
-  }
-
-  protected _onLevelOneDatafeed() {
-    this._levelOneDatafeed.on((trade: ITrade) => {
-      const { instrument } = trade;
-
-      if (!instrument) {
-        return;
-      }
-
-      const id = instrument.exchange + instrument.symbol;
-      const item = this.items.find(i => i.id === id)?.position;
-
-      if (!item) {
-        return;
-      }
-
-      const price = item.size
-        ? item.side === Side.Long ? trade.bidInfo.price : trade.askInfo.price
-        : 0;
-
-      const total = item.size * price;
-
-      const _item = { ...item, price, total };
-
-      this._handleUpdateItems([_item]);
-    });
-  }
-
-  protected _subscribeToLevelOneDatafeed(items: IPosition[]) {
-    items.forEach(item => {
-      this._levelOneDatafeed.subscribe(item.instrument);
-    });
-  }
-
-  protected _unsubscribeFromLevelOneDatafeed(items: IPosition[]) {
-    items.forEach(item => {
-      this._levelOneDatafeed.unsubscribe(item.instrument);
-    });
-
-    this._columns = headers.map(header => ({ name: header, visible: true }));
   }
 
   groupItems() {
@@ -221,18 +156,6 @@ export class PositionsComponent extends ItemsComponent<IPosition> implements OnI
 
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
-  }
-
-  protected _handleResponse(response: IPaginationResponse<IPosition>) {
-    super._handleResponse(response);
-
-    this._subscribeToLevelOneDatafeed(response?.data);
-  }
-
-  protected _handleCreateItems(items: IPosition[]) {
-    super._handleCreateItems(items);
-
-    this._subscribeToLevelOneDatafeed(items);
   }
 
   protected _handleDeleteItems(items: IPosition[]) {

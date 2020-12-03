@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -12,6 +12,7 @@ import { IScxComponentState } from './models/scx.component.state';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { LoadingService } from 'lazy-modules';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
+import { Orders, Positions } from './objects';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -40,8 +41,28 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   chart: IChart;
 
+  private _accountId = 'NK22072';
+
+  get accountId() {
+    return this._accountId;
+  }
+
+  set accountId(value) {
+    this._accountId = value;
+
+    this._orders.refresh();
+    this._positions.refresh();
+  }
+
   get instrument() {
     return this.chart?.instrument;
+  }
+
+  set instrument(value) {
+    this.chart.instrument = value;
+
+    this._orders.refresh();
+    this._positions.refresh();
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
@@ -49,7 +70,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   enableOrderForm = false;
   showOrderForm = true;
 
+  private _orders: Orders;
+  private _positions: Positions;
+
   constructor(
+    public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
@@ -57,6 +82,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _loadingService: LoadingService,
   ) {
     this.setTabIcon('icon-widget-chart');
+
+    this._orders = new Orders(this);
+    this._positions = new Positions(this);
   }
 
   protected loadFiles(): Promise<any> {
@@ -66,7 +94,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     this.loadFiles()
       .then(() => this.loadChart())
-      .catch(e => console.log(e));
+      .catch(e => console.error(e));
   }
 
   saveState() {
@@ -94,9 +122,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    this._orders.init();
+    this._positions.init();
+
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
-      this.chart.instrument = event.value;
+      this.instrument = event.value;
       this.setTabTitle(event.value.symbol);
 
       this.broadcastLinkData({
