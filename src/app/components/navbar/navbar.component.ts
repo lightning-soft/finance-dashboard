@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { LayoutComponent } from 'layout';
+import { NotificationService } from 'notification';
 import { Themes, ThemesHandler } from 'themes';
 
 @Component({
@@ -10,13 +11,20 @@ import { Themes, ThemesHandler } from 'themes';
 export class NavbarComponent {
   @Input() layout: LayoutComponent;
 
+  public isNewNotification: boolean;
+
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
   }
 
   constructor(
     private themeHandler: ThemesHandler,
-  ) {}
+    private notificationService: NotificationService,
+  ) {
+    this.notificationService.notifications.subscribe(n => {
+      this.isNewNotification = n.length ? true : false;
+    });
+  }
 
   switchTheme() {
     this.themeHandler.toggleTheme();
@@ -28,6 +36,14 @@ export class NavbarComponent {
         name: 'accounts',
       },
       maximizeBtn: false,
+    });
+  }
+
+  openNotificationsList() {
+    this.layout.addComponent({
+      component: {
+        name: 'notification-list'
+      }
     });
   }
 

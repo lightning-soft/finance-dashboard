@@ -18,7 +18,9 @@
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
     <button (click)="openSettings()" class="icon-setting-gear"></button>
-    <app-notification-list></app-notification-list>
+    <button (click)="openNotificationsList()" class="icon-notification{{isNewNotification ? '-active' : ''}}">
+      <i *ngIf="isNewNotification" class="icon-ellipse"></i>
+    </button>
     <app-account></app-account>
   </div>
   <div class="time">
