@@ -61,6 +61,9 @@ export class DockDesktopLayout extends Layout {
             title: componentName[0].toUpperCase() + componentName.slice(1),
             minimizable: true,
             maximizable: true,
+            keepInside: {
+              top: true,
+            },
             y: 70,
             x: 50,
             ...config,
