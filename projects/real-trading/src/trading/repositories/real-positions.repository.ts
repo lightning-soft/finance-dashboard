@@ -1,5 +1,5 @@
 import { Id, IPaginationResponse } from 'communication';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -16,27 +16,34 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
     );
   }
 
-  getItems(params) {
-    params.id = params.accountId;
-    delete params.accountId;
-    return super.getItems(params).pipe(
-      map((res: any) => {
-        const data = res.result.map((item: any) => {
-          const { averageFillPrice: price, volume: size, instrument } = item;
+  getItems(params: any = {}) {
+    const _params = { ...params };
 
-          return {
-            id: instrument.exchange + instrument.symbol,
-            instrument,
-            accountId: item.account.id,
-            price,
-            size,
-            realized: item.realisedPL,
-            unrealized: 0,
-            total: size * price,
-            side: item.type,
-            status: PositionStatus.Open,
-          };
-        });
+    if (_params.accountId) {
+      _params.id = _params.accountId;
+      delete _params.accountId;
+    }
+
+    return super.getItems(_params).pipe(
+      map((res: any) => {
+        const data = res.result
+          .filter((item: any) => this._filter(item, _params))
+          .map((item: any) => {
+            const { averageFillPrice: price, volume: size, instrument } = item;
+
+            return {
+              id: instrument.exchange + instrument.symbol,
+              instrument,
+              accountId: item.account.id,
+              price,
+              size,
+              realized: item.realisedPL,
+              unrealized: 0,
+              total: size * price,
+              side: item.type,
+              status: PositionStatus.Open,
+            };
+          });
 
         return { data } as IPaginationResponse<IPosition>;
       }),
@@ -56,7 +63,17 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
           Symbol: item.instrument.symbol,
           Exchange: item.instrument.exchange,
         }
-      })
-      .pipe(tap(this._onUpdate));
+      }
+    );
+  }
+
+  protected _filter(item: IPosition, params: any = {}) {
+    const { instrument } = params;
+
+    if (instrument) {
+      return instrument.symbol === item.instrument.symbol;
+    }
+
+    return true;
   }
 }

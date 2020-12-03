@@ -1,5 +1,5 @@
-import { Component, Injector, OnInit } from '@angular/core';
-import { ItemsComponent, ViewItemsBuilder } from 'base-components';
+import { Component, Injector } from '@angular/core';
+import { RealtimeItemsComponent, ViewItemsBuilder } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
 import { ILayoutNode, LayoutNode } from 'layout';
@@ -33,7 +33,7 @@ export interface OrdersComponent extends ILayoutNode { }
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implements OnInit {
+export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams> {
 
   columns: Column[];
 
@@ -85,7 +85,7 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
   constructor(
     protected _repository: OrdersRepository,
     protected _injector: Injector,
-    protected _datafeed: OrdersFeed,
+    protected _dataFeed: OrdersFeed,
     private _loadingService: LoadingService,
   ) {
     super();
@@ -101,17 +101,6 @@ export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> implem
 
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
-  }
-
-  ngOnInit() {
-    this._datafeed.on((order) => {
-      console.log('order', order);
-      if (this.items.some(i => i.id === order.id))
-        this.builder.handleUpdateItems([order]);
-      else
-        this.builder.handleCreateItems([order]);
-    });
-    super.ngOnInit();
   }
 
   private handleAccountChange(accountId: Id): void {

@@ -25,7 +25,7 @@ export class PositionItem {
   }
 
   update(position: IPosition) {
-    this.position = position;
+    this.position = { ...this.position, ...position };
     this.account.updateValue(position.accountId);
     const fields = ['price', 'size', 'unrealized', 'realized', 'total'];
     for (let key of fields) {
