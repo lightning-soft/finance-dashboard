@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AccountSelectModule } from 'account-select';
 import { InstrumentSelectModule } from 'instrument-select';
 import { LazyAssetsModule } from 'lazy-assets';
 import { ComponentStore, LazyModule } from 'lazy-modules';
@@ -27,6 +28,7 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
     OrderFormModule,
     InstrumentSelectModule,
     WindowHeaderModule,
+    AccountSelectModule,
     LazyAssetsModule.forConfig({
       scripts: [
         {

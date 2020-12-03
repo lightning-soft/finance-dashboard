@@ -1,11 +1,12 @@
 <div class="d-flex align-items-center w-100 wm-draggable {{className}}">
-  <div [class]="window.getTabIcon() && 'window-icon'">
+  <div class="wm-draggable" [class.window-icon]="window.getTabIcon()">
     <i [class]="window.getTabIcon()"></i>
   </div>
-  <div class="mr-3 title">{{ window.getTabTitle() }}</div>
-  <ng-content></ng-content>
-  <div #toolbar class="mr-3"></div>
-  <div class="ml-auto">
+  <div class="title wm-draggable">{{ window.getTabTitle() }}</div>
+  <div class="flex-fill d-flex align-items-center mx-3 wm-draggable">
+    <ng-content></ng-content>
+  </div>
+  <div>
     <span class="link" (click)="window.minimize()">
       <i class="icon-minimize-window"></i>
     </span>
