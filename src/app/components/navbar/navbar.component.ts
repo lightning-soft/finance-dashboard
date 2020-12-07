@@ -43,7 +43,11 @@ export class NavbarComponent {
     this.layout.addComponent({
       component: {
         name: 'notification-list'
-      }
+      },
+      x: 'right',
+      y: 'top',
+      height: 800,
+      width: 300,
     });
   }
 
@@ -54,6 +58,8 @@ export class NavbarComponent {
       },
       icon: 'icon-setting-gear',
       maximizeBtn: false,
+      x: 'center',
+      y: 'center',
     });
   }
 }

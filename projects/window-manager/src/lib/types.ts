@@ -1,4 +1,5 @@
 import { IWindow } from './interfaces';
+import { Position } from './enums';
 
 export type Executor = (win: IWindow) => void;
 
@@ -10,8 +11,8 @@ export type Bounds = {
 };
 
 export type Options = {
-  x: number,
-  y: number,
+  x: number | Position,
+  y: number | Position,
   width: number,
   height: number,
   minHeight: string

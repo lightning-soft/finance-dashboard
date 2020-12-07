@@ -8,6 +8,8 @@ export type ComponentOptions = {
     name: string;
     state?: any;
   },
+  x?: number | string;
+  y?: number | string;
   width?: number;
   height?: number;
   type?: string;

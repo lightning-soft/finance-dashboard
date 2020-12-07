@@ -8,3 +8,11 @@ export enum EVENTS {
   SHOW = 'show',
   MINIMIZE = 'minimize',
 }
+
+export enum Position {
+  LEFT = 'left',
+  RIGHT = 'right',
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  CENTER = 'center',
+}

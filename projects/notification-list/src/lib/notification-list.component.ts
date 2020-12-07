@@ -27,9 +27,6 @@ export class NotificationListComponent {
   ) {
     this.notifications = this._notificationService.getNotification();
     this._notificationService.notifications.subscribe(res => {
-      console.log(res);
-      
-
       this.notifications = [...res];
     });
 
