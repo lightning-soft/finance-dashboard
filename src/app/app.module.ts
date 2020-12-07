@@ -36,6 +36,7 @@ import {
   NotificationListComponent, TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
+import { DomModule } from '../../projects/dom/src/lib/dom.module';
 
 
 
@@ -156,7 +157,11 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       {
         path: Modules.Scripting,
         loadChildren: () => import('scripting').then(i => i.ScriptingModule)
-      }
+      },
+      {
+        path: Modules.Dom,
+        loadChildren: () => import('dom').then(i => i.DomModule)
+      },
     ], modulesStore),
     RouterModule.forRoot([
       {

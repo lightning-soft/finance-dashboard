@@ -123,6 +123,9 @@
       ],
       "window-header": [
         "projects/window-header/index"
+      ],
+      "dom": [
+        "projects/dom/index"
       ]
     }
   }

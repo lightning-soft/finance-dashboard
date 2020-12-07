@@ -1,0 +1,6 @@
+<window-header [window]="this">
+  <button class="wm-header-btn icon-setting-gear" (click)="grid.createComponentModal()">
+  </button>
+</window-header>
+
+<data-grid #grid [items]="items" [columns]="columns"></data-grid>
