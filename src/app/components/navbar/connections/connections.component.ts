@@ -65,6 +65,8 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       height: 665,
       width: 600,
       maximizeBtn: false,
+      x: 'center',
+      y: 'center',
     });
   }
 

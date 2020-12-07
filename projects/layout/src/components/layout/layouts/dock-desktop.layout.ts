@@ -64,8 +64,6 @@ export class DockDesktopLayout extends Layout {
             keepInside: {
               top: true,
             },
-            y: 70,
-            x: 50,
             ...config,
             componentState: () => ({
               state: instance.saveState && instance.saveState(),
