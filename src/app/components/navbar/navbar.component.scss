@@ -52,7 +52,7 @@
   }
 
   .spacer {
-    flex-grow: 1;
+	flex-grow: 1;
   }
 
   .preferences {
@@ -85,9 +85,8 @@
   }
 
   .control {
-    display: flex;
+    display: none;
     margin: 0 8px;
-
     button {
       background-color: transparent;
       padding: 0 8px;
