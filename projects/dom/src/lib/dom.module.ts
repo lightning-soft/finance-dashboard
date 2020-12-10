@@ -3,6 +3,7 @@ import { DomComponent } from './dom.component';
 import { DataGridModule } from 'data-grid';
 import { LazyModule, ComponentStore } from 'lazy-modules';
 import { WindowHeaderModule } from 'window-header';
+import { InstrumentSelectModule } from '../../../instrument-select/src/lib/instrument-select.module';
 
 @NgModule({
   declarations: [
@@ -10,6 +11,7 @@ import { WindowHeaderModule } from 'window-header';
   ],
   imports: [
     DataGridModule,
+    InstrumentSelectModule,
     WindowHeaderModule,
   ],
   exports: [
