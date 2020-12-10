@@ -25,4 +25,5 @@ export interface IIdentityConfig {
   clientSecret: string;
   responseType: string;
   redirectUri: string;
+  notificationUri: string;
 }

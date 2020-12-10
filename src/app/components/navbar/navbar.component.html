@@ -11,25 +11,27 @@
   <!-- <div class="search">
     <button class="icon-search"></button>
   </div> -->
-  <div class="spacer"></div>
+  <div class="spacer">&nbsp;</div>
     <!-- </div> -->
 
   <app-connections></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
     <button (click)="openSettings()" class="icon-setting-gear"></button>
-    <app-notification-list></app-notification-list>
+    <button (click)="openNotificationsList()" class="icon-notification{{isNewNotification ? '-active' : ''}}">
+      <i *ngIf="isNewNotification" class="icon-ellipse"></i>
+    </button>
     <app-account></app-account>
   </div>
   <div class="time">
     <app-clock></app-clock>
   </div>
 
-  <!-- <div class="control">
-    <button class="icon-minimize-window"></button>
-    <button class="icon-maximize-window"></button>
-    <button class="icon-close-window"></button>
-  </div> -->
+  <div class="control">
+    <button class="icon-minimize-window native-minimize-button" onclick="window.nativeMinimize && window.nativeMinimize()"></button>
+    <button class="icon-maximize-window native-maximize-button" onclick="window.nativeMaximize && window.nativeMaximize()"></button>
+    <button class="icon-close-window native-close-button" onclick="window.nativeClose && window.nativeClose()"></button>
+  </div>
 
   <!-- <div nzOverlayClassName="toolbar-dropdown"
        nzTrigger="click"

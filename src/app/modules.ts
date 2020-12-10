@@ -10,6 +10,7 @@ export const Modules = {
   Scripting: 'scripting',
   Settings: 'settings',
   Dom: 'dom',
+  NotificationList: 'notification-list',
 };
 
 export const Components = {
@@ -22,6 +23,7 @@ export const Components = {
   Scripting: 'scripting',
   Settings: 'settings',
   Dom: 'dom',
+  NotificationList: 'notification-list',
 };
 
 export const modulesStore: IModules[] = [
@@ -79,4 +81,10 @@ export const modulesStore: IModules[] = [
       Components.Dom,
     ]
   },
+  {
+    module: Modules.NotificationList,
+    components: [
+      Components.NotificationList,
+    ]
+  }
 ];

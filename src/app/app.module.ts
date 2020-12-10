@@ -25,6 +25,7 @@ import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { WindowManagerModule } from 'window-manager';
 import { AppConfig } from './app.config';
+import { NotificationModule } from 'notification';
 import {
   AccountComponent,
   AppComponent, ClockComponent,
@@ -33,7 +34,7 @@ import {
   DragDrawerComponent,
   NavbarComponent,
   NavbarControllerComponent,
-  NotificationListComponent, TradeLockComponent
+  TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
 import { DomModule } from '../../projects/dom/src/lib/dom.module';
@@ -66,7 +67,7 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   const code = queryParams.get('code');
 
   if (code)
-    window.history.replaceState(null, null, '/');
+    window.history.replaceState({}, document.title, '/');
   else {
     location.replace( generateLoginLink(config.identity) );
   }
@@ -93,7 +94,6 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     TradeLockComponent,
     NavbarControllerComponent,
     ClockComponent,
-    NotificationListComponent,
     ConnectionsComponent,
     FramesManagerComponent,
   ],
@@ -125,7 +125,12 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
     AuthModule.forRoot(),
+    NotificationModule.forRoot(),
     LoadingModule.forRoot([
+      {
+        path: Modules.NotificationList,
+        loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
+      },
       {
         path: Modules.Accounts,
         loadChildren: () => import('accounts').then(i => i.AccountsModule)

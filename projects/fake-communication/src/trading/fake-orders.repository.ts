@@ -84,7 +84,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
   }
 
   protected _emulateTrading() {
-    this.subscribe(({ action, items: orders }) => {
+    this.actions.subscribe(({ action, items: orders }) => {
       switch (action) {
         case RealtimeAction.Create:
           const closeOrderAndCreatePosition = (order: IOrder) => {

@@ -30,13 +30,22 @@ export class DomComponent implements OnInit {
     'bidDepth',
   ].map(name => ({ name, visible: true }));
 
-  private _instrument: IInstrument;
+  private _instrument: IInstrument = {
+    id: 'ESZ0',
+    symbol: 'ESZ0',
+    exchange: 'CME',
+    tickSize: 0.01,
+  };
 
   public get instrument(): IInstrument {
     return this._instrument;
   }
   public set instrument(value: IInstrument) {
+    if (this._instrument?.id == value.id)
+      return;
+
     this._instrument = value;
+    this._levelOneDatafeedService.subscribe(value);
   }
 
   items = [];

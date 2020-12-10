@@ -118,6 +118,9 @@
       "auth": [
         "projects/auth/index"
       ],
+      "notification": [
+        "projects/notification/index"
+      ],
       "window-manager": [
         "projects/window-manager/index"
       ],
@@ -126,6 +129,9 @@
       ],
       "dom": [
         "projects/dom/index"
+      ],
+      "notification-list": [
+        "projects/notification-list/index"
       ]
     }
   }

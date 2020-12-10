@@ -14,6 +14,8 @@ export interface IWindowManager {
 
 export interface IWindow {
   id: number;
+  x: number;
+  y: number;
   active: boolean;
   bounds: Bounds;
   winTitlebar: any;

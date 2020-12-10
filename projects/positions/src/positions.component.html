@@ -1,17 +1,19 @@
   <!-- {{builder.items | json}} -->
-<window-header [window]="this">
+<window-header className="widget" [window]="this">
   <button 
-    class="wm-header-btn icon-setting-gear"
+    class="wm-header-btn mr-2"
     (click)="grid.createComponentModal()"
   >
+    <i class="icon-setting-gear"></i>
   </button>
+  <account-select
+    size="small"
+    className="custom-form-control"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
 </window-header>
 
 <div class="tabs">
-  <div class="tab">
-    <account-select (accountChange)="handleAccountChange($event)"></account-select>
-  </div>
-
   <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List
   </div>
 
