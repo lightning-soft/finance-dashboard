@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Column } from 'data-grid';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { DomItem } from './dom.item';
@@ -34,6 +34,10 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDepth',
   ].map(name => ({ name, visible: true }));
 
+
+  @ViewChild(DataGrid)
+  dataGrid: DataGrid;
+
   private _instrument: IInstrument;
 
   public get instrument(): IInstrument {
@@ -49,6 +53,26 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
 
   items = [
     new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
   ];
 
   constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
@@ -63,8 +87,23 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       // this.askPrice = trade.askInfo.price;
       // this.bidPrice = trade.bidInfo.price;
       console.log(trade)
-      this.items[0].processTrade(trade);
+      for (const i of this.items)
+        i .processTrade(trade);
     });
+  }
+
+  private _normalizeData() {
+    // const {data, dataGrid} = this,
+    //   visibleRows = dataGrid.visibleRows;
+
+    // if (data.length === visibleRows)
+    //   return;
+
+    // if (data.length > visibleRows)
+    //   data.splice(visibleRows, data.length - visibleRows);
+    // else if (data.length < visibleRows)
+    //   while (data.length <= visibleRows)
+    //     data.push(new DomItem());
   }
 
   saveState?(): IDomState {
