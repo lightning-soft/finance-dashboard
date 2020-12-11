@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Column } from 'data-grid';
-import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
-import { DomItem } from './dom.item';
+import {Component, OnInit} from '@angular/core';
+import {Column} from 'data-grid';
+import {ILayoutNode, IStateProvider, LayoutNode} from 'layout';
+import {IInstrument, ITrade, LevelOneDataFeed} from 'trading';
+import {DomItem} from './dom.item';
+import {NzModalService} from "ng-zorro-antd/modal";
+import {DomSettingsComponent} from "./dom-settings/dom-settings.component";
 
-export interface DomComponent extends ILayoutNode { }
+export interface DomComponent extends ILayoutNode {
+}
 
 interface IDomState {
   instrument: IInstrument;
@@ -32,13 +35,14 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDelta',
     'askDepth',
     'bidDepth',
-  ].map(name => ({ name, visible: true }));
+  ].map(name => ({name, visible: true}));
 
   private _instrument: IInstrument;
 
   public get instrument(): IInstrument {
     return this._instrument;
   }
+
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
@@ -51,7 +55,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     new DomItem(),
   ];
 
-  constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
+  constructor(private _levelOneDatafeedService: LevelOneDataFeed, private modal: NzModalService) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
@@ -92,5 +96,15 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       return;
 
     this.instrument = state.instrument;
+  }
+
+  openSettings() {
+    this.modal.create({
+      nzContent: DomSettingsComponent,
+      nzFooter: null,
+      nzStyle: {
+        width: 570 + 'px'
+      }
+    });
   }
 }

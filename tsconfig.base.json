@@ -132,6 +132,9 @@
       ],
       "notification-list": [
         "projects/notification-list/index"
+      ],
+      "dynamic-form": [
+        "projects/dynamic-form/index"
       ]
     }
   }

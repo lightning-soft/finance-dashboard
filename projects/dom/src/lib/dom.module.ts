@@ -4,15 +4,23 @@ import { DataGridModule } from 'data-grid';
 import { LazyModule, ComponentStore } from 'lazy-modules';
 import { WindowHeaderModule } from 'window-header';
 import { InstrumentSelectModule } from '../../../instrument-select/src/lib/instrument-select.module';
+import { DomSettingsComponent } from './dom-settings/dom-settings.component';
+import { NzMenuModule } from 'ng-zorro-antd';
+import { DynamicFormModule } from 'dynamic-form';
+import { CommonModule } from "@angular/common";
 
 @NgModule({
   declarations: [
     DomComponent,
+    DomSettingsComponent,
   ],
   imports: [
     DataGridModule,
     InstrumentSelectModule,
     WindowHeaderModule,
+    NzMenuModule,
+    DynamicFormModule,
+    CommonModule,
   ],
   exports: [
     DomComponent,

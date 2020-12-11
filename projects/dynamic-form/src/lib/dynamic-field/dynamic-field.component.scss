@@ -1,0 +1,9 @@
+@import "~src/scss/variables";
+
+:host ::ng-deep {
+  nz-form-item input {
+    border: none;
+    background: $inputBackground;
+    color: $inputColor;
+  }
+}
