@@ -1,3 +1,4 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +30,7 @@ const entryComponents = [
     NzSelectModule,
     GloabalHandlerModule,
     WindowManagerModule,
+    ScrollingModule,
     LazyAssetsModule.forConfig({}),
   ],
   declarations: [
