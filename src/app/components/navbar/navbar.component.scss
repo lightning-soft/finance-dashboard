@@ -62,9 +62,9 @@
     border-left: 1px solid $lightBackground;
     height: 28px;
 
-    button {
+    ::ng-deep button {
       padding: 0 12px;
-      background-color: transparent;
+      background-color: $tabFrameColor;
       position: relative;
       height: 28px;
 

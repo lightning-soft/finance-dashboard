@@ -17,6 +17,7 @@
   <app-connections></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
+    <app-workspace [layout]="layout"></app-workspace>
     <button (click)="openSettings()" class="icon-setting-gear"></button>
     <button (click)="openNotificationsList()" class="icon-notification{{isNewNotification ? '-active' : ''}}">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>

@@ -155,3 +155,57 @@ button {
   background-color: #101114;
   border-radius: 2px;
 }
+
+.vertical-center-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .ant-modal {
+    top: 0;
+  }
+
+}
+
+.ant-modal {
+  .ant-modal-content {
+    padding: 1px;
+    border: 1px solid $lighter;
+
+    .ant-modal-header {
+      background-color: #24262C;
+      border: none;
+      padding: 0;
+
+      .ant-modal-title {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 8px;
+      }
+    }
+    .ant-modal-body {
+      background-color: #1B1D22;
+      border-radius: 2px;
+      text-align: center;
+      padding: 34px 91px;
+    }
+    .ant-modal-footer {
+      background-color: #1B1D22;
+      border: none;
+      text-align: center;
+      padding: 0px 0 40px;
+
+      .modal-btn {
+        background-color: #101114;
+        color: #ffffff;
+        border-color: #4895F5;
+      }
+    }
+    .ant-modal-close-x {
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 13px;
+    }
+  }
+}

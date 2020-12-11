@@ -3,6 +3,12 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": ".",
+    "paths": {
+      "workspaces": [
+        "dist/workspaces/workspaces",
+        "dist/workspaces"
+      ]
+    }
   },
   "references": [
     {
@@ -196,6 +202,18 @@
     },
     {
       "path": "./projects/notification-list/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/workspace-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/workspace-manager/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/workspace/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/workspace/tsconfig.spec.json"
     }
   ]
 }
