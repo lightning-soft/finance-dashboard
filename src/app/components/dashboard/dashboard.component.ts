@@ -52,7 +52,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         if (!activeWorkspace)
           return;
 
-        if (this.settings && !this.settings.autoSaveDelay)
+        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
           this._save();
 
         this.activeWorkspace = activeWorkspace;

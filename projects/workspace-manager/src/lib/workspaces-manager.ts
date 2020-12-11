@@ -40,35 +40,28 @@ export class WorkspacesManager {
   public async createWorkspace(name: string, base?: WorkspaceId): Promise<void> {
     const workspace = new Workspace(name);
 
-    workspace.isActive = true;
+    let workspaces = [...this.workspaces.value, workspace];
+    workspaces = this._switchWorkspace(workspaces, workspace.id);
 
     let workspaceConfig = [];
 
     if (base) {
-      const baseWorkspace = this.workspaces.value.find(w => w.id === base);
+      const baseWorkspace = workspaces.find(w => w.id === base);
       workspaceConfig = await this._workspacesStore.getItemConfig(baseWorkspace.configId).toPromise()
     }
-
-    const workspaces = this.workspaces.value;
-
-    for (const workspace of workspaces) {
-      if (workspace.isActive)
-        workspace.isActive = false;
-    }
-
-    workspaces.push(workspace);
 
     this._workspacesStore.setItems(workspaces);
     this._workspacesStore.setItemConfig(workspace.configId, workspaceConfig);
 
     this.workspaces.next(workspaces);
-
-    this.switchWorkspace(workspace.id);
   }
 
   public switchWorkspace(id: WorkspaceId): void {
-    const workspaces = this.workspaces.value;
+    const workspaces = this._switchWorkspace(this.workspaces.value, id);
+    this.workspaces.next(workspaces);
+  }
 
+  private _switchWorkspace(workspaces: Workspace[], id: WorkspaceId): Workspace[] {
     for (const workspace of workspaces) {
       if (workspace.isActive)
         workspace.isActive = false;
@@ -77,7 +70,7 @@ export class WorkspacesManager {
         workspace.isActive = true;
     }
 
-    this.workspaces.next(workspaces);
+    return workspaces;
   }
 
   public deleteWorkspace(id: WorkspaceId): void {
