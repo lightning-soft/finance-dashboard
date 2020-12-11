@@ -13,7 +13,7 @@ import { LinkSelectComponent } from './components/link-select/link-select.compon
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
 import { ILayoutStore, LocalLayoutStore } from './store';
-
+import { WorkspacesModule } from 'workspace-manager';
 
 
 
@@ -29,6 +29,7 @@ const entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
+    WorkspacesModule.forRoot(),
     WindowManagerModule,
     ScrollingModule,
     LazyAssetsModule.forConfig({}),

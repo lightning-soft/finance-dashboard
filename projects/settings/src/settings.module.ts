@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ComponentStore } from 'lazy-modules';
-import { NzSelectModule } from 'ng-zorro-antd';
+import { NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { SettingsStore } from './setting-store';
 import { SettingsComponent } from './settings.component';
-import { SettignsService } from './settings.service';
+import { SettingsService } from './settings.service';
 
 @NgModule({
   imports: [
@@ -14,6 +14,7 @@ import { SettignsService } from './settings.service';
     NzSelectModule,
     FormsModule,
     WindowHeaderModule,
+    NzRadioModule,
   ],
   exports: [
     SettingsComponent,
@@ -21,18 +22,13 @@ import { SettignsService } from './settings.service';
   declarations: [
     SettingsComponent,
   ],
-  providers: [
-    SettignsService,
-    SettingsStore,
-  ]
-
 })
 export class SettingsModule {
   static forRoot(): ModuleWithProviders<SettingsModule> {
     return {
       ngModule: SettingsModule,
       providers: [
-        SettignsService,
+        SettingsService,
         SettingsStore,
       ]
     };

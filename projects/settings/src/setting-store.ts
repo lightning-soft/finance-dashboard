@@ -1,6 +1,7 @@
 import { Observable, of } from 'rxjs';
 import { Storage } from 'storage';
 import { Injectable } from '@angular/core';
+import { SettingsData } from './types';
 
 const localStorageKey = 'settings';
 
@@ -11,14 +12,14 @@ export interface ISettingsStore {
 
 @Injectable()
 export class SettingsStore implements ISettingsStore {
-  constructor(private storage: Storage) {}
+  constructor(private _storage: Storage) {}
 
-  getItem(): Observable<any> {
-    return of(this.storage.getItem(localStorageKey));
+  getItem(): Observable<SettingsData> {
+    return of(this._storage.getItem(localStorageKey));
   }
 
-  setItem(data: any): Observable<any> {
-    return of(this.storage.setItem(localStorageKey, data));
+  setItem(data: SettingsData): Observable<any> {
+    return of(this._storage.setItem(localStorageKey, data));
   }
 
 }

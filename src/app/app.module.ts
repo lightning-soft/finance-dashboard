@@ -1,22 +1,24 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
 import { AuthModule, AuthService } from 'auth';
 import { CommunicationConfig, CommunicationModule } from 'communication';
-import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
+import { NzFormModule, NzRadioModule } from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NotificationModule } from 'notification';
 import { NotifierModule } from 'notifier';
 import { RealTradingModule } from 'real-trading';
 import { first } from 'rxjs/operators';
@@ -24,18 +26,23 @@ import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { WindowManagerModule } from 'window-manager';
+import { WorkspacesModule } from 'workspace-manager';
 import { AppConfig } from './app.config';
-import { NotificationModule } from 'notification';
 import {
   AccountComponent,
   AppComponent, ClockComponent,
+  ConfirmModalComponent,
   ConnectionsComponent,
+  CreateModalComponent,
   DashboardComponent,
   DragDrawerComponent,
   NavbarComponent,
   NavbarControllerComponent,
+  RenameModalComponent,
   TradeLockComponent
 } from './components';
+import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
+import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
 
 
@@ -68,14 +75,14 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   if (code)
     window.history.replaceState({}, document.title, '/');
   else {
-    location.replace( generateLoginLink(config.identity) );
+    location.replace(generateLoginLink(config.identity));
   }
 
   return authService.initialize(code);
 }
 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
-  return  async () => {
+  return async () => {
     await config.getConfig().pipe(first()).toPromise();
     // await initIdentityAccount(authService, config);
     await initAccounts(manager);
@@ -95,9 +102,17 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ClockComponent,
     ConnectionsComponent,
     FramesManagerComponent,
+    WorkspaceComponent,
+    CreateModalComponent,
+    RenameModalComponent,
+    ConfirmModalComponent,
   ],
   imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NzFormModule,
     NzSelectModule,
+    NzRadioModule,
     HttpClientModule,
     CommunicationModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
@@ -107,6 +122,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    WorkspacesModule,
     WindowManagerModule,
     SettingsModule.forRoot(),
     ConfigModule.configure({
@@ -194,7 +210,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
 export class AppModule {
   constructor(private i18n: NzI18nService) {
   }
-  switchLanguage(){
+  switchLanguage() {
     this.i18n.setLocale(en_US);
   }
 }

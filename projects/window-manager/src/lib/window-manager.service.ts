@@ -61,6 +61,17 @@ export class WindowManagerService {
     return this.wm.save();
   }
 
+  public closeAll(): void {
+    if (!this.wm)
+      return;
+
+    while (this.wm.windows.length)
+      this.wm.windows[0].close();
+
+    this.windows.next(this.wm.windows);
+    
+  }
+  
   private calculatePosition(options: Options): Cords {
     const width = options.width || parseInt(options.minWidth, 10);
     const height = options.height || parseInt(options.minHeight, 10);
