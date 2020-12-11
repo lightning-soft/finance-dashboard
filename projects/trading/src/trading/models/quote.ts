@@ -1,4 +1,4 @@
-import { IInstrument } from './instruemnt';
+import { IInstrument } from './instrument';
 
 export type PriceInfo = {
     price: number;
