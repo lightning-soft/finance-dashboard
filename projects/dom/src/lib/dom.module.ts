@@ -7,7 +7,8 @@ import { InstrumentSelectModule } from '../../../instrument-select/src/lib/instr
 import { DomSettingsComponent } from './dom-settings/dom-settings.component';
 import { NzMenuModule } from 'ng-zorro-antd';
 import { DynamicFormModule } from 'dynamic-form';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
+import { StorageModule } from 'storage';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { CommonModule } from "@angular/common";
     WindowHeaderModule,
     NzMenuModule,
     DynamicFormModule,
+    StorageModule,
     CommonModule,
   ],
   exports: [

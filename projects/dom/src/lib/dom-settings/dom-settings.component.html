@@ -1,28 +1,32 @@
 <div class="d-flex">
   <ul nz-menu nzMode="inline" nzTheme="dark" [nzInlineCollapsed]="false">
-    <li (click)="openGeneral()" nz-menu-item>
+    <li (click)="open(tabs.General)" nz-menu-item>
       <span>General</span>
     </li>
-    <li  (click)="openHotkeys()"  nz-menu-item>
+    <li (click)="open(tabs.Hotkeys)" nz-menu-item>
       <span>Hotkeys</span>
     </li>
     <li nz-submenu nzTitle="Columns">
       <ul>
-        <li nz-menu-item>Common</li>
-        <li nz-menu-item>LQT</li>
-        <li nz-menu-item>Price</li>
-
-      </ul>
-    </li>
-    <li nz-submenu nzTitle="Navigation Three">
-      <ul>
-        <li nz-menu-item>Option 9</li>
-        <li nz-menu-item>Option 10</li>
-        <li nz-menu-item>Option 11</li>
+        <li (click)="open(tabs.Common)" nz-menu-item>Common</li>
+        <li (click)="open(tabs.LTG)" nz-menu-item>LQT</li>
+        <li (click)="open(tabs.Price)" nz-menu-item>Price</li>
+        <li (click)="open(tabs.BidDelta)" nz-menu-item>Bid Delta</li>
+        <li (click)="open(tabs.AskDelta)" nz-menu-item>Ask Delta</li>
+        <li (click)="open(tabs.BidDepth)" nz-menu-item>Bid Depth</li>
+        <li (click)="open(tabs.AskDepth)" nz-menu-item>Ask Depth</li>
+        <li (click)="open(tabs.TotalAsk)" nz-menu-item>Total At Ask</li>
+        <li (click)="open(tabs.TotalBid)" nz-menu-item>Total At Bid</li>
+        <li (click)="open(tabs.VolumeProfile)" nz-menu-item>Volume Profile</li>
+        <li (click)="open(tabs.OrderColumn)" nz-menu-item>Orders</li>
+        <li (click)="open(tabs.CurrentAtBid)" nz-menu-item>Current At Bid</li>
+        <li (click)="open(tabs.CurrentAtAsk)" nz-menu-item>Current At Ask</li>
+        <li (click)="open(tabs.Note)" nz-menu-item>Note</li>
       </ul>
     </li>
   </ul>
-  <dynamic-form *ngIf="shouldShowForm(tabs.General)" [fields]="generalFields"></dynamic-form>
+  <ng-container *ngFor="let item of list">
+    <dynamic-form #component  [class.d-block]="shouldShowForm(item.tab)" [fields]="item.config"></dynamic-form>
+  </ng-container>
 
-  <dynamic-form  *ngIf="shouldShowForm(tabs.Hotkeys)"  [fields]="hotkeyFields"></dynamic-form>
 </div>

@@ -19,4 +19,12 @@ export enum FieldType {
   Input = 'input',
   Select = 'select',
   Checkbox = 'checkbox',
+  Color = 'color',
+  Radio = 'radio',
+}
+
+export enum InputType {
+  Text = 'text',
+  Password = 'password',
+  Number = 'number',
 }

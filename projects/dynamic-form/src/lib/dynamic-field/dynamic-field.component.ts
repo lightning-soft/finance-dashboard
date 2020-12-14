@@ -23,6 +23,7 @@ export class DynamicFieldComponent implements OnInit, ControlValueAccessor {
 
   set checkBoxList(value) {
     this._checkBoxList = value;
+    this.value = value.filter(item => item.checked).map(item => item.value);
   }
 
   get checkBoxList() {
@@ -31,10 +32,13 @@ export class DynamicFieldComponent implements OnInit, ControlValueAccessor {
 
   set value(value) {
     this._value = value;
+    if (this._onChange)
+      this._onChange(value);
   }
 
   get value() {
     return this._value;
+
   }
 
   constructor() {
@@ -46,9 +50,6 @@ export class DynamicFieldComponent implements OnInit, ControlValueAccessor {
       this._checkBoxList = this.field.options.map(item => {
         return {label: item, value: item, checked: isChecked(item, this.value)};
       });
-      console.warn(this.checkBoxList);
-      console.warn(this.value);
-
     }
   }
 
@@ -65,11 +66,8 @@ export class DynamicFieldComponent implements OnInit, ControlValueAccessor {
   writeValue(obj: any): void {
     this._value = obj;
   }
-
-  change($event) {
-    console.log($event);
-  }
 }
+
 const isChecked = (item, value): boolean => {
   if (Array.isArray(value))
     return value.includes(item);
