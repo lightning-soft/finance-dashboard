@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {Column} from 'data-grid';
-import {ILayoutNode, IStateProvider, LayoutNode} from 'layout';
-import {IInstrument, ITrade, LevelOneDataFeed} from 'trading';
-import {DomItem} from './dom.item';
-import {NzModalService} from "ng-zorro-antd/modal";
-import {DomSettingsComponent} from "./dom-settings/dom-settings.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Column, DataGrid } from 'data-grid';
+import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
+import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
+import { DomItem } from './dom.item';
+import { DomSettingsComponent } from './dom-settings/dom-settings.component';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -37,12 +37,15 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDepth',
   ].map(name => ({name, visible: true}));
 
+
+  @ViewChild(DataGrid)
+  dataGrid: DataGrid;
+
   private _instrument: IInstrument;
 
   public get instrument(): IInstrument {
     return this._instrument;
   }
-
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
@@ -52,6 +55,26 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
   }
 
   items = [
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
+    new DomItem(),
     new DomItem(),
   ];
 
@@ -67,8 +90,23 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       // this.askPrice = trade.askInfo.price;
       // this.bidPrice = trade.bidInfo.price;
       console.log(trade)
-      this.items[0].processTrade(trade);
+      for (const i of this.items)
+        i .processTrade(trade);
     });
+  }
+
+  private _normalizeData() {
+    // const {data, dataGrid} = this,
+    //   visibleRows = dataGrid.visibleRows;
+
+    // if (data.length === visibleRows)
+    //   return;
+
+    // if (data.length > visibleRows)
+    //   data.splice(visibleRows, data.length - visibleRows);
+    // else if (data.length < visibleRows)
+    //   while (data.length <= visibleRows)
+    //     data.push(new DomItem());
   }
 
   saveState?(): IDomState {

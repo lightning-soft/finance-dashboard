@@ -2,28 +2,27 @@ import { MessageTypes } from './enums';
 import { Notification } from './notification';
 
 export const handlers = {
-  DEFAULT: (msg) => {},
+  DEFAULT: (msg) => { },
 
   [MessageTypes.CONNECT]: (msg) => {
-    if (msg.result.value === 'Disconnected') {
-      return new Notification({
-        title: msg.result.value,
-        type: msg.type,
-        body: msg.result.value,
-        timestamp: msg.result.timestamp,
-        icon: 'icon-datafeed-disconnected'
-      });
-    }
+    const icon = `icon-datafeed-${msg?.result?.value.toLowerCase()}`
 
-    if (msg.result.value === 'Connected') {
-      return new Notification({
-        title: msg.result.value,
-        type: msg.type,
-        body: msg.result.value,
-        timestamp: msg.result.timestamp,
-        icon: 'icon-datafeed-connected'
-      });
-    }
+    return new Notification({
+      title: msg.result.value,
+      type: msg.type,
+      body: msg.result.value,
+      timestamp: msg.result.timestamp,
+      icon,
+    });
+  },
+  [MessageTypes.ERROR]: (msg) => {
+    return new Notification({
+      title: 'Error',
+      type: msg.type,
+      body: msg.result.value,
+      timestamp: msg.result.timestamp,
+      icon: 'icon-some-error',
+    });
   },
 
   [MessageTypes.ORDER]: (msg) => {
