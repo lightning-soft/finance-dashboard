@@ -8,20 +8,7 @@
     </li>
     <li nz-submenu nzTitle="Columns">
       <ul>
-        <li (click)="open(tabs.Common)" nz-menu-item>Common</li>
-        <li (click)="open(tabs.LTG)" nz-menu-item>LQT</li>
-        <li (click)="open(tabs.Price)" nz-menu-item>Price</li>
-        <li (click)="open(tabs.BidDelta)" nz-menu-item>Bid Delta</li>
-        <li (click)="open(tabs.AskDelta)" nz-menu-item>Ask Delta</li>
-        <li (click)="open(tabs.BidDepth)" nz-menu-item>Bid Depth</li>
-        <li (click)="open(tabs.AskDepth)" nz-menu-item>Ask Depth</li>
-        <li (click)="open(tabs.TotalAsk)" nz-menu-item>Total At Ask</li>
-        <li (click)="open(tabs.TotalBid)" nz-menu-item>Total At Bid</li>
-        <li (click)="open(tabs.VolumeProfile)" nz-menu-item>Volume Profile</li>
-        <li (click)="open(tabs.OrderColumn)" nz-menu-item>Orders</li>
-        <li (click)="open(tabs.CurrentAtBid)" nz-menu-item>Current At Bid</li>
-        <li (click)="open(tabs.CurrentAtAsk)" nz-menu-item>Current At Ask</li>
-        <li (click)="open(tabs.Note)" nz-menu-item>Note</li>
+        <li *ngFor="let item of submenuItems" (click)="open(item.tab)" nz-menu-item>{{item.label}}</li>
       </ul>
     </li>
   </ul>

@@ -10,6 +10,8 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
+import { combineLatest } from 'rxjs';
+import { skip, startWith } from 'rxjs/operators';
 
 enum SettingTab {
   General, Hotkeys, Columns, Common, LTG, Price,
@@ -26,7 +28,7 @@ enum SettingTab {
   CurrentAtAsk,
 }
 
-const basePrefix = 'dom-settings.';
+const basePrefix = 'dom-settings';
 
 @UntilDestroy()
 @Component({
@@ -37,8 +39,22 @@ const basePrefix = 'dom-settings.';
 export class DomSettingsComponent implements AfterViewInit, OnInit {
   currentTab = SettingTab.General;
   tabs = SettingTab;
-
-
+  submenuItems = [
+    {tab: SettingTab.Common, label: 'Common'},
+    {tab: SettingTab.LTG, label: 'LQT'},
+    {tab: SettingTab.Price, label: 'Price'},
+    {tab: SettingTab.BidDelta, label: 'Bid Delta'},
+    {tab: SettingTab.AskDelta, label: 'Ask Delta'},
+    {tab: SettingTab.BidDepth, label: 'Bid Depth'},
+    {tab: SettingTab.AskDepth, label: 'Ask Depth'},
+    {tab: SettingTab.TotalAsk, label: 'Total At Ask'},
+    {tab: SettingTab.TotalBid, label: 'Total At Bid'},
+    {tab: SettingTab.VolumeProfile, label: 'Volume Profile'},
+    {tab: SettingTab.OrderColumn, label: 'Orders'},
+    {tab: SettingTab.CurrentAtBid, label: 'Current At Bid'},
+    {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask'},
+    {tab: SettingTab.Note, label: 'Note'},
+  ];
   list = [
     {tab: SettingTab.General, key: 'general', config: generalFields},
     {tab: SettingTab.Common, key: 'common', config: commonFields},
@@ -65,10 +81,11 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
-    this.list.forEach((item, index) => {
-      const data = this.storage.getItem(basePrefix + this.list[index].key);
-      if (!data)
-        return;
+    const storageData = this.storage.getItem(basePrefix);
+    if (!storageData)
+      return;
+    this.list.forEach((item) => {
+      const data = storageData[item.key];
       item.config.forEach(config => {
         const value = data[config.name];
         if (value) {
@@ -79,13 +96,23 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.dynamicForms.map((item, index) => {
-      item.form.valueChanges
-        .pipe(untilDestroyed(this))
-        .subscribe(res => {
-          this.storage.setItem(basePrefix + this.list[index].key, res);
-        });
-    });
+    // startWith and skip is used because combineLatest does not emit value until at least each child emits one
+    combineLatest(this.dynamicForms.map(item => {
+      return item.form.valueChanges.pipe(startWith(item.form.value));
+    }))
+      .pipe(
+        skip(1),
+        untilDestroyed(this)
+      )
+      .subscribe((res) => {
+        const result = res.reduce((settings, item, index) => {
+          const obj = {[this.list[index].key]: item};
+          // @ts-ignore
+          return {...settings, ...obj};
+        }, {});
+        this.storage.setItem(basePrefix, result);
+
+      });
   }
 
   open(tab: SettingTab) {
