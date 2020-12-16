@@ -126,8 +126,8 @@ deploy-stable:
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-        - docker build --tag $CONTAINER_IMAGE:master .
-        - docker push $CONTAINER_IMAGE:master
+        - docker build --tag $CONTAINER_IMAGE:stable .
+        - docker push $CONTAINER_IMAGE:stable
         - docker logout
     tags:
         - docker
