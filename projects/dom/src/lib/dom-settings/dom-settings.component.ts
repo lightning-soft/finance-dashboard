@@ -10,22 +10,27 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
-import { combineLatest } from 'rxjs';
-import { skip, startWith } from 'rxjs/operators';
+import { debounceTime, skip } from 'rxjs/operators';
+import { FormGroup } from '@angular/forms';
 
 enum SettingTab {
-  General, Hotkeys, Columns, Common, LTG, Price,
-  BidDelta,
-  AskDelta,
-  BidDepth,
-  AskDepth,
-  TotalAsk,
-  TotalBid,
-  VolumeProfile,
-  OrderColumn,
-  CurrentAtBid,
-  Note,
-  CurrentAtAsk,
+  General = 'general',
+  Hotkeys = 'hotkeys',
+  Columns = 'columns',
+  Common = 'common',
+  LTG = 'ltg',
+  Price = 'price',
+  BidDelta = 'bidDelta',
+  AskDelta = 'askDelta',
+  BidDepth = 'bidDepth',
+  AskDepth = 'askDepth',
+  TotalAsk = 'totalAsk',
+  TotalBid = 'totalBid',
+  VolumeProfile = 'volumeProfile',
+  OrderColumn = 'order',
+  CurrentAtBid = 'currentAtBid',
+  Note = 'note',
+  CurrentAtAsk = 'currentAtAsk',
 }
 
 const basePrefix = 'dom-settings';
@@ -56,63 +61,53 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
     {tab: SettingTab.Note, label: 'Note'},
   ];
   list = [
-    {tab: SettingTab.General, key: 'general', config: generalFields},
-    {tab: SettingTab.Common, key: 'common', config: commonFields},
-    {tab: SettingTab.Hotkeys, key: 'hotkeys', config: hotkeyFields},
-    {tab: SettingTab.LTG, key: 'LTG', config: ltqFields},
-    {tab: SettingTab.Price, key: 'Price', config: priceFields},
-    {tab: SettingTab.BidDelta, key: 'BidDelta', config: bidDeltaFields},
-    {tab: SettingTab.AskDelta, key: 'AskDelta', config: askDeltaFields},
-    {tab: SettingTab.BidDepth, key: 'BidDepth', config: bidDepthFields},
-    {tab: SettingTab.AskDepth, key: 'AskDepth', config: askDepthFields},
-    {tab: SettingTab.TotalAsk, key: 'TotalAsk', config: totalAskDepthFields},
-    {tab: SettingTab.TotalBid, key: 'TotalBid', config: totalBidDepthFields},
-    {tab: SettingTab.VolumeProfile, key: 'VolumeProfile', config: volumeFields},
-    {tab: SettingTab.OrderColumn, key: 'OrderColumn', config: orderColumnFields},
-    {tab: SettingTab.CurrentAtBid, key: 'CurrentAtBid', config: currentAtBidColumnFields},
-    {tab: SettingTab.CurrentAtAsk, key: 'CurrentAtAsk', config: currentAtAskFields},
-    {tab: SettingTab.Note, key: 'Note', config: noteColumnFields},
+    {tab: SettingTab.General, config: generalFields},
+    {tab: SettingTab.Common, config: commonFields},
+    {tab: SettingTab.Hotkeys, config: hotkeyFields},
+    {tab: SettingTab.LTG, config: ltqFields},
+    {tab: SettingTab.Price, config: priceFields},
+    {tab: SettingTab.BidDelta, config: bidDeltaFields},
+    {tab: SettingTab.AskDelta, config: askDeltaFields},
+    {tab: SettingTab.BidDepth, config: bidDepthFields},
+    {tab: SettingTab.AskDepth, config: askDepthFields},
+    {tab: SettingTab.TotalAsk, config: totalAskDepthFields},
+    {tab: SettingTab.TotalBid, config: totalBidDepthFields},
+    {tab: SettingTab.VolumeProfile, config: volumeFields},
+    {tab: SettingTab.OrderColumn, config: orderColumnFields},
+    {tab: SettingTab.CurrentAtBid, config: currentAtBidColumnFields},
+    {tab: SettingTab.CurrentAtAsk, config: currentAtAskFields},
+    {tab: SettingTab.Note, config: noteColumnFields},
 
   ];
-
   @ViewChildren('component') dynamicForms;
+  form: FormGroup;
 
   constructor(private storage: Storage) {
   }
 
   ngOnInit() {
-    const storageData = this.storage.getItem(basePrefix);
-    if (!storageData)
-      return;
-    this.list.forEach((item) => {
-      const data = storageData[item.key];
-      item.config.forEach(config => {
-        const value = data[config.name];
-        if (value) {
-          config.value = value;
-        }
+    const formControls = this.list.map(item => item.tab).reduce((settings, item) => {
+      return {...settings, [item]: new FormGroup({})};
+    }, {});
+    this.form = new FormGroup(formControls);
+
+    this.form.valueChanges
+      .pipe(
+        skip(this.list.length),
+        debounceTime(150),
+        untilDestroyed(this))
+      .subscribe((res) => {
+        this.storage.setItem(basePrefix, res);
       });
-    });
   }
 
   ngAfterViewInit(): void {
-    // startWith and skip is used because combineLatest does not emit value until at least each child emits one
-    combineLatest(this.dynamicForms.map(item => {
-      return item.form.valueChanges.pipe(startWith(item.form.value));
-    }))
-      .pipe(
-        skip(1),
-        untilDestroyed(this)
-      )
-      .subscribe((res) => {
-        const result = res.reduce((settings, item, index) => {
-          const obj = {[this.list[index].key]: item};
-          // @ts-ignore
-          return {...settings, ...obj};
-        }, {});
-        this.storage.setItem(basePrefix, result);
-
-      });
+    const data = this.storage.getItem(basePrefix);
+    if (data) {
+      for (const key in data) {
+        this.form.get(key).patchValue(data[key]);
+      }
+    }
   }
 
   open(tab: SettingTab) {
@@ -121,5 +116,9 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
 
   shouldShowForm(tab: SettingTab) {
     return this.currentTab === tab;
+  }
+
+  getForm(tab: SettingTab) {
+    return this.form.get(tab) as FormGroup;
   }
 }

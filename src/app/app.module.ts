@@ -37,7 +37,7 @@ import {
   TradeLockComponent
 } from './components';
 import { Modules, modulesStore } from './modules';
-import { DomModule } from '../../projects/dom/src/lib/dom.module';
+import { DynamicFormModule } from 'dynamic-form';
 
 
 
@@ -110,6 +110,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ContextMenuModule,
     WindowManagerModule,
     SettingsModule.forRoot(),
+    DynamicFormModule,
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
       configClass: AppConfig,

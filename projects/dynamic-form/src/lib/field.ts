@@ -17,6 +17,7 @@ export interface FieldConfig {
 
 export enum FieldType {
   Input = 'input',
+  Number = 'number',
   Select = 'select',
   Checkbox = 'checkbox',
   Color = 'color',

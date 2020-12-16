@@ -1,0 +1,6 @@
+<span
+  [formlyAttributes]="field"
+  (colorPickerChange)="updateValue($event)" [colorPicker]="formControl.value">
+    <input
+      class="color-input" disabled [style.background]="formControl.value"/>
+</span>
