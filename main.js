@@ -23,10 +23,12 @@ function createWindow() {
     height: size.height,
     frame: true,
     alwaysOnTop: false,
-    title: "AMS Trading Platform",
+    title: "DeltaView by AMS",
     show: false,
-    movable: true,
-    icon: app.getAppPath() + '/src/assets/img/Logo.png'
+	movable: true,
+	webPreferences: {
+		webSecurity: false
+	}
     // webPreferences: {
     //   nodeIntegration: true,
     //   allowRunningInsecureContent: (serve) ? true : false,

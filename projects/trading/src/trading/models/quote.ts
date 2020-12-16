@@ -1,6 +1,16 @@
+import { IInstrument } from './instruemnt';
+
+export type PriceInfo = {
+    price: number;
+    orderCount: number;
+    volume: number;
+};
+
 export interface IQuote {
     timestamp: Date;
-    ask: number;
-    bid: number;
-    instrumentId: number;
+    askInfo: PriceInfo;
+    bidInfo: PriceInfo;
+    instrument: IInstrument;
+    price: number;
+    volume: number;
 }

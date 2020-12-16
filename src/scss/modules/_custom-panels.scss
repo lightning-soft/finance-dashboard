@@ -1,0 +1,40 @@
+.custom-panels {
+  display: flex;
+  height: 100%;
+
+  .custom-panel {
+    flex-basis: 0;
+    flex-grow: 1;
+
+    &:not(:last-child) {
+      margin-right: 4px;
+    }
+  }
+}
+
+.custom-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: rgba($white, 0.65);
+
+  &-fixed {
+    width: 200px;
+    flex-basis: auto !important;
+    flex-grow: 0 !important;
+  }
+
+  &-header {
+    padding: 2px 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  &-body {
+    flex-basis: 0;
+    flex-grow: 1;
+    padding: 4px;
+    background: $secondary;
+    border-radius: 4px;
+  }
+}

@@ -1,39 +1,47 @@
 @import "themes/index";
 
+button {
+  padding: 1px 12px;
+  margin: 0;
+  background-color: $tabFrameColor;
+  position: relative;
+
+  & > .icon-ellipse {
+    font-size: .5em;
+    color: $fallingColor;
+    position: absolute;
+    left: 50%;
+    top: 2%;
+  }
+  
+}
+
 .side-navigation {
   position: absolute;
+  width: 40px;
+  padding: 4px 0 0 0;
+  border-radius: 2px;
   z-index: 41;
-  height: 100%;
   transition: transform 0.3s ease-out;
-  transform: translateX(-100%);
-
-  &--open {
-    transform: translateX(0%);
-
-  }
+  background-color: $lightBackground!important;
 }
 
 .side-navigation {
 
   &__item {
-    width: $navbarHeight;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 4px;
+    padding: 0;
     font-size: 10px;
     text-align: center;
-    line-height: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    padding-bottom: 10px;
+    line-height: 32px;
+    border-radius: 2px;
+    background-color: $tabFrameColor!important;
 
-    i[class^='icon-'] {
-      margin-bottom: 8px;
-      display: block;
-      line-height: 1;
-      font-size: 22px;
+    &:hover {
+      color: $titleColor!important;
+      background-color: $bodyBackground!important;
     }
-
   }
 }

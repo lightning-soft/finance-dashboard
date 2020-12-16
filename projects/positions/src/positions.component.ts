@@ -1,10 +1,25 @@
-import { ChangeDetectorRef, Component, Injector } from '@angular/core';
-import { IPosition, IPositionParams, PositionsRepository, PositionStatus } from 'trading';
-import { GroupItemsBuilder, ItemsComponent } from 'base-components';
-import { LayoutNode } from 'layout';
-import { NotifierService } from 'notifier';
-import { CellClickDataGridHandler, DataCell } from 'data-grid';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { RealtimeItemsComponent, ViewGroupItemsBuilder } from 'base-components';
+import { Id } from 'communication';
+import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
+import { ILayoutNode, LayoutNode } from 'layout';
+import { positionsLevelOneDataFeedHandler } from 'real-trading';
+import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
+
+
+
+
+const headers = [
+  'account',
+  'price',
+  'size',
+  'realized',
+  'unrealized',
+  'total',
+];
+
+export interface PositionsComponent extends ILayoutNode { }
 
 @Component({
   selector: 'position-list',
@@ -12,13 +27,20 @@ import { PositionItem } from './models/position.item';
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends ItemsComponent<IPosition> {
-  builder = new GroupItemsBuilder();
+export class PositionsComponent extends RealtimeItemsComponent<IPosition> implements OnInit, OnDestroy {
+  builder = new ViewGroupItemsBuilder();
 
-  private _headers = ['account', 'price', 'size', 'unrealized', 'realized', 'total'];
+  protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
 
-  get headers() {
-    return this.status === PositionStatus.Open ? this._headers.concat('close') : this._headers;
+  private _columns: Column[] = [];
+
+  get columns() {
+    const closeColumn: Column = {
+      name: 'close',
+      visible: true,
+    };
+
+    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
 
   private _isList = true;
@@ -55,6 +77,17 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
     return { ...this._params, status: this.status };
   }
 
+  private _accountId;
+
+  set accountId(accountId) {
+    this._accountId = accountId;
+    this.loadData({ accountId });
+  }
+
+  get accountId() {
+    return this._accountId;
+  }
+
   handlers = [
     new CellClickDataGridHandler<PositionItem>({
       column: 'close',
@@ -64,29 +97,33 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
 
   constructor(
     protected _repository: PositionsRepository,
-    protected _changeDetectorRef: ChangeDetectorRef,
     protected _injector: Injector,
-    public notifier: NotifierService,
+    protected _dataFeed: PositionsFeed,
   ) {
     super();
-    this.autoLoadData = {onInit: true};
+    this.autoLoadData = false;
 
     this.builder.setParams({
-      groupBy: ['account'],
+      groupBy: ['accountId'],
       order: 'desc',
-      filter: (item: IPosition) => item.status === this.status,
-      map: (item: IPosition) => new PositionItem(item),
+      wrap: (item: IPosition) => new PositionItem(item),
+      unwrap: (item: PositionItem) => item.position,
     });
+
+    this._columns = headers.map(header => ({ name: header, visible: true }));
+
+    this.setTabIcon('icon-widget-positions');
+    this.setTabTitle('Positions');
   }
 
   groupItems() {
-    this.builder.groupItems('account', account => {
+    this.builder.groupItems('accountId', account => {
       const groupedItem = new PositionItem();
       (groupedItem as any).symbol = account; // for now using for grouping TODO: use another class for grouped element
       groupedItem.account = new DataCell();
       groupedItem.account.updateValue(account);
       groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.headers.length - 1;
+      groupedItem.account.colSpan = this.columns.length - 1;
 
       return groupedItem;
     });
@@ -111,5 +148,28 @@ export class PositionsComponent extends ItemsComponent<IPosition> {
           err => this._handleDeleteError(err),
         );
     }
+  }
+
+  protected _deleteItem(item: IPosition) {
+    return this.repository.deleteItem(item) ;
+  }
+
+  handleAccountChange(accountId: Id): void {
+    this.accountId = accountId;
+  }
+
+  protected _handleDeleteItems(items: IPosition[]) {
+    // handle by realtime
+  }
+
+  saveState() {
+    return { columns: this._columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this._columns = state.columns;
   }
 }

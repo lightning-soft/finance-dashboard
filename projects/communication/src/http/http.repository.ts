@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable, Optional } from '@angular/core';
+import { Inject, Injectable, Injector, Optional } from '@angular/core';
 import { Id } from 'communication';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -8,60 +8,64 @@ import { CommunicationConfig } from './communication.config';
 
 @Injectable()
 export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> {
-  protected _baseUrl: string;
+  protected get _baseUrl(): string {
+    throw new Error(`Implement baseUrl for ${this}`);
+  }
+
+  protected get _httpOptions() {
+    return {};
+  }
+
+  onInit() { }
 
   constructor(
     @Inject(HttpClient) protected _http: HttpClient,
-    @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig) {
+    @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
+    @Optional() @Inject(Injector) protected _injector: Injector,
+  ) {
     super();
-    console.log('new', this.constructor.name);
-    try {
-      this._baseUrl = this._getURL(_communicationConfig) || 'Invalid proxy configuration';
-    } catch (e) {
-      console.error('Invalid base url configuration', e);
-    }
+
+    this.onInit();
   }
 
-  protected abstract _getURL(config: CommunicationConfig): string;
-
   getItemById(id: number | string, query?: any): Observable<T> {
-    return this._http.get<T>(this._getRESTURL(id), { params: query });
+    return this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, params: query });
   }
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
     let params = {};
-    const query = { ...obj };
+    const { id = null, ...query } = obj ?? {};
 
     if (query) {
       if (query.skip != null) {
         query.offset = query.skip;
-        delete query.skip;
+        // delete query.skip;
       }
 
       if (query.take != null) {
         query.limit = query.take;
-        delete query.take;
+        // delete query.take;
       }
 
       params = new HttpParams({ fromObject: query });
     }
 
-    return this._http.get<IPaginationResponse<T>>(this._getRESTURL(), { params });
+    return this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, params });
   }
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
-    return this._http.post(this._getRESTURL(), item, options)
+    return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options })
       .pipe(tap(i => this._onCreate(i)));
   }
 
   updateItem(item: T, query?: any): Observable<T> {
     const { id, ...dto } = item;
-    return this._http.patch<T>(this._getRESTURL(id), dto, { params: query })
+    return this._http.patch<T>(this._getRESTURL(id), dto, { ...this._httpOptions, params: query })
       .pipe(tap(this._onUpdate));
   }
 
   deleteItem(id: number | string): Observable<any> {
-    return this._http.delete(this._getRESTURL(id))
+    return this._http.delete(this._getRESTURL(id), this._httpOptions)
       .pipe(tap(() => this._onDelete({ id })));
   }
 

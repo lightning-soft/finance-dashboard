@@ -91,6 +91,9 @@
       "chart": [
         "projects/chart/index"
       ],
+      "chart/models": [
+        "projects/chart/models"
+      ],
       "orders": [
         "projects/orders/index"
       ],
@@ -99,6 +102,39 @@
       ],
       "accounts": [
         "projects/accounts/index"
+      ],
+      "real-trading": [
+        "projects/real-trading/index"
+      ],
+      "accounts-manager": [
+        "projects/accounts-manager/index"
+      ],
+      "instrument-select": [
+        "projects/instrument-select/index"
+      ],
+      "account-select": [
+        "projects/account-select/index"
+      ],
+      "auth": [
+        "projects/auth/index"
+      ],
+      "notification": [
+        "projects/notification/index"
+      ],
+      "window-manager": [
+        "projects/window-manager/index"
+      ],
+      "window-header": [
+        "projects/window-header/index"
+      ],
+      "notification-list": [
+        "projects/notification-list/index"
+      ],
+      "workspace-manager": [
+        "projects/workspace-manager/index"
+      ],
+      "workspace": [
+        "projects/workspace/index"
       ]
     }
   }

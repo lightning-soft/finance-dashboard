@@ -1,30 +1,41 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
-// import * as dockspawn from 'dock-spawn';
 import { LazyLoadingService } from 'lazy-assets';
-import { LoadingService } from 'lazy-modules';
+import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
+import { EVENTS, Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
-import { Layout } from './layout';
-
-
-declare const DockSpawnTS: any;
+import { WindowHeaderComponent } from 'window-header';
+import { ComponentOptions, Layout } from './layout';
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
-
-  dockManager: any;
 
   constructor(
     factoryResolver: ComponentFactoryResolver,
     creationsService: LoadingService,
     viewContainer: ViewContainerRef,
     container: ElementRef,
+    private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
-    private _ngZone: NgZone
+    private _ngZone: NgZone,
+    private _windowManagerService: WindowManagerService,
   ) {
     super(factoryResolver, creationsService, viewContainer, container);
   }
 
-  addComponent(componentName: string) {
+  addComponent(componentNameOrConfig: ComponentOptions | any) {
+    let componentName: string;
+    let componentState: any;
+    let config: any;
+
+    if (typeof componentNameOrConfig === 'string')
+      componentName = componentNameOrConfig;
+    else {
+      const { component, ..._config } = componentNameOrConfig;
+      config = _config;
+      componentState = component?.state;
+      componentName = component?.name;
+    }
+
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {
     //   // edge don't support obfuscated code StockChartX
     //   // possible solution - add scripts in index.html
@@ -33,81 +44,45 @@ export class DockDesktopLayout extends Layout {
     //   return;
     // }
 
-    // if (!this.goldenLayout) {
-    //   this._notifyError('Sorry, something went wrong. Try reloading the page');
-    //   console.error('Please init golden layout');
-    //   return;
-    // }
-
-    // const goldenLayout = this.goldenLayout;
-    // const content = goldenLayout.selectedItem || goldenLayout.root.contentItems[0];
-    // const item = {
-    //   type: 'component',
-    //   componentName,
-    //   componentState: null
-    // };
 
     try {
-      // if (content) {
-      //   content.addChild(item);
-      // } else {
-      //   goldenLayout.root.addChild(item);
-      // }
-
-      // let infovis = new PanelContainer(document.getElementsByClassName("name")[0], this.dockManager);
-
-      this._ngZone.run(async () => {
+      this._ngZone.runOutsideAngular(async () => {
         try {
-          // const loader = this.getLoaderComponent();
-          // this.viewContainer.insert(loader.hostView);
-
-          // container
-          //   .getElement()
-          //   .append($(loader.location.nativeElement));
-
           const comp = await this._creationsService.getComponentRef(componentName);
           const componentRef = this.viewContainer.insert(comp.hostView);
           const instance: any = comp.instance;
 
-          // container
-          //   .getElement()
-          //   .append($(comp.location.nativeElement));
+          instance.componentRef = componentRef; // To remove
+          instance.layout = this; // To remove
 
-          instance.componentRef = componentRef;
+          const windowOptions: Options = {
+            width: 500,
+            height: 500,
+            title: componentName[0].toUpperCase() + componentName.slice(1),
+            minimizable: true,
+            maximizable: true,
+            keepInside: {
+              top: true,
+            },
+            ...config,
+            componentState: () => ({
+              state: instance.saveState && instance.saveState(),
+              name: componentName,
+            }),
+          };
 
-          // if (instance.setLayoutContainer)
-          //   instance.setLayoutContainer(container);
+          const window = this._windowManagerService.createWindow(windowOptions);
 
-          // if (instance.loadState) {
-          //   instance.loadState(componentState.component);
-          // }
+          if (instance.setLayoutContainer)
+            instance.setLayoutContainer(window);
 
-          // instance.link = componentState.link || 0;
+          if (instance.loadState && componentState) {
+            instance.loadState(componentState);
+          }
 
-          // const linkSelect = await this.getLinkSelect(container, instance);
+          const { _container } = window;
 
-
-          const content = new DockSpawnTS.PanelContainer(comp.location.nativeElement, this.dockManager);
-
-          this.dockManager.floatDialog(content, 50, 50);
-
-          // const setLinkSelect = () => {
-          //   container.tab.element[0].prepend(linkSelect);
-          // };
-
-          // container.on('tab', setLinkSelect);
-
-          // if (container.tab) {
-          //   setLinkSelect();
-          // }
-
-          // container.on('tab', tab => {
-          //   this._addMobileTabDraggingSupport(tab);
-          // });
-
-          // this._addMobileTabDraggingSupport(container.tab);
-
-          // loader.destroy();
+          _container.appendChild(comp.location.nativeElement);
         } catch (e) {
           console.error(e);
           // container.close();
@@ -162,19 +137,36 @@ export class DockDesktopLayout extends Layout {
     // }
   }
 
+  _load(config: any[]) {
+    if (!Array.isArray(config))
+      return;
+
+    for (const item of config) {
+      this.addComponent(item);
+    }
+  }
 
   async loadState(config: any) {
+
     this._tryDestroy();
     await this._lazyLoadingService.load();
 
     try {
-      const divDockManager = this.container.nativeElement;
-      const dockManager = new DockSpawnTS.DockManager(divDockManager);
-      dockManager.initialize();
-      window.onresize = () => dockManager.resize(divDockManager.clientWidth, divDockManager.clientHeight);
-      window.onresize(null);
-      this.dockManager = dockManager;
-      (window as any).dockManager = dockManager;
+      // if (!this.dockManager) {
+      //   // const manager = new WindowManager({
+      //   //   parent: this.container.nativeElement,
+      //   //   backgroundWindow: 'grey',
+      //   // });
+
+      //   // // manager.snap({ spacing: 1 });
+
+      //   // this.dockManager = manager;
+      //   // (window as any).dockManager = manager;
+      //   // (window as any).wm = manager;
+      // }
+
+      if (config)
+        this._load(config);
     } catch (e) {
       console.error(e);
       throw e;
@@ -182,6 +174,7 @@ export class DockDesktopLayout extends Layout {
   }
 
   getState(): any {
+    return this._windowManagerService.saveState();
   }
 
   _tryDestroy() {

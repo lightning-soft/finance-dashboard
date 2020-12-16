@@ -1,18 +1,23 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { GloabalHandlerModule } from 'global-handler';
+import { LazyAssetsModule } from 'lazy-assets';
 import { NzSelectModule } from 'ng-zorro-antd';
+import { StorageModule } from 'storage';
+import { LoaderModule } from 'ui';
+import { WindowManagerModule } from 'window-manager';
 import { LayoutComponent } from './components/layout/layout.component';
 import { LinkSelectComponent } from './components/link-select/link-select.component';
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
-import { LoaderModule } from 'ui';
-import { StorageModule } from 'storage';
-import { LocalLayoutStore, ILayoutStore } from './store';
-import { LazyAssetsModule } from 'lazy-assets';
-import { GloabalHandlerModule } from 'global-handler';
+import { ILayoutStore, LocalLayoutStore } from './store';
+import { WorkspacesModule } from 'workspace-manager';
 
-let entryComponents = [
+
+
+const entryComponents = [
   LayoutComponent,
 ];
 
@@ -24,13 +29,10 @@ let entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
-    LazyAssetsModule.forConfig({
-      scripts: [{ src: `./lib/dock-spawn/es5/dock-spawn-ts.js` }],
-      styles: [
-        { href: `./lib/dock-spawn/css/dock-manager-style.css` },
-        { href: `./lib/dock-spawn/css/dock-manager.css` }
-      ]
-    })
+    WorkspacesModule.forRoot(),
+    WindowManagerModule,
+    ScrollingModule,
+    LazyAssetsModule.forConfig({}),
   ],
   declarations: [
     ...entryComponents,
@@ -41,7 +43,7 @@ let entryComponents = [
     {
       provide: ILayoutStore,
       useClass: LocalLayoutStore
-    }
+    },
   ],
   exports: [
     LayoutComponent,

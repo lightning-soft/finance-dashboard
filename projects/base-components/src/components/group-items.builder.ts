@@ -1,42 +1,44 @@
 import { IBaseItem } from 'communication';
-import { GenericItemsBuilder, IItemsBuilder, IItemsBuilderParams } from './items.builder';
+import { ItemsBuilder, IItemsBuilder, IItemsBuilderParams } from './items.builder';
 
 export interface IGroupItemsBuilder<Item, ViewItem> extends IItemsBuilder<Item, ViewItem> {
-  getItems(groupKey?: string, groupValue?: string);
+  setParams(params: IGroupItemsBuilderParams<Item, ViewItem>);
+  getItems(groupKey?: string, groupValue?: string): ViewItem[];
   groupItems(groupBy: string, groupItemMap: (item: string) => any);
   ungroupItems();
 }
 
-export interface IGroupItemsBuilderParams<T> extends IItemsBuilderParams<T> {
+export interface IGroupItemsBuilderParams<T, VM> extends IItemsBuilderParams<T, VM> {
   groupBy?: string[];
 }
 
-type IGroupItemsBuilderGroups = {
+type IGroupItemsBuilderGroups<T> = {
   [key: string]: {
-    [key: string]: IBaseItem[],
+    [key: string]: T[],
   },
 };
 
-interface IGroupItemsBuilderGroupParams {
-  groupBy: string;
-  groupItemMap: (item: string) => any;
-}
+export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
+  extends ItemsBuilder<T, VM> implements IGroupItemsBuilder<T, VM> {
 
-export class GroupItemsBuilder extends GenericItemsBuilder implements IGroupItemsBuilder<IBaseItem, IBaseItem> {
-  items: IBaseItem[] = [];
+  get items(): VM[] {
+    return !this._groupItemsParams ? this._items : this._groupedItems;
+  }
 
-  protected _groups: IGroupItemsBuilderGroups = {};
-  protected _groupParams: IGroupItemsBuilderGroupParams = null;
-  protected _params: IGroupItemsBuilderParams<IBaseItem> = {
+  protected _groupItemsParams;
+  protected _groupedItems: VM[] = [];
+
+  protected _groups: IGroupItemsBuilderGroups<VM> = {};
+  protected _params: IGroupItemsBuilderParams<T, VM> = {
     groupBy: [],
     order: 'asc',
   };
 
-  setParams(params: IGroupItemsBuilderParams<IBaseItem>) {
+  setParams(params: IGroupItemsBuilderParams<T, VM>) {
     super.setParams(params);
   }
 
-  getItems(groupKey: string = null, groupValue: string = null): IBaseItem[] {
+  getItems(groupKey: string = null, groupValue: string = null): VM[] {
     if (groupKey === null || groupValue === null) {
       return [];
     }
@@ -51,51 +53,74 @@ export class GroupItemsBuilder extends GenericItemsBuilder implements IGroupItem
   }
 
   groupItems(groupBy: string, groupItemMap: (item: string) => any) {
-    this.items = [];
+    this._groupItemsParams = { groupBy, groupItemMap };
+    this._groupedItems = [];
 
-    Object.entries(this._groups[groupBy]).forEach(([item, items]) => {
-      this.items = [...this.items, groupItemMap(item), ...items];
+    const group = this._groups[groupBy];
+
+    if (!group) {
+      return;
+    }
+
+    Object.entries(group).forEach(([item, items]) => {
+      this._groupedItems = this._order([
+        this._groupedItems,
+        [groupItemMap(item), ...items],
+      ]);
     });
-
-    this._groupParams = { groupBy, groupItemMap };
   }
 
   ungroupItems() {
-    super._buildItems();
-
-    this._groupParams = null;
+    this._groupItemsParams = null;
+    this._groupedItems = [];
   }
 
-  protected _buildItems() {
-    super._buildItems();
+  replaceItems(items: T[]) {
+    this._groups = {};
 
-    this._buildGroups();
-  }
+    super.replaceItems(items);
 
-  protected _buildGroups() {
-    const { groupBy } = this._params;
-
-    if (groupBy.length) {
-      this._groups = {};
-
-      groupBy.forEach(key => {
-        this._groups[key] = this.items.reduce((accum, item) => {
-          const value = item[key];
-          const _value = typeof value === 'object' ? value.value : value;
-          const _accum = accum[_value] || [];
-
-          accum[_value] = [..._accum, item];
-
-          return accum;
-        }, {});
-      });
-    }
-
-    if (this._groupParams) {
+    if (this._groupItemsParams) {
       this.groupItems(
-        this._groupParams.groupBy,
-        this._groupParams.groupItemMap,
+        this._groupItemsParams.groupBy,
+        this._groupItemsParams.groupItemMap,
       );
     }
+  }
+
+  protected _handle(items: T[]): any[] {
+    let _items = items;
+
+    _items = this._filter(_items);
+    _items = this._order(_items);
+
+    this._buildGroups(_items);
+
+    _items = this.wrap(_items);
+
+    return _items;
+  }
+
+  protected _buildGroups(items: T[]) {
+    const { groupBy } = this._params;
+
+    if (!groupBy.length) {
+      return;
+    }
+
+    groupBy.forEach(key => {
+      const group = this._groups[key] || {};
+
+      items.forEach((item) => {
+        const value = item[key];
+
+        group[value] = this._order([
+          ...(group[value] || []),
+          this.wrap(item),
+        ]);
+      });
+
+      this._groups[key] = group;
+    });
   }
 }

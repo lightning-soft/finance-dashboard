@@ -1,13 +1,25 @@
 @import "variables";
 
 $themeName: 'scxThemeDark';
-$textColor:  rgba(255, 255, 255, 0.8);
-$fallingColor: #E85050;
-$risingColor: #3FA7E1;
-$textColorSecondary:  rgba(255, 255, 255, 0.4);
-$bodyBackground: #15161D;
-$lightBackground: #292C38;
-$borderColor:  #292C38;
-$tabBackground:#21232D;
+$fallingColor: #C93B3B; // RED
+$risingColor: #4895F5; // BLUE
+$reconnectColor: #FFA928; // NOT IN LIST
+$successColor: #009950; // GREEN
+
+
+$bodyBackground: #101114; // DARK BG
+$tabBackground:#1B1D22; // DART 2
+
+$tabFrameColor: #24262C; // LIGHT 1
+$lightBackground: #51535A; // LIGHT 2
+
+$textColor: #D0D0D2; // TEXT 80
+$textColor60: #A1A2A5;// TEXT 60
+$textColorSecondary: #737377; // TEXT 40
+$titleColor: #FFFFFF; // TEXT
+
 $fontFamily: Open Sans;
+
+$borderColor:  #292C38;
+
 $gridBackground: $bodyBackground;

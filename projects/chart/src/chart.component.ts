@@ -1,16 +1,19 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
-import { RithmicDatafeed } from './datafeed/RithmicDatafeed';
-import { Datafeed } from './datafeed/Datafeed';
+import { Datafeed, RithmicDatafeed } from './datafeed';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
-import { InstrumentsRepository } from 'trading';
+import { StockChartXPeriodicity } from './datafeed/TimeFrame';
+import { LoadingService } from 'lazy-modules';
+import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
+import { Orders, Positions } from './objects';
+import { Id } from 'communication';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -28,7 +31,6 @@ export interface ChartComponent extends ILayoutNode {
   styleUrls: ['./chart.component.scss'],
   providers: [
     { provide: Datafeed, useClass: RithmicDatafeed },
-    { provide: InstrumentsRepository },
   ]
 })
 @LayoutNode()
@@ -40,21 +42,51 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   chart: IChart;
 
+  private _accountId: Id;
+
+  get accountId(): Id {
+    return this._accountId;
+  }
+
+  set accountId(value: Id) {
+    this._accountId = value;
+
+    this._orders.refresh();
+    this._positions.refresh();
+  }
+
   get instrument() {
     return this.chart?.instrument;
   }
 
+  set instrument(value) {
+    this.chart.instrument = value;
+
+    this._orders.refresh();
+    this._positions.refresh();
+  }
+
   private loadedState = new BehaviorSubject<IScxComponentState>(null);
 
-  enableOrderForm = true;
+  enableOrderForm = false;
   showOrderForm = true;
 
+  private _orders: Orders;
+  private _positions: Positions;
+
   constructor(
+    public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-  ) { }
+    protected _loadingService: LoadingService,
+  ) {
+    this.setTabIcon('icon-widget-chart');
+
+    this._orders = new Orders(this);
+    this._positions = new Positions(this);
+  }
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.load();
@@ -63,7 +95,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     this.loadFiles()
       .then(() => this.loadChart())
-      .catch(e => console.log(e));
+      .catch(e => console.error(e));
   }
 
   saveState() {
@@ -91,9 +123,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    this._orders.init();
+    this._positions.init();
+
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
-      this.chart.instrument = event.value;
+      this.instrument = event.value;
       this.setTabTitle(event.value.symbol);
 
       this.broadcastLinkData({
@@ -180,8 +215,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
-      timeFrame: state && state.timeFrame,
-      instrument: state && state.instrument,
+      timeFrame: (state && state.timeFrame)
+        ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
+      instrument: (state && state.instrument) ?? {
+        id: 'ESZ0',
+        symbol: 'ESZ0',
+        exchange: 'CME',
+        tickSize: 0.01,
+      },
       theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
   }
@@ -214,9 +255,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  async getToolbarComponent() {
+    const { domElement } = await this._loadingService
+      .getDynamicComponent(WindowToolbarComponent);
+
+    return domElement;
+  }
+
+  handleAccountChange(accountId: Id) {
+    this.accountId = accountId;
+  }
+
   handleNodeEvent(name: LayoutNodeEvent) {
     switch (name) {
       case LayoutNodeEvent.Resize:
+      case LayoutNodeEvent.Maximize:
+      case LayoutNodeEvent.Restore:
         this.setNeedUpdate();
         break;
     }

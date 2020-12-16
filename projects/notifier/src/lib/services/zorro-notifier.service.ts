@@ -20,6 +20,8 @@ export class NgZorroNotifierService extends NotifierService {
       _message = message;
     else if (isString(message?.message))
       _message = message.message;
+    else if (isString(message?.error?.message))
+      _message = message.error.message;
     else if (Array.isArray(message?.message))
       _message = message.message
         .map(i => i.constraints)

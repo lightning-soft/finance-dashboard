@@ -1,12 +1,19 @@
-<!-- {{builder.items | json}} -->
-<div class="tabs">
-  <div class="tab">
-    <nz-select nzDropdownClassName="toolbar-dropdown" [(ngModel)]="status">
-      <nz-option nzValue="Open" nzLabel="Open"></nz-option>
-      <nz-option nzValue="Close" nzLabel="Close"></nz-option>
-    </nz-select>
-  </div>
+  <!-- {{builder.items | json}} -->
+<window-header className="widget" [window]="this">
+  <button 
+    class="wm-header-btn mr-2"
+    (click)="grid.createComponentModal()"
+  >
+    <i class="icon-setting-gear"></i>
+  </button>
+  <account-select
+    size="small"
+    className="custom-form-control"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
+</window-header>
 
+<div class="tabs">
   <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List
   </div>
 
@@ -14,4 +21,4 @@
   </div>
 </div>
 
-<data-grid [items]="items" [handlers]="handlers" [columns]="headers"></data-grid>
+<data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>

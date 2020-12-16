@@ -1,35 +1,26 @@
-import { ModuleWithProviders, NgModule, NgZone } from '@angular/core';
-import { AccountRepository, Datafeed, InstrumentsRepository, OrdersRepository, PositionsRepository } from 'trading';
-import { FakeAccountRepository, FakeDatafeed, FakeInstrumentsRepository, FakeOrdersRepository, FakePositionsRepository } from './trading';
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { AccountRepository, OrdersRepository, PositionsRepository } from 'trading';
+import { FakeAccountRepository, FakeOrdersRepository, FakePositionsRepository } from './trading';
 
 @NgModule({})
 export class FakeCommunicationModule {
-    static forRoot(): ModuleWithProviders<FakeCommunicationModule> {
-        return {
-            ngModule: FakeCommunicationModule,
-            providers: [
-                {
-                    provide: InstrumentsRepository,
-                    useClass: FakeInstrumentsRepository,
-                },
-                {
-                    provide: Datafeed,
-                    useClass: FakeDatafeed,
-                    deps: [NgZone],
-                },
-              {
-                provide: PositionsRepository,
-                useClass: FakePositionsRepository
-              },
-              {
-                provide: OrdersRepository,
-                useClass: FakeOrdersRepository
-              },
-              {
-                provide: AccountRepository,
-                useClass: FakeAccountRepository
-              }
-            ]
-        };
-    }
+  static forRoot(): ModuleWithProviders<FakeCommunicationModule> {
+    return {
+      ngModule: FakeCommunicationModule,
+      providers: [
+        {
+          provide: PositionsRepository,
+          useClass: FakePositionsRepository
+        },
+        {
+          provide: OrdersRepository,
+          useClass: FakeOrdersRepository
+        },
+        {
+          provide: AccountRepository,
+          useClass: FakeAccountRepository
+        }
+      ]
+    };
+  }
 }

@@ -65,26 +65,28 @@ export class CellClickHandler extends ClickHandler {
   handleEvent(event: MouseEvent) {
     if (event && event.ctrlKey)
       return false;
-    let row,
-      column,
-      findElements = (t) => {
-        if (!t || t.nodeName === TableNodes.Table)
-          return null;
 
-        if (t.nodeName === TableNodes.TD)
-          column = t.dataset && t.dataset.column;
+    let row;
+    let column;
 
-        if (t.nodeName ===  TableNodes.TR)
-          row = t.dataset && t.dataset.row;
+    const findElements = (t) => {
+      if (!t || t.nodeName === TableNodes.Table)
+        return null;
 
-        if (column == null || row == null)
-          findElements(t.parentElement);
-      };
+      if (t.nodeName === TableNodes.TD)
+        column = t.dataset && t.dataset.column;
+
+      if (t.nodeName === TableNodes.TR)
+        row = t.dataset && t.dataset.row;
+
+      if (column == null || row == null)
+        findElements(t.parentElement);
+    };
 
     findElements(event.target);
 
     if (this._column == null || this._column === column)
-      this._notifyClick({row, column}, event);
+      this._notifyClick({ row, column }, event);
 
   }
 

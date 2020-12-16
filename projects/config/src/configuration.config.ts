@@ -1,4 +1,6 @@
+import { Config } from './config';
+
 export interface ConfigurationConfig {
   path: string;
-  configClass: any;
+  configClass: new (...args: any[]) => Config;
 }

@@ -6,7 +6,6 @@
     "@angular/core": "^10.0.6"
   },
   "dependencies": {
-    "dock-spawn-ts": "2.54.0",
     "tslib": "2.0.0"
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { NumberHelper } from 'base-components';
 import { RealtimeAction } from 'communication';
-import { IOrder, IPosition, OrderSide, OrderStatus, OrderType, PositionsRepository, Side } from 'trading';
+import { IOrder, IPosition, OrderDuration, OrderSide, OrderStatus, OrderType, PositionsRepository, Side } from 'trading';
 import { FakeTradingRepository } from './fake-trading.repository';
 
 const { randomFixedNumber } = NumberHelper;
@@ -29,15 +29,15 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
 
   closeOrder(order: IOrder) {
     this.deleteItem(+order.id).subscribe();
-    this.createItem({ ...order, status: OrderStatus.Close }).subscribe();
+    this.createItem({ ...order, status: OrderStatus.Canceled }).subscribe();
   }
 
   createOrderFromPosition(position: IPosition) {
     const order = {
       side: position.side === Side.Long ? OrderSide.Buy : OrderSide.Sell,
-      price: position.price,
-      size: position.size,
-      symbol: position.account,
+      quantity: position.size,
+      symbol: position.accountId,
+      duration: OrderDuration.GTD,
     } as IOrder;
 
     (order as any).closePosition = true;
@@ -66,19 +66,25 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
 
     return {
       id,
-      side: (id % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
-      price: randomFixedNumber(100),
-      priceIn: randomFixedNumber(100),
-      size: 0.1,
-      executed: 0.1,
+      account: {id: 'qwe'} as any,
       symbol: 'BTCUSD',
-      status: OrderStatus.Open,
+      exchange: null,
+      side: (id % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
+      quantity: 0.1,
+      averageFillPrice: randomFixedNumber(100),
+      filledQuantity: randomFixedNumber(100),
+      instrument: {id} as any,
+      // limitPrice: randomFixedNumber(100),
+      // stopPrice: randomFixedNumber(100),
+      duration: OrderDuration.GTC,
+      status: OrderStatus.Pending,
       type: OrderType.Market,
+      description: '',
     };
   }
 
   protected _emulateTrading() {
-    this.subscribe(({ action, items: orders }) => {
+    this.actions.subscribe(({ action, items: orders }) => {
       switch (action) {
         case RealtimeAction.Create:
           const closeOrderAndCreatePosition = (order: IOrder) => {
@@ -88,7 +94,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
           };
 
           orders.forEach(order => {
-            if (order.status !== OrderStatus.Open) {
+            if (order.status !== OrderStatus.Pending) {
               return;
             }
 
@@ -96,8 +102,8 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
               closeOrderAndCreatePosition,
               this.closeOrder,
             ] : [
-              this.closeOrder,
-            ];
+                this.closeOrder,
+              ];
 
             this._processItem(order, callbacks);
           });

@@ -2,8 +2,15 @@ import { ComponentRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 
+declare const $: any;
+
+// To remove
 export interface IContainer {
+  maximized: object | boolean;
+  minimized: boolean;
   setTitle(title: string);
+  minimize();
+  maximize();
   close();
 }
 
@@ -13,9 +20,16 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
-  setTabTitle(value: string);
+  setTabIcon?(icon: string);
+  getTabIcon?(): string;
+  getTabTitle?(): string;
+  setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
-  broadcastLinkData(data: any);
+  broadcastLinkData?(data: any);
+  maximize?();
+  minimize?();
+  close?();
+  isMaximized?();
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -30,14 +44,16 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private componentRef: ComponentRef<typeof _LayoutNode>;
 
-  private _tabTitle: string = null;
+  private _tabTitle: string;
 
-  private _layoutContainer: IContainer;
+  private _tabIcon: string;
+
+  layoutContainer: IContainer;
 
   link: number;
 
   setLayoutContainer(value) {
-    this._layoutContainer = value;
+    this.layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
     linkDataObserver.subscribe(this);
@@ -69,7 +85,8 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
-    console.log(name, event, this._layoutContainer);
+    // console.log(name, event, this._layoutContainer);
+    const $componentContainer = $('.wm-container > section');
     switch (name) {
       case LayoutNodeEvent.Destroy:
         this.handleDestroy();
@@ -79,6 +96,12 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
         break;
       case LayoutNodeEvent.Show:
         this.handleShow();
+        break;
+      case LayoutNodeEvent.MoveStart:
+        $componentContainer.addClass('pointer-events-none');
+        break;
+      case LayoutNodeEvent.MoveEnd:
+        $componentContainer.removeClass('pointer-events-none');
         break;
       case LayoutNodeEvent.ExtendState:
         // this._layoutContainer.setState({
@@ -106,14 +129,42 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
       return;
 
     this._tabTitle = value;
-    if (this._layoutContainer)
-      this._layoutContainer.setTitle(value);
+    if (this.layoutContainer)
+      this.layoutContainer.setTitle(value);
+  }
+
+  setTabIcon(icon: string) {
+    this._tabIcon = icon;
+  }
+
+  getTabIcon(): string {
+    return this._tabIcon ?? '';
+  }
+
+  getTabTitle() {
+    return this._tabTitle ?? '';
+  }
+
+  isMaximized() {
+    return this.layoutContainer.maximized;
+  }
+
+  close() {
+    this.layoutContainer.close();
+  }
+
+  minimize() {
+    this.layoutContainer.minimize();
+  }
+
+  maximize() {
+    this.layoutContainer.maximize();
   }
 
   _removeItself() {
     try {
-      if (this._layoutContainer)
-        this._layoutContainer.close();
+      if (this.layoutContainer)
+        this.layoutContainer.close();
     } catch (e) {
       console.error(e);
     }

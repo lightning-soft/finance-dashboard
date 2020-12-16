@@ -1,6 +1,3 @@
-import { Injectable } from '@angular/core';
-import { Config } from 'config';
-
 export interface ICommunicationHttpConfig {
   url: string;
 }
@@ -14,11 +11,19 @@ export interface ICommunicationConfig {
   ws: ICommunicationWsConfig;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
-export class CommunicationConfig extends Config {
+export class CommunicationConfig {
   http: ICommunicationHttpConfig;
   ws: ICommunicationWsConfig;
   rithmic: ICommunicationConfig;
+  identity: IIdentityConfig;
+}
+
+export interface IIdentityConfig {
+  url: string;
+  scope: string[];
+  clientId: string;
+  clientSecret: string;
+  responseType: string;
+  redirectUri: string;
+  notificationUri: string;
 }

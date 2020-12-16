@@ -1,15 +1,17 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { Directive, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
-import { IItemsBuilder, PaginationBuilder } from './items.builder';
+import { IConnection } from 'trading';
+import { IItemsBuilder, ItemsBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
 
-export type ResponseHandling = 'append' | 'prepend' | null;
-
+@UntilDestroy()
 @Directive()
 export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationParams = any>
-  extends LoadingComponent<P, T> implements OnInit, OnDestroy {
+  extends LoadingComponent<P, T> implements OnInit {
   public allItemsLoaded = false;
   public responsePayload: PaginationResponsePayload = {
     count: 0,
@@ -18,16 +20,21 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     total: 1,
   };
 
-  builder: IItemsBuilder<T, any> = new PaginationBuilder<T>();
+  builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
-  realtimeActionSubscription: Subscription;
+  protected _clearOnDisconnect = true;
+
+  protected _accountsManager: AccountsManager;
+
+  protected _repositorySubscription: Subscription;
+  protected _dataSubscription: Subscription;
 
   get items() {
     return this.builder.items;
   }
 
   // protected queryParams: P = {} as P;
-  protected _params: P;
+  protected _params: P = {} as P;
 
   get params(): P {
     return this._params;
@@ -43,7 +50,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   set skip(value: number) {
-    (this._params || {} as P).skip = value;
+    this._params = { ...this._params, skip: value };
   }
 
   private _total: number;
@@ -63,45 +70,79 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   ngOnInit() {
+    this._subscribeToConnections();
+
     super.ngOnInit();
-
-    this.realtimeActionSubscription = this.repository.subscribe(({ action, items }) => {
-      switch (action) {
-        case RealtimeAction.Create:
-          this._handleCreateItems(items);
-          break;
-        case RealtimeAction.Update:
-          this._handleUpdateItems(items);
-          break;
-        case RealtimeAction.Delete:
-          this._handleDeleteItems(items);
-          break;
-      }
-    });
   }
 
-  ngOnDestroy() {
-    super.ngOnDestroy();
+  protected _subscribeToConnections() {
+    this._accountsManager = this._injector.get(AccountsManager);
 
-    this.realtimeActionSubscription.unsubscribe();
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this._repositorySubscription?.unsubscribe();
+
+        if (connection) {
+          const repository = this.repository as any;
+
+          if (repository?.forConnection) {
+            this.repository = repository.forConnection(connection);
+
+            this._repositorySubscription = this._subscribeToRepository();
+          }
+
+          if ((this.config.autoLoadData || {}).onConnectionChange) {
+            this.refresh();
+          }
+        } else if (this._clearOnDisconnect) {
+          this.builder.replaceItems([]);
+        }
+
+        this._handleConnection(connection);
+      });
   }
 
-  getParams(params?: any): P {
-    return params;
+  protected _handleConnection(connection: IConnection) {}
+
+  protected _subscribeToRepository(): Subscription {
+    if (!this.repository) {
+      return;
+    }
+
+    return this.repository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe(({ action, items }) => {
+        switch (action) {
+          case RealtimeAction.Create:
+            this._handleCreateItems(items);
+            break;
+          case RealtimeAction.Update:
+            this._handleUpdateItems(items);
+            break;
+          case RealtimeAction.Delete:
+            this._handleDeleteItems(items);
+            break;
+        }
+      });
   }
 
   loadData(params?: P) {
-    this._params = params;
-    const hide = this.showLoading(true);
-    const loadingParams = this.getParams(params);
+    this._params = params || this._params;
 
-    this._getItems(loadingParams)
+    const hide = this.showLoading(true);
+
+    this._dataSubscription?.unsubscribe();
+
+    this._dataSubscription = this._getItems(this.params)
       .pipe(
         first(),
         finalize(() => hide())
       )
       .subscribe(
-        (response) => this._handleResponse(response, loadingParams),
+        (response) => this._handleResponse(response, this.params),
         (error) => this._handleLoadingError(error),
       );
   }
@@ -111,7 +152,9 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   refresh() {
-    this.loadData(this.params);
+    this.skip = 0;
+
+    this.loadData();
   }
 
   protected _onQueryParamsChanged(params?: any) {
@@ -145,13 +188,13 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     // this.totalItems = this.totalItems - deletedItems;
   }
 
-  protected _handleResponse(response: IPaginationResponse<T>, params: any) {
+  protected _handleResponse(response: IPaginationResponse<T>, params: any = {}) {
     if (Array.isArray(response?.data)) {
       // if (response) {
       // this.totalItems = response.totalItems;
       // }
 
-      let { take, skip, page } = (params || {}) as IPaginationParams;
+      let { take, skip, page } = params as IPaginationParams;
       if (skip == null)
         skip = (page - 1) * take;
 

@@ -1,0 +1,39 @@
+<div
+  nz-dropdown
+  nzTrigger="click"
+  [nzClickHide]="false"
+  [nzDropdownMenu]="menu"
+>
+  <div *ngIf="time; else block">{{ time | date: "HH:mm:ss" }}</div>
+  <ng-template #block><span>--:--:--</span></ng-template>
+</div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="clock">
+    <li
+      class="clock-local"
+      nz-menu-item
+    >
+      <div class="title">
+        <input type="checkbox" id="local">
+        <label for="local">Local</label>
+      </div>
+      <div class="subtitle">Vilnius, Helsinki, Kyiv, Riga, Sofia, Tallinn</div>
+    </li>
+    <li
+      nz-menu-item
+      class="clock-utc"
+    >
+      <div class="title">
+        <input type="checkbox" id="utc">
+        <label for="utc">UTC+3:00</label>
+      </div>
+      <div class="subtitle">Minsk</div>
+    </li>
+    <li
+      nz-menu-item
+      class="clock-modal"
+    >
+      <button (click)="openModal">Add timezone</button>
+    </li>
+  </ul>
+</nz-dropdown-menu>

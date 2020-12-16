@@ -1,0 +1,86 @@
+body.#{$themeName} {
+
+  .wm-window {
+    &.resize-up,
+    &.resize-down {
+      cursor: ns-resize;
+    }
+
+    &.resize-left,
+    &.resize-right {
+      cursor: ew-resize;
+    }
+
+    &.resize-left-up,
+    &.resize-right-down {
+      cursor: nwse-resize;
+    }
+
+    &.resize-left-down,
+    &.resize-right-up {
+      cursor: nesw-resize;
+    }
+    & header {
+      cursor: move;
+    }
+  }
+
+  .wm-window .wm-container {
+    overflow: hidden !important;
+    border-radius: 2px;
+    background-color: $tabFrameColor;
+    box-shadow: 0px 0px 10px $bodyBackground;
+    border: 1px solid $borderColor;
+
+    & > header {
+      align-items: center;
+      overflow: visible !important;
+      padding: 1px;
+
+      .frame-manager {
+        border-radius: 2px;
+        flex-shrink: 0;
+
+        i {
+          display: block;
+          width: 18px;
+          height: 18px;
+          line-height: 18px;
+          text-align: center;
+          font-size: 12px;
+          color: $textColor;
+        }
+      }
+
+      .title {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 16px;
+        margin: 0 8px 0 6px;
+        white-space: nowrap;
+        color: $titleColor;
+      }
+
+      .control-bar {
+        display: flex;
+        margin-left: auto;
+        margin-right: 2px;
+
+        button {
+          background-color: transparent;
+          padding: 0;
+          margin-left: 8px;
+
+          i {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+
+    & > section {
+      height: 100%;
+      padding: 1px;
+    }
+  }
+}

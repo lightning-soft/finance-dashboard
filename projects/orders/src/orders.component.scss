@@ -7,7 +7,6 @@ $selectMarginBottom: 15px;
   height: 100%;
   overflow: auto;
   width: 100%;
-  padding: 10px;
 
   ::ng-deep {
     nz-select-top-control {
@@ -15,9 +14,7 @@ $selectMarginBottom: 15px;
       box-shadow: none !important;
 
     }
-    data-grid{
-      height: calc(100% - #{$selectHeightContainer} - #{$selectMarginBottom});
-    }
+
     .wrapper{
       height: 100%;
       padding-top: 10px;
@@ -32,6 +29,7 @@ $selectMarginBottom: 15px;
     margin-bottom: $selectMarginBottom;
     height: $selectHeightContainer;
     max-width: 140px;
+    min-width: 100px;
   }
 
   .icon-arrow-dropdown{
@@ -41,6 +39,14 @@ $selectMarginBottom: 15px;
     top: 50%;
     right: 10px;
     transform: translateY(-50%);
+  }
+
+  .account {
+    display: inline-block;
+  }
+
+  .toolbar {
+    display: flex;
   }
 }
 

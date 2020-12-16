@@ -1,22 +1,33 @@
-import { Component, Injector, Input } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { IInstrument, IOrder, OrderSide, IPosition, OrdersRepository } from 'trading';
+import { Component, Injector, Input, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { FormComponent } from 'base-components';
-import { NotifierService } from 'notifier';
+import { Id } from 'communication';
+import { ILayoutNode, LayoutNode } from 'layout';
+import {
+  IInstrument, IOrder,
+  ITrade, LevelOneDataFeed,
+  OrderDuration, OrderSide, OrdersRepository, OrderType
+} from 'trading';
+
+export interface OrderFormComponent extends ILayoutNode { }
 
 @Component({
   selector: 'order-form',
   templateUrl: './order-form.component.html',
   styleUrls: ['./order-form.component.scss']
 })
-export class OrderFormComponent extends FormComponent<IOrder> {
-  step = 0.1;
-  positions = [] as IPosition[];
-  orderSide = OrderSide;
+@UntilDestroy()
+@LayoutNode()
+export class OrderFormComponent extends FormComponent<IOrder> implements OnInit {
+  OrderDurations = Object.values(OrderDuration);
+  OrderTypes = Object.values(OrderType);
+  step = 1;
+  OrderSide = OrderSide;
 
-  get volume() {
-    return this.form.value.size;
-  }
+  bidPrice: number;
+  askPrice: number;
 
   private _instrument: IInstrument;
 
@@ -25,8 +36,13 @@ export class OrderFormComponent extends FormComponent<IOrder> {
     if (value?.id === this.instrument?.id)
       return;
 
+    this._levelOneDatafeedService.unsubscribe(this._instrument);
+    this._levelOneDatafeedService.subscribe(value);
+
     this._instrument = value;
-    this._handleInstrumentChange();
+
+    this.bidPrice = null;
+    this.askPrice = null;
   }
 
   get instrument(): IInstrument {
@@ -36,47 +52,71 @@ export class OrderFormComponent extends FormComponent<IOrder> {
   constructor(
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
+    protected _levelOneDatafeedService: LevelOneDataFeed,
+    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
-    public notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;
+
+    this.setTabIcon('icon-widget-create-orders');
+    this.setTabTitle('Orders form');
   }
 
-  private _handleInstrumentChange() {
+  ngOnInit() {
+    super.ngOnInit();
 
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._repository = this._repository.forConnection(connection);
+      });
+
+    this._levelOneDatafeedService.on((trade: ITrade) => {
+      if (trade.instrument?.symbol !== this.instrument?.symbol) return;
+
+      this.askPrice = trade.askInfo.price;
+      this.bidPrice = trade.bidInfo.price;
+    });
   }
 
   createForm() {
-    const fb = this.fb;
-    return fb.group(
-      {
-        symbol: fb.control(null, Validators.required),
-        size: fb.control(this.step, Validators.min(this.step)),
-        side: fb.control(null, Validators.required),
-      }
-    );
-  }
-
-  apply(e?) {
-    super.apply(e);
-  }
-
-  addVolume(value) {
-    let volume = +(value + this.volume).toFixed(1);
-    if (volume < this.step)
-      volume = this.step;
-
-    this.form.patchValue({ size: volume });
+    return this.fb.group({
+      accountId: [null],
+      type: [OrderType.Market],
+      quantity: [1],
+      duration: [OrderDuration.GTC],
+      side: [null],
+      limitPrice: [null],
+      stopPrice: [null],
+    });
   }
 
   submit(side: OrderSide) {
-    this.form.patchValue({ side, symbol: this.instrument.id });
+    this.form.patchValue({ side });
+
     this.apply();
   }
 
-  getDto() {
-    return this.getRawValue();
+  handleAccountChange(accountId: Id): void {
+    this.form.patchValue({ accountId });
+  }
+
+  getDto(): IOrder {
+    const order = this.getRawValue();
+    const orderType = order.type;
+
+    order.symbol = this.instrument?.symbol;
+    order.exchange = this.instrument?.exchange;
+
+    // if (orderType !== OrderType.Limit && orderType !== OrderType.StopLimit)
+    //   delete order.limitPrice;
+
+    // if (orderType !== OrderType.StopMarket && orderType !== OrderType.StopLimit)
+    //   delete order.stopPrice;
+
+    return order;
   }
 
   protected handleItem(item: IOrder): void {

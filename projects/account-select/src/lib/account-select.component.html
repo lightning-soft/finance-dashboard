@@ -1,0 +1,10 @@
+<nz-select
+  [class]="className"
+  [nzSize]="size"
+  [nzPlaceHolder]="placeholder"
+  [nzLoading]="loading"
+  [(ngModel)]="activeAccountId"
+  (ngModelChange)="select($event)"
+>
+  <nz-option *ngFor="let item of items" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+</nz-select>

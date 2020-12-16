@@ -14,11 +14,12 @@ export class ItemViewBuilder implements OnInit {
     this._setCell(value);
   }
 
-  constructor(private templateRef: TemplateRef<any>,
+  constructor(
+    private templateRef: TemplateRef<any>,
     private viewContainerRef: ViewContainerRef,
     private componentFactoryResolver: ComponentFactoryResolver,
-    @Optional() private _viewBuilderStore: IViewBuilderStore) {
-  }
+    @Optional() private _viewBuilderStore: IViewBuilderStore
+  ) { }
 
   ngOnInit(): void {
     if (!this._item || this._item.component == null) {

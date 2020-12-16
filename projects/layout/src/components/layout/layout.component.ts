@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
@@ -9,16 +10,17 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { GlobalHandlerService } from 'global-handler';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
+import { WindowManagerService } from 'window-manager';
+import { Workspace, WorkspacesManager } from 'workspace-manager';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
-import { DesktopLayout } from './layouts/desktop.layout';
-import { IDropable } from './layouts/dropable';
-import { Layout } from './layouts/layout';
-import { GlobalHandlerService } from 'global-handler';
 import { DockDesktopLayout } from './layouts/dock-desktop.layout';
+import { IDropable } from './layouts/dropable';
+import { ComponentOptions, Layout } from './layouts/layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
 @UntilDestroy()
@@ -27,9 +29,11 @@ export type ComponentInitCallback = (container: GoldenLayout.Container, componen
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit, IDropable {
+export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
   @ViewChild('container')
   container: ElementRef;
+
+  activeWorkspace: Workspace;
 
   get canDragAndDrop() {
     return this.layout.canDragAndDrop;
@@ -42,30 +46,28 @@ export class LayoutComponent implements OnInit, IDropable {
     private _factoryResolver: ComponentFactoryResolver,
     private viewContainer: ViewContainerRef,
     private ngZone: NgZone,
+    private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
     private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _globalHandler: GlobalHandlerService
+    private _globalHandler: GlobalHandlerService,
+    private _windowManagerService: WindowManagerService,
+    private _workspacesManager: WorkspacesManager
   ) {
+    (window as any).LayoutComponent = this;
   }
 
-  ngOnInit() {
-    (window as any).l = this;
-    // this.ngZone.runOutsideAngular(() =>
-    this._layoutHandler
-      .handleCreate
-      .pipe(
-        untilDestroyed(this)
-      )
-      .subscribe(name => this.addComponent(name));
-    // );
+  ngOnInit() { }
+
+  ngAfterViewInit() {
+    this._windowManagerService.createWindowManager(this.container);
   }
 
-  addComponent(name: string) {
+  addComponent(options: ComponentOptions) {
     if (this.layout)
-      this.layout.addComponent(name);
+      this.layout.addComponent(options);
   }
 
   createDragSource(element, item) {
@@ -94,8 +96,17 @@ export class LayoutComponent implements OnInit, IDropable {
       // else
       // this.layout = new DesktopLayout(this._factoryResolver, this._creationsService,
       //   this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
-      this.layout = new DockDesktopLayout(this._factoryResolver, this._creationsService,
-        this.viewContainer, this.container, this._lazyLoadingService, this.ngZone);
+
+      this.layout = new DockDesktopLayout(
+        this._factoryResolver,
+        this._creationsService,
+        this.viewContainer,
+        this.container,
+        this._loadingService,
+        this._lazyLoadingService,
+        this.ngZone,
+        this._windowManagerService
+      );
     });
   }
 
@@ -126,25 +137,26 @@ export class LayoutComponent implements OnInit, IDropable {
     this.layout.loadEmptyState();
   }
 
-  async loadState() {
-    const state = await this.layoutStore.getItem().toPromise() || defaultSettings;
+  async loadState(settings) {
+    let state = settings || [];
+
+    if (this.layout)
+      this._windowManagerService.closeAll();
+
     if (!this.layout)
       this._initLayout();
 
     const result = await this.layout.loadState(state);
+
     for (const fn of this._initSubscribers) // todo: think about refactoring
       fn();
+
     this._initSubscribers = [];
     return result;
   }
 
-  /**
-   * HostListener is used because ngOnDestroy is not being triggered during page close/refresh
-   * If in this function error occurred then will be shown a confirm dialog with a message "Changes that you made may not be saved."
-   */
-  @HostListener('window:beforeunload')
-  beforeUnloadHandler() {
-    this._layoutHandler.save(this.getState());
+  saveState(): any {
+    return this.getState();
   }
 }
 

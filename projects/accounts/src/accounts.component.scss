@@ -1,39 +1,7 @@
-@import "themes/index";
-
-$selectHeightContainer: 32px;
-$selectMarginBottom: 15px;
-
 :host {
   display: block;
   height: 100%;
-  overflow: auto;
-  width: 100%;
-  border-radius: 4px;
-  padding: 10px;
-
-  ::ng-deep {
-
-  }
-
-  .wrapper {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 10px;
-    padding: 10px;
-  }
-
-  .add-account {
-    min-height: 85px;
-    height: 100%;
-    cursor: pointer;
-    width: 210px;
-    display: flex;
-    font-size: 35px;
-    line-height: 1;
-    align-items: center;
-    border-radius: 4px;
-    justify-content: center;
-  }
 }
-
-
+cdk-virtual-scroll-viewport {
+  height: 100%;
+}

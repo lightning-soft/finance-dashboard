@@ -1,11 +1,15 @@
-/*
-  This is a "Solution Style" tsconfig.json file, and is used by editors and TypeScript’s language server to improve development experience.
-  It is not intended to be used to perform a compilation.
-
-  To learn more about this file see: https://angular.io/config/solution-tsconfig.
-*/
 {
   "files": [],
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "workspaces": [
+        "dist/workspaces/workspaces",
+        "dist/workspaces"
+      ]
+    }
+  },
   "references": [
     {
       "path": "./tsconfig.app.json"
@@ -162,6 +166,54 @@
     },
     {
       "path": "./projects/accounts/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/account-select/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/account-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notification/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notification/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-manager/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/window-header/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/window-header/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notification-list/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/notification-list/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/workspace-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/workspace-manager/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/workspace/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/workspace/tsconfig.spec.json"
     }
-  ],
+  ]
 }

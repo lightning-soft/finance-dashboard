@@ -1,36 +1,31 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzInputModule, NzSelectModule } from 'ng-zorro-antd';
-import { AccountConnectComponent } from './account-connect/account-connect.component';
-import { AccountItemComponent } from './account-item/account-item.component';
+import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzSelectModule, NzTabsModule, NzTransferModule } from 'ng-zorro-antd';
+import { WindowHeaderModule } from 'window-header';
 import { AccountsComponent } from './accounts.component';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzTransButtonModule } from 'ng-zorro-antd/core/trans-button';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @NgModule({
   imports: [
-    NzSelectModule,
     CommonModule,
-    NzInputModule,
     ReactiveFormsModule,
-    NzSpinModule,
     NzButtonModule,
-    NzTransButtonModule,
-    NzUploadModule,
-    NzAlertModule,
+    NzCollapseModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzTabsModule,
+    NzTransferModule,
+    ScrollingModule,
+    WindowHeaderModule,
   ],
   exports: [
-    AccountsComponent
+    AccountsComponent,
   ],
   declarations: [
     AccountsComponent,
-    AccountItemComponent,
-    AccountConnectComponent
   ],
 })
 export class AccountsModule implements LazyModule {

@@ -576,7 +576,7 @@ $tabHeight: 30px;
       .lm_close_tab {
         width: 11px;
         height: 11px;
-        mask-image: url("../../../../../src/assets/img/svg/close_icon.svg");
+        mask-image: url("../../../../../src/assets/img/svg/close-window.svg");
         mask-size: 100%;
         mask-repeat: no-repeat;
         top: 4px;
@@ -651,7 +651,7 @@ $tabHeight: 30px;
     // Icon to PopOut Pane, so move it to a different Browser Window
     .lm_popout {
       // background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=);
-      mask-image: url("../../../../../src/assets/img/svg/popup.svg");
+      mask-image: url("../../../../../src/assets/img/svg/maximize-window.svg");
       mask-size: 100%;
       margin: 0 5px 1px 0;
       mask-repeat: no-repeat;
@@ -664,7 +664,7 @@ $tabHeight: 30px;
 
     // Icon to Maximize Pane, so it will fill the entire GoldenLayout Container
     .lm_maximise {
-      mask-image: url("../../../../../src/assets/img/svg/maximaze.svg");
+      mask-image: url("../../../../../src/assets/img/svg/maximize-window.svg");
       mask-size: 100%;
       margin-right: 5px;
       mask-repeat: no-repeat;
@@ -672,7 +672,7 @@ $tabHeight: 30px;
 
     // Icon to Close Pane and so remove it from GoldenLayout Container
     .lm_close {
-      mask-image: url("../../../../../src/assets/img/svg/close_icon.svg");
+      mask-image: url("../../../../../src/assets/img/svg/close-window.svg");
       mask-size: 100%;
       mask-repeat: no-repeat;
     }

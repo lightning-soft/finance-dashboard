@@ -1,0 +1,25 @@
+<button 
+  class="icon-set-header"
+  nz-dropdown 
+  nzTrigger="click" 
+  [nzDropdownMenu]="menu"
+>
+</button>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="navbar-controller">
+    <li 
+      class="move-bottom" 
+      nz-menu-item 
+    >
+      <i class="icon-arrow-down"></i>
+      Bottom
+    </li>
+    <li 
+      nz-menu-item 
+      class="log-out" 
+    >
+      <i class="icon-hide"></i> 
+      Hide
+    </li>
+  </ul>
+</nz-dropdown-menu>

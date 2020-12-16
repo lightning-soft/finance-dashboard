@@ -1,0 +1,25 @@
+:host {
+  font-size: 12px;
+
+  .window-icon {
+    border-radius: 2px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    margin-right: 4px;
+    text-align: center;
+  }
+
+  .widget .window-icon {
+    background-color: #1B1D22;
+    margin-right: 8px;
+  }
+
+  .link {
+    margin-right: 4px;
+    
+    i {
+      font-size: 12px;
+    }
+  }
+}

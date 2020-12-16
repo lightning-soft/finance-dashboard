@@ -1,19 +1,94 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { CommunicationModule } from 'communication';
+import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
+import { AuthModule, AuthService } from 'auth';
+import { CommunicationConfig, CommunicationModule } from 'communication';
+import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzDropDownModule } from 'ng-zorro-antd';
+import { NzFormModule, NzRadioModule } from 'ng-zorro-antd';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NotificationModule } from 'notification';
 import { NotifierModule } from 'notifier';
+import { RealTradingModule } from 'real-trading';
+import { first } from 'rxjs/operators';
+import { SettingsModule } from 'settings';
+import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
-import { AppComponent, DashboardComponent, DragDrawerComponent, NavbarComponent } from './components';
+import { WindowManagerModule } from 'window-manager';
+import { WorkspacesModule } from 'workspace-manager';
+import { AppConfig } from './app.config';
+import {
+  AccountComponent,
+  AppComponent, ClockComponent,
+  ConfirmModalComponent,
+  ConnectionsComponent,
+  CreateModalComponent,
+  DashboardComponent,
+  DragDrawerComponent,
+  NavbarComponent,
+  NavbarControllerComponent,
+  RenameModalComponent,
+  TradeLockComponent
+} from './components';
+import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
+import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+
+
+
+/**
+ *  Move declaration to enother file
+ */
+function generateLoginLink(config): string {
+
+  const { clientId, responseType, scope, redirectUri } = config;
+
+  const data = new URLSearchParams();
+
+  data.set('client_id', clientId);
+  data.set('response_type', responseType);
+  data.set('scope', scope.join(' '));
+  data.set('redirect_uri', redirectUri);
+
+  return `${config.url}connect/authorize?${data.toString()}`;
+}
+
+async function initAccounts(manager: AccountsManager) {
+  return manager.init();
+}
+
+async function initIdentityAccount(authService: AuthService, config: AppConfig) {
+  const queryParams = new URLSearchParams(window.location.search);
+  const code = queryParams.get('code');
+
+  if (code)
+    window.history.replaceState({}, document.title, '/');
+  else {
+    location.replace(generateLoginLink(config.identity));
+  }
+
+  return authService.initialize(code);
+}
+
+export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
+  return async () => {
+    await config.getConfig().pipe(first()).toPromise();
+    // await initIdentityAccount(authService, config);
+    await initAccounts(manager);
+  };
+}
+
 
 @NgModule({
   declarations: [
@@ -21,17 +96,60 @@ import { Modules, modulesStore } from './modules';
     DashboardComponent,
     DragDrawerComponent,
     AppComponent,
+    AccountComponent,
+    TradeLockComponent,
+    NavbarControllerComponent,
+    ClockComponent,
+    ConnectionsComponent,
+    FramesManagerComponent,
+    WorkspaceComponent,
+    CreateModalComponent,
+    RenameModalComponent,
+    ConfirmModalComponent,
   ],
   imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NzFormModule,
+    NzSelectModule,
+    NzRadioModule,
     HttpClientModule,
     CommunicationModule,
-    BrowserModule.withServerTransition({appId: 'serverApp'}),
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
     NzModalModule,
+    NzDropDownModule,
+    ScrollingModule,
     BrowserAnimationsModule,
     NotifierModule,
     ContextMenuModule,
+    WorkspacesModule,
+    WindowManagerModule,
+    SettingsModule.forRoot(),
+    ConfigModule.configure({
+      path: environment.config || 'config/config.json',
+      configClass: AppConfig,
+    }),
+    AccountsManagerModule.forRoot(),
+    CommunicationModule.forRoot([
+      {
+        provide: CommunicationConfig,
+        useExisting: AppConfig,
+      }
+    ]),
+    FakeCommunicationModule.forRoot(),
+    RealTradingModule.forRoot(),
     LayoutModule.forRoot(),
+    AuthModule.forRoot(),
+    NotificationModule.forRoot(),
     LoadingModule.forRoot([
+      {
+        path: Modules.NotificationList,
+        loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
+      },
+      {
+        path: Modules.Accounts,
+        loadChildren: () => import('accounts').then(i => i.AccountsModule)
+      },
       {
         path: Modules.Chart,
         loadChildren: () => import('chart').then(i => i.ChartModule)
@@ -61,7 +179,6 @@ import { Modules, modulesStore } from './modules';
         loadChildren: () => import('scripting').then(i => i.ScriptingModule)
       }
     ], modulesStore),
-    FakeCommunicationModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '',
@@ -70,14 +187,30 @@ import { Modules, modulesStore } from './modules';
       {
         path: '**',
         component: DashboardComponent,
-      },
+      }
     ]),
     NzDropDownModule,
   ],
   providers: [
     ThemesHandler,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initApp,
+      multi: true,
+      deps: [
+        AppConfig,
+        AccountsManager,
+        AuthService
+      ],
+    },
+    { provide: NZ_I18N, useValue: en_US }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private i18n: NzI18nService) {
+  }
+  switchLanguage() {
+    this.i18n.setLocale(en_US);
+  }
 }

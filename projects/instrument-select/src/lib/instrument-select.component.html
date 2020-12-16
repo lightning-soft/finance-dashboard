@@ -1,0 +1,25 @@
+<nz-select
+  [class]="className"
+  nzShowSearch
+  nzServerSearch
+  [nzSize]="size"
+  [nzPlaceHolder]="placeholder"
+  [nzLoading]="loading"
+  (nzOnSearch)="search($event)"
+  (nzScrollToBottom)="loadMore()"
+  [(ngModel)]="value"
+  (ngModelChange)="handleModelChange($event)"
+  (nzOpenChange)="handleOpenChange($event)"
+>
+  <nz-option
+    [nzValue]="instrument.id"
+    [nzLabel]="instrument.symbol"
+    nzHide
+    *ngIf="instrument"
+  ></nz-option>
+  <nz-option
+    *ngFor="let item of items"
+    [nzValue]="item.id"
+    [nzLabel]="item.symbol"
+  ></nz-option>
+</nz-select>

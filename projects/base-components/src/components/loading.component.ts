@@ -19,19 +19,23 @@ export interface IAutoLoadDataConfig {
   onInit?: boolean;
   onParamsChange?: boolean;
   onQueryParamsChange?: boolean;
+  onConnectionChange?: boolean;
 }
 
 export interface ILoadingComponentConfig {
   autoLoadData?: false | IAutoLoadDataConfig;
 }
 
-export const DefaultLoadingItemConfig: ILoadingComponentConfig = {
-  autoLoadData: {
-    onInit: true,
-    onParamsChange: true,
-    onQueryParamsChange: true,
-  },
-};
+export function getDefaultLoadingItemConfig(): ILoadingComponentConfig {
+  return {
+    autoLoadData: {
+      onInit: true,
+      onParamsChange: true,
+      onQueryParamsChange: true,
+      onConnectionChange: true,
+    },
+  };
+}
 
 @UntilDestroy()
 export abstract class LoadingComponent<T, I extends IBaseItem = any> implements OnInit, OnDestroy, ILoadingHandler {
@@ -41,7 +45,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   loadingError: number = null;
   public MIN_LOADING_TIME = 300;
 
-  config: ILoadingComponentConfig = DefaultLoadingItemConfig;
+  config: ILoadingComponentConfig = getDefaultLoadingItemConfig();
 
   timeBeforeLoadingStart = 0;
   loadingHandler: ILoadingHandler = this;

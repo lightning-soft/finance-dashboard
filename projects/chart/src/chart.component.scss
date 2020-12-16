@@ -27,13 +27,13 @@ $toolbarMargin: 4px;
   align-items: center;
   justify-content: center;
 
-  .icon-arrow-right, .icon-arrow-left {
+  .icon-arrow-right,
+  .icon-arrow-left {
     font-size: 14px;
-
   }
 }
 
-:host ::ng-deep{
+:host ::ng-deep {
   .disappearing {
     width: 0;
     opacity: 0;
@@ -45,19 +45,32 @@ $toolbarMargin: 4px;
     transition: all 0.3s;
   }
 }
-
-
+::ng-deep {
+  div[class*="resize-"], div.frame .wm-container header {
+    .chart-container {
+      &:before {
+        content: "";
+        position: fixed;
+        height: 94%;
+        width: 99%;
+        z-index: 99;
+      }
+    }
+  }
+}
+.component-container {
+  display: flex;
+  height: 100%;
+}
 .chart-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
   position: relative;
-}
-
-.component-container {
-  display: flex;
-  height: 100%;
+  //&:hover {
+  //  cursor: grab;
+  //}
 }
 
 .scxToolbar-multiDropdown,
@@ -77,8 +90,9 @@ $toolbarMargin: 4px;
   position: relative;
 
   ::ng-deep .scxNavigation {
-    [class^="icon-"], [class*=" icon-"] {
-      font-family: 'scx-icons', serif !important;
+    [class^="icon-"],
+    [class*=" icon-"] {
+      font-family: "scx-icons", serif !important;
     }
   }
 
@@ -86,7 +100,7 @@ $toolbarMargin: 4px;
     order-form {
       height: 100%;
     }
-    
+
     .scxChartPanel ~ .scxChartPanel .scxPanelTitle {
       margin-top: 5px;
     }
@@ -116,7 +130,6 @@ $toolbarMargin: 4px;
   ::ng-deep .scxToolbar-btn.scxToolbar-btn-theme {
     display: none;
   }
-
 
   .scxRootContainer.scxFullWindow {
     height: 100% !important;

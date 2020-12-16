@@ -1,22 +1,32 @@
-$padding: 7px;
+$padding: 0;
 $activeColor: #2296f3;
 
-@import "golden-layout";
+// @import "golden-layout";
 @import "themes/index";
 
 :host {
   display: block;
-  height: calc(100% - #{$navbarHeight});
+  // height: calc(100% - #{$navbarHeight});
+  height: 100%;
   width: 100%;
-  background-color: #17181f;
   padding: $padding;
   position: relative;
   color: #ffffff;
 
-  > div {
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    height: 100%;
+  }
+
+  .layout-container {
     height: 100%;
     width: 100%;
+
   }
+
+  // > div {
+  //   height: 100%;
+  //   width: 100%;
+  // }
 
   //&.isActive {
   //  border: 1px solid rebeccapurple;

@@ -1,0 +1,27 @@
+.wm-window {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+
+  & > header {
+    display: none !important;
+  }
+
+  & > * > window-header {
+    display: flex;
+    align-items: center;
+    padding: 1px 0 2px;
+  }
+
+  & > *:last-child {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 0;
+    flex-grow: 1;
+    padding: 1px;
+    overflow: auto;
+    background: $light;
+    border: 1px solid $lighter;
+    box-shadow: 0 0 1px 1px #13141a;
+  }
+}

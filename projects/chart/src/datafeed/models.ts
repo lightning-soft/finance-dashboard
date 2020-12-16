@@ -1,4 +1,12 @@
-import { IStockChartXInstrument } from './IInstrument';
+import { IBaseItem } from 'communication';
+
+export interface IStockChartXInstrument extends IBaseItem {
+  symbol: string;
+  company: string;
+  exchange: string;
+  tickSize: number;
+  digits?: number;
+}
 
 export interface IQuote {
   Ask: number;

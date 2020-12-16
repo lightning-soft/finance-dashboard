@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
+import { AccountSelectModule } from 'account-select';
+import { LayoutModule } from 'layout';
+import { WindowHeaderModule } from 'window-header';
 
 @NgModule({
   imports: [
@@ -12,6 +15,10 @@ import { PositionsComponent } from './positions.component';
     DataGridModule,
     NzSelectModule,
     FormsModule,
+    ReactiveFormsModule,
+    AccountSelectModule,
+    LayoutModule,
+    WindowHeaderModule,
   ],
   exports: [
     PositionsComponent

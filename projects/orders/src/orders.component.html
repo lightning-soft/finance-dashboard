@@ -1,13 +1,28 @@
+<window-header className="widget" [window]="this">
+  <button 
+    class="wm-header-btn mr-2"
+    (click)="grid.createComponentModal()"
+  >
+    <i class="icon-setting-gear"></i>
+  </button>
+  <account-select
+    size="small"
+    className="custom-form-control"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
+</window-header>
 <div class="wrapper">
-  <div (click)="selectComponent.setOpenState(true)" class="select-container">
-    <nz-select
-      #selectComponent
-      [nzShowArrow]="false"
-      [nzDropdownClassName]="'toolbar-dropdown'" [(ngModel)]="status">
-      <nz-option nzValue="Open" nzLabel="Open"></nz-option>
-      <nz-option nzValue="Close" nzLabel="Close"></nz-option>
-    </nz-select>
-    <i class="icon-arrow-dropdown"></i>
+  <div class="toolbar">
+    <!-- <div (click)="selectComponent.setOpenState(true)" class="select-container">
+      <nz-select
+        #selectComponent
+        [nzShowArrow]="false"
+        [nzDropdownClassName]="'toolbar-dropdown'" [(ngModel)]="status">
+        <nz-option nzValue="Open" nzLabel="Open"></nz-option>
+        <nz-option nzValue="Close" nzLabel="Close"></nz-option>
+      </nz-select>
+      <i class="icon-arrow-dropdown"></i>
+    </div> -->
   </div>
-  <data-grid [items]="items" [columns]="headers"></data-grid>
+  <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
 </div>

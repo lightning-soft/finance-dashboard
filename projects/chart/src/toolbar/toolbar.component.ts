@@ -1,8 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Subscription } from 'rxjs';
-import { RithmicApiService } from 'communication';
-import { InstrumentsRepository, IInstrument } from 'trading';
+import { Component, Input } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 
@@ -25,15 +23,11 @@ const periodicityMap = new Map([
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent implements OnInit {
-
-  private _drawingClassName: Map<string, string> = new Map();
-
-  private _searchSubscription: Subscription;
+export class ToolbarComponent {
 
   showToolbar = true;
 
-  private timeFrameOptions = [
+  timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
     { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
@@ -54,7 +48,7 @@ export class ToolbarComponent implements OnInit {
 
   zoomOptions = ['dateRange', 'rect'];
 
-  // allDraings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
+  // allDrawings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
   //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
   //   "text", "image", "balloon", "measure", "measureTool", "fibonacciArcs", "fibonacciEllipses", "fibonacciRetracements", "fibonacciFan",
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
@@ -62,27 +56,31 @@ export class ToolbarComponent implements OnInit {
 
   drawingInstruments = [
     {
-      value: 'Chart market',
+      icon: 'chart-market',
+      name: 'Chart market',
       items: [
         'dot', 'square', 'diamond', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'arrow', 'note'
       ]
     },
     {
-      value: 'Geometric',
+      icon: 'geometric',
+      name: 'Geometric',
       items: [
         'lineSegment', 'horizontalLine', 'verticalLine',
         'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
       ]
     },
     {
-      value: 'Fibonacci',
+      icon: 'fibonacci',
+      name: 'Fibonacci',
       items: [
         'fibonacciArcs', 'fibonacciEllipses',
         'fibonacciRetracements', 'fibonacciFan', 'fibonacciTimeZones', 'fibonacciExtensions'
       ]
     },
     {
-      value: 'Trend Channel Drawings',
+      icon: 'trend-channel-drawing',
+      name: 'Trend Channel Drawings',
       items: [
         'trendChannel', 'andrewsPitchfork',
         'errorChannel', 'raffRegression', 'quadrantLines',
@@ -90,48 +88,46 @@ export class ToolbarComponent implements OnInit {
       ]
     },
     {
-      value: 'General Drawings', items: [
-        'text', 'image', 'balloon', 'measure'
-      ]
+      icon: 'text',
+      name: 'General-drawings',
+      items: ['text']
+    },
+    {
+      icon: 'add-image',
+      name: 'General-drawings',
+      items: [ 'image']
+    },
+    // {
+    //   icon: 'drawing-baloon',
+    //   name: 'General-drawings',
+    //   items: ['balloon']
+    // },
+    {
+      icon: 'measure',
+      name: 'General-drawings',
+      items: [ 'measure']
     }
   ];
-
-  instruments: IInstrument[] = [];
 
   @Input() chart: IChart;
 
   get instrument(): IInstrument {
-    let instrument = this.chart?.instrument as any;
-
-    if (instrument?.id != null)
-      return instrument.symbol;
+    return this.chart?.instrument;
   }
 
   set instrument(instrument: IInstrument) {
-    if (typeof instrument === 'string') {
-      this._search(instrument);
-      return;
-    }
+    const { chart } = this;
 
-    let chart = this.chart;
-    if (!chart || !instrument)
+    if (!chart || !instrument || chart.instrument?.id === instrument.id)
       return;
 
-
-    let oldSymbol = chart.instrument && chart.instrument.symbol.toUpperCase();
-    let newSymbol = instrument.symbol.toUpperCase();
-    if (newSymbol !== chart.instrument?.symbol) {
-
-      setTimeout(() => {
-        chart.instrument = {
-          ...instrument,
-          id: instrument.id as any,
-          symbol: instrument.symbol,
-          company: '',
-        };
-        chart.sendBarsRequest();
-      });
-    }
+    setTimeout(() => {
+      chart.instrument = {
+        ...instrument,
+        company: '',
+      };
+      chart.sendBarsRequest();
+    });
   }
 
   get timeFrame() {
@@ -189,33 +185,6 @@ export class ToolbarComponent implements OnInit {
     }
   }
 
-
-  constructor(
-    private _instrumentsRepository: InstrumentsRepository,
-    private _rithmicApiService: RithmicApiService,
-  ) { }
-
-  _search(criteria?: string) {
-    this._searchSubscription?.unsubscribe();
-
-    this._searchSubscription = this._instrumentsRepository.getItems({ criteria })
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        (res) => {
-          this.instruments = res.data.slice(0, 100);
-        },
-        (e) => console.error('error', e),
-      );
-  }
-
-  ngOnInit(): void {
-    this._rithmicApiService.handleConnection(isConnected => {
-      if (isConnected) {
-        this._search();
-      }
-    }, this);
-  }
-
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = TimeFrame.periodicityToString(timeFrame.periodicity);
 
@@ -227,11 +196,12 @@ export class ToolbarComponent implements OnInit {
   }
 
   compareInstrumentDialog() {
+    const { chart } = this;
+
     StockChartX.UI.ViewLoader.compareInstrumentDialog((dialog) => {
       dialog.show({
-        chart: this.chart,
+        chart,
         done: () => {
-          let chart = this.chart;
           if (chart) {
             chart.setNeedsUpdate();
           }
@@ -242,17 +212,18 @@ export class ToolbarComponent implements OnInit {
   }
 
   openIndicatorDialog() {
+    const { chart } = this;
+
     StockChartX.UI.ViewLoader.indicatorsDialog((dialog) => {
       dialog.show({
-        chart: this.chart,
+        chart,
         done: (className: string) => {
-          let chart = this.chart,
-            showSettingsDialog = StockChartX.UI.IndicatorsDialog.showSettingsBeforeAdding;
+          const showSettingsDialog = StockChartX.UI.IndicatorsDialog.showSettingsBeforeAdding;
 
           if (!chart)
             return;
 
-          let indicator = StockChartX.Indicator.deserialize({ className, chart });
+          const indicator = StockChartX.Indicator.deserialize({ className, chart });
 
           chart.addIndicators(indicator);
           if (showSettingsDialog) {
@@ -278,9 +249,9 @@ export class ToolbarComponent implements OnInit {
   }
 
   addDrawing(name: string) {
-    let chart = this.chart;
+    const chart = this.chart;
     chart.cancelUserDrawing();
-    let drawing = StockChartX.Drawing.deserialize({ className: name });
+    const drawing = StockChartX.Drawing.deserialize({ className: name });
     chart.startUserDrawing(drawing);
   }
 
@@ -288,7 +259,13 @@ export class ToolbarComponent implements OnInit {
     this.chart.removeDrawings();
     this.chart.setNeedsUpdate(true);
   }
-
+  stayInDragMode() {
+    this.chart.stayInDrawingMode = !this.chart.stayInDrawingMode;
+  }
+  visible() {
+    this.chart.showDrawings = !this.chart.showDrawings;
+    this.chart.setNeedsUpdate(true);
+  }
   makeSnapshot() {
     this.chart.saveImage();
   }

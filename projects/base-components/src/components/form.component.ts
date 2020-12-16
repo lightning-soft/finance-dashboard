@@ -5,7 +5,9 @@ import { Observable } from 'rxjs';
 import { debounceTime, filter, finalize, tap } from 'rxjs/operators';
 import { difference, deepAssign } from '../utils';
 import { ItemComponent } from './item.component';
-import { DefaultLoadingItemConfig, ILoadingComponentConfig } from './loading.component';
+import { getDefaultLoadingItemConfig, ILoadingComponentConfig } from './loading.component';
+
+const defaultLoadingItemConfig = getDefaultLoadingItemConfig();
 
 export interface IErrorMessage {
   [error: string]: string | IErrorMessage;
@@ -49,9 +51,9 @@ export interface IFormComponentConfig extends ILoadingComponentConfig {
 @Directive()
 export abstract class FormComponent<T extends IBaseItem> extends ItemComponent<T> implements OnInit {
   config: IFormComponentConfig = {
-    ...DefaultLoadingItemConfig,
+    ...defaultLoadingItemConfig,
     autoLoadData: {
-      ...DefaultLoadingItemConfig.autoLoadData,
+      ...defaultLoadingItemConfig.autoLoadData,
       onInit: false,
     },
     autoSave: false,

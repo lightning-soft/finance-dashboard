@@ -1,74 +1,76 @@
 import { Component, Input } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { NzModalService } from 'ng-zorro-antd';
-import { SettingsComponent } from 'settings';
+import { LayoutComponent } from 'layout';
+import { NotificationService } from 'notification';
 import { Themes, ThemesHandler } from 'themes';
-import { AccountsComponent } from 'accounts';
-import { RithmicApiService } from 'communication';
 
-@UntilDestroy()
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Input() isOpen;
+  @Input() layout: LayoutComponent;
+
+  public isNewNotification: boolean;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
   }
 
-  public isVisible = true;
-
   constructor(
     private themeHandler: ThemesHandler,
-    private modalService: NzModalService,
-    private _rithmicApiService: RithmicApiService,
+    private notificationService: NotificationService,
   ) {
-    this.checkVisibility();
-  }
-
-  closeDrawer() {
-    this.isOpen = false;
-  }
-
-  toggleNavigationDrawer() {
-    this.isOpen = !this.isOpen;
+    this.notificationService.notifications.subscribe(n => {
+      this.isNewNotification = n.length ? true : false;
+    });
   }
 
   switchTheme() {
     this.themeHandler.toggleTheme();
   }
 
-  openAccountDialog() {
-    this.modalService.create({
-      nzTitle: null,
-      nzContent: AccountsComponent,
-      nzCloseIcon: null,
-      nzFooter: null,
-      nzWidth: 720,
+  openAccounts() {
+    this.layout.addComponent({
+      component: {
+        name: 'accounts',
+      },
+      maximizeBtn: false,
     });
   }
 
-  checkVisibility() {
-    if (window.location.href.includes('popup')) {
-      console.log('here');
-      this.isVisible = false;
-    }
+  openNotificationsList() {
+    this.layout.addComponent({
+      component: {
+        name: 'notification-list'
+      },
+      x: 'right',
+      y: 'top',
+      height: 800,
+      width: 300,
+    });
   }
 
   openSettings() {
-    this.modalService.create({
-      nzContent: SettingsComponent,
-      nzFooter: null,
+    this.layout.addComponent({
+      component: {
+        name: 'settings',
+      },
+      icon: 'icon-setting-gear',
+      maximizeBtn: false,
+      x: 'center',
+      y: 'center',
     });
   }
 
-  logout() {
-    this._rithmicApiService.logout().subscribe(
-      () => {},
-      (e) => console.error(e),
-    );
-  }
+  // openWorkspace() {
+  //   this.layout.addComponent({
+  //     component: {
+  //       name: 'workspace',
+  //     },
+
+  //     icon: 'icon-setting-gear',
+  //     maximizeBtn: false,
+  //   });
+  // }
 }

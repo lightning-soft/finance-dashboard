@@ -1,3 +1,26 @@
+@import "scss/variables";
+
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/utilities";
+
+@import "~ng-zorro-antd/style/index.min.css";
+@import "assets/font/icon.css";
+
+@import "scss/utilities";
+@import "scss/colors";
+@import "scss/fonts";
+@import "scss/animations";
+@import "scss/layout";
+@import "scss/modules";
+
+@import "scss/dark.theme";
+@import "scss/template";
+
+@import "scss/light.theme";
+@import "scss/template";
+
 body,
 html {
   font-weight: 400;
@@ -8,8 +31,13 @@ html {
   padding: 0;
 }
 
-@import "~ng-zorro-antd/style/index.min.css";
-@import "assets/font/icon.css";
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+html {
+  font-size: 16px;
+}
 
 *,
 *:after,
@@ -17,41 +45,8 @@ html {
   box-sizing: border-box;
 }
 
-@import "scss/variables";
-
-@import "scss/colors";
-@import "scss/fonts";
-
-@import "scss/dark.theme";
-@import "scss/template";
-
-@import "scss/light.theme";
-@import "scss/template";
-
-.text-bold {
-  font-weight: 600;
-}
-
-.d-none {
-  display: none !important;
-}
-
-.visibility-hidden {
-  visibility: hidden;
-}
-
-.ant-modal-content {
-  background: none;
-}
-
 .ant-input {
   border-radius: 0;
-}
-
-.ant-modal-body {
-  background: none;
-  box-shadow: none;
-  padding: 0 !important;
 }
 
 button {
@@ -60,14 +55,29 @@ button {
   border: none;
 }
 
-.ant-modal {
-  width: auto !important;
-  display: flex;
-  justify-content: center;
-}
-
 .ant-modal-content {
   box-shadow: none !important;
+}
+
+.wm-draggable {
+  cursor: move;
+}
+
+.wm-window[class*="resize-"] {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    background-color: cadetblue;
+    opacity: 0;
+    z-index: 9000000;
+  }
 }
 
 .toolbar-dropdown {
@@ -79,12 +89,123 @@ button {
   }
 }
 
-html,
-body {
-  height: 100%;
+.watchlist-instrument-select.ant-select {
+  width: 100%;
+}
+.modal-data-grid {
+  text-align: center;
+
+  .ant-modal {
+    width: auto!important;
+    display: inline-block;
+    text-align: left;
+  }
+
+  .ant-modal-header,
+  .ant-modal-content  {
+    background-color: #24262C;
+  }
+
+  .ant-modal-content {
+
+    .ant-modal-body {
+      text-align: center;
+  
+      .ng-star-inserted {
+        text-align: left;
+      }
+    }
+  }
+
+  .ant-empty {
+    &-image,
+    &-description {
+      text-align: center!important;
+    }
+  }
+
+  .ant-transfer-list-content {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #51535A;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #737377;
+    }
+  }
+
+  .ant-transfer-list,
+  .ant-transfer-list-header {    
+    background-color: #1B1D22;
+  }
+
 }
 
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+.wm-header-btn {
+  width: 28px;
+  height: 28px;
+  background-color: #101114;
+  border-radius: 2px;
+}
+
+.vertical-center-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .ant-modal {
+    top: 0;
+  }
+
+}
+
+.ant-modal {
+  .ant-modal-content {
+    padding: 1px;
+    border: 1px solid $lighter;
+
+    .ant-modal-header {
+      background-color: #24262C;
+      border: none;
+      padding: 0;
+
+      .ant-modal-title {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 8px;
+      }
+    }
+    .ant-modal-body {
+      background-color: #1B1D22;
+      border-radius: 2px;
+      text-align: center;
+      padding: 34px 91px;
+    }
+    .ant-modal-footer {
+      background-color: #1B1D22;
+      border: none;
+      text-align: center;
+      padding: 0px 0 40px;
+
+      .modal-btn {
+        background-color: #101114;
+        color: #ffffff;
+        border-color: #4895F5;
+      }
+    }
+    .ant-modal-close-x {
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 13px;
+    }
+  }
 }

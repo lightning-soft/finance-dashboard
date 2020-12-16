@@ -1,4 +1,4 @@
-import { Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { IBaseItem } from './item';
 import { IPaginationResponse } from './pagination';
 
@@ -19,15 +19,11 @@ export interface RealtimeActionData<T> {
 
 export abstract class Repository<T extends IBaseItem = any> {
 
-  protected _subject: Subject<RealtimeActionData<T>> = new Subject();
+  actions: Subject<RealtimeActionData<T>> = new Subject();
 
   protected _onCreate = this._bindEmit(RealtimeAction.Create);
   protected _onUpdate = this._bindEmit(RealtimeAction.Update);
   protected _onDelete = this._bindEmit(RealtimeAction.Delete);
-
-  subscribe(callback: (data: RealtimeActionData<T>) => void): Subscription {
-    return this._subject.subscribe(callback);
-  }
 
   abstract getItemById(id, query?: any): Observable<T>;
 
@@ -39,7 +35,7 @@ export abstract class Repository<T extends IBaseItem = any> {
     return throwError(`Implement patchItem for ${this.constructor.name}`);
   }
 
-  abstract deleteItem(id: number | string): Observable<boolean>;
+  abstract deleteItem(id: number | string | T): Observable<boolean>;
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 
@@ -54,9 +50,12 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   protected _bindEmit(action: RealtimeAction) {
     return (data) => {
+      if (data == null)
+        return;
+
       const items = Array.isArray(data) ? data : [data];
 
-      this._subject.next({
+      this.actions.next({
         action,
         items,
       });

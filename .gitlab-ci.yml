@@ -1,4 +1,4 @@
-image: teracy/angular-cli
+image: registry.gitlab.com/docker.hub/teracy/angular-cli
 
 stages:
     - install
@@ -59,7 +59,9 @@ build-web-ssr:
         paths:
             - dist/
     script:
-        - npm run build:ssr
+        # - npm run build:ssr
+        - npm install --save-dev @angular-devkit/build-angular
+        - npm run build:static
     # after_script:
     #     - npm run test:ssr
 # .deploy:
@@ -92,8 +94,8 @@ build-web-ssr:
 deploy:
     stage: deploy
     services:
-        - docker:dind
-    image: docker:latest
+        - registry.gitlab.com/docker.hub/docker:dind
+    image: registry.gitlab.com/docker.hub/docker:latest
     cache:
         paths:
             - dist/

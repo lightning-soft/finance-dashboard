@@ -5,7 +5,12 @@ import { Injectable } from '@angular/core';
 export class LocalStorage extends Storage{
   getItem(key: string) {
     const data = window.localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
+
+    try {
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
   }
 
   setItem(key: string, data: any) {

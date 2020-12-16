@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import { CommunicationConfig } from '../http';
 
 export interface IWebSocketConfig {
   url: string;
@@ -24,15 +26,22 @@ export class WebSocketService {
 
   private _listeners: IWSListener[] = [];
 
-  constructor() { }
+  constructor(private _config: CommunicationConfig) { }
 
-  public connect(wsConfig: IWebSocketConfig, onOpen?: () => void) {
-    if (this.connection$.value) return;
+  connect(onOpen?: () => void) {
+    if (this.connection$.value) {
+      if (onOpen)
+        onOpen();
 
-    this._websocket = new WebSocket(wsConfig.url, wsConfig?.protocols);
+      return;
+    }
+
+    const url = this._config.rithmic.ws.url;
+    this._websocket = new WebSocket(url);
     this._websocket.onopen = (event: Event) => {
       if (onOpen)
         onOpen();
+
       this.connection$.next(true);
     };
 
@@ -40,9 +49,24 @@ export class WebSocketService {
       this.connection$.next(false);
     };
 
+    this._websocket.onerror = (event: Event) => {
+      console.error('soket', event);
+    };
+
     this._websocket.onmessage = (message) => {
+      let data;
+
+      try {
+        data = JSON.parse(message.data);
+      } catch (e) {
+        console.error('Parse error', e);
+      }
+
+      if (!data)
+        return;
+
       for (const listener of this._listeners) {
-        listener(message);
+        listener(data);
       }
     };
   }
@@ -63,6 +87,9 @@ export class WebSocketService {
 
     if (!this.connected || !payload) {
       console.warn(`Message didn\'t send `, payload);
+      this.connection$
+        .pipe(filter(i => i), take(1))
+        .subscribe((value) => this._websocket.send(payload));
       return;
     }
 

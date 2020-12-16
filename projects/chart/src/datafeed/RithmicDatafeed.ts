@@ -1,50 +1,42 @@
 import { Injectable } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { CommunicationConfig, ITrade, LevelOneDataFeedService, RithmicApiService, WebSocketService } from 'communication';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { InstrumentsRepository } from 'trading';
+import { AccountsManager } from 'accounts-manager';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
+import {
+  HistoryRepository,
+  InstrumentsRepository, ITrade,
+  LevelOneDataFeed
+} from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
-import { ITimeFrame, StockChartXPeriodicity } from './TimeFrame';
+import { StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
 
-
-@UntilDestroy()
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
-
-  private _wsUrl: string;
-
+  private _destroy = new Subject();
   constructor(
-    private _rithmicApiService: RithmicApiService,
+    private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
-    private _levelOneDatafeedService: LevelOneDataFeedService,
-    private _webSocketService: WebSocketService,
-    private _communicationConfig: CommunicationConfig,
+    private _historyRepository: HistoryRepository,
+    private _levelOneDatafeedService: LevelOneDataFeed,
   ) {
     super();
 
-    this._wsUrl = this._communicationConfig.rithmic.ws.url;
+    this._accountsManager.connections
+      .pipe(takeUntil(this._destroy))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this._historyRepository = this._historyRepository.forConnection(connection);
+      });
   }
 
   send(request: IBarsRequest) {
-    this._rithmicApiService.handleConnection(isConnected => {
-      if (isConnected) {
-        super.send(request);
-
-        if (!this._webSocketService.connected) {
-          this._webSocketService.connect({ url: `${this._wsUrl}market` }, () => {
-            this.subscribeToRealtime(request);
-          });
-        } else {
-          this.subscribeToRealtime(request);
-        }
-        this._loadData(request);
-
-      }
-    }, this);
+    super.send(request);
+    this.subscribeToRealtime(request);
+    this._loadData(request);
   }
 
   loadInstruments(): Observable<any[]> {
@@ -76,65 +68,68 @@ export class RithmicDatafeed extends Datafeed {
 
     const { symbol, exchange } = instrument;
 
-    const barSize = this._timeFrameToBarSize(timeFrame);
-
     const params = {
       Exchange: exchange,
-      Periodicity: 4,
-      BarSize: barSize,
+      Periodicity: this._convertPeriodicity(timeFrame.periodicity),
+      BarSize: timeFrame.interval,
       BarCount: count,
+      Skip: 0,
     };
 
-    this._rithmicApiService.getHistory(symbol, params).subscribe(
+    this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
       (res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
-          this._webSocketService.connect({ url: `${this._wsUrl}market` }, () => {
-            this.subscribeToRealtime(request);
-          });
+          // this._webSocketService.connect(() => this.subscribeToRealtime(request)); // todo: test
         }
       },
       () => this.cancel(request),
     );
   }
 
-  private _timeFrameToBarSize(timeFrame: ITimeFrame): number {
-    const { interval: i, periodicity } = timeFrame;
+  private _convertPeriodicity(periodicity: string): string {
 
     switch (periodicity) {
       case StockChartXPeriodicity.YEAR:
-        return i * 365;
+        return 'Yearly';
       case StockChartXPeriodicity.MONTH:
-        return i * 30;
+        return 'Mounthly';
       case StockChartXPeriodicity.WEEK:
-        return i * 7;
+        return 'Weekly';
       case StockChartXPeriodicity.DAY:
-        return i;
+        return 'Daily';
       case StockChartXPeriodicity.HOUR:
-        return i / 24;
+        return 'Hourly';
       case StockChartXPeriodicity.MINUTE:
-        return i / 24 / 60;
+        return 'Minute';
       default:
-        return 1;
+        throw new Error('Undefined periodicity ' + periodicity);
     }
   }
 
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);
-    this._levelOneDatafeedService.subscribe([instrument]);
+    this._levelOneDatafeedService.subscribe(instrument);
 
     this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (isNaN(trade.Price)) return;
-
       const quote: IQuote = {
-        price: trade.Price,
-        volume: trade.Volume,
-        date: new Date(trade.Timestamp),
+        askInfo: {
+          price: trade.askInfo.price,
+          volume: trade.askInfo.volume,
+          order: trade.askInfo.orderCount
+        },
+        bidInfo: {
+          price: trade.bidInfo.price,
+          volume: trade.bidInfo.volume,
+          order: trade.bidInfo.orderCount
+        },
+        price: (trade.bidInfo.price + trade.askInfo.price) / 2,
+        date: new Date(trade.timestamp),
         instrument: {
-          symbol: trade.Instrument.Symbol,
-          company: trade.Instrument.Symbol,
-          Exchange: trade.Instrument.Exchange,
+          symbol: trade.instrument.symbol,
+          company: trade.instrument.symbol,
+          exchange: trade.instrument.exchange,
           tickSize: 0.2,
           id: Date.now,
         }
@@ -146,5 +141,11 @@ export class RithmicDatafeed extends Datafeed {
 
   private _getInstrument(req: IRequest) {
     return req.instrument ?? req.chart.instrument;
+  }
+
+  destroy() {
+    super.destroy();
+    this._destroy.next();
+    this._destroy.complete();
   }
 }

@@ -1,5 +1,4 @@
-import {IStockChartXInstrument} from '../datafeed/IInstrument';
-import {IStockChartXTimeFrame} from '../datafeed/models';
+import { IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 
 export interface IStockChartXState {
   chart: any;

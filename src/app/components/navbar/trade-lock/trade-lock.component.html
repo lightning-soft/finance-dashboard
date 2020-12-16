@@ -1,0 +1,11 @@
+<button 
+  class="icon-{{lockIcons[+unlocked]}}"
+  (click)="handleLock()"
+>
+</button>
+<div
+  class="{{alert?.type}}-alert"
+  *ngIf="alert?.visible"
+>
+  {{alert?.text}}
+</div>

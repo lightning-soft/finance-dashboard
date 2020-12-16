@@ -1,0 +1,43 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+.clock {
+  padding: 12px 16px;
+  max-width: 170px;
+  background-color: $tabFrameColor!important;
+
+  li {
+    padding: 0;
+    background-color: $tabFrameColor!important;
+  }
+
+  .title {
+    line-height: 16px;
+
+    label {
+      margin-left: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: $titleColor;
+    }
+  }
+  
+  .subtitle {
+    white-space: normal;
+    max-width: 100%;
+    margin: 2px 0 12px 0;
+    font-size: 10px;
+    line-height: 14px;
+    color: $textColor;
+  }
+
+  button {
+    color: $textColor;
+    background-color: $bodyBackground!important;
+    border: 1px solid $risingColor;
+    border-radius: 2px;
+    width: 100%;
+    min-width: 135px;
+  }
+}
+

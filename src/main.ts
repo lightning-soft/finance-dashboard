@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
           return on.apply(_this, args);
         });
       };
+
+      const addEventListener = window.addEventListener;
+      window.addEventListener = function(...args) {
+        const _this = this;
+        return zone.runOutsideAngular(() => {
+          return addEventListener.apply(_this, args);
+        });
+      };
     })
     .catch(err => console.error(err));
 });

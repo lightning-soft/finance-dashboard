@@ -1,52 +1,128 @@
-import { Component } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { IOrder, IOrderParams, OrdersRepository, OrderStatus } from 'trading';
-import { LayoutNode } from 'layout';
-import { NotifierService } from 'notifier';
-import { ItemsComponent } from 'base-components';
-import { OrderItem } from './models/OrderItem';
+import { Component, Injector } from '@angular/core';
+import { RealtimeItemsComponent, ViewItemsBuilder } from 'base-components';
+import { Id } from 'communication';
+import { CellClickDataGridHandler, Column } from 'data-grid';
+import { ILayoutNode, LayoutNode } from 'layout';
+import { LoadingService } from 'lazy-modules';
+import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
+import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
+import { OrderItem } from './models/order.item';
 
-@UntilDestroy()
+const headers = [
+  'averageFillPrice',
+  'description',
+  'duration',
+  'filledQuantity',
+  'quantity',
+  'side',
+  'status',
+  'type',
+  'exchange',
+  'symbol',
+  'fcmId',
+  'ibId',
+  'identifier',
+  'close',
+];
+
+export interface OrdersComponent extends ILayoutNode { }
+
 @Component({
   selector: 'orders-list',
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends ItemsComponent<IOrder, IOrderParams> {
-  headers = ['symbol', 'side', 'size', 'executed', 'price', 'priceIn', 'status', 'type'];
+export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams> {
+
+  columns: Column[];
+
+  builder = new ViewItemsBuilder();
+
+  private _accountId;
+
+  set accountId(accountId: Id) {
+    this._accountId = accountId;
+    this.loadData({ ...this.params, accountId });
+  }
+
+  get accountId() {
+    return this._accountId;
+  }
 
   _isList = false;
 
-  private _status: OrderStatus = OrderStatus.Open;
+  private _toolbarComponent: OrdersToolbarComponent;
 
-  get status() {
-    return this._status;
-  }
+  // private _status: OrderStatus = OrderStatus.Pending;
 
-  set status(value: OrderStatus) {
-    if (value === this.status) {
-      return;
-    }
-    this._status = value;
-    this.refresh();
-  }
+  // get status() {
+  //   return this._status;
+  // }
+
+  // set status(value: OrderStatus) {
+  //   if (value === this.status) {
+  //     return;
+  //   }
+  //   this._status = value;
+  //   this.refresh();
+  // }
 
   get params(): IOrderParams {
-    return { ...this._params, status: this.status };
+    return {
+      ...this._params,
+      // status: this.status
+    };
   }
 
+  handlers = [
+    new CellClickDataGridHandler<OrderItem>({
+      column: 'close',
+      handler: (item) => this.deleteItem(item.order),
+    }),
+  ];
+
   constructor(
-    public repository: OrdersRepository,
-    public notifier: NotifierService,
+    protected _repository: OrdersRepository,
+    protected _injector: Injector,
+    protected _dataFeed: OrdersFeed,
+    private _loadingService: LoadingService,
   ) {
     super();
-    this.autoLoadData = { onInit: true };
+    this.autoLoadData = false;
 
     this.builder.setParams({
       order: 'desc',
-      filter: (order: IOrder) => order.status === this.status,
-      map: (item: IOrder) => new OrderItem(item),
+      wrap: (item: IOrder) => new OrderItem(item),
+      unwrap: (item: OrderItem) => item.order,
     });
+
+    this.columns = headers.map(header => ({ name: header, visible: true }));
+
+    this.setTabIcon('icon-widget-orders');
+    this.setTabTitle('Orders');
+  }
+
+  handleAccountChange(accountId: Id): void {
+    this.accountId = accountId;
+  }
+
+  protected _deleteItem(item: IOrder) {
+    return this.repository.deleteItem(item);
+  }
+
+  protected _handleDeleteItems(items) {
+    // handle by realtime
+  }
+
+  saveState() {
+    return { columns: this.columns };
+  }
+
+  loadState(state): void {
+    this._subscribeToConnections();
+
+    if (state && state.columns)
+      this.columns = state.columns;
   }
 }

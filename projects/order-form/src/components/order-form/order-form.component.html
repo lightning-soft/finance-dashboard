@@ -1,22 +1,89 @@
-<form [formGroup]="form" class="volume-background">
-  <div (click)="addVolume(-this.step)" class="minus">-</div>
-  <div class="volume">
-    <div class="value">{{volume}}</div>
+<window-header className="widget" [window]="this"></window-header>
+<form class="h-100 p-2 bg-secondary rounded" [formGroup]="form">
+  <div class="mb-1">
+    <small class="text-muted">Account</small>
+    <account-select
+      className="custom-form-control bg-light"
+      (accountChange)="handleAccountChange($event)"
+    ></account-select>
   </div>
-  <div (click)="addVolume(this.step)" class="add">+</div>
+  <div class="divider text-muted"></div>
+  <div class="mb-1">
+    <small class="text-muted">Symbol</small>
+    <instrument-select
+      className="custom-form-control bg-light"
+      [instrument]="instrument"
+      (handleInstrumentChange)="instrument = $event"
+    ></instrument-select>
+  </div>
+  <div class="mb-1">
+    <small class="text-muted">Type</small>
+    <nz-select
+      class="custom-form-control bg-light"
+      nzPlaceHolder="Select a type"
+      formControlName="type"
+    >
+      <nz-option *ngFor="let item of OrderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
+    </nz-select>
+  </div>
+  <div
+    class="mb-1"
+    *ngIf="form.value.type === 'Limit' || form.value.type === 'StopMarket' || form.value.type === 'StopLimit'"
+  >
+    <small class="text-muted">Price</small>
+    <div class="d-flex mx-n1">
+      <nz-input-number
+        class="custom-form-control bg-light mx-1"
+        formControlName="stopPrice"
+        [nzStep]="step"
+        nzPlaceHolder="Stop price"
+        *ngIf="form.value.type === 'StopMarket' || form.value.type === 'StopLimit'"
+      ></nz-input-number>
+      <nz-input-number
+        class="custom-form-control bg-light mx-1"
+        formControlName="limitPrice"
+        [nzStep]="step"
+        nzPlaceHolder="Limit price"
+        *ngIf="form.value.type === 'Limit' || form.value.type === 'StopLimit'"
+      ></nz-input-number>
+    </div>
+  </div>
+  <div class="mb-1">
+    <small class="text-muted">Quantity</small>
+    <nz-input-number
+      class="custom-form-control bg-light"
+      formControlName="quantity"
+      [nzStep]="step"
+      nzMin="1"
+      nzPlaceHolder="Quantity"
+    ></nz-input-number>
+  </div>
+  <div class="mb-1">
+    <small class="text-muted">TIF</small>
+    <nz-select class="custom-form-control bg-light" nzPlaceHolder="TIF" formControlName="duration">
+      <nz-option *ngFor="let item of OrderDurations" [nzLabel]="item" [nzValue]="item"></nz-option>
+    </nz-select>
+  </div>
+  <div class="d-flex mt-3">
+    <button
+      nz-button
+      nzType="danger"
+      nzBlock
+      class="order-button"
+      (click)="submit(OrderSide.Sell)"
+    >
+      Sell<br>
+      <small>{{ askPrice || '-' }}</small>
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzBlock
+      class="order-button"
+      (click)="submit(OrderSide.Buy)"
+    >
+      Buy<br>
+      <small>{{ bidPrice || '-' }}</small>
+    </button>
+  </div>
 </form>
-<div class="button-container">
-  <button (click)="submit(orderSide.Sell)" class="sell">
-    Sell
-    <div class="price">
-      1.24000
-    </div>
-  </button>
-  <button (click)="submit(orderSide.Buy)" class="buy">
-    Buy
-    <div class="price">
-      1.24000
-    </div>
-  </button>
-</div>
-<positions [instrument]="instrument"></positions>

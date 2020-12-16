@@ -1,15 +1,26 @@
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import {
   AfterViewInit,
-  Component, ElementRef,
-  Input, OnDestroy, ViewChild
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
-import { ICell } from '../../models';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';
+import { ICell } from '../../models';
+import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
+import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
+import { ModalComponent } from '../modal/modal.component';
+import { Column } from '../types';
+import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
+import { DataGridHandler, Events, IHandler } from './data-grid.handler';
+
+
 
 export interface DataGridItem {
   [key: string]: ICell;
@@ -22,40 +33,60 @@ export interface DataGridItem {
   providers: [{
     provide: IViewBuilderStore,
     useValue: new ViewBuilderStore({
-      [iconComponentSelector]: IconComponent
+      [iconComponentSelector]: IconComponent,
+      [priceComponentSelector]: PriceComponent,
     })
   }]
 })
-export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy {
-  rowHeight = 35;
-
-  onDestroy$ = new Subject();
+export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
   @ViewChild('tableContainer') tableContainer: ElementRef;
+
+  @ViewChild(ModalComponent)
+  modalComponent: ModalComponent;
+
+  @ViewChild(CdkVirtualScrollViewport)
+  public viewPort: CdkVirtualScrollViewport | any;
 
   @Input()
   handlers: DataGridHandler[] = [];
 
-  @ViewChild(CdkVirtualScrollViewport)
-  public viewPort: CdkVirtualScrollViewport;
+  @Input() columns = [];
+  @Input() items: T[];
 
-  @Input()
-  columns = [];
-
-  @Input()
-  items: T[];
+  public activeColumns: Column[] = [];
 
   private _handlers = [];
-
   private _subscribedEvents = [];
 
-  constructor(private _changeDetector: ChangeDetectorRef) {
+  public isVisible = false;
+  public rowHeight = 35;
 
+  public list: TransferItem[] = [];
+
+  public onDestroy$ = new Subject();
+
+  get inverseTranslation(): string {
+    if (!this.viewPort || !this.viewPort._renderedContentOffset) {
+      return '-0px';
+    }
+
+    const offset = this.viewPort._renderedContentOffset + 1;
+    return `-${offset}px`;
+  }
+
+  constructor(
+    private modalService: NzModalService,
+    private viewContainerRef: ViewContainerRef
+  ) { }
+
+  ngOnInit(): void {
+    this.activeColumns = this.columns.filter((column: Column) => column.visible);
   }
 
   ngAfterViewInit(): void {
     this._handlers = this.initHandlers() || [];
-    for (let handler of this._handlers) {
+    for (const handler of this._handlers) {
       handler.events.forEach(e => this._subscribeOnEvents(e));
     }
   }
@@ -74,50 +105,58 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     ];
   }
 
-  trackByFn(item) {
-    return item.id;
+  createComponentModal(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Columns',
+      nzContent: ModalComponent,
+      nzWrapClassName: 'modal-data-grid',
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        columns: [...this.columns],
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result) {
+        this.columns = [...result];
+        this.activeColumns = this.columns.filter((column: Column) => column.visible);
+      }
+    });
   }
 
-  public get inverseTranslation(): string {
-    if (!this.viewPort || !this.viewPort['_renderedContentOffset']) {
-      return '-0px';
-    }
+  layout() {
+    this.viewPort.checkViewportSize();
+  }
 
-    const offset = this.viewPort['_renderedContentOffset'] + 1;
-    return `-${offset}px`;
+  trackByFn(item) {
+    return item.id;
   }
 
   private _handleEvent(event) {
     if (!this._handlers)
       return;
-    for (let handler of this._handlers) {
+    for (const handler of this._handlers) {
       if (handler.events.some(e => e === event.type) && handler.handleEvent(event))
         return null;
     }
   }
 
   private _subscribeOnEvents(event: Events) {
-    let element = this.tableContainer && this.tableContainer.nativeElement;
+    const element = this.tableContainer && this.tableContainer.nativeElement;
     if (!element)
       return;
 
     if (this._subscribedEvents.every(e => e !== event)) {
       this._subscribedEvents.push(event);
-      let fn = (evt: Event) => this._handleEvent(evt);
+      const fn = (evt: Event) => this._handleEvent(evt);
 
       element.addEventListener(event, fn);
       this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
     }
   }
 
-  layout() {
-    this.viewPort.checkViewportSize();
-    // this._changeDetector.detectChanges();
-  }
-
   ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
-
 }

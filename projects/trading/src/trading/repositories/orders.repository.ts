@@ -1,6 +1,6 @@
+import { IOrder, IConnection } from 'trading';
 import { Repository } from 'communication';
-import { IOrder } from '../models';
 
 export abstract class OrdersRepository extends Repository<IOrder> {
-
+  abstract forConnection(connection: IConnection);
 }
