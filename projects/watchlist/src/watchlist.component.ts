@@ -153,7 +153,7 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   handleNodeEvent(name: LayoutNodeEvent, event: any) {
     switch (name) {
       case LayoutNodeEvent.Resize:
-        this._dataGrid.layout();
+        // this._dataGrid.layout(); // todo
         break;
       case LayoutNodeEvent.LinkData:
         break;

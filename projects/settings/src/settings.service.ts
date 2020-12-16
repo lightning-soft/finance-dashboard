@@ -26,7 +26,7 @@ export class SettignsService {
 
   private _layout: LayoutComponent = (window as any).LayoutComponent;
 
-  private _autoSaveIntervalId: number;
+  private _autoSaveIntervalId: any;
 
   private _settings: SettingsData = defaultSettings;
 

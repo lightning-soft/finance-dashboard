@@ -19,7 +19,7 @@ import { ModalComponent } from '../modal/modal.component';
 import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-
+import { ChangeDetectorRef } from '@angular/core';
 
 
 export interface DataGridItem {
@@ -41,12 +41,10 @@ export interface DataGridItem {
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
   @ViewChild('tableContainer') tableContainer: ElementRef;
+  // @ViewChild('container', { read: ElementRef, static: true }) container: ElementRef;
 
   @ViewChild(ModalComponent)
   modalComponent: ModalComponent;
-
-  @ViewChild(CdkVirtualScrollViewport)
-  public viewPort: CdkVirtualScrollViewport | any;
 
   @Input()
   handlers: DataGridHandler[] = [];
@@ -66,22 +64,33 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   public onDestroy$ = new Subject();
 
-  get inverseTranslation(): string {
-    if (!this.viewPort || !this.viewPort._renderedContentOffset) {
-      return '-0px';
-    }
-
-    const offset = this.viewPort._renderedContentOffset + 1;
-    return `-${offset}px`;
+  get inverseTranslation() {
+    return 0;
   }
+
+  // get inverseTranslation(): string {
+  //   // if (!this.viewPort || !this.viewPort._renderedContentOffset) {
+  //   //   return '-0px';
+  //   // }
+
+  //   // const offset = this.viewPort._renderedContentOffset + 1;
+  //   // return `-${offset}px`;
+  // }
 
   constructor(
     private modalService: NzModalService,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    public _cd: ChangeDetectorRef,
+    private container: ElementRef
   ) { }
 
   ngOnInit(): void {
     this.activeColumns = this.columns.filter((column: Column) => column.visible);
+    this._cd.detach();
+  }
+
+  detectChanges() {
+    this._cd.detectChanges();
   }
 
   ngAfterViewInit(): void {
@@ -124,10 +133,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     });
   }
 
-  layout() {
-    this.viewPort.checkViewportSize();
-  }
-
   trackByFn(item) {
     return item.id;
   }
@@ -153,6 +158,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       element.addEventListener(event, fn);
       this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
     }
+  }
+
+  getVisibleRows() {
+    const bodyElement = this.container && this.container.nativeElement;
+    return bodyElement ? Math.max(0, Math.ceil(bodyElement.clientHeight / this.rowHeight) - 1) : 0;
   }
 
   ngOnDestroy(): void {

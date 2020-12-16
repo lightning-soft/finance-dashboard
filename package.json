@@ -108,6 +108,7 @@
     "ngx-cookie-service": "10.1.1",
     "ngx-monaco-editor": "9.0.0",
     "popper.js": "^1.16.1",
+    "reconnecting-websocket": "4.4.0",
     "rxjs": "6.6.2",
     "simple-window-manager": "git+https://git.avidi.tech/Taras/simple-window-manager.git",
     "svgtofont": "^2.1.0",

@@ -1,12 +1,11 @@
 <window-header [window]="this">
-  <instrument-select
-      className="custom-form-control bg-light"
-      [(instrument)]="instrument"
-    ></instrument-select>
+  <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
 
   <button class="wm-header-btn icon-setting-gear" (click)="grid.createComponentModal()">
   </button>
 
 </window-header>
 
-<data-grid #grid [items]="items" [columns]="columns"></data-grid>
+<div class="grid-wrapper">
+  <data-grid #grid [items]="items" [columns]="columns"></data-grid>
+</div>

@@ -76,7 +76,7 @@ export class DockDesktopLayout extends Layout {
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(window);
 
-          if (instance.loadState && componentState) {
+          if (instance.loadState) {
             instance.loadState(componentState);
           }
 
