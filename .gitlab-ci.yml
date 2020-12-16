@@ -91,7 +91,7 @@ build-web-ssr:
 #         - develop
 #         - master
 
-deploy:
+deploy-latest:
     stage: deploy
     services:
         - registry.gitlab.com/docker.hub/docker:dind
@@ -108,6 +108,26 @@ deploy:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
         - docker build --tag $CONTAINER_IMAGE:latest .
         - docker push $CONTAINER_IMAGE:latest
+        - docker logout
+    tags:
+        - docker
+
+deploy-stable:
+    stage: deploy
+    services:
+        - registry.gitlab.com/docker.hub/docker:dind
+    image: registry.gitlab.com/docker.hub/docker:latest
+    cache:
+        paths:
+            - dist/
+    only:
+        - master
+        - ci
+    script:
+        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker build --tag $CONTAINER_IMAGE:master .
+        - docker push $CONTAINER_IMAGE:master
         - docker logout
     tags:
         - docker
