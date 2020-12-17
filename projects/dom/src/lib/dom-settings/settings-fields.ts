@@ -9,7 +9,7 @@ function getColor(label: string | any) {
 
   let key = label.key;
 
-  if (!name)
+  if (!name) // Where do you get this variable???
     key = lowerFirstLetter(_label.replace(' ', ''));
 
   return {

@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { debounceTime, skip } from 'rxjs/operators';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { FormlyFieldConfig } from "@ngx-formly/core";
 import { Storage } from 'storage';
 import { ILayoutNode, LayoutNode } from "../../../../layout";
 import {
@@ -13,7 +13,6 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
-import { FormlyFieldConfig } from "@ngx-formly/core";
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -84,14 +83,22 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
-    this.formControls = this.list.reduce((list, item) => {
-      if (item.children) {
-        return [...list, ...item.children];
-      }
-      return [...list, item];
-    }, []).map(item => item.tab).reduce((settings, item) => {
-      return {...settings, [item]: new FormGroup({})};
-    }, {});
+
+    /**
+     * Think about refactor!
+     */
+    this.formControls = this.list
+      .reduce((list, item) => {
+        if (item.children) {
+          return [...list, ...item.children];
+        }
+        return [...list, item];
+      }, [])
+      .map(item => item.tab)
+      .reduce((settings, item) => {
+        return {...settings, [item]: new FormGroup({})};
+      }, {});
+
     this.currentTab = SettingTab.General;
     this.currentForm = this.formControls[SettingTab.General];
     this.currentConfig = this.list[0].config;
