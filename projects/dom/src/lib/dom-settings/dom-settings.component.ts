@@ -1,6 +1,9 @@
 import { AfterViewInit, Component, OnInit, ViewChildren } from '@angular/core';
-import { Storage } from 'storage';
+import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { debounceTime, skip } from 'rxjs/operators';
+import { Storage } from 'storage';
+import { ILayoutNode, LayoutNode } from "../../../../layout";
 import {
   askDeltaFields, askDepthFields, bidDeltaFields,
   bidDepthFields,
@@ -10,10 +13,8 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
-import { debounceTime, skip } from 'rxjs/operators';
-import { FormGroup } from '@angular/forms';
-import { Layout } from "../../../../layout/src/components/layout/layouts/layout";
-import { LayoutNode } from "../../../../layout";
+
+export interface DomSettingsComponent extends ILayoutNode {}
 
 enum SettingTab {
   General = 'general',
@@ -86,6 +87,7 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
   form: FormGroup;
 
   constructor(private storage: Storage) {
+    this.setTabTitle('Dom settings');
   }
 
   ngOnInit() {
