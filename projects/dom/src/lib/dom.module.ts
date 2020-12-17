@@ -9,6 +9,7 @@ import { NzMenuModule } from 'ng-zorro-antd';
 import { DynamicFormModule } from 'dynamic-form';
 import { CommonModule } from '@angular/common';
 import { StorageModule } from 'storage';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { StorageModule } from 'storage';
     WindowHeaderModule,
     NzMenuModule,
     DynamicFormModule,
+    ScrollingModule,
     StorageModule,
     CommonModule,
   ],
