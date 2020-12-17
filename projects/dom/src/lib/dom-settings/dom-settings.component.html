@@ -14,7 +14,7 @@
   </ul>
 
   <ng-container *ngFor="let item of list">
-    <formly-form [form]="getForm(item.tab)"  [class.d-block]="shouldShowForm(item.tab)" [fields]="item.config" ></formly-form>
+    <formly-form [form]="getForm(item.tab)" *ngIf="shouldShowForm(item.tab)" [fields]="item.config" ></formly-form>
   </ng-container>
 
 </div>

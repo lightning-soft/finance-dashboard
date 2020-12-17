@@ -110,7 +110,6 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ContextMenuModule,
     WindowManagerModule,
     SettingsModule.forRoot(),
-    DynamicFormModule,
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
       configClass: AppConfig,

@@ -12,6 +12,8 @@ import {
 } from './settings-fields';
 import { debounceTime, skip } from 'rxjs/operators';
 import { FormGroup } from '@angular/forms';
+import { Layout } from "../../../../layout/src/components/layout/layouts/layout";
+import { LayoutNode } from "../../../../layout";
 
 enum SettingTab {
   General = 'general',
@@ -41,6 +43,7 @@ const basePrefix = 'dom-settings';
   templateUrl: './dom-settings.component.html',
   styleUrls: ['./dom-settings.component.scss']
 })
+@LayoutNode()
 export class DomSettingsComponent implements AfterViewInit, OnInit {
   currentTab = SettingTab.General;
   tabs = SettingTab;

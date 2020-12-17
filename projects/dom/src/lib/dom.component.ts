@@ -5,6 +5,7 @@ import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { DomItem } from './dom.item';
 import { DomSettingsComponent } from './dom-settings/dom-settings.component';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { LayoutComponent } from "../../../layout";
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -37,6 +38,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDepth',
   ].map(name => ({name, visible: true}));
 
+  layout: LayoutComponent = (window as any).LayoutComponent;
 
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
@@ -46,6 +48,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
   public get instrument(): IInstrument {
     return this._instrument;
   }
+
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
@@ -91,7 +94,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       // this.bidPrice = trade.bidInfo.price;
       console.log(trade)
       for (const i of this.items)
-        i .processTrade(trade);
+        i.processTrade(trade);
     });
   }
 
@@ -112,7 +115,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
-    }
+    };
   }
 
   loadState?(state: IDomState) {
@@ -137,12 +140,17 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
   }
 
   openSettings() {
-    this.modal.create({
-      nzContent: DomSettingsComponent,
-      nzFooter: null,
-      nzStyle: {
-        width: 570 + 'px'
-      }
+    this.layout.addComponent({
+      component: {name: 'domSettings'},
+      maximizeBtn: true,
+      closeBtn: true,
     });
+    /* this.modal.create({
+       nzContent: DomSettingsComponent,
+       nzFooter: null,
+       nzStyle: {
+         width: 570 + 'px'
+       }
+     });*/
   }
 }

@@ -32,6 +32,7 @@ export class DomModule implements LazyModule {
   get components(): ComponentStore {
     return {
       dom: DomComponent,
+      domSettings: DomSettingsComponent,
     };
   }
 }

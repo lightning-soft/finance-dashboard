@@ -23,6 +23,7 @@ export const Components = {
   Scripting: 'scripting',
   Settings: 'settings',
   Dom: 'dom',
+  DomSettings: 'domSettings',
   NotificationList: 'notification-list',
 };
 
@@ -79,6 +80,8 @@ export const modulesStore: IModules[] = [
     module: Modules.Dom,
     components: [
       Components.Dom,
+      Components.DomSettings,
+
     ]
   },
   {
