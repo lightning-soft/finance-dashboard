@@ -1,21 +1,16 @@
 <window-header [window]="this"></window-header>
 <div class="d-flex">
-  <ul nz-menu nzMode="inline" nzTheme="dark" [nzInlineCollapsed]="false">
-    <li (click)="open(tabs.General)" nz-menu-item>
-      <span>General</span>
-    </li>
-    <li (click)="open(tabs.Hotkeys)" nz-menu-item>
-      <span>Hotkeys</span>
-    </li>
-    <li nz-submenu nzTitle="Columns">
-      <ul>
-        <li *ngFor="let item of submenuItems" (click)="open(item.tab)" nz-menu-item>{{item.label}}</li>
+  <ul class="menu">
+    <li class="menu-item" [class.active]="shouldShowForm(item.tab)" (click)="item.tab && open(item)"
+        *ngFor="let item of list">
+      <span>{{item.label}}</span>
+      <ul *ngIf="item.children" class="sub-menu">
+        <li class="menu-item" (click)="$event.stopPropagation(); open(item)" [class.active]="shouldShowForm(item.tab)"
+            *ngFor="let item of item.children">{{item.label}}</li>
       </ul>
     </li>
   </ul>
-
-  <ng-container *ngFor="let item of list">
-    <formly-form [form]="getForm(item.tab)" *ngIf="shouldShowForm(item.tab)" [fields]="item.config" ></formly-form>
-  </ng-container>
-
+  <formly-form
+    class="{{currentTab}}"
+    [form]="currentForm" [fields]="currentConfig"></formly-form>
 </div>

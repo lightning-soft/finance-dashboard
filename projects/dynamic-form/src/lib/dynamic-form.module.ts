@@ -8,10 +8,11 @@ import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
 import { FieldType } from './field';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { NumberInputComponent } from './number-input/number-input.component';
+import { TextAlignComponent } from './text-align/text-align.component';
 
 
 @NgModule({
-  declarations: [ColorPickerComponent, NumberInputComponent],
+  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent],
   imports: [
     CommonModule,
     ColorPickerModule,
@@ -21,11 +22,12 @@ import { NumberInputComponent } from './number-input/number-input.component';
       types: [
         {
           name: FieldType.Color, component: ColorPickerComponent,
-          wrappers: ['form-field']
+        },
+        {
+          name: FieldType.TextAlign, component: TextAlignComponent,
         },
         {
           name: FieldType.Number, component: NumberInputComponent,
-          wrappers: ['form-field']
         }
       ]
     }),

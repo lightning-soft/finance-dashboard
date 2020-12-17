@@ -145,12 +145,6 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       maximizeBtn: true,
       closeBtn: true,
     });
-    /* this.modal.create({
-       nzContent: DomSettingsComponent,
-       nzFooter: null,
-       nzStyle: {
-         width: 570 + 'px'
-       }
-     });*/
+
   }
 }

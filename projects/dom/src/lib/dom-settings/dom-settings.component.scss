@@ -1,9 +1,140 @@
+
+:host {
+  background: #1B1D22 !important;
+}
+
 .ant-menu.ant-menu-dark {
   flex-shrink: 9;
   flex-basis: 190px;
 }
 
+:host ::ng-deep {
+  nz-form-item {
+    flex-direction: column;
+    margin-bottom: 7px;
+
+    .ant-form-item-label {
+      text-align: start;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #383A40;
+
+      label {
+        font-weight: 600;
+
+        &:after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  window-header {
+    background: #24262C;
+
+  }
+
+  .no-underline {
+    nz-form-item .ant-form-item-label {
+      border-bottom: none;
+    }
+  }
+
+  .hotkeys {
+    background: #24262C;
+    padding-left: 8px;
+    padding-right: 8px;
+
+    nz-form-item {
+      flex-direction: row;
+
+      .ant-form-item-label {
+        border-bottom: none;
+
+        label {
+          color: #A1A2A5;
+          font-size: 11px;
+          line-height: 15px;
+        }
+      }
+
+      nz-form-label, nz-form-control {
+        width: 50%;
+      }
+
+      input {
+        background: #1B1D22;
+        border: none;
+      }
+    }
+
+  }
+
+  number-input {
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .two-rows {
+    > * {
+      width: 48%;
+      margin-top: 3px;
+
+      &:nth-child(even) {
+        margin-left: 4px;
+      }
+
+      &:nth-child(odd) {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .ant-checkbox + span {
+    font-weight: 400;
+    color: #D0D0D2;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    background-color: #24262C;
+    border: none;
+  }
+}
+
+.sub-menu {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-top: 12px;
+}
+
+.menu {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-top: 12px;
+  min-width: 180px;
+
+  .menu-item {
+    list-style: none;
+    padding-left: 8px;
+    padding-top: 4px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    padding-bottom: 4px;
+    color: #A1A2A5;
+
+    &.active {
+      font-weight: 600;
+      border-radius: 2px;
+      background: #24262C;
+      color: white;
+    }
+  }
+}
+
 formly-form {
   flex-grow: 1;
-  margin-left: 15px;
+  margin-left: 12px;
+  padding-top: 12px;
+  margin-right: 12px;
 }
+

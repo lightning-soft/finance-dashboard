@@ -22,6 +22,7 @@ export enum FieldType {
   Checkbox = 'checkbox',
   Color = 'color',
   Radio = 'radio',
+  TextAlign = 'textAlign',
 }
 
 export enum InputType {

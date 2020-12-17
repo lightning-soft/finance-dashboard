@@ -13,8 +13,10 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
+import { FormlyFieldConfig } from "@ngx-formly/core";
 
-export interface DomSettingsComponent extends ILayoutNode {}
+export interface DomSettingsComponent extends ILayoutNode {
+}
 
 enum SettingTab {
   General = 'general',
@@ -48,82 +50,81 @@ const basePrefix = 'dom-settings';
 export class DomSettingsComponent implements AfterViewInit, OnInit {
   currentTab = SettingTab.General;
   tabs = SettingTab;
-  submenuItems = [
-    {tab: SettingTab.Common, label: 'Common'},
-    {tab: SettingTab.LTG, label: 'LQT'},
-    {tab: SettingTab.Price, label: 'Price'},
-    {tab: SettingTab.BidDelta, label: 'Bid Delta'},
-    {tab: SettingTab.AskDelta, label: 'Ask Delta'},
-    {tab: SettingTab.BidDepth, label: 'Bid Depth'},
-    {tab: SettingTab.AskDepth, label: 'Ask Depth'},
-    {tab: SettingTab.TotalAsk, label: 'Total At Ask'},
-    {tab: SettingTab.TotalBid, label: 'Total At Bid'},
-    {tab: SettingTab.VolumeProfile, label: 'Volume Profile'},
-    {tab: SettingTab.OrderColumn, label: 'Orders'},
-    {tab: SettingTab.CurrentAtBid, label: 'Current At Bid'},
-    {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask'},
-    {tab: SettingTab.Note, label: 'Note'},
-  ];
+
   list = [
-    {tab: SettingTab.General, config: generalFields},
-    {tab: SettingTab.Common, config: commonFields},
-    {tab: SettingTab.Hotkeys, config: hotkeyFields},
-    {tab: SettingTab.LTG, config: ltqFields},
-    {tab: SettingTab.Price, config: priceFields},
-    {tab: SettingTab.BidDelta, config: bidDeltaFields},
-    {tab: SettingTab.AskDelta, config: askDeltaFields},
-    {tab: SettingTab.BidDepth, config: bidDepthFields},
-    {tab: SettingTab.AskDepth, config: askDepthFields},
-    {tab: SettingTab.TotalAsk, config: totalAskDepthFields},
-    {tab: SettingTab.TotalBid, config: totalBidDepthFields},
-    {tab: SettingTab.VolumeProfile, config: volumeFields},
-    {tab: SettingTab.OrderColumn, config: orderColumnFields},
-    {tab: SettingTab.CurrentAtBid, config: currentAtBidColumnFields},
-    {tab: SettingTab.CurrentAtAsk, config: currentAtAskFields},
-    {tab: SettingTab.Note, config: noteColumnFields},
+    {tab: SettingTab.General, label: 'General', config: generalFields},
+    {tab: SettingTab.Common, label: 'Common', config: commonFields},
+    {tab: SettingTab.Hotkeys, label: 'Hotkeys', config: hotkeyFields},
+    {
+      label: 'Columns', children: [
+        {tab: SettingTab.LTG, label: 'LTQ', config: ltqFields},
+        {tab: SettingTab.Price, label: 'Price', config: priceFields},
+        {tab: SettingTab.BidDelta, label: 'Bid Delta', config: bidDeltaFields},
+        {tab: SettingTab.AskDelta, label: 'Ask Delta', config: askDeltaFields},
+        {tab: SettingTab.BidDepth, label: 'Bid Depth', config: bidDepthFields},
+        {tab: SettingTab.AskDepth, label: 'Ask Depth', config: askDepthFields},
+        {tab: SettingTab.TotalAsk, label: 'Total At Ask', config: totalAskDepthFields},
+        {tab: SettingTab.TotalBid, label: 'Total At Bid', config: totalBidDepthFields},
+        {tab: SettingTab.VolumeProfile, label: 'Volume Profile', config: volumeFields},
+        {tab: SettingTab.OrderColumn, label: 'Order', config: orderColumnFields},
+        {tab: SettingTab.CurrentAtBid, label: 'Current At Bid', config: currentAtBidColumnFields},
+        {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask', config: currentAtAskFields},
+        {tab: SettingTab.Note, label: 'Notes', config: noteColumnFields}]
+    },
+
 
   ];
   @ViewChildren('component') dynamicForms;
-  form: FormGroup;
+  formControls: any;
+  currentForm: FormGroup;
+  currentConfig: FormlyFieldConfig[];
 
   constructor(private storage: Storage) {
     this.setTabTitle('Dom settings');
   }
 
   ngOnInit() {
-    const formControls = this.list.map(item => item.tab).reduce((settings, item) => {
+    this.formControls = this.list.reduce((list, item) => {
+      if (item.children) {
+        return [...list, ...item.children];
+      }
+      return [...list, item];
+    }, []).map(item => item.tab).reduce((settings, item) => {
       return {...settings, [item]: new FormGroup({})};
     }, {});
-    this.form = new FormGroup(formControls);
-
-    this.form.valueChanges
-      .pipe(
-        skip(this.list.length),
-        debounceTime(150),
-        untilDestroyed(this))
-      .subscribe((res) => {
-        this.storage.setItem(basePrefix, res);
-      });
+    this.currentTab = SettingTab.General;
+    this.currentForm = this.formControls[SettingTab.General];
+    this.currentConfig = this.list[0].config;
   }
 
   ngAfterViewInit(): void {
-    const data = this.storage.getItem(basePrefix);
-    if (data) {
-      for (const key in data) {
-        this.form.get(key).patchValue(data[key]);
-      }
+    this.updateCurrentForm();
+  }
+
+  updateCurrentForm() {
+    const storageData = this.storage.getItem(basePrefix);
+    if (storageData) {
+      const data = storageData[this.currentTab];
+      if (data)
+        this.currentForm.patchValue(data);
     }
   }
 
-  open(tab: SettingTab) {
-    this.currentTab = tab;
+  open(item) {
+    if (this.currentTab !== item.tab) {
+      this.currentTab = item.tab;
+      this.currentConfig = item.config;
+      this.currentForm = this.formControls[item.tab];
+      this.updateCurrentForm();
+    }
   }
 
   shouldShowForm(tab: SettingTab) {
     return this.currentTab === tab;
   }
 
-  getForm(tab: SettingTab) {
-    return this.form.get(tab) as FormGroup;
+  onUpdate($event: any) {
+    const storageData = this.storage.getItem(basePrefix);
+    this.storage.setItem(basePrefix, {...storageData, ...{[this.currentTab]: $event}});
   }
 }

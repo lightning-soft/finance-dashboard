@@ -1,6 +1,9 @@
 <span
   [formlyAttributes]="field"
+  class="color-wrapper"
   (colorPickerChange)="updateValue($event)" [colorPicker]="formControl.value">
     <input
       class="color-input" disabled [style.background]="formControl.value"/>
+  <span class="color-label">{{field.templateOptions?.label}}</span>
 </span>
+
