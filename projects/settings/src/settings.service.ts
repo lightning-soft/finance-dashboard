@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { LayoutComponent } from 'layout';
+import { BehaviorSubject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
-import { HotkeyEntrie, SettingsData } from './types';
+import { HotkeyEntire, SettingsData } from './types';
 
-const defaultHotkeyEntries: HotkeyEntrie[] = [
+const defaultHotkeyEntries: HotkeyEntire[] = [
   ['Save page', 'Ctrl + S'],
   ['Copy', 'Ctrl + C'],
   ['Paste', 'Ctrl + V'],
@@ -22,66 +22,45 @@ const defaultSettings = {
 
 @Injectable()
 @UntilDestroy()
-export class SettignsService {
+export class SettingsService {
 
-  private _layout: LayoutComponent = (window as any).LayoutComponent;
-
-  private _autoSaveIntervalId: number;
-
-  private _settings: SettingsData = defaultSettings;
-
-  get settings(): SettingsData {
-    return { ...this._settings };
-  }
+  settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
 
   constructor(
     public themeHandler: ThemesHandler,
-    private settingStore: SettingsStore,
+    private _settingStore: SettingsStore,
   ) {
-    this.settingStore
+    this._init();
+  }
+
+  private _init(): void {
+    this._settingStore
       .getItem()
-      .subscribe((settings: SettingsData) => {
-        if (!settings) return;
+      .subscribe(
+        (s) => s && this._updateState(s),
+        (e) => console.error(`Something goes wrong ${e.message}`)
+      );
+  }
 
-        if (settings.autoSave)
-          this.setAutoSave(settings.autoSaveDelay);
-
-        if (settings.theme)
-          this.changeTheme(settings.theme);
-      });
-   }
-
-  setAutoSave(delay: number): void {
-
-    if (this._autoSaveIntervalId)
-      clearInterval(this._autoSaveIntervalId);
-
-    this._autoSaveIntervalId = setInterval(() => {
-      this._layout.saveState();
-      this.saveState();
-    }, delay);
-
-    this.updateState({ autoSave: true, autoSaveDelay: delay });
+  setAutoSave(delay?: number): void {
+    this._updateState({ autoSave: true, autoSaveDelay: delay ?? null });
   }
 
   removeAutoSave(): void {
-    if (this._autoSaveIntervalId)
-      clearInterval(this._autoSaveIntervalId);
-
-    this.updateState({ autoSave: false, autoSaveDelay: null });
+    this._updateState({ autoSave: false, autoSaveDelay: null });
   }
 
   changeTheme(theme): void {
     this.themeHandler.changeTheme(theme);
-    this.updateState({ theme });
+    this._updateState({ theme });
   }
 
-  private saveState(): void {
-    this.settingStore.setItem(this.settings);
+  saveState(): void {
+    this._settingStore.setItem(this.settings.value);
   }
 
-  private updateState(settings: object): void {
-    this._settings = { ...this.settings, ...settings };
+  private _updateState(settings: object): void {
+    this.settings.next({ ...this.settings.value, ...settings });
     this.saveState();
   }
 }

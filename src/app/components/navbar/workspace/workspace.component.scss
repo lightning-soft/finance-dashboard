@@ -1,0 +1,78 @@
+@import "../../../../scss/dark.theme";
+@import "../themes/index";
+
+.workspaces {
+  background-color: $tabFrameColor;
+  border-radius: 2px;
+  border: 1px solid #383A40;
+  padding: 4px;
+  margin-top: 15px;
+  transform: translateX(-85%);
+
+  .ant-radio-group {
+    width: 100%;
+  }
+}
+
+.create-btn {
+  background-color: $bodyBackground;
+  padding: 4px 18px;
+  border-radius: 2px;
+  border: 0.5px solid $risingColor;
+  margin: 10px;
+  width: 186px;
+}
+
+.workspaces-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 4px;
+  width: 100%;
+}
+
+.workspace {
+  position: relative;
+  width: 190px;
+  border-radius: 2px;
+  padding: 6px;
+
+  .title {
+    display: flex;
+    align-items: center;
+    text-overflow: ellipsis;
+    overflow: hidden; 
+
+    i {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+  }
+  
+  &:hover {
+    background-color: $tabBackground;
+
+    .actions {
+      opacity: 1;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(27,29,34,1) 12%);
+    }
+  }
+
+  .actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+
+    button {
+      background-color: transparent;
+
+      &:hover {
+        color: $risingColor;
+      }
+    }
+  }
+}

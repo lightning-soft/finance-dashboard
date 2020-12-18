@@ -62,4 +62,15 @@ export class NavbarComponent {
       y: 'center',
     });
   }
+
+  // openWorkspace() {
+  //   this.layout.addComponent({
+  //     component: {
+  //       name: 'workspace',
+  //     },
+
+  //     icon: 'icon-setting-gear',
+  //     maximizeBtn: false,
+  //   });
+  // }
 }
