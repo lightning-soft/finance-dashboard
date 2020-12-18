@@ -10,6 +10,7 @@ import { DynamicFormModule } from 'dynamic-form';
 import { CommonModule } from '@angular/common';
 import { StorageModule } from 'storage';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { DomSettingsStore } from './dom-settings/dom-settings.store';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     StorageModule,
     CommonModule,
   ],
+  providers: [DomSettingsStore],
   exports: [
     DomComponent,
   ]

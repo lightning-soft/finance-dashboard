@@ -9,8 +9,8 @@ function getColor(label: string | any) {
 
   let key = label.key;
 
-  if (!name) // Where do you get this variable???
-    key = lowerFirstLetter(_label.replace(' ', ''));
+  if (!key)
+    key = lowerFirstLetter(_label.replaceAll(' ', ''));
 
   return {
     key,
@@ -306,7 +306,7 @@ export const hotkeyFields: FormlyFieldConfig[] = [
 export const generalFields: FormlyFieldConfig[] = [
 
   getCheckboxes([
-      {key: 'closeOutstandingOrders ', label: 'Close Outstanding Orders When Position is Closed'},
+      {key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed'},
       {key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position'},
       {label: 'Clear Total Trades On New Position', key: 'clearTotalTrades'},
       {label: 'Re-Center On New Position', key: 'recenter'},

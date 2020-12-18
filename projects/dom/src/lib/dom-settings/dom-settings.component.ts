@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, OnInit, ViewChildren } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChildren } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { Storage } from 'storage';
@@ -14,6 +14,7 @@ import {
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
 import { debounceTime, skip } from "rxjs/operators";
+import { DomSettingsStore } from "./dom-settings.store";
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -38,7 +39,6 @@ enum SettingTab {
   CurrentAtAsk = 'currentAtAsk',
 }
 
-const basePrefix = 'dom-settings';
 
 @UntilDestroy()
 @Component({
@@ -47,7 +47,7 @@ const basePrefix = 'dom-settings';
   styleUrls: ['./dom-settings.component.scss']
 })
 @LayoutNode()
-export class DomSettingsComponent implements AfterViewInit, OnInit {
+export class DomSettingsComponent implements AfterViewInit, OnInit, OnDestroy {
   currentTab = SettingTab.General;
   tabs = SettingTab;
 
@@ -75,11 +75,10 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
 
   ];
   @ViewChildren('component') dynamicForms;
-  formControls: any;
-  currentForm: FormGroup;
-  currentConfig: FormlyFieldConfig[];
+  form: FormGroup;
+  currentConfig: any;
 
-  constructor(private storage: Storage) {
+  constructor(private storage: DomSettingsStore) {
     this.setTabTitle('Dom settings');
   }
 
@@ -88,7 +87,7 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
     /**
      * Think about refactor!
      */
-    this.formControls = this.list
+    const formControls = this.list
       .reduce((list, item) => {
         if (item.children) {
           return [...list, ...item.children];
@@ -99,42 +98,30 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
       .reduce((settings, item) => {
         return {...settings, [item]: new FormGroup({})};
       }, {});
-    for (let key in this.formControls) {
-      this.formControls[key]
-        .valueChanges
-        .pipe(
-          skip(2),
-          debounceTime(150),
-          untilDestroyed(this)
-        )
-        .subscribe((res) => {
-          const storageData = this.storage.getItem(basePrefix);
-          console.warn(res);
-          console.warn(storageData);
-          storageData[this.currentTab] = res;
-          console.warn(storageData);
-          this.storage.setItem(basePrefix, storageData);
-        });
-    }
-    this.currentTab = SettingTab.General;
-    this.currentForm = this.formControls[SettingTab.General];
     this.currentConfig = this.list[0].config;
+    this.form = new FormGroup(formControls);
   }
 
   ngAfterViewInit(): void {
-    this.updateCurrentForm();
+      this.generateForm();
+    //  this.updateCurrentForm();
   }
 
-  updateCurrentForm() {
-    const storageData = this.storage.getItem(basePrefix);
-    if (storageData) {
-      const data = storageData[this.currentTab];
-      if (data) {
-        this.currentForm.setValue(data, {emitEvent: false});
-        console.warn(this.currentForm);
-        console.warn(data);
-
+  async generateForm() {
+    const data = await this.storage.getSettings().toPromise();
+    if (data) {
+      for (let controlKey in this.form.controls) {
+        console.warn(controlKey);
+        console.warn(data[controlKey]);
+        for (let dataKey in data[controlKey]) {
+          (this.form.controls[controlKey] as FormGroup).addControl(dataKey, new FormControl(data[controlKey][dataKey]));
+          console.warn(this.form.controls[controlKey].controls[dataKey].value);
+        }
       }
+      // this.form.setValue(data);
+      console.warn(this.form);
+      console.warn(data);
+
     }
   }
 
@@ -142,8 +129,7 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
     if (this.currentTab !== item.tab) {
       this.currentTab = item.tab;
       this.currentConfig = item.config;
-      this.currentForm = this.formControls[item.tab];
-      this.updateCurrentForm();
+      // this.updateCurrentForm();
     }
   }
 
@@ -151,8 +137,16 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
     return this.currentTab === tab;
   }
 
-  onUpdate($event: any) {
-    const storageData = this.storage.getItem(basePrefix);
-    this.storage.setItem(basePrefix, {...storageData, ...{[this.currentTab]: $event}});
+
+  ngOnDestroy(): void {
+  }
+
+  dispose() {
+    this.storage.setSettings(this.form.value)
+      .toPromise();
+  }
+
+  getForm(currentTab: SettingTab) {
+    return this.form.get(currentTab) as FormGroup;
   }
 }
