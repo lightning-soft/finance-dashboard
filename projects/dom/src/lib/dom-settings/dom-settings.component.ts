@@ -1,8 +1,6 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChildren } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { FormlyFieldConfig } from "@ngx-formly/core";
-import { Storage } from 'storage';
+import {  Component, HostListener, OnInit, ViewChildren } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode } from "../../../../layout";
 import {
   askDeltaFields, askDepthFields, bidDeltaFields,
@@ -13,7 +11,6 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
-import { debounceTime, skip } from "rxjs/operators";
 import { DomSettingsStore } from "./dom-settings.store";
 
 export interface DomSettingsComponent extends ILayoutNode {
@@ -47,7 +44,7 @@ enum SettingTab {
   styleUrls: ['./dom-settings.component.scss']
 })
 @LayoutNode()
-export class DomSettingsComponent implements AfterViewInit, OnInit, OnDestroy {
+export class DomSettingsComponent implements OnInit {
   currentTab = SettingTab.General;
   tabs = SettingTab;
 
@@ -71,57 +68,27 @@ export class DomSettingsComponent implements AfterViewInit, OnInit, OnDestroy {
         {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask', config: currentAtAskFields},
         {tab: SettingTab.Note, label: 'Notes', config: noteColumnFields}]
     },
-
-
   ];
+
   @ViewChildren('component') dynamicForms;
   form: FormGroup;
   currentConfig: any;
+  model = {};
 
   constructor(private storage: DomSettingsStore) {
     this.setTabTitle('Dom settings');
   }
 
   ngOnInit() {
+    this.generateModel();
+  }
 
-    /**
-     * Think about refactor!
-     */
-    const formControls = this.list
-      .reduce((list, item) => {
-        if (item.children) {
-          return [...list, ...item.children];
-        }
-        return [...list, item];
-      }, [])
-      .map(item => item.tab)
-      .reduce((settings, item) => {
-        return {...settings, [item]: new FormGroup({})};
-      }, {});
+  async generateModel() {
     this.currentConfig = this.list[0].config;
-    this.form = new FormGroup(formControls);
-  }
 
-  ngAfterViewInit(): void {
-      this.generateForm();
-    //  this.updateCurrentForm();
-  }
-
-  async generateForm() {
     const data = await this.storage.getSettings().toPromise();
     if (data) {
-      for (let controlKey in this.form.controls) {
-        console.warn(controlKey);
-        console.warn(data[controlKey]);
-        for (let dataKey in data[controlKey]) {
-          (this.form.controls[controlKey] as FormGroup).addControl(dataKey, new FormControl(data[controlKey][dataKey]));
-          console.warn(this.form.controls[controlKey].controls[dataKey].value);
-        }
-      }
-      // this.form.setValue(data);
-      console.warn(this.form);
-      console.warn(data);
-
+      this.model = data;
     }
   }
 
@@ -129,7 +96,6 @@ export class DomSettingsComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.currentTab !== item.tab) {
       this.currentTab = item.tab;
       this.currentConfig = item.config;
-      // this.updateCurrentForm();
     }
   }
 
@@ -137,12 +103,9 @@ export class DomSettingsComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.currentTab === tab;
   }
 
-
-  ngOnDestroy(): void {
-  }
-
+  @HostListener('window:beforeunload')
   dispose() {
-    this.storage.setSettings(this.form.value)
+    this.storage.setSettings(this.model)
       .toPromise();
   }
 

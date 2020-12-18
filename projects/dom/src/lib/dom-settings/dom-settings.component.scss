@@ -10,6 +10,10 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+  .cdk-virtual-scroll-content-wrapper {
+    contain: unset;
+  }
+
   nz-form-item {
     flex-direction: column;
     margin-bottom: 7px;
@@ -44,6 +48,11 @@ cdk-virtual-scroll-viewport {
     background: #24262C;
     padding-left: 8px;
     padding-right: 8px;
+
+    .cdk-virtual-scroll-content-wrapper {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
 
     nz-form-item {
       flex-direction: row;
@@ -105,7 +114,7 @@ cdk-virtual-scroll-viewport {
 .sub-menu {
   padding-left: 8px;
   padding-right: 8px;
-  margin-top: 12px;
+  margin-top: 2px;
 }
 
 .menu {

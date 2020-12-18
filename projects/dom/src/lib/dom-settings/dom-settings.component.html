@@ -1,7 +1,7 @@
 <window-header (close)="dispose()" [window]="this"></window-header>
 
 <div class="dom-settings">
-  <div class="d-flex">
+  <div class="d-flex h-100">
 
     <ul class="menu">
       <li
@@ -23,18 +23,14 @@
         </ul>
       </li>
     </ul>
-<!--
-    <cdk-virtual-scroll-viewport itemSize="">
--->
+    <cdk-virtual-scroll-viewport class="{{currentTab}}" itemSize="">
+
       <formly-form
-        class="{{currentTab}}"
-        [form]="getForm(currentTab)"
+        [(model)]="model[currentTab]"
         [fields]="currentConfig"
       >
       </formly-form>
-<!--
     </cdk-virtual-scroll-viewport>
--->
   </div>
 
 </div>
