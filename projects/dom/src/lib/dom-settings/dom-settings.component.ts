@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { Storage } from 'storage';
 import { ILayoutNode, LayoutNode } from "../../../../layout";
@@ -13,6 +13,7 @@ import {
   ltqFields, noteColumnFields, orderColumnFields,
   priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
 } from './settings-fields';
+import { debounceTime, skip } from "rxjs/operators";
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -98,7 +99,23 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
       .reduce((settings, item) => {
         return {...settings, [item]: new FormGroup({})};
       }, {});
-
+    for (let key in this.formControls) {
+      this.formControls[key]
+        .valueChanges
+        .pipe(
+          skip(2),
+          debounceTime(150),
+          untilDestroyed(this)
+        )
+        .subscribe((res) => {
+          const storageData = this.storage.getItem(basePrefix);
+          console.warn(res);
+          console.warn(storageData);
+          storageData[this.currentTab] = res;
+          console.warn(storageData);
+          this.storage.setItem(basePrefix, storageData);
+        });
+    }
     this.currentTab = SettingTab.General;
     this.currentForm = this.formControls[SettingTab.General];
     this.currentConfig = this.list[0].config;
@@ -112,8 +129,12 @@ export class DomSettingsComponent implements AfterViewInit, OnInit {
     const storageData = this.storage.getItem(basePrefix);
     if (storageData) {
       const data = storageData[this.currentTab];
-      if (data)
-        this.currentForm.patchValue(data);
+      if (data) {
+        this.currentForm.setValue(data, {emitEvent: false});
+        console.warn(this.currentForm);
+        console.warn(data);
+
+      }
     }
   }
 

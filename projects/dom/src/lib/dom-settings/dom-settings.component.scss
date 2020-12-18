@@ -1,11 +1,6 @@
 
-:host {
-  background: #1B1D22 !important; // Try to fix!
-}
-
-.ant-menu.ant-menu-dark { // Move to global or add custom class!
-  flex-shrink: 9;
-  flex-basis: 190px;
+:host-context(.wm-window), :host {
+  background: #1B1D22;
 }
 
 .dom-settings,
@@ -62,7 +57,7 @@ cdk-virtual-scroll-viewport {
         }
       }
 
-      nz-form-label, 
+      nz-form-label,
       nz-form-control {
         width: 50%;
       }

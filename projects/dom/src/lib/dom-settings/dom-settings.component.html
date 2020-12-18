@@ -1,21 +1,21 @@
 <window-header [window]="this"></window-header>
 
 <div class="dom-settings">
-  <cdk-virtual-scroll-viewport [itemSize]="">
+  <!--<cdk-virtual-scroll-viewport [itemSize]="">-->
     <div class="d-flex">
 
       <ul class="menu">
-        <li 
-          class="menu-item" 
-          [class.active]="shouldShowForm(item.tab)" 
+        <li
+          class="menu-item"
+          [class.active]="shouldShowForm(item.tab)"
           (click)="item.tab && open(item)"
           *ngFor="let item of list"
         >
           <span>{{item.label}}</span>
           <ul *ngIf="item.children" class="sub-menu">
-            <li 
-              class="menu-item" 
-              (click)="$event.stopPropagation(); open(item)" 
+            <li
+              class="menu-item"
+              (click)="$event.stopPropagation(); open(item)"
               [class.active]="shouldShowForm(item.tab)"
               *ngFor="let item of item.children"
             >
@@ -27,11 +27,13 @@
 
       <formly-form
         class="{{currentTab}}"
-        [form]="currentForm" 
+        [form]="currentForm"
         [fields]="currentConfig"
       >
       </formly-form>
     </div>
+<!--
   </cdk-virtual-scroll-viewport>
+-->
 </div>
 
