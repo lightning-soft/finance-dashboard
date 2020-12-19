@@ -5,3 +5,4 @@ export * from './number.cell';
 export * from './date.cell';
 export * from './price.cell';
 export { priceComponentSelector } from './components/price-component';
+export { volumeComponentSelector } from './components/volume/volume.component';

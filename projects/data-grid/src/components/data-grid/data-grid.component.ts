@@ -1,4 +1,3 @@
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import {
   AfterViewInit,
   Component,
@@ -20,6 +19,7 @@ import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
 import { ChangeDetectorRef } from '@angular/core';
+import { VolumeComponent, volumeComponentSelector } from '../../models/cells/components/volume/volume.component';
 
 
 export interface DataGridItem {
@@ -35,6 +35,7 @@ export interface DataGridItem {
     useValue: new ViewBuilderStore({
       [iconComponentSelector]: IconComponent,
       [priceComponentSelector]: PriceComponent,
+      [volumeComponentSelector]: VolumeComponent,
     })
   }]
 })

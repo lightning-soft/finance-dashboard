@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { Column, DataGrid } from 'data-grid';
+import { Column, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { DomItem } from './dom.item';
+import { TotalAccomulator } from './accomulators';
 
 export interface DomComponent extends ILayoutNode { }
 
@@ -20,36 +21,42 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   columns: Column[] = [
     '_id',
     'orders',
-    'ltq',
-    'bid',
-    'ask',
-    'currentTradeAsk',
-    'currentTradeBid',
-    'totalAtAsk',
-    'price',
-    'totalAtBid',
-    'tradeColumn',
     'volumeProfile',
-    'askDelta',
+    'price',
     'bidDelta',
+    'bid',
+    'ltq',
+    'currentTradeBid',
+    'currentTradeAsk',
+    'ask',
+    'askDelta',
+    'totalAtBid',
+    'totalAtAsk',
+    'tradeColumn',
     'askDepth',
     'bidDepth',
   ].map(name => ({ name, visible: true }));
 
+  private _acc = new Map<number, TotalAccomulator>();
+  private _total = new TotalAccomulator();
 
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
 
   private _instrument: IInstrument;
 
+  private _priceFormatter: IFormatter;
+
   public get instrument(): IInstrument {
     return this._instrument;
   }
+
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
 
     this._instrument = value;
+    this._priceFormatter = new RoundFormatter(3);
     this._levelOneDatafeedService.subscribe(value);
   }
 
@@ -65,8 +72,18 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.setTabTitle('Dom');
   }
 
+  private _getAccamulateTrade(price: number) {
+    if (!this._acc.has(price)) {
+      this._acc.set(price, new TotalAccomulator());
+      // console.log('r', price);
+    }
+    // const t = Array.from(this._acc.values())
+
+    // console.log(t.filter((i: any) => i.volume != 0).length)
+    return this._acc.get(price);
+  }
+
   ngOnInit(): void {
-    const t = this;
     this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
   }
 
@@ -77,16 +94,20 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    this._calculate();
 
+    const item = this._getAccamulateTrade(trade.price);
+    item.handleTrade(trade);
+    this._total.handleTrade(trade);;
+
+    this._calculate();
     this.dataGrid.detectChanges();
   }
 
   private _calculate(move?: number) {
-    const itemsCount = this.visibleRows,
-      instrument = this.instrument;
+    const itemsCount = this.visibleRows;
 
-    let last = this._trade && this._trade.price;
+    let trade = this._trade;
+    let last = trade && trade.price;
     // level2AskData: HandledL2Quote[] = this.asksQuotes
     //   .filter(it => it.price >= last)
     //   .sort((q1, q2) => q1.price - q2.price || q2.size - q1.size)
@@ -114,7 +135,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     if (centerIndex >= 0 && centerIndex < itemsCount) {
       item = data[centerIndex];
-      item.updatePrice(last, true);
+      item.updatePrice(last, trade, this._getAccamulateTrade(last), this._total, true);
     }
 
     while (upIndex >= 0) {
@@ -125,7 +146,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       }
 
       item = data[upIndex];
-      item.updatePrice(price);
+      item.updatePrice(price, trade, this._getAccamulateTrade(price), this._total);
       upIndex--;
     }
 
@@ -139,7 +160,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       }
 
       item = data[downIndex];
-      item.updatePrice(price);
+      item.updatePrice(price, trade, this._getAccamulateTrade(price), this._total);
       downIndex++;
     }
   }
@@ -166,7 +187,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       data.splice(visibleRows, data.length - visibleRows);
     else if (data.length < visibleRows)
       while (data.length <= visibleRows)
-        data.push(new DomItem(data.length));
+        data.push(new DomItem(data.length, this._priceFormatter));
 
     this.dataGrid.detectChanges();
   }

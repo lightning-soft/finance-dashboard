@@ -8,6 +8,7 @@ export interface ITrade {
   askInfo: IInfo;
   bidInfo: IInfo;
   price: number;
+  volume: number;
 }
 export interface IInfo {
   volume: number;

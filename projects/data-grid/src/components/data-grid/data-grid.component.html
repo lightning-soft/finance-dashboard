@@ -27,7 +27,7 @@
         [ngClass]="column.name"
       >
         <span
-          *itemViewBuilder="item"
+          *itemViewBuilder="item[column.name]"
           [ngClass]="item[column.name].class"
           class="data"
         >
