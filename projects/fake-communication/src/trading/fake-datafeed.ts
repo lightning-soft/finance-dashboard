@@ -25,7 +25,6 @@ export class FakeDatafeed extends DatafeedRepository {
         const instrumentId = this._subscribedInstruments[i];
         const value = this._lastPrices.get(instrumentId);
         const price = randomIntFromInterval(value - tickSize, value + tickSize);
-        console.log(price);
         const bidPrice = randomIntFromInterval(price - tickSize, price);
         const askPrice = randomIntFromInterval(price, price + tickSize);
 

@@ -29,6 +29,7 @@ export interface ILayoutNode {
   setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
   broadcastLinkData?(data: any);
+  addLinkObserver?(observer: ILinkNode);
   broadcastData?(link: string | number, data: any);
   maximize?();
   minimize?();
@@ -37,7 +38,7 @@ export interface ILayoutNode {
 }
 
 // tslint:disable-next-line: no-empty-interface
-interface _LayoutNode extends ILayoutNode, IStateProvider, ILinkNode {
+interface _LayoutNode extends ILayoutNode, IStateProvider, ILinkNode<any> {
 
 }
 
@@ -57,11 +58,25 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   link: number;
 
+  __onRemove: any[];
+
+  onRemove(fn: () => void) {
+    if (!Array.isArray(this.__onRemove))
+      this.__onRemove = [];
+    this.__onRemove.push(fn);
+  }
+
+  addLinkObserver(observer: ILinkNode) {
+    linkDataObserver.subscribe(observer);
+
+    this.onRemove(() => linkDataObserver.unsubscribe(observer));
+  }
+
   setLayoutContainer(value) {
     this.layoutContainer = value;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
-    linkDataObserver.subscribe(this);
+    this.addLinkObserver(this);
   }
 
   broadcastLinkData(data: any) {
@@ -77,10 +92,19 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   handleDestroy() {
+    console.log('handleDestroy', this.constructor.name);
     if (this.componentRef)
       this.componentRef.destroy();
 
-    linkDataObserver.unsubscribe(this);
+    if (Array.isArray(this.__onRemove)) {
+      for (const fn of this.__onRemove) {
+        try {
+          fn();
+        } catch (e) {
+          console.error('On remove error', e);
+        }
+      }
+    }
   }
 
   handleHide() {

@@ -2,10 +2,9 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
-import { LayoutComponent } from "../../../layout";
+import { TotalAccomulator } from './accomulators';
 import { DomSettings } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
-import { TotalAccomulator } from './accomulators';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -69,6 +68,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
+  private _settings: any = {};
+
   constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
@@ -86,15 +87,11 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   ngOnInit(): void {
-    this._levelOneDatafeedService.on((trade: ITrade) => {
-      if (trade.instrument?.symbol !== this.instrument?.symbol) return;
-
-      // this.askPrice = trade.askInfo.price;
-      // this.bidPrice = trade.bidInfo.price;
-      console.log(trade)
-      for (const i of this.items)
-        i.processTrade(trade);
-    });
+    this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
+    this.addLinkObserver({
+      link: DomSettings,
+      handleLinkData: (settings) => settings && Object.assign(this._settings, settings)
+    })
   }
 
   ngAfterViewInit() {
@@ -175,7 +172,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     }
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
+  handleNodeEvent(name: LayoutNodeEvent, data: any) {
     console.log(name);
     switch (name) {
       case LayoutNodeEvent.Resize:
@@ -231,7 +228,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   openSettings() {
     this.layout.addComponent({
-      component: { name: DomSettings },
+      component: {
+        name: DomSettings,
+        state: this._settings,
+      },
       maximizeBtn: true,
       closeBtn: true,
       single: true,

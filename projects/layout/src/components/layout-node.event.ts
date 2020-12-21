@@ -10,7 +10,6 @@ export enum LayoutNodeEvent {
   MoveStart = 'move-start',
   MoveEnd = 'move-end',
   ExtendState = 'extendState',
-  LinkData = 'linkData',
 
   Maximize = 'maximize',
   Restore = 'restore', // undo maximize

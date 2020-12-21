@@ -1,16 +1,16 @@
 export interface ILinkNode<T = any> {
-  link: number;
+  link: number | string;
   handleLinkData?(data: T);
 }
 
-interface ILinkData<T = any> {
+export interface ILinkData<T = any> {
   link: string | number;
   creator: ILinkNode<T>;
   data: T;
 }
 
 export class LinkDataObserver {
-  private _nodes = [];
+  private _nodes: ILinkNode[] = [];
 
   private _freeze = false;
 
