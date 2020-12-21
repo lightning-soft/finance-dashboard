@@ -26,6 +26,7 @@ export interface ILayoutNode {
   setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
   broadcastLinkData?(data: any);
+  broadcastData?(link: string | number, data: any);
   maximize?();
   minimize?();
   close?();
@@ -60,10 +61,14 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   broadcastLinkData(data: any) {
+    this.broadcastData(this.link, data);
+  }
+
+  broadcastData(link: string | number, data: any) {
     linkDataObserver.emitLinkData({
       creator: this,
       data,
-      link: this.link,
+      link,
     });
   }
 

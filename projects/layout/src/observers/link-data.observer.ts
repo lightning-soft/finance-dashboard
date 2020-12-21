@@ -4,7 +4,7 @@ export interface ILinkNode<T = any> {
 }
 
 interface ILinkData<T = any> {
-  link: number;
+  link: string | number;
   creator: ILinkNode<T>;
   data: T;
 }

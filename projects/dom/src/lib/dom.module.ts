@@ -4,13 +4,12 @@ import { DataGridModule } from 'data-grid';
 import { LazyModule, ComponentStore } from 'lazy-modules';
 import { WindowHeaderModule } from 'window-header';
 import { InstrumentSelectModule } from '../../../instrument-select/src/lib/instrument-select.module';
-import { DomSettingsComponent } from './dom-settings/dom-settings.component';
+import { DomSettingsComponent, DomSettings } from './dom-settings/dom-settings.component';
 import { NzMenuModule } from 'ng-zorro-antd';
 import { DynamicFormModule } from 'dynamic-form';
 import { CommonModule } from '@angular/common';
 import { StorageModule } from 'storage';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { DomSettingsStore } from './dom-settings/dom-settings.store';
 
 @NgModule({
   declarations: [
@@ -27,7 +26,6 @@ import { DomSettingsStore } from './dom-settings/dom-settings.store';
     StorageModule,
     CommonModule,
   ],
-  providers: [DomSettingsStore],
   exports: [
     DomComponent,
   ]
@@ -36,7 +34,7 @@ export class DomModule implements LazyModule {
   get components(): ComponentStore {
     return {
       dom: DomComponent,
-      domSettings: DomSettingsComponent,
+      [DomSettings]: DomSettingsComponent,
     };
   }
 }

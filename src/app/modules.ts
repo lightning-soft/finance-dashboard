@@ -23,7 +23,7 @@ export const Components = {
   Scripting: 'scripting',
   Settings: 'settings',
   Dom: 'dom',
-  DomSettings: 'domSettings',
+  DomSettings: 'dom-settings',
   NotificationList: 'notification-list',
 };
 

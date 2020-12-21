@@ -1,89 +1,76 @@
-import { Component, HostListener, OnInit, ViewChildren } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { ILayoutNode, IStateProvider, LayoutNode } from "../../../../layout";
-import {
-  askDeltaFields, askDepthFields, bidDeltaFields,
-  bidDepthFields,
-  commonFields, currentAtAskFields, currentAtBidColumnFields,
-  generalFields,
-  hotkeyFields,
-  ltqFields, noteColumnFields, orderColumnFields,
-  priceFields, totalAskDepthFields, totalBidDepthFields, volumeFields
-} from './settings-fields';
-import { DomSettingsStore } from "./dom-settings.store";
+import { Component, ViewChild } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { FormlyForm } from '@ngx-formly/core';
+import { ILayoutNode, IStateProvider, LayoutNode } from "layout";
+import { SettingsConfig, SettingTab } from './settings-fields';
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
 
-enum SettingTab {
-  General = 'general',
-  Hotkeys = 'hotkeys',
-  Columns = 'columns',
-  Common = 'common',
-  LTG = 'ltg',
-  Price = 'price',
-  BidDelta = 'bidDelta',
-  AskDelta = 'askDelta',
-  BidDepth = 'bidDepth',
-  AskDepth = 'askDepth',
-  TotalAsk = 'totalAsk',
-  TotalBid = 'totalBid',
-  VolumeProfile = 'volumeProfile',
-  OrderColumn = 'order',
-  CurrentAtBid = 'currentAtBid',
-  Note = 'note',
-  CurrentAtAsk = 'currentAtAsk',
-}
-
+export const DomSettings = 'dom-settings';
 
 @UntilDestroy()
 @Component({
-  selector: 'dom-settings',
+  selector: DomSettings,
   templateUrl: './dom-settings.component.html',
   styleUrls: ['./dom-settings.component.scss']
 })
 @LayoutNode()
 export class DomSettingsComponent implements IStateProvider<any> {
-  currentTab = SettingTab.General;
-  tabs = SettingTab;
-
   list = [
-    {tab: SettingTab.General, label: 'General', config: generalFields},
-    {tab: SettingTab.Common, label: 'Common', config: commonFields},
-    {tab: SettingTab.Hotkeys, label: 'Hotkeys', config: hotkeyFields},
+    { tab: SettingTab.General, label: 'General' },
+    { tab: SettingTab.Common, label: 'Common' },
+    { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
     {
-      label: 'Columns', children: [
-        {tab: SettingTab.LTG, label: 'LTQ', config: ltqFields},
-        {tab: SettingTab.Price, label: 'Price', config: priceFields},
-        {tab: SettingTab.BidDelta, label: 'Bid Delta', config: bidDeltaFields},
-        {tab: SettingTab.AskDelta, label: 'Ask Delta', config: askDeltaFields},
-        {tab: SettingTab.BidDepth, label: 'Bid Depth', config: bidDepthFields},
-        {tab: SettingTab.AskDepth, label: 'Ask Depth', config: askDepthFields},
-        {tab: SettingTab.TotalAsk, label: 'Total At Ask', config: totalAskDepthFields},
-        {tab: SettingTab.TotalBid, label: 'Total At Bid', config: totalBidDepthFields},
-        {tab: SettingTab.VolumeProfile, label: 'Volume Profile', config: volumeFields},
-        {tab: SettingTab.OrderColumn, label: 'Order', config: orderColumnFields},
-        {tab: SettingTab.CurrentAtBid, label: 'Current At Bid', config: currentAtBidColumnFields},
-        {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask', config: currentAtAskFields},
-        {tab: SettingTab.Note, label: 'Notes', config: noteColumnFields}]
+      label: 'Columns',
+      children: [
+        { tab: SettingTab.LTG, label: 'LTQ' },
+        { tab: SettingTab.Price, label: 'Price' },
+        { tab: SettingTab.BidDelta, label: 'Bid Delta' },
+        { tab: SettingTab.AskDelta, label: 'Ask Delta' },
+        { tab: SettingTab.BidDepth, label: 'Bid Depth' },
+        { tab: SettingTab.AskDepth, label: 'Ask Depth' },
+        { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
+        { tab: SettingTab.TotalBid, label: 'Total At Bid' },
+        { tab: SettingTab.VolumeProfile, label: 'Volume Profile' },
+        { tab: SettingTab.OrderColumn, label: 'Order' },
+        { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
+        { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
+        { tab: SettingTab.Note, label: 'Notes' }]
     },
   ];
 
-  @ViewChildren('component') dynamicForms;
-  form: FormGroup;
-  currentConfig: any;
-  model = {};
+  @ViewChild('form')
+  form: FormlyForm;
 
-  constructor(private storage: DomSettingsStore) {
+  settings: any;
+
+  selectedSettings: any;
+  selectedConfig: any;
+  currentTab: SettingTab;
+
+  constructor() {
     this.setTabTitle('Dom settings');
   }
 
-  open(item) {
-    if (this.currentTab !== item.tab) {
-      this.currentTab = item.tab;
-      this.currentConfig = item.config;
-    }
+  ngAfterViewInit() {
+    this.form.form.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe(v => this._handleChange(v));
+  }
+
+  private _handleChange(value: any) {
+    this.settings[this.currentTab] = value;
+    this.broadcastData(DomSettings, this.settings);
+  }
+
+  select(item) {
+    if (this.currentTab == item.tab)
+      return;
+
+    this.currentTab = item.tab;
+    this.selectedSettings = this.settings[item.tab];
+    this.selectedConfig = SettingsConfig[item.tab];
   }
 
   shouldShowForm(tab: SettingTab) {
@@ -91,26 +78,11 @@ export class DomSettingsComponent implements IStateProvider<any> {
   }
 
   saveState() {
-   /* this.storage.setSettings(this.model)
-      .toPromise();*/
-    return this.model;
+    return this.settings;
   }
 
   loadState(state: any) {
-    this.currentConfig = this.list[0].config;
-    this.model = state;
-
-  /*  this.storage.getSettings().toPromise()
-      .then((data) => {
-        if (data) {
-          console.warn(data);
-          this.model = data;
-        }
-      });*/
-
-  }
-
-  getForm(currentTab: SettingTab) {
-    return this.form.get(currentTab) as FormGroup;
+    this.settings = state ?? {};
+    this.select(this.list[0]);
   }
 }

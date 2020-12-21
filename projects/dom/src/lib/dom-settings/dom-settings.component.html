@@ -7,14 +7,14 @@
       <li
         class="menu-item"
         [class.active]="shouldShowForm(item.tab)"
-        (click)="item.tab && open(item)"
+        (click)="item.tab && select(item)"
         *ngFor="let item of list"
       >
         <span>{{item.label}}</span>
         <ul *ngIf="item.children" class="sub-menu">
           <li
             class="menu-item"
-            (click)="$event.stopPropagation(); open(item)"
+            (click)="$event.stopPropagation(); select(item)"
             [class.active]="shouldShowForm(item.tab)"
             *ngFor="let item of item.children"
           >
@@ -24,10 +24,10 @@
       </li>
     </ul>
     <cdk-virtual-scroll-viewport class="{{currentTab}}" itemSize="">
-
       <formly-form
-        [(model)]="model[currentTab]"
-        [fields]="currentConfig"
+        #form
+        [(model)]="selectedSettings"
+        [fields]="selectedConfig"
       >
       </formly-form>
     </cdk-virtual-scroll-viewport>

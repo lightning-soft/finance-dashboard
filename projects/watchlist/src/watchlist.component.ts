@@ -155,8 +155,6 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
       case LayoutNodeEvent.Resize:
         this._dataGrid.layout();
         break;
-      case LayoutNodeEvent.LinkData:
-        break;
     }
   }
 

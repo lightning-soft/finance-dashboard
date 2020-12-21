@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
-import { DomItem } from './dom.item';
 import { LayoutComponent } from "../../../layout";
+import { DomSettings } from './dom-settings/dom-settings.component';
+import { DomItem } from './dom.item';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -34,7 +35,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDelta',
     'askDepth',
     'bidDepth',
-  ].map(name => ({name, visible: true}));
+  ].map(name => ({ name, visible: true }));
 
   layout: LayoutComponent = (window as any).LayoutComponent;
 
@@ -139,12 +140,11 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
 
   openSettings() {
     this.layout.addComponent({
-      component: {name: 'domSettings'},
+      component: { name: DomSettings },
       maximizeBtn: true,
       closeBtn: true,
       single: true,
       removeIfExists: true,
     });
-
   }
 }

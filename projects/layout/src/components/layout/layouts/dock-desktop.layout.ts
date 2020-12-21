@@ -36,7 +36,7 @@ export class DockDesktopLayout extends Layout {
     if (typeof componentNameOrConfig === 'string')
       componentName = componentNameOrConfig;
     else {
-      const {component, ..._config} = componentNameOrConfig;
+      const { component, ..._config } = componentNameOrConfig;
       config = _config;
       componentState = component?.state;
       componentName = component?.name;
@@ -89,7 +89,7 @@ export class DockDesktopLayout extends Layout {
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(window);
 
-          if (instance.loadState && componentState) {
+          if (instance.loadState) {
             instance.loadState(componentState);
           }
 
