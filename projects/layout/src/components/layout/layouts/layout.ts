@@ -18,6 +18,9 @@ export type ComponentOptions = {
   maximizeBtn?: boolean;
   closeBtn?: boolean;
   resizable?: boolean;
+  single?: boolean;
+  // used when single set to true
+  removeIfExists?: boolean;
 };
 
 export abstract class Layout implements IDropable {
@@ -28,12 +31,17 @@ export abstract class Layout implements IDropable {
     protected _creationsService: LoadingService,
     protected viewContainer: ViewContainerRef,
     protected container: ElementRef
-  ) { }
+  ) {
+  }
 
   abstract addComponent(componentOptions: ComponentOptions);
 
   handleResize() {
 
+  }
+
+  hasChild(options: ComponentOptions): boolean {
+    return false;
   }
 
   createDragSource(element, component: string) {

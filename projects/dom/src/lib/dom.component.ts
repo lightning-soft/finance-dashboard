@@ -2,10 +2,13 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
+import { LayoutComponent } from "../../../layout";
+import { DomSettings } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
 import { TotalAccomulator } from './accomulators';
 
-export interface DomComponent extends ILayoutNode { }
+export interface DomComponent extends ILayoutNode {
+}
 
 interface IDomState {
   instrument: IInstrument;
@@ -66,8 +69,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
-  constructor(
-    private _levelOneDatafeedService: LevelOneDataFeed) {
+  constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
@@ -84,7 +86,15 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   ngOnInit(): void {
-    this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
+    this._levelOneDatafeedService.on((trade: ITrade) => {
+      if (trade.instrument?.symbol !== this.instrument?.symbol) return;
+
+      // this.askPrice = trade.askInfo.price;
+      // this.bidPrice = trade.bidInfo.price;
+      console.log(trade)
+      for (const i of this.items)
+        i.processTrade(trade);
+    });
   }
 
   ngAfterViewInit() {
@@ -195,7 +205,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
-    }
+    };
   }
 
   loadState?(state: IDomState) {
@@ -217,6 +227,16 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       return;
 
     this.instrument = state.instrument;
+  }
+
+  openSettings() {
+    this.layout.addComponent({
+      component: { name: DomSettings },
+      maximizeBtn: true,
+      closeBtn: true,
+      single: true,
+      removeIfExists: true,
+    });
   }
 }
 

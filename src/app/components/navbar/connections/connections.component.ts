@@ -1,12 +1,15 @@
 import { AfterContentChecked, Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { LayoutComponent } from 'layout';
+import { ILayoutNode, LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { DomHelper, ItemsComponent } from 'base-components';
 
 const { isContainerFitsElements } = DomHelper;
+
+export interface ConnectionsComponent extends ILayoutNode {
+}
 
 @UntilDestroy()
 @Component({
@@ -16,8 +19,6 @@ const { isContainerFitsElements } = DomHelper;
 })
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements AfterContentChecked {
   @ViewChild('connectionsContainer') connectionsContainer: ElementRef;
-
-  layout: LayoutComponent = (window as any).LayoutComponent;
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;

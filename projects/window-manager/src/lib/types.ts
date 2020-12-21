@@ -27,6 +27,7 @@ export type Options = {
   classNames: object,
   draggableClass: string
   order: number
+  componentState: () => {name: string, state: any};
 };
 
 export type saveData = {

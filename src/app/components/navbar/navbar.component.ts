@@ -48,6 +48,8 @@ export class NavbarComponent {
       y: 'top',
       height: 800,
       width: 300,
+      single: true,
+      removeIfExists: true,
     });
   }
 
@@ -62,4 +64,15 @@ export class NavbarComponent {
       y: 'center',
     });
   }
+
+  // openWorkspace() {
+  //   this.layout.addComponent({
+  //     component: {
+  //       name: 'workspace',
+  //     },
+
+  //     icon: 'icon-setting-gear',
+  //     maximizeBtn: false,
+  //   });
+  // }
 }

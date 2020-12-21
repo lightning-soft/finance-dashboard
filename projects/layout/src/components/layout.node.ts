@@ -1,6 +1,7 @@
 import { ComponentRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
+import { Layout } from './layout/layouts/layout';
 
 declare const $: any;
 
@@ -20,12 +21,15 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
+  layout?: Layout;
+
   setTabIcon?(icon: string);
   getTabIcon?(): string;
   getTabTitle?(): string;
   setTabTitle?(value: string);
   handleNodeEvent(name: LayoutNodeEvent, event);
   broadcastLinkData?(data: any);
+  broadcastData?(link: string | number, data: any);
   maximize?();
   minimize?();
   close?();
@@ -49,6 +53,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private _tabIcon: string;
 
   layoutContainer: IContainer;
+  layout: Layout;
 
   link: number;
 
@@ -60,10 +65,14 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   broadcastLinkData(data: any) {
+    this.broadcastData(this.link, data);
+  }
+
+  broadcastData(link: string | number, data: any) {
     linkDataObserver.emitLinkData({
       creator: this,
       data,
-      link: this.link,
+      link,
     });
   }
 

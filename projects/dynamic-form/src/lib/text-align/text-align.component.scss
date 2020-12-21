@@ -1,0 +1,29 @@
+.icon {
+  background: #24262C;
+  border-radius: 2px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  transition: color 0.3s;
+
+  &:not(:first-child) {
+    margin-left: 4px;
+  }
+
+  &:before {
+    font-size: 12px;
+  }
+
+  &.isSelected {
+    color: #4895F5;
+  }
+}
+
+.template-label {
+  color: #D0D0D2;
+  margin-right: 8px;
+}

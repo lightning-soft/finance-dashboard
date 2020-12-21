@@ -132,6 +132,15 @@
       ],
       "notification-list": [
         "projects/notification-list/index"
+      ],
+      "workspace-manager": [
+        "projects/workspace-manager/index"
+      ],
+      "workspace": [
+        "projects/workspace/index"
+      ],
+      "dynamic-form": [
+        "projects/dynamic-form/index"
       ]
     }
   }
