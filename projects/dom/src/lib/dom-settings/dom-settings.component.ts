@@ -1,7 +1,7 @@
-import {  Component, HostListener, OnInit, ViewChildren } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { ILayoutNode, LayoutNode } from "../../../../layout";
+import { ILayoutNode, IStateProvider, LayoutNode } from "../../../../layout";
 import {
   askDeltaFields, askDepthFields, bidDeltaFields,
   bidDepthFields,
@@ -44,7 +44,7 @@ enum SettingTab {
   styleUrls: ['./dom-settings.component.scss']
 })
 @LayoutNode()
-export class DomSettingsComponent implements OnInit {
+export class DomSettingsComponent implements IStateProvider<any> {
   currentTab = SettingTab.General;
   tabs = SettingTab;
 
@@ -79,19 +79,6 @@ export class DomSettingsComponent implements OnInit {
     this.setTabTitle('Dom settings');
   }
 
-  ngOnInit() {
-    this.generateModel();
-  }
-
-  async generateModel() {
-    this.currentConfig = this.list[0].config;
-
-    const data = await this.storage.getSettings().toPromise();
-    if (data) {
-      this.model = data;
-    }
-  }
-
   open(item) {
     if (this.currentTab !== item.tab) {
       this.currentTab = item.tab;
@@ -103,10 +90,24 @@ export class DomSettingsComponent implements OnInit {
     return this.currentTab === tab;
   }
 
-  @HostListener('window:beforeunload')
-  dispose() {
-    this.storage.setSettings(this.model)
-      .toPromise();
+  saveState() {
+   /* this.storage.setSettings(this.model)
+      .toPromise();*/
+    return this.model;
+  }
+
+  loadState(state: any) {
+    this.currentConfig = this.list[0].config;
+    this.model = state;
+
+  /*  this.storage.getSettings().toPromise()
+      .then((data) => {
+        if (data) {
+          console.warn(data);
+          this.model = data;
+        }
+      });*/
+
   }
 
   getForm(currentTab: SettingTab) {

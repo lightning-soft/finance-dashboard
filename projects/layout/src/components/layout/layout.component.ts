@@ -29,7 +29,7 @@ export type ComponentInitCallback = (container: GoldenLayout.Container, componen
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
+export class LayoutComponent implements IDropable, AfterViewInit {
   @ViewChild('container')
   container: ElementRef;
 
@@ -59,7 +59,6 @@ export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
     (window as any).LayoutComponent = this;
   }
 
-  ngOnInit() { }
 
   ngAfterViewInit() {
     this._windowManagerService.createWindowManager(this.container);

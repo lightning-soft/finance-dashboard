@@ -1,9 +1,8 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
-import { DynamicComponentConfig, LoadingService } from 'lazy-modules';
-import { EVENTS, Options, WindowManagerService } from 'window-manager';
+import { LoadingService } from 'lazy-modules';
+import { Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
-import { WindowHeaderComponent } from 'window-header';
 import { ComponentOptions, Layout } from './layout';
 
 export class DockDesktopLayout extends Layout {
@@ -22,6 +21,13 @@ export class DockDesktopLayout extends Layout {
     super(factoryResolver, creationsService, viewContainer, container);
   }
 
+  hasChild(options: ComponentOptions) {
+    return this._windowManagerService.windows.getValue()
+      .map(item => item.options.componentState())
+      .some(item => item.name === options.component.name);
+  }
+
+
   addComponent(componentNameOrConfig: ComponentOptions | any) {
     let componentName: string;
     let componentState: any;
@@ -30,12 +36,20 @@ export class DockDesktopLayout extends Layout {
     if (typeof componentNameOrConfig === 'string')
       componentName = componentNameOrConfig;
     else {
-      const { component, ..._config } = componentNameOrConfig;
+      const {component, ..._config} = componentNameOrConfig;
       config = _config;
       componentState = component?.state;
       componentName = component?.name;
     }
-
+    if (!this.canAddComponent(componentNameOrConfig)) {
+      if (componentNameOrConfig.removeIfExists) {
+        const window = this._windowManagerService.windows.getValue().find(item => {
+          return item.options.componentState().name === componentName;
+        });
+        window?.close();
+      }
+      return;
+    }
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {
     //   // edge don't support obfuscated code StockChartX
     //   // possible solution - add scripts in index.html
@@ -43,7 +57,6 @@ export class DockDesktopLayout extends Layout {
     //   this._notifyError('Your browser is not supported this component');
     //   return;
     // }
-
 
     try {
       this._ngZone.runOutsideAngular(async () => {
@@ -58,7 +71,7 @@ export class DockDesktopLayout extends Layout {
           const windowOptions: Options = {
             width: 500,
             height: 500,
-            title: componentName[0].toUpperCase() + componentName.slice(1),
+            title: this.getComponentTitle(componentName),
             minimizable: true,
             maximizable: true,
             keepInside: {
@@ -91,6 +104,17 @@ export class DockDesktopLayout extends Layout {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  private getComponentTitle(componentName: string) {
+    return componentName[0].toUpperCase() + componentName.slice(1);
+  }
+
+  private canAddComponent(options: ComponentOptions) {
+    if (!options.single) {
+      return true;
+    }
+    return !this.hasChild(options);
   }
 
   createDragSource(element, component) {

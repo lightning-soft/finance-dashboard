@@ -3,8 +3,6 @@ import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { DomItem } from './dom.item';
-import { DomSettingsComponent } from './dom-settings/dom-settings.component';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { LayoutComponent } from "../../../layout";
 
 export interface DomComponent extends ILayoutNode {
@@ -81,7 +79,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     new DomItem(),
   ];
 
-  constructor(private _levelOneDatafeedService: LevelOneDataFeed, private modal: NzModalService) {
+  constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
@@ -144,6 +142,8 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       component: {name: 'domSettings'},
       maximizeBtn: true,
       closeBtn: true,
+      single: true,
+      removeIfExists: true,
     });
 
   }
