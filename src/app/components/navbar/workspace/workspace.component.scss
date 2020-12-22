@@ -21,6 +21,7 @@
   border: 0.5px solid $risingColor;
   margin: 10px;
   width: 186px;
+  font-size: 12px;
 }
 
 .workspaces-list {
@@ -41,10 +42,15 @@
     align-items: center;
     text-overflow: ellipsis;
     overflow: hidden; 
+    font-size: 12px;
+
+    .radio-btn {
+      font-size: 12px;
+    }
 
     i {
       margin-right: 6px;
-      font-size: 14px;
+      font-size: 12px;
     }
   }
   
@@ -65,10 +71,10 @@
     height: 100%;
     display: flex;
     align-items: center;
-    font-size: 14px;
 
     button {
       background-color: transparent;
+      font-size: 12px;
 
       &:hover {
         color: $risingColor;
