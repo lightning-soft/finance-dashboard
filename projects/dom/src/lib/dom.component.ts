@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { Column, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
+import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { TotalAccomulator } from './accomulators';
-import { DomSettings } from './dom-settings/dom-settings.component';
+import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
+import { histogramComponent, HistogramComponent } from './histogram';
+import { DomSettings } from './dom-settings/settings';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -16,7 +18,15 @@ interface IDomState {
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
-  styleUrls: ['./dom.component.scss']
+  styleUrls: ['./dom.component.scss'],
+  providers: [
+    {
+      provide: IViewBuilderStore,
+      useValue: {
+        [histogramComponent]: HistogramComponent
+      }
+    }
+  ]
 })
 @LayoutNode()
 export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
@@ -68,7 +78,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
-  private _settings: any = {};
+  private _settings: DomSettings = new DomSettings();
 
   constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
     this.setTabIcon('icon-widget-positions');
@@ -89,8 +99,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   ngOnInit(): void {
     this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
     this.addLinkObserver({
-      link: DomSettings,
-      handleLinkData: (settings) => settings && Object.assign(this._settings, settings)
+      link: DomSettingsSelector,
+      handleLinkData: (settings) => this._settings.merge(settings)
     })
   }
 
@@ -194,7 +204,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       data.splice(visibleRows, data.length - visibleRows);
     else if (data.length < visibleRows)
       while (data.length <= visibleRows)
-        data.push(new DomItem(data.length, this._priceFormatter));
+        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
     this.dataGrid.detectChanges();
   }
@@ -229,7 +239,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   openSettings() {
     this.layout.addComponent({
       component: {
-        name: DomSettings,
+        name: DomSettingsSelector,
         state: this._settings,
       },
       maximizeBtn: true,

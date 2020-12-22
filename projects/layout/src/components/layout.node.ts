@@ -122,6 +122,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     const $componentContainer = $('.wm-container > section');
     switch (name) {
       case LayoutNodeEvent.Destroy:
+      case LayoutNodeEvent.Close:
         this.handleDestroy();
         break;
       case LayoutNodeEvent.Hide:

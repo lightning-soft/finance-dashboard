@@ -42,7 +42,7 @@ export class NumberCell extends Cell {
 
   private strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
 
-  constructor(config?: INumberConfig | AddClassStrategy) {
+  constructor(config?: INumberConfig) {
     super();
     if (typeof config === 'object') {
       this.strategy = config.strategy ?? AddClassStrategy.RELATIVE_PREV_VALUE;

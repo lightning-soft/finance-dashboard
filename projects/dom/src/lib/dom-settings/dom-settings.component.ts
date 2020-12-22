@@ -7,11 +7,11 @@ import { SettingsConfig, SettingTab } from './settings-fields';
 export interface DomSettingsComponent extends ILayoutNode {
 }
 
-export const DomSettings = 'dom-settings';
+export const DomSettingsSelector = 'dom-settings';
 
 @UntilDestroy()
 @Component({
-  selector: DomSettings,
+  selector: DomSettingsSelector,
   templateUrl: './dom-settings.component.html',
   styleUrls: ['./dom-settings.component.scss']
 })
@@ -30,6 +30,8 @@ export class DomSettingsComponent implements IStateProvider<any> {
         { tab: SettingTab.AskDelta, label: 'Ask Delta' },
         { tab: SettingTab.BidDepth, label: 'Bid Depth' },
         { tab: SettingTab.AskDepth, label: 'Ask Depth' },
+        { tab: SettingTab.Bid, label: 'Bid' },
+        { tab: SettingTab.Ask, label: 'Ask' },
         { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
         { tab: SettingTab.TotalBid, label: 'Total At Bid' },
         { tab: SettingTab.VolumeProfile, label: 'Volume Profile' },
@@ -61,7 +63,7 @@ export class DomSettingsComponent implements IStateProvider<any> {
 
   private _handleChange(value: any) {
     this.settings[this.currentTab] = value;
-    this.broadcastData(DomSettings, this.settings);
+    this.broadcastData(DomSettingsSelector, { [this.currentTab]: value });
   }
 
   select(item) {
@@ -82,7 +84,19 @@ export class DomSettingsComponent implements IStateProvider<any> {
   }
 
   loadState(state: any) {
-    this.settings = state ?? {};
+    this.settings = deepClone(state) ?? {};
     this.select(this.list[0]);
   }
+}
+
+function deepClone(state: any) {
+  if (Array.isArray(state))
+    return state.map(deepClone);
+
+  if (typeof state == 'object')
+    return {
+      ...state,
+    }
+
+  return state;
 }

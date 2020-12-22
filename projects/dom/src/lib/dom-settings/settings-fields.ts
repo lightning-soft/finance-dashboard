@@ -1,5 +1,6 @@
 import { FieldType } from 'dynamic-form';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { map } from 'rxjs/operators';
 
 function getColor(label: string | any) {
   const _label = typeof label === 'string' ? label : label.label;
@@ -16,7 +17,8 @@ function getColor(label: string | any) {
     key,
     name: key,
     type: FieldType.Color,
-    templateOptions: { label: _label }
+    templateOptions: { label: _label },
+    default: 'red',
   };
 }
 
@@ -304,7 +306,6 @@ export const hotkeyFields: FormlyFieldConfig[] = [
   },
 ];
 export const generalFields: FormlyFieldConfig[] = [
-
   getCheckboxes([
     { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
     { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
@@ -323,8 +324,6 @@ export const generalFields: FormlyFieldConfig[] = [
     key: 'digitsToHide',
     type: FieldType.Number,
   }]),
-
-
   getCheckboxes([
     {
       label: 'Always on Top',
@@ -733,9 +732,6 @@ export const noteColumnFields: FormlyFieldConfig[] = [
 
 ];
 
-
-
-
 export enum SettingTab {
   General = 'general',
   Hotkeys = 'hotkeys',
@@ -746,6 +742,8 @@ export enum SettingTab {
   BidDelta = 'bidDelta',
   AskDelta = 'askDelta',
   BidDepth = 'bidDepth',
+  Ask = 'ask',
+  Bid = 'bid',
   AskDepth = 'askDepth',
   TotalAsk = 'totalAsk',
   TotalBid = 'totalBid',
@@ -766,6 +764,8 @@ export const SettingsConfig = {
   [SettingTab.BidDelta]: bidDeltaFields,
   [SettingTab.AskDelta]: askDeltaFields,
   [SettingTab.BidDepth]: bidDepthFields,
+  [SettingTab.Ask]: askDeltaFields,
+  [SettingTab.Bid]: bidDepthFields,
   [SettingTab.AskDepth]: askDepthFields,
   [SettingTab.TotalAsk]: totalAskDepthFields,
   [SettingTab.TotalBid]: totalBidDepthFields,
@@ -775,3 +775,23 @@ export const SettingsConfig = {
   [SettingTab.CurrentAtAsk]: currentAtAskFields,
   [SettingTab.Note]: noteColumnFields,
 }
+
+export function getDefaultSettings(value: any = SettingsConfig) {
+  if (Array.isArray(value.fieldGroup))
+    return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({ ...acc, ...i }), {});
+
+  if (Array.isArray(value))
+    return value.map(getDefaultSettings)
+
+  if (value.default || value.type != null)
+    return { [value.key]: value.default };
+
+  const result = {};
+  const keys = Object.keys(value);
+
+  for (const key of keys) {
+    result[key] = getDefaultSettings(value[key])
+  }
+
+  return result;
+};

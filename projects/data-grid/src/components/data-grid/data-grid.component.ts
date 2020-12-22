@@ -1,6 +1,5 @@
 import {
-  AfterViewInit,
-  Component,
+  AfterViewInit, ChangeDetectorRef, Component,
   ElementRef,
   Input,
   OnDestroy,
@@ -12,14 +11,10 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
-import { IconComponent, iconComponentSelector } from '../../models/cells/components/icon-conponent';
-import { PriceComponent, priceComponentSelector } from '../../models/cells/components/price-component';
 import { ModalComponent } from '../modal/modal.component';
 import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { ChangeDetectorRef } from '@angular/core';
-import { VolumeComponent, volumeComponentSelector } from '../../models/cells/components/volume/volume.component';
 
 
 export interface DataGridItem {
@@ -32,11 +27,7 @@ export interface DataGridItem {
   styleUrls: ['data-grid.scss'],
   providers: [{
     provide: IViewBuilderStore,
-    useValue: new ViewBuilderStore({
-      [iconComponentSelector]: IconComponent,
-      [priceComponentSelector]: PriceComponent,
-      [volumeComponentSelector]: VolumeComponent,
-    })
+    useClass: ViewBuilderStore,
   }]
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
