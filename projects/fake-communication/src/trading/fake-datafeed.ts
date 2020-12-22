@@ -33,6 +33,7 @@ export class FakeDatafeed extends DatafeedRepository {
         const updates: ITrade = {
           instrument: {
             symbol: instrumentId,
+            exchange: 'NASDAQ',
             id: instrumentId,
           },
           timestamp: new Date(),

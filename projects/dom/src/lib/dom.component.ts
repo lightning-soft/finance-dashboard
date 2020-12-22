@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
+import { IInstrument, ITrade, LevelOneDataFeed, LevelTwoDataFeed } from 'trading';
 import { TotalAccomulator } from './accomulators';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
@@ -69,7 +69,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     this._instrument = value;
     this._priceFormatter = new RoundFormatter(3);
-    this._levelOneDatafeedService.subscribe(value);
+    this._levelOneDatafeed.subscribe(value);
+    this._levelTwoDatafeed.subscribe(value);
   }
 
   visibleRows = 0;
@@ -80,7 +81,9 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _settings: DomSettings = new DomSettings();
 
-  constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
+  constructor(
+    private _levelOneDatafeed: LevelOneDataFeed,
+    private _levelTwoDatafeed: LevelTwoDataFeed) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
@@ -97,7 +100,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   ngOnInit(): void {
-    this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
+    this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade));
+    this._levelTwoDatafeed.on((trade: ITrade) => console.log(trade));
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
@@ -139,7 +143,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     const scrolledItems = 0// this._scrolledItems
     let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
-    const tickSize = 0.01; // instrument && instrument.tickSize;
+    const tickSize = 0.25; // instrument && instrument.tickSize;
     const step = 2; // instrument && instrument.digits,
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
@@ -194,19 +198,21 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   private _handleResize() {
-    const data = this.items;
-    const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
+    setTimeout(() => {
+      const data = this.items;
+      const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-    if (data.length === visibleRows)
-      return;
+      if (data.length === visibleRows)
+        return;
 
-    if (data.length > visibleRows)
-      data.splice(visibleRows, data.length - visibleRows);
-    else if (data.length < visibleRows)
-      while (data.length <= visibleRows)
-        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+      if (data.length > visibleRows)
+        data.splice(visibleRows, data.length - visibleRows);
+      else if (data.length < visibleRows)
+        while (data.length <= visibleRows)
+          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
-    this.dataGrid.detectChanges();
+      this.dataGrid.detectChanges();
+    });
   }
 
   saveState?(): IDomState {
@@ -222,8 +228,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESZ0',
-        symbol: 'ESZ0',
+        id: 'ESH1',
+        symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
       };

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { IInstrument } from 'trading';
-import { Feed } from './feed';
+import { IRealtimeInstrument } from '../models/realtime-instrument';
+import { DataFeed } from './data-feed';
 
 export interface ITrade {
   timestamp: Date;
-  instrument: any;
+  instrument: IRealtimeInstrument;
   askInfo: IInfo;
   bidInfo: IInfo;
   price: number;
@@ -17,9 +17,6 @@ export interface IInfo {
 }
 
 @Injectable()
-export abstract class LevelOneDataFeed  extends Feed<ITrade>{
-  abstract subscribe(instrument: IInstrument);
-
-  abstract unsubscribe(instrument: IInstrument);
+export abstract class LevelOneDataFeed extends DataFeed<ITrade>{
 }
 

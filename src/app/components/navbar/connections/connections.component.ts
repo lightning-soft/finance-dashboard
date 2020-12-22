@@ -1,10 +1,12 @@
-import { AfterContentChecked, Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
+import { AfterContentChecked, Component, ElementRef, HostListener, Injector, ViewChild, Input } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ILayoutNode, LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { DomHelper, ItemsComponent } from 'base-components';
+import { DashboardComponent } from '../../dashboard/dashboard.component';
+import { Layout } from '../../../../../projects/layout/src/components/layout/layouts/layout';
 
 const { isContainerFitsElements } = DomHelper;
 
@@ -19,6 +21,9 @@ export interface ConnectionsComponent extends ILayoutNode {
 })
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements AfterContentChecked {
   @ViewChild('connectionsContainer') connectionsContainer: ElementRef;
+
+  @Input()
+  layout: Layout;
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
@@ -81,7 +86,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.error(err),
       );
   }
@@ -90,7 +95,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.log(err),
       );
   }
@@ -99,7 +104,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.toggleFavourite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.error(err),
       );
   }
