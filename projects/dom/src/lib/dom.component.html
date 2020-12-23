@@ -1,12 +1,27 @@
 <window-header [window]="this">
   <instrument-select
-      className="custom-form-control bg-light"
-      [(instrument)]="instrument"
-    ></instrument-select>
+    className="custom-form-control bg-light"
+    [(instrument)]="instrument"
+  ></instrument-select>
 
   <button class="wm-header-btn icon-setting-gear" (click)="grid.createComponentModal()">
   </button>
 
 </window-header>
+<div class="d-flex dom-layout {{currentDirection}}">
+  <div>
+    <span class="window-icon-container">
+    <i *ngFor="let item of directions"
+       (click)="currentDirection = item"
+       [class.d-none]="!isFormOpen"
+       [class.active]="currentDirection === item" class="icon-{{item}} window-icon"></i>
+          <i (click)="isFormOpen = !isFormOpen"
+             [class.active]="isFormOpen"
+             class="icon-widget-orders window-icon large"></i>
 
-<data-grid #grid [items]="items" [columns]="columns"></data-grid>
+  </span>
+    <dom-form class="{{currentDirection}}"  *ngIf="isFormOpen"></dom-form>
+  </div>
+  <data-grid #grid [items]="items" [columns]="columns"></data-grid>
+
+</div>

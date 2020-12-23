@@ -4,7 +4,8 @@ import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
 import { DomItem } from './dom.item';
 
-export interface DomComponent extends ILayoutNode { }
+export interface DomComponent extends ILayoutNode {
+}
 
 interface IDomState {
   instrument: IInstrument;
@@ -13,6 +14,7 @@ interface IDomState {
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
+  styleUrls: ['./dom.component.scss'],
 })
 @LayoutNode()
 export class DomComponent implements OnInit, IStateProvider<IDomState> {
@@ -32,17 +34,20 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
     'bidDelta',
     'askDepth',
     'bidDepth',
-  ].map(name => ({ name, visible: true }));
+  ].map(name => ({name, visible: true}));
 
-
+  directions = ['window-left', 'full-screen-window', 'window-right'];
+  currentDirection = this.directions[this.directions.length - 1];
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
+  isFormOpen = true;
 
   private _instrument: IInstrument;
 
   public get instrument(): IInstrument {
     return this._instrument;
   }
+
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
@@ -88,7 +93,7 @@ export class DomComponent implements OnInit, IStateProvider<IDomState> {
       // this.bidPrice = trade.bidInfo.price;
       console.log(trade)
       for (const i of this.items)
-        i .processTrade(trade);
+        i.processTrade(trade);
     });
   }
 
