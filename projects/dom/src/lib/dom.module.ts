@@ -5,12 +5,14 @@ import { DataGridModule } from 'data-grid';
 import { DynamicFormModule } from 'dynamic-form';
 import { InstrumentSelectModule } from 'instrument-select';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzMenuModule } from 'ng-zorro-antd';
+import { NzInputModule, NzMenuModule, NzPopoverModule, NzCheckboxModule, NzSelectModule } from 'ng-zorro-antd';
 import { StorageModule } from 'storage';
 import { WindowHeaderModule } from 'window-header';
 import { DomSettingsSelector, DomSettingsComponent } from './dom-settings/dom-settings.component';
 import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
+import { DomFormComponent } from './dom-form/dom-form.component';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @NgModule({
   declarations: [
