@@ -1,0 +1,42 @@
+<button
+  nz-dropdown
+  nzTrigger="click"
+  [nzClickHide]="false"
+  [nzDropdownMenu]="menu"
+>
+  <i class="icon-union"></i>
+</button>
+<nz-dropdown-menu nzClassName="workspaces-dropdown" #menu="nzDropdownMenu">
+  <div class="workspaces">
+    <nz-radio-group [(ngModel)]="activeWorkspaceId" (ngModelChange)="switchWorkspace()">
+      <ul class="workspaces-list">
+        <li
+          class="workspace"
+          *ngFor="let workspace of workspaces"
+        >
+          <div class="title">
+            <label nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
+          </div>
+          <div class="actions">
+            <button (click)="rename(workspace?.id)" class="icon-edit"></button>
+            <button (click)="delete(workspace?.id)" class="icon-tool-delete"></button>
+            <button (click)="duplicate(workspace?.id)" class="icon-duplicate"></button>
+            <button (click)="share(workspace?.id)" class="icon-tool-share"></button>
+          </div>
+        </li>
+        <li
+          class="workspace"
+          (click)="createWorkspace()"
+        >
+          <div class="title">
+            <i class="icon-add"></i>Create new
+          </div>
+        </li>
+      </ul>
+    </nz-radio-group>
+    <div class="text-center">
+      <div class="divider mb-2"></div>
+      <button class="create-btn" (click)="saveWorkspace()">Save active workspace</button>
+    </div>
+  </div>
+</nz-dropdown-menu>

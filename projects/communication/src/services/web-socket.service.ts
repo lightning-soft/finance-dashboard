@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { CommunicationConfig } from '../http';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 export interface IWebSocketConfig {
   url: string;
@@ -37,7 +38,7 @@ export class WebSocketService {
     }
 
     const url = this._config.rithmic.ws.url;
-    this._websocket = new WebSocket(url);
+    this._websocket = new ReconnectingWebSocket(url) as any;
     this._websocket.onopen = (event: Event) => {
       if (onOpen)
         onOpen();

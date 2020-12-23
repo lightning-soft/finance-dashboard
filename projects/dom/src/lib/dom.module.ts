@@ -1,17 +1,23 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { DomComponent } from './dom.component';
 import { DataGridModule } from 'data-grid';
-import { LazyModule, ComponentStore } from 'lazy-modules';
+import { DynamicFormModule } from 'dynamic-form';
+import { InstrumentSelectModule } from 'instrument-select';
+import { ComponentStore, LazyModule } from 'lazy-modules';
+import { NzMenuModule } from 'ng-zorro-antd';
+import { StorageModule } from 'storage';
 import { WindowHeaderModule } from 'window-header';
-import { InstrumentSelectModule } from '../../../instrument-select/src/lib/instrument-select.module';
-import { DomFormComponent } from './dom-form/dom-form.component';
-import { NzButtonModule, NzCheckboxModule, NzInputModule, NzPopoverModule, NzSelectModule } from "ng-zorro-antd";
-import { CommonModule } from "@angular/common";
+import { DomSettingsSelector, DomSettingsComponent } from './dom-settings/dom-settings.component';
+import { DomComponent } from './dom.component';
+import { HistogramComponent } from './histogram';
 
 @NgModule({
   declarations: [
     DomComponent,
     DomFormComponent,
+    DomSettingsComponent,
+    HistogramComponent,
   ],
   imports: [
     DataGridModule,
@@ -23,6 +29,11 @@ import { CommonModule } from "@angular/common";
     NzPopoverModule,
     NzCheckboxModule,
     NzSelectModule,
+    NzMenuModule,
+    DynamicFormModule,
+    ScrollingModule,
+    StorageModule,
+    CommonModule,
   ],
   exports: [
     DomComponent,
@@ -32,6 +43,7 @@ export class DomModule implements LazyModule {
   get components(): ComponentStore {
     return {
       dom: DomComponent,
+      [DomSettingsSelector]: DomSettingsComponent,
     };
   }
 }

@@ -15,6 +15,7 @@ import { GlobalHandlerService } from 'global-handler';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { WindowManagerService } from 'window-manager';
+import { Workspace, WorkspacesManager } from 'workspace-manager';
 import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
 import { DockDesktopLayout } from './layouts/dock-desktop.layout';
@@ -28,9 +29,11 @@ export type ComponentInitCallback = (container: GoldenLayout.Container, componen
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
+export class LayoutComponent implements IDropable, AfterViewInit {
   @ViewChild('container')
   container: ElementRef;
+
+  activeWorkspace: Workspace;
 
   get canDragAndDrop() {
     return this.layout.canDragAndDrop;
@@ -51,11 +54,11 @@ export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
     private _changeDetectorRef: ChangeDetectorRef,
     private _globalHandler: GlobalHandlerService,
     private _windowManagerService: WindowManagerService,
+    private _workspacesManager: WorkspacesManager
   ) {
     (window as any).LayoutComponent = this;
   }
 
-  ngOnInit() { }
 
   ngAfterViewInit() {
     this._windowManagerService.createWindowManager(this.container);
@@ -133,29 +136,26 @@ export class LayoutComponent implements OnInit, IDropable, AfterViewInit {
     this.layout.loadEmptyState();
   }
 
-  async loadState() {
-    const state = await this.layoutStore.getItem().toPromise() || defaultSettings;
+  async loadState(settings) {
+    let state = settings || [];
+
+    if (this.layout)
+      this._windowManagerService.closeAll();
+
     if (!this.layout)
       this._initLayout();
 
     const result = await this.layout.loadState(state);
+
     for (const fn of this._initSubscribers) // todo: think about refactoring
       fn();
+
     this._initSubscribers = [];
     return result;
   }
 
-  /**
-   * HostListener is used because ngOnDestroy is not being triggered during page close/refresh
-   * If in this function error occurred then will be shown a confirm dialog with a message "Changes that you made may not be saved."
-   */
-  @HostListener('window:beforeunload')
-  beforeUnloadHandler() {
-    this.saveState();
-  }
-
-  saveState(): void {
-    this.layoutStore.setItem(this.getState());
+  saveState(): any {
+    return this.getState();
   }
 }
 

@@ -13,6 +13,10 @@ $activeColor: #2296f3;
   position: relative;
   color: #ffffff;
 
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    height: 100%;
+  }
+
   .layout-container {
     height: 100%;
     width: 100%;

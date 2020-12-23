@@ -1,10 +1,8 @@
 <window-header [window]="this">
-  <instrument-select
-    className="custom-form-control bg-light"
-    [(instrument)]="instrument"
-  ></instrument-select>
-
-  <button class="wm-header-btn icon-setting-gear" (click)="grid.createComponentModal()">
+  <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
+  <button class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
+  </button>
+  <button class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
 
 </window-header>
@@ -22,6 +20,8 @@
   </span>
     <dom-form class="{{currentDirection}}"  *ngIf="isFormOpen"></dom-form>
   </div>
-  <data-grid #grid [items]="items" [columns]="columns"></data-grid>
+<div class="grid-wrapper">
+  <data-grid #grid [items]="items" [columns]="columns" rowHeight="25"></data-grid>
+</div>
 
 </div>

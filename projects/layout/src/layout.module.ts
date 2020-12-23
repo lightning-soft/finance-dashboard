@@ -1,3 +1,4 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule, SystemJsNgModuleLoader } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ import { LinkSelectComponent } from './components/link-select/link-select.compon
 import { GoldenLayoutHandler } from './models/golden-layout-handler';
 import { LayoutHandler } from './models/layout-handler';
 import { ILayoutStore, LocalLayoutStore } from './store';
-
+import { WorkspacesModule } from 'workspace-manager';
 
 
 
@@ -28,7 +29,9 @@ const entryComponents = [
     FormsModule,
     NzSelectModule,
     GloabalHandlerModule,
+    WorkspacesModule.forRoot(),
     WindowManagerModule,
+    ScrollingModule,
     LazyAssetsModule.forConfig({}),
   ],
   declarations: [

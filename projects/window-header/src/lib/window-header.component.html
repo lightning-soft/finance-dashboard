@@ -13,7 +13,7 @@
     <span class="link" (click)="window.maximize()">
       <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
     </span>
-    <span class="link" (click)="window.close()">
+    <span class="link" (click)="onClose()">
       <i class="icon-close-window"></i>
     </span>
   </div>

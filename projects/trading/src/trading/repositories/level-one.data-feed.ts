@@ -7,6 +7,8 @@ export interface ITrade {
   instrument: any;
   askInfo: IInfo;
   bidInfo: IInfo;
+  price: number;
+  volume: number;
 }
 export interface IInfo {
   volume: number;

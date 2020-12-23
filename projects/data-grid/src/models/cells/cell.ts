@@ -12,6 +12,7 @@ export interface ICell {
 }
 
 export abstract class Cell implements ICell {
+  name: string = '';
   value = '';
   class = '';
   colSpan = 0;
@@ -26,7 +27,7 @@ export abstract class Cell implements ICell {
 
     if (value) {
       this.class += textBoldClass;
-    } else if (this.class.includes(textBoldClass)){
+    } else if (this.class.includes(textBoldClass)) {
       this.class.replace(textBoldClass, '');
     }
   }
