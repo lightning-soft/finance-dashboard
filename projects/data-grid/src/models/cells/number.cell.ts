@@ -31,12 +31,14 @@ interface INumberConfig {
   strategy?: AddClassStrategy;
   component?: string;
   formatter?: IFormatter;
+  ignoreZero?: boolean;
 }
 export class NumberCell extends Cell {
   class: string;
   value: string;
   component: string;
   formatter: IFormatter;
+  ignoreZero: boolean;
 
   _value: number;
 
@@ -48,6 +50,7 @@ export class NumberCell extends Cell {
       this.strategy = config.strategy ?? AddClassStrategy.RELATIVE_PREV_VALUE;
       this.component = config.component;
       this.formatter = config.formatter;
+      this.ignoreZero = config.ignoreZero ?? true;
     } else if (config != null)
       this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
@@ -67,7 +70,11 @@ export class NumberCell extends Cell {
         this.class = '';
     }
 
-    this.value = this.formatter ? this.formatter.format(value) : value.toString();
+    if (this.ignoreZero && value == 0)
+      this.value = ''
+    else
+      this.value = this.formatter ? this.formatter.format(value) : value.toString();
+
     this._value = value;
   }
 

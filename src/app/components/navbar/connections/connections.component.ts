@@ -1,17 +1,12 @@
-import { AfterContentChecked, Component, ElementRef, HostListener, Injector, ViewChild, Input } from '@angular/core';
+import { AfterContentChecked, Component, ElementRef, HostListener, Injector, Input, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { ILayoutNode, LayoutComponent } from 'layout';
+import { DomHelper, ItemsComponent } from 'base-components';
+import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
-import { DomHelper, ItemsComponent } from 'base-components';
-import { DashboardComponent } from '../../dashboard/dashboard.component';
-import { Layout } from '../../../../../projects/layout/src/components/layout/layouts/layout';
 
 const { isContainerFitsElements } = DomHelper;
-
-export interface ConnectionsComponent extends ILayoutNode {
-}
 
 @UntilDestroy()
 @Component({
@@ -23,7 +18,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   @ViewChild('connectionsContainer') connectionsContainer: ElementRef;
 
   @Input()
-  layout: Layout;
+  layout: LayoutComponent;
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;

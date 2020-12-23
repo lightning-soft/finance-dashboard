@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Side } from '../models/position';
+import { OrderSide } from '../models/order';
 import { IRealtimeInstrument } from '../models/realtime-instrument';
 import { DataFeed } from './data-feed';
 
 export interface L2 {
-  timestamp: number;
+  timestamp: Date;
   instrument: IRealtimeInstrument;
-  orderId: number;
+  orderId: number | string;
   previousPrice: number
   price: number
-  side: Side;
+  side: OrderSide;
   size: number;
 }
 

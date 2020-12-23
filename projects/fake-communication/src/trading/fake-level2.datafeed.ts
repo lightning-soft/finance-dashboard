@@ -1,12 +1,14 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Id } from 'communication';
-import { DatafeedRepository, ITrade } from 'trading';
+import { DatafeedRepository, L2 } from 'trading';
+import { OrderSide } from 'trading';
+import { lastPrices } from './fake-level1.datafeed';
 
 @Injectable()
-export class FakeDatafeed extends DatafeedRepository {
+export class FakeLevel2Datafeed extends DatafeedRepository {
   protected _subscribedInstruments = [];
 
-  protected _lastPrices = new Map<Id, number>();
+
 
   constructor(_ngZone: NgZone) {
     super();
@@ -19,38 +21,26 @@ export class FakeDatafeed extends DatafeedRepository {
       // const size = this._subscribedInstruments.length;
       // const count = size;
       // const step = 1;
-      const quotes: ITrade[] = [];
+
       for (let i = 0; i < count; i += step) {
         const tickSize = 0.01;
         const instrumentId = this._subscribedInstruments[i];
-        const value = this._lastPrices.get(instrumentId);
+        const value = lastPrices.get(instrumentId);
         const price = randomIntFromInterval(value - tickSize, value + tickSize);
-        const bidPrice = randomIntFromInterval(price - tickSize, price);
-        const askPrice = randomIntFromInterval(price, price + tickSize);
-
-        const ask = +randomIntFromInterval(10, 30).toFixed(0)
-        const bid = +randomIntFromInterval(10, 30).toFixed(0);
-        const updates: ITrade = {
+        const updates: L2 = {
           instrument: {
             symbol: instrumentId,
             exchange: 'NASDAQ',
             id: instrumentId,
           },
           timestamp: new Date(),
-          volume: ask + bid,
+          orderId: Math.random().toString(),
           price,
-          askInfo: {
-            volume: ask,
-            price: askPrice,
-            orderCount: 1,
-          },
-          bidInfo: {
-            volume: bid,
-            price: bidPrice,
-            orderCount: 2,
-          }
+          previousPrice: NaN,
+          side: Math.random() > 0.5 ? OrderSide.Buy : OrderSide.Sell,
+          size: +randomIntFromInterval(10, 30).toFixed(0),
         };
-        this._lastPrices.set(instrumentId, price);
+        lastPrices.set(instrumentId, price);
 
         // quotes.push(updates);
         this._triggerQuotes(updates as any);
@@ -58,12 +48,14 @@ export class FakeDatafeed extends DatafeedRepository {
 
       // this._triggerQuotes(quotes);
       // console.timeEnd('q');
-    }, 100);
+    }, 500);
   }
 
   protected _subscribe(instruemntId: Id) {
     this._subscribedInstruments.push(instruemntId);
-    this._lastPrices.set(instruemntId, randomIntFromInterval(10, 1000))
+    if (!lastPrices.has(instruemntId))
+      lastPrices.set(instruemntId, randomIntFromInterval(10, 1000))
+
     console.log('_subscribe', instruemntId);
   }
 
