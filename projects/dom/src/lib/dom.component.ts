@@ -7,6 +7,7 @@ import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { DomSettings } from './dom-settings/settings';
+import { L2 } from '../../../trading';
 
 export interface DomComponent extends ILayoutNode {
 }
