@@ -6,7 +6,22 @@
   </button>
 
 </window-header>
+<div class="d-flex dom-layout {{currentDirection}}">
+  <div>
+    <span class="window-icon-container">
+    <i *ngFor="let item of directions"
+       (click)="currentDirection = item"
+       [class.d-none]="!isFormOpen"
+       [class.active]="currentDirection === item" class="icon-{{item}} window-icon"></i>
+          <i (click)="isFormOpen = !isFormOpen"
+             [class.active]="isFormOpen"
+             class="icon-widget-orders window-icon large"></i>
 
+  </span>
+    <dom-form class="{{currentDirection}}"  *ngIf="isFormOpen"></dom-form>
+  </div>
 <div class="grid-wrapper">
   <data-grid #grid [items]="items" [columns]="columns" rowHeight="25"></data-grid>
+</div>
+
 </div>

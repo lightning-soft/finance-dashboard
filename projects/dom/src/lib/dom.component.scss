@@ -51,3 +51,60 @@ $cell-background: #1b1d22;
     }
   }
 }
+.window-icon {
+  color: #51535A;
+  transition: all 0.3s;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+
+  &:not(:first-child) {
+    margin-left: 4px;
+  }
+
+  &.large {
+    background: #101114;
+    padding: 4px;
+    font-size: 16px;
+    height: 24px;
+    width: 24px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+  }
+
+  &.active {
+    color: #4895F5;
+  }
+}
+
+dom-form {
+  width: 180px;
+  display: block;
+}
+
+.window-icon-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.dom-layout {
+  height: 100%;
+
+  &.window-left {
+    flex-direction: row;
+  }
+
+  &.window-right {
+    flex-direction: row-reverse;
+
+  }
+
+  &.full-screen-window {
+    flex-direction: column;
+  }
+}
