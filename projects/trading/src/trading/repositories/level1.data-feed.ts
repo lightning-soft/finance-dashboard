@@ -17,6 +17,6 @@ export interface IInfo {
 }
 
 @Injectable()
-export abstract class LevelOneDataFeed extends DataFeed<ITrade>{
+export abstract class Level1DataFeed extends DataFeed<ITrade>{
 }
 

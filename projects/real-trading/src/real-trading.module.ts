@@ -3,21 +3,21 @@ import { FakeLevel1Datafeed, FakeLevel2Datafeed } from 'fake-communication';
 import {
   AccountRepository, BrokersRepository,
   ConnectionsRepository, HistoryRepository,
-  InstrumentsRepository, LevelOneDataFeed,
+  InstrumentsRepository, Level1DataFeed,
   OrdersFeed,
   OrdersRepository,
   PositionsFeed,
   PositionsRepository,
-  LevelTwoDataFeed,
+  Level2DataFeed,
 } from 'trading';
 import {
   RealAccountRepository,
   RealBrokersRepository, RealConnectionsRepository, RealHistoryRepository,
-  RealInstrumentsRepository, RealLevelOneDataFeed,
+  RealInstrumentsRepository, RealLevel1DataFeed,
   RealOrdersFeed,
   RealOrdersRepository,
   RealPositionsFeed, RealPositionsRepository,
-  RealLevelTwoDataFeed,
+  RealLevel2DataFeed,
 } from './trading/repositories';
 
 
@@ -60,14 +60,14 @@ export class RealTradingModule {
           useClass: RealInstrumentsRepository,
         },
         {
-          provide: LevelOneDataFeed,
-          useClass: FakeLevel1Datafeed,
-          // useClass: RealLevelOneDataFeed,
+          provide: Level1DataFeed,
+          // useClass: FakeLevel1Datafeed,
+          useClass: RealLevel1DataFeed,
         },
         {
-          provide: LevelTwoDataFeed,
-          // useClass: RealLevelTwoDataFeed,
-          useClass: FakeLevel2Datafeed,
+          provide: Level2DataFeed,
+          useClass: RealLevel2DataFeed,
+          // useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,

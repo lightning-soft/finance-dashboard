@@ -9,7 +9,7 @@ import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout'
 import { NzContextMenuService } from 'ng-zorro-antd';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { finalize, first } from 'rxjs/operators';
-import { IConnection, IInstrument, InstrumentsRepository, IQuote, LevelOneDataFeed } from 'trading';
+import { IConnection, IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 
 const headers = [
@@ -71,7 +71,7 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
 
   constructor(
     protected instrumentRepository: InstrumentsRepository,
-    private _levelOneDatafeed: LevelOneDataFeed,
+    private _levelOneDatafeed: Level1DataFeed,
     protected cd: ChangeDetectorRef,
     private layoutHandler: LayoutHandler,
     private nzContextMenuService: NzContextMenuService,

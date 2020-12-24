@@ -1,6 +1,6 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { DomAccomulator } from './accomulators';
+import { DomHandler } from './handlers';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 
@@ -39,7 +39,7 @@ export class DomItem implements IBaseItem {
     this._id.updateValue(index);
   }
 
-  updatePrice(price: number, data: DomAccomulator, center = false) {
+  updatePrice(price: number, data: DomHandler, center = false) {
     this.price.updateValue(price);
     const acc = data.getItemData(price);
     const total = data.total;

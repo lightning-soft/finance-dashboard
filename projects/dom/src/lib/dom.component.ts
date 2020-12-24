@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IInstrument, ITrade, L2, LevelOneDataFeed, LevelTwoDataFeed } from 'trading';
-import { DomAccomulator } from './accomulators';
+import { IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
+import { DomHandler } from './handlers';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
@@ -49,7 +49,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     'bidDepth',
   ].map(name => ({ name, visible: true }));
 
-  private _dom = new DomAccomulator();
+  private _dom = new DomHandler();
 
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
@@ -81,8 +81,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   private _settings: DomSettings = new DomSettings();
 
   constructor(
-    private _levelOneDatafeed: LevelOneDataFeed,
-    private _levelTwoDatafeed: LevelTwoDataFeed
+    private _levelOneDatafeed: Level1DataFeed,
+    private _levelTwoDatafeed: Level2DataFeed
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');

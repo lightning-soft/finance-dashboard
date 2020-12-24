@@ -4,7 +4,7 @@ import { RealFeed, WSMessageTypes } from './real-feed';
 import { RealtimeType } from './realtime';
 
 @Injectable()
-export class RealLevelTwoDataFeed extends RealFeed<any, IInstrument>{
+export class RealLevel2DataFeed extends RealFeed<any, IInstrument>{
   type = RealtimeType.Level2;
   subscribeType = WSMessageTypes.SUBSCRIBE_L2;
   unsubscribeType = WSMessageTypes.SUBSCRIBE_L2;
