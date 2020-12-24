@@ -1,4 +1,5 @@
-import { getDefaultSettings } from "./settings-fields";
+import { TextAlign } from 'dynamic-form';
+import { HistogramOrientation } from './settings-fields';
 
 export class DomSettings {
   general: any = {};
@@ -6,21 +7,22 @@ export class DomSettings {
   columns: any = {};
   common: any = {};
   ltg: any = {};
-  price: any = {};
+  price: any = {fontColor: 'white', textAlign: TextAlign.Center};
   bidDelta: any = {};
   askDelta: any = {};
-  bid: any = { backgroundColor: 'red' };
-  ask: any = { backgroundColor: 'red' };
+  bid: any = {fontColor: 'white', textAlign: TextAlign.Center, orientation: HistogramOrientation.Left};
+  ask: any = {fontColor: 'white', textAlign: TextAlign.Center, orientation: HistogramOrientation.Left};
   bidDepth: any = {};
   askDepth: any = {};
   totalAsk: any = {};
   totalBid: any = {};
-  volumeProfile: any = {};
+  volumeProfile: any = {fontColor: 'white', textAlign: TextAlign.Center, orientation: HistogramOrientation.Left};
   order: any = {};
   currentAtBid: any = {};
   note: any = {};
   currentAtAsk: any = {};
   _ask;
+
   constructor() {
     (window as any).t = (this);
     this._ask = this.ask;

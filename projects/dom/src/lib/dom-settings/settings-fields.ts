@@ -1,6 +1,5 @@
 import { FieldType } from 'dynamic-form';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { map } from 'rxjs/operators';
 
 function getColor(label: string | any) {
   const _label = typeof label === 'string' ? label : label.label;
@@ -40,6 +39,10 @@ function getRadio(key: string, label: string, options: { label: string, value: s
   };
 }
 
+export enum HistogramOrientation {
+  Left = 'left', Right = 'right'
+}
+
 function getHistogram(key: string = 'orientation', label: string = 'Histogram Orientation'): FormlyFieldConfig {
   return {
     key,
@@ -47,7 +50,7 @@ function getHistogram(key: string = 'orientation', label: string = 'Histogram Or
     className: 'no-underline',
     templateOptions: {
       label,
-      options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }]
+      options: [{label: 'Left', value: 'left'}, {label: 'Right', value: 'right'}]
     }
   };
 }
@@ -104,7 +107,7 @@ export const commonFields: FormlyFieldConfig[] = [
       {
         type: FieldType.Select,
         templateOptions: {
-          options: [{ label: 'Open Sans', value: 'Open Sans' }],
+          options: [{label: 'Open Sans', value: 'Open Sans'}],
         },
         key: 'fontFamily'
       },
@@ -112,13 +115,13 @@ export const commonFields: FormlyFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [
-            { label: 'Regular', value: 'regular' }, { label: 'Bold', value: 'bold' }, { label: 'Bolder', value: 'bolder' }]
+            {label: 'Regular', value: 'regular'}, {label: 'Bold', value: 'bold'}, {label: 'Bolder', value: 'bolder'}]
         },
         key: 'fontWeight'
       },
       {
         type: FieldType.Number,
-        templateOptions: { label: 'Font size' },
+        templateOptions: {label: 'Font size'},
         key: 'fontSize',
       },
     ]
@@ -466,11 +469,11 @@ export const priceFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Highlight Background Color'),
-    getColor('Last Traded Price Font Color'),
-    getColor('Non Traded Price Back Color'),
-    getColor('Traded Price Back Color'),
-    getColor('Price Font Color'),
-    getColor('Non Traded Price Font Color'),]
+      getColor('Last Traded Price Font Color'),
+      getColor('Non Traded Price Back Color'),
+      getColor('Traded Price Back Color'),
+      getColor({label: 'Price Font Color', key: 'fontColor'}),
+      getColor('Non Traded Price Font Color'),]
   },
   getTextAlign(),
 
@@ -483,8 +486,8 @@ export const bidDeltaFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),]
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),]
   },
   getTextAlign(),
 
@@ -497,8 +500,8 @@ export const askDeltaFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),]
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),]
   },
   getTextAlign(),
 
@@ -511,16 +514,16 @@ export const bidDepthFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'bidDepth', label: 'Bid Depth Histogram' }, {
-      key: 'highlightLargeBids',
-      label: 'Highlight Large Bids Only'
-    }]),
-    getNumber('bidSize', 'Large Bid Size'),
-    getTextAlign(),
-    getHistogram(),
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'bidDepth', label: 'Bid Depth Histogram'}, {
+        key: 'highlightLargeBids',
+        label: 'Highlight Large Bids Only'
+      }]),
+      getNumber('fontSize', 'Large Bid Size'),
+      getTextAlign(),
+      getHistogram(),
     ]
   },
 ];
@@ -532,16 +535,16 @@ export const askDepthFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'askDepth', label: 'Ask Depth Histogram' }, {
-      key: 'highlightLargeAsks',
-      label: 'Highlight Large Asks Only'
-    }]),
-    getNumber('askSize', 'Large Bid Size'),
-    getTextAlign(),
-    getHistogram(),
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'askDepth', label: 'Ask Depth Histogram'}, {
+        key: 'highlightLargeAsks',
+        label: 'Highlight Large Asks Only'
+      }]),
+      getNumber('fontSize', 'Large Ask Size'),
+      getTextAlign(),
+      getHistogram(),
     ]
   },
 ];
@@ -553,12 +556,12 @@ export const totalAskDepthFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'totalAsk', label: 'Total At Ask Histogram' }]),
-    getTextAlign(),
-    getHistogram(),
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'totalAsk', label: 'Total At Ask Histogram'}]),
+      getTextAlign(),
+      getHistogram(),
 
     ]
   },
@@ -572,12 +575,12 @@ export const totalBidDepthFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'totalBid', label: 'Total At Bid Histogram' }]),
-    getTextAlign(),
-    getHistogram(),
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'totalBid', label: 'Total At Bid Histogram'}]),
+      getTextAlign(),
+      getHistogram(),
     ]
   },
 
@@ -590,25 +593,25 @@ export const volumeFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Histogram Color'),
-    getColor({ key: 'controlColor', label: 'Point of Control Color' }),
-    getColor({ key: 'areaColor', label: 'Value Area Color' }),
-    getColor('VWAP Color'),
+      getColor('Font Color'),
+      getColor('Highlight Background Color'),
+      getColor('Histogram Color'),
+      getColor({key: 'controlColor', label: 'Point of Control Color'}),
+      getColor({key: 'areaColor', label: 'Value Area Color'}),
+      getColor('VWAP Color'),
     ]
   },
   getCheckboxes([
-    { key: 'volumeProfile', label: 'Volume Profile Histogram' },
-    { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
-    { key: 'poc', label: 'Point of Control' },
-    { label: 'Value Area', key: 'valueArea' },
-    { key: 'VWAP', label: 'VWAP' }
+    {key: 'volumeProfile', label: 'Volume Profile Histogram'},
+    {key: 'ltq', label: 'Last Traded Qty (LTQ)'},
+    {key: 'poc', label: 'Point of Control'},
+    {label: 'Value Area', key: 'valueArea'},
+    {key: 'VWAP', label: 'VWAP'}
   ]),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
     fieldGroup: [getTextAlign(),
-    getHistogram(),
+      getHistogram(),
     ]
   },
 ];
@@ -620,36 +623,36 @@ export const orderColumnFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [getColor('Background Color'),
-    getColor('Highlight Color'),
-    getColor('Buy Order Background'),
-    getColor('Sell Order Background'),
-    getColor('Buy Order Foreground'),
-    getColor('Sell Order Foreground'),
+      getColor('Highlight Color'),
+      getColor('Buy Order Background'),
+      getColor('Sell Order Background'),
+      getColor('Buy Order Foreground'),
+      getColor('Sell Order Foreground'),
     ]
   },
 
-  getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-  { key: 'includePnl', label: 'Include Closed PnL' }]),
+  getCheckboxes([{key: 'snowPnl', label: 'Show PnL in Column'},
+    {key: 'includePnl', label: 'Include Closed PnL'}]),
   getTextAlign(),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
     fieldGroup: [getColor('In Profit Background'),
-    getColor('In Profit Foreground'),
-    getColor('Loss Background'),
-    getColor('Loss Foreground'),
-    getColor('Break-even Background'),
-    getColor('Break-even Foreground'),
+      getColor('In Profit Foreground'),
+      getColor('Loss Background'),
+      getColor('Loss Foreground'),
+      getColor('Break-even Background'),
+      getColor('Break-even Foreground'),
     ]
   },
 
   getCheckboxes([
-    { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
-    { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
+    {key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column'},
+    {key: 'split', label: 'Split order column into Buy Orders and Sell Orders'},
   ]),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
     fieldGroup: [getColor('Buy Orders Column'),
-    getColor('Sell Orders Column'),
+      getColor('Sell Orders Column'),
     ]
   },
 
@@ -661,23 +664,23 @@ export const currentAtBidColumnFields: FormlyFieldConfig[] = [
       label: 'Current At Bid'
     },
     wrappers: ['form-field'],
-    fieldGroup: [getCheckboxes([{ key: 'histogram', label: 'Current At Bid Histogram' }]),
-    getTextAlign(),
-    getColor('Level 1'),
-    getColor('Level 2'),
-    getColor('Level 3'),
-    getColor('Level 4'),
-    getColor('Level 5'),
-    getColor('Level 6'),
-    getColor('Level 7'),
-    getColor('Level 8'),
-    getColor('Tail Inside Bid Fore'),
-    getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Bid Bold' }]),
-    getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Inside Bid Background Color'),
-    getColor('Highlight Background Color'),
-    getColor('Histogram Color'),
+    fieldGroup: [getCheckboxes([{key: 'histogram', label: 'Current At Bid Histogram'}]),
+      getTextAlign(),
+      getColor('Level 1'),
+      getColor('Level 2'),
+      getColor('Level 3'),
+      getColor('Level 4'),
+      getColor('Level 5'),
+      getColor('Level 6'),
+      getColor('Level 7'),
+      getColor('Level 8'),
+      getColor('Tail Inside Bid Fore'),
+      getCheckboxes([{key: 'tailBidBold', label: 'Tail Inside Bid Bold'}]),
+      getColor('Background Color'),
+      getColor('Font Color'),
+      getColor('Inside Bid Background Color'),
+      getColor('Highlight Background Color'),
+      getColor('Histogram Color'),
     ]
   },
 
@@ -690,7 +693,7 @@ export const currentAtAskFields: FormlyFieldConfig[] = [
     },
     wrappers: ['form-field'],
     fieldGroup: [
-      getCheckboxes([{ key: 'histogram', label: 'Current At Ask Histogram' }]),
+      getCheckboxes([{key: 'histogram', label: 'Current At Ask Histogram'}]),
       getTextAlign(),
       getColor('Level 1'),
       getColor('Level 2'),
@@ -701,7 +704,7 @@ export const currentAtAskFields: FormlyFieldConfig[] = [
       getColor('Level 7'),
       getColor('Level 8'),
       getColor('Tail Inside Ask Fore'),
-      getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Ask Bold' }]),
+      getCheckboxes([{key: 'tailBidBold', label: 'Tail Inside Ask Bold'}]),
       getColor('Background Color'),
       getColor('Font Color'),
       getColor('Inside Ask Background Color'),
@@ -752,7 +755,7 @@ export enum SettingTab {
   CurrentAtBid = 'currentAtBid',
   Note = 'note',
   CurrentAtAsk = 'currentAtAsk',
-  tab = "tab"
+  tab = 'tab'
 }
 
 export const SettingsConfig = {
@@ -778,13 +781,13 @@ export const SettingsConfig = {
 
 export function getDefaultSettings(value: any = SettingsConfig) {
   if (Array.isArray(value.fieldGroup))
-    return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({ ...acc, ...i }), {});
+    return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({...acc, ...i}), {});
 
   if (Array.isArray(value))
     return value.map(getDefaultSettings)
 
   if (value.default || value.type != null)
-    return { [value.key]: value.default };
+    return {[value.key]: value.default};
 
   const result = {};
   const keys = Object.keys(value);
