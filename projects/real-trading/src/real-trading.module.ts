@@ -1,5 +1,5 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
-import { FakeDatafeed } from 'fake-communication';
+import { FakeLevel1Datafeed, FakeLevel2Datafeed } from 'fake-communication';
 import {
   AccountRepository, BrokersRepository,
   ConnectionsRepository, HistoryRepository,
@@ -7,7 +7,8 @@ import {
   OrdersFeed,
   OrdersRepository,
   PositionsFeed,
-  PositionsRepository
+  PositionsRepository,
+  LevelTwoDataFeed,
 } from 'trading';
 import {
   RealAccountRepository,
@@ -15,7 +16,8 @@ import {
   RealInstrumentsRepository, RealLevelOneDataFeed,
   RealOrdersFeed,
   RealOrdersRepository,
-  RealPositionsFeed, RealPositionsRepository
+  RealPositionsFeed, RealPositionsRepository,
+  RealLevelTwoDataFeed,
 } from './trading/repositories';
 
 
@@ -59,8 +61,13 @@ export class RealTradingModule {
         },
         {
           provide: LevelOneDataFeed,
-          useClass: FakeDatafeed,
+          useClass: FakeLevel1Datafeed,
           // useClass: RealLevelOneDataFeed,
+        },
+        {
+          provide: LevelTwoDataFeed,
+          // useClass: RealLevelTwoDataFeed,
+          useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,

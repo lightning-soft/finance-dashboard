@@ -6,7 +6,7 @@ import {
   ElementRef,
   HostListener,
   NgZone,
-  OnInit,
+
   ViewChild,
   ViewContainerRef
 } from '@angular/core';

@@ -3,9 +3,11 @@ import { IBaseItem, WebSocketService } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
 
-enum WSMessageTypes {
+export enum WSMessageTypes {
   SUBSCRIBE = 'subscribe',
   UNSUBSCRIBE = 'unsubscribe',
+  SUBSCRIBE_L2 = 'subscribeL2',
+  UNSUBSCRIBE_L2 = 'unsubscribeL2',
 }
 
 @Injectable()
@@ -13,6 +15,9 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
   private _subscriptions = {};
   private _executors: OnTradeFn<T>[] = [];
+
+  subscribeType: WSMessageTypes;
+  unsubscribeType: WSMessageTypes;
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService) {
     this._webSocketService.on(this._handleTrade.bind(this));
@@ -27,14 +32,14 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   subscribe(data: I | I[]) {
-    this._sendRequest(WSMessageTypes.SUBSCRIBE, data);
+    this._sendRequest(this.subscribeType, data, true);
   }
 
   unsubscribe(data: I | I[]) {
-    this._sendRequest(WSMessageTypes.UNSUBSCRIBE, data);
+    this._sendRequest(this.unsubscribeType, data);
   }
 
-  protected _sendRequest(type: WSMessageTypes, data: I | I[]) {
+  private _sendRequest(type: WSMessageTypes, data: I | I[], subscribe = false) {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
@@ -53,19 +58,16 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         });
       };
 
-      switch (type) {
-        case WSMessageTypes.SUBSCRIBE:
-          subscriptions[id] = (subscriptions[id] || 0) + 1;
-          if (subscriptions[id] === 1) {
-            sendRequest();
-          }
-          break;
-        case WSMessageTypes.UNSUBSCRIBE:
-          subscriptions[id] = (subscriptions[id] || 1) - 1;
-          if (subscriptions[id] === 0) {
-            sendRequest();
-          }
-          break;
+      if (subscribe) {
+        subscriptions[id] = (subscriptions[id] || 0) + 1;
+        if (subscriptions[id] === 1) {
+          sendRequest();
+        }
+      } else {
+        subscriptions[id] = (subscriptions[id] || 1) - 1;
+        if (subscriptions[id] === 0) {
+          sendRequest();
+        }
       }
     });
   }

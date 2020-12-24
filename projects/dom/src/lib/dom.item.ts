@@ -1,10 +1,8 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, DataCell, NumberCell } from 'data-grid';
-import { ITrade } from 'trading';
-import { IFormatter } from 'data-grid';
-import { TotalAccomulator } from './accomulators';
-import { HistogramCell } from './histogram';
+import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
+import { DomAccomulator } from './accomulators';
 import { DomSettings } from './dom-settings/settings';
+import { HistogramCell } from './histogram';
 
 export class DomItem implements IBaseItem {
   id: Id;
@@ -15,14 +13,14 @@ export class DomItem implements IBaseItem {
   ltq: Cell = new DataCell();
   bid: HistogramCell;
   ask: HistogramCell;
-  currentTradeAsk: Cell = new DataCell();
-  currentTradeBid: Cell = new DataCell();
-  totalAtAsk: Cell = new DataCell();
-  totalAtBid: Cell = new DataCell();
+  currentAsk: HistogramCell;
+  currentBid: HistogramCell;
+  totalAsk: HistogramCell;
+  totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
   volumeProfile: HistogramCell;
-  askDelta: Cell = new DataCell();
-  bidDelta: Cell = new DataCell();
+  askDelta: Cell = new NumberCell({ strategy: AddClassStrategy.NONE });
+  bidDelta: Cell = new NumberCell({ strategy: AddClassStrategy.NONE });
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
@@ -33,15 +31,30 @@ export class DomItem implements IBaseItem {
     this.price = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: _priceFormatter });
     this.bid = new HistogramCell({ settings: settings.bid });
     this.ask = new HistogramCell({ settings: settings.ask });
+    this.currentAsk = new HistogramCell({ settings: settings.ask });
+    this.currentBid = new HistogramCell({ settings: settings.ask });
+    this.totalAsk = new HistogramCell({ settings: settings.totalAsk });
+    this.totalBid = new HistogramCell({ settings: settings.totalBid });
     this.volumeProfile = new HistogramCell({ settings: settings.volumeProfile });
     this._id.updateValue(index);
   }
 
-  updatePrice(price: number, trade: ITrade, acc: TotalAccomulator, total: TotalAccomulator, center = false) {
+  updatePrice(price: number, data: DomAccomulator, center = false) {
     this.price.updateValue(price);
-    this.volumeProfile.update(acc.volume, total.volume);
-    this.ask.update(acc.ask, total.ask);
-    this.bid.update(acc.bid, total.bid);
+    const acc = data.getItemData(price);
+    const total = data.total;
+    const columns = data.columns;
+
+    this.volumeProfile.update(acc.volume, columns.volume);
+    this.currentAsk.update(acc.currentAsk, columns.currentAsk);
+    this.currentBid.update(acc.currentBid, columns.currentBid);
+    this.ask.update(acc.ask, columns.ask);
+    this.bid.update(acc.bid, columns.bid);
+    this.totalAsk.update(acc.ask, columns.ask);
+    this.totalBid.update(acc.bid, columns.bid);
+    this.askDelta.updateValue(acc.currentAsk - acc.ask);
+    this.bidDelta.updateValue(acc.currentBid - acc.bid);
+
     this.class = center ? 'center-price ' : '';
 
     if (acc.volume)

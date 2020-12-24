@@ -12,8 +12,15 @@ import { HistogramCell, histogramComponent } from './histogram.cell';
       position: relative;
     }
 
+    .data {
+      position: relative;
+      width: 100%;
+      display: inline-block;
+    }
+
     .histogram {
       position: absolute;
+      left: 0;
       height: 100%;
       background: #804444a1;
     }

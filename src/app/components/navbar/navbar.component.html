@@ -12,9 +12,9 @@
     <button class="icon-search"></button>
   </div> -->
   <div class="spacer">&nbsp;</div>
-    <!-- </div> -->
+  <!-- </div> -->
 
-  <app-connections></app-connections>
+  <app-connections [layout]="layout"></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
     <app-workspace [layout]="layout"></app-workspace>
@@ -29,8 +29,10 @@
   </div>
 
   <div class="control">
-    <button class="icon-minimize-window native-minimize-button" onclick="window.nativeMinimize && window.nativeMinimize()"></button>
-    <button class="icon-full-screen-window native-maximize-button" onclick="window.nativeMaximize && window.nativeMaximize()"></button>
+    <button class="icon-minimize-window native-minimize-button"
+      onclick="window.nativeMinimize && window.nativeMinimize()"></button>
+    <button class="icon-full-screen-window native-maximize-button"
+      onclick="window.nativeMaximize && window.nativeMaximize()"></button>
     <button class="icon-close-window native-close-button" onclick="window.nativeClose && window.nativeClose()"></button>
   </div>
 

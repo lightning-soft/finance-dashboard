@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IInstrument, ITrade, LevelOneDataFeed } from 'trading';
-import { TotalAccomulator } from './accomulators';
+import { IInstrument, ITrade, LevelOneDataFeed, LevelTwoDataFeed } from 'trading';
+import { DomAccomulator } from './accomulators';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
@@ -38,19 +38,18 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     'bidDelta',
     'bid',
     'ltq',
-    'currentTradeBid',
-    'currentTradeAsk',
+    'currentBid',
+    'currentAsk',
     'ask',
     'askDelta',
-    'totalAtBid',
-    'totalAtAsk',
+    'totalBid',
+    'totalAsk',
     'tradeColumn',
     'askDepth',
     'bidDepth',
   ].map(name => ({name, visible: true}));
 
-  private _acc = new Map<number, TotalAccomulator>();
-  private _total = new TotalAccomulator();
+  private _dom = new DomAccomulator();
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
@@ -72,7 +71,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     this._instrument = value;
     this._priceFormatter = new RoundFormatter(3);
-    this._levelOneDatafeedService.subscribe(value);
+    this._levelOneDatafeed.subscribe(value);
+    this._levelTwoDatafeed.subscribe(value);
   }
 
   visibleRows = 0;
@@ -83,24 +83,17 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _settings: DomSettings = new DomSettings();
 
-  constructor(private _levelOneDatafeedService: LevelOneDataFeed) {
+  constructor(
+    private _levelOneDatafeed: LevelOneDataFeed,
+    private _levelTwoDatafeed: LevelTwoDataFeed
+  ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
 
-  private _getAccamulateTrade(price: number) {
-    if (!this._acc.has(price)) {
-      this._acc.set(price, new TotalAccomulator());
-      // console.log('r', price);
-    }
-    // const t = Array.from(this._acc.values())
-
-    // console.log(t.filter((i: any) => i.volume != 0).length)
-    return this._acc.get(price);
-  }
-
   ngOnInit(): void {
-    this._levelOneDatafeedService.on((trade: ITrade) => this._handleTrade(trade));
+    this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade));
+    this._levelTwoDatafeed.on((item: L2) => this._handleL2(item));
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
@@ -111,15 +104,19 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._handleResize();
   }
 
-  _handleTrade(trade: ITrade) {
+  protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    const item = this._getAccamulateTrade(trade.price);
-    item.handleTrade(trade);
-    this._total.handleTrade(trade);;
-
+    this._dom.handleTrade(trade);;
     this._calculate();
     this.dataGrid.detectChanges();
+  }
+
+  protected _handleL2(l2: L2) {
+    if (l2.instrument?.symbol !== this.instrument?.symbol) return;
+    this._dom.handleL2(l2);
+    this._calculate();
+    this.dataGrid.detectChanges(); // todo: refactor - dry
   }
 
   private _calculate(move?: number) {
@@ -127,18 +124,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     let trade = this._trade;
     let last = trade && trade.price;
-    // level2AskData: HandledL2Quote[] = this.asksQuotes
-    //   .filter(it => it.price >= last)
-    //   .sort((q1, q2) => q1.price - q2.price || q2.size - q1.size)
-    //   .filter((val, index, arr) => arr.findIndex(it => it.price === val.price) === index)
-    //   .map(handleLevel1Quote()),
-
-    // level2BidData: HandledL2Quote[] = this.bidsQuotes
-    //   .filter(it => it.price <= last)
-    //   .sort((q1, q2) => q2.price - q1.price || q2.size - q1.size)
-    //   .filter((val, index, arr) => arr.findIndex(it => it.price === val.price) === index)
-    //   .map(handleLevel1Quote());
-
     const scrolledItems = 0// this._scrolledItems
     let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
     const tickSize = 0.01; // instrument && instrument.tickSize;
@@ -148,13 +133,14 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     let downIndex = centerIndex + 1;
     let price = last;
     let item: DomItem;
+    const dom = this._dom;
 
     if (last == null || isNaN(last))
       return;
 
     if (centerIndex >= 0 && centerIndex < itemsCount) {
       item = data[centerIndex];
-      item.updatePrice(last, trade, this._getAccamulateTrade(last), this._total, true);
+      item.updatePrice(last, dom, true);
     }
 
     while (upIndex >= 0) {
@@ -165,7 +151,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       }
 
       item = data[upIndex];
-      item.updatePrice(price, trade, this._getAccamulateTrade(price), this._total);
+      item.updatePrice(price, dom);
       upIndex--;
     }
 
@@ -179,7 +165,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       }
 
       item = data[downIndex];
-      item.updatePrice(price, trade, this._getAccamulateTrade(price), this._total);
+      item.updatePrice(price, dom);
       downIndex++;
     }
   }
@@ -190,25 +176,29 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Show:
       case LayoutNodeEvent.Open:
+      case LayoutNodeEvent.Maximize:
+      case LayoutNodeEvent.Restore:
         this._handleResize();
         break;
     }
   }
 
   private _handleResize() {
-    const data = this.items;
-    const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
+    setTimeout(() => {
+      const data = this.items;
+      const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-    if (data.length === visibleRows)
-      return;
+      if (data.length === visibleRows)
+        return;
 
-    if (data.length > visibleRows)
-      data.splice(visibleRows, data.length - visibleRows);
-    else if (data.length < visibleRows)
-      while (data.length <= visibleRows)
-        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+      if (data.length > visibleRows)
+        data.splice(visibleRows, data.length - visibleRows);
+      else if (data.length < visibleRows)
+        while (data.length <= visibleRows)
+          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
-    this.dataGrid.detectChanges();
+      this.dataGrid.detectChanges();
+    });
   }
 
   saveState?(): IDomState {
@@ -224,8 +214,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESZ0',
-        symbol: 'ESZ0',
+        id: 'ESH1',
+        symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
       };
@@ -249,6 +239,15 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       single: true,
       removeIfExists: true,
     });
+  }
+
+  ngOnDestroy() {
+    const instrument = this.instrument;
+    if (!instrument)
+      return;
+
+    this._levelOneDatafeed.unsubscribe(instrument);
+    this._levelTwoDatafeed.unsubscribe(instrument);
   }
 }
 

@@ -18,7 +18,7 @@ function getColor(label: string | any) {
     name: key,
     type: FieldType.Color,
     templateOptions: { label: _label },
-    default: 'red',
+    default: '#0dff008a',
   };
 }
 
