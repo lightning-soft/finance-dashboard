@@ -31,8 +31,8 @@ export class DomItem implements IBaseItem {
     this.price = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: _priceFormatter });
     this.bid = new HistogramCell({ settings: settings.bid });
     this.ask = new HistogramCell({ settings: settings.ask });
-    this.currentAsk = new HistogramCell({ settings: settings.ask });
-    this.currentBid = new HistogramCell({ settings: settings.ask });
+    this.currentAsk = new HistogramCell({ settings: settings.currentAtAsk });
+    this.currentBid = new HistogramCell({ settings: settings.currentAtBid });
     this.totalAsk = new HistogramCell({ settings: settings.totalAsk });
     this.totalBid = new HistogramCell({ settings: settings.totalBid });
     this.volumeProfile = new HistogramCell({ settings: settings.volumeProfile });
