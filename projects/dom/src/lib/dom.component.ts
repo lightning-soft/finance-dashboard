@@ -114,7 +114,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-
     const item = this._getAccamulateTrade(trade.price);
     item.handleTrade(trade);
     this._total.handleTrade(trade);;

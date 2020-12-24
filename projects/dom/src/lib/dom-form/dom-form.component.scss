@@ -82,6 +82,12 @@
   }
 }
 
+::ng-deep {
+  .tick-overlay {
+    width: 160px;
+  }
+}
+
 .chart-data {
   display: flex;
   flex-direction: column;
