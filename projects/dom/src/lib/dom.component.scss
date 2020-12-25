@@ -52,7 +52,7 @@ $cell-background: #1b1d22;
   }
 }
 .window-icon {
-  color: #51535A;
+  color: #51535a;
   transition: all 0.3s;
   cursor: pointer;
   font-size: 12px;
@@ -76,7 +76,7 @@ $cell-background: #1b1d22;
   }
 
   &.active {
-    color: #4895F5;
+    color: #4895f5;
   }
 }
 
@@ -92,8 +92,17 @@ dom-form {
   justify-content: flex-end;
 }
 
+.order-wrapper {
+  overflow: auto;
+  width: auto;
+  flex-shrink: 0;
+}
+
 .dom-layout {
+  position: absolute;
   height: 100%;
+  width: 100%;
+  padding-top: 34px;
 
   &.window-left {
     flex-direction: row;
@@ -101,7 +110,6 @@ dom-form {
 
   &.window-right {
     flex-direction: row-reverse;
-
   }
 
   &.full-screen-window {

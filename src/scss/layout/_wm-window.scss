@@ -1,7 +1,9 @@
+$border-width: 1px;
+
 .wm-window {
   display: flex;
   flex-direction: column;
-  border: 1px solid transparent;
+  border: $border-width solid transparent;
 
   & > header {
     display: none !important;
@@ -10,15 +12,15 @@
   & > * > window-header {
     display: flex;
     align-items: center;
-    padding: 1px 0 2px;
+    padding: 1px;
   }
 
   & > *:last-child {
+    margin: #{-$border-width};
     display: flex;
     flex-direction: column;
     flex-basis: 0;
     flex-grow: 1;
-    padding: 1px;
     overflow: hidden;
     background: $light;
     border: 1px solid $lighter;
