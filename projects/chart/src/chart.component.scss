@@ -45,19 +45,7 @@ $toolbarMargin: 4px;
     transition: all 0.3s;
   }
 }
-::ng-deep {
-  div[class*="resize-"], div.frame .wm-container header {
-    .chart-container {
-      &:before {
-        content: "";
-        position: fixed;
-        height: 94%;
-        width: 99%;
-        z-index: 99;
-      }
-    }
-  }
-}
+
 .component-container {
   display: flex;
   height: 100%;

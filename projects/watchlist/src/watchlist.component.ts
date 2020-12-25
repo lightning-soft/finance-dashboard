@@ -77,7 +77,7 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
     protected _accountsManager: AccountsManager,
-    protected _injector: Injector,
+    protected _injector: Injector
   ) {
     super();
     this.autoLoadData = false;
