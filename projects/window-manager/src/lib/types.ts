@@ -13,6 +13,7 @@ export type Bounds = {
 export type Options = {
   x: number | Position,
   y: number | Position,
+  type: string,
   width: number,
   height: number,
   minHeight: string

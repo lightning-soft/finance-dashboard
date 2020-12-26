@@ -1,6 +1,13 @@
 :host {
   z-index: 1;
   font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+
+  .content {
+    max-width: calc(100% - 60px);
+    overflow: hidden;
+  }
 
   .window-icon {
     border-radius: 2px;

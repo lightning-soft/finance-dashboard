@@ -60,7 +60,6 @@ export class DragDrawerComponent {
       component: {
         name: item.component,
       },
-      type: 'widget'
     });
   }
 }

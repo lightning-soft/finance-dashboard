@@ -18,7 +18,7 @@ export interface IWindow {
   y: number;
   active: boolean;
   bounds: Bounds;
-  winTitlebar: any;
+  type: any;
   ignoreOffset: number;
   keepInside: boolean;
   maximized: boolean;
