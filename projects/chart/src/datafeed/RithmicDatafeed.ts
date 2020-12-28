@@ -32,6 +32,25 @@ export class RithmicDatafeed extends Datafeed {
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
   }
+  static convertPeriodicity(periodicity: string): string {
+
+    switch (periodicity) {
+      case StockChartXPeriodicity.YEAR:
+        return 'Yearly';
+      case StockChartXPeriodicity.MONTH:
+        return 'Mounthly';
+      case StockChartXPeriodicity.WEEK:
+        return 'Weekly';
+      case StockChartXPeriodicity.DAY:
+        return 'Daily';
+      case StockChartXPeriodicity.HOUR:
+        return 'Hourly';
+      case StockChartXPeriodicity.MINUTE:
+        return 'Minute';
+      default:
+        throw new Error('Undefined periodicity ' + periodicity);
+    }
+  }
 
   send(request: IBarsRequest) {
     super.send(request);
@@ -70,12 +89,11 @@ export class RithmicDatafeed extends Datafeed {
 
     const params = {
       Exchange: exchange,
-      Periodicity: this._convertPeriodicity(timeFrame.periodicity),
+      Periodicity: RithmicDatafeed.convertPeriodicity(timeFrame.periodicity),
       BarSize: timeFrame.interval,
       BarCount: count,
       Skip: 0,
     };
-
     this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
       (res) => {
         if (this.isRequestAlive(request)) {
@@ -85,26 +103,6 @@ export class RithmicDatafeed extends Datafeed {
       },
       () => this.cancel(request),
     );
-  }
-
-  private _convertPeriodicity(periodicity: string): string {
-
-    switch (periodicity) {
-      case StockChartXPeriodicity.YEAR:
-        return 'Yearly';
-      case StockChartXPeriodicity.MONTH:
-        return 'Mounthly';
-      case StockChartXPeriodicity.WEEK:
-        return 'Weekly';
-      case StockChartXPeriodicity.DAY:
-        return 'Daily';
-      case StockChartXPeriodicity.HOUR:
-        return 'Hourly';
-      case StockChartXPeriodicity.MINUTE:
-        return 'Minute';
-      default:
-        throw new Error('Undefined periodicity ' + periodicity);
-    }
   }
 
   subscribeToRealtime(request: IBarsRequest) {

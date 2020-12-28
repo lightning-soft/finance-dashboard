@@ -82,6 +82,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
+  get trade() {
+    return this._trade;
+  }
+
   private _settings: DomSettings = new DomSettings();
 
   constructor(
@@ -100,7 +104,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
-    })
+    });
   }
 
   ngAfterViewInit() {
@@ -110,7 +114,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    this._dom.handleTrade(trade);;
+    this._dom.handleTrade(trade);
     this._calculate();
     this.dataGrid.detectChanges();
   }

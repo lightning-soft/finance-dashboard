@@ -1,88 +1,159 @@
 :host {
   &.full-screen-window {
-    width: 100%;
-    margin-bottom: 5px;
+    ::ng-deep {
+      width: 100%;
+      margin-bottom: 5px;
 
-    .form-layout {
-      flex-direction: row;
-      align-items: baseline;
-      flex-wrap: wrap;
+      type-buttons, .ticks, .bottom-btns {
+        margin-top: 5px;
+      }
+
+      .form-layout {
+        flex-direction: row;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .tif {
+        margin-top: 0;
+        margin-left: 5px;
+      }
+
+      .chart-data {
+        flex-direction: row;
+      }
+
+      .chart-info {
+        margin-left: 5px;
+        display: inline-block;
+      }
+
+      .pl-input {
+        width: 80px;
+        margin-top: 0;
+        margin-left: 5px;
+      }
+
+      .top-position-btn {
+        margin-top: 0;
+        margin-left: 3px;
+      }
+
+      .inner-buttons {
+        flex-wrap: nowrap;
+        margin-top: 0;
+        margin-left: 5px;
+
+        & > * {
+          margin-top: 0;
+
+          &:nth-child(odd) {
+            margin-right: 0px;
+          }
+
+          &:nth-child(even) {
+            margin-left: 0px;
+          }
+
+          &:not(:first-child) {
+            margin-left: 3px;
+          }
+        }
+      }
+
+      .ticks {
+        margin-top: 0;
+        display: flex;
+        margin-left: 5px;
+
+        .tp-tick {
+          margin-top: 0;
+          margin-left: 2px;
+        }
+
+        .sl-tick {
+          margin-top: 0;
+        }
+      }
+
+      .cxl, .bottom-btns {
+        margin-top: 5px;
+        margin-left: 5px;
+        display: flex;
+      }
+
+      .cxl-all, .cxl-buy {
+        margin-left: 3px;
+      }
+
+      .flatten {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  ::ng-deep {
+
+    button, button:hover, button:active, button:focus-within {
+      background: #383A40;
+      border-radius: 2px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      color: white;
+      margin-top: 2px;
     }
 
-    .tif {
-      margin-top: 0;
-      margin-left: 5px;
+    button.top-position-btn {
+      background: rgba(72, 149, 245, 0.5);
+      border-radius: 2px;
+      margin-top: 3px;
+      color: white;
+      border: 1px solid transparent;
     }
 
-    .chart-data {
-      flex-direction: row;
+    .black-btn, .black-btn:hover, .black-btn:active, .black-btn:focus-within {
+      background: #1B1D22;
     }
 
-    .chart-info {
-      margin-left: 5px;
-      display: inline-block;
+    tp-ticks {
+      margin-top: 3px;
     }
 
-    .pl-input {
-      width: 80px;
-      margin-top: 0;
-      margin-left: 5px;
-    }
-
-    .top-position-btn {
-      margin-top: 0;
-      margin-left: 3px;
+    button:hover {
+      border: 1px solid #4895F5;
     }
 
     .inner-buttons {
-      flex-wrap: nowrap;
-      margin-top: 0;
-      margin-left: 5px;
+      display: flex;
+      flex-flow: wrap;
+      margin-top: 10px;
 
       & > * {
-        margin-top: 0;
+        width: 47%;
 
         &:nth-child(odd) {
-          margin-right: 0px;
+          margin-right: 2px;
         }
 
         &:nth-child(even) {
-          margin-left: 0px;
-        }
-
-        &:not(:first-child) {
-          margin-left: 3px;
+          margin-left: 2px;
         }
       }
     }
 
-    .ticks {
-      margin-top: 0;
-      display: flex;
-      margin-left: 5px;
-
-      .tp-tick {
-        margin-top: 0;
-        margin-left: 2px;
-      }
-
-      .sl-tick {
+    .tif-buttons {
+      .inner-buttons {
         margin-top: 0;
       }
     }
 
-    .cxl, .bottom-btns {
-      margin-top: 0;
-      margin-left: 5px;
-      display: flex;
-    }
+    .tick-btn {
+      width: 100%;
+      font-weight: 600;
 
-    .cxl-all, .cxl-buy {
-      margin-left: 3px;
-    }
-
-    .flatten {
-      margin-left: 5px;
+      &:not(:first-child) {
+        margin-top: 6px;
+      }
     }
   }
 }
@@ -112,33 +183,6 @@
   color: #FFFFFF;
 }
 
-.top-position-btn {
-  background: rgba(72, 149, 245, 0.5);
-  border-radius: 2px;
-  margin-top: 3px;
-  color: white;
-}
-
-button, button:hover, button:active, button:focus-within {
-  background: #383A40;
-  border-radius: 2px;
-  border: 1px solid transparent;
-  transition: all 0.3s;
-  color: white;
-  margin-top: 2px;
-}
-
-.black-btn, .black-btn:hover, .black-btn:active, .black-btn:focus-within {
-  background: #1B1D22;
-}
-
-button:hover {
-  border: 1px solid #4895F5;
-}
-
-.inner-buttons {
-  margin-top: 10px;
-}
 
 .tif {
   margin-top: 12px;
@@ -146,25 +190,6 @@ button:hover {
 
 .ticks {
   margin-top: 8px;
-}
-
-.tick-btn {
-  width: 100%;
-  font-weight: 600;
-
-  &:not(:first-child) {
-    margin-top: 6px;
-  }
-}
-
-.sl-tick, .sl-tick:focus, .sl-tick:hover, .sl-tick:focus-within {
-  background: rgba(201, 59, 59, 0.2);
-  border: 1px solid #C93B3B
-}
-
-.tp-tick, .tp-tick:focus, .tp-tick:hover, .tp-tick:focus-within {
-  background: rgba(72, 149, 245, 0.2);
-  border: 1px solid #4895F5;
 }
 
 .cxl {
@@ -196,37 +221,6 @@ button:hover {
   }
 }
 
-nz-select {
-  width: 100%;
-}
-
-.checkbox-right {
-  float: right;
-}
-
-.number-input {
-  margin-top: 8px;
-}
-
-.popover-btn {
-  width: 54px;
-  font-size: 11px;
-  padding: 0;
-}
-
-.popover-select {
-  margin-top: 8px;
-}
-
-.amount {
-  font-weight: 600;
-  font-size: 10px;
-  line-height: 14px;
-  color: #A1A2A5;
-  margin-right: 18px;
-  margin-bottom: 0;
-}
-
 .chart-info {
   font-weight: normal;
   font-size: 11px;
@@ -240,19 +234,4 @@ nz-select {
   border: 1px solid #47494F;
 }
 
-.inner-buttons {
-  display: flex;
-  flex-flow: wrap;
 
-  & > * {
-    width: 47%;
-
-    &:nth-child(odd) {
-      margin-right: 2px;
-    }
-
-    &:nth-child(even) {
-      margin-left: 2px;
-    }
-  }
-}

@@ -4,11 +4,7 @@
   </button>
   <button class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
-
-</window-header>
-<div class="d-flex dom-layout {{currentDirection}}">
-  <div class="order-wrapper">
-    <span class="window-icon-container">
+  <span class="window-icon-container">
     <i *ngFor="let item of directions"
        (click)="currentDirection = item"
        [class.d-none]="!isFormOpen"
@@ -18,7 +14,16 @@
              class="icon-widget-orders window-icon large"></i>
 
   </span>
-    <dom-form class="{{currentDirection}}"  *ngIf="isFormOpen"></dom-form>
+</window-header>
+<div class="d-flex dom-layout {{currentDirection}}">
+  <div class="order-wrapper">
+
+
+    <dom-form
+      [instrument]="instrument"
+      [trade]="trade"
+      [class.d-none]="!isFormOpen"
+      class="{{currentDirection}}" ></dom-form>
   </div>
 
   <div class="grid-wrapper">

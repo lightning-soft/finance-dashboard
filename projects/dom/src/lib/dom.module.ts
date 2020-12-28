@@ -20,7 +20,11 @@ import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { QuantityButtonsComponent } from './dom-form/quantity-buttons/quantity-buttons.component';
+import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.component';
+import { SlTicksComponent } from './dom-form/sl-ticks/sl-ticks.component';
+import { TpTicksComponent } from './dom-form/tp-ticks/tp-ticks.component';
 
 @NgModule({
   declarations: [
@@ -28,25 +32,30 @@ import { FormsModule } from "@angular/forms";
     DomFormComponent,
     DomSettingsComponent,
     HistogramComponent,
+    QuantityButtonsComponent,
+    TypeButtonsComponent,
+    SlTicksComponent,
+    TpTicksComponent,
   ],
-  imports: [
-    DataGridModule,
-    InstrumentSelectModule,
-    WindowHeaderModule,
-    NzInputModule,
-    NzButtonModule,
-    CommonModule,
-    NzPopoverModule,
-    NzCheckboxModule,
-    NzSelectModule,
-    NzMenuModule,
-    DynamicFormModule,
-    ScrollingModule,
-    StorageModule,
-    CommonModule,
-    FormsModule,
-    NzToolTipModule,
-  ],
+    imports: [
+        DataGridModule,
+        InstrumentSelectModule,
+        WindowHeaderModule,
+        NzInputModule,
+        NzButtonModule,
+        CommonModule,
+        NzPopoverModule,
+        NzCheckboxModule,
+        NzSelectModule,
+        NzMenuModule,
+        DynamicFormModule,
+        ScrollingModule,
+        StorageModule,
+        CommonModule,
+        FormsModule,
+        NzToolTipModule,
+        ReactiveFormsModule,
+    ],
   exports: [
     DomComponent,
   ]
