@@ -24,7 +24,7 @@ export class DomSettingsComponent implements IStateProvider<any> {
     {
       label: 'Columns',
       children: [
-        { tab: SettingTab.LTG, label: 'LTQ' },
+        { tab: SettingTab.LTQ, label: 'LTQ' },
         { tab: SettingTab.Price, label: 'Price' },
         { tab: SettingTab.BidDelta, label: 'Bid Delta' },
         { tab: SettingTab.AskDelta, label: 'Ask Delta' },
