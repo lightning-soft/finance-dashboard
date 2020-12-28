@@ -1360,7 +1360,8 @@
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
-          "options": {"main": "projects/window-manager/src/test.ts",
+          "options": {
+            "main": "projects/window-manager/src/test.ts",
             "tsConfig": "projects/window-manager/tsconfig.spec.json",
             "karmaConfig": "projects/window-manager/karma.conf.js"
           }
@@ -1368,7 +1369,8 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": ["projects/window-manager/tsconfig.lib.json",
+            "tsConfig": [
+              "projects/window-manager/tsconfig.lib.json",
               "projects/window-manager/tsconfig.spec.json"
             ],
             "exclude": [
@@ -1378,7 +1380,6 @@
         }
       }
     },
-
     "authentication": {
       "projectType": "library",
       "root": "projects/authentication",
@@ -1499,6 +1500,46 @@
         }
       }
     },
+    "dom": {
+      "projectType": "library",
+      "root": "projects/dom",
+      "sourceRoot": "projects/dom/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/dom/tsconfig.lib.json",
+            "project": "projects/dom/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/dom/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/dom/src/test.ts",
+            "tsConfig": "projects/dom/tsconfig.spec.json",
+            "karmaConfig": "projects/dom/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/dom/tsconfig.lib.json",
+              "projects/dom/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
     "notification": {
       "projectType": "library",
       "root": "projects/notification",
@@ -1571,6 +1612,46 @@
             "tsConfig": [
               "projects/notification-list/tsconfig.lib.json",
               "projects/notification-list/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "dynamic-form": {
+      "projectType": "library",
+      "root": "projects/dynamic-form",
+      "sourceRoot": "projects/dynamic-form/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/dynamic-form/tsconfig.lib.json",
+            "project": "projects/dynamic-form/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/dynamic-form/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/dynamic-form/src/test.ts",
+            "tsConfig": "projects/dynamic-form/tsconfig.spec.json",
+            "karmaConfig": "projects/dynamic-form/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/dynamic-form/tsconfig.lib.json",
+              "projects/dynamic-form/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

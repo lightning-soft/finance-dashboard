@@ -13,6 +13,7 @@ export type Bounds = {
 export type Options = {
   x: number | Position,
   y: number | Position,
+  type: string,
   width: number,
   height: number,
   minHeight: string
@@ -27,6 +28,7 @@ export type Options = {
   classNames: object,
   draggableClass: string
   order: number
+  componentState: () => {name: string, state: any};
 };
 
 export type saveData = {

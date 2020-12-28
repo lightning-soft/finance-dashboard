@@ -24,6 +24,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
       map(({ result }: any) => ({
         ...result,
         id: result.symbol,
+        tickSize: result.increment,
       })),
     );
   }

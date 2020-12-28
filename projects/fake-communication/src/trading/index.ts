@@ -1,4 +1,5 @@
-export * from './fake-datafeed';
+export * from './fake-level1.datafeed';
+export * from './fake-level2.datafeed';
 export * from './fake-instruments.repository';
 export * from './fake-trading.repository';
 export * from './fake-positions.repository';

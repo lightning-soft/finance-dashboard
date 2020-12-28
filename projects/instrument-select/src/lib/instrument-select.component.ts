@@ -13,7 +13,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   @Input() placeholder = 'Select instrument';
   @Input() className = '';
   @Input() size = 'default';
-  @Output() handleInstrumentChange: EventEmitter<IInstrument> = new EventEmitter();
+  @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
 
   get loading(): boolean {
     return this._loading;
@@ -55,7 +55,20 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   handleModelChange(id: Id) {
     const instrument = this.items.find(i => i.id === id);
 
-    this.handleInstrumentChange.emit(instrument);
+    if (!instrument._loaded) {
+      const hide = this.showLoading();
+      this._repository.getItemById(instrument.symbol)
+        .subscribe(
+          (_instrument: IInstrument) => {
+            Object.assign(instrument, _instrument, { _loaded: true })
+            this.instrumentChange.emit(instrument);
+            hide();
+          },
+          (err) => this._handleLoadingError(err),
+        );
+    } else {
+      this.instrumentChange.emit(instrument);
+    }
   }
 
   handleOpenChange(opened: boolean) {

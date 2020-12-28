@@ -166,9 +166,7 @@ export class AccountsComponent implements OnInit {
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
-            () => {
-              this.selectItem(null);
-            },
+            () => this.selectItem(null),
             err => this._notifier.showError(err),
           );
       },
@@ -181,7 +179,7 @@ export class AccountsComponent implements OnInit {
     this._accountsManager.toggleFavourite(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => this._notifier.showError(err),
       );
   }

@@ -38,6 +38,11 @@ export class DragDrawerComponent {
       name: 'Create order',
       component: Components.OrderForm
     },
+    {
+      icon: 'icon-widget-create-orders',
+      name: 'Create order',
+      component: Components.Dom
+    },
     // {
     //   icon: 'icon-orders',
     //   name: 'Order form',
@@ -55,7 +60,6 @@ export class DragDrawerComponent {
       component: {
         name: item.component,
       },
-      type: 'widget'
     });
   }
 }

@@ -1,0 +1,118 @@
+$border-color: #24262c;
+$cell-background: #1b1d22;
+
+:host {
+  display: flex;
+
+  data-grid: {
+    flex-grow: 1;
+  }
+}
+
+.grid-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+::ng-deep {
+  data-grid {
+    th,
+    td {
+      border: 1px solid $border-color;
+      background-color: $cell-background;
+    }
+
+    .center-price {
+      position: relative;
+      // border-bottom-color: #fff;
+
+      // &::before {
+      //   content: " ";
+      //   position: absolute;
+      //   // top: 0;
+      //   left: 0;
+      //   height: 1px;
+      //   width: 100%;
+      //   background-color: #fff;
+      // }
+
+      th,
+      td {
+        border-bottom-color: #fff;
+      }
+    }
+
+    .has-volume {
+      .price {
+        background-color: rgb(50, 50, 50);
+      }
+    }
+  }
+}
+.window-icon {
+  color: #51535a;
+  transition: all 0.3s;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+
+  &:not(:first-child) {
+    margin-left: 4px;
+  }
+
+  &.large {
+    background: #101114;
+    padding: 4px;
+    font-size: 16px;
+    height: 24px;
+    width: 24px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+  }
+
+  &.active {
+    color: #4895f5;
+  }
+}
+
+dom-form {
+  width: 180px;
+  display: block;
+}
+
+.window-icon-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.order-wrapper {
+  overflow: auto;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.dom-layout {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  padding-top: 34px;
+
+  &.window-left {
+    flex-direction: row;
+  }
+
+  &.window-right {
+    flex-direction: row-reverse;
+  }
+
+  &.full-screen-window {
+    flex-direction: column;
+  }
+}

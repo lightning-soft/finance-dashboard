@@ -7,7 +7,7 @@ import { Id } from 'communication';
 import { ILayoutNode, LayoutNode } from 'layout';
 import {
   IInstrument, IOrder,
-  ITrade, LevelOneDataFeed,
+  ITrade, Level1DataFeed,
   OrderDuration, OrderSide, OrdersRepository, OrderType
 } from 'trading';
 
@@ -52,9 +52,9 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
   constructor(
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
-    protected _levelOneDatafeedService: LevelOneDataFeed,
+    protected _levelOneDatafeedService: Level1DataFeed,
     protected _accountsManager: AccountsManager,
-    protected _injector: Injector,
+    protected _injector: Injector
   ) {
     super();
     this.autoLoadData = false;

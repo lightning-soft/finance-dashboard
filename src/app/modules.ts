@@ -9,6 +9,7 @@ export const Modules = {
   Accounts: 'accounts',
   Scripting: 'scripting',
   Settings: 'settings',
+  Dom: 'dom',
   NotificationList: 'notification-list',
 };
 
@@ -21,6 +22,8 @@ export const Components = {
   Accounts: 'accounts',
   Scripting: 'scripting',
   Settings: 'settings',
+  Dom: 'dom',
+  DomSettings: 'dom-settings',
   NotificationList: 'notification-list',
 };
 
@@ -71,6 +74,14 @@ export const modulesStore: IModules[] = [
     module: Modules.Settings,
     components: [
       Components.Settings,
+    ]
+  },
+  {
+    module: Modules.Dom,
+    components: [
+      Components.Dom,
+      Components.DomSettings,
+
     ]
   },
   {

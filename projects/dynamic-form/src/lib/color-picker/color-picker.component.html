@@ -1,0 +1,13 @@
+<span
+  [formlyAttributes]="field"
+  class="color-wrapper"
+ >
+  <span
+    [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
+    (colorPickerChange)="updateValue($event)" [colorPicker]="formControl.value">
+    <input
+      class="color-input" disabled [style.background]="formControl.value"/>
+    </span>
+  <span class="color-label">{{field.templateOptions?.label}}</span>
+</span>
+

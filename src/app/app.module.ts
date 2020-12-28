@@ -44,6 +44,7 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+import { DynamicFormModule } from 'dynamic-form';
 
 
 
@@ -177,7 +178,11 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       {
         path: Modules.Scripting,
         loadChildren: () => import('scripting').then(i => i.ScriptingModule)
-      }
+      },
+      {
+        path: Modules.Dom,
+        loadChildren: () => import('dom').then(i => i.DomModule)
+      },
     ], modulesStore),
     RouterModule.forRoot([
       {

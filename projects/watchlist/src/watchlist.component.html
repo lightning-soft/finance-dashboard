@@ -1,13 +1,12 @@
 <window-header className="widget" [window]="this">
-  <button 
+  <button
     class="wm-header-btn ml-auto"
     (click)="grid.createComponentModal()"
   >
-    <i class="icon-setting-gear"></i>
-  </button>
+    <i class="icon-setting-gear"></i></button>
 </window-header>
 
-<data-grid 
+<data-grid
   [items]="items"
   [handlers]="handlers"
   [columns]="columns"

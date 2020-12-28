@@ -1,7 +1,9 @@
+$border-width: 1px;
+
 .wm-window {
   display: flex;
   flex-direction: column;
-  border: 1px solid transparent;
+  border: $border-width solid transparent;
 
   & > header {
     display: none !important;
@@ -10,16 +12,30 @@
   & > * > window-header {
     display: flex;
     align-items: center;
-    padding: 1px 0 2px;
+    padding: 1px;
+  }
+
+  &.resizing,
+  &.moving {
+    &::after {
+      content: "";
+      z-index: 1000000000001;
+      // background-color: #773f1a46;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   & > *:last-child {
+    margin: #{-$border-width};
     display: flex;
     flex-direction: column;
     flex-basis: 0;
     flex-grow: 1;
-    padding: 1px;
-    overflow: auto;
+    overflow: hidden;
     background: $light;
     border: 1px solid $lighter;
     box-shadow: 0 0 1px 1px #13141a;

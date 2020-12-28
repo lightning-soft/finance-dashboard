@@ -127,6 +127,9 @@
       "window-header": [
         "projects/window-header/index"
       ],
+      "dom": [
+        "projects/dom/index"
+      ],
       "notification-list": [
         "projects/notification-list/index"
       ],
@@ -135,6 +138,9 @@
       ],
       "workspace": [
         "projects/workspace/index"
+      ],
+      "dynamic-form": [
+        "projects/dynamic-form/index"
       ]
     }
   }

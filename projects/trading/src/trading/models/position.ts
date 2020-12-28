@@ -1,6 +1,6 @@
 import { Id, IPaginationParams } from 'communication';
 import { IBaseItem } from 'communication';
-import { IInstrument } from './instruemnt';
+import { IInstrument } from './instrument';
 
 export enum Side {
   Short = 'Short',

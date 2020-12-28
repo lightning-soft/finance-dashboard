@@ -52,10 +52,22 @@
  *
  */
 
-// (window as any).__zone_symbol__UNPATCHED_EVENTS = ['close', 'error', 'open', 'message']; // ws events 
+// (window as any).__zone_symbol__UNPATCHED_EVENTS = ['close', 'error', 'open', 'message']; // ws events
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
+
+const _window: any = window;
+
+_window.requestAnimationFrame =
+  _window.requestAnimationFrame ||
+  _window.webkitRequestAnimationFrame ||
+  _window.mozRequestAnimationFrame ||
+  _window.oRequestAnimationFrame ||
+  _window.msRequestAnimationFrame ||
+  ((fn) => setTimeout(fn, 30));
+
+
 import 'zone.js/dist/zone'; // Included with Angular CLI.
 import './string';
 

@@ -11,16 +11,19 @@ cdk-virtual-scroll-viewport {
   display: block;
   height: 100%;
   width: 100%;
-  background: #1B1D22;
+  background: #1b1d22;
+
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    height: 100%;
+  }
 
   .head.cell {
-
     .data {
       font-weight: 700;
     }
 
     .btn-setting:hover {
-      color: #FFFFFF;
+      color: #ffffff;
     }
   }
 
@@ -91,7 +94,7 @@ cdk-virtual-scroll-viewport {
     th,
     td {
       text-align: left;
-      padding: 8px;
+      // padding: 8px;
       font-size: 16px;
       line-height: 20px;
       font-weight: normal;
@@ -99,9 +102,9 @@ cdk-virtual-scroll-viewport {
       white-space: nowrap;
     }
 
-    ::ng-deep tfoot instrument-select div{
+    ::ng-deep tfoot instrument-select div {
       height: 200px;
-      
+
       button {
         width: 100%;
       }
@@ -117,6 +120,5 @@ cdk-virtual-scroll-viewport {
         cursor: pointer;
       }
     }
-
   }
 }

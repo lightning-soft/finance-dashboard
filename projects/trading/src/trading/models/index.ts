@@ -1,4 +1,4 @@
-export * from './instruemnt';
+export * from './instrument';
 export * from './quote';
 export * from './position';
 export * from './order';

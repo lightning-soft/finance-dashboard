@@ -1,20 +1,23 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
+import { FakeLevel1Datafeed, FakeLevel2Datafeed } from 'fake-communication';
 import {
   AccountRepository, BrokersRepository,
   ConnectionsRepository, HistoryRepository,
-  InstrumentsRepository, LevelOneDataFeed,
+  InstrumentsRepository, Level1DataFeed,
   OrdersFeed,
   OrdersRepository,
   PositionsFeed,
-  PositionsRepository
+  PositionsRepository,
+  Level2DataFeed,
 } from 'trading';
 import {
   RealAccountRepository,
   RealBrokersRepository, RealConnectionsRepository, RealHistoryRepository,
-  RealInstrumentsRepository, RealLevelOneDataFeed,
+  RealInstrumentsRepository, RealLevel1DataFeed,
   RealOrdersFeed,
   RealOrdersRepository,
-  RealPositionsFeed, RealPositionsRepository
+  RealPositionsFeed, RealPositionsRepository,
+  RealLevel2DataFeed,
 } from './trading/repositories';
 
 
@@ -36,10 +39,6 @@ export class RealTradingModule {
           provide: ConnectionsRepository,
           useClass: RealConnectionsRepository,
         },
-        {
-          provide: InstrumentsRepository,
-          useClass: RealInstrumentsRepository,
-        },
         // {
         //   provide: DatafeedRepository,
         //   useClass: RealDatafeedRepository,
@@ -53,12 +52,14 @@ export class RealTradingModule {
           useClass: RealHistoryRepository,
         },
         {
-          provide: InstrumentsRepository,
-          useClass: RealInstrumentsRepository,
+          provide: Level1DataFeed,
+          useClass: FakeLevel1Datafeed,
+          // useClass: RealLevel1DataFeed,
         },
         {
-          provide: LevelOneDataFeed,
-          useClass: RealLevelOneDataFeed,
+          provide: Level2DataFeed,
+          // useClass: RealLevel2DataFeed,
+          useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,

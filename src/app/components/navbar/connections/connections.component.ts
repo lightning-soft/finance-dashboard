@@ -1,10 +1,10 @@
-import { AfterContentChecked, Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
+import { AfterContentChecked, Component, ElementRef, HostListener, Injector, Input, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
+import { DomHelper, ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
-import { DomHelper, ItemsComponent } from 'base-components';
 
 const { isContainerFitsElements } = DomHelper;
 
@@ -17,7 +17,8 @@ const { isContainerFitsElements } = DomHelper;
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements AfterContentChecked {
   @ViewChild('connectionsContainer') connectionsContainer: ElementRef;
 
-  layout: LayoutComponent = (window as any).LayoutComponent;
+  @Input()
+  layout: LayoutComponent;
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
@@ -80,7 +81,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.error(err),
       );
   }
@@ -89,7 +90,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.log(err),
       );
   }
@@ -98,7 +99,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.toggleFavourite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {},
+        () => { },
         err => console.error(err),
       );
   }

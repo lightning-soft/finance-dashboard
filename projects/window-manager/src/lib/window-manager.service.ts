@@ -34,6 +34,8 @@ export class WindowManagerService {
 
     const win = this.wm.createWindow(options);
 
+    win.type = options.type;
+
     this.windows.next(this.wm.windows);
 
     win.on(EVENTS.CLOSE, () => this.windows.next(this.wm.windows));
@@ -69,9 +71,9 @@ export class WindowManagerService {
       this.wm.windows[0].close();
 
     this.windows.next(this.wm.windows);
-    
+
   }
-  
+
   private calculatePosition(options: Options): Cords {
     const width = options.width || parseInt(options.minWidth, 10);
     const height = options.height || parseInt(options.minHeight, 10);

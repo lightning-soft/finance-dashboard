@@ -80,7 +80,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-    protected _loadingService: LoadingService,
+    protected _loadingService: LoadingService
   ) {
     this.setTabIcon('icon-widget-chart');
 
@@ -218,8 +218,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
       instrument: (state && state.instrument) ?? {
-        id: 'ESZ0',
-        symbol: 'ESZ0',
+        id: 'ESH1',
+        symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
       },

@@ -4,11 +4,14 @@
   }
 
   .ant-modal-content {
-    width: 344px;
-    padding: 20px 24px;
+    // padding: 20px 24px;
     background: $light;
     box-shadow: 0 4px 8px rgba($dark, 0.5) !important;
     border-radius: 2px;
+
+    .ant-modal-confirm-body {
+      display: inline-flex;
+    }
   }
 
   .ant-modal-confirm-content {
@@ -23,9 +26,10 @@
   .ant-modal-confirm-btns {
     float: none;
     text-align: center;
+    white-space: nowrap;
 
     .ant-btn {
-      width: 124px;
+      width: 120px;
 
       & + .ant-btn {
         margin-left: 12px;
