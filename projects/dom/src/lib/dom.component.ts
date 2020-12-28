@@ -107,8 +107,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   ngOnInit(): void {
-    this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade));
-    this._levelTwoDatafeed.on((item: L2) => this._handleL2(item));
+    this.onRemove(
+      this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
+      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
+    );
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)

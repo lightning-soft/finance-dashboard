@@ -41,17 +41,15 @@ export type SubscribtionHandler = (data?: any) => void;
   styleUrls: ['./watchlist.component.scss'],
 })
 @LayoutNode()
-export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements ILayoutNode, OnInit, OnDestroy {
+export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit {
   columns: Column[];
 
   isLoading = false;
 
-  builder = new ItemsBuilder<WatchlistItem>();
+  builder = new ItemsBuilder<IInstrument, WatchlistItem>();
 
   private _itemsMap: Map<Id, WatchlistItem> = new Map();
   private _instruments: IInstrument[] = [];
-
-  private subscriptions: SubscribtionHandler[] = [];
 
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
@@ -70,7 +68,7 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   ];
 
   constructor(
-    protected instrumentRepository: InstrumentsRepository,
+    protected _repository: InstrumentsRepository,
     private _levelOneDatafeed: Level1DataFeed,
     protected cd: ChangeDetectorRef,
     private layoutHandler: LayoutHandler,
@@ -94,7 +92,7 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
 
 
   ngOnInit(): void {
-    this.subscriptions.push(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
+    this.onRemove(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
   }
 
   addNewInstrument(instrument: IInstrument): void {
@@ -118,18 +116,22 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
       this._instruments.push(instrument);
     }
 
-    const items: WatchlistItem[] = instruments.map(i => new WatchlistItem(i));
-    this.builder.addItems(items);
+    this.builder.addItems(instruments);
 
-    for (const item of items) {
-      this._itemsMap.set(item.id, item);
+    for (const item of instruments) {
+      const _item = this.builder.items.find(i => i.id == item.id);
+
+      if (!_item)
+        continue;
+
+      this._itemsMap.set(item.id, _item);
     }
 
     this.subscribeForRealtime(instruments);
   }
 
   delete(item: WatchlistItem) {
-    this.builder.handleDeleteItems([item]);
+    this.builder.handleDeleteItems([item.instrument]);
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {
@@ -153,13 +155,9 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   handleNodeEvent(name: LayoutNodeEvent, event: any) {
     switch (name) {
       case LayoutNodeEvent.Resize:
-        // this._dataGrid.layout(); // todo
+        this._dataGrid.detectChanges();
         break;
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(item => item());
   }
 
   saveState() {
@@ -180,23 +178,20 @@ export class WatchlistComponent extends ItemsComponent<WatchlistItem> implements
   }
 
   _handleConnection(connection: IConnection) {
-    this.instrumentRepository = this.instrumentRepository.forConnection(connection);
+    this._repository = this._repository.forConnection(connection);
   }
 
   loadInstruments(params) {
     this._dataSubscription?.unsubscribe();
 
-    this._dataSubscription = this.instrumentRepository.getItemsByIds(params)
+    this._dataSubscription = this._repository.getItemsByIds(params)
       .pipe(
         untilDestroyed(this),
         first(),
         finalize(this.showLoading(true))
       )
       .subscribe(
-        (response) => {
-          const data: WatchlistItem[] = response.map(i => new WatchlistItem(i));
-          this.builder.addItems(data);
-        },
+        (response) => this.builder.addItems(response),
         (error) => this._handleLoadingError(error),
       );
   }
