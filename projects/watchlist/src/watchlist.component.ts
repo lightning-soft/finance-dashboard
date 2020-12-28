@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent } from 'base-components';
@@ -11,6 +11,7 @@ import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { finalize, first } from 'rxjs/operators';
 import { IConnection, IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
+import { InstrumentSelectComponent } from '../../instrument-select/src/lib/instrument-select.component';
 
 const headers = [
   'name',
@@ -46,19 +47,21 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
 
   isLoading = false;
 
-  builder = new ItemsBuilder<IInstrument, WatchlistItem>();
+  builder = new ItemsBuilder<IInstrument, WatchlistItem>({
+    wrap: (item) => new WatchlistItem(item),
+    unwrap: (item) => item.instrument,
+  });
 
   private _itemsMap: Map<Id, WatchlistItem> = new Map();
-  private _instruments: IInstrument[] = [];
 
   @ViewChild(DataGrid)
   private _dataGrid: DataGrid;
 
-  @ViewChild('menu', { static: false })
-  private _menuTemplate: NzDropdownMenuComponent;
+  @ViewChild(InstrumentSelectComponent)
+  private _instrumentSelect: InstrumentSelectComponent;
 
-  public selecInstrumentmentName = '';
-  private _selectedInstrument: WatchlistItem;
+  // @ViewChild('menu', { static: false })
+  // private _menuTemplate: NzDropdownMenuComponent;
 
   handlers = [
     new CellClickDataGridHandler<WatchlistItem>({
@@ -95,26 +98,19 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     this.onRemove(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
   }
 
-  addNewInstrument(instrument: IInstrument): void {
-    if (!instrument) throw new Error('Invalid instrument');
-
-    if (!this._itemsMap.has(instrument.id)) {
-      this.addToWatchlist(instrument);
-    }
+  selectInstrument(instrument: IInstrument) {
+    this.addInstruments(instrument);
+    this._instrumentSelect.clear();
   }
 
-  private addToWatchlist(instruments: IInstrument | IInstrument[]) {
-    if (instruments == null) {
-      throw new Error('Invalid instrument');
-    }
-
-    if (!Array.isArray(instruments)) {
+  addInstruments(instruments: IInstrument | IInstrument[]) {
+    if (!Array.isArray(instruments))
       instruments = [instruments];
-    }
 
-    for (const instrument of instruments) {
-      this._instruments.push(instrument);
-    }
+    instruments = instruments.filter(i => i != null && !this._itemsMap.has(i.id));
+
+    if (instruments.length < 1)
+      return;
 
     this.builder.addItems(instruments);
 
@@ -182,16 +178,14 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   }
 
   loadInstruments(params) {
-    this._dataSubscription?.unsubscribe();
-
-    this._dataSubscription = this._repository.getItemsByIds(params)
+    this._repository.getItemsByIds(params)
       .pipe(
         untilDestroyed(this),
         first(),
         finalize(this.showLoading(true))
       )
       .subscribe(
-        (response) => this.builder.addItems(response),
+        (response) => { this.addInstruments(response) },
         (error) => this._handleLoadingError(error),
       );
   }

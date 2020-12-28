@@ -80,4 +80,8 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
       });
     }
   }
+
+  clear() {
+    this.value = '';
+  }
 }

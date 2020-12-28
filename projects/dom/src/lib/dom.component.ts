@@ -253,6 +253,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
+        precision: 2,
       };
     // for debug purposes
 
