@@ -10,11 +10,7 @@ export interface IDomData {
   readonly totalBid: number;
 }
 
-export interface IDomItemData extends IDomData {
-  // readonly total: IDomData;
-}
-
-class Accumulator implements IDomData {
+class Total implements IDomData {
   volume = 0;
   currentAsk = 0;
   currentBid = 0;
@@ -38,7 +34,6 @@ class Accumulator implements IDomData {
   }
 }
 
-
 class ColumnsAccumulator implements IDomData {
   volume = 0;
   currentAsk = 0;
@@ -57,7 +52,7 @@ class ColumnsAccumulator implements IDomData {
   }
 }
 
-class DomItemData implements IDomItemData {
+class DomItemData implements IDomData {
   volume: number = 0;
   currentAsk: number = 0;
   currentBid: number = 0;
@@ -99,9 +94,9 @@ class DomItemData implements IDomItemData {
   }
 }
 
-export class DomAccomulator {
+export class DomHandler {
   private _acc = new Map<number, DomItemData>();
-  private _total = new Accumulator();
+  private _total = new Total();
   private _columns = new ColumnsAccumulator();
 
   get total(): IDomData {
@@ -124,7 +119,7 @@ export class DomAccomulator {
     this._columns.handleChange(this._getAccamulateTrade(l2.price).handleL2(l2));
   }
 
-  getItemData(price: number): IDomItemData {
+  getItemData(price: number): IDomData {
     return this._getAccamulateTrade(price);
   }
 

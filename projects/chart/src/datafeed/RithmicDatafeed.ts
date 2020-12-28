@@ -5,7 +5,7 @@ import { map, takeUntil, tap } from 'rxjs/operators';
 import {
   HistoryRepository,
   InstrumentsRepository, ITrade,
-  LevelOneDataFeed
+  Level1DataFeed
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote, IRequest } from './models';
@@ -20,7 +20,7 @@ export class RithmicDatafeed extends Datafeed {
     private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
-    private _levelOneDatafeedService: LevelOneDataFeed,
+    private _levelOneDatafeedService: Level1DataFeed,
   ) {
     super();
 

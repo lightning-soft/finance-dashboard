@@ -1,5 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
+
+export enum TextAlign {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
 
 @Component({
   selector: 'text-align',
@@ -7,7 +13,7 @@ import { FieldType } from '@ngx-formly/core';
   styleUrls: ['./text-align.component.scss']
 })
 export class TextAlignComponent extends FieldType {
-  directions = ['left', 'center', 'right'];
+  directions = [TextAlign.Left, TextAlign.Center, TextAlign.Right];
 
   isSelected(item: string) {
     return this.formControl.value === item;

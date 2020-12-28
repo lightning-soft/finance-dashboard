@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AccountsManager } from 'accounts-manager';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IInstrument, ITrade, LevelOneDataFeed, LevelTwoDataFeed } from 'trading';
-import { DomAccomulator } from './accomulators';
+import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
-import { DomItem } from './dom.item';
-import { histogramComponent, HistogramComponent } from './histogram';
 import { DomSettings } from './dom-settings/settings';
-import { L2 } from '../../../trading';
+import { DomItem } from './dom.item';
+import { DomHandler } from './handlers';
+import { histogramComponent, HistogramComponent } from './histogram';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -50,7 +50,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     'bidDepth',
   ].map(name => ({name, visible: true}));
 
-  private _dom = new DomAccomulator();
+  private _dom = new DomHandler();
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
@@ -85,8 +85,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   private _settings: DomSettings = new DomSettings();
 
   constructor(
-    private _levelOneDatafeed: LevelOneDataFeed,
-    private _levelTwoDatafeed: LevelTwoDataFeed
+    private _accountsManager: AccountsManager,
+    private _historyRepository: HistoryRepository,
+    private _levelOneDatafeed: Level1DataFeed,
+    private _levelTwoDatafeed: Level2DataFeed
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');

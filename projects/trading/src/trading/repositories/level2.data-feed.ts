@@ -14,6 +14,6 @@ export interface L2 {
 }
 
 @Injectable()
-export abstract class LevelTwoDataFeed extends DataFeed<any>{
+export abstract class Level2DataFeed extends DataFeed<any>{
 }
 

@@ -71,7 +71,8 @@ export class DockDesktopLayout extends Layout {
           const windowOptions: Options = {
             width: 500,
             height: 500,
-            title: this.getComponentTitle(componentName),
+            // type: this.getComponentTitle(componentName),
+            type: componentName,
             minimizable: true,
             maximizable: true,
             keepInside: {

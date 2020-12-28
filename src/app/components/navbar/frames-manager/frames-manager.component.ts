@@ -1,14 +1,8 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { EVENTS, IWindow, WindowManagerService } from 'window-manager';
+import { Components } from '../../../modules';
 
-export enum WM_NODES {
-  CHART = 'Chart',
-  WATCHLIST = 'Watchlist',
-  ORDERS = 'Orders',
-  POSITIONS = 'Positions',
-}
-
-export type WindowTuple = [WM_NODES, Set<IWindow>];
+export type WindowTuple = [string, Set<IWindow>];
 
 @Component({
   selector: 'app-frames-manager',
@@ -18,17 +12,19 @@ export type WindowTuple = [WM_NODES, Set<IWindow>];
 export class FramesManagerComponent implements AfterViewInit {
 
   public windowTuples: WindowTuple[] = [
-    [WM_NODES.CHART, new Set()],
-    [WM_NODES.WATCHLIST, new Set()],
-    [WM_NODES.POSITIONS, new Set()],
-    [WM_NODES.ORDERS, new Set()],
+    [Components.Chart, new Set()],
+    [Components.Watchlist, new Set()],
+    [Components.Positions, new Set()],
+    [Components.Orders, new Set()],
+    [Components.Dom, new Set()],
   ];
 
   public iconsMap = {
-    [WM_NODES.CHART]: 'icon-widget-chart',
-    [WM_NODES.WATCHLIST]: 'icon-widget-watchlist',
-    [WM_NODES.ORDERS]: 'icon-widget-orders',
-    [WM_NODES.POSITIONS]: 'icon-widget-positions',
+    [Components.Chart]: 'icon-widget-chart',
+    [Components.Watchlist]: 'icon-widget-watchlist',
+    [Components.Orders]: 'icon-widget-orders',
+    [Components.Positions]: 'icon-widget-positions',
+    [Components.Dom]: 'icon-widget-positions',
   };
 
   constructor(private windowManagerService: WindowManagerService) {
@@ -45,9 +41,9 @@ export class FramesManagerComponent implements AfterViewInit {
 
   private sortWindows(windows: IWindow[]): void {
     for (const window of windows) {
-      const windowTuple = this.windowTuples.find(item => item[0] === window.winTitlebar.innerText);
+      const windowTuple = this.windowTuples.find(([type]) => type === window.type);
 
-      if (windowTuple){
+      if (windowTuple) {
         windowTuple[1].add(window);
         window.on(EVENTS.CLOSE, () => windowTuple[1].delete(window));
       }

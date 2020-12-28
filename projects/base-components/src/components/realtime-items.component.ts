@@ -1,7 +1,7 @@
 import { Directive, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
-import { ITrade, LevelOneDataFeed, OnTradeFn } from 'trading';
+import { ITrade, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 
 @UntilDestroy()
@@ -18,7 +18,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
 
     this._subscribeToDataFeed();
 
-    this._levelOneDataFeed = this._injector.get(LevelOneDataFeed);
+    this._levelOneDataFeed = this._injector.get(Level1DataFeed);
 
     this._onLevelOneDataFeed();
   }

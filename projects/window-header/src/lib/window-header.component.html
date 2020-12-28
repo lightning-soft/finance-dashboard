@@ -1,4 +1,4 @@
-<div class="d-flex align-items-center w-100 wm-draggable {{className}}">
+<div class="content d-flex align-items-center w-100 wm-draggable {{className}}">
   <div class="wm-draggable" [class.window-icon]="window.getTabIcon()">
     <i [class]="window.getTabIcon()"></i>
   </div>
@@ -6,15 +6,16 @@
   <div class="flex-fill d-flex align-items-center mx-3 wm-draggable">
     <ng-content></ng-content>
   </div>
-  <div>
-    <span class="link" (click)="window.minimize()">
-      <i class="icon-minimize-window"></i>
-    </span>
-    <span class="link" (click)="window.maximize()">
-      <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
-    </span>
-    <span class="link" (click)="onClose()">
-      <i class="icon-close-window"></i>
-    </span>
-  </div>
+</div>
+
+<div>
+  <span class="link" (click)="window.minimize()">
+    <i class="icon-minimize-window"></i>
+  </span>
+  <span class="link" (click)="window.maximize()">
+    <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
+  </span>
+  <span class="link" (click)="onClose()">
+    <i class="icon-close-window"></i>
+  </span>
 </div>

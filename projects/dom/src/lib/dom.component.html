@@ -7,7 +7,7 @@
 
 </window-header>
 <div class="d-flex dom-layout {{currentDirection}}">
-  <div>
+  <div class="order-wrapper">
     <span class="window-icon-container">
     <i *ngFor="let item of directions"
        (click)="currentDirection = item"
@@ -20,8 +20,9 @@
   </span>
     <dom-form class="{{currentDirection}}"  *ngIf="isFormOpen"></dom-form>
   </div>
-<div class="grid-wrapper">
-  <data-grid #grid [items]="items" [columns]="columns" rowHeight="25"></data-grid>
-</div>
+
+  <div class="grid-wrapper">
+    <data-grid #grid [items]="items" [columns]="columns" rowHeight="25"></data-grid>
+  </div>
 
 </div>
