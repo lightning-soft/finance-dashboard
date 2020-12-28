@@ -15,7 +15,7 @@
           *ngFor="let workspace of workspaces"
         >
           <div class="title">
-            <label nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
+            <label class="radio-btn" nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
           </div>
           <div class="actions">
             <button (click)="rename(workspace?.id)" class="icon-edit"></button>

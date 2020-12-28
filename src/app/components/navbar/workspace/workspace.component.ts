@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import { Workspace, WorkspaceId, WorkspacesManager } from 'workspace-manager';
 import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 import { CreateModalComponent } from './create-modal/create-modal.component';
@@ -22,6 +23,7 @@ export class WorkspaceComponent implements OnInit {
   constructor(
     private _workspacesService: WorkspacesManager,
     private _modalService: NzModalService,
+    private _notificationService: NotifierService,
   ) { }
 
   ngOnInit(): void {
@@ -100,18 +102,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    const modal = this._modalService.create({
-      nzTitle: 'Saving workspace',
-      nzContent: ConfirmModalComponent,
-      nzWrapClassName: 'modal-workspace vertical-center-modal',
-      nzComponentParams: {
-        message: 'Do you want save changes in workspace?'
-      },
-    });
-
-    modal.afterClose.subscribe(result => {      
-      if (result) 
-        this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState())
-    });
+    this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
+    this._notificationService.showSuccess('Workspace was saved');
   }
 }
