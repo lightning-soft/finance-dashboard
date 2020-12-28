@@ -153,11 +153,15 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     const itemsCount = this.visibleRows;
 
     let trade = this._trade;
+    let instrument = this.instrument;
+    if (!instrument)
+      return;
+
     let last = trade && trade.price;
     const scrolledItems = 0// this._scrolledItems
     let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
-    const tickSize = 0.01; // instrument && instrument.tickSize;
-    const step = 2; // instrument && instrument.digits,
+    const tickSize = instrument.tickSize;
+    const step = instrument.precision;
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
