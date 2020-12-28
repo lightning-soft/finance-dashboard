@@ -11,8 +11,9 @@
   left: 10px;
 
   ::ng-deep {
-    .ant-select-arrow .anticon > svg {
-      display: none;
+    .ant-select-arrow .anticon-down {
+      margin-top: 2px;
+      font-size: 8px;
     }
 
     .pane__image, .pane__compare-instruments, .pane__indicators {
@@ -32,6 +33,8 @@
     }
 
     .ant-select-arrow {
+      top: 47%;
+      right: 5px;
       color: inherit;
     }
 
@@ -194,6 +197,10 @@
 
   .tool.select {
     width: 45px;
+  }
+
+  .tool-wide.select {
+    width: 90px;
   }
 
   .tool span[class^="icon-"] {
