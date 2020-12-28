@@ -8,8 +8,6 @@ import { lastPrices } from './fake-level1.datafeed';
 export class FakeLevel2Datafeed extends DatafeedRepository {
   protected _subscribedInstruments = [];
 
-
-
   constructor(_ngZone: NgZone) {
     super();
     setInterval(() => {
