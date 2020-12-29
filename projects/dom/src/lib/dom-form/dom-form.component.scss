@@ -7,7 +7,9 @@
       type-buttons, .ticks, .bottom-btns {
         margin-top: 5px;
       }
-
+      tp-ticks {
+        margin-top: 0px;
+      }
       .form-layout {
         flex-direction: row;
         align-items: baseline;

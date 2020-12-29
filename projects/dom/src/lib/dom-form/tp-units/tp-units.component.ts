@@ -1,21 +1,21 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @Component({
-  selector: 'tp-ticks',
-  templateUrl: './tp-ticks.component.html',
-  styleUrls: ['./tp-ticks.component.scss'],
+  selector: 'tp-units',
+  templateUrl: './tp-units.component.html',
+  styleUrls: ['./tp-units.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TpTicksComponent),
+      useExisting: forwardRef(() => TpUnitsComponent),
       multi: true
     }
   ]
 })
 @UntilDestroy()
-export class TpTicksComponent implements ControlValueAccessor {
+export class TpUnitsComponent implements ControlValueAccessor {
   form = new FormGroup({
     takeProfit: new FormControl(false),
     unit: new FormControl(),

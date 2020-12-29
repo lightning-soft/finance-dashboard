@@ -8,19 +8,19 @@ export enum SlType {
 }
 
 @Component({
-  selector: 'sl-ticks',
-  templateUrl: './sl-ticks.component.html',
-  styleUrls: ['./sl-ticks.component.scss'],
+  selector: 'sl-units',
+  templateUrl: './sl-units.component.html',
+  styleUrls: ['./sl-units.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SlTicksComponent),
+      useExisting: forwardRef(() => SlUnitsComponent),
       multi: true
     }
   ]
 })
 @UntilDestroy()
-export class SlTicksComponent implements ControlValueAccessor {
+export class SlUnitsComponent implements ControlValueAccessor {
   showAmount = false;
   slType = SlType;
   form = new FormGroup({

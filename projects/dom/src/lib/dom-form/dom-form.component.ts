@@ -7,13 +7,12 @@ import { HistoryRepository } from 'trading';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
-import { StockChartXPeriodicity } from 'chart';
-import { RithmicDatafeed } from 'chart';
 import { IHistoryItem } from 'real-trading';
-import { ITrade } from 'trading';
+import { ITrade, Periodicity } from 'trading';
+
 
 const historyParams = {
-  Periodicity: RithmicDatafeed.convertPeriodicity(StockChartXPeriodicity.HOUR),
+  Periodicity: Periodicity.Hourly,
   BarSize: 1,
   Skip: 0,
   BarCount: 10
@@ -27,26 +26,30 @@ const historyParams = {
 @UntilDestroy()
 export class DomFormComponent extends FormComponent<any> {
   instrument$ = new BehaviorSubject<IInstrument>(null);
-  currentItem: IHistoryItem;
+  dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
   income: number;
-  incomePercentage: number;
+  incomePercentage: string | number;
 
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id)
       this.instrument$.next(value);
   }
 
+  get instrument() {
+    return this.instrument$.getValue();
+  }
+
   @Input() set trade(value: ITrade) {
-    if (this.currentItem && this.shouldUpdateCurrentItem(value)) {
-      this.currentItem.close = value.price;
-      if (value.price > this.currentItem.high) {
-        this.currentItem.high = value.price;
+    if (this.dailyInfo && this.shouldUpdateCurrentItem(value)) {
+      this.dailyInfo.close = value.price;
+      if (value.price > this.dailyInfo.high) {
+        this.dailyInfo.high = value.price;
       }
-      if (value.price < this.currentItem.low) {
-        this.currentItem.low = value.price;
+      if (value.price < this.dailyInfo.low) {
+        this.dailyInfo.low = value.price;
       }
-      this.currentItem.volume = this.currentItem.volume + (value.volume / 1000);
+      this.dailyInfo.volume = this.dailyInfo.volume + (value.volume / 1000);
       this.updateIncome();
     }
   }
@@ -95,20 +98,21 @@ export class DomFormComponent extends FormComponent<any> {
         untilDestroyed(this),
       )
       .subscribe((res) => {
-        this.currentItem = res.data[res.data.length - 1];
+        this.dailyInfo = res.data[res.data.length - 1];
         this.prevItem = res.data[res.data.length - 2];
         this.updateIncome();
       });
   }
 
   shouldUpdateCurrentItem(trade) {
-    const date = new Date(trade.timestamp * 1000);
-    return isToday(date) && date > this.currentItem.date;
+    const date = new Date(trade.timestamp);
+    return isSameDay(date, this.dailyInfo.date) && date > this.dailyInfo.date;
   }
 
   updateIncome() {
-    this.income = this.currentItem.close - this.prevItem.close;
-    this.incomePercentage = this.income / this.currentItem.close;
+    this.income = this.dailyInfo.close - this.prevItem.close;
+    this.incomePercentage = (this.income / this.dailyInfo.close).toFixed(this.instrument?.precision ?? 4);
+    // console.log('income', (this.income / this.dailyInfo.close).toFixed(4));
   }
 
   createForm() {
@@ -130,18 +134,18 @@ export class DomFormComponent extends FormComponent<any> {
     });
   }
 
-  increaseQuantity() {
-    const quantity = (+this.form.value.quantity) + 5;
+  increaseQuantity(value: number) {
+    const quantity = (+this.form.value.quantity) + value;
     this.form.patchValue({quantity});
   }
 
   getPl() {
-    if (this.currentItem)
-      return (+this.form.value.quantity) * Math.abs(this.currentItem.close - this.currentItem.open);
+    if (this.dailyInfo)
+      return (+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open);
   }
 }
 
-function isToday(date) {
-  const d = new Date();
-  return date.getDate() == d.getDate() && date.getMonth() == d.getMonth() && date.getFullYear() == d.getFullYear();
+function isSameDay(date, secondDate) {
+  return date.getDate() == secondDate.getDate() && date.getMonth() == secondDate.getMonth()
+    && date.getFullYear() == secondDate.getFullYear();
 }

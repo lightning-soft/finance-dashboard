@@ -20,11 +20,11 @@ import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { QuantityButtonsComponent } from './dom-form/quantity-buttons/quantity-buttons.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { QuantityInputComponent } from './dom-form/quantity-input/quantity-input.component';
 import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.component';
-import { SlTicksComponent } from './dom-form/sl-ticks/sl-ticks.component';
-import { TpTicksComponent } from './dom-form/tp-ticks/tp-ticks.component';
+import { SlUnitsComponent } from './dom-form/sl-units/sl-units.component';
+import { TpUnitsComponent } from "./dom-form/tp-units/tp-units.component";
 
 @NgModule({
   declarations: [
@@ -32,10 +32,10 @@ import { TpTicksComponent } from './dom-form/tp-ticks/tp-ticks.component';
     DomFormComponent,
     DomSettingsComponent,
     HistogramComponent,
-    QuantityButtonsComponent,
+    QuantityInputComponent,
     TypeButtonsComponent,
-    SlTicksComponent,
-    TpTicksComponent,
+    SlUnitsComponent,
+    TpUnitsComponent
   ],
     imports: [
         DataGridModule,

@@ -2,18 +2,18 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'quantity-buttons',
-  templateUrl: './quantity-buttons.component.html',
-  styleUrls: ['./quantity-buttons.component.scss'],
+  selector: 'quantity-input',
+  templateUrl: './quantity-input.component.html',
+  styleUrls: ['./quantity-input.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => QuantityButtonsComponent),
+      useExisting: forwardRef(() => QuantityInputComponent),
       multi: true,
     }
   ]
 })
-export class QuantityButtonsComponent implements ControlValueAccessor {
+export class QuantityInputComponent implements ControlValueAccessor {
   @Input() amountButtons = [];
   onChange;
   currentValue: number;

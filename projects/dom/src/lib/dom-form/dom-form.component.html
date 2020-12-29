@@ -1,21 +1,21 @@
 <form [formGroup]="form" class="form-layout">
-  <div *ngIf="currentItem" class="chart-data">
-    <div class="income">{{income}} ({{incomePercentage.toFixed(6)}}%)</div>
-    <div class="chart-info">H: {{currentItem.high}}</div>
-    <div class="chart-info">L: {{currentItem.low}}</div>
-    <div class="chart-info">O: {{currentItem.open}}</div>
-    <div class="chart-info">V: {{currentItem.volume}}</div>
+  <div *ngIf="dailyInfo" class="chart-data">
+    <div class="income">{{income}} ({{incomePercentage}}%)</div>
+    <div class="chart-info">H: {{dailyInfo.high}}</div>
+    <div class="chart-info">L: {{dailyInfo.low}}</div>
+    <div class="chart-info">O: {{dailyInfo.open}}</div>
+    <div class="chart-info">V: {{dailyInfo.volume}}</div>
   </div>
   <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
-  <button class="top-position-btn" (click)="increaseQuantity()" nz-button>+5</button>
-    <quantity-buttons formControlName="quantity" [amountButtons]="amountButtons"></quantity-buttons>
+  <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
+    <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
 
 <type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>
   <span class="tif">TIF</span>
  <type-buttons  formControlName="tif" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
   <div class="ticks">
-<sl-ticks formControlName="sl" ></sl-ticks>
-<tp-ticks formControlName="tp"></tp-ticks>
+<sl-units formControlName="sl" ></sl-units>
+<tp-units formControlName="tp"></tp-units>
   </div>
   <div class="cxl">
     <button class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
