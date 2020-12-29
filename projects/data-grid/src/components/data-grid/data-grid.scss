@@ -13,10 +13,6 @@ cdk-virtual-scroll-viewport {
   width: 100%;
   background: #1b1d22;
 
-  ::ng-deep .cdk-virtual-scroll-content-wrapper {
-    height: 100%;
-  }
-
   .head.cell {
     .data {
       font-weight: 700;
@@ -89,7 +85,6 @@ cdk-virtual-scroll-viewport {
     width: 100%;
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    height: 100%;
 
     th,
     td {

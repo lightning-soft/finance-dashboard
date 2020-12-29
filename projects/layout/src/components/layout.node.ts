@@ -35,6 +35,7 @@ export interface ILayoutNode {
   minimize?();
   close?();
   isMaximized?();
+  onRemove?(...fn: VoidFunction[]);
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -60,10 +61,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   __onRemove: any[];
 
-  onRemove(fn: () => void) {
+  onRemove(...fn: VoidFunction[]) {
     if (!Array.isArray(this.__onRemove))
       this.__onRemove = [];
-    this.__onRemove.push(fn);
+
+    this.__onRemove.push(...fn);
   }
 
   addLinkObserver(observer: ILinkNode) {

@@ -16,6 +16,9 @@ declare let StockChartX: any;
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
   private _destroy = new Subject();
+
+  private _unsubscribeFn: VoidFunction;
+
   constructor(
     private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
@@ -110,7 +113,8 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
     this._levelOneDatafeedService.subscribe(instrument);
 
-    this._levelOneDatafeedService.on((trade: ITrade) => {
+    this._unsubscribe();
+    this._unsubscribeFn = this._levelOneDatafeedService.on((trade: ITrade) => {
       const quote: IQuote = {
         askInfo: {
           price: trade.askInfo.price,
@@ -133,7 +137,6 @@ export class RithmicDatafeed extends Datafeed {
         }
       } as any;
       this.processQuote(chart, quote);
-
     });
   }
 
@@ -141,9 +144,17 @@ export class RithmicDatafeed extends Datafeed {
     return req.instrument ?? req.chart.instrument;
   }
 
+  _unsubscribe() {
+    if (this._unsubscribeFn)
+      this._unsubscribeFn();
+
+    this._unsubscribeFn = null;
+  }
+
   destroy() {
     super.destroy();
     this._destroy.next();
     this._destroy.complete();
+    this._unsubscribe();
   }
 }

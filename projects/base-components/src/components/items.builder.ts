@@ -31,6 +31,11 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
     order: 'asc',
   };
 
+  constructor(params?: IItemsBuilderParams<T, VM>) {
+    if (params)
+      this.setParams(params);
+  }
+
   setParams(params: IItemsBuilderParams<T, VM>) {
     this._params = { ...this._params, ...params };
   }

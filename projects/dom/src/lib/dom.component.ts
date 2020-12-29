@@ -9,6 +9,16 @@ import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
 
+
+// window.requestAnimationFrame =
+//   window.requestAnimationFrame ||
+//   window.webkitRequestAnimationFrame ||
+//   window.mozRequestAnimationFrame ||
+//   window.oRequestAnimationFrame ||
+//   window.msRequestAnimationFrame ||
+//   requestAnimationFramePolyfill;
+
+
 export interface DomComponent extends ILayoutNode {
 }
 
@@ -48,7 +58,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     'tradeColumn',
     'askDepth',
     'bidDepth',
-  ].map(name => ({name, visible: true}));
+  ].map(name => ({ name, visible: true }));
 
   private _dom = new DomHandler();
 
@@ -88,6 +98,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _settings: DomSettings = new DomSettings();
 
+  private _updates = 0;
+
   constructor(
     private _accountsManager: AccountsManager,
     private _historyRepository: HistoryRepository,
@@ -99,8 +111,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   ngOnInit(): void {
-    this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade));
-    this._levelTwoDatafeed.on((item: L2) => this._handleL2(item));
+    this.onRemove(
+      this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
+      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
+    );
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
@@ -111,30 +125,49 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._handleResize();
   }
 
+  detectChanges() {
+    this.dataGrid.detectChanges();
+  }
+
+  private _calculateAsync() {
+    this._updates += 1;
+
+    requestAnimationFrame(() => {
+      console.log('detectChanges', this._updates);
+      if (this._updates > 0) {
+        this._calculate();
+        this.dataGrid.detectChanges();
+      }
+      this._updates = 0;
+    });
+  }
+
   protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
     this._dom.handleTrade(trade);
-    this._calculate();
-    this.dataGrid.detectChanges();
+    this._calculateAsync();
   }
 
   protected _handleL2(l2: L2) {
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
     this._dom.handleL2(l2);
-    this._calculate();
-    this.dataGrid.detectChanges(); // todo: refactor - dry
+    this._calculateAsync();
   }
 
   private _calculate(move?: number) {
     const itemsCount = this.visibleRows;
 
     let trade = this._trade;
+    let instrument = this.instrument;
+    if (!instrument)
+      return;
+
     let last = trade && trade.price;
     const scrolledItems = 0// this._scrolledItems
     let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
-    const tickSize = 0.01; // instrument && instrument.tickSize;
-    const step = 2; // instrument && instrument.digits,
+    const tickSize = instrument.tickSize;
+    const step = instrument.precision;
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
@@ -178,7 +211,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
-    console.log(name);
     switch (name) {
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Show:
@@ -204,7 +236,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         while (data.length <= visibleRows)
           data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
-      this.dataGrid.detectChanges();
+      this.detectChanges();
     });
   }
 
@@ -225,6 +257,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
+        precision: 2,
       };
     // for debug purposes
 

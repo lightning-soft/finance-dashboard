@@ -73,12 +73,12 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
         this._repository = this._repository.forConnection(connection);
       });
 
-    this._levelOneDatafeedService.on((trade: ITrade) => {
+    this.onRemove(this._levelOneDatafeedService.on((trade: ITrade) => {
       if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
       this.askPrice = trade.askInfo.price;
       this.bidPrice = trade.bidInfo.price;
-    });
+    }));
   }
 
   createForm() {

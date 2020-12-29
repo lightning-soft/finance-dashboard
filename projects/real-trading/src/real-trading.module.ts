@@ -39,10 +39,6 @@ export class RealTradingModule {
           provide: ConnectionsRepository,
           useClass: RealConnectionsRepository,
         },
-        {
-          provide: InstrumentsRepository,
-          useClass: RealInstrumentsRepository,
-        },
         // {
         //   provide: DatafeedRepository,
         //   useClass: RealDatafeedRepository,
@@ -56,18 +52,14 @@ export class RealTradingModule {
           useClass: RealHistoryRepository,
         },
         {
-          provide: InstrumentsRepository,
-          useClass: RealInstrumentsRepository,
-        },
-        {
           provide: Level1DataFeed,
-          // useClass: FakeLevel1Datafeed,
-          useClass: RealLevel1DataFeed,
+          useClass: FakeLevel1Datafeed,
+          // useClass: RealLevel1DataFeed,
         },
         {
           provide: Level2DataFeed,
-          useClass: RealLevel2DataFeed,
-          // useClass: FakeLevel2Datafeed,
+          // useClass: RealLevel2DataFeed,
+          useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,

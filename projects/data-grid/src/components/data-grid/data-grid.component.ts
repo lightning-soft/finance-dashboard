@@ -43,6 +43,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() columns = [];
   @Input() items: T[];
+  @Input() detach: boolean = false;
 
   public activeColumns: Column[] = [];
 
@@ -78,7 +79,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   ngOnInit(): void {
     this.activeColumns = this.columns.filter((column: Column) => column.visible);
-    this._cd.detach();
+    if (this.detach)
+      this._cd.detach();
   }
 
   detectChanges() {

@@ -41,12 +41,14 @@
     </nz-dropdown-menu>
   </div>
 
-  <instrument-select
-    class="tool select"
-    size="small"
-    [instrument]="instrument"
-    (handleInstrumentChange)="instrument = $event"
-  ></instrument-select>
+  <div class="tool tool-wide select">
+    <instrument-select
+      size="small"
+      placeholder="Symbol"
+      [instrument]="instrument"
+      (instrumentChange)="instrument = $event"
+    ></instrument-select>
+  </div>
 
   <div class="tool select">
     <nz-select
@@ -74,6 +76,7 @@
   <div class="tool select">
     <nz-select
       #price
+      [nzShowArrow]="false"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="priceStyle"
@@ -140,6 +143,7 @@
   <div class="tool select">
     <nz-select
       #cross
+      [nzShowArrow]="false"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="iconCross"

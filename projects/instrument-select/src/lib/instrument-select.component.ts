@@ -55,7 +55,20 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   handleModelChange(id: Id) {
     const instrument = this.items.find(i => i.id === id);
 
-    this.instrumentChange.emit(instrument);
+    if (!instrument._loaded) {
+      const hide = this.showLoading();
+      this._repository.getItemById(instrument.symbol)
+        .subscribe(
+          (_instrument: IInstrument) => {
+            Object.assign(instrument, _instrument, { _loaded: true })
+            this.instrumentChange.emit(instrument);
+            hide();
+          },
+          (err) => this._handleLoadingError(err),
+        );
+    } else {
+      this.instrumentChange.emit(instrument);
+    }
   }
 
   handleOpenChange(opened: boolean) {
@@ -66,5 +79,9 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
         this._dataSubscription?.unsubscribe();
       });
     }
+  }
+
+  clear() {
+    this.value = '';
   }
 }
