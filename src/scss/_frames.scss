@@ -26,6 +26,7 @@ body.#{$themeName} {
   }
 
   .wm-window .wm-container {
+    height: 100%;
     overflow: hidden !important;
     border-radius: 2px;
     background-color: $tabFrameColor;
