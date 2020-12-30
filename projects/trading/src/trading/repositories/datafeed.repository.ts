@@ -46,6 +46,10 @@ export abstract class DatafeedRepository {
         };
     }
 
+    unsubscribe(instrument: IInstrument) {
+      console.log('unsubscribe', instrument);
+    }
+
     on(fn: SubscribeAllFn): UnsubscribeFn {
         this._quoteSubscribers.push(fn);
 
