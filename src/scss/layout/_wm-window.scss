@@ -20,7 +20,7 @@ $border-width: 1px;
     &::after {
       content: "";
       z-index: 1000000000001;
-      background-color: #773f1a46;
+      // background-color: #773f1a46;
       position: fixed;
       top: -100vh;
       left: -100vw;
