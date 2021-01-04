@@ -9,16 +9,6 @@ import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
 
-
-// window.requestAnimationFrame =
-//   window.requestAnimationFrame ||
-//   window.webkitRequestAnimationFrame ||
-//   window.mozRequestAnimationFrame ||
-//   window.oRequestAnimationFrame ||
-//   window.msRequestAnimationFrame ||
-//   requestAnimationFramePolyfill;
-
-
 export interface DomComponent extends ILayoutNode {
 }
 
@@ -100,7 +90,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     private _accountsManager: AccountsManager,
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
-    private _levelTwoDatafeed: Level2DataFeed
+    private _levelTwoDatafeed: Level2DataFeed,
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
@@ -113,8 +103,16 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     );
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => this._settings.merge(settings)
-    })
+      handleLinkData: (settings) => this._settings.merge(settings),
+    });
+
+  }
+
+  public get style(): string {
+    return `
+    .window-icon {
+      color: red;
+    }`;
   }
 
   ngAfterViewInit() {
@@ -129,7 +127,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._updates += 1;
 
     requestAnimationFrame(() => {
-      console.log('detectChanges', this._updates);
       if (this._updates > 0) {
         this._calculate();
         this.dataGrid.detectChanges();
@@ -219,7 +216,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   private _handleResize() {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       const data = this.items;
       const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
@@ -269,7 +266,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: this._settings,
+        // state: this._settings,
       },
       maximizeBtn: true,
       closeBtn: true,

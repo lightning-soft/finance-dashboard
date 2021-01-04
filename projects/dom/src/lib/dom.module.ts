@@ -21,6 +21,7 @@ import { HistogramComponent } from './histogram';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { FormsModule } from "@angular/forms";
+import { CssApplier } from './css.applier';
 
 @NgModule({
   declarations: [
