@@ -250,10 +250,12 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     if (!state?.instrument)
       state.instrument = {
         id: 'ESH1',
-        symbol: 'ESH1',
-        exchange: 'CME',
-        tickSize: 0.01,
+        description: "E-Mini S&P 500",
+        exchange: "CME",
+        increment: 0.25,
         precision: 2,
+        productCode: "ES",
+        symbol: "ESH1",
       };
     // for debug purposes
 
