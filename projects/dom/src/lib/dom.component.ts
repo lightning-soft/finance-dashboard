@@ -252,9 +252,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         id: 'ESH1',
         description: "E-Mini S&P 500",
         exchange: "CME",
-        increment: 0.25,
+        tickSize: 0.25,
         precision: 2,
-        productCode: "ES",
         symbol: "ESH1",
       };
     // for debug purposes
