@@ -88,6 +88,13 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
     }
   }
 
+  updateGroupItems() {
+    this.ungroupItems();
+    this._groups = {};
+    // #Todo think about something else
+    this._buildGroups(this.items as any);
+  }
+
   protected _handle(items: T[]): any[] {
     let _items = items;
 
@@ -102,7 +109,7 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
   }
 
   protected _buildGroups(items: T[]) {
-    const { groupBy } = this._params;
+    const {groupBy} = this._params;
 
     if (!groupBy.length) {
       return;
