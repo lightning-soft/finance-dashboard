@@ -11,13 +11,13 @@
             *ngFor="let broker of brokers"
             [nzHeader]="broker.title"
             [nzExtra]="createButton"
-            (click)="!getBrokerItems(broker).length && canAddAccount(broker) && openCreateForm($event, broker.name)"
+            (click)="handleBrockerClick($event, broker)"
             [nzShowArrow]="!!getBrokerItems(broker).length"
-            [nzActive]="broker.active"
+            [nzActive]="broker == selectedBroker"
           >
             <ng-template #createButton>
             <span *ngIf="canAddAccount(broker)"
-                  class="small link" (click)="openCreateForm($event, broker.name)">
+                  class="small link" (click)="openCreateForm($event, broker)">
               <i class="icon-add font-size-inherit"></i>
             </span>
             </ng-template>
@@ -168,7 +168,7 @@
               nzBlock
               class="bg-secondary text-uppercase mt-3"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-              (click)="disconnect()"
+              (click)="disconnect(selectedItem)"
             >Disconnect
             </button>
           </div>

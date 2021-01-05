@@ -34,7 +34,7 @@ export class AccountsManager {
   }
 
   rename(name, connection: IConnection) {
-    return this._connectionsRepository.updateItem({...connection, name});
+    return this._connectionsRepository.updateItem({ ...connection, name });
   }
 
   connect(connection: IConnection) {

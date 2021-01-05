@@ -1,4 +1,4 @@
-import { Component, Injectable, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -6,10 +6,8 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize, map, take } from 'rxjs/operators';
-import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection } from 'trading';
-import { HttpRepository, IPaginationResponse } from "communication";
-import { Observable } from 'rxjs';
+import { finalize, take } from 'rxjs/operators';
+import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
 
 export interface AccountsComponent extends ILayoutNode {
 }
@@ -45,9 +43,8 @@ export class AccountsComponent implements OnInit {
     this.setTabIcon('icon-indicator');
   }
 
-
   ngOnInit() {
-    this.builder.setParams({groupBy: ['broker']});
+    this.builder.setParams({ groupBy: ['broker'] });
 
     this.form = this.fb.group({
       id: [null],
@@ -68,9 +65,6 @@ export class AccountsComponent implements OnInit {
         res => {
           this.brokers = res.data;
           this.expandBrokers();
-          if (this.brokers?.length && !this.selectedItem) {
-            this.selectItem({broker: this.brokers[0]} as any);
-          }
         },
         err => this._notifier.showError(err)
       );
@@ -79,11 +73,13 @@ export class AccountsComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe((items: any) => {
         if (items) {
-          this.builder.replaceItems(items.map(item => ({...item, broker: item.broker.name})));
+          this.builder.replaceItems(items);
           this.expandBrokers();
         }
       });
-    this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
+
+    this._accountsManager.connections.
+      pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
         const item = items.find(item => item.connected);
         this.selectItem(item);
@@ -91,7 +87,7 @@ export class AccountsComponent implements OnInit {
   }
 
   getBrokerItems(broker) {
-    return this.builder.getItems('broker.name', broker.name);
+    return this.builder.getItems('broker', broker.name);
   }
 
   canAddAccount(broker) {
@@ -99,43 +95,35 @@ export class AccountsComponent implements OnInit {
   }
 
   expandBrokers() {
-    if (!this.brokers) {
+    if (!Array.isArray(this.brokers) || !this.selectedItem)
       return;
-    }
 
-    this.brokers.map(broker => {
-      const hasActiveConnections = !!this.getBrokerItems(broker)
-        .find(i => i.connected);
-      const hasManyChildren = this.getBrokerItems(broker).length > 2;
-      if (hasActiveConnections || hasManyChildren) {
-        (broker as any).active = true;
-      }
-
-      return broker;
-    });
+    this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker)
   }
 
-  openCreateForm(event: MouseEvent, broker: Broker) {
+  handleBrockerClick($event, broker: IBroker) {
+    if (!this.getBrokerItems(broker).length && this.canAddAccount(broker)) {
+      this.openCreateForm($event, broker);
+    }
+  }
+
+  openCreateForm(event: MouseEvent, broker: IBroker) {
     event.stopPropagation();
 
-    this.selectItem({broker} as IConnection);
+    this.selectItem({ broker: broker.name } as IConnection);
   }
 
   selectItem(item: IConnection) {
     this.selectedItem = item;
-    this.selectedBroker = item ? this.brokers?.find(b => b.name === item.broker.name) : null;
+    this.expandBrokers()
 
-    if (item) {
-      this.form.reset(this.convertItemToFormValue(item, this.selectedBroker));
-    } else {
-      this.form.reset();
-    }
+    this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
   convertItemToFormValue(item: IConnection, broker) {
-    const {username, password, server, gateway, ...data} = item;
-    const userData = {username, password, server, gateway};
-    return {...data, broker, userData};
+    const { username, password, server, gateway, ...data } = item;
+    const userData = { username, password, server, gateway };
+    return { ...data, broker, userData };
   }
 
   handleSubmit() {
@@ -148,10 +136,8 @@ export class AccountsComponent implements OnInit {
 
   getValue() {
     const value = this.form.value;
-    console.log(value);
-    const {userData, ...data} = value;
-    console.log({...data, ...userData});
-    return {...data, broker: this.selectedBroker.name, ...userData};
+    const { userData, ...data } = value;
+    return { ...data, broker: this.selectedBroker.name, ...userData };
   }
 
   create() {
@@ -159,7 +145,7 @@ export class AccountsComponent implements OnInit {
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
-         // this.selectItem(item);
+          this.selectItem(item);
           this.connect();
         },
         err => this._notifier.showError(err),
@@ -171,11 +157,14 @@ export class AccountsComponent implements OnInit {
       .pipe(
         this.showItemLoader(item),
         untilDestroyed(this)
-      ).subscribe((response: any) => {
-      const index = this.builder.items.findIndex(item => item.id === response.id);
-      this.builder.updateItem(response, index);
-      this.builder.updateGroupItems();
-    });
+      ).subscribe(
+        (response: any) => {
+          const index = this.builder.items.findIndex(item => item.id === response.id);
+          this.builder.updateItem(response, index);
+          this.builder.updateGroupItems();
+        },
+        err => this._notifier.showError(err),
+      );
   }
 
   connect() {
@@ -189,14 +178,12 @@ export class AccountsComponent implements OnInit {
       );
   }
 
-  disconnect() {
-    const item = this.selectedItem;
-
+  disconnect(item: IConnection) {
     this._accountsManager.disconnect(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
         () => {
-          this.selectedItem = {...item, connected: false};
+          this.selectedItem = { ...item, connected: false };
         },
         err => this._notifier.showError(err),
       );
@@ -208,11 +195,12 @@ export class AccountsComponent implements OnInit {
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Are you sure want to delete connection ${ item.name }?`,
+      nzContent: `Are you sure want to delete connection ${item.name}?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
+        this.disconnect(item);
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
