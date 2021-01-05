@@ -13,3 +13,4 @@ export * from './real-positions.repository';
 export * from './real-positions.feed';
 export * from './real-orders.feed';
 export * from './real-feed';
+export * from './real-settings.repository';

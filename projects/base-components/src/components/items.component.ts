@@ -19,7 +19,7 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     page: 0,
     total: 1,
   };
-
+  settings = { subscribeToConnections: true };
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
   protected _clearOnDisconnect = true;
@@ -70,7 +70,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   ngOnInit() {
-    this._subscribeToConnections();
+    if (this.settings.subscribeToConnections)
+      this._subscribeToConnections();
 
     super.ngOnInit();
   }

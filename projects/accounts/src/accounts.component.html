@@ -98,11 +98,16 @@
             </nz-form-control>
           </div>
           <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Server</small>
-            <nz-select class="custom-form-control" formControlName="connectionPointId">
-              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
-              <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
-            </nz-select>
+            <small class="text-muted px-2 mb-1">System</small>
+            <search-select
+              [displayLabel]="displayServer"
+              placeholder="Select server"
+              [showSearch]="false"
+              [valueTransformer]="serverTransformer"
+              (ngModelChange)="onServerSwitch(server.selectedItem.gateways)"
+              [comparedProperty]="'name'"
+              #server
+              formControlName="server" [repository]="serverRepository"></search-select>
           </div>
           <label class="custom-checkbox mb-1">
             <input type="checkbox" formControlName="aggregatedQuotes">
@@ -111,7 +116,8 @@
           <div class="mb-1">
             <small class="text-muted px-2 mb-1">Gateway</small>
             <nz-select class="custom-form-control" formControlName="gateway">
-              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
+              <nz-option *ngFor="let item of server.selectedItem?.gateways " [nzValue]="item.name"
+                         [nzLabel]="item.name"></nz-option>
               <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
             </nz-select>
           </div>
@@ -145,7 +151,7 @@
             </div>
             <div>
               <span class="text-muted">Server:</span>&nbsp;
-              {{ selectedItem.connectionPointId }}
+              {{ selectedItem.server }}
             </div>
           </div>
           <button

@@ -14,6 +14,7 @@ import { Config } from 'config';
 export class AppConfig extends Config implements CommunicationConfig {
   http: ICommunicationHttpConfig;
   ws: ICommunicationWsConfig;
+  setting: ICommunicationHttpConfig;
   rithmic: ICommunicationConfig;
   identity: IIdentityConfig;
 }
