@@ -1,4 +1,5 @@
 @import "../ticks";
+@import "../general";
 
 .sl-tick, .sl-tick:focus, .sl-tick:hover, .sl-tick:focus-within {
   background: rgba(201, 59, 59, 0.2);
@@ -25,4 +26,10 @@
 
 .btn-active {
   border: 1px solid #4895F5;
+}
+
+:host-context(.full-screen-window) {
+  .sl-tick {
+    margin-top: 0;
+  }
 }

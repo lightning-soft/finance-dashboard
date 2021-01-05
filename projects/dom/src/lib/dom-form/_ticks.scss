@@ -13,7 +13,14 @@
 .number-input {
   margin-top: 8px;
 }
+.tick-btn {
+  width: 100%;
+  font-weight: 600;
 
+  &:not(:first-child) {
+    margin-top: 6px;
+  }
+}
 
 .popover-select {
   margin-top: 8px;
