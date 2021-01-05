@@ -14,8 +14,8 @@ import {
   NzTransferModule
 } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
-import { AccountsComponent, ServersRepository } from './accounts.component';
-import { AcccountFormComponent } from './acccount-form/acccount-form.component';
+import { AccountsComponent } from './accounts.component';
+import { AcccountFormComponent, ServersRepository } from './acccount-form/acccount-form.component';
 import { EyeOutline, EyeInvisibleOutline } from '@ant-design/icons-angular/icons';
 import { SearchSelectModule } from 'search-select';
 

@@ -1,6 +1,10 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, forwardRef, Injectable, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { HttpRepository, IPaginationResponse } from "communication";
+import { ConnectionsRepository } from "trading";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 @Component({
   selector: 'acccount-form',
@@ -15,20 +19,30 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
   ]
 })
 @UntilDestroy()
-export class AcccountFormComponent implements OnInit, ControlValueAccessor {
+export class AcccountFormComponent implements ControlValueAccessor {
   form = new FormGroup({
       username: new FormControl(),
       password: new FormControl(),
-      connectionPointId: new FormControl(),
+      server: new FormControl(),
       gateway: new FormControl()
     }
   );
   passwordVisible = true;
 
-  constructor() {
+  constructor(public serverRepository: ServersRepository,
+  ) {
+
   }
 
-  ngOnInit(): void {
+  getName(o) {
+    return o.name;
+  }
+
+  onServerSwitch(gateways) {
+    if (gateways) {
+      const gateway = gateways[gateways.length - 1].name;
+      this.form.patchValue({gateway});
+    }
   }
 
   registerOnChange(fn: any): void {
@@ -44,8 +58,10 @@ export class AcccountFormComponent implements OnInit, ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
+      obj.server = {name: obj.server, gateways: [{name: obj.gateway}]};
       this.form.patchValue(obj);
     }
+    console.log(obj);
   }
 
   setDisabledState(isDisabled: boolean) {
@@ -56,4 +72,32 @@ export class AcccountFormComponent implements OnInit, ControlValueAccessor {
     }
   }
 
+}
+
+@Injectable()
+export class ServersRepository extends HttpRepository<any> {
+  constructor(private connectionRepository: ConnectionsRepository) {
+    super(null, null, null);
+  }
+
+  getItems(obj?: any): Observable<IPaginationResponse<any>> {
+    return this.connectionRepository.getServers()
+      .pipe(
+        map((data) => {
+          const result = Object.keys(data.result).map((key) => {
+            const item = {gateways: data.result[key], name: null};
+            item.name = key;
+            return item;
+          });
+          console.log(result);
+          return {
+            data: result,
+            total: result.length,
+            page: 1,
+            skip: 0,
+            pageCount: 1,
+            count: result.length
+          } as IPaginationResponse;
+        }));
+  }
 }

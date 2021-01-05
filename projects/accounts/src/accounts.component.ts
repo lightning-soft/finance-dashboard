@@ -36,7 +36,6 @@ export class AccountsComponent implements OnInit {
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
-    public serverRepository: ServersRepository,
     protected _notifier: NotifierService,
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
@@ -69,18 +68,20 @@ export class AccountsComponent implements OnInit {
         res => {
           this.brokers = res.data;
           this.expandBrokers();
-          if (this.brokers?.length && !this.selectedItem)
+          if (this.brokers?.length && !this.selectedItem) {
             this.selectItem({broker: this.brokers[0]} as any);
+          }
         },
         err => this._notifier.showError(err)
       );
 
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
-      .subscribe(items => {
-        console.log(items);
-        this.builder.replaceItems(items);
-        this.expandBrokers();
+      .subscribe((items: any) => {
+        if (items) {
+          this.builder.replaceItems(items.map(item => ({...item, broker: item.broker.name})));
+          this.expandBrokers();
+        }
       });
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
@@ -90,19 +91,11 @@ export class AccountsComponent implements OnInit {
   }
 
   getBrokerItems(broker) {
-    return this.builder.getItems('broker', broker.name);
+    return this.builder.getItems('broker.name', broker.name);
   }
 
   canAddAccount(broker) {
     return this.getBrokerItems(broker).length < maxAccountsPerConnection;
-  }
-
-  displayServer(o) {
-    return o.name;
-  }
-
-  serverTransformer(o) {
-    return o.name;
   }
 
   expandBrokers() {
@@ -130,19 +123,19 @@ export class AccountsComponent implements OnInit {
 
   selectItem(item: IConnection) {
     this.selectedItem = item;
-    this.selectedBroker = item ? this.brokers?.find(b => b.name === item.broker) : null;
+    this.selectedBroker = item ? this.brokers?.find(b => b.name === item.broker.name) : null;
 
     if (item) {
-      this.form.reset(this.convertItemToFormValue(item));
+      this.form.reset(this.convertItemToFormValue(item, this.selectedBroker));
     } else {
       this.form.reset();
     }
   }
 
-  convertItemToFormValue(item: IConnection) {
-    const {username, password, connectionPointId, gateway, ...data} = item;
-    const userData = {username, password, connectionPointId, gateway};
-    return {...data, userData};
+  convertItemToFormValue(item: IConnection, broker) {
+    const {username, password, server, gateway, ...data} = item;
+    const userData = {username, password, server, gateway};
+    return {...data, broker, userData};
   }
 
   handleSubmit() {
@@ -158,7 +151,7 @@ export class AccountsComponent implements OnInit {
     console.log(value);
     const {userData, ...data} = value;
     console.log({...data, ...userData});
-    return {...data, ...userData};
+    return {...data, broker: this.selectedBroker.name, ...userData};
   }
 
   create() {
@@ -166,7 +159,7 @@ export class AccountsComponent implements OnInit {
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
-          this.selectItem(item);
+         // this.selectItem(item);
           this.connect();
         },
         err => this._notifier.showError(err),
@@ -254,40 +247,5 @@ export class AccountsComponent implements OnInit {
       this.form.get(control).enable();
     else
       this.form.get(control).disable();
-  }
-
-  onServerSwitch(gateways) {
-    if (gateways) {
-      const gateway = gateways[gateways.length - 1].name;
-      this.form.patchValue({gateway});
-    }
-  }
-
-}
-@Injectable()
-export class ServersRepository extends HttpRepository<any> {
-  constructor(private connectionRepository: ConnectionsRepository) {
-    super(null, null, null);
-  }
-
-  getItems(obj?: any): Observable<IPaginationResponse<any>> {
-    return this.connectionRepository.getServers()
-      .pipe(
-        map((data) => {
-          const result = Object.keys(data.result).map((key) => {
-            const item = {gateways: data.result[key], name: null};
-            item.name = key;
-            return item;
-          });
-          console.log(result);
-          return {
-            data: result,
-            total: result.length,
-            page: 1,
-            skip: 0,
-            pageCount: 1,
-            count: result.length
-          } as IPaginationResponse;
-        }));
   }
 }
