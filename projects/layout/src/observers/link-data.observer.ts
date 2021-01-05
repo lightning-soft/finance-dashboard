@@ -23,8 +23,6 @@ export class LinkDataObserver {
   }
 
   emitLinkData(data: ILinkData) {
-    console.time();
-
     if (this._freeze || !data || !data.link)
       return;
 
@@ -36,7 +34,5 @@ export class LinkDataObserver {
     }
 
     this._freeze = false;
-
-    console.timeEnd();
   }
 }
