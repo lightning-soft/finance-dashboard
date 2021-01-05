@@ -10,7 +10,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
   extends ItemsComponent<T, P> implements OnInit, OnDestroy {
 
   protected _dataFeed: any;
-  protected _levelOneDataFeed: any;
+  protected _levelOneDataFeed: Level1DataFeed;
   protected _levelOneDataFeedHandler: OnTradeFn<ITrade>;
 
   ngOnInit() {

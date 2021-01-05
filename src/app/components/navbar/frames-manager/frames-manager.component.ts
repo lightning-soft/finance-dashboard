@@ -17,6 +17,7 @@ export class FramesManagerComponent implements AfterViewInit {
     [Components.Positions, new Set()],
     [Components.Orders, new Set()],
     [Components.Dom, new Set()],
+    [Components.OrderForm, new Set()]
   ];
 
   public iconsMap = {
@@ -24,8 +25,10 @@ export class FramesManagerComponent implements AfterViewInit {
     [Components.Watchlist]: 'icon-widget-watchlist',
     [Components.Orders]: 'icon-widget-orders',
     [Components.Positions]: 'icon-widget-positions',
-    [Components.Dom]: 'icon-widget-positions',
-  };
+    [Components.Dom]: 'icon-widget-create-orders',
+    [Components.OrderForm]: 'icon-widget-create-orders'
+
+};
 
   constructor(private windowManagerService: WindowManagerService) {
     this.windowManagerService.windows.subscribe(windows => {

@@ -1,12 +1,10 @@
 $padding: 0;
 $activeColor: #2296f3;
 
-// @import "golden-layout";
 @import "themes/index";
 
 :host {
   display: block;
-  // height: calc(100% - #{$navbarHeight});
   height: 100%;
   width: 100%;
   padding: $padding;
@@ -16,17 +14,6 @@ $activeColor: #2296f3;
   .layout-container {
     height: 100%;
     width: 100%;
-
+    overflow: auto;
   }
-
-  // > div {
-  //   height: 100%;
-  //   width: 100%;
-  // }
-
-  //&.isActive {
-  //  border: 1px solid rebeccapurple;
-  //  padding: #{$padding} - 1px;
-  //}
-  //}
 }

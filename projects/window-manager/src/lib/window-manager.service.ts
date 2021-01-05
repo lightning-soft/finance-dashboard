@@ -142,11 +142,11 @@ export class WindowManagerService {
         positionMultipliers.x += 1;
         positionMultipliers.y += 1;
 
-      } else if (y + height > containerHeight) {
+      } else if (y + height > containerHeight && height < containerHeight) {
         positionMultipliers.x = ++startX;
         positionMultipliers.y = 1;
 
-      } else if (x + width > containerWidth) {
+      } else if (x + width > containerWidth && width < containerWidth) {
         result = { x: 50, y: 50 };
       } else {
         result = { x, y };

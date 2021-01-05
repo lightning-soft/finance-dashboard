@@ -1,11 +1,12 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Id } from 'communication';
-import { DatafeedRepository, L2 } from 'trading';
+import { DatafeedRepository, IInstrument, L2 } from 'trading';
 import { OrderSide } from 'trading';
 import { lastPrices } from './fake-level1.datafeed';
+import { Level2DataFeed } from 'trading';
 
 @Injectable()
-export class FakeLevel2Datafeed extends DatafeedRepository {
+export class FakeLevel2Datafeed extends DatafeedRepository implements Level2DataFeed {
   protected _subscribedInstruments = [];
 
   constructor(_ngZone: NgZone) {
@@ -47,6 +48,10 @@ export class FakeLevel2Datafeed extends DatafeedRepository {
       // this._triggerQuotes(quotes);
       // console.timeEnd('q');
     }, 500);
+  }
+
+  unsubscribe(instrument: IInstrument) {
+
   }
 
   protected _subscribe(instruemntId: Id) {
