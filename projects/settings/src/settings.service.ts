@@ -56,7 +56,7 @@ export class SettingsService {
   }
 
   saveState(): void {
-    this._settingStore.setItem(this.settings.value);
+    this._settingStore.setItem(this.settings.value).toPromise();
   }
 
   private _updateState(settings: object): void {

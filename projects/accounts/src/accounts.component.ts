@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injectable, Injector, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -6,10 +6,13 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize } from 'rxjs/operators';
-import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
+import { finalize, map } from 'rxjs/operators';
+import { Broker, BrokersRepository, ConnectionsRepository, IBroker, IConnection } from 'trading';
+import { HttpRepository, IPaginationResponse } from "communication";
+import { Observable } from 'rxjs';
 
-export interface AccountsComponent extends ILayoutNode { }
+export interface AccountsComponent extends ILayoutNode {
+}
 
 @UntilDestroy()
 @Component({
@@ -30,6 +33,7 @@ export class AccountsComponent implements OnInit {
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
+    public serverRepository: ServersRepository,
     protected _notifier: NotifierService,
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
@@ -41,14 +45,14 @@ export class AccountsComponent implements OnInit {
 
 
   ngOnInit() {
-    this.builder.setParams({ groupBy: ['broker'] });
+    this.builder.setParams({groupBy: ['broker']});
 
     this.form = this.fb.group({
       id: [null],
       name: [null],
       username: [null],
       password: [null],
-      connectionPointId: [null],
+      server: [null],
       aggregatedQuotes: [null],
       gateway: [null],
       autoSavePassword: [null],
@@ -69,9 +73,18 @@ export class AccountsComponent implements OnInit {
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(items => {
+        console.log(items);
         this.builder.replaceItems(items);
         this.expandBrokers();
       });
+  }
+
+  displayServer(o) {
+    return o.name;
+  }
+
+  serverTransformer(o) {
+    return o.name;
   }
 
   expandBrokers() {
@@ -94,7 +107,7 @@ export class AccountsComponent implements OnInit {
   openCreateForm(event: MouseEvent, broker: Broker) {
     event.stopPropagation();
 
-    this.selectItem({ broker } as IConnection);
+    this.selectItem({broker} as IConnection);
   }
 
   selectItem(item: IConnection) {
@@ -146,7 +159,7 @@ export class AccountsComponent implements OnInit {
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
         () => {
-          this.selectedItem = { ...item, connected: false };
+          this.selectedItem = {...item, connected: false};
         },
         err => this._notifier.showError(err),
       );
@@ -158,7 +171,7 @@ export class AccountsComponent implements OnInit {
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Are you sure want to delete connection ${item.name}?`,
+      nzContent: `Are you sure want to delete connection ${ item.name }?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
@@ -179,7 +192,8 @@ export class AccountsComponent implements OnInit {
     this._accountsManager.toggleFavourite(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
-        () => { },
+        () => {
+        },
         err => this._notifier.showError(err),
       );
   }
@@ -189,5 +203,40 @@ export class AccountsComponent implements OnInit {
     this.isLoading[id] = true;
 
     return finalize(() => delete this.isLoading[id]);
+  }
+
+  onServerSwitch(gateways) {
+    if (gateways) {
+      const gateway = gateways[gateways.length - 1].name;
+      this.form.patchValue({gateway});
+    }
+  }
+}
+
+@Injectable()
+export class ServersRepository extends HttpRepository<any> {
+  constructor(private connectionRepository: ConnectionsRepository) {
+    super(null, null, null);
+  }
+
+  getItems(obj?: any): Observable<IPaginationResponse<any>> {
+    return this.connectionRepository.getServers()
+      .pipe(
+        map((data) => {
+          const result = Object.keys(data.result).map((key) => {
+            const item = {gateways: data.result[key], name: null};
+            item.name = key;
+            return item;
+          });
+          console.log(result);
+          return {
+            data: result,
+            total: result.length,
+            page: 1,
+            skip: 0,
+            pageCount: 1,
+            count: result.length
+          } as IPaginationResponse;
+        }));
   }
 }

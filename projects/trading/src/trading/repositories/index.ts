@@ -12,3 +12,4 @@ export * from './level2.data-feed';
 export * from './orders.feed';
 export * from './positions.feed';
 export * from './feed';
+export * from './settings.repository';
