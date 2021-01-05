@@ -13,7 +13,7 @@ import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzFormModule, NzRadioModule } from 'ng-zorro-antd';
+import { NzFormModule, NzRadioModule, NzToolTipModule } from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -116,7 +116,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NzRadioModule,
     HttpClientModule,
     CommunicationModule,
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule.withServerTransition({appId: 'serverApp'}),
     NzModalModule,
     NzDropDownModule,
     ScrollingModule,
@@ -195,6 +195,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       }
     ]),
     NzDropDownModule,
+    NzToolTipModule,
   ],
   providers: [
     ThemesHandler,
