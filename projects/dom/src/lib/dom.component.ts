@@ -8,6 +8,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
+import { SynchronizeFrames } from 'performance';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -84,7 +85,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _settings: DomSettings = new DomSettings();
 
-  private _updates = 0;
 
   constructor(
     private _accountsManager: AccountsManager,
@@ -123,16 +123,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.dataGrid.detectChanges();
   }
 
+  @SynchronizeFrames()
   private _calculateAsync() {
-    this._updates += 1;
-
-    requestAnimationFrame(() => {
-      if (this._updates > 0) {
-        this._calculate();
-        this.dataGrid.detectChanges();
-      }
-      this._updates = 0;
-    });
+    this._calculate();
+    this.dataGrid.detectChanges();
   }
 
   protected _handleTrade(trade: ITrade) {
@@ -215,22 +209,21 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     }
   }
 
+  @SynchronizeFrames()
   private _handleResize() {
-    requestAnimationFrame(() => {
-      const data = this.items;
-      const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
+    const data = this.items;
+    const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-      if (data.length === visibleRows)
-        return;
+    if (data.length === visibleRows)
+      return;
 
-      if (data.length > visibleRows)
-        data.splice(visibleRows, data.length - visibleRows);
-      else if (data.length < visibleRows)
-        while (data.length <= visibleRows)
-          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+    if (data.length > visibleRows)
+      data.splice(visibleRows, data.length - visibleRows);
+    else if (data.length < visibleRows)
+      while (data.length <= visibleRows)
+        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
-      this.detectChanges();
-    });
+    this.detectChanges();
   }
 
   saveState?(): IDomState {
