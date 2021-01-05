@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -53,12 +53,20 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _dom = new DomHandler();
 
+  private _backItems = [];
+  private _forwardItems = [];
+
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
+
+  @ViewChild(DataGrid, {read: ElementRef})
+  dataGridElement: ElementRef;
+
   isFormOpen = true;
 
+  private _scrolledItems = 0;
   private _instrument: IInstrument;
 
   private _priceFormatter: IFormatter;
@@ -106,6 +114,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       handleLinkData: (settings) => this._settings.merge(settings),
     });
 
+
   }
 
   public get style(): string {
@@ -115,8 +124,18 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     }`;
   }
 
+  scroll(e: WheelEvent) {
+    if(e.deltaY > 0) {
+      this._scrolledItems++;
+    } else if(e.deltaY < 0) {
+      this._scrolledItems--;
+    }
+    this._calculate();
+  }
+
   ngAfterViewInit() {
     this._handleResize();
+    this.dataGridElement.nativeElement.addEventListener('wheel', (e) =>  this.scroll.apply(this, [e]))
   }
 
   detectChanges() {
@@ -151,14 +170,14 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       return;
 
     let last = trade && trade.price;
-    const scrolledItems = 0// this._scrolledItems
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
-    const tickSize = instrument.tickSize;
+    let centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
+    // const tickSize = instrument.tickSize;
+    const tickSize = 0.01;
     const step = instrument.precision;
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
-    let price = last;
+    let price = last + this._scrolledItems * tickSize;
     let item: DomItem;
     const dom = this._dom;
 
@@ -211,6 +230,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   @SynchronizeFrames()
   private _handleResize() {
+
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 

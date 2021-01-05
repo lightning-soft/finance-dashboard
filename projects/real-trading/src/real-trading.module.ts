@@ -53,13 +53,13 @@ export class RealTradingModule {
         },
         {
           provide: Level1DataFeed,
-          // useClass: FakeLevel1Datafeed,
-          useClass: RealLevel1DataFeed,
+          useClass: FakeLevel1Datafeed,
+          // useClass: RealLevel1DataFeed,
         },
         {
           provide: Level2DataFeed,
-          useClass: RealLevel2DataFeed,
-          // useClass: FakeLevel2Datafeed,
+          // useClass: RealLevel2DataFeed,
+          useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,
