@@ -14,9 +14,10 @@ import {
   NzTransferModule
 } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
-import { AccountsComponent } from './accounts.component';
+import { AccountsComponent, ServersRepository } from './accounts.component';
 import { AcccountFormComponent } from './acccount-form/acccount-form.component';
 import { EyeOutline, EyeInvisibleOutline } from '@ant-design/icons-angular/icons';
+import { SearchSelectModule } from 'search-select';
 
 @NgModule({
   imports: [
@@ -35,10 +36,12 @@ import { EyeOutline, EyeInvisibleOutline } from '@ant-design/icons-angular/icons
     NzSwitchModule,
     FormsModule,
     NzIconModule.forChild([EyeOutline, EyeInvisibleOutline]),
+    SearchSelectModule,
   ],
   exports: [
     AccountsComponent,
   ],
+  providers: [ServersRepository],
   declarations: [
     AccountsComponent,
     AcccountFormComponent,

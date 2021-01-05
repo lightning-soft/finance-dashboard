@@ -1,15 +1,10 @@
-<!-- <nz-select *ngIf="!multi" [(ngModel)]="selectedItem">
-  <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
-  <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
-  <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
-</nz-select> -->
-
 <nz-select [nzShowSearch]="showSearch"
-           [nzServerSearch]="showSearch" [nzPlaceHolder]="placeholder || 'Start enter title of issue'"
+           [nzServerSearch]="showSearch" [nzPlaceHolder]="placeholder || 'Start item'"
            [nzMode]="type"
            [nzDisabled]="isDisabled"
+           class="custom-form-control"
            [(ngModel)]="selectedItem"
-           [compareWith]="compareSelect"
+           [compareWith]="compareSelect.bind(this)"
            [nzCustomTemplate]="customValueTemplate"
            [nzShowArrow]="false"
            [nzLoading]="loading"

@@ -6,5 +6,8 @@ import { IConnection } from '../models/connection';
 @Injectable()
 export abstract class ConnectionsRepository extends Repository<IConnection> {
   abstract connect(item: IConnection): Observable<IConnection>;
+
   abstract disconnect(item: IConnection): Observable<any>;
+
+  abstract getServers(): Observable<any>;
 }

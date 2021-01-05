@@ -9,6 +9,7 @@ import {
   PositionsFeed,
   PositionsRepository,
   Level2DataFeed,
+  SettingsRepository
 } from 'trading';
 import {
   RealAccountRepository,
@@ -17,7 +18,7 @@ import {
   RealOrdersFeed,
   RealOrdersRepository,
   RealPositionsFeed, RealPositionsRepository,
-  RealLevel2DataFeed,
+  RealLevel2DataFeed, RealSettingsRepository,
 } from './trading/repositories';
 
 
@@ -36,6 +37,10 @@ export class RealTradingModule {
         //   useClass: RealBrokerRepository,
         // },
         {
+          provide: SettingsRepository,
+          useClass: RealSettingsRepository,
+        },
+        {
           provide: ConnectionsRepository,
           useClass: RealConnectionsRepository,
         },
@@ -53,13 +58,13 @@ export class RealTradingModule {
         },
         {
           provide: Level1DataFeed,
-          useClass: FakeLevel1Datafeed,
-          // useClass: RealLevel1DataFeed,
+          // useClass: FakeLevel1Datafeed,
+          useClass: RealLevel1DataFeed,
         },
         {
           provide: Level2DataFeed,
-          // useClass: RealLevel2DataFeed,
-          useClass: FakeLevel2Datafeed,
+          useClass: RealLevel2DataFeed,
+          // useClass: FakeLevel2Datafeed,
         },
         {
           provide: OrdersRepository,

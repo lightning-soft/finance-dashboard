@@ -1,6 +1,8 @@
 {
   "/api": {
-    "target": "http://173.212.193.40:5005",
-    "secure": false
+    "target": "https://rithmic-dev.amstradinggroup.com/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

@@ -83,7 +83,7 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   protected _getRESTURL(id?) {
-    return this._concatUrl(id);
+    return this._concatUrl(id ? encodeURI(id) : '');
   }
 
   protected arrayToUrl(...params: (string | number)[]) {
