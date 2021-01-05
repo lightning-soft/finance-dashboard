@@ -1,7 +1,120 @@
+@import "~src/scss/variables";
+
 :host {
   display: block;
   height: 100%;
+
+  ::ng-deep {
+    .ant-switch-small {
+      height: 13px;
+
+      &:after {
+        width: 9px;
+        height: 9px;
+
+      }
+    }
+
+    .ant-switch-checked {
+      background: rgba($primary, 0.2);
+
+      &:after {
+        background: $primary;
+      }
+    }
+  }
 }
+
 cdk-virtual-scroll-viewport {
   height: 100%;
+}
+
+small {
+  font-size: 10px;
+  line-height: 12px;
+}
+
+.broker-action {
+  transition: all 0.3s;
+  padding-left: 8px;
+  padding-top: 4px;
+  cursor: pointer;
+  border-radius: 2px;
+  padding-bottom: 4px;
+  color: white;
+  font-size: 11px;
+  line-height: 13px;
+
+  &:hover {
+    background: $inputBackground
+  }
+}
+
+.renaming.selectable-item:hover {
+  background: transparent;
+}
+
+.split-connection {
+  float: right;
+
+  nz-switch {
+    margin-left: 5px;
+  }
+}
+
+.split-title {
+  font-size: 11px;
+  font-weight: normal;
+  line-height: 16px;
+  color: #D0D0D2;
+}
+
+.split-form {
+  width: 100%;
+
+  .split-form-item {
+    width: 100%;
+
+    .split-form-title {
+      font-weight: 600;
+      font-size: 11px;
+      line-height: 15px;
+      margin-left: 6px;
+      color: #FFFFFF;
+    }
+
+    .switch-container {
+      font-weight: normal;
+      font-size: 11px;
+      line-height: 16px;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 8px;
+      color: #D0D0D2;
+
+      nz-switch {
+        margin-left: 4px;
+        margin-right: 4px;
+      }
+    }
+
+    &:first-child {
+      margin-right: 6px;
+    }
+
+    &:last-child {
+      margin-left: 6px;
+    }
+  }
+}
+
+::ng-deep {
+  .broker-actions .ant-popover-inner {
+    background: $light;
+    min-width: 90px;
+
+    .ant-popover-inner-content {
+      padding: 4px;
+    }
+  }
 }

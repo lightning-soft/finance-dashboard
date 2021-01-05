@@ -33,6 +33,10 @@ export class AccountsManager {
       );
   }
 
+  rename(name, connection: IConnection) {
+    return this._connectionsRepository.updateItem({ ...connection, name });
+  }
+
   connect(connection: IConnection) {
     return this._connectionsRepository.connect(connection)
       .pipe(

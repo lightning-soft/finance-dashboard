@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
-import { CommunicationConfig, ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
+import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { Broker, IConnection } from 'trading';
+import { IConnection } from 'trading';
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
   protected get _baseUrl(): string {
-    return `${ this._communicationConfig.rithmic.http.url }Connection`;
+    return `${this._communicationConfig.rithmic.http.url}Connection`;
   }
 
   getItems(): Observable<IPaginationResponse<IConnection>> {
@@ -44,7 +44,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   disconnect(item: IConnection): Observable<any> {
-    const _item = {...item, connected: false, connectionData: null};
+    const _item = { ...item, connected: false, connectionData: null };
 
     return this._disconnect(item).pipe(
       map(() => _item),
@@ -60,7 +60,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
         error: false,
         connectionData: res.result,
       })),
-      catchError(() => of({...item, error: true})),
+      catchError(() => of({ ...item, error: true })),
     );
   }
 
@@ -68,35 +68,32 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     const data = item.connectionData;
     const apiKey = data.apiKey;
 
-    return this._http.post(`${ this._getUrl(item.broker) }/logout`, {}, {
+    return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {
         'Api-Key': apiKey,
       },
     });
   }
 
-  _getUrl(broker: Broker) {
+  // _getUrl(broker: Broker) {
+  _getUrl(broker: any) {
     if (broker == null)
       throw new Error('Invalid broker');
 
     return this._communicationConfig[broker].http.url + 'Connection';
   }
 
-  protected _createItem(item: ExcludeId<IConnection>): IConnection {
-    const items = this._getItems().map(i => ({...i, connected: false}));
+  protected _createItem(item: ExcludeId<IConnection>, options?): Observable<IConnection> {
+    return super._createItem(item, options).pipe(map(({ result }) => {
+      const items = this._getItems().map(i => ({ ...i, connected: false }));
 
-    const id = this._getLastId(items) + 1;
-    const _item = {...item, id} as IConnection;
+      const id = this._getLastId(items) + 1;
+      const _item = { ...item, connectionData: result, id } as IConnection;
 
-    this._setItems([...items, _item]);
+      this._setItems([...items, _item]);
 
-    this._onCreate(_item);
-
-    if (items) {
-      this._onUpdate(items);
-    }
-
-    return _item;
+      return _item;
+    }))
   }
 
   protected _updateItem(item: IConnection) {
@@ -104,11 +101,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
       if (i.id === item.id) {
         const password = item.autoSavePassword ? item.password : null;
 
-        return {...i, ...item, password};
+        return { ...i, ...item, password };
       }
 
       if (item.connected) {
-        return {...i, connected: false};
+        return { ...i, connected: false };
       }
 
       return i;
