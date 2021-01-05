@@ -15,6 +15,7 @@ export class CommunicationConfig {
   http: ICommunicationHttpConfig;
   ws: ICommunicationWsConfig;
   rithmic: ICommunicationConfig;
+  setting: ICommunicationHttpConfig;
   identity: IIdentityConfig;
 }
 

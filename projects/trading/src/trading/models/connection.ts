@@ -6,7 +6,7 @@ export interface IConnection extends IBaseItem {
   name: string;
   username: string;
   password?: string;
-  connectionPointId: string;
+  server: string;
   aggregatedQuotes: boolean;
   gateway: string;
   autoSavePassword: boolean;
