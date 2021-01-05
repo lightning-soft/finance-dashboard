@@ -8,16 +8,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
-
-
-// window.requestAnimationFrame =
-//   window.requestAnimationFrame ||
-//   window.webkitRequestAnimationFrame ||
-//   window.mozRequestAnimationFrame ||
-//   window.oRequestAnimationFrame ||
-//   window.msRequestAnimationFrame ||
-//   requestAnimationFramePolyfill;
-
+import { SynchronizeFrames } from 'performance';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -92,15 +83,18 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
+  get trade() {
+    return this._trade;
+  }
+
   private _settings: DomSettings = new DomSettings();
 
-  private _updates = 0;
 
   constructor(
     private _accountsManager: AccountsManager,
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
-    private _levelTwoDatafeed: Level2DataFeed
+    private _levelTwoDatafeed: Level2DataFeed,
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
@@ -114,7 +108,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
-    })
+    });
   }
 
   ngAfterViewInit() {
@@ -125,23 +119,16 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.dataGrid.detectChanges();
   }
 
+  @SynchronizeFrames()
   private _calculateAsync() {
-    this._updates += 1;
-
-    requestAnimationFrame(() => {
-      console.log('detectChanges', this._updates);
-      if (this._updates > 0) {
-        this._calculate();
-        this.dataGrid.detectChanges();
-      }
-      this._updates = 0;
-    });
+    this._calculate();
+    this.dataGrid.detectChanges();
   }
 
   protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    this._dom.handleTrade(trade);;
+    this._dom.handleTrade(trade);
     this._calculateAsync();
   }
 
@@ -218,22 +205,21 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     }
   }
 
+  @SynchronizeFrames()
   private _handleResize() {
-    setTimeout(() => {
-      const data = this.items;
-      const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
+    const data = this.items;
+    const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-      if (data.length === visibleRows)
-        return;
+    if (data.length === visibleRows)
+      return;
 
-      if (data.length > visibleRows)
-        data.splice(visibleRows, data.length - visibleRows);
-      else if (data.length < visibleRows)
-        while (data.length <= visibleRows)
-          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+    if (data.length > visibleRows)
+      data.splice(visibleRows, data.length - visibleRows);
+    else if (data.length < visibleRows)
+      while (data.length <= visibleRows)
+        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
 
-      this.detectChanges();
-    });
+    this.detectChanges();
   }
 
   saveState?(): IDomState {
@@ -269,7 +255,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: this._settings,
+        // state: this._settings,
       },
       maximizeBtn: true,
       closeBtn: true,

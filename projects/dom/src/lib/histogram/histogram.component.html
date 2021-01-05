@@ -1,9 +1,4 @@
-<span class="histogram-container"
-      [ngStyle]="{background: cell.settings.backgroundColor}">
-<span
-  [style.background]="cell.settings?.histogramColor"
-  [style.width.%]="cell.hist" class='histogram {{cell.settings?.orientation}}'></span>
-<span [style.color]="cell.settings.fontColor"
-      [style.fontSize]="cell.settings.fontSize + 'px'"
-      [style.textAlign]="cell.settings.textAlign" class="data">{{cell.value}}</span>
+<span class="histogram-container">
+  <span [style.width.%]="cell.hist" class='histogram'></span>
+  <span class="data">{{cell.value}}</span>
 </span>

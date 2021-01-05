@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormlyForm } from '@ngx-formly/core';
 import { ILayoutNode, IStateProvider, LayoutNode } from "layout";
+import { CssApplier } from '../css.applier';
 import { SettingsConfig, SettingTab } from './settings-fields';
 
 export interface DomSettingsComponent extends ILayoutNode {
@@ -9,11 +10,13 @@ export interface DomSettingsComponent extends ILayoutNode {
 
 export const DomSettingsSelector = 'dom-settings';
 
+
 @UntilDestroy()
 @Component({
   selector: DomSettingsSelector,
   templateUrl: './dom-settings.component.html',
-  styleUrls: ['./dom-settings.component.scss']
+  styleUrls: ['./dom-settings.component.scss'],
+  providers: [CssApplier]
 })
 @LayoutNode()
 export class DomSettingsComponent implements IStateProvider<any> {
@@ -51,7 +54,7 @@ export class DomSettingsComponent implements IStateProvider<any> {
   selectedConfig: any;
   currentTab: SettingTab;
 
-  constructor() {
+  constructor(private _applier: CssApplier) {
     this.setTabTitle('Dom settings');
   }
 
@@ -63,7 +66,9 @@ export class DomSettingsComponent implements IStateProvider<any> {
 
   private _handleChange(value: any) {
     this.settings[this.currentTab] = value;
+    const configs = this.selectedConfig;
     this.broadcastData(DomSettingsSelector, { [this.currentTab]: value });
+    this._applier.apply('lib-dom', configs.map(c => c?.getCss && c?.getCss(value)).filter(Boolean));
   }
 
   select(item) {

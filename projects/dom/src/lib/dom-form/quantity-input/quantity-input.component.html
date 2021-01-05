@@ -1,0 +1,16 @@
+<div class="inner-buttons">
+
+  <ng-container *ngFor="let item of amountButtons">
+    <button
+      nz-tooltip nzTooltipTitle="Edit the default number"
+      [class.black-btn]="isCurrentValue(item)"
+      (click)="updateValue(item)"
+      (contextmenu)="item.edit = true;"
+      *ngIf="!item.edit"
+      nz-button>{{item.label}}</button>
+    <input *ngIf="item.edit" type="number"
+           (keyup.enter)="item.edit = false"
+           (focusout)="item.edit = false"
+           [(ngModel)]="item.label" nz-input>
+  </ng-container>
+</div>

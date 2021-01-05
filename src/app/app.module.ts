@@ -1,6 +1,6 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpClientModule } from '@angular/common/http';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule, NgZone } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -44,8 +44,6 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
-import { DynamicFormModule } from 'dynamic-form';
-
 
 
 /**
@@ -214,8 +212,17 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private i18n: NzI18nService) {
+  constructor(private i18n: NzI18nService, zone: NgZone) {
+    Element.prototype.addEventListener = function (...args) {
+      const _this = this;
+      const fn = args[1];
+      if (typeof fn == 'function')
+        args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
+
+      return addEventListener.apply(_this, args);
+    };
   }
+
   switchLanguage() {
     this.i18n.setLocale(en_US);
   }

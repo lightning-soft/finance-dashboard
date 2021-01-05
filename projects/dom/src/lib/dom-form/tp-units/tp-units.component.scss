@@ -1,0 +1,15 @@
+@import "../ticks";
+@import "../general";
+
+.tp-tick, .tp-tick:focus, .tp-tick:hover, .tp-tick:focus-within {
+  background: rgba(72, 149, 245, 0.2);
+  border: 1px solid #4895F5;
+}
+
+:host-context(.full-screen-window) {
+
+  .tp-tick {
+    margin-top: 0;
+    margin-left: 2px;
+  }
+}

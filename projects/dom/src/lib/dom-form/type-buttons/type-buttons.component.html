@@ -1,0 +1,6 @@
+<div class="inner-buttons">
+  <button
+    [class.black-btn]="isCurrentValue(item)"
+    (click)="updateValue(item)"
+    nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
+</div>
