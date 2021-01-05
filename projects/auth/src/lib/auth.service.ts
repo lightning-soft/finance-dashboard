@@ -4,8 +4,10 @@ import { NotifierService } from 'notifier';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 import { AppConfig } from 'src/app/app.config';
+import { Storage } from 'storage';
 
 export type Token = string;
+const tokenKey = 'token';
 
 export type UserIdentityInfo = {
   name: string;
@@ -25,6 +27,7 @@ export class AuthService {
   constructor(
     private _notification: NotifierService,
     private _appConfig: AppConfig,
+    private storage: Storage,
     private _http: HttpClient
   ) { }
 
@@ -33,7 +36,7 @@ export class AuthService {
      * To-do get token from some storage
      */
 
-    return this._token;
+   return  this.storage.getItem(tokenKey);
   }
 
   public logOut(): Observable<any> {
@@ -43,7 +46,7 @@ export class AuthService {
       .pipe(tap(res => this.isAuthenticated.next(false)));
   }
 
-  public initialize(code: Token): Promise<UserIdentityInfo> {
+   public async initialize(code: Token): Promise<UserIdentityInfo> {
     if (!code) {
       console.log('Code is not exist');
       return;
@@ -62,13 +65,14 @@ export class AuthService {
     data.set('grant_type', "authorization_code");
     data.set('redirect_uri', redirectUri);
 
-    this._http.post(`${url}connect/token`, data.toString(), { headers })
+    return await this._http.post(`${url}connect/token`, data.toString(), { headers })
       .pipe(
         mergeMap((data: any) => {
           /**
            * To-do token storage
            */
           this._token = data.access_token;
+          this.storage.setItem(tokenKey, this._token);
           return this._http.get(`${url}connect/userinfo`, {
             headers: {
               Authorization: 'Bearer ' + this._token
