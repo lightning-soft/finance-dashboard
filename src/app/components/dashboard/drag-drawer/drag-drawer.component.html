@@ -3,10 +3,12 @@
 </button>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="side-navigation">
-    <li 
-      nz-menu-item 
-      *ngFor="let item of items" 
-      (click)="create(item)" 
+    <li
+      nz-menu-item
+      *ngFor="let item of items"
+      (click)="create(item)"
+      nz-tooltip [nzTooltipTitle]="item.name"
+      nzTooltipPlacement="right"
       class="side-navigation__item"
       data-name="{{item.name}}"
     >

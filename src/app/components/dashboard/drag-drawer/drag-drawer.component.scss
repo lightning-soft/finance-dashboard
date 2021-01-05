@@ -13,7 +13,7 @@ button {
     left: 50%;
     top: 2%;
   }
-  
+
 }
 
 .side-navigation {
@@ -25,7 +25,9 @@ button {
   transition: transform 0.3s ease-out;
   background-color: $lightBackground!important;
 }
-
+.icon-widget-market-watch{
+  font-size: 12px;
+}
 .side-navigation {
 
   &__item {
