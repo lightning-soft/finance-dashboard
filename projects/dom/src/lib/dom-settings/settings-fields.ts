@@ -7,7 +7,7 @@ type EjectCssFn = (value: any) => any;
 interface IFieldConfig extends FormlyFieldConfig {
   label?: string;
   getCss?: EjectCssFn;
-  fieldGroup?: IFieldConfig[]
+  fieldGroup?: IFieldConfig[];
 }
 
 class FieldConfig implements IFieldConfig {
@@ -25,17 +25,21 @@ class FieldConfig implements IFieldConfig {
       },
       ...config,
     });
-
-    this.key = lowerFirstLetter((this.templateOptions.label as string).replace(/ /g, ''))
+    if (config.key) {
+      this.key = config.key as string;
+    } else if (this.templateOptions.label) {
+      this.key = lowerFirstLetter((this.templateOptions.label as string).replace(/ /g, ''));
+    }
   }
 
   getCss(value: any): any {
+    console.log(this.key, this.fieldGroup);
     return {
-      [` .${this.key}`]: this.fieldGroup
+      [` .${ this.key }`]: this.fieldGroup
         .map(i => i.getCss && i.getCss(value[this.key]))
         .filter(Boolean)
         .reduce((acc, k) => merge(acc, k)),
-    }
+    };
   }
 }
 
@@ -65,11 +69,11 @@ function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
     key,
     name: key,
     type: FieldType.Color,
-    templateOptions: { label: _label },
+    templateOptions: {label: _label},
     default: defaultValue,
     getCss: typeof cssAttrOrFn == 'function'
       ? (value) => (cssAttrOrFn as Function)(value[key] ?? defaultValue)
-      : (value) => ({ [cssAttrOrFn as string]: value[key] ?? defaultValue }),
+      : (value) => ({[cssAttrOrFn as string]: value[key] ?? defaultValue}),
   };
 }
 
@@ -80,14 +84,14 @@ function lowerFirstLetter(text: string): string {
 function getRadio(key: string, label: string, options: { label: string, value: string }[] | string[]) {
   const _options = (options as Array<any>).map(item => {
     if (typeof item === 'string') {
-      return { label: item, value: item };
+      return {label: item, value: item};
     }
     return item;
   });
   return {
     key,
     type: FieldType.Radio,
-    templateOptions: { label, options: _options }
+    templateOptions: {label, options: _options}
   };
 }
 
@@ -102,7 +106,7 @@ function getHistogram(key: string = 'orientation', label: string = 'Histogram Or
     className: 'no-underline',
     templateOptions: {
       label,
-      options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }]
+      options: [{label: 'Left', value: 'left'}, {label: 'Right', value: 'right'}]
     }
   };
 }
@@ -148,18 +152,20 @@ function getNumber(key: string, label: string) {
   };
 }
 
-export const commonFields: FormlyFieldConfig[] = [
-  {
-    wrappers: ['form-field'],
-    templateOptions: {
-      label: 'Font'
-    },
+const histogramFields = [
+  getColor('Background Color'),
+  getColor('Font Color', 'color'),
+  getColor('Highlight Background Color', (value) => ({':hover': {'background-color': value}}))
+];
+export const commonFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Font',
     fieldGroupClassName: 'd-flex two-rows flex-wrap',
     fieldGroup: [
       {
         type: FieldType.Select,
         templateOptions: {
-          options: [{ label: 'Open Sans', value: 'Open Sans' }],
+          options: [{label: 'Open Sans', value: 'Open Sans'}],
         },
         key: 'fontFamily'
       },
@@ -167,22 +173,19 @@ export const commonFields: FormlyFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [
-            { label: 'Regular', value: 'regular' }, { label: 'Bold', value: 'bold' }, { label: 'Bolder', value: 'bolder' }]
+            {label: 'Regular', value: 'regular'}, {label: 'Bold', value: 'bold'}, {label: 'Bolder', value: 'bolder'}]
         },
         key: 'fontWeight'
       },
       {
         type: FieldType.Number,
-        templateOptions: { label: 'Font size' },
+        templateOptions: {label: 'Font size'},
         key: 'fontSize',
       },
     ]
-  },
-  {
-    wrappers: ['form-field'],
-    templateOptions: {
-      label: 'General Color'
-    },
+  }),
+  new FieldConfig({
+    label: 'General Color',
     fieldGroupClassName: 'd-flex two-rows flex-wrap',
     fieldGroup: [
       getColor('Grid Line Color'),
@@ -190,192 +193,197 @@ export const commonFields: FormlyFieldConfig[] = [
       getColor('Center Line Color'),
       getColor('Simulation Mode Warning Clr'),
     ]
-  },
+  }),
   getCheckboxes([
-    { key: 'notes', label: 'Notes' },
-    { label: 'Bid Delta', key: 'bidDelta' },
-    { label: 'Total At Bid', key: 'totalAtBid' },
-    { label: 'Ask Delta', key: 'askDelta' },
-    { label: 'Total At Ask', key: 'totalAtAsk' },
-    { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
-    { label: 'Last Traded Quantity(LQT)', key: 'lqt' },
-    { label: 'Volume Profile', key: 'volumeProfile' },
-    { label: 'Orders', key: 'orders' },
-    { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
-    { label: 'Bid Depth', key: 'bidDepth' },
-    { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },
-    { label: 'Ask Depth', key: 'askDepth' },
-    { label: 'Price', key: 'price' },
+    {key: 'notes', label: 'Notes'},
+    {label: 'Bid Delta', key: 'bidDelta'},
+    {label: 'Total At Bid', key: 'totalAtBid'},
+    {label: 'Ask Delta', key: 'askDelta'},
+    {label: 'Total At Ask', key: 'totalAtAsk'},
+    {label: 'Merge Bid/Ask Delta', key: 'mergeDelta'},
+    {label: 'Last Traded Quantity(LQT)', key: 'lqt'},
+    {label: 'Volume Profile', key: 'volumeProfile'},
+    {label: 'Orders', key: 'orders'},
+    {label: 'Current Trades At Bit', key: 'currentTradesAtBit'},
+    {label: 'Bid Depth', key: 'bidDepth'},
+    {label: 'Current Trades At Ask', key: 'currentTradesAtAsk'},
+    {label: 'Ask Depth', key: 'askDepth'},
+    {label: 'Price', key: 'price'},
   ], 'Columns View'),
 ];
 export const hotkeyFields: FormlyFieldConfig[] = [
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Auto Center' },
+    templateOptions: {label: 'Auto Center'},
     key: 'autoCenter',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Auto Center All Windows' },
+    templateOptions: {label: 'Auto Center All Windows'},
     key: 'autoCenterWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Buy Market' },
+    templateOptions: {label: 'Buy Market'},
     key: 'buyMarket',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Sell Market' },
+    templateOptions: {label: 'Sell Market'},
     key: 'sellMarket',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Hit Bid' },
+    templateOptions: {label: 'Hit Bid'},
     key: 'hitBid',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Join Bid' },
+    templateOptions: {label: 'Join Bid'},
     key: 'joinBid',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Lift Offer' },
+    templateOptions: {label: 'Lift Offer'},
     key: 'liftOffer',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'OCO' },
+    templateOptions: {label: 'OCO'},
     key: 'oco',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Flatten' },
+    templateOptions: {label: 'Flatten'},
     key: 'flatten',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Cancel All Orders' },
+    templateOptions: {label: 'Cancel All Orders'},
     key: 'cancelAllOrders',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity 1 Preset' },
+    templateOptions: {label: 'Quantity 1 Preset'},
     key: 'quantity1',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity 2 Preset' },
+    templateOptions: {label: 'Quantity 2 Preset'},
     key: 'quantity2',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity 3 Preset' },
+    templateOptions: {label: 'Quantity 3 Preset'},
     key: 'quantity3',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity 4 Preset' },
+    templateOptions: {label: 'Quantity 4 Preset'},
     key: 'quantity4',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity 5 Preset' },
+    templateOptions: {label: 'Quantity 5 Preset'},
     key: 'quantity5',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Quantity to Position Size' },
+    templateOptions: {label: 'Quantity to Position Size'},
     key: 'quantityToPos',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Set All Stops to Price' },
+    templateOptions: {label: 'Set All Stops to Price'},
     key: 'stopsToPrice',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Alerts' },
+    templateOptions: {label: 'Clear Alerts'},
     key: 'clearAlerts',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Alerts All Window' },
+    templateOptions: {label: 'Clear Alerts All Window'},
     key: 'clearAlertsWindow',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear All Totals' },
+    templateOptions: {label: 'Clear All Totals'},
     key: 'clearTotals',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades All Windows' },
+    templateOptions: {label: 'Clear Current Trades All Windows'},
     key: 'clearCurrentTradesWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Down' },
+    templateOptions: {label: 'Clear Current Trades Down'},
     key: 'clearCurrentTradesDown',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Down All Windows' },
+    templateOptions: {label: 'Clear Current Trades Down All Windows'},
     key: 'clearCurrentTradesDownWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Up' },
+    templateOptions: {label: 'Clear Current Trades Up'},
     key: 'clearCurrentTradesUp',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Up All Windows' },
+    templateOptions: {label: 'Clear Current Trades Up All Windows'},
     key: 'clearCurrentTradesUpWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Down' },
+    templateOptions: {label: 'Clear Total Trades Down'},
     key: 'clearTotalTradesDown',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Down All Windows' },
+    templateOptions: {label: 'Clear Total Trades Down All Windows'},
     key: 'clearTotalTradesDownWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Up' },
+    templateOptions: {label: 'Clear Total Trades Up'},
     key: 'clearTotalTradesUp',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Up All Windows' },
+    templateOptions: {label: 'Clear Total Trades Up All Windows'},
     key: 'clearTotalTradesUpWindows',
   },
   {
     type: FieldType.Input,
-    templateOptions: { label: 'Clear Volume Profile' },
+    templateOptions: {label: 'Clear Volume Profile'},
     key: 'clearVolumeProfile',
   },
 ];
-export const generalFields: FormlyFieldConfig[] = [
+export const generalFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'General',
+    fieldGroup: [
+      getCheckboxes([
+          {key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed'},
+          {key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position'},
+          {label: 'Clear Total Trades On New Position', key: 'clearTotalTrades'},
+          {label: 'Re-Center On New Position', key: 'recenter'},
+          {label: 'All Windows', key: 'allWindows'},
+        ],
+        'Reset settings'),
+    ]
+  }),
   getCheckboxes([
-    { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-    { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-    { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-    { label: 'Re-Center On New Position', key: 'recenter' },
-    { label: 'All Windows', key: 'allWindows' },
-  ],
-    'Reset settings'),
-  getCheckboxes([
-    { label: 'Hide Account Name', key: 'hideAccountName' },
-    { label: 'Hide From Left', key: 'hideFromLeft' },
-    { label: 'Hide From Right', key: 'hideFromRight' },
+    {label: 'Hide Account Name', key: 'hideAccountName'},
+    {label: 'Hide From Left', key: 'hideFromLeft'},
+    {label: 'Hide From Right', key: 'hideFromRight'},
 
   ], 'Account Name', [{
-    templateOptions: { label: 'Account Digits To Hide', },
+    templateOptions: {label: 'Account Digits To Hide'},
     key: 'digitsToHide',
     type: FieldType.Number,
   }]),
@@ -400,37 +408,38 @@ export const generalFields: FormlyFieldConfig[] = [
       label: 'Use Custom Tick Size',
       key: 'useCustomTickSize'
     },
-  ], 'Common View', [
-    {
-      templateOptions: { label: 'Auto Center Ticks' },
-      key: 'autoCenterTicks',
-      type: FieldType.Number,
-    },
-    {
-      templateOptions: { label: 'Ticks per price' },
-      key: 'ticksPerPrice',
-      type: FieldType.Number,
-    },
   ]),
-  {
-    wrappers: ['form-field'],
-    fieldGroupClassName: 'd-flex two-rows flex-wrap ',
-    templateOptions: {
-      label: 'Depth & Market'
-    },
+  new FieldConfig({
+    label: 'Common View',
     fieldGroup: [
       {
-        templateOptions: { label: 'Market Depth' },
+        templateOptions: {label: 'Auto Center Ticks'},
+        key: 'autoCenterTicks',
+        type: FieldType.Number,
+      },
+      {
+        templateOptions: {label: 'Ticks per price'},
+        key: 'ticksPerPrice',
+        type: FieldType.Number,
+      },
+    ]
+  }),
+  new FieldConfig({
+    label: 'Depth & Market',
+    fieldGroupClassName: 'd-flex two-rows flex-wrap',
+    fieldGroup: [
+      {
+        templateOptions: {label: 'Market Depth'},
         key: 'marketDepth',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: 'Bid/Ask Delta Filter' },
+        templateOptions: {label: 'Bid/Ask Delta Filter'},
         key: 'bidAskDeltaFilter',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: ' Bid/Ask Delta Depth' },
+        templateOptions: {label: ' Bid/Ask Delta Depth'},
         key: 'bidAskDeltaDepth',
         type: FieldType.Number,
       },
@@ -443,36 +452,33 @@ export const generalFields: FormlyFieldConfig[] = [
         },
       },
     ]
-  },
-  {
-    wrappers: ['form-field'],
-    templateOptions: {
-      label: 'Intervals'
-    },
+  }),
+  new FieldConfig({
+    label: 'Intervals',
     fieldGroupClassName: 'd-flex two-rows flex-wrap ',
     fieldGroup: [
       {
-        templateOptions: { label: 'Clear Traders Timer Interval' },
+        templateOptions: {label: 'Clear Traders Timer Interval'},
         key: 'clearTradersTimer',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: 'Update Interval' },
+        templateOptions: {label: 'Update Interval'},
         key: 'updateInterval',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: 'Scroll Wheel Sensitivity' },
+        templateOptions: {label: 'Scroll Wheel Sensitivity'},
         key: 'scrollWheelSensitivity',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: 'Order  Quantity Step' },
+        templateOptions: {label: 'Order  Quantity Step'},
         key: 'orderQuantityStep',
         type: FieldType.Number,
       },
       {
-        templateOptions: { label: 'Momentum Interval ms' },
+        templateOptions: {label: 'Momentum Interval ms'},
         key: 'momentumIntervalMs',
         type: FieldType.Number,
       },
@@ -491,74 +497,60 @@ export const generalFields: FormlyFieldConfig[] = [
         },
       },
     ]
-  },
-];
-export const ltqFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Last Traded Quantity (LTQ)'
+  })
+]
+
+export const ltqFields: IFieldConfig[] = [
+  new FieldConfig({
+      label: 'Last Traded Quantity (LTQ)',
+      fieldGroup: [getColor('Font Color'),
+        getColor('Background Color'),
+        getColor('Buy Background Color'),
+        getColor('Sell Background Color'),
+        getColor('Highlight Color'),
+      ]
     },
-    wrappers: ['form-field'],
-    fieldGroup: [getColor('Font Color'),
-    getColor('Background Color'),
-    getColor('Buy Background Color'),
-    getColor('Sell Background Color'),
-    getColor('Highlight Color')]
-  },
+  ),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    fieldGroup: [getCheckboxes([{ key: 'accumulateTrades', label: 'Accumulate Trades at Price' }]),
-    getTextAlign()]
-  },
+    fieldGroup: [getCheckboxes([{key: 'accumulateTrades', label: 'Accumulate Trades at Price'}]),
+      getTextAlign()]
+  }
 ];
 
-export const priceFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Price'
-    },
-    wrappers: ['form-field'],
+export const priceFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Price',
+
     fieldGroup: [getColor('Highlight Background Color'),
-    getColor('Last Traded Price Font Color'),
-    getColor('Non Traded Price Back Color'),
-    getColor('Traded Price Back Color'),
-    getColor({ label: 'Price Font Color', key: 'fontColor' }),
-    getColor('Non Traded Price Font Color'),]
-  },
-  getTextAlign(),
-
+      getColor('Last Traded Price Font Color'),
+      getColor('Non Traded Price Back Color'),
+      getColor('Traded Price Back Color'),
+      getColor({label: 'Price Font Color', key: 'fontColor'}),
+      getColor('Non Traded Price Font Color'),
+      getTextAlign(),
+    ]
+  }),
 ];
-export const bidDeltaFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Bid Delta'
-    },
-    wrappers: ['form-field'],
+export const bidDeltaFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Bid Delta',
     fieldGroup: [
       getColor('Background Color'),
       getColor('Font Color'),
       getColor('Highlight Background Color'),
     ]
-  },
+  }),
   getTextAlign(),
 
 ];
-export const askDeltaFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Ask Delta'
-    },
-    wrappers: ['form-field'],
+export const askDeltaFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Ask Delta',
     fieldGroup: [
-      getColor('Background Color'),
-      getColor('Font Color'),
-      getColor('Highlight Background Color'),
+      ...histogramFields,
     ]
-  },
+  }),
   getTextAlign(),
 ];
 
@@ -566,11 +558,9 @@ export const bidDepthFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Bid',
     fieldGroup: [
-      getColor('Background Color'),
-      getColor('Font Color', 'color'),
-      getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } })),
+      ...histogramFields,
       getColor('Total Font Color'),
-      getCheckboxes([{ key: 'bidDepth', label: 'Bid Depth Histogram' }, {
+      getCheckboxes([{key: 'bidDepth', label: 'Bid Depth Histogram'}, {
         key: 'highlightLargeBids',
         label: 'Highlight Large Bids Only'
       }]),
@@ -580,175 +570,151 @@ export const bidDepthFields: IFieldConfig[] = [
     ]
   }),
 ];
-export const askDepthFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Ask Depth'
-    },
-    wrappers: ['form-field'],
-    fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'askDepth', label: 'Ask Depth Histogram' }, {
-      key: 'highlightLargeAsks',
-      label: 'Highlight Large Asks Only'
-    }]),
-    getNumber('fontSize', 'Large Ask Size'),
-    getTextAlign(),
-    getHistogram(),
+export const askDepthFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Ask Depth',
+    fieldGroup: [
+      ...histogramFields,
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'askDepth', label: 'Ask Depth Histogram'}, {
+        key: 'highlightLargeAsks',
+        label: 'Highlight Large Asks Only'
+      }]),
+      getNumber('fontSize', 'Large Ask Size'),
+      getTextAlign(),
+      getHistogram(),
     ]
-  },
-];
-export const totalAskDepthFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Total At Ask'
-    },
-    wrappers: ['form-field'],
-    fieldGroup: [getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Highlight Background Color'),
-    getColor('Total Font Color'),
-    getCheckboxes([{ key: 'totalAsk', label: 'Total At Ask Histogram' }]),
-    getTextAlign(),
-    getHistogram(),
-
-    ]
-  },
+  }),
 
 ];
-export const totalBidDepthFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Total At Bid'
-    },
-    wrappers: ['form-field'],
+export const totalAskDepthFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Total At Ask',
+    fieldGroup: [
+      ...histogramFields,
+      getColor('Total Font Color'),
+      getCheckboxes([{key: 'totalAsk', label: 'Total At Ask Histogram'}]),
+      getTextAlign(),
+      getHistogram(),
+
+    ]
+  }),
+
+];
+export const totalBidDepthFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Total At Bid',
     fieldGroup: [
       getColor('Background Color'),
       getColor('Font Color'),
       getColor('Highlight Background Color'),
       getColor('Total Font Color'),
-      getCheckboxes([{ key: 'totalBid', label: 'Total At Bid Histogram' }]),
+      getCheckboxes([{key: 'totalBid', label: 'Total At Bid Histogram'}]),
       getTextAlign(),
       getHistogram(),
     ]
-  },
+  })
 ];
 
-export const volumeFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Volume Profile'
-    },
-    wrappers: ['form-field'],
+export const volumeFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Volume Profile',
+    fieldGroup: [
+      ...histogramFields,
+      getColor('Histogram Color'),
+      getColor({key: 'controlColor', label: 'Point of Control Color'}),
+      getColor({key: 'areaColor', label: 'Value Area Color'}),
+      getColor('VWAP Color'),
+
+    ]
+  }),
+  new FieldConfig({
+    key: 'volumeProfile',
+    fieldGroup: [
+      getCheckboxes([
+        {key: 'volumeProfile', label: 'Volume Profile Histogram'},
+        {key: 'ltq', label: 'Last Traded Qty (LTQ)'},
+        {key: 'poc', label: 'Point of Control'},
+        {label: 'Value Area', key: 'valueArea'},
+        {key: 'VWAP', label: 'VWAP'}
+      ]),
+    ],
+  }),
+  new FieldConfig({
+    key: 'volumeProfile',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-flex flex-wrap two-rows',
+        fieldGroup: [getTextAlign(),
+          getHistogram(),
+        ]
+      },
+    ]
+  })
+];
+export const orderColumnFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Trade Column',
     fieldGroup: [
       getColor('Background Color'),
-      getColor('Font Color'),
-      getColor('Highlight Background Color'),
+      getColor('Highlight Color'),
+      getColor('Buy Order Background'),
+      getColor('Sell Order Background'),
+      getColor('Buy Order Foreground'),
+      getColor('Sell Order Foreground'),
+      getCheckboxes([{key: 'snowPnl', label: 'Show PnL in Column'},
+        {key: 'includePnl', label: 'Include Closed PnL'}]),
+      getTextAlign(),
+      {
+        fieldGroupClassName: 'd-flex flex-wrap two-rows',
+        fieldGroup: [getColor('In Profit Background'),
+          getColor('In Profit Foreground'),
+          getColor('Loss Background'),
+          getColor('Loss Foreground'),
+          getColor('Break-even Background'),
+          getColor('Break-even Foreground'),
+        ]
+      },
+      getCheckboxes([
+        {key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column'},
+        {key: 'split', label: 'Split order column into Buy Orders and Sell Orders'},
+      ]),
+      {
+        fieldGroupClassName: 'd-flex flex-wrap two-rows',
+        fieldGroup: [getColor('Buy Orders Column'),
+          getColor('Sell Orders Column'),
+        ]
+      },
+    ]
+  }),
+];
+export const currentAtBidColumnFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Current At Bid',
+    fieldGroup: [getCheckboxes([{key: 'histogram', label: 'Current At Bid Histogram'}]),
+      getTextAlign(),
+      getColor('Level 1'),
+      getColor('Level 2'),
+      getColor('Level 3'),
+      getColor('Level 4'),
+      getColor('Level 5'),
+      getColor('Level 6'),
+      getColor('Level 7'),
+      getColor('Level 8'),
+      getColor('Tail Inside Bid Fore'),
+      getCheckboxes([{key: 'tailBidBold', label: 'Tail Inside Bid Bold'}]),
+      ...histogramFields,
+      getColor('Inside Bid Background Color'),
       getColor('Histogram Color'),
-      getColor({ key: 'controlColor', label: 'Point of Control Color' }),
-      getColor({ key: 'areaColor', label: 'Value Area Color' }),
-      getColor('VWAP Color'),
     ]
-  },
-  getCheckboxes([
-    { key: 'volumeProfile', label: 'Volume Profile Histogram' },
-    { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
-    { key: 'poc', label: 'Point of Control' },
-    { label: 'Value Area', key: 'valueArea' },
-    { key: 'VWAP', label: 'VWAP' }
-  ]),
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    fieldGroup: [getTextAlign(),
-    getHistogram(),
-    ]
-  },
-];
-export const orderColumnFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Trade Column'
-    },
-    wrappers: ['form-field'],
-    fieldGroup: [getColor('Background Color'),
-    getColor('Highlight Color'),
-    getColor('Buy Order Background'),
-    getColor('Sell Order Background'),
-    getColor('Buy Order Foreground'),
-    getColor('Sell Order Foreground'),
-    ]
-  },
-
-  getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-  { key: 'includePnl', label: 'Include Closed PnL' }]),
-  getTextAlign(),
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    fieldGroup: [getColor('In Profit Background'),
-    getColor('In Profit Foreground'),
-    getColor('Loss Background'),
-    getColor('Loss Foreground'),
-    getColor('Break-even Background'),
-    getColor('Break-even Foreground'),
-    ]
-  },
-
-  getCheckboxes([
-    { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
-    { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
-  ]),
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    fieldGroup: [getColor('Buy Orders Column'),
-    getColor('Sell Orders Column'),
-    ]
-  },
+  }),
 
 ];
-export const currentAtBidColumnFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Current At Bid'
-    },
-    wrappers: ['form-field'],
-    fieldGroup: [getCheckboxes([{ key: 'histogram', label: 'Current At Bid Histogram' }]),
-    getTextAlign(),
-    getColor('Level 1'),
-    getColor('Level 2'),
-    getColor('Level 3'),
-    getColor('Level 4'),
-    getColor('Level 5'),
-    getColor('Level 6'),
-    getColor('Level 7'),
-    getColor('Level 8'),
-    getColor('Tail Inside Bid Fore'),
-    getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Bid Bold' }]),
-    getColor('Background Color'),
-    getColor('Font Color'),
-    getColor('Inside Bid Background Color'),
-    getColor('Highlight Background Color'),
-    getColor('Histogram Color'),
-    ]
-  },
-
-];
-export const currentAtAskFields: FormlyFieldConfig[] = [
-  {
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    templateOptions: {
-      label: 'Current At Ask'
-    },
-    wrappers: ['form-field'],
+export const currentAtAskFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Current At Ask',
     fieldGroup: [
-      getCheckboxes([{ key: 'histogram', label: 'Current At Ask Histogram' }]),
+      getCheckboxes([{key: 'histogram', label: 'Current At Ask Histogram'}]),
       getTextAlign(),
       getColor('Level 1'),
       getColor('Level 2'),
@@ -759,18 +725,16 @@ export const currentAtAskFields: FormlyFieldConfig[] = [
       getColor('Level 7'),
       getColor('Level 8'),
       getColor('Tail Inside Ask Fore'),
-      getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Ask Bold' }]),
-      getColor('Background Color'),
-      getColor('Font Color'),
+      getCheckboxes([{key: 'tailBidBold', label: 'Tail Inside Ask Bold'}]),
+      ...histogramFields,
       getColor('Inside Ask Background Color'),
-      getColor('Highlight Background Color'),
       getColor('Histogram Color'),
     ]
-  },
+  })
 
 ];
-export const noteColumnFields: FormlyFieldConfig[] = [
-  {
+export const noteColumnFields: IFieldConfig[] = [
+  new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
     templateOptions: {
       label: 'Note'
@@ -785,7 +749,7 @@ export const noteColumnFields: FormlyFieldConfig[] = [
       getColor('Font Color'),
       getColor('Highlight Background Color'),
     ]
-  },
+  }),
   getTextAlign(),
 
 ];
@@ -832,17 +796,17 @@ export const SettingsConfig = {
   [SettingTab.CurrentAtBid]: currentAtBidColumnFields,
   [SettingTab.CurrentAtAsk]: currentAtAskFields,
   [SettingTab.Note]: noteColumnFields,
-}
+};
 
 export function getDefaultSettings(value: any = SettingsConfig) {
   if (Array.isArray(value.fieldGroup))
-    return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({ ...acc, ...i }), {});
+    return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({...acc, ...i}), {});
 
   if (Array.isArray(value))
     return value.map(getDefaultSettings)
 
   if (value.default || value.type != null)
-    return { [value.key]: value.default };
+    return {[value.key]: value.default};
 
   const result = {};
   const keys = Object.keys(value);

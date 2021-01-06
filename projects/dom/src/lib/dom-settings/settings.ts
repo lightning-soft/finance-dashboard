@@ -1,12 +1,12 @@
 import { TextAlign } from 'dynamic-form';
-import { HistogramOrientation } from './settings-fields';
+import { getDefaultSettings, HistogramOrientation } from './settings-fields';
 
 export class DomSettings {
   general: any = {};
   hotkeys: any = {};
   columns: any = {};
   common: any = {};
-  ltg: any = {};
+  ltq: any = {};
   price: any = {fontColor: 'white', textAlign: TextAlign.Center};
   bidDelta: any = {};
   askDelta: any = {};
@@ -26,12 +26,15 @@ export class DomSettings {
   constructor() {
     (window as any).t = (this);
     this._ask = this.ask;
-    // this.merge(getDefaultSettings());
+    // this.merge(getDefaultSettings(this));
   }
 
   merge(data: Partial<DomSettings>) {
     for (const key in data) {
-      Object.assign(this[key], data[key])
+      if (data[key]) {
+        console.log(key);
+        Object.assign(this[key], data[key]);
+      }
     }
   }
 }
