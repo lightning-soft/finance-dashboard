@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -58,7 +58,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
 
-  @ViewChild(DataGrid, {read: ElementRef})
+  @ViewChild(DataGrid, { read: ElementRef })
   dataGridElement: ElementRef;
 
   isFormOpen = true;
@@ -96,6 +96,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
     private _levelTwoDatafeed: Level2DataFeed,
+    private _renderer: Renderer2
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
@@ -122,9 +123,9 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   scroll = (e: WheelEvent) => {
-    if(e.deltaY > 0) {
+    if (e.deltaY > 0) {
       this._scrolledItems++;
-    } else if(e.deltaY < 0) {
+    } else if (e.deltaY < 0) {
       this._scrolledItems--;
     }
     this._calculate();
@@ -133,7 +134,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   ngAfterViewInit() {
     this._handleResize();
-    this.dataGridElement.nativeElement.addEventListener('wheel', this.scroll);
+    const element = this.dataGridElement && this.dataGridElement.nativeElement;
+    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll))
   }
 
   detectChanges() {
@@ -293,8 +295,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     this._levelOneDatafeed.unsubscribe(instrument);
     this._levelTwoDatafeed.unsubscribe(instrument);
-    this.dataGridElement.nativeElement.removeEventListener('wheel', this.scroll);
-    }
+  }
 }
 
 export function sum(num1, num2, step = 1) {
