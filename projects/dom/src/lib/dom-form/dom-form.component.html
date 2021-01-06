@@ -1,53 +1,21 @@
-<div class="form-layout">
-  <div class="chart-data">
-    <div class="income">+16.25 (0,82%)</div>
-    <div class="chart-info">H: 7065.6</div>
-    <div class="chart-info">L: 6824.7</div>
-    <div class="chart-info">O: 7465.4</div>
-    <div class="chart-info">V: 1,234,544</div>
+<form [formGroup]="form" class="form-layout">
+  <div *ngIf="dailyInfo" class="chart-data">
+    <div class="income">{{ income }} ({{incomePercentage}}%)</div>
+    <div class="chart-info">H: {{dailyInfo.high}}</div>
+    <div class="chart-info">L: {{dailyInfo.low}}</div>
+    <div class="chart-info">O: {{dailyInfo.open}}</div>
+    <div class="chart-info">V: {{dailyInfo.volume}}</div>
   </div>
-  <input class="pl-input" nz-input [value]="387.50" type="number">
-  <button class="top-position-btn" nz-button>+5</button>
-  <div class="inner-buttons">
-    <ng-container *ngFor="let item of amountButtons">
-    <button
-      nz-tooltip nzTooltipTitle="Edit the default number"
-      [class.black-btn]="item.black"
-      (click)="item.edit = true"
-      *ngIf="!item.edit"
-      nz-button >{{item.label}}</button>
-      <input *ngIf="item.edit" type="number"
-             (keyup.enter)="item.edit = false"
-             (focusout)="item.edit = false"
-             [(ngModel)]="item.label"  nz-input>
-    </ng-container>
-  </div>
-  <div class="inner-buttons">
-    <button
-      [class.black-btn]="item.black"
-      nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
-  </div>
+  <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
+  <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
+    <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
 
+<type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>
   <span class="tif">TIF</span>
-  <div class="inner-buttons mt-0">
-    <button
-      [class.black-btn]="item.black"
-      nz-button *ngFor="let item of tifButtons">{{item.label}}</button>
-  </div>
+ <type-buttons  formControlName="tif" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
   <div class="ticks">
-    <button nz-button nz-popover
-            nzPopoverTrigger="click"
-            nzPopoverOverlayClassName="tick-overlay"
-            [nzPopoverContent]="slTicksContent"
-            class="sl-tick tick-btn">SL: 1 TICKS
-    </button>
-    <button nz-button
-            nz-popover
-            nzPopoverTrigger="click"
-            nzPopoverOverlayClassName="tick-overlay"
-            [nzPopoverContent]="tpTicksContent"
-            class="tp-tick tick-btn">TP: 10 TICKS
-    </button>
+<sl-units formControlName="sl" ></sl-units>
+<tp-units formControlName="tp"></tp-units>
   </div>
   <div class="cxl">
     <button class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
@@ -58,36 +26,6 @@
     <button nz-button>CLOSE POSITION</button>
     <button class="flatten" nz-button>FLATTEN</button>
   </div>
-</div>
-<ng-template #tpTicksContent>
-  <div>
-    <div>
-      <span>Take Profit</span> <label class="checkbox-right" nz-checkbox></label>
-    </div>
-    <nz-select class="popover-select">
-      <nz-option nzValue="points" nzLabel="Points"></nz-option>
-      <nz-option nzValue="currency" nzLabel="Currency"></nz-option>
-      <nz-option nzValue="ticks" nzLabel="Ticks"></nz-option>
-    </nz-select>
-    <input class="number-input" nz-input type="number">
-  </div>
-</ng-template>
-<ng-template #slTicksContent>
-  <div>
-    <div>
-      <span>Stop Loss</span> <label class="checkbox-right" nz-checkbox></label>
-    </div>
-    <button class="black-btn popover-btn" (click)="showAmount = false" nz-button>STP MKT</button>
-    <button class="black-btn popover-btn" (click)="showAmount = true" nz-button>STP LMT</button>
-    <div *ngIf="showAmount" class="d-flex align-items-center">
-      <label class="amount" for="amount">Amount</label>
-      <input id="amount" nz-input type="number">
-    </div>
-    <nz-select class="popover-select">
-      <nz-option nzValue="points" nzLabel="Points"></nz-option>
-      <nz-option nzValue="currency" nzLabel="Currency"></nz-option>
-      <nz-option nzValue="ticks" nzLabel="Ticks"></nz-option>
-    </nz-select>
-    <input class="number-input" nz-input type="number">
-  </div>
-</ng-template>
+</form>
+
+

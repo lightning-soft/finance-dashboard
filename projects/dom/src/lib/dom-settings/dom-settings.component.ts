@@ -10,6 +10,7 @@ export interface DomSettingsComponent extends ILayoutNode {
 
 export const DomSettingsSelector = 'dom-settings';
 
+
 @UntilDestroy()
 @Component({
   selector: DomSettingsSelector,
@@ -66,9 +67,8 @@ export class DomSettingsComponent implements IStateProvider<any> {
   private _handleChange(value: any) {
     this.settings[this.currentTab] = value;
     const configs = this.selectedConfig;
-    // this.broadcastData(DomSettingsSelector, { [this.currentTab]: value });
-    console.log(configs.map(c => c?.getCss && c?.getCss(value)).filter(Boolean).join(' '));
-    this._applier.setStyle(configs.map(c => c?.getCss && c?.getCss(value)).filter(Boolean).join(' '));
+    this.broadcastData(DomSettingsSelector, { [this.currentTab]: value });
+    this._applier.apply('lib-dom', configs.map(c => c?.getCss && c?.getCss(value)).filter(Boolean));
   }
 
   select(item) {

@@ -1,14 +1,14 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { SynchronizeFrames } from 'performance';
 import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
-import { SynchronizeFrames } from 'performance';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -88,6 +88,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
+  get trade() {
+    return this._trade;
+  }
+
   private _settings: DomSettings = new DomSettings();
 
 
@@ -109,17 +113,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     );
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => this._settings.merge(settings),
+      handleLinkData: (settings) => this._settings.merge(settings)
     });
-
-
-  }
-
-  public get style(): string {
-    return `
-    .window-icon {
-      color: red;
-    }`;
   }
 
   scroll = (e: WheelEvent) => {
@@ -151,7 +146,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    this._dom.handleTrade(trade);;
+    this._dom.handleTrade(trade);
     this._calculateAsync();
   }
 
@@ -226,6 +221,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         this._handleResize();
         break;
     }
+
+    return true;
   }
 
   @SynchronizeFrames()

@@ -1,7 +1,8 @@
 import { FieldType } from 'dynamic-form';
 import { FormlyFieldConfig, FormlyTemplateOptions } from '@ngx-formly/core';
+import * as merge from 'deepmerge';
 
-type EjectCssFn = (value: any) => string;
+type EjectCssFn = (value: any) => any;
 
 interface IFieldConfig extends FormlyFieldConfig {
   label?: string;
@@ -26,22 +27,19 @@ class FieldConfig implements IFieldConfig {
     });
 
     this.key = lowerFirstLetter((this.templateOptions.label as string).replace(/ /g, ''))
-    console.log(this.key)
   }
 
-  getCss(value: any) {
-    return `
-    .${this.key} {
-      ${this.fieldGroup
+  getCss(value: any): any {
+    return {
+      [` .${this.key}`]: this.fieldGroup
         .map(i => i.getCss && i.getCss(value[this.key]))
         .filter(Boolean)
-        .join(';')}
+        .reduce((acc, k) => merge(acc, k)),
     }
-  `
   }
 }
 
-function getColor(label: string | any, attr?: string) {
+function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
   const _label = typeof label === 'string' ? label : label.label;
 
   if (!label)
@@ -52,16 +50,26 @@ function getColor(label: string | any, attr?: string) {
   if (!key)
     key = lowerFirstLetter(_label.replaceAll(' ', ''));
 
-  if (!attr)
-    attr = _label.replaceAll(' ', '-').toLowerCase();
+  if (!cssAttrOrFn)
+    cssAttrOrFn = label.attr;
+
+  if (!cssAttrOrFn)
+    cssAttrOrFn = label.getCss;
+
+  if (!cssAttrOrFn)
+    cssAttrOrFn = _label.replaceAll(' ', '-').toLowerCase();
+
+  const defaultValue = '#0dff008a';
 
   return {
     key,
     name: key,
     type: FieldType.Color,
     templateOptions: { label: _label },
-    default: '#0dff008a',
-    getCss: (value) => `${attr}: ${value[key]}`
+    default: defaultValue,
+    getCss: typeof cssAttrOrFn == 'function'
+      ? (value) => (cssAttrOrFn as Function)(value[key] ?? defaultValue)
+      : (value) => ({ [cssAttrOrFn as string]: value[key] ?? defaultValue }),
   };
 }
 
@@ -553,13 +561,14 @@ export const askDeltaFields: FormlyFieldConfig[] = [
   },
   getTextAlign(),
 ];
+
 export const bidDepthFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Bid',
     fieldGroup: [
       getColor('Background Color'),
       getColor('Font Color', 'color'),
-      getColor('Highlight Background Color'),
+      getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } })),
       getColor('Total Font Color'),
       getCheckboxes([{ key: 'bidDepth', label: 'Bid Depth Histogram' }, {
         key: 'highlightLargeBids',

@@ -5,57 +5,66 @@
       All
     </div>
     <div class="custom-panel-body">
-    <cdk-virtual-scroll-viewport [itemSize]="">
-      <nz-collapse class="custom-collapse-ghost">
-        <nz-collapse-panel
-          *ngFor="let broker of brokers"
-          [nzHeader]="broker.title"
-          [nzExtra]="createButton"
-          [nzShowArrow]="!!builder.getItems('broker', broker.name).length"
-          [nzActive]="broker.active"
-        >
-          <ng-template #createButton>
-            <span class="small link" (click)="openCreateForm($event, broker.name)">
+      <cdk-virtual-scroll-viewport [itemSize]="">
+        <nz-collapse class="custom-collapse-ghost">
+          <nz-collapse-panel
+            *ngFor="let broker of brokers"
+            [nzHeader]="broker.title"
+            [nzExtra]="createButton"
+            (click)="handleBrockerClick($event, broker)"
+            [nzShowArrow]="!!getBrokerItems(broker).length"
+            [nzActive]="broker == selectedBroker"
+          >
+            <ng-template #createButton>
+            <span *ngIf="canAddAccount(broker)"
+                  class="small link" (click)="openCreateForm($event, broker)">
               <i class="icon-add font-size-inherit"></i>
             </span>
-          </ng-template>
-          <div>
-            <div
-              *ngFor="let item of builder.getItems('broker', broker.name)"
-              class="selectable-item pl-4 mt-1"
-              [class.selectable-item-active]="item.id === selectedItem?.id"
-              [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
-              (click)="selectItem(item)"
-            >
-              <div class="position-relative">
+            </ng-template>
+
+            <div>
+              <div
+                *ngFor="let item of getBrokerItems(broker)"
+                class="selectable-item pl-4 mt-1"
+                nz-popover [nzPopoverContent]="contentTemplate"
+                nzPopoverOverlayClassName="broker-actions"
+                [class.renaming]="item.rename"
+                [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
+                [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
+                (click)="selectItem(item)"
+              >
+                <ng-container *ngIf="!item.rename">
+                  <div class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
                   'text-success': item.connected,
                   'text-danger': item.error
                 }" *ngIf="item.connected || item.error"></span>
-                {{ item.name }}
-              </div>
-              <div>
-                <span
-                  class="selectable-item-action"
-                  (click)="delete($event, item)"
-                >
-                  <i class="icon-minus font-size-inherit"></i>
-                </span>
-                <span
-                  class="selectable-item-action"
-                  [class.selectable-item-action-active]="item.favourite"
-                  (click)="toggleFavourite($event, item)"
-                >
+                    {{ item.name }}
+                  </div>
+                  <div>
+                  <span
+                    class="selectable-item-action"
+                    [class.selectable-item-action-active]="item.favourite"
+                    (click)="toggleFavourite($event, item)"
+                  >
                   <i class="font-size-inherit" [ngClass]="{
                     'icon-star-o': !item.favourite,
                     'icon-star': item.favourite
                   }"></i>
                 </span>
+
+                  </div>
+                </ng-container>
+                <input *ngIf="item.rename" #input (keydown.enter)="item.rename = false; rename(input.value, item)"
+                       [value]="item.name" nz-input type="text">
+                <ng-template #contentTemplate>
+                  <div (click)="item.rename = true; " class="broker-action">Rename</div>
+                  <div (click)="delete($event, item)" class="broker-action">Delete</div>
+                </ng-template>
               </div>
             </div>
-          </div>
-        </nz-collapse-panel>
-      </nz-collapse>
+          </nz-collapse-panel>
+        </nz-collapse>
       </cdk-virtual-scroll-viewport>
     </div>
   </div>
@@ -65,103 +74,109 @@
     </div>
     <div class="custom-panel-body">
       <cdk-virtual-scroll-viewport [itemSize]="">
-      <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">
-        <img
-          class="img-responsive d-table mx-auto my-2"
-          src="assets/img/brokers/{{ selectedBroker.logo }}"
-          [alt]="selectedBroker.title"
-          *ngIf="selectedBroker?.logo"
-        />
-        <form
-          nz-form
-          [formGroup]="form"
-          [class.loading-block]="isLoading[selectedItem?.id]"
-          (submit)="handleSubmit()"
-          *ngIf="!selectedItem.connected"
-        >
-          <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Connection name</small>
-            <nz-form-control class="custom-form-control">
-              <input type="text" nz-input formControlName="name">
-            </nz-form-control>
-          </div>
-          <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Login</small>
-            <nz-form-control class="custom-form-control">
-              <input type="text" nz-input formControlName="username">
-            </nz-form-control>
-          </div>
-          <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Password</small>
-            <nz-form-control class="custom-form-control">
-              <input type="password" nz-input formControlName="password">
-            </nz-form-control>
-          </div>
-          <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Server</small>
-            <nz-select class="custom-form-control" formControlName="connectionPointId">
-              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
-              <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
-            </nz-select>
-          </div>
-          <label class="custom-checkbox mb-1">
-            <input type="checkbox" formControlName="aggregatedQuotes">
-            <span>Aggregated Quotes</span>
-          </label>
-          <div class="mb-1">
-            <small class="text-muted px-2 mb-1">Gateway</small>
-            <nz-select class="custom-form-control" formControlName="gateway">
-              <nz-option nzValue="rithmic" nzLabel="Rithmic"></nz-option>
-              <nz-option nzValue="rithmic-2" nzLabel="Rithmic 2"></nz-option>
-            </nz-select>
-          </div>
-          <label class="custom-checkbox mb-1">
-            <input type="checkbox" formControlName="autoSavePassword">
-            <span>Auto save password</span>
-          </label>
-          <label class="custom-checkbox mb-1">
-            <input type="checkbox" formControlName="connectOnStartUp">
-            <span>Connect on start up</span>
-          </label>
-          <button
-            nz-button
-            nzType="primary"
-            nzBlock
-            class="ant-btn ant-btn-primary text-uppercase mt-3"
-          >Connect</button>
-        </form>
-        <div *ngIf="selectedItem.connected">
-          <div class="p-3 bg-secondary rounded">
-            <div>
-              <span class="text-muted">Status:</span>&nbsp;
-              <span class="d-inline-flex align-items-center">
+        <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">
+          <img
+            class="img-responsive d-table mx-auto my-2"
+            src="assets/img/brokers/{{ selectedBroker.logo }}"
+            [alt]="selectedBroker.title"
+            *ngIf="selectedBroker?.logo"
+          />
+          <form
+            nz-form
+            [formGroup]="form"
+            [class.loading-block]="isLoading[selectedItem?.id]"
+            (submit)="handleSubmit()"
+            *ngIf="!selectedItem.connected"
+          >
+            <acccount-form *ngIf='!splitConnections' formControlName="userData"></acccount-form>
+            <div *ngIf="splitConnections" class="d-flex split-form">
+              <div class="split-form-item">
+                <span class="split-form-title">Marker Data</span> <span class="switch-container"><span>Off</span>
+                <nz-switch
+                  [ngModel]="true"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="toggleFormConnection($event, 'marketConnection')" nzSize="small"></nz-switch>
+                <span>On</span></span>
+                <acccount-form formControlName="marketConnection"></acccount-form>
+              </div>
+              <div class="split-form-item">
+
+                <span class="split-form-title">Orders</span>
+                <span class="switch-container">
+                <span>Off</span>
+                <nz-switch
+                  [ngModel]="true"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="toggleFormConnection($event, 'orderConnection')"
+                  nzSize="small"></nz-switch>
+                <span>On</span>
+                </span>
+
+                <acccount-form formControlName="orderConnection"></acccount-form>
+              </div>
+            </div>
+            <label class="split-connection">
+              <span class="split-title">Split Connection</span>
+
+              <nz-switch
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="splitConnections" nzSize="small"></nz-switch>
+            </label>
+
+            <label class="custom-checkbox mb-1">
+              <input type="checkbox" formControlName="aggregatedQuotes">
+              <span>Aggregated Quotes</span>
+            </label>
+
+            <label class="custom-checkbox mb-1">
+              <input type="checkbox" formControlName="connectOnStartUp">
+              <span>Connect on start up</span>
+            </label>
+            <button
+              nz-button
+              nzType="primary"
+              nzBlock
+              class="ant-btn ant-btn-primary text-uppercase mt-3"
+            >Connect
+            </button>
+          </form>
+          <div *ngIf="selectedItem.connected">
+            <div class="p-3 bg-secondary rounded">
+              <div>
+                <span class="text-muted">Status:</span>&nbsp;
+                <span class="d-inline-flex align-items-center">
                 <span class="indicator text-success mr-2"></span>
                 Connected
               </span>
+              </div>
+              <div>
+                <span class="text-muted">Login:</span>&nbsp;
+                {{ selectedItem.username }}
+              </div>
+              <div>
+                <span class="text-muted">Server:</span>&nbsp;
+                {{ selectedItem.server }}
+              </div>
+              <div>
+                <span class="text-muted">Gateway:</span>&nbsp;
+                {{ selectedItem.gateway }}
+              </div>
             </div>
-            <div>
-              <span class="text-muted">Login:</span>&nbsp;
-              {{ selectedItem.username }}
-            </div>
-            <div>
-              <span class="text-muted">Server:</span>&nbsp;
-              {{ selectedItem.connectionPointId }}
-            </div>
+            <button
+              nz-button
+              nzType="primary"
+              nzBlock
+              class="bg-secondary text-uppercase mt-3"
+              [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
+              (click)="disconnect(selectedItem)"
+            >Disconnect
+            </button>
           </div>
-          <button
-            nz-button
-            nzType="primary"
-            nzBlock
-            class="bg-secondary text-uppercase mt-3"
-            [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-            (click)="disconnect()"
-          >Disconnect</button>
+          <div class="text-muted" *ngIf="selectedBroker?.description">
+            <div class="divider mb-2"></div>
+            <div class="text-small text-center" [innerHTML]="selectedBroker.description"></div>
+          </div>
         </div>
-        <div class="text-muted" *ngIf="selectedBroker?.description">
-          <div class="divider mb-2"></div>
-          <div class="text-small text-center" [innerHTML]="selectedBroker.description"></div>
-        </div>
-      </div>
       </cdk-virtual-scroll-viewport>
     </div>
   </div>

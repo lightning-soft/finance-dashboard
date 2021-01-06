@@ -19,9 +19,9 @@ export class DragDrawerComponent {
       component: Components.Chart
     },
     {
-      icon: 'icon-widget-watchlist',
-      name: 'Watchlist',
-      component: Components.Watchlist
+      icon: 'icon-widget-positions',
+      name: 'Positions',
+      component: Components.Positions
     },
     {
       icon: 'icon-widget-orders',
@@ -29,18 +29,22 @@ export class DragDrawerComponent {
       component: Components.Orders
     },
     {
-      icon: 'icon-widget-positions',
-      name: 'Positions',
-      component: Components.Positions
-    },
-    {
       icon: 'icon-widget-create-orders',
-      name: 'Create order',
+      name: 'Add orders',
       component: Components.OrderForm
     },
+/*    {
+      icon: 'icon-widget-market-watch',
+      name: 'Market Watch',
+    },*/
     {
-      icon: 'icon-widget-create-orders',
-      name: 'Create order',
+      icon: 'icon-widget-watchlist',
+      name: 'Watchlist',
+      component: Components.Watchlist
+    },
+    {
+      icon: 'icon-widget-dom',
+      name: 'DOM',
       component: Components.Dom
     },
     // {

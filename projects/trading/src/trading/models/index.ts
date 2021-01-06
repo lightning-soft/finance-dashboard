@@ -6,3 +6,5 @@ export * from './account';
 export * from './broker.enum';
 export * from './broker';
 export * from './connection';
+export * from './periodicity';
+export * from './settings';

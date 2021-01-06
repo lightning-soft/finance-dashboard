@@ -3,10 +3,13 @@ import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { Broker, IConnection } from 'trading';
+import { IConnection } from 'trading';
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
+  protected get _baseUrl(): string {
+    return `${this._communicationConfig.rithmic.http.url}Connection`;
+  }
 
   getItems(): Observable<IPaginationResponse<IConnection>> {
     const data = this._getItems();
@@ -16,8 +19,8 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     return of(res).pipe(delay(0));
   }
 
-  createItem(item: ExcludeId<IConnection>): Observable<IConnection> {
-    return of(this._createItem(item));
+  getServers() {
+    return super.getItems();
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
@@ -72,28 +75,25 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     });
   }
 
-  _getUrl(broker: Broker) {
+  // _getUrl(broker: Broker) {
+  _getUrl(broker: any) {
     if (broker == null)
       throw new Error('Invalid broker');
 
     return this._communicationConfig[broker].http.url + 'Connection';
   }
 
-  protected _createItem(item: ExcludeId<IConnection>): IConnection {
-    const items = this._getItems().map(i => ({ ...i, connected: false }));
+  protected _createItem(item: ExcludeId<IConnection>, options?): Observable<IConnection> {
+    return super._createItem(item, options).pipe(map(({ result }) => {
+      const items = this._getItems().map(i => ({ ...i, connected: false }));
 
-    const id = this._getLastId(items) + 1;
-    const _item = { ...item, id } as IConnection;
+      const id = this._getLastId(items) + 1;
+      const _item = { ...item, connectionData: result, id } as IConnection;
 
-    this._setItems([...items, _item]);
+      this._setItems([...items, _item]);
 
-    this._onCreate(_item);
-
-    if (items) {
-      this._onUpdate(items);
-    }
-
-    return _item;
+      return _item;
+    }))
   }
 
   protected _updateItem(item: IConnection) {

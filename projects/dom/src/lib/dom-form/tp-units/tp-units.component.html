@@ -1,0 +1,22 @@
+<button nz-button
+        nz-popover
+        nzPopoverTrigger="click"
+        nzPopoverOverlayClassName="tick-overlay"
+        [nzPopoverContent]="tpTicksContent"
+        class="tp-tick tick-btn">TP: {{form.value.count}} {{form.value.unit}}
+</button>
+<ng-template #tpTicksContent>
+  <form [formGroup]="form">
+    <div>
+      <span>Take Profit</span> <label formControlName="takeProfit" class="checkbox-right" nz-checkbox></label>
+    </div>
+    <div class="divider"></div>
+
+    <nz-select  formControlName="unit" class="popover-select">
+      <nz-option nzValue="points" nzLabel="Points"></nz-option>
+      <nz-option nzValue="currency" nzLabel="Currency"></nz-option>
+      <nz-option nzValue="ticks" nzLabel="Ticks"></nz-option>
+    </nz-select>
+    <input formControlName="count" class="number-input" nz-input type="number">
+  </form>
+</ng-template>
