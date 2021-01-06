@@ -114,12 +114,12 @@
     "popper.js": "^1.16.1",
     "reconnecting-websocket": "4.4.0",
     "rxjs": "6.6.2",
-    "simple-window-manager": "git+https://git.avidi.tech/Taras/simple-window-manager.git",
+    "simple-window-manager": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/Taras/simple-window-manager.git",
     "svgtofont": "^2.1.0",
     "tslib": "2.0.1",
     "underscore": "1.10.2",
     "zone.js": "0.10.3",
-    "performance": "git+https://git.avidi.tech/angular/perfomance.git"
+    "performance": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/angular/perfomance.git"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1001.7",
