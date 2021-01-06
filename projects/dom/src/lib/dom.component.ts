@@ -53,9 +53,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _dom = new DomHandler();
 
-  private _backItems = [];
-  private _forwardItems = [];
-
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
   @ViewChild(DataGrid)
@@ -124,7 +121,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     }`;
   }
 
-  scroll(e: WheelEvent) {
+  scroll = (e: WheelEvent) => {
     if(e.deltaY > 0) {
       this._scrolledItems++;
     } else if(e.deltaY < 0) {
@@ -133,9 +130,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._calculate();
   }
 
+
   ngAfterViewInit() {
     this._handleResize();
-    this.dataGridElement.nativeElement.addEventListener('wheel', (e) =>  this.scroll.apply(this, [e]))
+    this.dataGridElement.nativeElement.addEventListener('wheel', this.scroll);
   }
 
   detectChanges() {
@@ -295,7 +293,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     this._levelOneDatafeed.unsubscribe(instrument);
     this._levelTwoDatafeed.unsubscribe(instrument);
-  }
+    this.dataGridElement.nativeElement.removeEventListener('wheel', this.scroll);
+    }
 }
 
 export function sum(num1, num2, step = 1) {
