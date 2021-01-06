@@ -36,6 +36,7 @@ export class RithmicDatafeed extends Datafeed {
       });
   }
 
+
   send(request: IBarsRequest) {
     super.send(request);
     this.subscribeToRealtime(request);
@@ -78,7 +79,6 @@ export class RithmicDatafeed extends Datafeed {
       BarCount: count,
       Skip: 0,
     };
-
     this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
       (res) => {
         if (this.isRequestAlive(request)) {
@@ -90,7 +90,7 @@ export class RithmicDatafeed extends Datafeed {
     );
   }
 
-  private _convertPeriodicity(periodicity: string): string {
+  _convertPeriodicity(periodicity: string): string {
 
     switch (periodicity) {
       case StockChartXPeriodicity.YEAR:
@@ -109,7 +109,6 @@ export class RithmicDatafeed extends Datafeed {
         throw new Error('Undefined periodicity ' + periodicity);
     }
   }
-
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);

@@ -31,6 +31,7 @@ export class NotificationListComponent {
     });
 
     this.setTabTitle('Notifications');
+    this.setTabIcon('icon-notification');
   }
 
   closeList(): void {

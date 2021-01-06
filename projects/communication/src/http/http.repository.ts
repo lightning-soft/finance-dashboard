@@ -54,8 +54,11 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
+    return this._createItem(item, options).pipe(tap(i => this._onCreate(i)));
+  }
+
+  protected _createItem(item: ExcludeId<T>, options?: any): Observable<any> {
     return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options })
-      .pipe(tap(i => this._onCreate(i)));
   }
 
   updateItem(item: T, query?: any): Observable<T> {

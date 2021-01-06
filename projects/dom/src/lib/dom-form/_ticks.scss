@@ -1,0 +1,45 @@
+.checkbox-right {
+  float: right;
+}
+
+::ng-deep {
+  .tick-overlay {
+    .ant-popover-inner {
+      background: #24262C;
+    }
+  }
+}
+
+.number-input {
+  margin-top: 8px;
+}
+.tick-btn {
+  width: 100%;
+  font-weight: 600;
+
+  &:not(:first-child) {
+    margin-top: 6px;
+  }
+}
+
+.popover-select {
+  margin-top: 8px;
+}
+
+.divider {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.amount {
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 14px;
+  color: #A1A2A5;
+  margin-right: 18px;
+  margin-bottom: 0;
+}
+
+nz-select {
+  width: 100%;
+}

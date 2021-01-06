@@ -1,14 +1,14 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { SynchronizeFrames } from 'performance';
 import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
-import { SynchronizeFrames } from 'performance';
 
 export interface DomComponent extends ILayoutNode {
 }
@@ -57,8 +57,13 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   currentDirection = this.directions[this.directions.length - 1];
   @ViewChild(DataGrid)
   dataGrid: DataGrid;
+
+  @ViewChild(DataGrid, { read: ElementRef })
+  dataGridElement: ElementRef;
+
   isFormOpen = true;
 
+  private _scrolledItems = 0;
   private _instrument: IInstrument;
 
   private _priceFormatter: IFormatter;
@@ -83,6 +88,10 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _trade: ITrade;
 
+  get trade() {
+    return this._trade;
+  }
+
   private _settings: DomSettings = new DomSettings();
 
 
@@ -91,6 +100,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
     private _levelTwoDatafeed: Level2DataFeed,
+    private _renderer: Renderer2
   ) {
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
@@ -103,20 +113,24 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     );
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => this._settings.merge(settings),
+      handleLinkData: (settings) => this._settings.merge(settings)
     });
-
   }
 
-  public get style(): string {
-    return `
-    .window-icon {
-      color: red;
-    }`;
+  scroll = (e: WheelEvent) => {
+    if (e.deltaY > 0) {
+      this._scrolledItems++;
+    } else if (e.deltaY < 0) {
+      this._scrolledItems--;
+    }
+    this._calculate();
   }
+
 
   ngAfterViewInit() {
     this._handleResize();
+    const element = this.dataGridElement && this.dataGridElement.nativeElement;
+    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll))
   }
 
   detectChanges() {
@@ -132,7 +146,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   protected _handleTrade(trade: ITrade) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
     this._trade = trade;
-    this._dom.handleTrade(trade);;
+    this._dom.handleTrade(trade);
     this._calculateAsync();
   }
 
@@ -151,14 +165,14 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       return;
 
     let last = trade && trade.price;
-    const scrolledItems = 0// this._scrolledItems
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + scrolledItems;
-    const tickSize = instrument.tickSize;
+    let centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
+    // const tickSize = instrument.tickSize;
+    const tickSize = 0.01;
     const step = instrument.precision;
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
-    let price = last;
+    let price = last + this._scrolledItems * tickSize;
     let item: DomItem;
     const dom = this._dom;
 
@@ -207,10 +221,13 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         this._handleResize();
         break;
     }
+
+    return true;
   }
 
   @SynchronizeFrames()
   private _handleResize() {
+
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 

@@ -6,10 +6,13 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
 
-export interface AccountsComponent extends ILayoutNode { }
+export interface AccountsComponent extends ILayoutNode {
+}
+
+const maxAccountsPerConnection = 4;
 
 @UntilDestroy()
 @Component({
@@ -26,6 +29,7 @@ export class AccountsComponent implements OnInit {
   selectedItem: IConnection;
   brokers: IBroker[];
   selectedBroker: IBroker;
+  splitConnections = false;
 
   constructor(
     protected _accountsManager: AccountsManager,
@@ -39,18 +43,17 @@ export class AccountsComponent implements OnInit {
     this.setTabIcon('icon-indicator');
   }
 
-
   ngOnInit() {
     this.builder.setParams({ groupBy: ['broker'] });
 
     this.form = this.fb.group({
       id: [null],
       name: [null],
-      username: [null],
-      password: [null],
-      connectionPointId: [null],
+      marketConnection: [null],
+      orderConnection: [null],
+      userData: [null],
+      server: [null],
       aggregatedQuotes: [null],
-      gateway: [null],
       autoSavePassword: [null],
       connectOnStartUp: [null],
       broker: [null],
@@ -68,44 +71,59 @@ export class AccountsComponent implements OnInit {
 
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
-      .subscribe(items => {
-        this.builder.replaceItems(items);
-        this.expandBrokers();
+      .subscribe((items: any) => {
+        if (items) {
+          this.builder.replaceItems(items);
+          this.expandBrokers();
+        }
+      });
+
+    this._accountsManager.connections.
+      pipe(take(1), untilDestroyed(this))
+      .subscribe((items) => {
+        const item = items.find(item => item.connected);
+        this.selectItem(item);
       });
   }
 
-  expandBrokers() {
-    if (!this.brokers) {
-      return;
-    }
-
-    this.brokers.map(broker => {
-      const hasActiveConnections = !!this.builder.getItems('broker', broker.name)
-        .find(i => i.connected);
-
-      if (hasActiveConnections) {
-        (broker as any).active = true;
-      }
-
-      return broker;
-    });
+  getBrokerItems(broker) {
+    return this.builder.getItems('broker', broker.name);
   }
 
-  openCreateForm(event: MouseEvent, broker: Broker) {
+  canAddAccount(broker) {
+    return this.getBrokerItems(broker).length < maxAccountsPerConnection;
+  }
+
+  expandBrokers() {
+    if (!Array.isArray(this.brokers) || !this.selectedItem)
+      return;
+
+    this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker)
+  }
+
+  handleBrockerClick($event, broker: IBroker) {
+    if (!this.getBrokerItems(broker).length && this.canAddAccount(broker)) {
+      this.openCreateForm($event, broker);
+    }
+  }
+
+  openCreateForm(event: MouseEvent, broker: IBroker) {
     event.stopPropagation();
 
-    this.selectItem({ broker } as IConnection);
+    this.selectItem({ broker: broker.name } as IConnection);
   }
 
   selectItem(item: IConnection) {
     this.selectedItem = item;
-    this.selectedBroker = item ? this.brokers.find(b => b.name === item.broker) : null;
+    this.expandBrokers()
 
-    if (item) {
-      this.form.reset(item);
-    } else {
-      this.form.reset();
-    }
+    this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
+  }
+
+  convertItemToFormValue(item: IConnection, broker) {
+    const { username, password, server, gateway, ...data } = item;
+    const userData = { username, password, server, gateway };
+    return { ...data, broker, userData };
   }
 
   handleSubmit() {
@@ -116,8 +134,14 @@ export class AccountsComponent implements OnInit {
     }
   }
 
+  getValue() {
+    const value = this.form.value;
+    const { userData, ...data } = value;
+    return { ...data, broker: this.selectedBroker.name, ...userData };
+  }
+
   create() {
-    this._accountsManager.createConnection(this.form.value)
+    this._accountsManager.createConnection(this.getValue())
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
@@ -128,8 +152,23 @@ export class AccountsComponent implements OnInit {
       );
   }
 
+  rename(name, item) {
+    this._accountsManager.rename(name, item)
+      .pipe(
+        this.showItemLoader(item),
+        untilDestroyed(this)
+      ).subscribe(
+        (response: any) => {
+          const index = this.builder.items.findIndex(item => item.id === response.id);
+          this.builder.updateItem(response, index);
+          this.builder.updateGroupItems();
+        },
+        err => this._notifier.showError(err),
+      );
+  }
+
   connect() {
-    this._accountsManager.connect(this.form.value)
+    this._accountsManager.connect(this.getValue())
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
@@ -139,9 +178,7 @@ export class AccountsComponent implements OnInit {
       );
   }
 
-  disconnect() {
-    const item = this.selectedItem;
-
+  disconnect(item: IConnection) {
     this._accountsManager.disconnect(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
@@ -163,6 +200,7 @@ export class AccountsComponent implements OnInit {
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
+        this.disconnect(item);
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
@@ -179,7 +217,8 @@ export class AccountsComponent implements OnInit {
     this._accountsManager.toggleFavourite(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this))
       .subscribe(
-        () => { },
+        () => {
+        },
         err => this._notifier.showError(err),
       );
   }
@@ -189,5 +228,12 @@ export class AccountsComponent implements OnInit {
     this.isLoading[id] = true;
 
     return finalize(() => delete this.isLoading[id]);
+  }
+
+  toggleFormConnection($event: boolean, control: string) {
+    if ($event)
+      this.form.get(control).enable();
+    else
+      this.form.get(control).disable();
   }
 }

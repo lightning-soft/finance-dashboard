@@ -13,7 +13,7 @@ import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzFormModule, NzRadioModule } from 'ng-zorro-antd';
+import { NzFormModule, NzRadioModule, NzToolTipModule } from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -83,7 +83,7 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
   return async () => {
     await config.getConfig().pipe(first()).toPromise();
-    // await initIdentityAccount(authService, config);
+    await initIdentityAccount(authService, config);
     await initAccounts(manager);
   };
 }
@@ -114,7 +114,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NzRadioModule,
     HttpClientModule,
     CommunicationModule,
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule.withServerTransition({appId: 'serverApp'}),
     NzModalModule,
     NzDropDownModule,
     ScrollingModule,
@@ -193,6 +193,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       }
     ]),
     NzDropDownModule,
+    NzToolTipModule,
   ],
   providers: [
     ThemesHandler,
@@ -212,14 +213,18 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
 })
 export class AppModule {
   constructor(private i18n: NzI18nService, zone: NgZone) {
-    Element.prototype.addEventListener = function (...args) {
-      const _this = this;
-      const fn = args[1];
-      if (typeof fn == 'function')
-        args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
 
-      return addEventListener.apply(_this, args);
-    };
+    /*
+    / For performance reason avoiding ng zone in some cases
+    */
+    // Element.prototype.addEventListener = function (...args) {
+    //   const _this = this;
+    //   const fn = args[1];
+    //   if (typeof fn == 'function')
+    //     args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
+
+    //   return addEventListener.apply(_this, args);
+    // };
   }
 
   switchLanguage() {

@@ -59,7 +59,6 @@ export class LayoutComponent implements IDropable, AfterViewInit {
     (window as any).LayoutComponent = this;
   }
 
-
   ngAfterViewInit() {
     this._windowManagerService.createWindowManager(this.container);
   }
@@ -115,14 +114,8 @@ export class LayoutComponent implements IDropable, AfterViewInit {
       this.layout.handleResize();
   }
 
-  @HostListener(`window:keyup`, ['$event'])
-  @HostListener(`window:keydown`, ['$event'])
-  public onEvent(event): void {
-    // if (this._contextMenuTrigger && this._contextMenuTrigger.isOpen || isInput(event && event.srcElement))
-    //   return;
-
-    if (this.layout)
-      this.layout.handleEvent(event);
+  handleEvent(event): boolean {
+    return this.layout && this.layout.handleEvent(event);
   }
 
   getState(): any {

@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { LayoutComponent } from 'layout';
-import { SettingsService, SettingsData } from 'settings';
+import { SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 
@@ -22,7 +22,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private _autoSaveIntervalId: number;
 
+  private _subscriptions = [];
+
   constructor(
+    private _renderer: Renderer2,
     private _themesHandler: ThemesHandler,
     private _accountsManager: AccountsManager,
     private _websocketService: WebSocketService,
@@ -41,10 +44,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
 
     this._setupSettings();
+    this._subscribeOnKeys();
   }
 
   ngAfterViewInit() {
-
     this._workspaceService.workspaces
       .subscribe((workspaces: Workspace[]) => {
         const activeWorkspace = workspaces.find(w => w.isActive);
@@ -87,6 +90,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       });
   }
 
+  private _subscribeOnKeys() {
+    this._subscriptions = [
+      this._renderer.listen('document', 'keyup', this._handleEvent.bind(this)),
+      this._renderer.listen('document', 'keydown', this._handleEvent.bind(this)),
+    ]
+  }
+
+  private _handleEvent(event) {
+    if (isInput(event && event.srcElement))
+      return;
+
+    if (!this.layout.handleEvent(event))
+      this._handleKey(event);
+  }
+
+  private _handleKey(event) {
+
+  }
+
   private _save(): void {
     this._settingsService.saveState();
 
@@ -96,7 +118,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   @HostListener('window:beforeunload')
   beforeUnloadHandler() {
-    if (this.settings.autoSave && !this.settings.autoSaveDelay) 
+    if (this.settings.autoSave && !this.settings.autoSaveDelay)
       this._save();
+
+    for (const fn of this._subscriptions)
+      fn();
   }
+}
+
+function isInput(element: Element): boolean {
+  return element && element.tagName === 'INPUT';
 }

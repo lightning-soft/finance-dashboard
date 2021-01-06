@@ -145,7 +145,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     }
 
     if (this.handleNodeEvent)
-      this.handleNodeEvent(name, event);
+      return this.handleNodeEvent(name, event);
   }
 
   private _subscribeContainerLayoutEvents(container) {
