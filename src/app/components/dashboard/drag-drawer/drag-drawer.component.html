@@ -7,8 +7,7 @@
       nz-menu-item
       *ngFor="let item of items"
       (click)="create(item)"
-      nz-tooltip [nzTooltipTitle]="item.name"
-      nzTooltipPlacement="right"
+      [title]="item.name"
       class="side-navigation__item"
       data-name="{{item.name}}"
     >
