@@ -16,6 +16,10 @@ type Cords = {
 export class WindowManagerService {
   private wm: IWindowManager;
 
+  get activeWindow() {
+    return this.wm.activeWindow;
+  }
+
   public windows: BehaviorSubject<IWindow[]> = new BehaviorSubject([]);
 
   get container(): HTMLElement {

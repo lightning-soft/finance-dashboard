@@ -32,4 +32,5 @@ export interface IWindow {
   minimize();
   maximize();
   close();
+  emit(name: string, event);
 }

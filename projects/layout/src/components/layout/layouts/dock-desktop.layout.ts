@@ -144,22 +144,9 @@ export class DockDesktopLayout extends Layout {
   }
 
   handleEvent(event) {
-    // super.handleEvent(event);
-    // const goldenLayout = this.goldenLayout;
-    // if (!this.goldenLayout) {
-    //   return;
-    // }
+    const activeWindow = this._windowManagerService.activeWindow;
 
-    // if (!goldenLayout.selectedItem) {
-    //   goldenLayout.selectItem(goldenLayout.root && goldenLayout.root.contentItems && goldenLayout.root.contentItems[0]);
-    // }
-
-    // const item = goldenLayout.selectedItem;
-    // const activeItem: any = item && item.getActiveContentItem ? item.getActiveContentItem() : item;
-
-    // if (activeItem && activeItem.container) {
-    //   activeItem.container.emit('event', event);
-    // }
+    return activeWindow && activeWindow.emit('event', event);
   }
 
   _load(config: any[]) {

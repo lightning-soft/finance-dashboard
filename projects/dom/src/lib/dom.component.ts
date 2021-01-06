@@ -203,6 +203,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         this._handleResize();
         break;
     }
+
+    return true;
   }
 
   @SynchronizeFrames()

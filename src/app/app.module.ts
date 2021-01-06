@@ -213,14 +213,18 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
 })
 export class AppModule {
   constructor(private i18n: NzI18nService, zone: NgZone) {
-    Element.prototype.addEventListener = function (...args) {
-      const _this = this;
-      const fn = args[1];
-      if (typeof fn == 'function')
-        args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
 
-      return addEventListener.apply(_this, args);
-    };
+    /*
+    / For performance reason avoiding ng zone in some cases
+    */
+    // Element.prototype.addEventListener = function (...args) {
+    //   const _this = this;
+    //   const fn = args[1];
+    //   if (typeof fn == 'function')
+    //     args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
+
+    //   return addEventListener.apply(_this, args);
+    // };
   }
 
   switchLanguage() {

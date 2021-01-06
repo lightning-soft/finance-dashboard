@@ -54,8 +54,8 @@ export abstract class Layout implements IDropable {
 
   }
 
-  handleEvent(event) {
-
+  handleEvent(event): boolean {
+    return false;
   }
 
   getLoaderComponent(): ComponentRef<LoaderComponent> {

@@ -21,16 +21,14 @@ export class DomSettings {
   currentAtBid: any = {};
   note: any = {};
   currentAtAsk: any = {};
-  _ask;
-
-  constructor() {
-    (window as any).t = (this);
-    this._ask = this.ask;
-    // this.merge(getDefaultSettings());
-  }
 
   merge(data: Partial<DomSettings>) {
     for (const key in data) {
+      if (!this.hasOwnProperty(key)) {
+        console.warn(`Check property ${key} in settings`)
+        continue;
+      }
+
       Object.assign(this[key], data[key])
     }
   }
