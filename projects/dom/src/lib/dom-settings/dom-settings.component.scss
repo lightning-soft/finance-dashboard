@@ -10,6 +10,7 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+
   .cdk-virtual-scroll-content-wrapper {
     contain: unset;
   }

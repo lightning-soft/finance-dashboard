@@ -16,7 +16,6 @@ export class CssApplier {
   apply(selector: string, config: any) {
     if (config == this.config)
       return;
-
     const css = getCss(config, selector);
     this._setStyle(css);
     this.config = config;
@@ -25,7 +24,6 @@ export class CssApplier {
   private _setStyle(style: string) {
     if (style == this.style)
       return;
-
     if (!this.style) {
       this.style = this.document.createElement('STYLE') as HTMLStyleElement;
       this.renderer.appendChild(this.document.head, this.style);

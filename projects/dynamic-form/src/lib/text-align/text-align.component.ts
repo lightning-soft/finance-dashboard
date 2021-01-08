@@ -16,7 +16,7 @@ export class TextAlignComponent extends FieldType {
   directions = [TextAlign.Left, TextAlign.Center, TextAlign.Right];
 
   isSelected(item: string) {
-    return this.formControl.value === item;
+    return this.formControl?.value === item;
   }
 
   select(item: string) {

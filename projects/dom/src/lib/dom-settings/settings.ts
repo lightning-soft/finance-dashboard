@@ -29,7 +29,7 @@ export class DomSettings {
         continue;
       }
 
-      Object.assign(this[key], data[key])
+      Object.assign(this[key], data[key]);
     }
   }
 }
