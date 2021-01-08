@@ -2,8 +2,12 @@
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
   <button class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
   </button>
+  <button class="wm-header-btn icon-dom-clear-all"></button>
+
   <button class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
+  <button class="wm-header-btn icon-dom-bracket"></button>
+  <button class="wm-header-btn icon-dom-strategy"></button>
   <span class="window-icon-container">
     <i *ngFor="let item of directions"
        (click)="currentDirection = item"
@@ -23,7 +27,7 @@
       [instrument]="instrument"
       [trade]="trade"
       [class.d-none]="!isFormOpen"
-      class="{{currentDirection}}" ></dom-form>
+      class="{{currentDirection}}"></dom-form>
   </div>
 
   <div class="grid-wrapper">
