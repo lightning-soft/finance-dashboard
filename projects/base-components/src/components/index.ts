@@ -1,3 +1,4 @@
+export * from './loading.component';
 export * from './items.component';
 export * from './realtime-items.component';
 export * from './item.component';

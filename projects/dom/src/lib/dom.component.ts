@@ -1,16 +1,16 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { AccountsManager } from 'accounts-manager';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { LoadingComponent } from 'base-components';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
+import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
 
-export interface DomComponent extends ILayoutNode {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
 
 interface IDomState {
@@ -31,7 +31,7 @@ interface IDomState {
   ]
 })
 @LayoutNode()
-export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
     '_id',
     'orders',
@@ -96,12 +96,14 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
 
   constructor(
-    private _accountsManager: AccountsManager,
+    private _ordersRepository: OrdersRepository,
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
     private _levelTwoDatafeed: Level2DataFeed,
+    protected _injector: Injector,
     private _renderer: Renderer2
   ) {
+    super();
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Dom');
   }
