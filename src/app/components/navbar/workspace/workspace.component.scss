@@ -21,7 +21,7 @@
   border: 0.5px solid $risingColor;
   margin: 10px;
   width: 186px;
-  font-size: 12px;
+  font-size: 0.8rem;
 }
 
 .workspaces-list {
@@ -41,11 +41,12 @@
     display: flex;
     align-items: center;
     text-overflow: ellipsis;
-    overflow: hidden; 
-    font-size: 12px;
+    overflow: hidden;
+    font-size: 0.8rem;
+
 
     .radio-btn {
-      font-size: 12px;
+      font-size: 0.8rem;
     }
 
     i {
@@ -53,7 +54,7 @@
       font-size: 12px;
     }
   }
-  
+
   &:hover {
     background-color: $tabBackground;
 
@@ -74,7 +75,7 @@
 
     button {
       background-color: transparent;
-      font-size: 12px;
+      font-size: 0.8rem;
 
       &:hover {
         color: $risingColor;
