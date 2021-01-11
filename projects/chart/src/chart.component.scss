@@ -14,6 +14,12 @@ $toolbarMargin: 4px;
   }
 }
 
+:host ::ng-deep {
+  .scxBackground {
+    background: rgb(27, 29, 34) !important;
+  }
+}
+
 :host ::ng-deep .icon-container {
   cursor: pointer;
   border-radius: 3px;
@@ -50,6 +56,7 @@ $toolbarMargin: 4px;
   display: flex;
   height: 100%;
 }
+
 .chart-container {
   display: flex;
   flex-direction: column;

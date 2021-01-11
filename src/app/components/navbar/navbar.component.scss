@@ -2,8 +2,12 @@
 @import "themes/index";
 
 :host {
-  height: 42px;
+  height: auto;
   display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-size: 15px;
 }
 
 .navigation-bar {
@@ -53,7 +57,7 @@
   }
 
   .spacer {
-	flex-grow: 1;
+    flex-grow: 1;
   }
 
   .preferences {
@@ -88,6 +92,7 @@
   .control {
     display: none;
     margin: 0 8px;
+
     button {
       background-color: transparent;
       padding: 0 8px;

@@ -24,6 +24,10 @@
   font-size: 0.8rem;
 }
 
+.icon-union {
+  font-size: 15px;
+}
+
 .workspaces-list {
   list-style-type: none;
   margin: 0;
@@ -60,7 +64,7 @@
 
     .actions {
       opacity: 1;
-      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(27,29,34,1) 12%);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 29, 34, 1) 12%);
     }
   }
 

@@ -33,7 +33,7 @@ interface IDomState {
 @LayoutNode()
 export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    '_id',
+   // '_id',
     'orders',
     'volumeProfile',
     'price',
@@ -62,6 +62,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   dataGridElement: ElementRef;
 
   isFormOpen = true;
+  isLocked: boolean;
 
   private _scrolledItems = 0;
   private _instrument: IInstrument;
@@ -102,8 +103,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     private _levelTwoDatafeed: Level2DataFeed,
     private _renderer: Renderer2
   ) {
-    this.setTabIcon('icon-widget-positions');
-    this.setTabTitle('Dom');
+    this.setTabIcon('icon-widget-dom');
   }
 
   ngOnInit(): void {
