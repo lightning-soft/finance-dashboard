@@ -3,7 +3,7 @@ import { LoadingComponent } from 'base-components';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
+import { HistoryRepository, IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
@@ -97,7 +97,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   constructor(
     private _ordersRepository: OrdersRepository,
-    private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
     private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector,
@@ -117,6 +116,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       link: DomSettingsSelector,
       handleLinkData: (settings) => this._settings.merge(settings)
     });
+  }
+
+  protected _handleConnection(connection: IConnection) {
+    super._handleConnection(connection);
+    this._ordersRepository = this._ordersRepository.forConnection(connection);
   }
 
   scroll = (e: WheelEvent) => {
