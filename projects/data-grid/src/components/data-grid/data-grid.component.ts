@@ -51,7 +51,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _subscribedEvents = [];
 
   public isVisible = false;
-  public rowHeight = 35;
+  public rowHeight = 20;
 
   public list: TransferItem[] = [];
 

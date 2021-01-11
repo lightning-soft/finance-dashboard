@@ -8,7 +8,7 @@
 
   .frames-manager {
     display: flex;
-  
+
 
     & > .frame {
       display: flex;
@@ -25,6 +25,7 @@
       & i {
         line-height: 28px;
         margin: 0 6px;
+        font-size: 16px;
 
         &::after {
           content: '';

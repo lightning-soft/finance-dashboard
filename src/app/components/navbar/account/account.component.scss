@@ -15,7 +15,7 @@ button {
     left: 50%;
     top: 2%;
   }
-  
+
 }
 
 .side-navigation {
@@ -29,9 +29,9 @@ button {
 
 }
 .change-name {
-  font-size: 12px;
-  font-weight: 600px;
-  line-height: 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1rem;
   color: $titleColor!important;
   cursor: default;
 
@@ -40,12 +40,13 @@ button {
     color: $textColor60;
     background-color: transparent;
     float: right;
+    height: auto;
   }
 }
 .log-out {
   position: relative;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 0.7rem;
+  line-height: 0.8rem;
   color: $textColor60;
 
   i {

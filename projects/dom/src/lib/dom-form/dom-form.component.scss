@@ -22,10 +22,13 @@
 
     .chart-data {
       flex-direction: row;
+      margin-top: 0;
+      align-items: center;
     }
 
     .chart-info {
       margin-left: 5px;
+      margin-top: 0;
       display: inline-block;
     }
 
@@ -81,6 +84,9 @@ button.top-position-btn {
   border-radius: 2px;
   margin-top: 3px;
   color: white;
+  height: 24px;
+  line-height: 1;
+  font-size: 0.9rem;
   border: 1px solid transparent;
 }
 
@@ -93,6 +99,7 @@ button.top-position-btn {
 .chart-data {
   display: flex;
   flex-direction: column;
+  margin-top: 26px;
 }
 
 .form-layout {
@@ -104,8 +111,8 @@ button.top-position-btn {
 
 .income {
   font-weight: 600;
-  font-size: 11px;
-  line-height: 15px;
+  font-size: 0.8rem;
+  line-height: 1.07;
   color: #FFFFFF;
 }
 
@@ -113,6 +120,16 @@ button.top-position-btn {
 .tif {
   margin-top: 12px;
   margin-left: 3px;
+  font-size: 0.7rem;
+  line-height: 0.8rem;
+}
+
+:host ::ng-deep {
+  .tif-buttons {
+    .inner-buttons {
+      margin-top: 0;
+    }
+  }
 }
 
 .ticks {
@@ -151,15 +168,19 @@ button.top-position-btn {
 
 .chart-info {
   font-weight: normal;
-  font-size: 11px;
-  line-height: 15px;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  line-height: 1.07;
   color: #FFFFFF;
 }
+
 
 .pl-input {
   color: white;
   margin-top: 8px;
   border: 1px solid #47494F;
+  padding: 1.5px;
+  font-size: 0.9rem;
+  padding-left: 4px;
 }
-
 
