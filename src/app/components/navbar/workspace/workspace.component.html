@@ -2,7 +2,9 @@
   nz-dropdown
   class="icon-union"
   nzTrigger="click"
-  [nzClickHide]="false"
+  (nzVisibleChange)="isMenuVisible = $event"
+  [class.active]="isMenuVisible"
+  [nzClickHide]="true"
   [nzDropdownMenu]="menu"
 >
 </button>
@@ -35,7 +37,7 @@
       </ul>
     </nz-radio-group>
     <div class="text-center">
-      <div class="divider mb-2"></div>
+      <div class="divider "></div>
       <button class="create-btn" (click)="saveWorkspace()">Save active workspace</button>
     </div>
   </div>

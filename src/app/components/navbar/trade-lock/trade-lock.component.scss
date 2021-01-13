@@ -21,9 +21,15 @@ button {
   }
 
 }
+
+.locked {
+  color: $fallingColor;
+}
+
 .icon-lock, .icon-unlock {
   font-size: 15px;
 }
+
 .lock-alert,
 .unlock-alert {
   position: absolute;
@@ -36,7 +42,7 @@ button {
   text-align: center;
   line-height: 35px;
   border-radius: 2px;
-  opacity: .5;
+  opacity: 1;
 
   &::before {
     content: '';

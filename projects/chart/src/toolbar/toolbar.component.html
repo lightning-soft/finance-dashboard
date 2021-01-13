@@ -41,16 +41,16 @@
     </nz-dropdown-menu>
   </div>
 
-  <div class="tool tool-wide select">
-    <instrument-select
+<!--  <div class="tool tool-wide select">
+   <instrument-select
       size="small"
       placeholder="Symbol"
       [instrument]="instrument"
       (instrumentChange)="instrument = $event"
     ></instrument-select>
-  </div>
+  </div>-->
 
-  <div class="tool select">
+  <div class="tool">
     <nz-select
       #frame
       [nzShowArrow]="false"
@@ -70,10 +70,10 @@
       >
       </nz-option>
     </nz-select>
-    <i (click)="frame.setOpenState(true)" class="icon-arrow-down"></i>
+    <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
   </div>
 
-  <div class="tool select">
+  <div class="tool">
     <nz-select
       #price
       [nzShowArrow]="false"
@@ -140,7 +140,7 @@
   </div>
 
 
-  <div class="tool select">
+  <div class="tool">
     <nz-select
       #cross
       [nzShowArrow]="false"

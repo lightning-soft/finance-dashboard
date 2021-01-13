@@ -3,16 +3,22 @@
 :host {
   &.full-screen-window {
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    min-height: 85px;
 
     type-buttons, .ticks, .bottom-btns {
       margin-top: 5px;
+    }
+
+    quantity-input {
+      margin-top: 3px;
     }
 
     .form-layout {
       flex-direction: row;
       align-items: baseline;
       flex-wrap: wrap;
+      padding-bottom: 0;
     }
 
     .tif {
@@ -20,17 +26,7 @@
       margin-left: 5px;
     }
 
-    .chart-data {
-      flex-direction: row;
-      margin-top: 0;
-      align-items: center;
-    }
 
-    .chart-info {
-      margin-left: 5px;
-      margin-top: 0;
-      display: inline-block;
-    }
 
     .pl-input {
       width: 80px;
@@ -40,7 +36,7 @@
 
     .top-position-btn {
       margin-top: 0;
-      margin-left: 3px;
+      margin-left: 9px;
     }
 
     .ticks {
@@ -78,6 +74,9 @@
 
 }
 
+cdk-virtual-scroll-viewport {
+  height: 100%;
+}
 
 button.top-position-btn {
   background: rgba(72, 149, 245, 0.5);
@@ -96,25 +95,18 @@ button.top-position-btn {
   }
 }
 
-.chart-data {
-  display: flex;
-  flex-direction: column;
-  margin-top: 26px;
-}
+
 
 .form-layout {
   display: flex;
   flex-direction: column;
   padding-left: 4px;
   padding-right: 4px;
+  padding-bottom: 41px;
+  // needed for normal scroll
 }
 
-.income {
-  font-weight: 600;
-  font-size: 0.8rem;
-  line-height: 1.07;
-  color: #FFFFFF;
-}
+
 
 
 .tif {
@@ -166,13 +158,6 @@ button.top-position-btn {
   }
 }
 
-.chart-info {
-  font-weight: normal;
-  font-size: 0.8rem;
-  margin-top: 4px;
-  line-height: 1.07;
-  color: #FFFFFF;
-}
 
 
 .pl-input {

@@ -5,6 +5,13 @@
     className="custom-form-control"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
+  <instrument-select
+    size="small"
+    class="custom-form-control"
+    placeholder="Symbol"
+    [instrument]="instrument"
+    (instrumentChange)="instrument = $event"
+  ></instrument-select>
   <app-window-toolbar class="wm-draggable"></app-window-toolbar>
 </window-header>
 <div class="component-container">

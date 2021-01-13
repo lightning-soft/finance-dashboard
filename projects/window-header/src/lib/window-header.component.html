@@ -9,10 +9,10 @@
 </div>
 
 <div>
-  <span class="link" (click)="window.minimize()">
+  <span class="link" *ngIf="window.minimizable()"  (click)="window.minimize()">
     <i class="icon-minimize-window"></i>
   </span>
-  <span class="link" (click)="window.maximize()">
+  <span class="link" *ngIf="window.maximizable()" (click)="window.maximize()">
     <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
   </span>
   <span class="link" (click)="onClose()">

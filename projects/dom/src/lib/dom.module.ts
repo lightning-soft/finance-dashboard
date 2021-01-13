@@ -25,6 +25,7 @@ import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.compo
 import { DomSettingsComponent, DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
+import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { HistogramComponent } from './histogram';
     QuantityInputComponent,
     TypeButtonsComponent,
     SlUnitsComponent,
-    TpUnitsComponent
+    TpUnitsComponent,
+    DailyInfoComponent
   ],
     imports: [
         DataGridModule,

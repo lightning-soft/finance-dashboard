@@ -11,15 +11,24 @@
 
   .window-icon {
     border-radius: 2px;
-    width: 26px;
-    height: 26px;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
     line-height: 26px;
     margin-right: 4px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
     text-align: center;
+    background-color: #1B1D22;
+
+    i {
+      font-size: 12px;
+      line-height: 1;
+    }
   }
 
   .widget .window-icon {
-    background-color: #1B1D22;
     margin-right: 8px;
   }
 

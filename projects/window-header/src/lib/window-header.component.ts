@@ -15,4 +15,5 @@ export class WindowHeaderComponent {
     this.close.emit(true);
     this.window.close();
   }
+
 }

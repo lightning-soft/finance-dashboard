@@ -1,3 +1,5 @@
+@import "~src/scss/variables";
+
 :host {
   display: flex;
   flex: 1 1 auto;
@@ -6,6 +8,11 @@
   height: 100%;
   margin: 0 16px;
 }
+
 .icon-signal {
   font-size: 15px;
+}
+
+.text-active {
+  color: $primary;
 }
