@@ -2,11 +2,19 @@ import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild } 
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
+import { KeyboardListener } from 'keyboard';
 import { LayoutComponent } from 'layout';
 import { SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 
+export enum DashboardCommand {
+  SavePage = 'save_page',
+}
+
+export const DashboardCommandToUIString = {
+  [DashboardCommand.SavePage]: 'Save page'
+}
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
@@ -17,11 +25,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   @ViewChild(LayoutComponent) layout: LayoutComponent;
 
   settings: SettingsData;
+  keysStack: KeyboardListener = new KeyboardListener();
 
   activeWorkspace: Workspace;
 
   private _autoSaveIntervalId: number;
-
   private _subscriptions = [];
 
   constructor(
@@ -106,7 +114,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _handleKey(event) {
+    this.keysStack.handle(event);
+    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack))
+    if (key) {
+      this.handleCommand(key[0].name as DashboardCommand)
+      event.preventDefault();
+    }
+    console.log(this.keysStack.toUIString())
+  }
 
+  private handleCommand(command: DashboardCommand) {
+    switch(command) {
+      case DashboardCommand.SavePage: {
+        this._save();
+        break;
+      }
+    }
   }
 
   private _save(): void {

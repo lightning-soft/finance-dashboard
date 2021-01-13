@@ -119,7 +119,8 @@
     "tslib": "2.0.1",
     "underscore": "1.10.2",
     "zone.js": "0.10.3",
-    "performance": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/angular/perfomance.git"
+    "performance": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/angular/perfomance.git",
+    "keyboard": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/b.tsap/keyboard"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1001.7",
