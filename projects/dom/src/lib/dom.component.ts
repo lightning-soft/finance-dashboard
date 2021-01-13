@@ -278,7 +278,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         name: DomSettingsSelector,
         // state: this._settings,
       },
-      maximizeBtn: true,
       closeBtn: true,
       single: true,
       removeIfExists: true,

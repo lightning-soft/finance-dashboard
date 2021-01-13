@@ -9,7 +9,12 @@
     </button>
     <button class="wm-header-btn icon-dom-bracket"></button>
     <button class="wm-header-btn icon-dom-strategy"></button>
-
+    <daily-info [instrument]="instrument"
+                [prevItem]="domForm.prevItem"
+                [class.d-none]="isFormOpen"
+                class="header-daily-info"
+                [dailyInfo]="domForm.dailyInfo"
+                [trade]="trade"></daily-info>
     <span class="window-icon-container">
     <i *ngFor="let item of directions"
        (click)="currentDirection = item"
@@ -33,10 +38,10 @@
     <dom-form
       [instrument]="instrument"
       [trade]="trade"
+      #domForm
       [class.d-none]="!isFormOpen"
       class="{{currentDirection}}"></dom-form>
   </div>
-
   <div class="grid-wrapper">
     <data-grid #grid [items]="items" [columns]="columns" rowHeight="25" detach="true"></data-grid>
   </div>

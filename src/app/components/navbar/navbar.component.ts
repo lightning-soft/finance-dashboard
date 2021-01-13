@@ -35,7 +35,7 @@ export class NavbarComponent {
       component: {
         name: 'accounts',
       },
-      maximizeBtn: false,
+      maximizable: false,
     });
   }
 
@@ -59,9 +59,11 @@ export class NavbarComponent {
         name: 'settings',
       },
       icon: 'icon-setting-gear',
-      maximizeBtn: false,
+      maximizable: false,
       x: 'center',
       y: 'center',
+      single: true,
+      removeIfExists: true,
     });
   }
 

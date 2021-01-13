@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -19,15 +19,17 @@ export class WorkspaceComponent implements OnInit {
   activeWorkspaceId: WorkspaceId;
 
   workspaces: Workspace[] = [];
+  isMenuVisible: boolean;
 
   constructor(
     private _workspacesService: WorkspacesManager,
     private _modalService: NzModalService,
     private _notificationService: NotifierService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
-    this._workspacesService.workspaces.subscribe((workspaces: Workspace[]) => {      
+    this._workspacesService.workspaces.subscribe((workspaces: Workspace[]) => {
       this.workspaces = [...workspaces];
 
       const activeWorkspace = workspaces.find(w => w.isActive);
@@ -35,12 +37,15 @@ export class WorkspaceComponent implements OnInit {
     });
   }
 
+
+
   rename(id: WorkspaceId) {
     const workspace = this.workspaces.find(w => w.id === id);
 
     const modal = this._modalService.create({
       nzTitle: 'Rename workspace',
       nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
         workspaceName: workspace.name
@@ -105,4 +110,6 @@ export class WorkspaceComponent implements OnInit {
     this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
     this._notificationService.showSuccess('Workspace was saved');
   }
+
+
 }

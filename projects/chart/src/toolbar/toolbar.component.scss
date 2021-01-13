@@ -8,9 +8,13 @@
   position: absolute;
   top: 10px;
   z-index: 21;
-  left: 10px;
+  left: 4px;
 
   ::ng-deep {
+    .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector {
+      padding: 0 3px;
+    }
+
     .ant-select-arrow .anticon-down {
       margin-top: 2px;
       font-size: 8px;
@@ -96,7 +100,7 @@
 
     .ant-btn,
     .ant-select-selection-search {
-      height: 22px!important;
+      height: 22px !important;
     }
 
     .ant-btn > span,
@@ -131,7 +135,7 @@
     }
 
     .ant-btn {
-      border-radius: 2px!important;
+      border-radius: 2px !important;
     }
 
     .btn-group .ant-btn {
@@ -148,7 +152,7 @@
 
   //.ant-btn > span,
   .ant-select-selection-item {
-    font-size: 0.7rem!important;
+    font-size: 0.7rem !important;
   }
 
   .ant-select-item {
@@ -178,7 +182,7 @@
   }
 
   .ant-btn {
-    border-radius: 2px!important;
+    border-radius: 2px !important;
   }
 
   .btn-group .ant-btn {
@@ -194,9 +198,29 @@
   //    height: 22px;
   //  }
   //}
+  .tool {
+    width: 32px;
+  }
+
+  .tool.btn-group {
+    i {
+      right: 6px;
+    }
+  }
+
+  .timeframe-icon {
+    right: 3px !important;
+    top: 58% !important;
+  }
 
   .tool.select {
     width: 45px;
+  }
+
+  .tool.photo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .tool-wide.select {
@@ -204,15 +228,19 @@
   }
 
   .tool span[class^="icon-"] {
-    font-size: 12px!important;
+    font-size: 12px !important;
+    color: #d0d0d2;
   }
 }
-i[class*="icon-"]{
+
+i[class*="icon-"] {
   color: #D0D0D2;
 }
-i[class*="icon-"]:hover{
+
+i[class*="icon-"]:hover {
   color: #0c6ce4;
 }
+
 .icon-arrow-down {
   position: absolute;
   right: 5px;

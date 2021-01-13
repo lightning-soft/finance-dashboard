@@ -1,11 +1,8 @@
-<window-header [window]="this"></window-header>
+<window-header  [window]="this"></window-header>
 <div class="custom-panels">
   <div class="custom-panel custom-panel-fixed">
-    <div class="custom-panel-header">
-      All
-    </div>
     <div class="custom-panel-body">
-      <cdk-virtual-scroll-viewport [itemSize]="">
+      <cdk-virtual-scroll-viewport class="right-border" [itemSize]="">
         <nz-collapse class="custom-collapse-ghost">
           <nz-collapse-panel
             *ngFor="let broker of brokers"
@@ -69,9 +66,6 @@
     </div>
   </div>
   <div class="custom-panel">
-    <div class="custom-panel-header">
-      Properties
-    </div>
     <div class="custom-panel-body">
       <cdk-virtual-scroll-viewport [itemSize]="">
         <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">

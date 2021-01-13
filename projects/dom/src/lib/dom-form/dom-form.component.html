@@ -1,11 +1,8 @@
-  <form [formGroup]="form" class="form-layout">
-    <div *ngIf="dailyInfo" class="chart-data">
-      <div class="income">{{ income }} ({{incomePercentage}}%)</div>
-      <div class="chart-info">H: {{dailyInfo.high}}</div>
-      <div class="chart-info">L: {{dailyInfo.low}}</div>
-      <div class="chart-info">O: {{dailyInfo.open}}</div>
-      <div class="chart-info">V: {{dailyInfo.volume}}</div>
-    </div>
+<cdk-virtual-scroll-viewport itemSize="">
+<form [formGroup]="form" class="form-layout">
+    <daily-info [instrument]="instrument"
+                [trade]="trade"
+                [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
     <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
     <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
@@ -27,4 +24,5 @@
       <button class="flatten" nz-button>FLATTEN</button>
     </div>
   </form>
+</cdk-virtual-scroll-viewport>
 

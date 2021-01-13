@@ -4,7 +4,27 @@
   display: block;
   height: 100%;
 
+  .custom-panel-body {
+    background: transparent !important;
+  }
+
+  .right-border {
+    border-right: 1px solid rgb(81, 83, 90);
+    width: 184px;
+    nz-collapse{
+      margin-right: 8px;
+    }
+  }
+
   ::ng-deep {
+    .wm-draggable {
+      color: $text-muted;
+
+      .window-icon {
+        background: transparent;
+      }
+    }
+
     .ant-switch-small {
       height: 13px;
 
