@@ -5,9 +5,10 @@ $light: #24262C;
 $dark: #13141A;
 $success: #009950;
 $text-muted: #A1A2A5;
-
 $inputBackground: #1B1D22;
 $inputColor: white;
+
+$baseFontSize: 14px;
 
 $lighter: #383A40;
 
@@ -16,7 +17,7 @@ $theme-colors: (
 );
 
 // Other
-$navbarHeight: 60px;
+$navbarHeight: 36px;
 
 $colors: (
   "green": #20908A,

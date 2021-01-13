@@ -29,16 +29,19 @@ html {
   overflow: hidden;
   margin: 0;
   padding: 0;
+  font-size: $baseFontSize;
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-html {
-  font-size: 16px;
+.ant-btn, .ant-collapse, .ant-select {
+  font-size: $baseFontSize;
 }
-
+small{
+  font-size: 0.8rem;
+}
 *,
 *:after,
 *:before {
@@ -92,17 +95,18 @@ button {
 .watchlist-instrument-select.ant-select {
   width: 100%;
 }
+
 .modal-data-grid {
   text-align: center;
 
   .ant-modal {
-    width: auto!important;
+    width: auto !important;
     display: inline-block;
     text-align: left;
   }
 
   .ant-modal-header,
-  .ant-modal-content  {
+  .ant-modal-content {
     background-color: #24262C;
   }
 
@@ -120,7 +124,7 @@ button {
   .ant-empty {
     &-image,
     &-description {
-      text-align: center!important;
+      text-align: center !important;
     }
   }
 
@@ -160,10 +164,12 @@ button {
   background-color: #101114;
   border-radius: 2px;
   transition: color 0.3s;
-  &:not(:first-child){
+
+  &:not(:first-child) {
     margin-left: 4px;
   }
-  &:hover{
+
+  &:hover {
     color: $primary;
   }
 }
@@ -195,6 +201,7 @@ button {
         padding: 4px 8px;
       }
     }
+
     .ant-modal-body {
       background-color: #1B1D22;
       border-radius: 2px;
@@ -202,6 +209,7 @@ button {
       padding: 34px 91px;
       min-width: 500px;
     }
+
     .ant-modal-footer {
       background-color: #1B1D22;
       border: none;
@@ -214,6 +222,7 @@ button {
         border-color: #4895F5;
       }
     }
+
     .ant-modal-close-x {
       width: 30px;
       height: 30px;

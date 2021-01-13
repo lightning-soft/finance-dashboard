@@ -15,13 +15,16 @@ button {
     left: 50%;
     top: 2%;
   }
-  
+
 }
 
 .side-navigation {
   width: 125px;
   padding: 0;
-  background-color: $tabFrameColor!important;
+  border: 1px solid $lighter;
+  border-radius: 2px;
+  background-color: $light !important;
+  box-shadow: 0px 0px 10px #15161D;
 
   li {
     padding: 10px;
@@ -29,9 +32,9 @@ button {
 
 }
 .change-name {
-  font-size: 12px;
-  font-weight: 600px;
-  line-height: 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1rem;
   color: $titleColor!important;
   cursor: default;
 
@@ -40,13 +43,16 @@ button {
     color: $textColor60;
     background-color: transparent;
     float: right;
+    height: auto;
   }
 }
 .log-out {
   position: relative;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 0.7rem;
+  line-height: 0.8rem;
   color: $textColor60;
+  display: flex;
+  align-items: center;
 
   i {
     margin-right: 5px;

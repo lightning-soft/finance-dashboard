@@ -1,7 +1,7 @@
-import { ComponentRef } from '@angular/core';
-import { ILinkNode, LinkDataObserver } from '../observers';
-import { LayoutNodeEvent } from './layout-node.event';
-import { Layout } from './layout/layouts/layout';
+import {ComponentRef} from '@angular/core';
+import {ILinkNode, LinkDataObserver} from '../observers';
+import {LayoutNodeEvent} from './layout-node.event';
+import {Layout} from './layout/layouts/layout';
 
 declare const $: any;
 
@@ -9,14 +9,22 @@ declare const $: any;
 export interface IContainer {
   maximized: object | boolean;
   minimized: boolean;
+  maximazable: boolean;
+  minimazable: boolean;
+  options: any;
+
   setTitle(title: string);
+
   minimize();
+
   maximize();
+
   close();
 }
 
 export interface IStateProvider<T = any> {
   saveState?(): T;
+
   loadState?(state: T);
 }
 
@@ -24,18 +32,35 @@ export interface ILayoutNode {
   layout?: Layout;
 
   setTabIcon?(icon: string);
+
   getTabIcon?(): string;
+
   getTabTitle?(): string;
+
   setTabTitle?(value: string);
+
   handleNodeEvent(name: LayoutNodeEvent, event);
+
   broadcastLinkData?(data: any);
+
   addLinkObserver?(observer: ILinkNode);
+
   broadcastData?(link: string | number, data: any);
+
   maximize?();
+
   minimize?();
+
   close?();
+
   isMaximized?();
+
   onRemove?(...fn: VoidFunction[]);
+
+  maximizable?();
+
+  minimizable?();
+
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -180,6 +205,14 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   isMaximized() {
     return this.layoutContainer.maximized;
+  }
+
+  maximizable() {
+    return this.layoutContainer.options.maximizable;
+  }
+
+  minimizable() {
+    return this.layoutContainer.options.minimizable;
   }
 
   close() {

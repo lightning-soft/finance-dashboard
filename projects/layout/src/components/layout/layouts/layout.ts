@@ -14,8 +14,9 @@ export type ComponentOptions = {
   height?: number;
   type?: string;
   icon?: string;
-  minimizeBtn?: boolean;
-  maximizeBtn?: boolean;
+  minimizable?: boolean;
+  maximizable?: boolean;
+  hidden?: boolean;
   closeBtn?: boolean;
   resizable?: boolean;
   single?: boolean;

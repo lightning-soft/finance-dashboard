@@ -1,5 +1,4 @@
 <window-header (close)="saveState()" [window]="this"></window-header>
-
 <div class="dom-settings">
   <div class="d-flex h-100">
 
@@ -26,7 +25,7 @@
     <cdk-virtual-scroll-viewport class="{{currentTab}}" itemSize="">
       <formly-form
         #form
-        [(model)]="selectedSettings"
+        [(model)]="settings"
         [fields]="selectedConfig"
       >
       </formly-form>

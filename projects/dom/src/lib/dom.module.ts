@@ -20,11 +20,13 @@ import { WindowHeaderModule } from 'window-header';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { QuantityInputComponent } from './dom-form/quantity-input/quantity-input.component';
 import { SlUnitsComponent } from './dom-form/sl-units/sl-units.component';
-import { TpUnitsComponent } from "./dom-form/tp-units/tp-units.component";
+import { TpUnitsComponent } from './dom-form/tp-units/tp-units.component';
 import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.component';
 import { DomSettingsComponent, DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
+import { CssApplier } from './css.applier';
+import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,11 @@ import { HistogramComponent } from './histogram';
     QuantityInputComponent,
     TypeButtonsComponent,
     SlUnitsComponent,
-    TpUnitsComponent
+    TpUnitsComponent,
+    DailyInfoComponent
+  ],
+  providers: [
+    CssApplier,
   ],
     imports: [
         DataGridModule,

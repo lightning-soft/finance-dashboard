@@ -3,16 +3,22 @@
 :host {
   &.full-screen-window {
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    min-height: 85px;
 
     type-buttons, .ticks, .bottom-btns {
       margin-top: 5px;
+    }
+
+    quantity-input {
+      margin-top: 3px;
     }
 
     .form-layout {
       flex-direction: row;
       align-items: baseline;
       flex-wrap: wrap;
+      padding-bottom: 0;
     }
 
     .tif {
@@ -20,14 +26,7 @@
       margin-left: 5px;
     }
 
-    .chart-data {
-      flex-direction: row;
-    }
 
-    .chart-info {
-      margin-left: 5px;
-      display: inline-block;
-    }
 
     .pl-input {
       width: 80px;
@@ -37,7 +36,7 @@
 
     .top-position-btn {
       margin-top: 0;
-      margin-left: 3px;
+      margin-left: 9px;
     }
 
     .ticks {
@@ -75,12 +74,18 @@
 
 }
 
+cdk-virtual-scroll-viewport {
+  height: 100%;
+}
 
 button.top-position-btn {
   background: rgba(72, 149, 245, 0.5);
   border-radius: 2px;
   margin-top: 3px;
   color: white;
+  height: 24px;
+  line-height: 1;
+  font-size: 0.9rem;
   border: 1px solid transparent;
 }
 
@@ -90,29 +95,33 @@ button.top-position-btn {
   }
 }
 
-.chart-data {
-  display: flex;
-  flex-direction: column;
-}
+
 
 .form-layout {
   display: flex;
   flex-direction: column;
   padding-left: 4px;
   padding-right: 4px;
+  padding-bottom: 41px;
+  // needed for normal scroll
 }
 
-.income {
-  font-weight: 600;
-  font-size: 11px;
-  line-height: 15px;
-  color: #FFFFFF;
-}
+
 
 
 .tif {
   margin-top: 12px;
   margin-left: 3px;
+  font-size: 0.7rem;
+  line-height: 0.8rem;
+}
+
+:host ::ng-deep {
+  .tif-buttons {
+    .inner-buttons {
+      margin-top: 0;
+    }
+  }
 }
 
 .ticks {
@@ -149,17 +158,14 @@ button.top-position-btn {
   }
 }
 
-.chart-info {
-  font-weight: normal;
-  font-size: 11px;
-  line-height: 15px;
-  color: #FFFFFF;
-}
+
 
 .pl-input {
   color: white;
   margin-top: 8px;
   border: 1px solid #47494F;
+  padding: 1.5px;
+  font-size: 0.9rem;
+  padding-left: 4px;
 }
-
 

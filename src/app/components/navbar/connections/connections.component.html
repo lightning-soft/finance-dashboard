@@ -34,7 +34,7 @@
   *ngIf="!items.length"
 >
   <i class="icon-signal" [ngClass]="{
-    'text-success': activeConnection
+    'text-active': activeConnection
   }"></i>
 </div>
 <nz-dropdown-menu #connectionsDropdown="nzDropdownMenu">

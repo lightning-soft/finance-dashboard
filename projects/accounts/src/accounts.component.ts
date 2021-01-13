@@ -40,7 +40,7 @@ export class AccountsComponent implements OnInit {
     private modal: NzModalService,
   ) {
     this.setTabTitle('Connections');
-    this.setTabIcon('icon-indicator');
+    this.setTabIcon('icon-signal');
   }
 
   ngOnInit() {

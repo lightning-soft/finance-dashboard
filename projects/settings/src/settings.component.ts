@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { ILayoutNode, LayoutNode } from 'layout';
+import { SettingsKeyboardListener } from 'keyboard';
+import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsService } from './settings.service';
 import { SettingsData } from './types';
@@ -22,6 +23,9 @@ export interface SettingsComponent extends ILayoutNode { }
 export class SettingsComponent implements OnInit {
 
   autoSaveSetting: number | string;
+  isKeyboardRecording = false;
+  keyboardListener = new SettingsKeyboardListener();
+  currentEntery = null;
 
   saveDelayValues = {
     fiveMin: SAVE_DALEY.FIVE_MIN,
@@ -43,22 +47,22 @@ export class SettingsComponent implements OnInit {
   }
 
   set currentTheme(theme: Themes) {
-    this._settingService.changeTheme(theme);
+    this._settingsService.changeTheme(theme);
   }
 
   constructor(
-    public themeHandler: ThemesHandler,
-    private _settingService: SettingsService,
+    public themesHandler: ThemesHandler,
+    private _settingsService: SettingsService,
   ) {
     this.setTabTitle('Settings');
     this.setTabIcon('icon-setting-gear');
   }
 
   ngOnInit(): void {
-    this._settingService.settings
+    this._settingsService.settings
       .subscribe(s => {
         this.settings = { ...s };
-        
+
         if (s.autoSave && s.autoSaveDelay)
           this.autoSaveSetting = s.autoSaveDelay
         else if (s.autoSave)
@@ -71,24 +75,52 @@ export class SettingsComponent implements OnInit {
   switchAutoSave(delay: number): void {
     switch (delay) {
       case SAVE_DALEY.FIVE_MIN:
-        this._settingService.setAutoSave(SAVE_DALEY.FIVE_MIN);
+        this._settingsService.setAutoSave(SAVE_DALEY.FIVE_MIN);
         break;
 
       case SAVE_DALEY.AUTO_SAVE:
-        this._settingService.setAutoSave();
+        this._settingsService.setAutoSave();
         break;
 
       case SAVE_DALEY.MANUAL_SAVE:
       default:
-        this._settingService.removeAutoSave();
+        this._settingsService.removeAutoSave();
         break;
     }
   }
 
-  changeHotke(event: Event, entery): void {
-    /*
-     * To-do
-     *
-    */
+  handleNodeEvent(name: LayoutNodeEvent, data: any) {
+    if (name === LayoutNodeEvent.Event) {
+      if (this.isKeyboardRecording && data instanceof KeyboardEvent) {
+        this.keyboardListener.handle(data);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  changeHotkey(event: Event, entry): void {
+    const prevBinding = entry[1].clone();
+    entry[1].clear();
+    this.currentEntery = entry;
+    this.isKeyboardRecording = true;
+
+    this.keyboardListener.onFinised(() => {
+      entry[1] = this.keyboardListener.snapshot();
+      this.keyboardListener.clear();
+      this.isKeyboardRecording = false;
+    });
+
+    this.keyboardListener.onCanceled(() => {
+      entry[1] = prevBinding;
+      this.keyboardListener.clear();
+      this.isKeyboardRecording = false;
+    })
+
+    this.keyboardListener.onCleared(() => {
+      entry[1] = this.keyboardListener.snapshot();
+    })
+
+    this.keyboardListener.onChanged(() => entry[1] = this.keyboardListener.snapshot())
   }
 }

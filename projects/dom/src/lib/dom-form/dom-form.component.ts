@@ -28,30 +28,15 @@ export class DomFormComponent extends FormComponent<any> {
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
-  income: number;
-  incomePercentage: string | number;
-
+  @Input() trade;
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id)
       this.instrument$.next(value);
   }
 
+
   get instrument() {
     return this.instrument$.getValue();
-  }
-
-  @Input() set trade(value: ITrade) {
-    if (this.dailyInfo && this.shouldUpdateCurrentItem(value)) {
-      this.dailyInfo.close = value.price;
-      if (value.price > this.dailyInfo.high) {
-        this.dailyInfo.high = value.price;
-      }
-      if (value.price < this.dailyInfo.low) {
-        this.dailyInfo.low = value.price;
-      }
-      this.dailyInfo.volume = this.dailyInfo.volume + (value.volume / 1000);
-      this.updateIncome();
-    }
   }
 
   amountButtons = [
@@ -74,7 +59,6 @@ export class DomFormComponent extends FormComponent<any> {
 
   constructor(
     protected _injector: Injector,
-    private _accountsManager: AccountsManager,
     private _historyRepository: HistoryRepository,
   ) {
     super();
@@ -100,20 +84,12 @@ export class DomFormComponent extends FormComponent<any> {
       .subscribe((res) => {
         this.dailyInfo = res.data[res.data.length - 1];
         this.prevItem = res.data[res.data.length - 2];
-        this.updateIncome();
       });
   }
 
-  shouldUpdateCurrentItem(trade) {
-    const date = new Date(trade.timestamp);
-    return isSameDay(date, this.dailyInfo.date) && date > this.dailyInfo.date;
-  }
 
-  updateIncome() {
-    this.income = this.dailyInfo.close - this.prevItem.close;
-    this.incomePercentage = (this.income / this.dailyInfo.close).toFixed(this.instrument?.precision ?? 4);
-    // console.log('income', (this.income / this.dailyInfo.close).toFixed(4));
-  }
+
+
 
   createForm() {
     return new FormGroup({
@@ -143,9 +119,8 @@ export class DomFormComponent extends FormComponent<any> {
     if (this.dailyInfo)
       return (+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open);
   }
+
+
 }
 
-function isSameDay(date, secondDate) {
-  return date.getDate() == secondDate.getDate() && date.getMonth() == secondDate.getMonth()
-    && date.getFullYear() == secondDate.getFullYear();
-}
+

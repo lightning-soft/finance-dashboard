@@ -1,31 +1,28 @@
+<cdk-virtual-scroll-viewport itemSize="">
 <form [formGroup]="form" class="form-layout">
-  <div *ngIf="dailyInfo" class="chart-data">
-    <div class="income">{{ income }} ({{incomePercentage}}%)</div>
-    <div class="chart-info">H: {{dailyInfo.high}}</div>
-    <div class="chart-info">L: {{dailyInfo.low}}</div>
-    <div class="chart-info">O: {{dailyInfo.open}}</div>
-    <div class="chart-info">V: {{dailyInfo.volume}}</div>
-  </div>
-  <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
-  <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
+    <daily-info [instrument]="instrument"
+                [trade]="trade"
+                [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
+    <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
+    <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
     <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
 
-<type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>
-  <span class="tif">TIF</span>
- <type-buttons  formControlName="tif" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-  <div class="ticks">
-<sl-units formControlName="sl" ></sl-units>
-<tp-units formControlName="tp"></tp-units>
-  </div>
-  <div class="cxl">
-    <button class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
-    <button class="cxl-btn cxl-all" nz-button>CXL All</button>
-    <button class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
-  </div>
-  <div class="bottom-btns">
-    <button nz-button>CLOSE POSITION</button>
-    <button class="flatten" nz-button>FLATTEN</button>
-  </div>
-</form>
-
+    <type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>
+    <span class="tif">TIF</span>
+    <type-buttons formControlName="tif" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
+    <div class="ticks">
+      <sl-units formControlName="sl"></sl-units>
+      <tp-units formControlName="tp"></tp-units>
+    </div>
+    <div class="cxl">
+      <button class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
+      <button class="cxl-btn cxl-all" nz-button>CXL All</button>
+      <button class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
+    </div>
+    <div class="bottom-btns">
+      <button nz-button>CLOSE POSITION</button>
+      <button class="flatten" nz-button>FLATTEN</button>
+    </div>
+  </form>
+</cdk-virtual-scroll-viewport>
 

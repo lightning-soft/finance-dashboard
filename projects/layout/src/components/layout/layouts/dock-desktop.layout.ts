@@ -90,6 +90,9 @@ export class DockDesktopLayout extends Layout {
           if (instance.setLayoutContainer)
             instance.setLayoutContainer(window);
 
+          if (config.hidden)
+            instance.minimize();
+
           if (instance.loadState) {
             instance.loadState(componentState);
           }

@@ -10,22 +10,20 @@
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="clock">
     <li
-      class="clock-local"
+      class="clock-local clock-item"
       nz-menu-item
     >
       <div class="title">
-        <input type="checkbox" id="local">
-        <label for="local">Local</label>
+        <label nz-checkbox>Local</label>
       </div>
       <div class="subtitle">Vilnius, Helsinki, Kyiv, Riga, Sofia, Tallinn</div>
     </li>
     <li
       nz-menu-item
-      class="clock-utc"
+      class="clock-utc clock-item"
     >
       <div class="title">
-        <input type="checkbox" id="utc">
-        <label for="utc">UTC+3:00</label>
+        <label nz-checkbox>UTC+3:00</label>
       </div>
       <div class="subtitle">Minsk</div>
     </li>

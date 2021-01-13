@@ -3,7 +3,7 @@ import { LoadingComponent } from 'base-components';
 import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { HistoryRepository, IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
+import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
@@ -15,6 +15,7 @@ export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 
 interface IDomState {
   instrument: IInstrument;
+  settings?: any;
 }
 
 @Component({
@@ -33,7 +34,7 @@ interface IDomState {
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    '_id',
+   // '_id',
     'orders',
     'volumeProfile',
     'price',
@@ -62,6 +63,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
+  isLocked: boolean;
 
   private _scrolledItems = 0;
   private _instrument: IInstrument;
@@ -112,9 +114,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
+
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => this._settings.merge(settings)
+      handleLinkData: (settings) => {
+        this._settings.merge(settings);
+      }
     });
   }
 
@@ -136,7 +141,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   ngAfterViewInit() {
     this._handleResize();
     const element = this.dataGridElement && this.dataGridElement.nativeElement;
-    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll))
+    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
   }
 
   detectChanges() {
@@ -252,10 +257,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
+      settings: this._settings.toJson()
     };
   }
 
   loadState?(state: IDomState) {
+    this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
+    this.openSettings(true);
+
     // for debug purposes
     if (!state)
       state = {} as any;
@@ -278,16 +287,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.instrument = state.instrument;
   }
 
-  openSettings() {
+  openSettings(hidden = false) {
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        // state: this._settings,
+        state: this._settings,
       },
-      maximizeBtn: true,
       closeBtn: true,
-      single: true,
-      removeIfExists: true,
+      single: !hidden,
+      removeIfExists: !hidden,
+      hidden,
     });
   }
 

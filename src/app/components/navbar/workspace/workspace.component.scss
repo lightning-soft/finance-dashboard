@@ -19,9 +19,45 @@
   padding: 4px 18px;
   border-radius: 2px;
   border: 0.5px solid $risingColor;
-  margin: 10px;
+  margin: 12px 10px;
   width: 186px;
-  font-size: 12px;
+  font-size: 0.8rem;
+}
+
+::ng-deep {
+  .modal-workspace {
+    .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title {
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: white;
+
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-body {
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      line-height: 1.2rem;
+      padding: 24px;
+    }
+
+    .ant-btn {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+.divider {
+  margin: 0;
+  margin-top: 10px;
+}
+
+.active {
+  color: $primary;
+}
+
+.icon-union {
+  font-size: 15px;
 }
 
 .workspaces-list {
@@ -41,11 +77,12 @@
     display: flex;
     align-items: center;
     text-overflow: ellipsis;
-    overflow: hidden; 
-    font-size: 12px;
+    overflow: hidden;
+    font-size: 0.8rem;
+
 
     .radio-btn {
-      font-size: 12px;
+      font-size: 0.8rem;
     }
 
     i {
@@ -53,13 +90,13 @@
       font-size: 12px;
     }
   }
-  
+
   &:hover {
     background-color: $tabBackground;
 
     .actions {
       opacity: 1;
-      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(27,29,34,1) 12%);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 29, 34, 1) 12%);
     }
   }
 
@@ -74,7 +111,7 @@
 
     button {
       background-color: transparent;
-      font-size: 12px;
+      font-size: 0.8rem;
 
       &:hover {
         color: $risingColor;

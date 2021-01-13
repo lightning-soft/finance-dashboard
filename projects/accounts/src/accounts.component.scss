@@ -4,7 +4,27 @@
   display: block;
   height: 100%;
 
+  .custom-panel-body {
+    background: transparent !important;
+  }
+
+  .right-border {
+    border-right: 1px solid rgb(81, 83, 90);
+    width: 184px;
+    nz-collapse{
+      margin-right: 8px;
+    }
+  }
+
   ::ng-deep {
+    .wm-draggable {
+      color: $text-muted;
+
+      .window-icon {
+        background: transparent;
+      }
+    }
+
     .ant-switch-small {
       height: 13px;
 
@@ -30,8 +50,8 @@ cdk-virtual-scroll-viewport {
 }
 
 small {
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 0.7rem;
+  line-height: 1.2;
 }
 
 .broker-action {
@@ -42,8 +62,8 @@ small {
   border-radius: 2px;
   padding-bottom: 4px;
   color: white;
-  font-size: 11px;
-  line-height: 13px;
+  font-size: 0.7rem;
+  line-height: 1.2;
 
   &:hover {
     background: $inputBackground
@@ -63,9 +83,9 @@ small {
 }
 
 .split-title {
-  font-size: 11px;
+  font-size: 0.7rem;
+  line-height: 1.4;
   font-weight: normal;
-  line-height: 16px;
   color: #D0D0D2;
 }
 
@@ -77,16 +97,16 @@ small {
 
     .split-form-title {
       font-weight: 600;
-      font-size: 11px;
-      line-height: 15px;
+      font-size: 0.7rem;
+      line-height: 1.4;
       margin-left: 6px;
       color: #FFFFFF;
     }
 
     .switch-container {
       font-weight: normal;
-      font-size: 11px;
-      line-height: 16px;
+      font-size: 0.7rem;
+      line-height: 1.4;
       display: inline-flex;
       align-items: center;
       margin-left: 8px;

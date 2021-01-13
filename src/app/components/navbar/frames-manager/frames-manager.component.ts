@@ -25,7 +25,7 @@ export class FramesManagerComponent implements AfterViewInit {
     [Components.Watchlist]: 'icon-widget-watchlist',
     [Components.Orders]: 'icon-widget-orders',
     [Components.Positions]: 'icon-widget-positions',
-    [Components.Dom]: 'icon-widget-create-orders',
+    [Components.Dom]: 'icon-widget-dom',
     [Components.OrderForm]: 'icon-widget-create-orders'
 
 };

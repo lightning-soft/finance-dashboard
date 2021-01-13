@@ -46,13 +46,15 @@ cdk-virtual-scroll-viewport {
     text-align: left !important;
     white-space: nowrap;
     overflow: hidden;
-    text-transform: capitalize;
+    text-transform: uppercase;
     text-overflow: ellipsis;
   }
 
   .th {
     position: sticky;
     top: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
     border-top: 0px !important;
 
     .grips {
@@ -90,11 +92,15 @@ cdk-virtual-scroll-viewport {
     td {
       text-align: left;
       // padding: 8px;
-      font-size: 16px;
+      font-size: 0.8rem;
       line-height: 20px;
       font-weight: normal;
       overflow: hidden;
       white-space: nowrap;
+    }
+    th{
+      color: rgba(81, 83, 90, 1);
+      font-weight: 700;
     }
 
     ::ng-deep tfoot instrument-select div {

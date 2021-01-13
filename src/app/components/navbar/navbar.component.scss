@@ -2,8 +2,12 @@
 @import "themes/index";
 
 :host {
-  height: 42px;
+  height: auto;
   display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-size: 15px;
 }
 
 .navigation-bar {
@@ -38,8 +42,9 @@
     border-right: 1px solid $lightBackground;
     border-left: 1px solid $lightBackground;
     color: $textColor60;
-    font-size: 16px;
-    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .search {
@@ -52,7 +57,7 @@
   }
 
   .spacer {
-	flex-grow: 1;
+    flex-grow: 1;
   }
 
   .preferences {
@@ -70,10 +75,10 @@
 
       & > .icon-ellipse {
         font-size: 0.5em;
-        color: $fallingColor;
+        color: $risingColor;
         position: absolute;
-        left: 50%;
-        top: 2%;
+        left: 48%;
+        top: 15%;
       }
     }
   }
@@ -87,6 +92,7 @@
   .control {
     display: none;
     margin: 0 8px;
+
     button {
       background-color: transparent;
       padding: 0 8px;
