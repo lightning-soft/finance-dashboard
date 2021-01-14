@@ -10,6 +10,11 @@ import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { DomFormComponent } from './dom-form/dom-form.component';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
+import { NotifierService } from 'notifier';
+import { OrderSide } from 'trading';
+import { Id } from 'communication';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -52,6 +57,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     'askDepth',
     'bidDepth',
   ].map(name => ({ name, visible: true }));
+  accountId: Id;
 
   private _dom = new DomHandler();
 
@@ -113,6 +119,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   constructor(
     private _ordersRepository: OrdersRepository,
     private _levelOneDatafeed: Level1DataFeed,
+    protected _accountsManager: AccountsManager,
+    protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector,
     private _renderer: Renderer2
@@ -123,6 +131,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngOnInit(): void {
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._ordersRepository = this._ordersRepository.forConnection(connection);
+      });
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
@@ -183,13 +197,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _calculate(move?: number) {
     const itemsCount = this.visibleRows;
 
-    let trade = this._trade;
-    let instrument = this.instrument;
+    const trade = this._trade;
+    const instrument = this.instrument;
     if (!instrument)
       return;
 
-    let last = trade && trade.price;
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
+    const last = trade && trade.price;
+    const centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
     // const tickSize = instrument.tickSize;
     const tickSize = 0.01;
     const step = instrument.precision;
@@ -285,11 +299,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!state?.instrument)
       state.instrument = {
         id: 'ESH1',
-        description: "E-Mini S&P 500",
-        exchange: "CME",
+        description: 'E-Mini S&P 500',
+        exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: "ESH1",
+        symbol: 'ESH1',
       };
     // for debug purposes
 
@@ -314,7 +328,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrder(column: string, item: DomItem) {
-    console.log('Todo: create order', column, item, this._domForm.getDto());
+    if (!this._domForm.valid) {
+      this.notifier.showError('Please fill all required fields in form');
+      return;
+    }
+    const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
+    const requestPayload = this._domForm.getDto();
+    const { exchange, symbol } = this.instrument;
+    requestPayload.stopPrice = requestPayload.sl.count;
+    requestPayload.limitPrice = requestPayload.tp.count;
+    this._ordersRepository.createItem({
+      ...requestPayload,
+      exchange,
+      side,
+      accountId: this.accountId,
+      symbol
+    }).toPromise()
+      .then((res) => {
+        this.notifier.showSuccess('Order successfully created');
+      })
+      .catch((err) => {
+        this.notifier.showError(err);
+      });
   }
 
   ngOnDestroy() {

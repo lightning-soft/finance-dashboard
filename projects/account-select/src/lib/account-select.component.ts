@@ -28,7 +28,7 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> {
       onConnectionChange: true,
     };
 
-    this._params = { status: 'Active' };
+    this._params = { status: 'Active', criteria: '' };
   }
 
   protected _handleConnection(connection: IConnection) {

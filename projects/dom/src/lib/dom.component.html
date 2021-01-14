@@ -1,5 +1,12 @@
 <window-header [window]="this">
-  <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
+  <div class="d-flex align-items-center ">
+    <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
+    <account-select
+      className="custom-form-control bg-light"
+      size="small"
+      (accountChange)="accountId = $event"
+    ></account-select>
+  </div>
   <div class="window-header-button">
     <button class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
     </button>
@@ -43,7 +50,8 @@
       class="{{currentDirection}}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [items]="items" [columns]="columns" rowHeight="25" detach="true" [handlers]="handlers"></data-grid>
+    <data-grid class="data-grid" #grid [items]="items" [columns]="columns" rowHeight="25" detach="true"
+               [handlers]="handlers"></data-grid>
   </div>
 
 </div>
