@@ -1,48 +1,26 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { NzModalRef } from 'ng-zorro-antd/modal';
-import { TransferItem } from 'ng-zorro-antd/transfer';
-import { Column } from 'data-grid';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {NzModalRef} from 'ng-zorro-antd/modal';
+import {TransferItem} from 'ng-zorro-antd/transfer';
+import {Column} from 'data-grid';
 
 @Component({
   selector: 'modal-component',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
 })
-export class ModalComponent implements OnInit {
+export class ModalComponent implements OnDestroy {
   @Input() title?: string;
 
   public columns: Column[];
-
-  public list: TransferItem[] = [];
+  public showHeaders: boolean;
 
   constructor(private modal: NzModalRef) {
     this.columns = modal.getConfig().nzComponentParams.columns;
+
   }
 
-  ngOnInit() {
-    for (const column of this.columns) {
-      this.list.push({
-        title: column.name,
-        direction: column.visible ? 'right' : 'left',
-      });
-    }
+  ngOnDestroy(): void {
+    this.modal.afterClose.next({columns: [...this.columns], showHeaders: this.showHeaders});
   }
 
-  public handleCancel(): void {
-    this.modal.close(this.columns);
-  }
-
-  public handleOk(): void {
-    this.confirmChanges();
-    this.modal.close(this.columns);
-  }
-
-  private confirmChanges() {
-    this.columns.map((column: Column) => {
-      const atList = this.list.find(i => i.title === column.name);
-
-      column.visible = atList.direction === 'left' ? false : true;
-      return column;
-    });
-  }
 }

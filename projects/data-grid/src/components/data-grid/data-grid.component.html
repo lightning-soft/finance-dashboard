@@ -1,14 +1,16 @@
 <table #tableContainer>
-  <thead>
+  <thead (contextmenu)="$event.preventDefault(); createComponentModal()">
   <tr>
-    <th
-      [height]="rowHeight"
-      [style.top]="inverseTranslation"
-      *ngFor="let column of activeColumns; let ind = index"
-      class="head cell data"
-      [width]="100"
-      [title]="column">{{column.name}}
-    </th>
+    <ng-container *ngIf="showHeaders">
+      <th
+        [height]="rowHeight"
+        [style.top]="inverseTranslation"
+        *ngFor="let column of activeColumns; let ind = index"
+        class="head cell data"
+        [width]="100"
+        [title]="column">{{column.name}}
+      </th>
+    </ng-container>
   </tr>
   </thead>
   <tbody>
@@ -40,10 +42,10 @@
   </tr>
   </tbody>
   <tfoot>
-    <tr>
-      <td colspan="4" [style.height.px]="rowHeight">
-        <ng-content select="instrument-select"></ng-content>
-      </td>
-    </tr>
+  <tr>
+    <td colspan="4" [style.height.px]="rowHeight">
+      <ng-content select="instrument-select"></ng-content>
+    </td>
+  </tr>
   </tfoot>
 </table>

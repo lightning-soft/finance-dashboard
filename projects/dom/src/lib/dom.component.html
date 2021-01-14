@@ -1,7 +1,7 @@
-<window-header [window]="this">
+<window-header  (contextmenu)="$event.preventDefault();grid.createComponentModal()" [window]="this">
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
   <div class="window-header-button">
-    <button class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
+    <button class="wm-header-btn icon-align-center">
     </button>
     <button class="wm-header-btn icon-dom-clear-all"></button>
 

@@ -1,10 +1,12 @@
-<nz-transfer
-  [nzDataSource]="list"
-  [nzTitles]="['All', 'Selected']"
->
-</nz-transfer>
-
-<div *nzModalFooter>
-  <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
-  <button nz-button nzType="primary" (click)="handleOk()" [nzLoading]="isConfirmLoading">OK</button>
-</div>
+<label nz-checkbox [(ngModel)]="showHeaders">Column Headers</label>
+<ul nz-menu [nzMode]="'vertical'">
+  <li nz-submenu nzMenuClassName="columns-items" nzTitle="Table View">
+    <ul>
+        <li *ngFor="let item of columns" nz-menu-item><label nz-checkbox
+                                                             [(ngModel)]="item.visible">{{item.name}}</label>
+        </li>
+    </ul>
+  </li>
+  <li class="hide-arrow" nz-submenu nzTitle="Settings">
+  </li>
+</ul>

@@ -1,1 +1,74 @@
 @import "../data-grid/themes/index";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+:host ::ng-deep {
+  .ant-menu-root.ant-menu-vertical {
+    // width: 136px;
+  }
+
+  .hide-arrow {
+    .ant-menu-submenu-arrow {
+      display: none;
+    }
+  }
+
+  .ant-checkbox-wrapper, .ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title {
+    color: $text-80;
+    font-size: 0.7rem;
+    font-weight: 400;
+  }
+
+  .ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title {
+    height: 22px;
+    line-height: 22px;
+    padding-left: 4px;
+  }
+
+  .ant-menu-submenu-vertical > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+    right: 8px;
+  }
+
+  .ant-menu-submenu-title:hover {
+    background: #383A40;
+    border-radius: 2px;
+    color: white;
+  }
+
+  .ant-menu {
+    background: transparent;
+    border-right: none;
+  }
+}
+
+::ng-deep {
+  .columns-items {
+    background: #24262C !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    border-radius: 2px !important;
+
+    .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+      background: #1B1D22 !important;
+    }
+
+    .ant-menu-item {
+      color: $text-80;
+    }
+
+    .ant-menu-item:hover, {
+      background: #1B1D22 !important;
+      border-radius: 2px;
+    }
+
+    .ant-checkbox-wrapper {
+      color: $text-80;
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+  }
+}

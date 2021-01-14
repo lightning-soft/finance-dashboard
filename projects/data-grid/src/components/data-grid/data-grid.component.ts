@@ -46,6 +46,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() detach: boolean = false;
 
   public activeColumns: Column[] = [];
+  showHeaders = true;
 
   private _handlers = [];
   private _subscribedEvents = [];
@@ -110,18 +111,20 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   createComponentModal(): void {
     const modal = this.modalService.create({
-      nzTitle: 'Columns',
       nzContent: ModalComponent,
+      nzFooter: null,
       nzWrapClassName: 'modal-data-grid',
       nzViewContainerRef: this.viewContainerRef,
       nzComponentParams: {
         columns: [...this.columns],
+        showHeaders: this.showHeaders,
       },
     });
 
     modal.afterClose.subscribe(result => {
       if (result) {
-        this.columns = [...result];
+        this.columns = result.columns;
+        this.showHeaders = result.showHeaders;
         this.activeColumns = this.columns.filter((column: Column) => column.visible);
       }
     });

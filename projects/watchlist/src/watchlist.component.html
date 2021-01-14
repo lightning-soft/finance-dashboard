@@ -1,9 +1,4 @@
-<window-header className="widget" [window]="this">
-  <button
-    class="wm-header-btn ml-auto"
-    (click)="grid.createComponentModal()"
-  >
-    <i class="icon-setting-gear"></i></button>
+<window-header (contextmenu)="$event.preventDefault();grid.createComponentModal()" className="widget" [window]="this">
 </window-header>
 
 <data-grid
