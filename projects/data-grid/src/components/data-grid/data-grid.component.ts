@@ -32,8 +32,7 @@ export interface DataGridItem {
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
-  @ViewChild('tableContainer') tableContainer: ElementRef;
-  // @ViewChild('container', { read: ElementRef, static: true }) container: ElementRef;
+  @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
 
   @ViewChild(ModalComponent)
   modalComponent: ModalComponent;

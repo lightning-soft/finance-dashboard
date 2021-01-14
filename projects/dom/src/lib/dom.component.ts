@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LoadingComponent } from 'base-components';
-import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
 import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
@@ -9,6 +9,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
+import { DomFormComponent } from './dom-form/dom-form.component';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -34,7 +35,7 @@ interface IDomState {
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-   // '_id',
+    // '_id',
     'orders',
     'volumeProfile',
     'price',
@@ -53,6 +54,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   ].map(name => ({ name, visible: true }));
 
   private _dom = new DomHandler();
+
+  @ViewChild(DomFormComponent)
+  private _domForm: DomFormComponent;
+
+  handlers = [
+    ...['bid', 'ask'].map(column => (
+      new CellClickDataGridHandler<DomItem>({
+        column, handler: (item) => this._createOrder(column, item),
+      })
+    )),
+  ];
+
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
@@ -298,6 +311,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       removeIfExists: !hidden,
       hidden,
     });
+  }
+
+  private _createOrder(column: string, item: DomItem) {
+    console.log('Todo: create order', column, item, this._domForm.getDto());
   }
 
   ngOnDestroy() {
