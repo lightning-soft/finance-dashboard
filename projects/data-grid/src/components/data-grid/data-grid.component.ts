@@ -15,6 +15,7 @@ import { ModalComponent } from '../modal/modal.component';
 import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
+import { NzPopoverDirective } from 'ng-zorro-antd';
 
 
 export interface DataGridItem {
@@ -37,6 +38,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @ViewChild(ModalComponent)
   modalComponent: ModalComponent;
+  @ViewChild(NzPopoverDirective) popover: NzPopoverDirective;
 
   @Input()
   handlers: DataGridHandler[] = [];
@@ -58,6 +60,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   public onDestroy$ = new Subject();
 
+  showContextMenu = false;
+
   get inverseTranslation() {
     return 0;
   }
@@ -76,7 +80,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.activeColumns = this.columns.filter((column: Column) => column.visible);
@@ -109,25 +114,29 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     ];
   }
 
-  createComponentModal(): void {
-    const modal = this.modalService.create({
-      nzContent: ModalComponent,
-      nzFooter: null,
-      nzWrapClassName: 'modal-data-grid',
-      nzViewContainerRef: this.viewContainerRef,
-      nzComponentParams: {
-        columns: [...this.columns],
-        showHeaders: this.showHeaders,
-      },
-    });
+  createComponentModal($event?): void {
+    console.log($event);
+    console.log(this.popover);
+    this.showContextMenu = !this.showContextMenu;
 
-    modal.afterClose.subscribe(result => {
-      if (result) {
-        this.columns = result.columns;
-        this.showHeaders = result.showHeaders;
-        this.activeColumns = this.columns.filter((column: Column) => column.visible);
-      }
-    });
+    /*   const modal = this.modalService.create({
+         nzContent: ModalComponent,
+         nzFooter: null,
+         nzWrapClassName: 'modal-data-grid',
+         nzViewContainerRef: this.viewContainerRef,
+         nzComponentParams: {
+           columns: [...this.columns],
+           showHeaders: this.showHeaders,
+         },
+       });
+
+       modal.afterClose.subscribe(result => {
+         if (result) {
+           this.columns = result.columns;
+           this.showHeaders = result.showHeaders;
+           this.activeColumns = this.columns.filter((column: Column) => column.visible);
+         }
+       });*/
   }
 
   trackByFn(item) {
@@ -166,4 +175,5 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
+
 }

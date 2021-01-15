@@ -1,5 +1,8 @@
 <table #tableContainer>
-  <thead (contextmenu)="$event.preventDefault(); createComponentModal()">
+  <thead
+    [nzPopoverTrigger]="'click'" nzPopoverPlacement="bottom" [(nzPopoverVisible)]="showContextMenu" nz-popover
+    [nzPopoverContent]="contentTemplate"
+    (contextmenu)="$event.preventDefault(); createComponentModal($event)">
   <tr>
     <ng-container *ngIf="showHeaders">
       <th
@@ -49,3 +52,6 @@
   </tr>
   </tfoot>
 </table>
+<ng-template #contentTemplate>
+  <modal-component [columns]="columns" [showHeaders]="showHeaders"></modal-component>
+</ng-template>

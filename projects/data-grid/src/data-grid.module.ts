@@ -12,7 +12,7 @@ import { ModalComponent } from './components/modal/modal.component';
 import { ResizableModule } from './components/resizable/resizable.module';
 import { IconComponent } from './models/cells/components/icon-conponent';
 import { PriceComponent } from './models/cells/components/price-component';
-import {NzCheckboxModule} from 'ng-zorro-antd';
+import { NzCheckboxModule, NzPopoverModule } from 'ng-zorro-antd';
 import {FormsModule} from '@angular/forms';
 
 const entryComponents = [
@@ -23,18 +23,19 @@ const entryComponents = [
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ScrollingModule,
-    ResizableModule,
-    NzTransferModule,
-    NzMenuModule,
-    NzButtonModule,
-    NzModalModule,
-    NzIconModule,
-    NzCheckboxModule,
-    FormsModule
-  ],
+    imports: [
+        CommonModule,
+        ScrollingModule,
+        ResizableModule,
+        NzTransferModule,
+        NzMenuModule,
+        NzButtonModule,
+        NzModalModule,
+        NzIconModule,
+        NzCheckboxModule,
+        FormsModule,
+        NzPopoverModule
+    ],
   declarations: [
     ItemViewBuilder,
     ...entryComponents,
