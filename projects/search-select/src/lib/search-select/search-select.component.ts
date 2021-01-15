@@ -35,6 +35,7 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
   onTouched;
   @Input() comparedProperty = 'id';
   @Input() valueTransformer = (item) => item;
+
   get selectedItem(): any {
     return this._selectedItem;
   }
@@ -46,8 +47,10 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
       return;
     this.itemChange.emit(value);
     this._selectedItem = value;
-    if (this.onChange)
-      this.onChange(this.valueTransformer(value));
+    setTimeout(() => {
+      if (this.onChange)
+        this.onChange(this.valueTransformer(value));
+    });
     if (this.onTouched)
       this.onTouched();
   }
@@ -86,13 +89,13 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
 
   constructor(protected _notifier: NotifierService) {
     super();
-    this.autoLoadData = !this.autoLoad ? {onInit: true} : false;
-    this.settings = {subscribeToConnections: false};
+    this.autoLoadData = !this.autoLoad ? { onInit: true } : false;
+    this.settings = { subscribeToConnections: false };
   }
 
 
   onSearch(value: string) {
-    this.loadData({s: JSON.stringify({[this.searchQueryParam]: {$contL: value}}), take: 100000, skip: 0});
+    this.loadData({ s: JSON.stringify({ [this.searchQueryParam]: { $contL: value } }), take: 100000, skip: 0 });
   }
 
   registerOnChange(fn: any): void {
