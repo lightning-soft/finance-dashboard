@@ -27,6 +27,7 @@ import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
 import { CssApplier } from './css.applier';
 import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
+import { AccountSelectModule } from 'account-select';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
         DataGridModule,
         InstrumentSelectModule,
         WindowHeaderModule,
+        AccountSelectModule,
         NzInputModule,
         NzButtonModule,
         CommonModule,
