@@ -156,13 +156,12 @@ export class DockDesktopLayout extends Layout {
     if (!Array.isArray(config))
       return;
 
-    for (const item of config) {
-      this.addComponent(item);
+    for (let i = config.length - 1; i >= 0; i--) {
+      this.addComponent(config[i]);
     }
   }
 
   async loadState(config: any) {
-
     this._tryDestroy();
     await this._lazyLoadingService.load();
 

@@ -286,7 +286,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         state: this._settings,
       },
       closeBtn: true,
-      single: !hidden,
+      single: true,
       removeIfExists: !hidden,
       hidden,
     });

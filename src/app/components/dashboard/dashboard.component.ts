@@ -64,7 +64,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
       if (['wm-container'].some(i => this.classList.contains(i))) {
         const fn = args[1];
-        console.log(this);
         if (typeof fn == 'function')
           args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
       }
