@@ -1,4 +1,10 @@
-export type HotkeyEntire = [string, string];
+import { KeyBinding } from "keyboard";
+export interface ICommand {
+  readonly UIString: string;
+  readonly name: string;
+}
+
+export type HotkeyEntire = [ICommand, KeyBinding];
 
 export type SettingsData = {
   theme: string;

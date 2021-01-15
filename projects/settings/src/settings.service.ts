@@ -1,15 +1,23 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
 import { BehaviorSubject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
-import { HotkeyEntire, SettingsData } from './types';
+import { HotkeyEntire, ICommand, SettingsData } from './types';
+
+function createCommand(name: string, uiSstring: string = name): ICommand {
+  return {
+    name, 
+    UIString: uiSstring
+  }
+}
 
 const defaultHotkeyEntries: HotkeyEntire[] = [
-  ['Save page', 'Ctrl + S'],
-  ['Copy', 'Ctrl + C'],
-  ['Paste', 'Ctrl + V'],
-  ['Cut', 'Ctrl + X'],
+  [createCommand('save_page', 'Save page'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)])],
+  [createCommand('Copy'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_C)])],
+  [createCommand('Paste'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_P)])],
+  [createCommand('Cut'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_X)])],
 ];
 
 const defaultSettings = {

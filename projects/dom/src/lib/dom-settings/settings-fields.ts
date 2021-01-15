@@ -1,5 +1,5 @@
-import { FieldType } from 'dynamic-form';
-import { FormlyFieldConfig, FormlyTemplateOptions } from '@ngx-formly/core';
+import {FieldType} from 'dynamic-form';
+import {FormlyFieldConfig, FormlyTemplateOptions} from '@ngx-formly/core';
 import * as merge from 'deepmerge';
 
 type EjectCssFn = (value: any) => any;
@@ -33,12 +33,15 @@ class FieldConfig implements IFieldConfig {
   }
 
   getCss(value: any): any {
-    return {
-      [` .${ this.key }`]: this.fieldGroup
-        .map(i => i.getCss && i.getCss(value[this.key]))
-        .filter(Boolean)
-        .reduce((acc, k) => merge(acc, k), {}),
-    };
+
+    if (this.key && value) {
+      return {
+        [` .${this.key}`]: this.fieldGroup
+          .map(i => i.getCss && i.getCss(value[this.key]))
+          .filter(Boolean)
+          .reduce((acc, k) => merge(acc, k), {}),
+      };
+    }
   }
 }
 
@@ -54,7 +57,7 @@ function getHistogramColor(label = 'Histogram Color', key = 'histogramColor') {
     type: FieldType.Color,
     default: histogramBackgroundColor,
     templateOptions: {label},
-    getCss: (value) => ({' .histogram': {background: value[key] ?? histogramBackgroundColor}}),
+    getCss: (value) => ({' .histogram': {background: (value && value[key]) ?? histogramBackgroundColor}}),
   };
 }
 
@@ -78,16 +81,14 @@ function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
   if (!cssAttrOrFn)
     cssAttrOrFn = _label.replaceAll(' ', '-').toLowerCase();
 
-  const defaultValue = '#0dff008a';
   return {
     key,
     name: key,
     type: FieldType.Color,
     templateOptions: {label: _label},
-    default: defaultValue,
     getCss: typeof cssAttrOrFn == 'function'
-      ? (value) => (cssAttrOrFn as Function)(value[key] ?? defaultValue)
-      : (value) => ({[cssAttrOrFn as string]: value[key] ?? defaultValue}),
+      ? (value) => (cssAttrOrFn as Function)((value && value[key]))
+      : (value) => ({[cssAttrOrFn as string]: (value && value[key])}),
   };
 }
 
@@ -123,7 +124,7 @@ function getHistogram(key: string = 'orientation', label: string = 'Histogram Or
       options: [{label: 'Left', value: 'left'}, {label: 'Right', value: 'right'}]
     },
     getCss: (value) => {
-      if (value[key] === HistogramOrientation.Right)
+      if (value && value[key] === HistogramOrientation.Right)
         return {
           ' .histogram': {
             right: 0,
@@ -141,11 +142,12 @@ function getTextAlign(key: string = 'textAlign', label = 'Text align') {
     templateOptions: {
       label
     },
-    getCss: (value) => ({'text-align': ((value[key] ?? 'left') + ' !important')})
+    getCss: (value) => ({'text-align': (((value && value[key]) ?? 'left') + ' !important')})
   };
 }
 
-function getCheckboxes(checkboxes: { key: string, label: string }[], label?: string, additionalFields: FormlyFieldConfig[] = []) {
+function getCheckboxes(checkboxes: { key: string, label: string }[], label?: string,
+                       additionalFields: FormlyFieldConfig[] = [], config = {}) {
   return {
     wrappers: ['form-field'],
     templateOptions: {
@@ -162,11 +164,12 @@ function getCheckboxes(checkboxes: { key: string, label: string }[], label?: str
           defaultValue: false,
         },
       };
-    }), ...additionalFields]
+    }), ...additionalFields],
+    ...config,
   };
 }
 
-function getNumber(key: string, label: string, important = true, unit = 'px',) {
+function getNumber(key: string, label: string, important = true, unit = 'px') {
   const suffix = important ? '!important' : '';
   return {
     key,
@@ -175,7 +178,7 @@ function getNumber(key: string, label: string, important = true, unit = 'px',) {
       label
     },
     getCss: (value) => {
-      if (value[key])
+      if (value && value[key])
         return {[key]: (value[key] + unit + suffix)};
     }
   };
@@ -184,7 +187,8 @@ function getNumber(key: string, label: string, important = true, unit = 'px',) {
 const histogramFields = [
   getColor('Background Color'),
   getColor('Font Color', 'color'),
-  getColor('Highlight Background Color', (value) => ({':hover': {'background-color': value}}))
+  getColor('Highlight Background Color', (value) => ({':hover': {'background-color': value}})),
+  getHistogramColor(),
 ];
 export const commonFields: IFieldConfig[] = [
   new FieldConfig({
@@ -395,6 +399,7 @@ export const hotkeyFields: FormlyFieldConfig[] = [
 export const generalFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: '',
+    key: 'general',
     fieldGroup: [
       getCheckboxes([
           {key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed'},
@@ -556,7 +561,7 @@ export const priceFields: IFieldConfig[] = [
       getColor('Last Traded Price Font Color'),
       getColor('Non Traded Price Back Color'),
       getColor('Traded Price Back Color'),
-      getColor({label: 'Price Font Color', key: 'fontColor'}),
+      getColor('Price Font Color'),
       getColor('Non Traded Price Font Color'),
       getTextAlign(),
     ]
@@ -567,14 +572,10 @@ export const bidDeltaFields: IFieldConfig[] = [
     label: 'Bid Delta',
     fieldGroup: [
       ...histogramFields,
+      {...getTextAlign(), className: 'w-100'},
     ]
   }),
-  new FieldConfig({
-    key: 'bidDelta',
-    fieldGroup: [
-      getTextAlign(),
-    ]
-  }),
+
 
 ];
 export const askDeltaFields: IFieldConfig[] = [
@@ -582,28 +583,22 @@ export const askDeltaFields: IFieldConfig[] = [
     label: 'Ask Delta',
     fieldGroup: [
       ...histogramFields,
+      {
+        ...getTextAlign(), className: 'w-100'
+      }
     ]
   }),
-  new FieldConfig({
-    key: 'askDelta',
-    fieldGroup: [
-      getTextAlign(),
-    ]
-  })
 ];
 export const askFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Ask',
     fieldGroup: [
       ...histogramFields,
+      {
+        ...getTextAlign(), className: 'w-100'
+      }
     ]
   }),
-  new FieldConfig({
-    key: 'ask',
-    fieldGroup: [
-      getTextAlign(),
-    ]
-  })
 ];
 
 const bidConfig = (label) => {
@@ -612,13 +607,19 @@ const bidConfig = (label) => {
     fieldGroup: [
       ...histogramFields,
       getColor('Total Font Color'),
-      getCheckboxes([{key: generateKeyFromLabel(label), label: `${ label } Histogram`}, {
-        key: 'highlightLargeBids',
-        label: 'Highlight Large Bids Only'
-      }]),
-      getNumber('font-size', 'Large Bid Size'),
+      {
+        ...getCheckboxes([{key: generateKeyFromLabel(label), label: `${label} Histogram`}, {
+          key: 'highlightLargeBids',
+          label: 'Highlight Large Bids Only'
+        }]),
+        className: 'w-100',
+      },
       getTextAlign(),
       getHistogram(),
+      {
+        ...getNumber('font-size', 'Large Bid Size'), className: 'w-100',
+      },
+
     ]
   });
 };
@@ -634,10 +635,13 @@ export const askDepthFields: IFieldConfig[] = [
     fieldGroup: [
       ...histogramFields,
       getColor('Total Font Color'),
-      getCheckboxes([{key: 'askDepth', label: 'Ask Depth Histogram'}, {
-        key: 'highlightLargeAsks',
-        label: 'Highlight Large Asks Only'
-      }]),
+      {
+        ...getCheckboxes([{key: 'askDepth', label: 'Ask Depth Histogram'}, {
+          key: 'highlightLargeAsks',
+          label: 'Highlight Large Asks Only'
+        }]),
+        className: 'w-100',
+      },
       getNumber('font-size', 'Large Ask Size'),
       getTextAlign(),
       getHistogram(),
@@ -673,40 +677,30 @@ export const totalBidDepthFields: IFieldConfig[] = [
     ]
   })
 ];
-
 export const volumeFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Volume Profile',
+    // fieldGroupClassName: '',
     fieldGroup: [
       ...histogramFields,
       getColor({key: 'controlColor', label: 'Point of Control Color'}),
       getColor({key: 'areaColor', label: 'Value Area Color'}),
       getColor('VWAP Color'),
-    ]
-  }),
-  new FieldConfig({
-    key: 'volumeProfile',
-    fieldGroupClassName: '',
-    fieldGroup: [
+
       getCheckboxes([
         {key: 'volumeProfile', label: 'Volume Profile Histogram'},
         {key: 'ltq', label: 'Last Traded Qty (LTQ)'},
         {key: 'poc', label: 'Point of Control'},
         {label: 'Value Area', key: 'valueArea'},
         {key: 'VWAP', label: 'VWAP'}
-      ]),
-    ],
-  }),
-  new FieldConfig({
-    key: 'volumeProfile',
-    fieldGroupClassName: 'd-flex flex-wrap two-rows',
-
-    fieldGroup: [
+      ], null, [], {className: 'w-100 m-0'}),
       getTextAlign(),
       getHistogram(),
-    ]
-  })
+    ],
+  }),
+
 ];
+
 export const orderColumnFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Trade Column',
@@ -736,25 +730,16 @@ export const orderColumnFields: IFieldConfig[] = [
       getColor('Loss Foreground'),
       getColor('Break-even Background'),
       getColor('Break-even Foreground'),
-    ]
-  }),
-  new FieldConfig({
-    key: 'tradeColumn',
-    fieldGroupClassName: '',
-    fieldGroup: [
-      getCheckboxes([
-        {key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column'},
-        {key: 'split', label: 'Split order column into Buy Orders and Sell Orders'},
-      ]),
-    ]
-  }),
-  new FieldConfig({
-    key: 'tradeColumn',
-    fieldGroup: [
+      {
+        ...getCheckboxes([
+          {key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column'},
+          {key: 'split', label: 'Split order column into Buy Orders and Sell Orders'},
+        ]), className: 'w-100'
+      },
       getColor('Buy Orders Column'),
       getColor('Sell Orders Column'),
     ]
-  })
+  }),
 ];
 export const currentAtBidColumnFields: IFieldConfig[] = [
   new FieldConfig({

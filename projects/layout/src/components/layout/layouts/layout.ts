@@ -16,6 +16,7 @@ export type ComponentOptions = {
   icon?: string;
   minimizable?: boolean;
   maximizable?: boolean;
+  hidden?: boolean;
   closeBtn?: boolean;
   resizable?: boolean;
   single?: boolean;

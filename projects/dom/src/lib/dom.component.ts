@@ -15,6 +15,7 @@ export interface DomComponent extends ILayoutNode {
 
 interface IDomState {
   instrument: IInstrument;
+  settings?: any;
 }
 
 @Component({
@@ -101,7 +102,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     private _historyRepository: HistoryRepository,
     private _levelOneDatafeed: Level1DataFeed,
     private _levelTwoDatafeed: Level2DataFeed,
-    private _renderer: Renderer2
+    private _renderer: Renderer2,
   ) {
     this.setTabIcon('icon-widget-dom');
   }
@@ -111,9 +112,12 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
+
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => this._settings.merge(settings)
+      handleLinkData: (settings) => {
+        this._settings.merge(settings);
+      }
     });
   }
 
@@ -130,7 +134,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   ngAfterViewInit() {
     this._handleResize();
     const element = this.dataGridElement && this.dataGridElement.nativeElement;
-    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll))
+    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
   }
 
   detectChanges() {
@@ -227,7 +231,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   @SynchronizeFrames()
   private _handleResize() {
-
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
@@ -246,10 +249,14 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
+      settings: this._settings.toJson()
     };
   }
 
   loadState?(state: IDomState) {
+    this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
+    this.openSettings(true);
+
     // for debug purposes
     if (!state)
       state = {} as any;
@@ -272,15 +279,16 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.instrument = state.instrument;
   }
 
-  openSettings() {
+  openSettings(hidden = false) {
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        // state: this._settings,
+        state: this._settings,
       },
       closeBtn: true,
       single: true,
-      removeIfExists: true,
+      removeIfExists: !hidden,
+      hidden,
     });
   }
 

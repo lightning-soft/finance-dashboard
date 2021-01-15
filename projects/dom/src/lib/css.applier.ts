@@ -1,16 +1,18 @@
-import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, Renderer2 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {Inject, Injectable, Renderer2, RendererFactory2} from '@angular/core';
 import * as merge from 'deepmerge';
 
 @Injectable()
 export class CssApplier {
   private style: any;
   private config: any;
+  private renderer: Renderer2;
 
   constructor(
-    private renderer: Renderer2,
+    rendererFactory: RendererFactory2,
     @Inject(DOCUMENT) private document: any
   ) {
+    this.renderer = rendererFactory.createRenderer(null, null);
   }
 
   apply(selector: string, config: any) {
@@ -21,15 +23,14 @@ export class CssApplier {
     this.config = config;
   }
 
-  private _setStyle(style: string) {
-    if (style == this.style)
-      return;
+  private _setStyle(css: string) {
     if (!this.style) {
       this.style = this.document.createElement('STYLE') as HTMLStyleElement;
+      this.style.id = 'dom-settings';
       this.renderer.appendChild(this.document.head, this.style);
     }
 
-    this.style.innerHTML = style ?? '';
+    this.style.innerHTML = css ?? '';
   }
 }
 
