@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, NgZone } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
@@ -33,6 +33,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _subscriptions = [];
 
   constructor(
+    private _zone: NgZone,
     private _renderer: Renderer2,
     private _themesHandler: ThemesHandler,
     private _accountsManager: AccountsManager,
@@ -53,6 +54,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this._setupSettings();
     this._subscribeOnKeys();
+
+    /*
+    / For performance reason avoiding ng zone in some cases
+    */
+    const zone = this._zone;
+    Element.prototype.addEventListener = function (...args) {
+      const _this = this;
+
+      if (['wm-container'].some(i => this.classList.contains(i))) {
+        const fn = args[1];
+        console.log(this);
+        if (typeof fn == 'function')
+          args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
+      }
+
+      return addEventListener.apply(_this, args);
+    };
   }
 
   ngAfterViewInit() {
@@ -124,7 +142,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private handleCommand(command: DashboardCommand) {
-    switch(command) {
+    switch (command) {
       case DashboardCommand.SavePage: {
         this._save();
         break;

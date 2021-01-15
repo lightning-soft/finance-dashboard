@@ -231,7 +231,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   @SynchronizeFrames()
   private _handleResize() {
-
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
