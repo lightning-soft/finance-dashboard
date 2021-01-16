@@ -8,9 +8,10 @@
       (contextmenu)="item.edit = true;"
       *ngIf="!item.edit"
       nz-button>{{item.label}}</button>
-    <input *ngIf="item.edit" type="number"
+    <nz-input-number *ngIf="item.edit"
            (keyup.enter)="item.edit = false"
            (focusout)="item.edit = false"
-           [(ngModel)]="item.label" nz-input>
+           [(ngModel)]="item.label">
+    </nz-input-number>
   </ng-container>
 </div>

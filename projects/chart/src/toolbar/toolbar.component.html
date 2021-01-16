@@ -16,39 +16,48 @@
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
       <ul nz-menu>
-        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu [nzTitle]="iconTitle">
-         <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
+        <li [title]="transformToUIName(drawing)" nz-menu-item *ngFor="let drawing of lastUsedDrawings">
+          <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>
+        </li>
+        <li *ngIf="lastUsedDrawings.length" class=" toolbar divider"></li>
+        <li [title]="chart?.stayInDrawingMode? 'Leave Draw Mode': 'Stay in Draw Mode'" nz-menu-item
+            (click)="stayInDragMode()">
+          <i [style.color]="chart?.stayInDrawingMode ? '#0c6ce4': '#D0D0D2'" class="icon-pen"></i>
+        </li>
+        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu
+            [title]="drawingInstrument.name"
+            [nzTitle]="iconTitle">
+          <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
           <ul class="toolbar-submenu">
-            <li *ngFor="let item of drawingInstrument.items" nz-menu-item (click)="addDrawing(item)">
+            <li *ngFor="let item of drawingInstrument.items" nz-menu-item
+                data-name="{{transformToUIName(item)}}"
+                (click)="addDrawing(item)">
               <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
-              <span>{{transformToUIName(item)}}</span>
+              <span class="drawing-instrument-name">{{transformToUIName(item)}}</span>
             </li>
           </ul>
         </li>
-        <li  nz-menu-item (click)="stayInDragMode()">
-          <i [style.color]="chart?.stayInDrawingMode ? '#0c6ce4': '#D0D0D2'" class="icon-pen"></i>
-        </li>
-        <li  nz-menu-item (click)="visible()">
-          <i [style.color]="chart?.showDrawings ? '#0c6ce4': '#D0D0D2'" class="icon-not-visible"></i>
-        </li>
-        <li nz-menu-item (click)="makeSnapshot()">
+        <li title="Make Snapshot" nz-menu-item (click)="makeSnapshot()">
           <i class="icon-tool-camera"></i>
         </li>
-        <li nz-menu-item (click)="removeDrawing()">
+        <li [title]="chart?.showDrawings? 'Hide Drawings': 'Show Drawings'" nz-menu-item (click)="visible()">
+          <i [style.color]="chart?.showDrawings ? '#0c6ce4': '#D0D0D2'" class="icon-not-visible"></i>
+        </li>
+        <li title="Remove Drawing" nz-menu-item (click)="removeDrawing()">
           <i class="icon-delete"></i>
         </li>
       </ul>
     </nz-dropdown-menu>
   </div>
 
-<!--  <div class="tool tool-wide select">
-   <instrument-select
-      size="small"
-      placeholder="Symbol"
-      [instrument]="instrument"
-      (instrumentChange)="instrument = $event"
-    ></instrument-select>
-  </div>-->
+  <!--  <div class="tool tool-wide select">
+     <instrument-select
+        size="small"
+        placeholder="Symbol"
+        [instrument]="instrument"
+        (instrumentChange)="instrument = $event"
+      ></instrument-select>
+    </div>-->
 
   <div class="tool">
     <nz-select
@@ -170,6 +179,6 @@
     </nz-button-group>
   </div>
 
-<ng-template #defaultTemplate let-selected>
-  <span class="scx-icon icon-{{selected.nzValue}}"></span>
-</ng-template>
+  <ng-template #defaultTemplate let-selected>
+    <span class="scx-icon icon-{{selected.nzValue}}"></span>
+  </ng-template>

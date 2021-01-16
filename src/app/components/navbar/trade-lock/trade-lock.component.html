@@ -1,6 +1,8 @@
 <button
   class="icon-{{lockIcons[+unlocked]}}"
   [class.locked]="!unlocked"
+  [title]="unlocked ? 'Lock': 'Unlock'"
+
   (click)="handleLock()"
 >
 </button>

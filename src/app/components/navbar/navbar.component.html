@@ -18,8 +18,12 @@
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
     <app-workspace [layout]="layout"></app-workspace>
-    <button (click)="openSettings()" class="icon-setting-gear"></button>
-    <button (click)="openNotificationsList()" class="icon-notification">
+    <button
+      [title]="'Settings'"
+      (click)="openSettings()" class="icon-setting-gear"></button>
+    <button
+      [title]="'Notifications'"
+      (click)="openNotificationsList()" class="icon-notification">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
     <app-account></app-account>

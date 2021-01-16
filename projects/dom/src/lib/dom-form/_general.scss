@@ -31,7 +31,7 @@ button:hover {
   margin-top: 10px;
 
   & > * {
-    width: 47%;
+    width: 48%;
 
     &:nth-child(odd) {
       margin-right: 2px;
@@ -51,6 +51,7 @@ button:hover {
 
     & > * {
       margin-top: 0;
+      width: 40px;
 
       &:nth-child(odd) {
         margin-right: 0px;
