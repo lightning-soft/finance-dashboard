@@ -52,4 +52,9 @@ export class FramesManagerComponent implements AfterViewInit {
       }
     }
   }
+
+  getTitle(name: string) {
+    const title = name.replace(/-/g, ' ');
+    return title[0].toUpperCase() + title.slice(1);
+  }
 }

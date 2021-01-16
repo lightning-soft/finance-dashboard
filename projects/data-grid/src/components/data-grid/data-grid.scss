@@ -99,8 +99,9 @@ cdk-virtual-scroll-viewport {
       white-space: nowrap;
     }
     th{
-      color: rgba(81, 83, 90, 1);
-      font-weight: 700;
+      color: #A1A2A5;
+      font-weight: 400;
+      font-size: 0.7rem;
     }
 
     ::ng-deep tfoot instrument-select div {

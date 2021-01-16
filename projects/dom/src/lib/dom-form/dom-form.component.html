@@ -4,7 +4,7 @@
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
-    <button class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
+    <button title="Positions" class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
     <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
 
     <type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>

@@ -17,7 +17,11 @@ interface IDomState {
   instrument: IInstrument;
   settings?: any;
 }
-
+const directionsHints = {
+  'window-left': 'Left View',
+  'full-screen-window': 'Horizontal View',
+  'window-right': 'Right View',
+};
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -64,7 +68,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   isFormOpen = true;
   isLocked: boolean;
-
+  directionsHints = directionsHints;
   private _scrolledItems = 0;
   private _instrument: IInstrument;
 
