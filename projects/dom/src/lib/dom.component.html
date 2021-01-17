@@ -33,8 +33,6 @@
 </window-header>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-
-
     <dom-form
       [instrument]="instrument"
       [trade]="trade"
@@ -43,7 +41,7 @@
       class="{{currentDirection}}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [items]="items" [columns]="columns" rowHeight="25" detach="true"></data-grid>
+    <data-grid #grid [columns]="columns" rowHeight="25" detach="true" [renderCell]="renderCell"></data-grid>
   </div>
 
 </div>

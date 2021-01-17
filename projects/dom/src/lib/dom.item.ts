@@ -7,6 +7,8 @@ import { HistogramCell } from './histogram';
 export class DomItem implements IBaseItem {
   id: Id;
 
+  isCenter = false;
+
   _id: Cell = new NumberCell();
   price: Cell;
   orders: Cell = new DataCell();
@@ -55,8 +57,7 @@ export class DomItem implements IBaseItem {
     this.askDelta.updateValue(acc.currentAsk - acc.ask);
     this.bidDelta.updateValue(acc.currentBid - acc.bid);
 
-    this.class = center ? 'center-price ' : '';
-
+    this.isCenter = center;
     if (acc.volume)
       this.class += 'has-volume';
   }

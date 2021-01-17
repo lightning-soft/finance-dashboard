@@ -70,7 +70,7 @@ function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
   let key = label.key;
 
   if (!key)
-    key = lowerFirstLetter(_label.replaceAll(' ', ''));
+    key = lowerFirstLetter(_label.replace(/ /g, ''));
 
   if (!cssAttrOrFn)
     cssAttrOrFn = label.attr;
@@ -79,7 +79,7 @@ function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
     cssAttrOrFn = label.getCss;
 
   if (!cssAttrOrFn)
-    cssAttrOrFn = _label.replaceAll(' ', '-').toLowerCase();
+    cssAttrOrFn = _label.replace(/ /g, '-').toLowerCase();
 
   return {
     key,

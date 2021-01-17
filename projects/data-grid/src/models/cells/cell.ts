@@ -37,6 +37,10 @@ export abstract class Cell implements ICell {
   clear() {
     this.value = '';
   }
+
+  toString() {
+    return this.value;
+  }
 }
 
 export class ReadonlyCell implements ICell {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormlyForm } from '@ngx-formly/core';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
@@ -22,27 +22,28 @@ export const DomSettingsSelector = 'dom-settings';
 @LayoutNode()
 export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit {
   list = [
-    {tab: SettingTab.General, label: 'General'},
-    {tab: SettingTab.Common, label: 'Common'},
-    {tab: SettingTab.Hotkeys, label: 'Hotkeys'},
+    { tab: SettingTab.General, label: 'General' },
+    { tab: SettingTab.Common, label: 'Common' },
+    { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
     {
       label: 'Columns',
       children: [
-        {tab: SettingTab.LTQ, label: 'LTQ'},
-        {tab: SettingTab.Price, label: 'Price'},
-        {tab: SettingTab.BidDelta, label: 'Bid Delta'},
-        {tab: SettingTab.AskDelta, label: 'Ask Delta'},
-        {tab: SettingTab.BidDepth, label: 'Bid Depth'},
-        {tab: SettingTab.AskDepth, label: 'Ask Depth'},
-        {tab: SettingTab.Bid, label: 'Bid'},
-        {tab: SettingTab.Ask, label: 'Ask'},
-        {tab: SettingTab.TotalAsk, label: 'Total At Ask'},
-        {tab: SettingTab.TotalBid, label: 'Total At Bid'},
-        {tab: SettingTab.VolumeProfile, label: 'Volume Profile'},
-        {tab: SettingTab.OrderColumn, label: 'Order'},
-        {tab: SettingTab.CurrentAtBid, label: 'Current At Bid'},
-        {tab: SettingTab.CurrentAtAsk, label: 'Current At Ask'},
-        {tab: SettingTab.Note, label: 'Notes'}]
+        { tab: SettingTab.LTQ, label: 'LTQ' },
+        { tab: SettingTab.Price, label: 'Price' },
+        { tab: SettingTab.BidDelta, label: 'Bid Delta' },
+        { tab: SettingTab.AskDelta, label: 'Ask Delta' },
+        { tab: SettingTab.BidDepth, label: 'Bid Depth' },
+        { tab: SettingTab.AskDepth, label: 'Ask Depth' },
+        { tab: SettingTab.Bid, label: 'Bid' },
+        { tab: SettingTab.Ask, label: 'Ask' },
+        { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
+        { tab: SettingTab.TotalBid, label: 'Total At Bid' },
+        { tab: SettingTab.VolumeProfile, label: 'Volume Profile' },
+        { tab: SettingTab.OrderColumn, label: 'Order' },
+        { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
+        { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
+        { tab: SettingTab.Note, label: 'Notes' },
+      ]
     },
   ];
 
@@ -83,7 +84,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
         ...cssData,
         ...configs.filter(item => item?.getCss).map(c => c?.getCss(this.settings))
           .reduce((current, total) => {
-            total = {...total, current};
+            total = { ...total, current };
             return total;
           }, {})
       };

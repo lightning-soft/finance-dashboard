@@ -34,7 +34,7 @@ interface IDomState {
 @LayoutNode()
 export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-   // '_id',
+    '_id',
     'orders',
     'volumeProfile',
     'price',
@@ -56,7 +56,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
-  @ViewChild(DataGrid)
+  @ViewChild(DataGrid, { static: true })
   dataGrid: DataGrid;
 
   @ViewChild(DataGrid, { read: ElementRef })
@@ -86,7 +86,15 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   visibleRows = 0;
 
-  items = [];
+  private _items = [];
+
+  get items() {
+    return this.dataGrid.items;
+  }
+
+  set items(value) {
+    this.dataGrid.items = value;
+  }
 
   private _trade: ITrade;
 
@@ -128,8 +136,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       this._scrolledItems--;
     }
     this._calculate();
+    e.preventDefault();
   }
-
 
   ngAfterViewInit() {
     this._handleResize();
@@ -176,7 +184,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
-    let price = last + this._scrolledItems * tickSize;
+    let price = last;
     let item: DomItem;
     const dom = this._dom;
 
@@ -202,7 +210,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
     price = last;
 
-    while (downIndex <= itemsCount - 1) {
+    while (downIndex < itemsCount) {
       price = sum(price, -tickSize, step);
       if (downIndex < 0) {
         downIndex++;
@@ -213,6 +221,34 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       item.updatePrice(price, dom);
       downIndex++;
     }
+  }
+
+  renderCell = (e) => {
+    const ctx = e.ctx;
+    const cell = e.cell;
+    const value = cell.value;
+    const data = cell.data;
+
+    const name = cell.header.name;
+
+
+    if (data.isCenter && name == 'price')
+      e.ctx.fillStyle = 'red';
+
+    if (!value?.component)
+      return;
+
+    switch (value.component) {
+      case 'histogram-component':
+        ctx.save();
+        ctx.fillStyle = value.settings.histogramColor ?? 'grey';
+        ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
+        ctx.restore();
+        break;
+    }
+
+    if (value.settings.backgroundColor)
+      e.ctx.fillStyle = value.settings.backgroundColor;
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -234,16 +270,15 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-    if (data.length === visibleRows)
-      return;
+    if (data.length !== visibleRows) {
+      if (data.length > visibleRows)
+        data.splice(visibleRows, data.length - visibleRows);
+      else if (data.length < visibleRows)
+        while (data.length <= visibleRows + 1)
+          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+    }
 
-    if (data.length > visibleRows)
-      data.splice(visibleRows, data.length - visibleRows);
-    else if (data.length < visibleRows)
-      while (data.length <= visibleRows)
-        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
-
-    this.detectChanges();
+    this.dataGrid.resize();
   }
 
   saveState?(): IDomState {

@@ -28,7 +28,6 @@ export class HistogramCell extends NumberCell {
 
   update(value: number, total: number) {
     super.updateValue(value);
-    // console.log(this.settings);
-    this.hist = value / total * 100;
+    this.hist = value / total;
   }
 }
