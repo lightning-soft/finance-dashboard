@@ -23,6 +23,7 @@ export class AccountComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // todo uncomment this
     // this._authService.isAuthenticated
     //   .subscribe((res: boolean) => {
     //     this.isAuthenticated = res;
