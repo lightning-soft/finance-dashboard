@@ -39,9 +39,11 @@ body {
 .ant-btn, .ant-collapse, .ant-select {
   font-size: $baseFontSize;
 }
-small{
+
+small {
   font-size: 0.8rem;
 }
+
 *,
 *:after,
 *:before {
@@ -89,6 +91,14 @@ button {
     margin: 0;
     margin-left: 5%;
     width: 90%;
+  }
+}
+
+.hide-arrow {
+  i{
+    svg{
+      display: none;
+    }
   }
 }
 
