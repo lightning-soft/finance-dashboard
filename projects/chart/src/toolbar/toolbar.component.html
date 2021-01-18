@@ -16,19 +16,24 @@
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
       <ul nz-menu>
-        <li [title]="transformToUIName(drawing)" nz-menu-item *ngFor="let drawing of lastUsedDrawings">
+        <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item *ngFor="let drawing of lastUsedDrawings">
           <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>
         </li>
         <li *ngIf="lastUsedDrawings.length" class=" toolbar divider"></li>
         <li [title]="chart?.stayInDrawingMode? 'Leave Draw Mode': 'Stay in Draw Mode'" nz-menu-item
             (click)="stayInDragMode()">
-          <i [style.color]="chart?.stayInDrawingMode ? '#0c6ce4': '#D0D0D2'" class="icon-pen"></i>
+
+          <i
+            [ngStyle]="{color: chart?.stayInDrawingMode? '#0c6ce4': null}"
+             class="icon-pen"></i>
         </li>
         <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu
             [title]="drawingInstrument.name"
+            [class.hide-arrow]="hasOneDrawing(drawingInstrument)"
+            (click)="hasOneDrawing(drawingInstrument) && addDrawing(drawingInstrument.items[0])"
             [nzTitle]="iconTitle">
           <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
-          <ul class="toolbar-submenu">
+          <ul *ngIf="!hasOneDrawing(drawingInstrument)" class="toolbar-submenu">
             <li *ngFor="let item of drawingInstrument.items" nz-menu-item
                 data-name="{{transformToUIName(item)}}"
                 (click)="addDrawing(item)">
@@ -41,7 +46,9 @@
           <i class="icon-tool-camera"></i>
         </li>
         <li [title]="chart?.showDrawings? 'Hide Drawings': 'Show Drawings'" nz-menu-item (click)="visible()">
-          <i [style.color]="chart?.showDrawings ? '#0c6ce4': '#D0D0D2'" class="icon-not-visible"></i>
+          <i
+            [ngStyle]="{color: chart?.showDrawings? '#0c6ce4': null}"
+            class="icon-not-visible"></i>
         </li>
         <li title="Remove Drawing" nz-menu-item (click)="removeDrawing()">
           <i class="icon-delete"></i>
@@ -59,7 +66,7 @@
       ></instrument-select>
     </div>-->
 
-  <div class="tool">
+  <div title="Frame Interval" class="tool">
     <nz-select
       #frame
       [nzShowArrow]="false"
@@ -82,7 +89,7 @@
     <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
   </div>
 
-  <div class="tool">
+  <div title="Bar Style"  class="tool">
     <nz-select
       #price
       [nzShowArrow]="false"
@@ -106,7 +113,7 @@
   </div>
 
 
-  <div class="tool btn-group">
+  <div title="Indicators" class="tool btn-group">
     <nz-button-group>
       <button
         nz-button
@@ -120,9 +127,8 @@
   </div>
 
 
-  <div class="tool btn-group">
+  <div title="Zoom"  class="tool btn-group">
     <nz-button-group
-      nzPlacement="bottomRight"
       nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
       nz-dropdown [nzDropdownMenu]="menu1"
@@ -149,7 +155,7 @@
   </div>
 
 
-  <div class="tool">
+  <div title="Cursor type"  class="tool">
     <nz-select
       #cross
       [nzShowArrow]="false"
@@ -171,7 +177,7 @@
     <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>
   </div>
 
-  <div class="tool photo">
+  <div title="Make snapshot" class="tool photo">
     <nz-button-group nzSize='small'>
       <button nz-button nzType="link" (click)="makeSnapshot()">
         <span class="icon-tool-camera"></span>

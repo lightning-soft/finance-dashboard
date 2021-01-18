@@ -164,6 +164,10 @@ export class ToolbarComponent {
     this.chart.crossHairType = value;
   }
 
+  hasOneDrawing(drawingInstrument: any) {
+    return drawingInstrument.items.length === 1;
+  }
+
   compareInstrument = (o1: any | string, o2: any) => {
     if (o1) {
       return typeof o1 === 'string' ? o1 === o2.id : o1.id === o2.id;
@@ -261,9 +265,9 @@ export class ToolbarComponent {
   }
 
   addLastUsedDrawing(name: string) {
-      if (!this.lastUsedDrawings.includes(name)) {
-        this.lastUsedDrawings = [name, ...this.lastUsedDrawings].slice(0, 3);
-      }
+    if (!this.lastUsedDrawings.includes(name)) {
+      this.lastUsedDrawings = [name, ...this.lastUsedDrawings].slice(0, 3);
+    }
   }
 
   removeDrawing() {
