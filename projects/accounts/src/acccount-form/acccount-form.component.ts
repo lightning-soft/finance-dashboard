@@ -1,10 +1,10 @@
 import { Component, forwardRef, Injectable, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { HttpRepository, IPaginationResponse } from "communication";
-import { ConnectionsRepository } from "trading";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { HttpRepository, IPaginationResponse } from 'communication';
+import { ConnectionsRepository } from 'trading';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'acccount-form',
@@ -31,17 +31,16 @@ export class AcccountFormComponent implements ControlValueAccessor {
 
   constructor(public serverRepository: ServersRepository,
   ) {
-
   }
 
   getName(o) {
-    return o.name;
+    return o?.name;
   }
 
   onServerSwitch(gateways) {
     if (gateways) {
       const gateway = gateways[gateways.length - 1].name;
-      this.form.patchValue({gateway});
+      this.form.patchValue({ gateway });
     }
   }
 
@@ -58,10 +57,9 @@ export class AcccountFormComponent implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      obj.server = {name: obj.server, gateways: [{name: obj.gateway}]};
+      obj.server = { name: obj.server, gateways: [{ name: obj.gateway }] };
       this.form.patchValue(obj);
     }
-    console.log(obj);
   }
 
   setDisabledState(isDisabled: boolean) {
@@ -85,11 +83,10 @@ export class ServersRepository extends HttpRepository<any> {
       .pipe(
         map((data) => {
           const result = Object.keys(data.result).map((key) => {
-            const item = {gateways: data.result[key], name: null};
+            const item = { gateways: data.result[key], name: null };
             item.name = key;
             return item;
           });
-          console.log(result);
           return {
             data: result,
             total: result.length,
