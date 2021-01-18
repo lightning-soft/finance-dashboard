@@ -38,23 +38,25 @@ const directionsHints = {
 @LayoutNode()
 export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    '_id',
+    // '_id',
     'orders',
-    'volumeProfile',
+    ['volumeProfile', 'volume'],
     'price',
-    'bidDelta',
+    ['bidDelta', 'delta'],
     'bid',
     'ltq',
-    'currentBid',
-    'currentAsk',
+    ['currentBid', 'c.bid'],
+    ['currentAsk', 'c.ask'],
     'ask',
-    'askDelta',
-    'totalBid',
-    'totalAsk',
-    'tradeColumn',
-    'askDepth',
-    'bidDepth',
-  ].map(name => ({ name, visible: true }));
+    ['askDelta', 'delta'],
+    ['totalBid', 't.bid'],
+    ['totalAsk', 't.ask'],
+    // 'tradeColumn',
+    // 'askDepth',
+    // 'bidDepth',
+  ]
+    .map(name => Array.isArray(name) ? name : ([name, name]))
+    .map(([name, title]) => ({ name, title: title.toUpperCase(), visible: true }));
 
   private _dom = new DomHandler();
 
@@ -89,8 +91,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   visibleRows = 0;
-
-  private _items = [];
 
   get items() {
     return this.dataGrid.items;
@@ -147,6 +147,12 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._handleResize();
     const element = this.dataGridElement && this.dataGridElement.nativeElement;
     this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
+  }
+
+  centralize() {
+    this._scrolledItems = 0;
+    this._calculate();
+    this.detectChanges();
   }
 
   detectChanges() {
