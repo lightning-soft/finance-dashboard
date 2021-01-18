@@ -33,7 +33,9 @@
   (click)="openAccounts()"
   *ngIf="!items.length"
 >
-  <i class="icon-signal" [ngClass]="{
+  <i
+    title="Connections"
+    class="icon-signal" [ngClass]="{
     'text-active': activeConnection
   }"></i>
 </div>

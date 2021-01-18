@@ -1,14 +1,25 @@
 <window-header [window]="this">
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
   <div class="window-header-button">
-    <button class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
+    <button
+      [title]="'Center'"
+      class="wm-header-btn icon-align-center" (click)="grid.createComponentModal()">
     </button>
-    <button class="wm-header-btn icon-dom-clear-all"></button>
+    <button
+      [title]="'Clear'"
+      class="wm-header-btn icon-dom-clear-all"></button>
 
-    <button class="wm-header-btn icon-setting-gear" (click)="openSettings()">
+    <button
+      [title]="'Settings'"
+      class="wm-header-btn icon-setting-gear" (click)="openSettings()">
     </button>
-    <button class="wm-header-btn icon-dom-bracket"></button>
-    <button class="wm-header-btn icon-dom-strategy"></button>
+    <button
+      [title]="'Bracket'"
+
+      class="wm-header-btn icon-dom-bracket"></button>
+    <button
+      [title]="'Strategy'"
+      class="wm-header-btn icon-dom-strategy"></button>
     <daily-info [instrument]="instrument"
                 [prevItem]="domForm.prevItem"
                 [class.d-none]="isFormOpen"
@@ -18,13 +29,17 @@
     <span class="window-icon-container">
     <i *ngFor="let item of directions"
        (click)="currentDirection = item"
+       [title]="directionsHints[item]"
        [class.d-none]="!isFormOpen"
        [class.active]="currentDirection === item" class="icon-{{item}} direction window-icon"></i>
           <i (click)="isFormOpen = !isFormOpen"
              [class.active]="isFormOpen"
+             [title]="isFormOpen? 'Hide': 'Show' + ' order area'"
+
              class="icon-widget-orders window-icon large"></i>
     <i (click)="isLocked = !isLocked"
        [class.icon-lock]="!isLocked"
+       [title]="isLocked? 'Lock' : 'Unlock'"
        [class.icon-unlock]="isLocked"
        class="window-icon large"></i>
 

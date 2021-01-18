@@ -11,6 +11,23 @@
     background-color: $tabFrameColor !important;
   }
 
+  .icons-container {
+    float: right;
+
+    i {
+      font-size: 8px;
+      line-height: 1;
+
+      &:hover {
+        color: $primary;
+      }
+
+      &:not(:first-child) {
+        margin-left: 6px;
+      }
+    }
+  }
+
   .clock-item {
     border-bottom: 1px solid #51535A;
     margin-bottom: 12px;

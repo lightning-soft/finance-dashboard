@@ -7,12 +7,12 @@ import { DynamicFormModule } from 'dynamic-form';
 import { InstrumentSelectModule } from 'instrument-select';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import {
-  NzCheckboxModule, NzInputModule,
-  NzMenuModule,
-  NzPopoverModule,
+    NzCheckboxModule, NzInputModule, NzInputNumberModule,
+    NzMenuModule,
+    NzPopoverModule,
 
-  NzSelectModule,
-  NzToolTipModule
+    NzSelectModule,
+    NzToolTipModule
 } from 'ng-zorro-antd';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { StorageModule } from 'storage';
@@ -61,6 +61,7 @@ import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
         FormsModule,
         NzToolTipModule,
         ReactiveFormsModule,
+        NzInputNumberModule,
     ],
   exports: [
     DomComponent,
