@@ -86,13 +86,13 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
 
   constructor(protected _notifier: NotifierService) {
     super();
-    this.autoLoadData = !this.autoLoad ? {onInit: true} : false;
-    this.settings = {subscribeToConnections: false};
+    this.autoLoadData = !this.autoLoad ? { onInit: true } : false;
+    this.subscribeToConnections = false;
   }
 
 
   onSearch(value: string) {
-    this.loadData({s: JSON.stringify({[this.searchQueryParam]: {$contL: value}}), take: 100000, skip: 0});
+    this.loadData({ s: JSON.stringify({ [this.searchQueryParam]: { $contL: value } }), take: 100000, skip: 0 });
   }
 
   registerOnChange(fn: any): void {

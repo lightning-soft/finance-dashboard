@@ -2,61 +2,35 @@
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
 </window-header>
 <div class="window-header-button">
-  <button
-    [title]="'Center'"
-    class="wm-header-btn icon-align-center" (click)="centralize()">
+  <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
   </button>
-  <button
-    [title]="'Clear'"
-    class="wm-header-btn icon-dom-clear-all"></button>
+  <button [title]="'Clear'" class="wm-header-btn icon-dom-clear-all"></button>
 
-  <button
-    [title]="'Settings'"
-    class="wm-header-btn icon-setting-gear" (click)="openSettings()">
+  <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
-  <button
-    [title]="'Bracket'"
-
-    class="wm-header-btn icon-dom-bracket"></button>
-  <button
-    [title]="'Strategy'"
-    class="wm-header-btn icon-dom-strategy"></button>
-  <daily-info [instrument]="instrument"
-              [prevItem]="domForm.prevItem"
-              [class.d-none]="isFormOpen"
-              class="header-daily-info"
-              [dailyInfo]="domForm.dailyInfo"
-              [trade]="trade"></daily-info>
+  <button [title]="'Bracket'" class="wm-header-btn icon-dom-bracket"></button>
+  <button [title]="'Strategy'" class="wm-header-btn icon-dom-strategy"></button>
+  <daily-info [instrument]="instrument" [prevItem]="domForm.prevItem" [class.d-none]="isFormOpen"
+    class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">
-    <i *ngFor="let item of directions"
-       (click)="currentDirection = item"
-       [title]="directionsHints[item]"
-       [class.d-none]="!isFormOpen"
-       [class.active]="currentDirection === item" class="icon-{{item}} direction window-icon"></i>
-          <i (click)="isFormOpen = !isFormOpen"
-             [class.active]="isFormOpen"
-             [title]="isFormOpen? 'Hide': 'Show' + ' order area'"
-
-             class="icon-widget-orders window-icon large"></i>
-    <i (click)="isLocked = !isLocked"
-       [class.icon-lock]="!isLocked"
-       [title]="isLocked? 'Lock' : 'Unlock'"
-       [class.icon-unlock]="isLocked"
-       class="window-icon large"></i>
+    <i *ngFor="let item of directions" (click)="currentDirection = item" [title]="directionsHints[item]"
+      [class.d-none]="!isFormOpen" [class.active]="currentDirection === item"
+      class="icon-{{item}} direction window-icon"></i>
+    <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
+      [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
+    <i (click)="isLocked = !isLocked" [class.icon-lock]="!isLocked" [title]="isLocked? 'Lock' : 'Unlock'"
+      [class.icon-unlock]="isLocked" class="window-icon large"></i>
 
   </span>
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-    <dom-form
-      [instrument]="instrument"
-      [trade]="trade"
-      #domForm
-      [class.d-none]="!isFormOpen"
+    <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
       class="{{currentDirection}}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [columns]="columns" detach="true" [renderCell]="renderCell" [afterDraw]="afterDraw"></data-grid>
+    <data-grid #grid [columns]="columns" detach="true" [renderCell]="renderCell" [afterDraw]="afterDraw">
+    </data-grid>
   </div>
 
 </div>

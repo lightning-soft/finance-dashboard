@@ -193,56 +193,83 @@ const histogramFields = [
 export const commonFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Font',
+    key: 'data-grid',
     fieldGroupClassName: 'd-flex two-rows flex-wrap',
     fieldGroup: [
       {
         type: FieldType.Select,
         templateOptions: {
-          options: [{label: 'Open Sans', value: 'Open Sans'}],
+          options: [{label: 'Open Sans', value: 'Open Sans'},
+            {label: 'Monospace', value: 'monospace'},
+            {label: 'Sans Serif', value: 'sans-serif'}],
         },
-        key: 'fontFamily'
+        key: 'fontFamily',
+        getCss: (value) => {
+          if (value && value.fontFamily)
+            return {' table tbody td .data': {'font-family': value.fontFamily}};
+        }
       },
       {
         type: FieldType.Select,
         templateOptions: {
           options: [
-            {label: 'Regular', value: 'regular'}, {label: 'Bold', value: 'bold'}, {label: 'Bolder', value: 'bolder'}]
+            {label: 'Regular', value: '400'}, {label: 'Bold', value: '600'}, {label: 'Bolder', value: '700'}]
         },
-        key: 'fontWeight'
+        key: 'fontWeight',
+        getCss: (value) => {
+          if (value && value.fontWeight)
+            return {' table tbody td .data': {'font-weight': value.fontWeight}};
+        }
       },
       {
         type: FieldType.Number,
         templateOptions: {label: 'Font size'},
         key: 'fontSize',
+        getCss: (value) => {
+          if (value && value.fontSize)
+            return {' table tbody td .data': {'font-size': value.fontSize + 'px'}};
+        }
       },
+      new FieldConfig({
+        label: 'General Color',
+        key: 'data-grid-body',
+        fieldGroupClassName: 'd-flex two-rows flex-wrap',
+        className: 'w-100',
+        fieldGroup: [
+          getColor('Grid Line Color', (value) => {
+            if (value)
+              return {' td': {border: `1px solid ${value}`}};
+          }),
+          getColor('Order Grid Line Color'),
+          getColor('Center Line Color', (value) => {
+            if (value)
+              return {' .center-price td': {'border-bottom-color': value}};
+          }),
+          getColor('Simulation Mode Warning Clr'),
+        ]
+      }),
+      {
+        ...getCheckboxes([
+          {key: 'notes', label: 'Notes'},
+          {label: 'Bid Delta', key: 'bidDelta'},
+          {label: 'Total At Bid', key: 'totalAtBid'},
+          {label: 'Ask Delta', key: 'askDelta'},
+          {label: 'Total At Ask', key: 'totalAtAsk'},
+          {label: 'Merge Bid/Ask Delta', key: 'mergeDelta'},
+          {label: 'Last Traded Quantity(LQT)', key: 'lqt'},
+          {label: 'Volume Profile', key: 'volumeProfile'},
+          {label: 'Orders', key: 'orders'},
+          {label: 'Current Trades At Bit', key: 'currentTradesAtBit'},
+          {label: 'Bid Depth', key: 'bidDepth'},
+          {label: 'Current Trades At Ask', key: 'currentTradesAtAsk'},
+          {label: 'Ask Depth', key: 'askDepth'},
+          {label: 'Price', key: 'price'},
+        ], 'Columns View', [], {className: 'w-100'}), className: 'w-100'
+      }
     ]
   }),
-  new FieldConfig({
-    label: 'General Color',
-    fieldGroupClassName: 'd-flex two-rows flex-wrap',
-    fieldGroup: [
-      getColor('Grid Line Color'),
-      getColor('Order Grid Line Color'),
-      getColor('Center Line Color'),
-      getColor('Simulation Mode Warning Clr'),
-    ]
-  }),
-  getCheckboxes([
-    {key: 'notes', label: 'Notes'},
-    {label: 'Bid Delta', key: 'bidDelta'},
-    {label: 'Total At Bid', key: 'totalAtBid'},
-    {label: 'Ask Delta', key: 'askDelta'},
-    {label: 'Total At Ask', key: 'totalAtAsk'},
-    {label: 'Merge Bid/Ask Delta', key: 'mergeDelta'},
-    {label: 'Last Traded Quantity(LQT)', key: 'lqt'},
-    {label: 'Volume Profile', key: 'volumeProfile'},
-    {label: 'Orders', key: 'orders'},
-    {label: 'Current Trades At Bit', key: 'currentTradesAtBit'},
-    {label: 'Bid Depth', key: 'bidDepth'},
-    {label: 'Current Trades At Ask', key: 'currentTradesAtAsk'},
-    {label: 'Ask Depth', key: 'askDepth'},
-    {label: 'Price', key: 'price'},
-  ], 'Columns View'),
+
+
 ];
 export const hotkeyFields: FormlyFieldConfig[] = [
   {

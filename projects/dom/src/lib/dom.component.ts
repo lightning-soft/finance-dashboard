@@ -1,16 +1,22 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { AccountsManager } from 'accounts-manager';
-import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { LoadingComponent } from 'base-components';
+import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
+import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent } from './histogram';
+import { DomFormComponent } from './dom-form/dom-form.component';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
+import { NotifierService } from 'notifier';
+import { OrderSide } from 'trading';
+import { Id } from 'communication';
 
-export interface DomComponent extends ILayoutNode {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
 
 class RedrawInfo {
@@ -57,7 +63,7 @@ const directionsHints = {
   ]
 })
 @LayoutNode()
-export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
     '_id',
     'orders',
@@ -79,7 +85,21 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     .map(name => Array.isArray(name) ? name : ([name, name]))
     .map(([name, title]) => ({ name, title: title.toUpperCase(), visible: true }));
 
+  accountId: Id;
+
   private _dom = new DomHandler();
+
+  @ViewChild(DomFormComponent)
+  private _domForm: DomFormComponent;
+
+  handlers = [
+    ...['bid', 'ask'].map(column => (
+      new CellClickDataGridHandler<DomItem>({
+        column, handler: (item) => this._createOrder(column, item),
+      })
+    )),
+  ];
+
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
@@ -132,16 +152,26 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
 
   constructor(
-    private _accountsManager: AccountsManager,
-    private _historyRepository: HistoryRepository,
+    private _ordersRepository: OrdersRepository,
     private _levelOneDatafeed: Level1DataFeed,
+    protected _accountsManager: AccountsManager,
+    protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
-    private _renderer: Renderer2,
+    protected _injector: Injector,
+    private _renderer: Renderer2
   ) {
-    this.setTabIcon('icon-widget-dom');
+    super();
+    this.setTabIcon('icon-widget-positions');
+    this.setTabTitle('Dom');
   }
 
   ngOnInit(): void {
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._ordersRepository = this._ordersRepository.forConnection(connection);
+      });
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
@@ -153,6 +183,11 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
         this._settings.merge(settings);
       }
     });
+  }
+
+  protected _handleConnection(connection: IConnection) {
+    super._handleConnection(connection);
+    this._ordersRepository = this._ordersRepository.forConnection(connection);
   }
 
   scroll = (e: WheelEvent) => {
@@ -205,8 +240,8 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   private _calculate(move?: number) {
     const itemsCount = this.visibleRows;
 
-    let trade = this._trade;
-    let instrument = this.instrument;
+    const trade = this._trade;
+    const instrument = this.instrument;
     if (!instrument)
       return;
 
@@ -222,7 +257,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
       return;
     }
-
 
     let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
     // const tickSize = instrument.tickSize;
@@ -359,11 +393,11 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     if (!state?.instrument)
       state.instrument = {
         id: 'ESH1',
-        description: "E-Mini S&P 500",
-        exchange: "CME",
+        description: 'E-Mini S&P 500',
+        exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: "ESH1",
+        symbol: 'ESH1',
       };
     // for debug purposes
 
@@ -385,6 +419,31 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       removeIfExists: !hidden,
       hidden,
     });
+  }
+
+  private _createOrder(column: string, item: DomItem) {
+    if (!this._domForm.valid) {
+      this.notifier.showError('Please fill all required fields in form');
+      return;
+    }
+    const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
+    const requestPayload = this._domForm.getDto();
+    const { exchange, symbol } = this.instrument;
+    requestPayload.stopPrice = requestPayload.sl.count;
+    requestPayload.limitPrice = requestPayload.tp.count;
+    this._ordersRepository.createItem({
+      ...requestPayload,
+      exchange,
+      side,
+      accountId: this.accountId,
+      symbol
+    }).toPromise()
+      .then((res) => {
+        this.notifier.showSuccess('Order successfully created');
+      })
+      .catch((err) => {
+        this.notifier.showError(err);
+      });
   }
 
   ngOnDestroy() {

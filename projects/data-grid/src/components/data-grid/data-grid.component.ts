@@ -107,7 +107,6 @@ function renderCell(e) {
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
   @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
-  // @ViewChild('container', { read: ElementRef, static: true }) container: ElementRef;
 
   @ViewChild(ModalComponent)
   modalComponent: ModalComponent;
