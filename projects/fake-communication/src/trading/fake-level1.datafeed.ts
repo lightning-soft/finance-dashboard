@@ -58,7 +58,7 @@ export class FakeLevel1Datafeed extends DatafeedRepository {
 
       // this._triggerQuotes(quotes);
       // console.timeEnd('q');
-    }, 1000);
+    }, 100);
   }
 
   protected _subscribe(instruemntId: Id) {

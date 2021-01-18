@@ -11,6 +11,7 @@ export class DomItem implements IBaseItem {
 
   _id: Cell = new NumberCell();
   price: Cell;
+  lastPrice: number;
   orders: Cell = new DataCell();
   ltq: Cell = new DataCell();
   bid: HistogramCell;
@@ -43,6 +44,7 @@ export class DomItem implements IBaseItem {
 
   updatePrice(price: number, data: DomHandler, center = false) {
     this.price.updateValue(price);
+    this.lastPrice = price;
     const acc = data.getItemData(price);
     const total = data.total;
     const columns = data.columns;

@@ -99,10 +99,10 @@ function renderCell(e) {
   selector: 'data-grid',
   templateUrl: 'data-grid.component.html',
   styleUrls: ['data-grid.scss'],
-  // providers: [{
-  //   provide: IViewBuilderStore,
-  //   useClass: ViewBuilderStore,
-  // }]
+  providers: [{
+    provide: IViewBuilderStore,
+    useClass: ViewBuilderStore,
+  }]
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
@@ -116,7 +116,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
-  @Input() renderCell = () => null;
+  @Input() renderCell = (e) => null;
+  @Input() afterDraw = (grid) => null;
 
   private _items: T[] = [];
 
@@ -143,7 +144,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   public isVisible = false;
 
-  public rowHeight = 35;
+  public rowHeight = 19;
 
   public list: TransferItem[] = [];
 
@@ -179,6 +180,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     const cellBorderColor = "#24262C";
     const cellBackgroundColor = '#1B1D22';
     const cellColor = '#D0D0D2';
+    const cellFont = "14px Open Sans";
+    const horizontalAlignment = "center";
 
     const style = {
       cellBackgroundColor,
@@ -187,9 +190,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       activeCellBorderColor: cellBorderColor,
       activeCellBorderWidth: 1,
       activeCellColor: cellColor,
-      activeCellFont: "16px sans-serif",
+      activeCellFont: cellFont,
       activeCellHoverBackgroundColor: cellBackgroundColor,
-      activeCellHorizontalAlignment: "left",
+      activeCellHorizontalAlignment: horizontalAlignment,
       activeCellHoverColor: cellColor,
       activeCellOverlayBorderColor: cellBorderColor,
       activeCellOverlayBorderWidth: 1,
@@ -210,11 +213,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       cellAutoResizePadding: 13,
       cellBorderColor,
       cellBorderWidth: 1,
-      cellFont: "16px sans-serif",
+      cellFont,
       cellGridHeight: 250,
       cellHeight: this.rowHeight,
       cellHeightWithChildGrid: 150,
-      cellHorizontalAlignment: "left",
+      cellHorizontalAlignment: horizontalAlignment,
       cellHoverBackgroundColor: cellBackgroundColor,
       cellHoverColor: cellColor,
       cellPaddingBottom: 5,
@@ -240,9 +243,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       columnHeaderCellCapBorderColor: cellBorderColor,
       columnHeaderCellCapBorderWidth: 1,
       columnHeaderCellColor: '#A1A2A5',
-      columnHeaderCellFont: "16px sans-serif",
-      columnHeaderCellHeight: 25,
-      columnHeaderCellHorizontalAlignment: "left",
+      columnHeaderCellFont: "11px Open Sans",
+      columnHeaderCellHeight: this.rowHeight,
+      columnHeaderCellHorizontalAlignment: horizontalAlignment,
       columnHeaderCellHoverBackgroundColor: cellBackgroundColor,
       columnHeaderCellHoverColor: cellColor,
       columnHeaderCellPaddingBottom: 5,
@@ -427,6 +430,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     grid.applyComponentStyle();
     grid.addEventListener('rendercell', this.renderCell)
+    grid.addEventListener('afterdraw', this.afterDraw)
+    grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
@@ -483,11 +488,17 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     return item.id;
   }
 
-  private _handleEvent(event) {
+  private _handleClick(e) {
+    const cell = e.cell;
+    console.log(cell.rowIndex, cell.columnIndex)
+  }
+
+  private _handleEvent = (event) => {
     if (!this._handlers)
       return;
+
     for (const handler of this._handlers) {
-      if (handler.events.some(e => e === event.type) && handler.handleEvent(event))
+      if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
         return null;
     }
   }

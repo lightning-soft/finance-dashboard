@@ -13,6 +13,27 @@ import { histogramComponent, HistogramComponent } from './histogram';
 export interface DomComponent extends ILayoutNode {
 }
 
+class RedrawInfo {
+  _needRedraw = false;
+
+  private _scrolledItems = 0;
+
+  public get scrolledItems() {
+    return this._scrolledItems;
+  }
+  public set scrolledItems(value) {
+    this.needRedraw()
+    this._scrolledItems = value;
+  }
+
+  needRedraw() {
+    this._needRedraw = true;
+  }
+
+  markDrawed() {
+    this._needRedraw = false;
+  }
+}
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
@@ -38,7 +59,7 @@ const directionsHints = {
 @LayoutNode()
 export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    // '_id',
+    '_id',
     'orders',
     ['volumeProfile', 'volume'],
     'price',
@@ -71,8 +92,9 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   isFormOpen = true;
   isLocked: boolean;
   directionsHints = directionsHints;
-  private _scrolledItems = 0;
+
   private _instrument: IInstrument;
+  private _redrawInfo = new RedrawInfo();
 
   private _priceFormatter: IFormatter;
 
@@ -134,11 +156,13 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   scroll = (e: WheelEvent) => {
+    const info = this._redrawInfo;
     if (e.deltaY > 0) {
-      this._scrolledItems++;
+      info.scrolledItems++;
     } else if (e.deltaY < 0) {
-      this._scrolledItems--;
+      info.scrolledItems--;
     }
+
     this._calculate();
     e.preventDefault();
   }
@@ -150,7 +174,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   }
 
   centralize() {
-    this._scrolledItems = 0;
+    this._redrawInfo.scrolledItems = 0;
     this._calculate();
     this.detectChanges();
   }
@@ -186,17 +210,28 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     if (!instrument)
       return;
 
+    const info = this._redrawInfo;
+    const data: DomItem[] = this.items;
+    const dom = this._dom;
     let last = trade && trade.price;
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
+
+    if (!info._needRedraw) {
+      for (const item of data) {
+        item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
+      }
+
+      return;
+    }
+
+
+    let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
     // const tickSize = instrument.tickSize;
     const tickSize = 0.01;
     const step = instrument.precision;
-    const data: DomItem[] = this.items;
     let upIndex = centerIndex - 1;
     let downIndex = centerIndex + 1;
     let price = last;
     let item: DomItem;
-    const dom = this._dom;
 
     if (last == null || isNaN(last))
       return;
@@ -231,6 +266,21 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       item.updatePrice(price, dom);
       downIndex++;
     }
+
+    info.markDrawed();
+  }
+
+  afterDraw = (grid) => {
+    const ctx = grid.ctx;
+    ctx.save();
+    const y = Math.ceil(this.visibleRows / 2) * this.dataGrid.rowHeight;
+    const width = grid.ctx.canvas.width;
+    ctx.beginPath();
+    ctx.strokeStyle = '#A1A2A5';
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+    ctx.restore();
   }
 
   renderCell = (e) => {
@@ -240,7 +290,6 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     const data = cell.data;
 
     const name = cell.header.name;
-
 
     if (data.isCenter && name == 'price')
       e.ctx.fillStyle = 'red';
@@ -288,6 +337,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
           data.push(new DomItem(data.length, this._settings, this._priceFormatter));
     }
 
+    this._redrawInfo.needRedraw();
     this.dataGrid.resize();
   }
 
