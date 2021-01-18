@@ -15,6 +15,7 @@ import { AccountsManager } from 'accounts-manager';
 import { NotifierService } from 'notifier';
 import { OrderSide } from 'trading';
 import { Id } from 'communication';
+import { HistogramOrientation } from './dom-settings/settings-fields';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -83,7 +84,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // 'bidDepth',
   ]
     .map(name => Array.isArray(name) ? name : ([name, name]))
-    .map(([name, title]) => ({ name, title: title.toUpperCase(), visible: true }));
+    .map(([name, title]) => ({
+      name,
+      // style: name,
+      title: title.toUpperCase(), visible: true
+    }));
 
   accountId: Id;
 
@@ -237,8 +242,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateAsync();
   }
 
-  private _calculate(move?: number) {
-    const itemsCount = this.visibleRows;
+  private _calculate() {
+    const itemsCount = this.items.length;
 
     const trade = this._trade;
     const instrument = this.instrument;
@@ -304,6 +309,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     info.markDrawed();
   }
 
+  beforeRenderCell = (e) => {
+    const cell = e.cell;
+    // cell.isGrid = true;
+
+    const settings = e.cell.value?.settings;
+
+    // if (!settings)
+    //   return;
+
+    // if (settings.backgroundColor)
+    //   e.ctx.fillStyle = settings.backgroundColor;
+  }
+
   afterDraw = (grid) => {
     const ctx = grid.ctx;
     ctx.save();
@@ -317,6 +335,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ctx.restore();
   }
 
+  renderText = (e) => {
+    const ctx = e.ctx;
+    const cell = e.cell;
+    const value = cell.value;
+    const data = cell.data;
+
+    const settings = value.settings;
+
+    if (!settings)
+      return;
+
+    if (settings.textAlign)
+      cell.horizontalAlignment = settings.textAlign;
+
+    if (settings.fontColor)
+      e.ctx.fillStyle = settings.fontColor;
+
+
+  }
+
   renderCell = (e) => {
     const ctx = e.ctx;
     const cell = e.cell;
@@ -328,20 +366,52 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (data.isCenter && name == 'price')
       e.ctx.fillStyle = 'red';
 
+    const settings = value.settings;
+
+    if (!settings)
+      return;
+
+    if (settings.backgroundColor)
+      e.ctx.fillStyle = settings.backgroundColor;
+  }
+
+  afterRenderCell = (e) => {
+    const ctx = e.ctx;
+    const cell = e.cell;
+    const value = cell.value;
+    const data = cell.data;
+
+    const name = cell.header.name;
+
+    if (data.isCenter && name == 'price')
+      e.ctx.fillStyle = 'red';
+
+    const settings = value.settings;
+
+    if (!settings)
+      return;
+
+    if (settings.backgroundColor)
+      e.ctx.fillStyle = settings.backgroundColor;
+
     if (!value?.component)
       return;
 
     switch (value.component) {
       case 'histogram-component':
+        if (settings.enableHistogram == false || !value.hist)
+          return;
+
         ctx.save();
-        ctx.fillStyle = value.settings.histogramColor ?? 'grey';
-        ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
+        ctx.fillStyle = settings.histogramColor ?? 'grey';
+        if (settings.HistogramOrientation == 'right') {
+          ctx.fillRect(cell.x + cell.width, cell.y, cell.width - cell.width * value.hist, cell.height);
+        } else {
+          ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
+        }
         ctx.restore();
         break;
     }
-
-    if (value.settings.backgroundColor)
-      e.ctx.fillStyle = value.settings.backgroundColor;
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -416,7 +486,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
-      removeIfExists: !hidden,
+      removeIfExists: hidden,
       hidden,
     });
   }

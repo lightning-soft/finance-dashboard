@@ -115,7 +115,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
+  @Input() beforeRenderCell = (e) => null;
   @Input() renderCell = (e) => null;
+  @Input() afterRenderCell = (e) => null;
+  @Input() renderText = (e) => null;
   @Input() afterDraw = (grid) => null;
 
   private _items: T[] = [];
@@ -182,7 +185,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     const cellFont = "14px Open Sans";
     const horizontalAlignment = "center";
 
-    const style = {
+    let style = {
       cellBackgroundColor,
       cellColor,
       activeCellBackgroundColor: cellBackgroundColor,
@@ -403,6 +406,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       treeGridHeight: 250,
     };
 
+
     const grid = canvasDatagrid({
       allowColumnResize: true,
       allowColumnReordering: true,
@@ -416,11 +420,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     });
 
     (window as any).grid = grid;
+    (window as any).ss = style;
 
     grid.style.height = '100%';
     grid.style.width = '100%';
     grid.data = this._items;
-    grid.style = style;
     grid.attributes.allowSorting = false;
     grid.attributes.showRowHeaders = false;
     grid.attributes.showColumnHeaders = true;
@@ -428,11 +432,34 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.columnHeaderClickBehavior = 'none'
 
     grid.applyComponentStyle();
+    grid.addEventListener('beforerendercell', this.beforeRenderCell);
     grid.addEventListener('rendercell', this.renderCell)
+    grid.addEventListener('afterrendercell', this.afterRenderCell)
+    grid.addEventListener('rendertext', this.renderText)
     grid.addEventListener('afterdraw', this.afterDraw)
     grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
+
+    // const gridStyles = grid.style
+    // const prefixes = [
+    //   'cell', 'activeCell', 'columnHeaderCell', 'cornerCell', 'rowHeaderCell',
+    //   ...this.columns.map(i => i.name)
+    // ];
+
+    // for (const prefix of prefixes) {
+    //   gridStyles[prefix + 'BackgroundColor'] = cellBackgroundColor;
+    //   gridStyles[prefix + 'Color'] = cellColor;
+    //   gridStyles[prefix + 'BorderColor'] = cellBorderColor;
+    //   // gridStyles[prefix + 'Font'] = cellFont;
+    //   // gridStyles[prefix + 'HorizontalAlignment'] = horizontalAlignment;
+    //   // gridStyles[prefix + 'HoverBackgroundColor'] = cellBackgroundColor;
+    //   // gridStyles[prefix + 'HoverColor'] = cellColor;
+    //   // gridStyles[prefix + 'SelectedBackgroundColor'] = cellBackgroundColor;
+    //   // gridStyles[prefix + 'SelectedColor'] = cellColor;
+    //   // gridStyles[prefix + 'VerticalAlignment'] = "center";
+    //   // gridStyles[prefix + 'WhiteSpace'] = "nowrap";
+    // }
     this._grid = grid;
   }
 

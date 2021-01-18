@@ -29,7 +29,12 @@
       class="{{currentDirection}}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [columns]="columns" detach="true" [renderCell]="renderCell" [afterDraw]="afterDraw">
+    <data-grid #grid [columns]="columns" detach="true"
+      [beforeRenderCell]="beforeRenderCell"
+      [renderCell]="renderCell"
+      [afterRenderCell]="afterRenderCell"
+      [renderText]="renderText"
+      [afterDraw]="afterDraw">
     </data-grid>
   </div>
 
