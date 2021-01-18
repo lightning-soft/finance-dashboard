@@ -215,6 +215,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
+      stayInDrawingMode: false,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
       instrument: (state && state.instrument) ?? {
