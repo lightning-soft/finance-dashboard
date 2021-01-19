@@ -39,6 +39,7 @@ export class NumberCell extends Cell {
   component: string;
   formatter: IFormatter;
   ignoreZero: boolean;
+  time: number;
 
   _value: number;
 
@@ -55,7 +56,7 @@ export class NumberCell extends Cell {
       this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
 
-  updateValue(value: number) {
+  updateValue(value: number, time?: number) {
     if (typeof value !== 'number' || this._value === value)
       return;
 
@@ -76,6 +77,7 @@ export class NumberCell extends Cell {
       this.value = this.formatter ? this.formatter.format(value) : value.toString();
 
     this._value = value;
+    this.time = time;
   }
 
   clear() {

@@ -105,9 +105,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     )),
   ];
 
-
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
+
   @ViewChild(DataGrid, { static: true })
   dataGrid: DataGrid;
 
@@ -155,6 +155,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _settings: DomSettings = new DomSettings();
 
+  private _lastSyncTime = 0;
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -223,7 +224,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.detectChanges();
   }
 
-  @SynchronizeFrames()
+  // @SynchronizeFrames()
   private _calculateAsync() {
     this._calculate();
     this.dataGrid.detectChanges();
@@ -259,67 +260,58 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       for (const item of data) {
         item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
       }
+    } else {
+      let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
+      // const tickSize = instrument.tickSize;
+      const tickSize = 0.01;
+      const step = instrument.precision;
+      let upIndex = centerIndex - 1;
+      let downIndex = centerIndex + 1;
+      let price = last;
+      let item: DomItem;
 
-      return;
-    }
+      if (last == null || isNaN(last))
+        return;
 
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
-    // const tickSize = instrument.tickSize;
-    const tickSize = 0.01;
-    const step = instrument.precision;
-    let upIndex = centerIndex - 1;
-    let downIndex = centerIndex + 1;
-    let price = last;
-    let item: DomItem;
+      if (centerIndex >= 0 && centerIndex < itemsCount) {
+        item = data[centerIndex];
+        item.updatePrice(last, dom, true);
+      }
 
-    if (last == null || isNaN(last))
-      return;
+      while (upIndex >= 0) {
+        price = sum(price, tickSize, step);
+        if (upIndex >= itemsCount) {
+          upIndex--;
+          continue;
+        }
 
-    if (centerIndex >= 0 && centerIndex < itemsCount) {
-      item = data[centerIndex];
-      item.updatePrice(last, dom, true);
-    }
-
-    while (upIndex >= 0) {
-      price = sum(price, tickSize, step);
-      if (upIndex >= itemsCount) {
+        item = data[upIndex];
+        item.updatePrice(price, dom);
         upIndex--;
-        continue;
       }
 
-      item = data[upIndex];
-      item.updatePrice(price, dom);
-      upIndex--;
-    }
+      price = last;
 
-    price = last;
+      while (downIndex < itemsCount) {
+        price = sum(price, -tickSize, step);
+        if (downIndex < 0) {
+          downIndex++;
+          continue;
+        }
 
-    while (downIndex < itemsCount) {
-      price = sum(price, -tickSize, step);
-      if (downIndex < 0) {
+        item = data[downIndex];
+        item.updatePrice(price, dom);
         downIndex++;
-        continue;
       }
 
-      item = data[downIndex];
-      item.updatePrice(price, dom);
-      downIndex++;
+      info.markDrawed();
     }
 
-    info.markDrawed();
+    this._lastSyncTime = Date.now();
   }
 
   beforeRenderCell = (e) => {
-    const cell = e.cell;
-    // cell.isGrid = true;
 
-    const settings = e.cell.value?.settings;
-
-    // if (!settings)
-    //   return;
-
-    // if (settings.backgroundColor)
-    //   e.ctx.fillStyle = settings.backgroundColor;
   }
 
   afterDraw = (grid) => {
@@ -351,8 +343,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (settings.fontColor)
       e.ctx.fillStyle = settings.fontColor;
-
-
   }
 
   renderCell = (e) => {
@@ -362,17 +352,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const data = cell.data;
 
     const name = cell.header.name;
-
-    if (data.isCenter && name == 'price')
-      e.ctx.fillStyle = 'red';
-
     const settings = value.settings;
+
+    if (value.time >= this._lastSyncTime)
+      e.ctx.fillStyle = 'red';
 
     if (!settings)
       return;
 
     if (settings.backgroundColor)
       e.ctx.fillStyle = settings.backgroundColor;
+
+    // if (value.time >= this._lastSyncTime)
+    //   e.ctx.fillStyle = 'red';
   }
 
   afterRenderCell = (e) => {

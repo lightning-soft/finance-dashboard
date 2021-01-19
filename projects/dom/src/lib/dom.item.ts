@@ -10,7 +10,7 @@ export class DomItem implements IBaseItem {
   isCenter = false;
 
   _id: Cell = new NumberCell();
-  price: Cell;
+  price: NumberCell;
   lastPrice: number;
   orders: Cell = new DataCell();
   ltq: Cell = new DataCell();
@@ -27,7 +27,7 @@ export class DomItem implements IBaseItem {
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
-  class = '';
+  // class = '';
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.id = index;
@@ -43,24 +43,25 @@ export class DomItem implements IBaseItem {
   }
 
   updatePrice(price: number, data: DomHandler, center = false) {
-    this.price.updateValue(price);
     this.lastPrice = price;
     const acc = data.getItemData(price);
-    const total = data.total;
+    this.price.updateValue(price);
+    this.price.time = acc.time.price;
+    // const total = data.total;
     const columns = data.columns;
 
-    this.volumeProfile.update(acc.volume, columns.volume);
-    this.currentAsk.update(acc.currentAsk, columns.currentAsk);
-    this.currentBid.update(acc.currentBid, columns.currentBid);
-    this.ask.update(acc.ask, columns.ask);
-    this.bid.update(acc.bid, columns.bid);
-    this.totalAsk.update(acc.ask, columns.ask);
-    this.totalBid.update(acc.bid, columns.bid);
-    this.askDelta.updateValue(acc.currentAsk - acc.ask);
-    this.bidDelta.updateValue(acc.currentBid - acc.bid);
+    this.volumeProfile.update(acc.volume, columns.volume, acc.time.volume);
+    this.currentAsk.update(acc.currentAsk, columns.currentAsk, acc.time.currentAsk);
+    this.currentBid.update(acc.currentBid, columns.currentBid, acc.time.currentBid);
+    this.ask.update(acc.ask, columns.ask, acc.time.ask);
+    this.bid.update(acc.bid, columns.bid, acc.time.bid);
+    this.totalAsk.update(acc.ask, columns.ask, acc.time.ask);
+    this.totalBid.update(acc.bid, columns.bid, acc.time.bid);
+    this.askDelta.updateValue(acc.currentAsk - acc.ask, acc.time.currentAsk);
+    this.bidDelta.updateValue(acc.currentBid - acc.bid, acc.time.currentBid);
 
     this.isCenter = center;
-    if (acc.volume)
-      this.class += 'has-volume';
+    // if (acc.volume)
+    //   this.class += 'has-volume';
   }
 }

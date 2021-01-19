@@ -1,5 +1,10 @@
 import { ITrade, L2, OrderSide } from "trading";
 
+
+
+export interface IDomDataTimes extends IDomData {
+  price: number;
+}
 export interface IDomData {
   readonly volume: number;
   readonly currentAsk: number;
@@ -8,6 +13,8 @@ export interface IDomData {
   readonly bid: number;
   readonly totalAsk: number;
   readonly totalBid: number;
+
+  time?: IDomDataTimes;
 }
 
 class Total implements IDomData {
@@ -60,10 +67,19 @@ class DomItemData implements IDomData {
   bid: number = 0;
   totalAsk: number = 0;
   totalBid: number = 0;
-  // total = new Accumulator();
+
+  time: IDomData & { price: number } = {
+    volume: 0,
+    currentAsk: 0,
+    currentBid: 0,
+    ask: 0,
+    bid: 0,
+    totalAsk: 0,
+    totalBid: 0,
+    price: 0,
+  };
 
   handleTrade(trade: ITrade) {
-    // this.total.handleTrade(trade);
     const change = {
       volume: trade.volume - this.volume,
       currentAsk: trade.askInfo.volume - this.currentAsk,
@@ -73,8 +89,8 @@ class DomItemData implements IDomData {
     this.volume = trade.volume;
     this.currentAsk = trade.askInfo.volume;
     this.currentBid = trade.bidInfo.volume;
-
-    return change;
+    this.time.price = Date.now();
+    return this._handleTime(change);
   }
 
   handleL2(trade: L2): Partial<IDomData> {
@@ -83,14 +99,25 @@ class DomItemData implements IDomData {
       this.ask = trade.size;
       this.totalAsk = +trade.size;
 
-      return { ask, totalAsk: trade.size };
+      return this._handleTime({ ask, totalAsk: trade.size });
     } else if (trade.side == OrderSide.Buy) {
       const bid = trade.size - this.bid;
       this.bid = trade.size;
       this.totalBid += trade.size;
 
-      return { bid, totalBid: trade.size };
+      return this._handleTime({ bid, totalBid: trade.size })
     }
+  }
+
+  _handleTime(changes) {
+    if (changes) {
+      for (const key in changes) {
+        if (changes.hasOwnProperty(key) && changes[key] != 0)
+          this.time[key] = Date.now();
+      }
+    }
+
+    return changes
   }
 }
 

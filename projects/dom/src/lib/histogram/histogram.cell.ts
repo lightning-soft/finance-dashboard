@@ -26,8 +26,8 @@ export class HistogramCell extends NumberCell {
     this.settings = config.settings;
   }
 
-  update(value: number, total: number) {
-    super.updateValue(value);
+  update(value: number, total: number, time: number) {
+    super.updateValue(value, time);
     this.hist = value / total;
   }
 }
