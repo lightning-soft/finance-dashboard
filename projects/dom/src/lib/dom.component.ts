@@ -50,6 +50,8 @@ const directionsHints = {
   'full-screen-window': 'Horizontal View',
   'window-right': 'Right View',
 };
+const topDirectionIndex = 1;
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -116,6 +118,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   isFormOpen = true;
   isLocked: boolean;
+  bracketActive = true;
+  isExtended = true;
+
   directionsHints = directionsHints;
 
   private _instrument: IInstrument;
@@ -135,6 +140,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._priceFormatter = new RoundFormatter(3);
     this._levelOneDatafeed.subscribe(value);
     this._levelTwoDatafeed.subscribe(value);
+  }
+
+  get isFormOnTop(){
+    return this.currentDirection === this.directions[topDirectionIndex];
   }
 
   visibleRows = 0;

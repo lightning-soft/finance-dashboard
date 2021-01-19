@@ -1,16 +1,82 @@
 <cdk-virtual-scroll-viewport itemSize="">
-<form [formGroup]="form" class="form-layout">
+  <form [formGroup]="form" class="form-layout">
     <daily-info [instrument]="instrument"
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
     <button title="Positions" class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
     <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
+    <nz-select formControlName="type" class="type-select">
+      <nz-option *ngFor="let item of typeButtons"
+                 [nzLabel]="item.label" [nzValue]="item.value"
+      ></nz-option>
+    </nz-select>
+    <div class="slim-amount d-none"
+         [class.d-flex]="isFormOnTop && !isExtended">
+      <span class="{{isTypeStopLimit? 'd-flex': 'd-none'}}">
+        <span class="amount-text">Amount</span>
+        <span class="amount-input">
+      <nz-input-number
+        formControlName="amount"
+        class="amount-number"
+      >
+      </nz-input-number>
+        </span>
+      </span>
+      <span [class.d-none]="!isTypeIce" class="ice-amount">
+       <button
+         nz-tooltip nzTooltipTitle="Edit the number"
+         (contextmenu)="editIceAmount = true;"
+         [class.d-none]="editIceAmount"
+         nz-button>{{iceAmount}}</button>
+      <nz-input-number
+        [class.d-none]="!editIceAmount"
+        (keyup.enter)="$event.preventDefault();editIceAmount = false"
+        formControlName="iceAmount"
+        (focusout)="$event.stopPropagation();editIceAmount = false"
+      >
+      </nz-input-number>
+    </span>
+    </div>
+    <type-buttons class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
+          <span [class.d-none]="!isTypeIce" class="ice-amount" iceAmount>
+       <button
+         nz-tooltip nzTooltipTitle="Edit the number"
+         (contextmenu)="editIceAmount = true;"
+         [class.d-none]="editIceAmount"
+         nz-button>{{iceAmount}}</button>
+      <nz-input-number
+        [class.d-none]="!editIceAmount"
+        (keyup.enter)="$event.preventDefault();editIceAmount = false"
+        formControlName="iceAmount"
+        (focusout)="$event.stopPropagation();editIceAmount = false"
+      >
+      </nz-input-number>
+    </span>
+      <div [class.d-none]="!isTypeStopLimit" marketAmount class="amount">
+        <span class="amount-text">Amount</span>
+        <span class="amount-input">
 
-    <type-buttons formControlName="type" [typeButtons]="typeButtons"></type-buttons>
+      <nz-input-number
+        (keyup.enter)="$event.preventDefault();editAmount = false"
+        formControlName="amount"
+        class="amount-number"
+        (focusout)="$event.stopPropagation();editAmount = false"
+      >
+      </nz-input-number>
+        </span>
+      </div>
+    </type-buttons>
+
+
     <span class="tif">TIF</span>
+    <nz-select formControlName="duration" class="type-select tif-select">
+      <nz-option *ngFor="let item of tifButtons"
+                 [nzLabel]="item.label" [nzValue]="item.value"
+      ></nz-option>
+    </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-    <div class="ticks">
+    <div [class.d-none]="!showUnits" class="ticks">
       <sl-units formControlName="sl"></sl-units>
       <tp-units formControlName="tp"></tp-units>
     </div>

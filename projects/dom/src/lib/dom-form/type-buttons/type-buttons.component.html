@@ -1,6 +1,9 @@
 <div class="inner-buttons">
   <button
-    [class.black-btn]="isCurrentValue(item)"
+    [class.black-btn]="item.black"
+    [class.selected]="isCurrentValue(item)"
     (click)="updateValue(item)"
     nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
+  <ng-content select="[iceAmount]"></ng-content>
+  <ng-content select="[marketAmount]"></ng-content>
 </div>
