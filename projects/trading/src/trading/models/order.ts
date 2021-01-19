@@ -34,6 +34,7 @@ export enum OrderDuration {
   GTC = 'GTC',
   FOK = 'FOK',
   IOC = 'IOC',
+  DAY = 'DAY'
 }
 
 export enum OrderType {

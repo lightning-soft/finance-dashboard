@@ -173,10 +173,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
       this.columns = state.columns;
   }
 
-  _handleConnection(connection: IConnection) {
-    this._repository = this._repository.forConnection(connection);
-  }
-
   loadInstruments(params) {
     this._repository.getItemsByIds(params)
       .pipe(

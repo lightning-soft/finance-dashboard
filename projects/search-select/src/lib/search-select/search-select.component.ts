@@ -90,7 +90,7 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
   constructor(protected _notifier: NotifierService) {
     super();
     this.autoLoadData = !this.autoLoad ? { onInit: true } : false;
-    this.settings = { subscribeToConnections: false };
+    this.subscribeToConnections = false;
   }
 
 

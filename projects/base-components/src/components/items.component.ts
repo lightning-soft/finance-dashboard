@@ -1,10 +1,8 @@
 import { Directive, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload, RealtimeAction } from 'communication';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload } from 'communication';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
-import { IConnection } from 'trading';
 import { IItemsBuilder, ItemsBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
 
@@ -19,14 +17,11 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     page: 0,
     total: 1,
   };
-  settings = { subscribeToConnections: true };
+
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
   protected _clearOnDisconnect = true;
 
-  protected _accountsManager: AccountsManager;
-
-  protected _repositorySubscription: Subscription;
   protected _dataSubscription: Subscription;
 
   get items() {
@@ -69,65 +64,14 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     return this._total;
   }
 
-  ngOnInit() {
-    if (this.settings.subscribeToConnections)
-      this._subscribeToConnections();
-
-    super.ngOnInit();
-  }
-
-  protected _subscribeToConnections() {
-    this._accountsManager = this._injector.get(AccountsManager);
-
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
-        this._repositorySubscription?.unsubscribe();
-
-        if (connection) {
-          const repository = this.repository as any;
-
-          if (repository?.forConnection) {
-            this.repository = repository.forConnection(connection);
-
-            this._repositorySubscription = this._subscribeToRepository();
-          }
-
-          if ((this.config.autoLoadData || {}).onConnectionChange) {
-            this.refresh();
-          }
-        } else if (this._clearOnDisconnect) {
-          this.builder.replaceItems([]);
-        }
-
-        this._handleConnection(connection);
-      });
-  }
-
-  protected _handleConnection(connection: IConnection) {}
-
-  protected _subscribeToRepository(): Subscription {
-    if (!this.repository) {
-      return;
+  protected _handleConnection(connection) {
+    if (connection) {
+      if ((this.config.autoLoadData || {}).onConnectionChange) {
+        this.refresh();
+      }
+    } else if (this._clearOnDisconnect) {
+      this.builder.replaceItems([]);
     }
-
-    return this.repository.actions
-      .pipe(untilDestroyed(this))
-      .subscribe(({ action, items }) => {
-        switch (action) {
-          case RealtimeAction.Create:
-            this._handleCreateItems(items);
-            break;
-          case RealtimeAction.Update:
-            this._handleUpdateItems(items);
-            break;
-          case RealtimeAction.Delete:
-            this._handleDeleteItems(items);
-            break;
-        }
-      });
   }
 
   loadData(params?: P) {

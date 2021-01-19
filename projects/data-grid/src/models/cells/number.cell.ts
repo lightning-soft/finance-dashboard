@@ -1,5 +1,5 @@
-import { Cell } from './cell';
 import { IFormatter } from '../formatters';
+import { Cell, ICellConfig } from './cell';
 
 export enum ProfitClass {
   UP = 'up',
@@ -27,25 +27,27 @@ export enum AddClassStrategy {
   RELATIVE_ZERO,
 }
 
-interface INumberConfig {
+interface INumberConfig extends ICellConfig {
   strategy?: AddClassStrategy;
   component?: string;
   formatter?: IFormatter;
   ignoreZero?: boolean;
 }
+
 export class NumberCell extends Cell {
   class: string;
   value: string;
   component: string;
   formatter: IFormatter;
   ignoreZero: boolean;
+  time: number;
 
   _value: number;
 
   private strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
 
   constructor(config?: INumberConfig) {
-    super();
+    super(config);
     if (typeof config === 'object') {
       this.strategy = config.strategy ?? AddClassStrategy.RELATIVE_PREV_VALUE;
       this.component = config.component;
@@ -55,7 +57,7 @@ export class NumberCell extends Cell {
       this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
 
-  updateValue(value: number) {
+  updateValue(value: number, time?: number) {
     if (typeof value !== 'number' || this._value === value)
       return;
 
@@ -76,6 +78,7 @@ export class NumberCell extends Cell {
       this.value = this.formatter ? this.formatter.format(value) : value.toString();
 
     this._value = value;
+    this.time = time;
   }
 
   clear() {

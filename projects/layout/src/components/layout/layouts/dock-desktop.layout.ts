@@ -42,12 +42,15 @@ export class DockDesktopLayout extends Layout {
       componentName = component?.name;
     }
     if (!this.canAddComponent(componentNameOrConfig)) {
+      const window = this._windowManagerService.windows.getValue()
+        .find(item => item.options.componentState().name === componentName);
+
       if (componentNameOrConfig.removeIfExists) {
-        const window = this._windowManagerService.windows.getValue().find(item => {
-          return item.options.componentState().name === componentName;
-        });
         window?.close();
+      } else {
+        window?.focus();
       }
+
       return;
     }
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {

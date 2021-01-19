@@ -68,41 +68,41 @@ $cell-background: #1b1d22;
   overflow-y: hidden;
 }
 
-::ng-deep {
-  data-grid {
-    th,
-    td {
-      border: 1px solid $border-color;
-      background-color: $cell-background;
-    }
+// ::ng-deep {
+//   data-grid {
+//     th,
+//     td {
+//       border: 1px solid $border-color;
+//       background-color: $cell-background;
+//     }
 
-    .center-price {
-      position: relative;
-      // border-bottom-color: #fff;
+//     // .center-price {
+//     //   position: relative;
+//     //   // border-bottom-color: #fff;
 
-      // &::before {
-      //   content: " ";
-      //   position: absolute;
-      //   // top: 0;
-      //   left: 0;
-      //   height: 1px;
-      //   width: 100%;
-      //   background-color: #fff;
-      // }
+//     //   // &::before {
+//     //   //   content: " ";
+//     //   //   position: absolute;
+//     //   //   // top: 0;
+//     //   //   left: 0;
+//     //   //   height: 1px;
+//     //   //   width: 100%;
+//     //   //   background-color: #fff;
+//     //   // }
 
-      th,
-      td {
-        border-bottom-color: #fff;
-      }
-    }
+//     //   th,
+//     //   td {
+//     //     border-bottom-color: #fff;
+//     //   }
+//     // }
 
-    .has-volume {
-      /*   .price {
-           background-color: rgb(50, 50, 50);
-         }*/
-    }
-  }
-}
+//     .has-volume {
+//       /*   .price {
+//            background-color: rgb(50, 50, 50);
+//          }*/
+//     }
+//   }
+// }
 
 .window-icon {
   color: #51535a;

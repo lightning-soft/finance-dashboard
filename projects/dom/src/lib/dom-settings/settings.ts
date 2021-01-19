@@ -1,6 +1,6 @@
 import * as merge from 'deepmerge';
-import {TextAlign} from 'dynamic-form';
-import {HistogramOrientation} from './settings-fields';
+import { TextAlign } from 'dynamic-form';
+import { HistogramOrientation } from './settings-fields';
 
 export class DomSettings {
   static fromJson(json: any): DomSettings {
@@ -35,25 +35,33 @@ export class DomSettings {
     textAlign: TextAlign.Center,
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
   };
-  bid: any = {fontColor: 'white',
+  bid: any = {
+    fontColor: 'white',
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-    textAlign: TextAlign.Center, orientation: HistogramOrientation.Left};
-  ask: any = {fontColor: 'white',
+    textAlign: TextAlign.Center,
+     histogramOrientation: HistogramOrientation.Left
+  };
+  ask: any = {
+    fontColor: 'white',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
-    textAlign: TextAlign.Center, orientation: HistogramOrientation.Left};
+    textAlign: TextAlign.Center,
+     histogramOrientation: HistogramOrientation.Left
+  };
   bidDepth: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
-    textAlign: TextAlign.Center, orientation: HistogramOrientation.Left
+    textAlign: TextAlign.Center,
+    histogramOrientation: HistogramOrientation.Left
   };
   askDepth: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-    textAlign: TextAlign.Center, orientation: HistogramOrientation.Left
+    textAlign: TextAlign.Center,
+    histogramOrientation: HistogramOrientation.Left
   };
   totalAsk: any = {
     histogramColor: 'rgba(72, 149, 245, 0.3)',
@@ -67,7 +75,7 @@ export class DomSettings {
   };
   volumeProfile: any = {
     highlightBackgroundColor: 'rgba(73, 187, 169, 0.3)',
-    orientation: HistogramOrientation.Right
+    histogramOrientation: HistogramOrientation.Right
   };
   order: any = {};
   currentBid: any = {
@@ -89,6 +97,8 @@ export class DomSettings {
 
       Object.assign(this[key], data[key]);
     }
+
+    console.log(data);
   }
 
   toJson() {

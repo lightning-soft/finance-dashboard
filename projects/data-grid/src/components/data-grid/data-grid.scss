@@ -1,126 +1,113 @@
-$odd-background: #272b37;
-$even-background: #303644;
-$height: 36px;
-$grips-z-index: 20;
-cdk-virtual-scroll-viewport {
-  height: 100%;
-}
+// $odd-background: #272b37;
+// $even-background: #303644;
+// $height: 36px;
+// $grips-z-index: 20;
+// cdk-virtual-scroll-viewport {
+//   height: 100%;
+// }
 
-@import "themes/index";
+// @import "themes/index";
 :host {
   display: block;
   height: 100%;
   width: 100%;
   background: #1b1d22;
 
-  .head.cell {
-    .data {
-      font-weight: 700;
-    }
-
-    .btn-setting:hover {
-      color: #ffffff;
-    }
-  }
-
-  .head.cell .data {
-    font-weight: 700;
-  }
-
   .grid {
     height: 100%;
     width: 100%;
   }
 
-  .table-container {
-    height: 100%;
-  }
+  // .table-container {
+  //   height: 100%;
+  // }
 
-  &.phone {
-    .scroll {
-      width: 10px;
-    }
-  }
+  // &.phone {
+  //   .scroll {
+  //     width: 10px;
+  //   }
+  // }
 
-  .data {
-    text-align: left !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-transform: uppercase;
-    text-overflow: ellipsis;
-  }
+  // .data {
+  //   text-align: left !important;
+  //   white-space: nowrap;
+  //   overflow: hidden;
+  //   text-transform: uppercase;
+  //   text-overflow: ellipsis;
+  // }
 
-  .th {
-    position: sticky;
-    top: 0;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    border-top: 0px !important;
+  // .th {
+  //   position: sticky;
+  //   top: 0;
+  //   font-size: 0.8rem;
+  //   text-transform: uppercase;
+  //   border-top: 0px !important;
 
-    .grips {
-      position: absolute;
-      top: 0;
-      cursor: col-resize;
-      width: 1px;
-      z-index: $grips-z-index;
-      height: 37px;
+  //   .grips {
+  //     position: absolute;
+  //     top: 0;
+  //     cursor: col-resize;
+  //     width: 1px;
+  //     z-index: $grips-z-index;
+  //     height: 37px;
 
-      &:before {
-        content: "";
-        cursor: col-resize;
-        position: absolute;
-        width: 20px;
-        left: -10px;
-        height: 100%;
-      }
+  //     &:before {
+  //       content: "";
+  //       cursor: col-resize;
+  //       position: absolute;
+  //       width: 20px;
+  //       left: -10px;
+  //       height: 100%;
+  //     }
 
-      &:hover,
-      &.active {
-        background: grey;
-        height: 100%;
-      }
-    }
-  }
+  //     &:hover,
+  //     &.active {
+  //       background: grey;
+  //       height: 100%;
+  //     }
+  //   }
+  // }
 
-  table {
-    table-layout: fixed;
-    width: 100%;
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
+  // table {
+  //   table-layout: fixed;
+  //   width: 100%;
+  //   font-family: arial, sans-serif;
+  //   border-collapse: collapse;
 
-    th,
-    td {
-      text-align: left;
-      // padding: 8px;
-      font-size: 0.8rem;
-      line-height: 20px;
-      font-weight: normal;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    th{
-      color: #A1A2A5;
-      font-weight: 400;
-      font-size: 0.7rem;
-    }
+  //   th,
+  //   td {
+  //     text-align: left;
+  //     // padding: 8px;
+  //     font-size: 0.8rem;
+  //     line-height: 20px;
+  //     font-weight: normal;
+  //     overflow: hidden;
+  //     white-space: nowrap;
+  //   }
+  //   th{
+  //     color: #A1A2A5;
+  //     font-weight: 400;
+  //     font-size: 0.7rem;
+  //   }
 
-    ::ng-deep tfoot instrument-select div {
-      height: 200px;
+  //   ::ng-deep tfoot instrument-select div {
+  //     height: 200px;
 
-      button {
-        width: 100%;
-      }
-    }
+  //     button {
+  //       width: 100%;
+  //     }
+  //   }
 
-    tr {
-      width: 100%;
-      &:hover {
-        cursor: pointer;
-      }
+  //   tr {
+  //     width: 100%;
+  //     &:hover {
+  //       cursor: pointer;
+  //     }
 
-      &.selected {
-        cursor: pointer;
-      }
-    }
-  }
+  //     &.selected {
+  //       cursor: pointer;
+  //     }
+  //   }
+  // }
+
 }
