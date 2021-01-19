@@ -684,34 +684,27 @@ export const askDepthFields: IFieldConfig[] = [
   }),
 
 ];
-export const totalAskDepthFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Total At Ask',
-    key: 'totalAsk',
-    fieldGroup: [
-      ...histogramFields,
-      getColor('Total Font Color'),
-      getCheckboxes([{ key: 'totalAsk', label: 'Total At Ask Histogram' }]),
-      getTextAlign(),
-      getHistogramOrientation(),
 
-    ]
-  }),
 
-];
-export const totalBidDepthFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Total At Bid',
-    key: 'totalBid',
-    fieldGroup: [
-      ...histogramFields,
-      getColor('Total Font Color'),
-      getCheckboxes([{ key: 'totalBid', label: 'Total At Bid Histogram' }]),
-      getTextAlign(),
-      getHistogramOrientation(),
-    ]
-  })
-];
+function getTotalFields(label: string, key: string) {
+  return [
+    new FieldConfig({
+      label,
+      key,
+      fieldGroup: [
+        getBackgroundColor(),
+        getHightlightColor(),
+        getFontColor(),
+        getHistogramColor(),
+        getCheckboxes([{ key: 'enableHistogram', label: label + ' Histogram' }]),
+        getTextAlign(),
+        getHistogramOrientation(),
+      ]
+    }),
+  ];
+}
+
+
 export const volumeFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Volume Profile',
@@ -879,8 +872,8 @@ export const SettingsConfig = {
   [SettingTab.Ask]: askFields,
   [SettingTab.Bid]: bidFields,
   [SettingTab.AskDepth]: askDepthFields,
-  [SettingTab.TotalAsk]: totalAskDepthFields,
-  [SettingTab.TotalBid]: totalBidDepthFields,
+  [SettingTab.TotalAsk]: getTotalFields('Total At Ask', 'totalAsk'),
+  [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),
   [SettingTab.VolumeProfile]: volumeFields,
   [SettingTab.OrderColumn]: orderColumnFields,
   [SettingTab.CurrentAtBid]: currentAtBidColumnFields,
