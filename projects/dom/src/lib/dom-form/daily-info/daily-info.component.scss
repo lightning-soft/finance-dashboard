@@ -18,8 +18,10 @@
   line-height: 1.07;
   color: #FFFFFF;
 }
-
-:host-context(.full-screen-window), :host-context(.header-daily-info) {
+:host-context(.full-screen-window){
+  display: none;
+}
+:host-context(.header-daily-info) {
   .chart-data {
     flex-direction: row;
     margin-top: 0;

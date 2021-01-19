@@ -12,6 +12,7 @@ button, button:hover, button:active, button:focus-within {
   justify-content: center;
   align-items: center;
 }
+
 :host-context(.full-screen-window) button, button:hover, button:active, button:focus-within {
   padding-left: 15px;
   padding-right: 15px;
@@ -21,7 +22,7 @@ button, button:hover, button:active, button:focus-within {
   background: #1B1D22;
 }
 
-button:hover {
+button:hover, button.selected {
   border: 1px solid #4895F5;
 }
 
@@ -47,11 +48,10 @@ button:hover {
   .inner-buttons {
     flex-wrap: nowrap;
     margin-top: 0;
-    margin-left: 5px;
 
     & > * {
       margin-top: 0;
-      width: 40px;
+      min-width: 35px;
 
       &:nth-child(odd) {
         margin-right: 0px;
@@ -63,6 +63,25 @@ button:hover {
 
       &:not(:first-child) {
         margin-left: 3px;
+      }
+    }
+  }
+}
+
+:host-context(.full-screen-window.extended) {
+  .inner-buttons {
+    grid-template-rows: 1fr 1fr;
+    grid-gap: 4px;
+    display: grid;
+    grid-auto-flow: column;
+
+    & > * {
+      margin-top: 0;
+      min-width: auto;
+      width: 100%;
+
+      &:not(:first-child) {
+        margin-left: 0px;
       }
     }
   }

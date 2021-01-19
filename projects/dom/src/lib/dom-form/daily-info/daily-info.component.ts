@@ -25,7 +25,7 @@ export class DailyInfoComponent {
     }
   }
 
-  income: number;
+  income: number| string;
   incomePercentage: string | number;
 
   getVolume() {
@@ -36,8 +36,9 @@ export class DailyInfoComponent {
     return isSameDay(date, this.dailyInfo.date) && date > this.dailyInfo.date;
   }
   updateIncome() {
-    this.income = this.dailyInfo.close - this.prevItem.close;
-    this.incomePercentage = (this.income / this.dailyInfo.close).toFixed(this.instrument?.precision ?? 4);
+    const income = this.dailyInfo.close - this.prevItem.close;
+    this.incomePercentage = (income / this.dailyInfo.close).toFixed(this.instrument?.precision ?? 4);
+    this.income = income.toFixed(this.instrument?.precision ?? 4);
     // console.log('income', (this.income / this.dailyInfo.close).toFixed(4));
   }
 }
