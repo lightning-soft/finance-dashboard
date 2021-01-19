@@ -32,5 +32,7 @@ export interface IWindow {
   minimize();
   maximize();
   close();
+  focus();
+  blur();
   emit(name: string, event);
 }
