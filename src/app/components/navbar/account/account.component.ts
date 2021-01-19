@@ -23,16 +23,15 @@ export class AccountComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // todo uncomment this
-    // this._authService.isAuthenticated
-    //   .subscribe((res: boolean) => {
-    //     this.isAuthenticated = res;
+    this._authService.isAuthenticated
+      .subscribe((res: boolean) => {
+        this.isAuthenticated = res;
 
-    //     if (this.isAuthenticated)
-    //       this.userName = this._authService.userInfo.name;
-    //     else
-    //       this.loginLink = this.generateLoginLink(this._appConfig.identity);
-    //   });
+        if (this.isAuthenticated)
+          this.userName = this._authService.userInfo.name;
+        else
+          this.loginLink = this.generateLoginLink(this._appConfig.identity);
+      });
   }
 
   logout(): void {
