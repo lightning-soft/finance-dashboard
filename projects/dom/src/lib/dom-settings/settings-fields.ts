@@ -704,7 +704,6 @@ function getTotalFields(label: string, key: string) {
   ];
 }
 
-
 export const volumeFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Volume Profile',
@@ -769,53 +768,40 @@ export const orderColumnFields: IFieldConfig[] = [
     ]
   }),
 ];
-export const currentAtBidColumnFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Current At Bid',
-    key: 'currentBid',
-    fieldGroup: [getCheckboxes([{ key: 'histogram', label: 'Current At Bid Histogram' }]),
-    getTextAlign(),
-    getColor('Level 1'),
-    getColor('Level 2'),
-    getColor('Level 3'),
-    getColor('Level 4'),
-    getColor('Level 5'),
-    getColor('Level 6'),
-    getColor('Level 7'),
-    getColor('Level 8'),
-    getColor('Tail Inside Bid Fore'),
-    getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Bid Bold' }]),
-    ...histogramFields,
-    getColor('Inside Bid Background Color'),
-    getHistogramColor(),
-    ]
-  }),
 
-];
-export const currentAtAskFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Current At Ask',
-    key: 'currentAsk',
-    fieldGroup: [
-      getCheckboxes([{ key: 'histogram', label: 'Current At Ask Histogram' }]),
-      getTextAlign(),
-      getColor('Level 1'),
-      getColor('Level 2'),
-      getColor('Level 3'),
-      getColor('Level 4'),
-      getColor('Level 5'),
-      getColor('Level 6'),
-      getColor('Level 7'),
-      getColor('Level 8'),
-      getColor('Tail Inside Ask Fore'),
-      getCheckboxes([{ key: 'tailBidBold', label: 'Tail Inside Ask Bold' }]),
-      ...histogramFields,
-      getColor('Inside Ask Background Color'),
-      getColor('Histogram Color'),
-    ]
-  })
+// todo: apply figma design
+function getCurrentFields(suffix: string) {
+  return [
+    new FieldConfig({
+      label: `Current At ${suffix}`,
+      key: `current${suffix}`,
+      fieldGroup: [
+        getCheckboxes([{ key: 'enableHistogram', label: `Current At ${suffix} Histogram` }]),
+        getBackgroundColor(),
+        getFontColor(),
+        getColor('Inside Bid Background Color'),
+        getHightlightColor(),
+        getHistogramColor(),
+        getTextAlign(),
 
-];
+        getColor('Level 1'),
+        getColor('Level 2'),
+        getColor('Level 3'),
+        getColor('Level 4'),
+        getColor('Level 5'),
+        getColor('Level 6'),
+        getColor('Level 7'),
+        getColor('Level 8'),
+        getColor('Tail Inside Ask Fore'),
+        getCheckboxes([{ key: `tailInside${suffix}Fore`, label: `Tail Inside ${suffix} Bold` }]),
+        getCheckboxes([{ key: `tailInside${suffix}Bold`, label: `Tail Inside ${suffix} Bold` }]),
+      ]
+    }),
+  ];
+}
+
+
+
 export const noteColumnFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -876,8 +862,8 @@ export const SettingsConfig = {
   [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),
   [SettingTab.VolumeProfile]: volumeFields,
   [SettingTab.OrderColumn]: orderColumnFields,
-  [SettingTab.CurrentAtBid]: currentAtBidColumnFields,
-  [SettingTab.CurrentAtAsk]: currentAtAskFields,
+  [SettingTab.CurrentAtBid]: getCurrentFields('Bid'),
+  [SettingTab.CurrentAtAsk]: getCurrentFields('Ask'),
   [SettingTab.Note]: noteColumnFields,
 };
 
