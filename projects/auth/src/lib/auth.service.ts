@@ -42,8 +42,13 @@ export class AuthService {
   public logOut(): Observable<any> {
     const { url } = this._appConfig.identity;
 
-    return this._http.post(`${url}account/logout`, {})
+    return this._http.get(`${url}account/logout`, {})
       .pipe(tap(res => this.isAuthenticated.next(false)));
+  }
+
+  public logOutWithRedirect() {
+    const { url } = this._appConfig.identity;
+    window.location.href = `${url}account/logout`;
   }
 
    public async initialize(code: Token): Promise<UserIdentityInfo> {
