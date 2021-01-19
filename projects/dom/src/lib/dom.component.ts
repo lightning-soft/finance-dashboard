@@ -176,7 +176,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _renderer: Renderer2
   ) {
     super();
-    this.setTabIcon('icon-widget-positions');
+    this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
   }
 
