@@ -1,10 +1,11 @@
-import { Component, forwardRef, Injectable, OnInit } from '@angular/core';
+import { Component, forwardRef, Injectable, Input, OnInit, Injector } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { HttpRepository, IPaginationResponse } from 'communication';
 import { ConnectionsRepository } from 'trading';
-import { Observable } from 'rxjs';
+import { Observable, pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ItemsComponent } from '../../../base-components/src/components/items.component';
 
 @Component({
   selector: 'acccount-form',
@@ -19,18 +20,32 @@ import { map } from 'rxjs/operators';
   ]
 })
 @UntilDestroy()
-export class AcccountFormComponent implements ControlValueAccessor {
+export class AcccountFormComponent extends ItemsComponent<any> implements ControlValueAccessor {
+  get gateways() {
+    return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
+  }
+
   form = new FormGroup({
-      username: new FormControl(),
-      password: new FormControl(),
-      server: new FormControl(),
-      gateway: new FormControl()
-    }
-  );
+    username: new FormControl(),
+    password: new FormControl(),
+    server: new FormControl(),
+    gateway: new FormControl()
+  });
+
   passwordVisible = true;
 
-  constructor(public serverRepository: ServersRepository,
-  ) {
+  constructor(protected _repository: ServersRepository, protected _injector: Injector) {
+    super();
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    const controls = this.form.controls;
+    controls.server.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe((value) => {
+        controls.gateway.patchValue(this.items.find(i => i.name == value)?.gateways[0]?.name);
+      })
   }
 
   getName(o) {
@@ -56,10 +71,7 @@ export class AcccountFormComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    if (obj) {
-      obj.server = { name: obj.server, gateways: [{ name: obj.gateway }] };
-      this.form.patchValue(obj);
-    }
+    this.form.patchValue(obj);
   }
 
   setDisabledState(isDisabled: boolean) {
@@ -82,11 +94,9 @@ export class ServersRepository extends HttpRepository<any> {
     return this.connectionRepository.getServers()
       .pipe(
         map((data) => {
-          const result = Object.keys(data.result).map((key) => {
-            const item = { gateways: data.result[key], name: null };
-            item.name = key;
-            return item;
-          });
+          const result = Object.keys(data.result)
+            .map((name) => ({ gateways: data.result[name], name }));
+
           return {
             data: result,
             total: result.length,

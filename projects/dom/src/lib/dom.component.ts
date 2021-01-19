@@ -66,7 +66,7 @@ const directionsHints = {
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    '_id',
+    // '_id',
     'orders',
     ['volumeProfile', 'volume'],
     'price',
@@ -140,7 +140,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   visibleRows = 0;
 
   get items() {
-    return this.dataGrid.items;
+    return this.dataGrid.items ?? [];
   }
 
   set items(value) {
@@ -254,7 +254,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const info = this._redrawInfo;
     const data: DomItem[] = this.items;
     const dom = this._dom;
-    let last = trade && trade.price;
+    const precision = instrument.precision;
+    const tickSize = instrument.tickSize;
+    let last = Math.ceil(trade && trade.price / tickSize) * tickSize;
 
     if (!info._needRedraw) {
       for (const item of data) {
@@ -262,9 +264,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     } else {
       let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
-      // const tickSize = instrument.tickSize;
-      const tickSize = 0.01;
-      const step = instrument.precision;
+      // const tickSize = 0.01;
       let upIndex = centerIndex - 1;
       let downIndex = centerIndex + 1;
       let price = last;
@@ -279,7 +279,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
 
       while (upIndex >= 0) {
-        price = sum(price, tickSize, step);
+        price = sum(price, tickSize, precision);
         if (upIndex >= itemsCount) {
           upIndex--;
           continue;
@@ -293,7 +293,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       price = last;
 
       while (downIndex < itemsCount) {
-        price = sum(price, -tickSize, step);
+        price = sum(price, -tickSize, precision);
         if (downIndex < 0) {
           downIndex++;
           continue;

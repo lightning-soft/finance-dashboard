@@ -189,7 +189,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
         this._repositorySubscription?.unsubscribe();
 
         if (connection) {
-          const repository = this.repository as any;
+          const repository = this._repository as any;
 
           if (repository?.forConnection) {
             this.repository = repository.forConnection(connection);

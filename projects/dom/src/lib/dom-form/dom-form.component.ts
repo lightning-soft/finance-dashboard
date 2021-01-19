@@ -32,7 +32,6 @@ export class DomFormComponent extends FormComponent<any> {
       this.instrument$.next(value);
   }
 
-
   get instrument() {
     return this.instrument$.getValue();
   }

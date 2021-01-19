@@ -2,15 +2,15 @@ import {
   Component,
   EventEmitter,
   forwardRef,
+  Injector,
   Input,
   Output
 } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
 import { Repository } from 'communication';
 import { NzSelectModeType } from 'ng-zorro-antd';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NotifierService } from 'notifier';
 
 export enum SelectDisplayType {
   Title, TitleWithId,
@@ -87,7 +87,7 @@ export class SearchSelectComponent extends ItemsComponent<any> implements Contro
     return o.id;
   }
 
-  constructor(protected _notifier: NotifierService) {
+  constructor(protected _injector: Injector) {
     super();
     this.autoLoadData = !this.autoLoad ? { onInit: true } : false;
     this.subscribeToConnections = false;

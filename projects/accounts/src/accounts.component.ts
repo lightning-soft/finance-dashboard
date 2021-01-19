@@ -31,6 +31,8 @@ export class AccountsComponent implements OnInit {
   selectedBroker: IBroker;
   splitConnections = false;
 
+  gateways = {};
+
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
