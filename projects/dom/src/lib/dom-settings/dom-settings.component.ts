@@ -76,7 +76,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   private _applyCss() {
-
+    return;
     let cssData = {};
     for (let configKey in SettingsConfig) {
       const configs = SettingsConfig[configKey];

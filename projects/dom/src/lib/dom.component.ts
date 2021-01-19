@@ -461,7 +461,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
-    this.openSettings(false);
+    this.openSettings(true);
 
     // for debug purposes
     if (!state)

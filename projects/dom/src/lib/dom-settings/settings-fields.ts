@@ -184,8 +184,17 @@ function getNumber(key: string, label: string, important = true, unit = 'px') {
     }
   };
 }
+
 function getHightlightColor() {
   return getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } }));
+}
+
+function getBackgroundColor() {
+  return getColor('Background Color');
+}
+
+function getFontColor() {
+  return getColor('Font Color');
 }
 
 const histogramFields = [
@@ -593,35 +602,28 @@ export const priceFields: IFieldConfig[] = [
       getHightlightColor(),
       getColor('Traded Price Back Color'),
       getColor('Last Traded Price Font Color'),
-      getColor({label: 'Price Font Color', key: 'fontColor'}),
-      getColor({label: 'Non Traded Price Back Color', key: 'backgroundColor'}),
-      getColor({label: 'Non Traded Price Font Color', key: 'nonTradedPriceBackColor'}),
+      getColor({ label: 'Price Font Color', key: 'fontColor' }),
+      getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),
+      getColor({ label: 'Non Traded Price Font Color', key: 'nonTradedPriceBackColor' }),
       getTextAlign(),
     ]
   }),
 ];
-export const bidDeltaFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Bid Delta',
-    fieldGroup: [
-      ...histogramFields,
-      { ...getTextAlign(), className: 'w-100' },
-    ]
-  }),
 
+function getDeltaFields(label: string) {
+  return [
+    new FieldConfig({
+      label,
+      fieldGroup: [
+        getBackgroundColor(),
+        getHightlightColor(),
+        getFontColor(),
+        getTextAlign(),
+      ]
+    }),
+  ];
+}
 
-];
-export const askDeltaFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Ask Delta',
-    fieldGroup: [
-      ...histogramFields,
-      {
-        ...getTextAlign(), className: 'w-100'
-      }
-    ]
-  }),
-];
 export const askFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Ask',
@@ -871,8 +873,8 @@ export const SettingsConfig = {
   [SettingTab.Hotkeys]: hotkeyFields,
   [SettingTab.LTQ]: ltqFields,
   [SettingTab.Price]: priceFields,
-  [SettingTab.BidDelta]: bidDeltaFields,
-  [SettingTab.AskDelta]: askDeltaFields,
+  [SettingTab.BidDelta]: getDeltaFields('Bid Delta'),
+  [SettingTab.AskDelta]: getDeltaFields('Ask Delta'),
   [SettingTab.BidDepth]: bidDepthFields,
   [SettingTab.Ask]: askFields,
   [SettingTab.Bid]: bidFields,
