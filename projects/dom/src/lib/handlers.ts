@@ -15,6 +15,7 @@ export interface IDomData {
   readonly totalBid: number;
 
   time?: IDomDataTimes;
+  updatedAt?: number;
 }
 
 class Total implements IDomData {
@@ -79,6 +80,8 @@ class DomItemData implements IDomData {
     price: 0,
   };
 
+  updatedAt;
+
   handleTrade(trade: ITrade) {
     const change = {
       volume: trade.volume - this.volume,
@@ -89,7 +92,8 @@ class DomItemData implements IDomData {
     this.volume = trade.volume;
     this.currentAsk = trade.askInfo.volume;
     this.currentBid = trade.bidInfo.volume;
-    this.time.price = Date.now();
+    this.time.price = this.updatedAt = Date.now();
+
     return this._handleTime(change);
   }
 
@@ -98,12 +102,14 @@ class DomItemData implements IDomData {
       const ask = trade.size - this.ask;
       this.ask = trade.size;
       this.totalAsk = +trade.size;
+      this.updatedAt = Date.now();
 
       return this._handleTime({ ask, totalAsk: trade.size });
     } else if (trade.side == OrderSide.Buy) {
       const bid = trade.size - this.bid;
       this.bid = trade.size;
       this.totalBid += trade.size;
+      this.updatedAt = Date.now();
 
       return this._handleTime({ bid, totalBid: trade.size })
     }

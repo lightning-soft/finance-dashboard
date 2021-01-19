@@ -96,25 +96,26 @@ function lowerFirstLetter(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
-function getRadio(key: string, label: string, options: { label: string, value: string }[] | string[]) {
-  const _options = (options as Array<any>).map(item => {
-    if (typeof item === 'string') {
-      return { label: item, value: item };
-    }
-    return item;
-  });
-  return {
-    key,
-    type: FieldType.Radio,
-    templateOptions: { label, options: _options }
-  };
-}
+// function getRadio(key: string, label: string, options: { label: string, value: string }[] | string[]) {
+//   const _options = (options as Array<any>).map(item => {
+//     if (typeof item === 'string') {
+//       return { label: item, value: item };
+//     }
+//     return item;
+//   });
+//   return {
+//     key,
+//     type: FieldType.Radio,
+//     templateOptions: { label, options: _options }
+//   };
+// }
 
 export enum HistogramOrientation {
-  Left = 'left', Right = 'right'
+  Left = 'left',
+  Right = 'right'
 }
 
-function getHistogram(key: string = 'histogramAlign', label: string = 'Histogram Orientation'): IFieldConfig {
+function getHistogramOrientation(key: string = 'histogramOrientation', label: string = 'Histogram Orientation'): IFieldConfig {
   return {
     key,
     type: FieldType.Radio,
@@ -182,6 +183,9 @@ function getNumber(key: string, label: string, important = true, unit = 'px') {
         return { [key]: (value[key] + unit + suffix) };
     }
   };
+}
+function getHightlightColor() {
+  return getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } }));
 }
 
 const histogramFields = [
@@ -575,8 +579,10 @@ export const ltqFields: IFieldConfig[] = [
   ),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
-    fieldGroup: [getCheckboxes([{ key: 'accumulateTrades', label: 'Accumulate Trades at Price' }]),
-    getTextAlign()]
+    fieldGroup: [
+      getCheckboxes([{ key: 'accumulateTrades', label: 'Accumulate Trades at Price' }]),
+      getTextAlign(),
+    ]
   }
 ];
 
@@ -584,12 +590,12 @@ export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Price',
     fieldGroup: [
-      ...histogramFields,
-      getColor('Last Traded Price Font Color'),
-      getColor('Non Traded Price Back Color'),
+      getHightlightColor(),
       getColor('Traded Price Back Color'),
-      getColor('Price Font Color'),
-      getColor('Non Traded Price Font Color'),
+      getColor('Last Traded Price Font Color'),
+      getColor({label: 'Price Font Color', key: 'fontColor'}),
+      getColor({label: 'Non Traded Price Back Color', key: 'backgroundColor'}),
+      getColor({label: 'Non Traded Price Font Color', key: 'nonTradedPriceBackColor'}),
       getTextAlign(),
     ]
   }),
@@ -642,7 +648,7 @@ const bidConfig = (label) => {
         className: 'w-100',
       },
       getTextAlign(),
-      getHistogram(),
+      getHistogramOrientation(),
       {
         ...getNumber('font-size', 'Large Bid Size'), className: 'w-100',
       },
@@ -671,7 +677,7 @@ export const askDepthFields: IFieldConfig[] = [
       },
       getNumber('font-size', 'Large Ask Size'),
       getTextAlign(),
-      getHistogram(),
+      getHistogramOrientation(),
     ]
   }),
 
@@ -685,7 +691,7 @@ export const totalAskDepthFields: IFieldConfig[] = [
       getColor('Total Font Color'),
       getCheckboxes([{ key: 'totalAsk', label: 'Total At Ask Histogram' }]),
       getTextAlign(),
-      getHistogram(),
+      getHistogramOrientation(),
 
     ]
   }),
@@ -700,7 +706,7 @@ export const totalBidDepthFields: IFieldConfig[] = [
       getColor('Total Font Color'),
       getCheckboxes([{ key: 'totalBid', label: 'Total At Bid Histogram' }]),
       getTextAlign(),
-      getHistogram(),
+      getHistogramOrientation(),
     ]
   })
 ];
@@ -722,7 +728,7 @@ export const volumeFields: IFieldConfig[] = [
         { key: 'VWAP', label: 'VWAP' }
       ], null, [], { className: 'w-100 m-0' }),
       getTextAlign(),
-      getHistogram(),
+      getHistogramOrientation(),
     ],
   }),
 

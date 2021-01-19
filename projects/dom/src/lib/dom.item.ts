@@ -3,6 +3,7 @@ import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-g
 import { DomHandler } from './handlers';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
+import { PriceCell } from './price.cell';
 
 export class DomItem implements IBaseItem {
   id: Id;
@@ -10,7 +11,7 @@ export class DomItem implements IBaseItem {
   isCenter = false;
 
   _id: Cell = new NumberCell();
-  price: NumberCell;
+  price: PriceCell;
   lastPrice: number;
   orders: Cell = new DataCell();
   ltq: Cell = new DataCell();
@@ -22,8 +23,8 @@ export class DomItem implements IBaseItem {
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
   volumeProfile: HistogramCell;
-  askDelta: Cell = new NumberCell({ strategy: AddClassStrategy.NONE });
-  bidDelta: Cell = new NumberCell({ strategy: AddClassStrategy.NONE });
+  askDelta: Cell;
+  bidDelta: Cell;
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
@@ -31,7 +32,7 @@ export class DomItem implements IBaseItem {
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.id = index;
-    this.price = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: _priceFormatter });
+    this.price = new PriceCell({ strategy: AddClassStrategy.NONE, formatter: _priceFormatter, settings: settings.price });
     this.bid = new HistogramCell({ settings: settings.bid });
     this.ask = new HistogramCell({ settings: settings.ask });
     this.currentAsk = new HistogramCell({ settings: settings.currentAsk });
@@ -39,6 +40,8 @@ export class DomItem implements IBaseItem {
     this.totalAsk = new HistogramCell({ settings: settings.totalAsk });
     this.totalBid = new HistogramCell({ settings: settings.totalBid });
     this.volumeProfile = new HistogramCell({ settings: settings.volumeProfile });
+    this.askDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta });
+    this.bidDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta });
     this._id.updateValue(index);
   }
 
@@ -46,6 +49,7 @@ export class DomItem implements IBaseItem {
     this.lastPrice = price;
     const acc = data.getItemData(price);
     this.price.updateValue(price);
+    this.price.isTraded = acc.updatedAt != null;
     this.price.time = acc.time.price;
     // const total = data.total;
     const columns = data.columns;

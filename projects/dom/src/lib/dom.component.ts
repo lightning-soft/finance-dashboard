@@ -1,21 +1,21 @@
 import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
+import { Id } from 'communication';
+import { PriceCell } from './price.cell';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrdersRepository } from 'trading';
+import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
+import { ICellSettings } from '../../../data-grid/src/models/cells/cell';
+import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
-import { histogramComponent, HistogramComponent } from './histogram';
-import { DomFormComponent } from './dom-form/dom-form.component';
-import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { NotifierService } from 'notifier';
-import { OrderSide } from 'trading';
-import { Id } from 'communication';
-import { HistogramOrientation } from './dom-settings/settings-fields';
+import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -331,7 +331,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const ctx = e.ctx;
     const cell = e.cell;
     const value = cell.value;
-    const data = cell.data;
 
     const settings = value.settings;
 
@@ -343,28 +342,43 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (settings.fontColor)
       e.ctx.fillStyle = settings.fontColor;
+
+    if (cell.header.name == 'price') {
+      const s: any = settings;
+      const v: PriceCell = value;
+
+      if (!v.isTraded && s.nonTradedPriceBackColor) {
+        ctx.fillStyle = s.nonTradedPriceBackColor;
+      }
+    }
+
   }
 
   renderCell = (e) => {
-    const ctx = e.ctx;
     const cell = e.cell;
     const value = cell.value;
-    const data = cell.data;
 
-    const name = cell.header.name;
-    const settings = value.settings;
-
-    if (value.time >= this._lastSyncTime)
-      e.ctx.fillStyle = 'red';
+    const settings: ICellSettings = value.settings;
 
     if (!settings)
       return;
+    const ctx = e.ctx;
 
     if (settings.backgroundColor)
-      e.ctx.fillStyle = settings.backgroundColor;
+      ctx.fillStyle = settings.backgroundColor;
 
-    // if (value.time >= this._lastSyncTime)
-    //   e.ctx.fillStyle = 'red';
+    if (cell.header.name == 'price') {
+      const s: any = settings;
+      const v: PriceCell = value;
+
+      if (v.isTraded && s.tradedPriceBackColor) {
+        ctx.fillStyle = s.tradedPriceBackColor;
+      }
+    }
+
+    if (settings.highlightBackgroundColor && value.time >= this._lastSyncTime)
+      ctx.fillStyle = settings.highlightBackgroundColor;
+
   }
 
   afterRenderCell = (e) => {
@@ -391,13 +405,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     switch (value.component) {
       case 'histogram-component':
-        if (settings.enableHistogram == false || !value.hist)
+        const s: IHistogramSettings = settings as IHistogramSettings;
+        if (s.enableHistogram == false || !value.hist)
           return;
 
         ctx.save();
-        ctx.fillStyle = settings.histogramColor ?? 'grey';
-        if (settings.HistogramOrientation == 'right') {
-          ctx.fillRect(cell.x + cell.width, cell.y, cell.width - cell.width * value.hist, cell.height);
+        ctx.fillStyle = s.histogramColor ?? 'grey';
+        if (s.histogramOrientation == 'right') {
+          ctx.fillRect(cell.x + cell.width * (1 - value.hist), cell.y, cell.width * value.hist, cell.height);
         } else {
           ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
         }
@@ -446,7 +461,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
-    this.openSettings(true);
+    this.openSettings(false);
 
     // for debug purposes
     if (!state)
@@ -480,6 +495,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       single: true,
       removeIfExists: hidden,
       hidden,
+      width: 1000,
+      height: 1000,
     });
   }
 

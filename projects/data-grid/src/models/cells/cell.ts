@@ -1,14 +1,34 @@
 const textBoldClass = ' text-bold';
 
+
+enum TextAlign {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
+
+export interface ICellSettings {
+  backgroundColor?: string;
+  fontColor?: string;
+  textAlign?: TextAlign;
+  highlightBackgroundColor?: string;
+  fontSize?: number;
+}
+
 export interface ICell {
   component?: string;
   value: string;
   class?: string;
   colSpan?: number;
+  settings?: ICellSettings;
 
   updateValue(...args: any[]);
 
   clear();
+}
+
+export interface ICellConfig {
+  settings?: ICellSettings;
 }
 
 export abstract class Cell implements ICell {
@@ -17,7 +37,11 @@ export abstract class Cell implements ICell {
   class = '';
   colSpan = 0;
   _bold: boolean;
+  settings = {};
 
+  constructor(config?: ICellConfig) {
+    this.settings = config?.settings ?? {};
+  }
 
   set bold(value: boolean) {
     if (this._bold === value) {

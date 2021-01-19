@@ -1,17 +1,13 @@
-import { AddClassStrategy, NumberCell } from 'data-grid';
-import { TextAlign } from 'dynamic-form';
+import { AddClassStrategy, ICellSettings, NumberCell } from 'data-grid';
 import { HistogramOrientation } from '../dom-settings/settings-fields';
 
 export const histogramComponent = 'histogram-component';
 
-interface IHistogramSettings {
-  backgroundColor: string;
-  fontColor: string;
-  textAlign: TextAlign;
-  orientation: HistogramOrientation;
+export interface IHistogramSettings extends ICellSettings {
+  histogramOrientation: HistogramOrientation;
   highlightBackgroundColor: string;
   histogramColor: string;
-  fontSize: number;
+  enableHistogram: boolean;
 }
 
 export class HistogramCell extends NumberCell {
