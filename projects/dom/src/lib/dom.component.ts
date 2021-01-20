@@ -8,7 +8,16 @@ import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderSto
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
+import {
+  IConnection,
+  IInstrument,
+  ITrade,
+  L2,
+  Level1DataFeed,
+  Level2DataFeed,
+  OrderSide,
+  OrdersRepository
+} from 'trading';
 import { ICellSettings } from '../../../data-grid/src/models/cells/cell';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
@@ -28,6 +37,7 @@ class RedrawInfo {
   public get scrolledItems() {
     return this._scrolledItems;
   }
+
   public set scrolledItems(value) {
     this.needRedraw()
     this._scrolledItems = value;
@@ -41,10 +51,12 @@ class RedrawInfo {
     this._needRedraw = false;
   }
 }
+
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
 }
+
 const directionsHints = {
   'window-left': 'Left View',
   'full-screen-window': 'Horizontal View',
@@ -142,7 +154,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._levelTwoDatafeed.subscribe(value);
   }
 
-  get isFormOnTop(){
+  get isFormOnTop() {
     return this.currentDirection === this.directions[topDirectionIndex];
   }
 
@@ -163,6 +175,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _settings: DomSettings = new DomSettings();
+
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
 
   private _lastSyncTime = 0;
 
@@ -471,6 +487,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this.openSettings(true);
+    console.log(this._settings);
 
     // for debug purposes
     if (!state)
@@ -502,10 +519,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
-      removeIfExists: hidden,
+      removeIfExists: true,
       hidden,
-      width: 1000,
-      height: 1000,
     });
   }
 

@@ -11,6 +11,9 @@ export class DailyInfoComponent {
   @Input() dailyInfo: IHistoryItem;
   @Input() prevItem: IHistoryItem;
   @Input() instrument;
+  @Input() showInstrumentChange: boolean;
+  @Input() showOHLVInfo: boolean;
+
   @Input() set trade(value: ITrade) {
     if (this.dailyInfo && this.shouldUpdateCurrentItem(value)) {
       this.dailyInfo.close = value.price;
