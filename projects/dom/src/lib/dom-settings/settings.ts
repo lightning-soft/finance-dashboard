@@ -3,11 +3,6 @@ import { TextAlign } from 'dynamic-form';
 import { HistogramOrientation } from './settings-fields';
 
 export class DomSettings {
-  static fromJson(json: any): DomSettings {
-    const settings = new DomSettings();
-    settings.merge(json);
-    return settings;
-  }
 
   general: any = {};
   hotkeys: any = {};
@@ -15,6 +10,26 @@ export class DomSettings {
   common: any = {};
   ltq: any = {
     highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
+  };
+  orderArea = {
+    buyButtonsBackgroundColor: '#2A8AD2',
+    flatButtonsBackgroundColor: '#383A40',
+    buyButtonsFontColor: '#F2F2F2',
+    flatButtonFontColor: '#fff',
+    sellButtonsBackgroundColor: '#DC322F',
+    cancelButtonBackgroundColor: '#51535A',
+    sellButtonsFontColor: '#F2F2F2',
+    cancelButtonFontColor: '#fff',
+    formSettings: {
+      showInstrumentChange: true,
+      closePositionButton: true,
+      showOHLVInfo: true,
+      showFlattenButton: true,
+      showPLInfo: true,
+      showIcebergButton: true,
+      roundPL: false,
+      includeRealizedPL: false
+    },
   };
   price: any = {
     backgroundColor: 'rgba(16, 17, 20, 1)',
@@ -40,7 +55,7 @@ export class DomSettings {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
     textAlign: TextAlign.Center,
-     histogramOrientation: HistogramOrientation.Left
+    histogramOrientation: HistogramOrientation.Left
   };
   ask: any = {
     fontColor: 'white',
@@ -48,7 +63,7 @@ export class DomSettings {
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
-     histogramOrientation: HistogramOrientation.Left
+    histogramOrientation: HistogramOrientation.Left
   };
   bidDepth: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
@@ -87,6 +102,12 @@ export class DomSettings {
     fontColor: '#4895F5',
     histogramColor: 'rgba(72, 149, 245, 0.4)',
   };
+
+  static fromJson(json: any): DomSettings {
+    const settings = new DomSettings();
+    settings.merge(json);
+    return settings;
+  }
 
   merge(data: Partial<DomSettings>) {
     for (const key in data) {

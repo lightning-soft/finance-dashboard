@@ -18,6 +18,8 @@
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
               [prevItem]="domForm.prevItem"
+              [showInstrumentChange]="domFormSettings.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
     class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">
@@ -45,9 +47,9 @@
     <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
       [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
+      [domSettings]="domFormSettings"
       [isExtended]="isExtended"
-      [class.extended]="isExtended"
-      class="{{currentDirection}}"></dom-form>
+      class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
     <data-grid #grid [columns]="columns" detach="true"

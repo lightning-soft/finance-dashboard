@@ -4,6 +4,8 @@
     [class.selected]="isCurrentValue(item)"
     (click)="updateValue(item)"
     nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
+  <ng-content select="[ice]"></ng-content>
   <ng-content select="[iceAmount]"></ng-content>
   <ng-content select="[marketAmount]"></ng-content>
+
 </div>

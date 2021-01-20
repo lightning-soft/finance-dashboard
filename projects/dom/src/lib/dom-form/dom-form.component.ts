@@ -15,6 +15,17 @@ const historyParams = {
   BarCount: 10
 };
 
+export interface DomFormSettings {
+  showInstrumentChange: boolean;
+  closePositionButton: boolean;
+  showOHLVInfo: boolean;
+  showFlattenButton: boolean;
+  showPLInfo: boolean;
+  showIcebergButton: boolean;
+  roundPL: boolean;
+  includeRealizedPL: boolean;
+}
+
 @Component({
   selector: 'dom-form',
   templateUrl: './dom-form.component.html',
@@ -30,6 +41,25 @@ export class DomFormComponent extends FormComponent<any> {
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
 
+  _settings: DomFormSettings = {
+    showInstrumentChange: true,
+    closePositionButton: true,
+    showOHLVInfo: true,
+    showFlattenButton: true,
+    showPLInfo: true,
+    showIcebergButton: true,
+    roundPL: false,
+    includeRealizedPL: false,
+  };
+
+  get setting() {
+    return this._settings;
+  }
+
+  @Input() set domSettings(value) {
+    Object.assign(this._settings, value);
+  }
+
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id)
       this.instrument$.next(value);
@@ -39,11 +69,20 @@ export class DomFormComponent extends FormComponent<any> {
     return this.instrument$.getValue();
   }
 
-  get isTypeIce() {
-    return this.formValue.type === OrderType.ICE;
+  get isIce() {
+    return this.formValue.isIce;
   }
+
+  get isIceEnabled() {
+    return this.setting.showIcebergButton;
+  }
+
   get isTypeStopLimit() {
     return this.formValue.type === OrderType.StopLimit;
+  }
+
+  get isIceAmountVisible() {
+    return this.isIce && this.isIceEnabled && this.isTypeStopLimit;
   }
 
   amountButtons = [
@@ -126,6 +165,7 @@ export class DomFormComponent extends FormComponent<any> {
         unit: 'ticks'
       }),
       amount: new FormControl(1),
+      isIce: new FormControl(false),
       iceAmount: new FormControl(10),
 
     });
@@ -137,11 +177,19 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   getPl() {
+    const precision = this.setting.roundPL ? 0 : 5;
     if (this.dailyInfo)
-      return (+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open);
+      return ((+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open))
+        .toFixed(precision);
   }
 
 
+  toggleIce() {
+    const { isIce } = this.formValue;
+    this.form.patchValue({
+      isIce: !isIce
+    });
+  }
 }
 
 

@@ -54,6 +54,24 @@ small {
   border-radius: 0;
 }
 
+.ant-switch-small {
+  height: 13px;
+
+  &:after {
+    width: 9px;
+    height: 9px;
+
+  }
+}
+
+.ant-switch-checked {
+  background: rgba($primary, 0.2);
+
+  &:after {
+    background: $primary;
+  }
+}
+
 button {
   outline: none;
   box-shadow: none;
@@ -166,6 +184,7 @@ button {
 .bracket-active {
   color: $primary;
 }
+
 .ant-input-number:focus, .ant-input-number-focused {
   box-shadow: none;
 }
@@ -211,6 +230,7 @@ nz-input-number {
     height: 50% !important;
   }
 }
+
 .wm-header-btn {
   width: 20px;
   height: 20px;

@@ -1,9 +1,11 @@
 <cdk-virtual-scroll-viewport itemSize="">
   <form [formGroup]="form" class="form-layout">
     <daily-info [instrument]="instrument"
+                [showInstrumentChange]="setting.showInstrumentChange"
+                [showOHLVInfo]="setting.showOHLVInfo"
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
-    <input class="pl-input" disabled [value]="getPl()" nz-input type="number">
+    <input [class.d-none]="!setting.showPLInfo" class="pl-input" disabled [value]="getPl()" nz-input type="number">
     <button title="Positions" class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
     <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select formControlName="type" class="type-select">
@@ -23,7 +25,10 @@
       </nz-input-number>
         </span>
       </span>
-      <span [class.d-none]="!isTypeIce" class="ice-amount">
+      <span class="{{isTypeStopLimit && isIceEnabled? 'd-flex': 'd-none'}} ice-button">
+        <button (click)="toggleIce()" nz-button [class.selected]="isIce">Ice</button>
+      </span>
+      <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
        <button
          nz-tooltip nzTooltipTitle="Edit the number"
          (contextmenu)="editIceAmount = true;"
@@ -39,7 +44,7 @@
     </span>
     </div>
     <type-buttons class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
-          <span [class.d-none]="!isTypeIce" class="ice-amount" iceAmount>
+          <span [class.d-none]="!isIceAmountVisible" class="ice-amount" iceAmount>
        <button
          nz-tooltip nzTooltipTitle="Edit the number"
          (contextmenu)="editIceAmount = true;"
@@ -66,6 +71,9 @@
       </nz-input-number>
         </span>
       </div>
+      <span ice class="{{isTypeStopLimit && isIceEnabled? 'd-inline-block': 'd-none'}} ice-button">
+        <button [class.selected]="isIce" nz-button (click)="toggleIce()">Ice</button>
+      </span>
     </type-buttons>
 
 
@@ -86,8 +94,8 @@
       <button class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
     </div>
     <div class="bottom-btns">
-      <button nz-button>CLOSE POSITION</button>
-      <button class="flatten" nz-button>FLATTEN</button>
+      <button [class.d-none]="!setting.closePositionButton" nz-button>CLOSE POSITION</button>
+      <button [class.d-none]="!setting.showFlattenButton" class="flatten" nz-button>FLATTEN</button>
     </div>
   </form>
 </cdk-virtual-scroll-viewport>

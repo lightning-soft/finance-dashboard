@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NzInputModule } from 'ng-zorro-antd';
+import { NzInputModule, NzSwitchModule } from 'ng-zorro-antd';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
@@ -9,10 +9,11 @@ import { FieldType } from './field';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { NumberInputComponent } from './number-input/number-input.component';
 import { TextAlignComponent } from './text-align/text-align.component';
+import { SwitchComponent } from './switch/switch.component';
 
 
 @NgModule({
-  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent],
+  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent, SwitchComponent],
   imports: [
     CommonModule,
     ColorPickerModule,
@@ -28,11 +29,15 @@ import { TextAlignComponent } from './text-align/text-align.component';
         },
         {
           name: FieldType.Number, component: NumberInputComponent,
+        },
+        {
+          name: FieldType.Switch, component: SwitchComponent,
         }
       ]
     }),
     FormlyNgZorroAntdModule,
     NzInputModule,
+    NzSwitchModule,
   ],
   exports: [FormlyModule]
 })

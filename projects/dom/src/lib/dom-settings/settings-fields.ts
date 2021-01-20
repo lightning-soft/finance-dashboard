@@ -96,23 +96,32 @@ function lowerFirstLetter(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
-// function getRadio(key: string, label: string, options: { label: string, value: string }[] | string[]) {
-//   const _options = (options as Array<any>).map(item => {
-//     if (typeof item === 'string') {
-//       return { label: item, value: item };
-//     }
-//     return item;
-//   });
-//   return {
-//     key,
-//     type: FieldType.Radio,
-//     templateOptions: { label, options: _options }
-//   };
-// }
+function getRadio(key: string, options: { label: string, value: string }[] | string[]) {
+  const _options = (options as Array<any>).map(item => {
+    if (typeof item === 'string') {
+      return { label: item, value: item };
+    }
+    return item;
+  });
+  return {
+    key,
+    type: FieldType.Radio,
+    templateOptions: { options: _options }
+  };
+}
 
 export enum HistogramOrientation {
   Left = 'left',
   Right = 'right'
+}
+
+function wrapFullWidth(configField) {
+  return wrapWithClass(configField, 'w-100');
+}
+
+function wrapWithClass(configField, className) {
+  return { ...configField, className };
+
 }
 
 function getHistogramOrientation(key: string = 'histogramOrientation', label: string = 'Histogram Orientation'): IFieldConfig {
@@ -147,8 +156,19 @@ function getTextAlign(key: string = 'textAlign', label = 'Text align') {
   };
 }
 
-function getCheckboxes(checkboxes: { key: string, label: string }[], label?: string,
-  additionalFields: FormlyFieldConfig[] = [], config = {}) {
+function getSwitch(key, label, config = {}) {
+  return {
+    ...config,
+    key,
+    type: FieldType.Switch,
+    templateOptions: {
+      label
+    },
+  };
+}
+
+function getCheckboxes(checkboxes: { key: string, label: string, config?: any }[], label?: string,
+                       additionalFields: FormlyFieldConfig[] = [], config = {}) {
   return {
     wrappers: ['form-field'],
     templateOptions: {
@@ -156,6 +176,7 @@ function getCheckboxes(checkboxes: { key: string, label: string }[], label?: str
     },
     fieldGroupClassName: 'd-flex two-rows flex-wrap',
     fieldGroup: [...checkboxes.map(item => {
+      const checkboxConfig = item.config || {};
       return {
         key: item.key,
         fieldGroupClassName: 'checkbox-wrapper',
@@ -164,6 +185,7 @@ function getCheckboxes(checkboxes: { key: string, label: string }[], label?: str
           label: item.label,
           defaultValue: false,
         },
+        ...checkboxConfig
       };
     }), ...additionalFields],
     ...config,
@@ -213,8 +235,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-          { label: 'Monospace', value: 'monospace' },
-          { label: 'Sans Serif', value: 'sans-serif' }],
+            { label: 'Monospace', value: 'monospace' },
+            { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -442,12 +464,12 @@ export const generalFields: IFieldConfig[] = [
     key: 'general',
     fieldGroup: [
       getCheckboxes([
-        { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-        { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-        { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-        { label: 'Re-Center On New Position', key: 'recenter' },
-        { label: 'All Windows', key: 'allWindows' },
-      ],
+          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          { label: 'Re-Center On New Position', key: 'recenter' },
+          { label: 'All Windows', key: 'allWindows' },
+        ],
         'Reset settings'),
     ]
   }),
@@ -577,14 +599,14 @@ export const generalFields: IFieldConfig[] = [
 
 export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Last Traded Quantity (LTQ)',
-    key: 'ltq',
-    fieldGroup: [
-      ...histogramFields,
-      getColor('Buy Background Color'),
-      getColor('Sell Background Color'),
-    ]
-  },
+      label: 'Last Traded Quantity (LTQ)',
+      key: 'ltq',
+      fieldGroup: [
+        ...histogramFields,
+        getColor('Buy Background Color'),
+        getColor('Sell Background Color'),
+      ]
+    },
   ),
   {
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -595,6 +617,64 @@ export const ltqFields: IFieldConfig[] = [
   }
 ];
 
+function buttonApplier(selector, value) {
+  if (value) {
+    const buttonSelector = ` ${selector}, ${selector}:hover, ${selector}:focus, ${selector}:focus-within`;
+    return { [buttonSelector]: value };
+  }
+}
+
+export const orderAreaFields: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Order Area',
+    fieldGroup: [
+      getColor('Buy Buttons Background Color', (background) => {
+        return buttonApplier('.cxl-buy', { background: `${background}!important` });
+      }),
+      getColor('Flat Buttons Background Color', (background) => {
+        return buttonApplier('.flatten', { background: `${background}!important` });
+      }),
+      getColor('Buy Buttons Font Color', (color) => {
+        return buttonApplier('.cxl-buy', { color });
+      }),
+      getColor('Flat Button Font Color', (color) => {
+        return buttonApplier('.flatten', { color });
+      }),
+      getColor('Sell Buttons Background Color', (background) => {
+        return buttonApplier('.cxl-sell', { background: `${background}!important` });
+      }),
+      getColor('Cancel Button Background Color', (background) => {
+        return buttonApplier('.cxl-all', { background: `${background}!important` });
+      }),
+      getColor('Sell Buttons Font Color', (color) => {
+        return buttonApplier('.cxl-sell', { color });
+      }),
+      getColor('Cancel Button Font Color', (color) => {
+        return buttonApplier('.cxl-all', { color });
+      }),
+      {
+        key: 'formSettings',
+        className: 'w-100 ml-1',
+        fieldGroup: [
+          getCheckboxes([
+            { key: 'showInstrumentChange', label: 'Show Instrument Change' },
+            { key: 'closePositionButton', label: 'Show Close Position Button' },
+            { key: 'showOHLVInfo', label: 'Show OHLV Info' },
+            { key: 'showFlattenButton', label: 'Show Flatten Button' },
+            { key: 'showIcebergButton', label: 'Show Iceberg Button', config: { className: 'w-100 iceberg-checkbox' } },
+          ]),
+          wrapWithClass(getCheckboxes([
+            { key: 'showPLInfo', label: 'Show PL Info' },
+            { key: 'roundPL', label: 'Round PL to whole numbers' },
+          ]), 'm-0'),
+          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized Pl',
+            { hideExpression: '!model.showPLInfo' }
+          ), 'ml-4'),
+        ],
+      }
+    ],
+  }),
+];
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Price',
@@ -744,7 +824,7 @@ export const orderColumnFields: IFieldConfig[] = [
     key: 'tradeColumn',
     fieldGroup: [
       getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-      { key: 'includePnl', label: 'Include Closed PnL' }]),
+        { key: 'includePnl', label: 'Include Closed PnL' }]),
       getTextAlign(),
     ]
   }),
@@ -801,7 +881,6 @@ function getCurrentFields(suffix: string) {
 }
 
 
-
 export const noteColumnFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -828,6 +907,7 @@ export enum SettingTab {
   Hotkeys = 'hotkeys',
   Columns = 'columns',
   Common = 'common',
+  OrderArea = 'orderArea',
   LTQ = 'ltq',
   Price = 'price',
   BidDelta = 'bidDelta',
@@ -852,6 +932,7 @@ export const SettingsConfig = {
   [SettingTab.Hotkeys]: hotkeyFields,
   [SettingTab.LTQ]: ltqFields,
   [SettingTab.Price]: priceFields,
+  [SettingTab.OrderArea]: orderAreaFields,
   [SettingTab.BidDelta]: getDeltaFields('Bid Delta'),
   [SettingTab.AskDelta]: getDeltaFields('Ask Delta'),
   [SettingTab.BidDepth]: bidDepthFields,
@@ -872,7 +953,7 @@ export function getDefaultSettings(value: any = SettingsConfig) {
     return getDefaultSettings(value.fieldGroup).reduce((acc, i) => ({ ...acc, ...i }), {});
 
   if (Array.isArray(value))
-    return value.map(getDefaultSettings)
+    return value.map(getDefaultSettings);
 
   if (value.default || value.type != null)
     return { [value.key]: value.default };
@@ -881,8 +962,8 @@ export function getDefaultSettings(value: any = SettingsConfig) {
   const keys = Object.keys(value);
 
   for (const key of keys) {
-    result[key] = getDefaultSettings(value[key])
+    result[key] = getDefaultSettings(value[key]);
   }
 
   return result;
-};
+}

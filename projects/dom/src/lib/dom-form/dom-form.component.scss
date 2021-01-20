@@ -18,6 +18,13 @@ $selectHeight: 22px;
 
       .ice-amount {
         margin-left: 0;
+        grid-row-start: 2;
+        grid-column-start: 5;
+      }
+
+      .ice-amount, .ice-button button {
+        margin-top: 0;
+        width: 53px;
       }
 
       .ticks {
@@ -79,7 +86,7 @@ $selectHeight: 22px;
         grid-column-end: span 4;
 
         nz-input-number {
-          width: 53px;
+          width: 49px;
         }
 
         .amount-input {
@@ -91,12 +98,18 @@ $selectHeight: 22px;
         }
       }
 
-      .ice-amount {
-        margin-top: 0;
-        width: 53px;
-      }
+
     }
 
+    &.slim {
+      .ice-button, .ice-amount {
+        margin-left: 4px;
+        margin-top: 0;
+        button {
+          margin-top: 0;
+        }
+      }
+    }
 
     type-buttons, .ticks, .bottom-btns {
       margin-top: 5px;
@@ -220,13 +233,19 @@ $selectHeight: 22px;
   }
 }
 
-.ice-amount {
+.ice-amount, .ice-button {
   width: 48%;
   margin-left: 2px;
+
 
   button {
     width: 100%;
   }
+}
+
+.ice-button {
+  margin-left: 0;
+  margin-right: 2px;
 }
 
 .amount-number {
@@ -392,6 +411,11 @@ button.top-position-btn {
 
   button {
     width: 100%;
+    border: none;
+
+    &:hover, &:focus, &:focus-within {
+      border: none;
+    }
   }
 }
 
