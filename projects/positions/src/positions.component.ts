@@ -8,8 +8,6 @@ import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, Positio
 import { PositionItem } from './models/position.item';
 
 
-
-
 const headers = [
   'account',
   'price',
@@ -19,7 +17,8 @@ const headers = [
   'total',
 ];
 
-export interface PositionsComponent extends ILayoutNode { }
+export interface PositionsComponent extends ILayoutNode {
+}
 
 @Component({
   selector: 'position-list',
@@ -32,16 +31,9 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
 
   protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
 
-  private _columns: Column[] = [];
+  public _columns: Column[] = [];
 
-  get columns() {
-    const closeColumn: Column = {
-      name: 'close',
-      visible: true,
-    };
 
-    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
-  }
 
   private _isList = true;
 
@@ -116,6 +108,14 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
     this.setTabTitle('Positions');
   }
 
+  getColumns() {
+    const closeColumn: Column = {
+      name: 'close',
+      visible: true,
+    };
+    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
+  }
+
   groupItems() {
     this.builder.groupItems('accountId', account => {
       const groupedItem = new PositionItem();
@@ -123,7 +123,7 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
       groupedItem.account = new DataCell();
       groupedItem.account.updateValue(account);
       groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.columns.length - 1;
+      groupedItem.account.colSpan = this.getColumns().length - 1;
 
       return groupedItem;
     });
@@ -151,7 +151,7 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
   }
 
   protected _deleteItem(item: IPosition) {
-    return this.repository.deleteItem(item) ;
+    return this.repository.deleteItem(item);
   }
 
   handleAccountChange(accountId: Id): void {

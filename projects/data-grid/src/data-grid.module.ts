@@ -8,18 +8,15 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzTransferModule } from 'ng-zorro-antd/transfer';
 import { DataGrid } from './components/data-grid/data-grid.component';
 import { ItemViewBuilder } from './components/item-view-builder';
-import { ModalComponent } from './components/modal/modal.component';
 import { ResizableModule } from './components/resizable/resizable.module';
 import { IconComponent } from './models/cells/components/icon-conponent';
 import { PriceComponent } from './models/cells/components/price-component';
-import { NzCheckboxModule, NzPopoverModule } from 'ng-zorro-antd';
-import {FormsModule} from '@angular/forms';
+import { NzCheckboxModule, NzDropDownModule, NzPopoverModule } from 'ng-zorro-antd';
 
 const entryComponents = [
   DataGrid,
   IconComponent,
   PriceComponent,
-  ModalComponent,
 ];
 
 @NgModule({
@@ -33,8 +30,8 @@ const entryComponents = [
         NzModalModule,
         NzIconModule,
         NzCheckboxModule,
-        FormsModule,
-        NzPopoverModule
+        NzPopoverModule,
+        NzDropDownModule
     ],
   declarations: [
     ItemViewBuilder,

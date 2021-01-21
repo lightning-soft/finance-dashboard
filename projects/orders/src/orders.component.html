@@ -1,4 +1,4 @@
-<window-header (contextmenu)="$event.preventDefault();grid.createComponentModal()" className="widget" [window]="this">
+<window-header (contextmenu)="grid.createComponentModal($event)" className="widget" [window]="this">
   <account-select
     size="small"
     className="custom-form-control"

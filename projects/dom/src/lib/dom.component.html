@@ -1,4 +1,4 @@
-<window-header  (contextmenu)="$event.preventDefault();grid.createComponentModal()" [window]="this">
+<window-header  (contextmenu)="grid.createComponentModal($event)" [window]="this">
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
 </window-header>
 <div class="window-header-button">

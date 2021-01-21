@@ -11,11 +11,11 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
-import { ModalComponent } from '../modal/modal.component';
 import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { NzPopoverDirective } from 'ng-zorro-antd';
+import { NzContextMenuService } from 'ng-zorro-antd';
+import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 
 declare function canvasDatagrid(params: any);
 export interface DataGridItem {
@@ -109,9 +109,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
 
-  @ViewChild(ModalComponent)
-  modalComponent: ModalComponent;
-  @ViewChild(NzPopoverDirective) popover: NzPopoverDirective;
+  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
 
   @Input()
   handlers: DataGridHandler[] = [];
@@ -176,8 +174,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private modalService: NzModalService,
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
-    private container: ElementRef
-  ) {
+    private container: ElementRef,
+    private nzContextMenuService: NzContextMenuService,
+) {
   }
 
   ngOnInit(): void {
@@ -497,29 +496,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     ];
   }
 
-  createComponentModal($event?): void {
-    console.log($event);
-    console.log(this.popover);
-    this.showContextMenu = !this.showContextMenu;
-
-    /*   const modal = this.modalService.create({
-         nzContent: ModalComponent,
-         nzFooter: null,
-         nzWrapClassName: 'modal-data-grid',
-         nzViewContainerRef: this.viewContainerRef,
-         nzComponentParams: {
-           columns: [...this.columns],
-           showHeaders: this.showHeaders,
-         },
-       });
-
-       modal.afterClose.subscribe(result => {
-         if (result) {
-           this.columns = result.columns;
-           this.showHeaders = result.showHeaders;
-           this.activeColumns = this.columns.filter((column: Column) => column.visible);
-         }
-       });*/
+  createComponentModal($event): void {
+    $event.preventDefault();
+    this.nzContextMenuService.create($event, this.contextMenuComponent);
   }
 
   trackByFn(item) {

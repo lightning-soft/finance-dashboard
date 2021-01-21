@@ -7,6 +7,8 @@
 // }
 
 // @import "themes/index";
+@import "~src/scss/variables";
+
 :host {
   display: block;
   height: 100%;
@@ -110,4 +112,51 @@
   //   }
   // }
 
+}
+
+::ng-deep {
+  .columns-items {
+    background: #24262C !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    border-radius: 2px !important;
+
+    .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+      background: #1B1D22 !important;
+    }
+
+    .ant-menu-item {
+      color: $text-80;
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      font-size: 0.9rem;
+      color: $text-80;
+      border-radius: 2px;
+    }
+
+    .ant-menu-item:hover, {
+      background: #1B1D22 !important;
+      border-radius: 2px;
+    }
+
+    .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+      margin: 7px 5px 5px;
+      background-color: #51535A;
+    }
+
+    .ant-dropdown-menu-item:hover, .ant-dropdown-menu-submenu-title:hover {
+      color: white;
+
+      .ant-checkbox-wrapper {
+        color: white;
+      }
+    }
+
+    .ant-checkbox-wrapper {
+      color: $text-80;
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+  }
 }

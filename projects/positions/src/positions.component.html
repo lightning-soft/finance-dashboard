@@ -1,5 +1,5 @@
 <!-- {{builder.items | json}} -->
-<window-header (contextmenu)="$event.preventDefault();grid.createComponentModal()" className="widget" [window]="this">
+<window-header (contextmenu)="grid.createComponentModal($event)" className="widget" [window]="this">
   <account-select
     size="small"
     className="custom-form-control"
@@ -15,4 +15,4 @@
   </div>
 </div>
 
-<data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+<data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="_columns"></data-grid>
