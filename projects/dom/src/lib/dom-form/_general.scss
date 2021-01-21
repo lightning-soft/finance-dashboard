@@ -5,7 +5,7 @@ button, button:hover, button:active, button:focus-within {
   transition: all 0.3s;
   color: white;
   margin-top: 2px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   height: 24px;
   padding: 0;
   display: flex;
@@ -13,9 +13,11 @@ button, button:hover, button:active, button:focus-within {
   align-items: center;
 }
 
-:host-context(.full-screen-window) button, button:hover, button:active, button:focus-within {
-  padding-left: 15px;
-  padding-right: 15px;
+:host-context(.full-screen-window) {
+  button, button:hover, button:active, button:focus-within {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 }
 
 .black-btn, .black-btn:hover, .black-btn:active, .black-btn:focus-within {
@@ -32,7 +34,7 @@ button:hover, button.selected {
   margin-top: 10px;
 
   & > * {
-    width: 48%;
+    width: 47%;
 
     &:nth-child(odd) {
       margin-right: 2px;
@@ -51,7 +53,7 @@ button:hover, button.selected {
 
     & > * {
       margin-top: 0;
-      min-width: 35px;
+      min-width: 44px;
 
       &:nth-child(odd) {
         margin-right: 0px;

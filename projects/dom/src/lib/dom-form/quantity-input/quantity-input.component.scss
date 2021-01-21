@@ -18,3 +18,13 @@
 nz-input-number {
   margin-top: 2px;
 }
+:host .ant-input-number {
+  width: 43px;
+  font-size: 0.8rem;
+
+  ::ng-deep {
+    .ant-input-number-input {
+      padding-left: 5px;
+    }
+  }
+}
