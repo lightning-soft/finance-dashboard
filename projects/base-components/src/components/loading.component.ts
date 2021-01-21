@@ -2,10 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { IBaseItem, Repository } from 'communication';
+import { AccountsManager } from 'accounts-manager';
+import { IBaseItem, RealtimeAction, Repository } from 'communication';
 import { NotifierService } from 'notifier';
 import { finalize } from 'rxjs/operators';
 import { isEqual } from 'underscore';
+import { Subscription } from 'rxjs';
+import { IConnection } from 'trading';
 
 type HideLoader = () => void;
 
@@ -24,6 +27,7 @@ export interface IAutoLoadDataConfig {
 
 export interface ILoadingComponentConfig {
   autoLoadData?: false | IAutoLoadDataConfig;
+  subscribeToConnections?: boolean;
 }
 
 export function getDefaultLoadingItemConfig(): ILoadingComponentConfig {
@@ -34,6 +38,7 @@ export function getDefaultLoadingItemConfig(): ILoadingComponentConfig {
       onQueryParamsChange: true,
       onConnectionChange: true,
     },
+    subscribeToConnections: true,
   };
 }
 
@@ -56,6 +61,14 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
 
   set autoLoadData(value: false | IAutoLoadDataConfig) {
     this.config.autoLoadData = value;
+  }
+
+  set subscribeToConnections(value: boolean) {
+    this.config.subscribeToConnections = value;
+  }
+
+  get subscribeToConnections() {
+    return this.config.subscribeToConnections;
   }
 
   get loading() {
@@ -127,6 +140,10 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
 
   protected _injector?: Injector;
 
+  protected _accountsManager: AccountsManager;
+
+  protected _repositorySubscription: Subscription;
+
   initDepndencies() {
     const injector = this._injector;
 
@@ -135,6 +152,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
 
     this._route = injector.get(ActivatedRoute);
     this._router = injector.get(Router);
+    this._accountsManager = injector.get(AccountsManager);
     this._notifier = injector.get(NotifierService, null);
   }
 
@@ -154,8 +172,60 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
         .pipe(untilDestroyed(this))
         .subscribe((params) => this._onQueryParamsChanged(params));
 
+    if (this.subscribeToConnections)
+      this._subscribeToConnections();
+
     // this.subscribeToRealtime();
   }
+
+  protected _subscribeToConnections() {
+    this._accountsManager = this._injector.get(AccountsManager);
+
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+
+        this._repositorySubscription?.unsubscribe();
+
+        if (connection) {
+          const repository = this._repository as any;
+
+          if (repository?.forConnection) {
+            this.repository = repository.forConnection(connection);
+
+            this._repositorySubscription = this._subscribeToRepository();
+          }
+        }
+
+        this._handleConnection(connection);
+      });
+  }
+
+  protected _handleConnection(connection: IConnection) { }
+
+  protected _subscribeToRepository(): Subscription {
+    if (!this.repository) {
+      return;
+    }
+
+    return this.repository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe(({ action, items }) => {
+        switch (action) {
+          case RealtimeAction.Create:
+            this._handleCreateItems(items);
+            break;
+          case RealtimeAction.Update:
+            this._handleUpdateItems(items);
+            break;
+          case RealtimeAction.Delete:
+            this._handleDeleteItems(items);
+            break;
+        }
+      });
+  }
+
 
   subscribeToRealtime() {
     // if (this._provider) {
@@ -319,6 +389,8 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   }
 
   ngOnDestroy(): void {
-    // console.log('ngOnDestroy', this.constructor.name);
+    console.log('ngOnDestroy', this.constructor.name);
+    if (this._repositorySubscription?.unsubscribe)
+      this._repositorySubscription.unsubscribe();
   }
 }

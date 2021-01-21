@@ -4,7 +4,7 @@
 :host {
   margin: 0 16px;
   flex-grow: 1;
-  background-color: transparent!important;
+  background-color: transparent !important;
 
   .frames-manager {
     display: flex;
@@ -62,6 +62,21 @@
   }
 }
 
+.window-count {
+  font-weight: 600;
+  background: #24262C;
+  border-radius: 1px;
+  font-size: 0.8rem;
+  margin-right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0.9rem;
+  width: 0.9rem;
+  line-height: 1.1rem;
+  color: $primary;
+  text-align: center;
+}
 
 .windows-list {
   position: absolute;
@@ -71,7 +86,7 @@
   border-radius: 2px;
   z-index: 41;
   transition: transform 0.3s ease-out;
-  background-color: $lightBackground!important;
+  background-color: $lightBackground !important;
 }
 
 .windows-list {
@@ -85,11 +100,11 @@
     text-align: center;
     line-height: 32px;
     border-radius: 2px;
-    background-color: $tabFrameColor!important;
+    background-color: $tabFrameColor !important;
 
     &:hover {
-      color: $titleColor!important;
-      background-color: $bodyBackground!important;
+      color: $titleColor !important;
+      background-color: $bodyBackground !important;
     }
   }
 }

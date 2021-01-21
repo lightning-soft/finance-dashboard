@@ -1,22 +1,18 @@
-<table #tableContainer>
-  <thead
-    [nzPopoverTrigger]="'click'" nzPopoverPlacement="bottom" [(nzPopoverVisible)]="showContextMenu" nz-popover
-    [nzPopoverContent]="contentTemplate"
-    (contextmenu)="$event.preventDefault(); createComponentModal($event)">
+<div class="grid" #tableContainer></div>
+<!-- <table #tableContainer>
+  <thead>
   <tr>
-    <ng-container *ngIf="showHeaders">
-      <th
-        [height]="rowHeight"
-        [style.top]="inverseTranslation"
-        *ngFor="let column of activeColumns; let ind = index"
-        class="head cell data"
-        [width]="100"
-        [title]="column">{{column.name}}
-      </th>
-    </ng-container>
+    <th
+      [height]="rowHeight"
+      [style.top]="inverseTranslation"
+      *ngFor="let column of activeColumns; let ind = index"
+      class="head cell data"
+      [width]="100"
+      [title]="column.name">{{column.name}}
+    </th>
   </tr>
   </thead>
-  <tbody>
+  <tbody class="data-grid-body">
   <tr
     [attr.data-row]="i"
     *ngFor="let item of items; let i = index; trackBy: trackByFn"
@@ -45,13 +41,10 @@
   </tr>
   </tbody>
   <tfoot>
-  <tr>
-    <td colspan="4" [style.height.px]="rowHeight">
-      <ng-content select="instrument-select"></ng-content>
-    </td>
-  </tr>
+    <tr>
+      <td colspan="4" [style.height.px]="rowHeight">
+        <ng-content select="instrument-select"></ng-content>
+      </td>
+    </tr>
   </tfoot>
-</table>
-<ng-template #contentTemplate>
-  <modal-component [columns]="columns" [showHeaders]="showHeaders"></modal-component>
-</ng-template>
+</table> -->

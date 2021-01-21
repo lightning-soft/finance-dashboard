@@ -35,12 +35,13 @@ export class AccountComponent implements OnInit {
   }
 
   logout(): void {
-    this._authService.logOut()
-      .subscribe(
-        (res) => console.log(res),
-        (e) => console.error(e)
-      );
-    this.visible = false;
+    this._authService.logOutWithRedirect();
+    // this._authService.logOut()
+    //   .subscribe(
+    //     (res) => console.log(res),
+    //     (e) => console.error(e)
+    //   );
+    // this.visible = false;
   }
 
   changeName(): void {

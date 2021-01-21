@@ -1,49 +1,64 @@
 <window-header  (contextmenu)="$event.preventDefault();grid.createComponentModal()" [window]="this">
   <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
-  <div class="window-header-button">
-    <button class="wm-header-btn icon-align-center">
-    </button>
-    <button class="wm-header-btn icon-dom-clear-all"></button>
+</window-header>
+<div class="window-header-button">
+  <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
+  </button>
+  <button [title]="'Clear'" class="wm-header-btn icon-dom-clear-all"></button>
 
-    <button class="wm-header-btn icon-setting-gear" (click)="openSettings()">
-    </button>
-    <button class="wm-header-btn icon-dom-bracket"></button>
-    <button class="wm-header-btn icon-dom-strategy"></button>
-    <daily-info [instrument]="instrument"
-                [prevItem]="domForm.prevItem"
-                [class.d-none]="isFormOpen"
-                class="header-daily-info"
-                [dailyInfo]="domForm.dailyInfo"
-                [trade]="trade"></daily-info>
-    <span class="window-icon-container">
-    <i *ngFor="let item of directions"
-       (click)="currentDirection = item"
-       [class.d-none]="!isFormOpen"
-       [class.active]="currentDirection === item" class="icon-{{item}} direction window-icon"></i>
-          <i (click)="isFormOpen = !isFormOpen"
-             [class.active]="isFormOpen"
-             class="icon-widget-orders window-icon large"></i>
-    <i (click)="isLocked = !isLocked"
-       [class.icon-lock]="!isLocked"
-       [class.icon-unlock]="isLocked"
-       class="window-icon large"></i>
+  <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings()">
+  </button>
+  <button
+    [title]="'Bracket'"
+    [class.bracket-active]="bracketActive"
+    (click)="bracketActive = !bracketActive"
+    class="wm-header-btn icon-dom-bracket"></button>
+  <button
+    [title]="'Strategy'"
+    class="wm-header-btn icon-dom-strategy"></button>
+  <daily-info [instrument]="instrument"
+              [prevItem]="domForm.prevItem"
+              [showInstrumentChange]="domFormSettings.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings.showOHLVInfo"
+              [class.d-none]="isFormOpen && !isFormOnTop"
+    class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
+  <span class="window-icon-container">
+    <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
+      <span title="Slim" (click)="isExtended = false" class="slim switch-item">
+        <i [class.text-active]="!isExtended" class="icon-dom-slim"></i>
+      </span>
+      <span title="Normal" (click)="isExtended = true" class="extended switch-item">
+                <i [class.text-active]="isExtended" class="icon-dom-extended"></i>
+
+      </span>
+    </span>
+    <i *ngFor="let item of directions" (click)="currentDirection = item" [title]="directionsHints[item]"
+      [class.d-none]="!isFormOpen" [class.active]="currentDirection === item"
+      class="icon-{{item}} direction window-icon"></i>
+    <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
+      [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
+    <i (click)="isLocked = !isLocked" [class.icon-lock]="!isLocked" [title]="isLocked? 'Lock' : 'Unlock'"
+      [class.icon-unlock]="isLocked" class="window-icon large"></i>
 
   </span>
-  </div>
-</window-header>
+</div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-
-
-    <dom-form
-      [instrument]="instrument"
-      [trade]="trade"
-      #domForm
-      [class.d-none]="!isFormOpen"
-      class="{{currentDirection}}"></dom-form>
+    <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
+      [showUnits]="bracketActive"
+      [isFormOnTop]="isFormOnTop"
+      [domSettings]="domFormSettings"
+      [isExtended]="isExtended"
+      class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [items]="items" [columns]="columns" rowHeight="25" detach="true"></data-grid>
+    <data-grid #grid [columns]="columns" detach="true"
+      [beforeRenderCell]="beforeRenderCell"
+      [renderCell]="renderCell"
+      [afterRenderCell]="afterRenderCell"
+      [renderText]="renderText"
+      [afterDraw]="afterDraw">
+    </data-grid>
   </div>
 
 </div>

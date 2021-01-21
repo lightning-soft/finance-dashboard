@@ -26,6 +26,7 @@ const periodicityMap = new Map([
 export class ToolbarComponent {
 
   showToolbar = true;
+  lastUsedDrawings = [];
 
   timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
@@ -56,18 +57,25 @@ export class ToolbarComponent {
 
   drawingInstruments = [
     {
+      icon: 'text',
+      name: 'General-drawings',
+      items: ['text']
+    },
+    {
+      icon: 'measure',
+      name: 'General-drawings',
+      items: ['measure']
+    },
+    {
+      icon: 'add-image',
+      name: 'General-drawings',
+      items: ['image']
+    },
+    {
       icon: 'chart-market',
       name: 'Chart market',
       items: [
         'dot', 'square', 'diamond', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'arrow', 'note'
-      ]
-    },
-    {
-      icon: 'geometric',
-      name: 'Geometric',
-      items: [
-        'lineSegment', 'horizontalLine', 'verticalLine',
-        'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
       ]
     },
     {
@@ -79,6 +87,14 @@ export class ToolbarComponent {
       ]
     },
     {
+      icon: 'geometric',
+      name: 'Geometric',
+      items: [
+        'lineSegment', 'horizontalLine', 'verticalLine',
+        'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
+      ]
+    },
+    {
       icon: 'trend-channel-drawing',
       name: 'Trend Channel Drawings',
       items: [
@@ -87,26 +103,14 @@ export class ToolbarComponent {
         'tironeLevels', 'speedLines', 'gannFan', 'trendAngle'
       ]
     },
-    {
-      icon: 'text',
-      name: 'General-drawings',
-      items: ['text']
-    },
-    {
-      icon: 'add-image',
-      name: 'General-drawings',
-      items: [ 'image']
-    },
+
+
     // {
     //   icon: 'drawing-baloon',
     //   name: 'General-drawings',
     //   items: ['balloon']
     // },
-    {
-      icon: 'measure',
-      name: 'General-drawings',
-      items: [ 'measure']
-    }
+
   ];
 
   @Input() chart: IChart;
@@ -158,6 +162,10 @@ export class ToolbarComponent {
 
   set iconCross(value: string) {
     this.chart.crossHairType = value;
+  }
+
+  hasOneDrawing(drawingInstrument: any) {
+    return drawingInstrument.items.length === 1;
   }
 
   compareInstrument = (o1: any | string, o2: any) => {
@@ -253,19 +261,30 @@ export class ToolbarComponent {
     chart.cancelUserDrawing();
     const drawing = StockChartX.Drawing.deserialize({ className: name });
     chart.startUserDrawing(drawing);
+    this.addLastUsedDrawing(name);
+  }
+
+  addLastUsedDrawing(name: string) {
+    if (!this.lastUsedDrawings.includes(name)) {
+      this.lastUsedDrawings = [name, ...this.lastUsedDrawings].slice(0, 3);
+    }
   }
 
   removeDrawing() {
     this.chart.removeDrawings();
     this.chart.setNeedsUpdate(true);
   }
+
   stayInDragMode() {
     this.chart.stayInDrawingMode = !this.chart.stayInDrawingMode;
+    this.chart.setNeedsUpdate(true);
   }
+
   visible() {
     this.chart.showDrawings = !this.chart.showDrawings;
     this.chart.setNeedsUpdate(true);
   }
+
   makeSnapshot() {
     this.chart.saveImage();
   }

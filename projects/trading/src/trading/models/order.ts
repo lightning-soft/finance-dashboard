@@ -34,6 +34,7 @@ export enum OrderDuration {
   GTC = 'GTC',
   FOK = 'FOK',
   IOC = 'IOC',
+  DAY = 'DAY'
 }
 
 export enum OrderType {
@@ -43,6 +44,7 @@ export enum OrderType {
   StopLimit = 'StopLimit',
   MIT = 'MIT',
   LIT = 'LIT',
+  ICE = 'ICE'
 }
 
 export enum OrderStatus {

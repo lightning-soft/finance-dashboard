@@ -1,22 +1,68 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { LoadingComponent } from 'base-components';
+import { Id } from 'communication';
+import { PriceCell } from './price.cell';
+import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
-import { HistoryRepository, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed } from 'trading';
+import {
+  IConnection,
+  IInstrument,
+  ITrade,
+  L2,
+  Level1DataFeed,
+  Level2DataFeed,
+  OrderSide,
+  OrdersRepository
+} from 'trading';
+import { ICellSettings } from '../../../data-grid/src/models/cells/cell';
+import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
-import { histogramComponent, HistogramComponent } from './histogram';
+import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
 
-export interface DomComponent extends ILayoutNode {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
+}
+
+class RedrawInfo {
+  _needRedraw = false;
+
+  private _scrolledItems = 0;
+
+  public get scrolledItems() {
+    return this._scrolledItems;
+  }
+
+  public set scrolledItems(value) {
+    this.needRedraw()
+    this._scrolledItems = value;
+  }
+
+  needRedraw() {
+    this._needRedraw = true;
+  }
+
+  markDrawed() {
+    this._needRedraw = false;
+  }
 }
 
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
 }
+
+const directionsHints = {
+  'window-left': 'Left View',
+  'full-screen-window': 'Horizontal View',
+  'window-right': 'Right View',
+};
+const topDirectionIndex = 1;
 
 @Component({
   selector: 'lib-dom',
@@ -32,31 +78,51 @@ interface IDomState {
   ]
 })
 @LayoutNode()
-export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-   // '_id',
+    // '_id',
     'orders',
-    'volumeProfile',
+    ['volumeProfile', 'volume'],
     'price',
-    'bidDelta',
+    ['bidDelta', 'delta'],
     'bid',
     'ltq',
-    'currentBid',
-    'currentAsk',
+    ['currentBid', 'c.bid'],
+    ['currentAsk', 'c.ask'],
     'ask',
-    'askDelta',
-    'totalBid',
-    'totalAsk',
-    'tradeColumn',
-    'askDepth',
-    'bidDepth',
-  ].map(name => ({ name, visible: true }));
+    ['askDelta', 'delta'],
+    ['totalBid', 't.bid'],
+    ['totalAsk', 't.ask'],
+    // 'tradeColumn',
+    // 'askDepth',
+    // 'bidDepth',
+  ]
+    .map(name => Array.isArray(name) ? name : ([name, name]))
+    .map(([name, title]) => ({
+      name,
+      // style: name,
+      title: title.toUpperCase(), visible: true
+    }));
+
+  accountId: Id;
 
   private _dom = new DomHandler();
 
+  @ViewChild(DomFormComponent)
+  private _domForm: DomFormComponent;
+
+  handlers = [
+    ...['bid', 'ask'].map(column => (
+      new CellClickDataGridHandler<DomItem>({
+        column, handler: (item) => this._createOrder(column, item),
+      })
+    )),
+  ];
+
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
-  @ViewChild(DataGrid)
+
+  @ViewChild(DataGrid, { static: true })
   dataGrid: DataGrid;
 
   @ViewChild(DataGrid, { read: ElementRef })
@@ -64,9 +130,13 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   isFormOpen = true;
   isLocked: boolean;
+  bracketActive = true;
+  isExtended = true;
 
-  private _scrolledItems = 0;
+  directionsHints = directionsHints;
+
   private _instrument: IInstrument;
+  private _redrawInfo = new RedrawInfo();
 
   private _priceFormatter: IFormatter;
 
@@ -84,9 +154,19 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._levelTwoDatafeed.subscribe(value);
   }
 
+  get isFormOnTop() {
+    return this.currentDirection === this.directions[topDirectionIndex];
+  }
+
   visibleRows = 0;
 
-  items = [];
+  get items() {
+    return this.dataGrid.items ?? [];
+  }
+
+  set items(value) {
+    this.dataGrid.items = value;
+  }
 
   private _trade: ITrade;
 
@@ -96,18 +176,33 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
 
   private _settings: DomSettings = new DomSettings();
 
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
+
+  private _lastSyncTime = 0;
 
   constructor(
-    private _accountsManager: AccountsManager,
-    private _historyRepository: HistoryRepository,
+    private _ordersRepository: OrdersRepository,
     private _levelOneDatafeed: Level1DataFeed,
+    protected _accountsManager: AccountsManager,
+    protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
-    private _renderer: Renderer2,
+    protected _injector: Injector,
+    private _renderer: Renderer2
   ) {
+    super();
     this.setTabIcon('icon-widget-dom');
+    this.setTabTitle('Dom');
   }
 
   ngOnInit(): void {
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._ordersRepository = this._ordersRepository.forConnection(connection);
+      });
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
@@ -121,15 +216,22 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     });
   }
 
-  scroll = (e: WheelEvent) => {
-    if (e.deltaY > 0) {
-      this._scrolledItems++;
-    } else if (e.deltaY < 0) {
-      this._scrolledItems--;
-    }
-    this._calculate();
+  protected _handleConnection(connection: IConnection) {
+    super._handleConnection(connection);
+    this._ordersRepository = this._ordersRepository.forConnection(connection);
   }
 
+  scroll = (e: WheelEvent) => {
+    const info = this._redrawInfo;
+    if (e.deltaY > 0) {
+      info.scrolledItems++;
+    } else if (e.deltaY < 0) {
+      info.scrolledItems--;
+    }
+
+    this._calculate();
+    e.preventDefault();
+  }
 
   ngAfterViewInit() {
     this._handleResize();
@@ -137,11 +239,17 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
   }
 
+  centralize() {
+    this._redrawInfo.scrolledItems = 0;
+    this._calculate();
+    this.detectChanges();
+  }
+
   detectChanges() {
     this.dataGrid.detectChanges();
   }
 
-  @SynchronizeFrames()
+  // @SynchronizeFrames()
   private _calculateAsync() {
     this._calculate();
     this.dataGrid.detectChanges();
@@ -160,58 +268,181 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     this._calculateAsync();
   }
 
-  private _calculate(move?: number) {
-    const itemsCount = this.visibleRows;
+  private _calculate() {
+    const itemsCount = this.items.length;
 
-    let trade = this._trade;
-    let instrument = this.instrument;
+    const trade = this._trade;
+    const instrument = this.instrument;
     if (!instrument)
       return;
 
-    let last = trade && trade.price;
-    let centerIndex = Math.floor((itemsCount - 1) / 2) + this._scrolledItems;
-    // const tickSize = instrument.tickSize;
-    const tickSize = 0.01;
-    const step = instrument.precision;
+    const info = this._redrawInfo;
     const data: DomItem[] = this.items;
-    let upIndex = centerIndex - 1;
-    let downIndex = centerIndex + 1;
-    let price = last + this._scrolledItems * tickSize;
-    let item: DomItem;
     const dom = this._dom;
+    const precision = instrument.precision;
+    const tickSize = instrument.tickSize;
+    let last = Math.ceil(trade && trade.price / tickSize) * tickSize;
 
-    if (last == null || isNaN(last))
+    if (!info._needRedraw) {
+      for (const item of data) {
+        item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
+      }
+    } else {
+      let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
+      // const tickSize = 0.01;
+      let upIndex = centerIndex - 1;
+      let downIndex = centerIndex + 1;
+      let price = last;
+      let item: DomItem;
+
+      if (last == null || isNaN(last))
+        return;
+
+      if (centerIndex >= 0 && centerIndex < itemsCount) {
+        item = data[centerIndex];
+        item.updatePrice(last, dom, true);
+      }
+
+      while (upIndex >= 0) {
+        price = sum(price, tickSize, precision);
+        if (upIndex >= itemsCount) {
+          upIndex--;
+          continue;
+        }
+
+        item = data[upIndex];
+        item.updatePrice(price, dom);
+        upIndex--;
+      }
+
+      price = last;
+
+      while (downIndex < itemsCount) {
+        price = sum(price, -tickSize, precision);
+        if (downIndex < 0) {
+          downIndex++;
+          continue;
+        }
+
+        item = data[downIndex];
+        item.updatePrice(price, dom);
+        downIndex++;
+      }
+
+      info.markDrawed();
+    }
+
+    this._lastSyncTime = Date.now();
+  }
+
+  beforeRenderCell = (e) => {
+
+  }
+
+  afterDraw = (grid) => {
+    const ctx = grid.ctx;
+    ctx.save();
+    const y = Math.ceil(this.visibleRows / 2) * this.dataGrid.rowHeight;
+    const width = grid.ctx.canvas.width;
+    ctx.beginPath();
+    ctx.strokeStyle = '#A1A2A5';
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  renderText = (e) => {
+    const ctx = e.ctx;
+    const cell = e.cell;
+    const value = cell.value;
+
+    const settings = value.settings;
+
+    if (!settings)
       return;
 
-    if (centerIndex >= 0 && centerIndex < itemsCount) {
-      item = data[centerIndex];
-      item.updatePrice(last, dom, true);
+    if (settings.textAlign)
+      cell.horizontalAlignment = settings.textAlign;
+
+    if (settings.fontColor)
+      e.ctx.fillStyle = settings.fontColor;
+
+    if (cell.header.name == 'price') {
+      const s: any = settings;
+      const v: PriceCell = value;
+
+      if (!v.isTraded && s.nonTradedPriceBackColor) {
+        ctx.fillStyle = s.nonTradedPriceBackColor;
+      }
     }
 
-    while (upIndex >= 0) {
-      price = sum(price, tickSize, step);
-      if (upIndex >= itemsCount) {
-        upIndex--;
-        continue;
-      }
+  }
 
-      item = data[upIndex];
-      item.updatePrice(price, dom);
-      upIndex--;
+  renderCell = (e) => {
+    const cell = e.cell;
+    const value = cell.value;
+
+    const settings: ICellSettings = value.settings;
+
+    if (!settings)
+      return;
+    const ctx = e.ctx;
+
+    if (settings.backgroundColor)
+      ctx.fillStyle = settings.backgroundColor;
+
+    if (cell.header.name == 'price') {
+      const s: any = settings;
+      const v: PriceCell = value;
+
+      if (v.isTraded && s.tradedPriceBackColor) {
+        ctx.fillStyle = s.tradedPriceBackColor;
+      }
     }
 
-    price = last;
+    if (settings.highlightBackgroundColor && value.time >= this._lastSyncTime)
+      ctx.fillStyle = settings.highlightBackgroundColor;
 
-    while (downIndex <= itemsCount - 1) {
-      price = sum(price, -tickSize, step);
-      if (downIndex < 0) {
-        downIndex++;
-        continue;
-      }
+  }
 
-      item = data[downIndex];
-      item.updatePrice(price, dom);
-      downIndex++;
+  afterRenderCell = (e) => {
+    const ctx = e.ctx;
+    const cell = e.cell;
+    const value = cell.value;
+    const data = cell.data;
+
+    const name = cell.header.name;
+
+    if (data.isCenter && name == 'price')
+      e.ctx.fillStyle = 'red';
+
+    const settings = value.settings;
+
+    if (!settings)
+      return;
+
+    if (settings.backgroundColor)
+      e.ctx.fillStyle = settings.backgroundColor;
+
+    if (!value?.component)
+      return;
+
+    switch (value.component) {
+      case 'histogram-component':
+        const s: IHistogramSettings = settings as IHistogramSettings;
+        if (s.enableHistogram == false || !value.hist)
+          return;
+
+        ctx.save();
+        ctx.fillStyle = s.histogramColor ?? 'grey';
+        if (s.histogramOrientation == 'right') {
+          ctx.fillRect(cell.x + cell.width * (1 - value.hist), cell.y, cell.width * value.hist, cell.height);
+        } else {
+          ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
+        }
+        ctx.restore();
+        break;
     }
   }
 
@@ -234,16 +465,16 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     const data = this.items;
     const visibleRows = this.visibleRows = this.dataGrid.getVisibleRows();
 
-    if (data.length === visibleRows)
-      return;
+    if (data.length !== visibleRows) {
+      if (data.length > visibleRows)
+        data.splice(visibleRows, data.length - visibleRows);
+      else if (data.length < visibleRows)
+        while (data.length <= visibleRows + 1)
+          data.push(new DomItem(data.length, this._settings, this._priceFormatter));
+    }
 
-    if (data.length > visibleRows)
-      data.splice(visibleRows, data.length - visibleRows);
-    else if (data.length < visibleRows)
-      while (data.length <= visibleRows)
-        data.push(new DomItem(data.length, this._settings, this._priceFormatter));
-
-    this.detectChanges();
+    this._redrawInfo.needRedraw();
+    this.dataGrid.resize();
   }
 
   saveState?(): IDomState {
@@ -256,6 +487,7 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this.openSettings(true);
+    console.log(this._settings);
 
     // for debug purposes
     if (!state)
@@ -264,11 +496,11 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
     if (!state?.instrument)
       state.instrument = {
         id: 'ESH1',
-        description: "E-Mini S&P 500",
-        exchange: "CME",
+        description: 'E-Mini S&P 500',
+        exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: "ESH1",
+        symbol: 'ESH1',
       };
     // for debug purposes
 
@@ -287,9 +519,34 @@ export class DomComponent implements OnInit, AfterViewInit, IStateProvider<IDomS
       },
       closeBtn: true,
       single: true,
-      removeIfExists: !hidden,
+      removeIfExists: true,
       hidden,
     });
+  }
+
+  private _createOrder(column: string, item: DomItem) {
+    if (!this._domForm.valid) {
+      this.notifier.showError('Please fill all required fields in form');
+      return;
+    }
+    const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
+    const requestPayload = this._domForm.getDto();
+    const { exchange, symbol } = this.instrument;
+    requestPayload.stopPrice = requestPayload.sl.count;
+    requestPayload.limitPrice = requestPayload.tp.count;
+    this._ordersRepository.createItem({
+      ...requestPayload,
+      exchange,
+      side,
+      accountId: this.accountId,
+      symbol
+    }).toPromise()
+      .then((res) => {
+        this.notifier.showSuccess('Order successfully created');
+      })
+      .catch((err) => {
+        this.notifier.showError(err);
+      });
   }
 
   ngOnDestroy() {

@@ -25,6 +25,11 @@
                 "input": "node_modules/ngx-monaco-editor/assets/monaco",
                 "output": "./assets/monaco/"
               },
+              {
+                "glob": "**/*",
+                "input": "node_modules/canvas-datagrid",
+                "output": "./assets/canvas-datagrid/"
+              },
               "src/favicon.ico",
               "src/lib",
               "src/assets",

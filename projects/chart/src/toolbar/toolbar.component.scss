@@ -60,6 +60,7 @@
 
 ::ng-deep {
   app-toolbar {
+
     .toolbar-dropdown nz-option-container {
       width: 140px;
 
@@ -68,34 +69,6 @@
         font-weight: inherit;
         background-color: inherit;
       }
-    }
-
-    .toolbar-dropdown {
-      .scx-icon {
-        margin-right: 16px !important;
-      }
-
-      .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
-        color: inherit;
-        background: inherit;
-      }
-    }
-
-    .toolbar-submenu {
-      .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
-        color: inherit;
-      }
-
-      span {
-        display: inline-block;
-      }
-
-      .scx-icon {
-        margin-right: 16px;
-        margin-top: 2px;
-        display: inline-block;
-      }
-
     }
 
     .ant-btn,
@@ -141,6 +114,57 @@
     .btn-group .ant-btn {
       margin: 0;
       padding: 0 20px 0 4px;
+    }
+
+  }
+
+  .toolbar-dropdown {
+    .scx-icon {
+      margin-right: 16px !important;
+    }
+    .toolbar.divider {
+      width: 80%;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: 10%;
+      background: #383A40;
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+      background: inherit;
+    }
+
+    .ant-dropdown-menu-submenu-active {
+      background: $secondary;
+
+      i[class*=icon-] {
+        color: $primary !important;
+
+      }
+    }
+  }
+
+  .toolbar-submenu {
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      color: inherit;
+      display: flex;
+      align-items: center;
+
+    }
+
+    .drawing-instrument-name {
+      margin-left: 5px;
+      font-size: 0.7rem;
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    .scx-icon {
+      display: inline-block;
     }
 
   }

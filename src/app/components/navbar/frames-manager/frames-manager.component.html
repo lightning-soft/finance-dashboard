@@ -1,7 +1,8 @@
 <div class="frames-manager">
   <ng-container *ngFor="let windowTuple of windowTuples">
-    <div 
+    <div
       class="frame"
+      [title]="getTitle(windowTuple[0])"
       *ngIf="windowTuple[1].size"
     >
       <ng-container *ngIf="windowTuple[1].size === 1">
@@ -13,23 +14,21 @@
       </ng-container>
 
       <ng-container *ngIf="windowTuple[1].size > 1">
-        <i [class]="iconsMap[ windowTuple[0] ]"></i>
-        <a  
-          nz-dropdown 
-          [nzDropdownMenu]="menu"
-          nzTrigger="click"
-          class="icon-arrow-down"
-        >
-        </a>
+        <i nz-dropdown
+           [nzDropdownMenu]="menu"
+           nzTrigger="click" [class]="iconsMap[ windowTuple[0] ]"></i>
+
+        <span class="window-count">{{windowTuple[1].size}}</span>
       </ng-container>
-      
+
 
       <nz-dropdown-menu #menu="nzDropdownMenu">
         <ul nz-menu class="windows-list">
-          <li 
-            nz-menu-item 
-            *ngFor="let window of windowTuple[1]" 
+          <li
+            nz-menu-item
+            *ngFor="let window of windowTuple[1]"
             class="windows-list__item"
+            [title]="getTitle(windowTuple[0])"
             (click)="handleClick(window)"
           >
             <i class="{{iconsMap[ windowTuple[0] ]}}"></i>

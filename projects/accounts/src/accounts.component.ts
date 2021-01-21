@@ -31,6 +31,8 @@ export class AccountsComponent implements OnInit {
   selectedBroker: IBroker;
   splitConnections = false;
 
+  gateways = {};
+
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
@@ -78,8 +80,7 @@ export class AccountsComponent implements OnInit {
         }
       });
 
-    this._accountsManager.connections.
-      pipe(take(1), untilDestroyed(this))
+    this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
         const item = items.find(item => item.connected);
         this.selectItem(item);
@@ -115,13 +116,20 @@ export class AccountsComponent implements OnInit {
 
   selectItem(item: IConnection) {
     this.selectedItem = item;
-    this.expandBrokers()
+    this.expandBrokers();
 
     this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
   convertItemToFormValue(item: IConnection, broker) {
-    const { username, password, server, gateway, ...data } = item;
+    const _server = item.server;
+    let server;
+    if (typeof _server === 'string')
+      server = _server;
+    else if ((typeof _server === 'object'))
+      server = _server['name'];
+
+    const { username, password, gateway, ...data } = item;
     const userData = { username, password, server, gateway };
     return { ...data, broker, userData };
   }
@@ -158,13 +166,13 @@ export class AccountsComponent implements OnInit {
         this.showItemLoader(item),
         untilDestroyed(this)
       ).subscribe(
-        (response: any) => {
-          const index = this.builder.items.findIndex(item => item.id === response.id);
-          this.builder.updateItem(response, index);
-          this.builder.updateGroupItems();
-        },
-        err => this._notifier.showError(err),
-      );
+      (response: any) => {
+        const index = this.builder.items.findIndex(item => item.id === response.id);
+        this.builder.updateItem(response, index);
+        this.builder.updateGroupItems();
+      },
+      err => this._notifier.showError(err),
+    );
   }
 
   connect() {
