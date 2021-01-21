@@ -86,15 +86,21 @@ $selectHeight: 22px;
         grid-column-end: span 4;
 
         nz-input-number {
-          width: 49px;
+          width: 47px;
         }
 
         .amount-input {
-          margin-left: 10px;
+          margin-left: 8px;
         }
 
         > * {
           width: auto;
+        }
+      }
+
+      .ice-amount {
+        nz-input-number {
+          width: 53px;
         }
       }
 
@@ -105,6 +111,7 @@ $selectHeight: 22px;
       .ice-button, .ice-amount {
         margin-left: 4px;
         margin-top: 0;
+
         button {
           margin-top: 0;
         }
@@ -179,6 +186,7 @@ $selectHeight: 22px;
 
     .top-position-btn {
       margin-top: 0;
+      height: 23px;
       margin-left: 12px;
     }
 
@@ -234,7 +242,7 @@ $selectHeight: 22px;
 }
 
 .ice-amount, .ice-button {
-  width: 48%;
+  width: 47%;
   margin-left: 2px;
 
 
@@ -353,15 +361,24 @@ button.top-position-btn {
   }
 }
 
-.ice-amount {
-  margin-top: 2px;
+:host {
+  .ice-amount {
+    margin-top: 2px;
 
-  button {
-    margin-top: 0;
-  }
+    button {
+      margin-top: 0;
+    }
 
-  .ant-input-number {
-    width: 53px;
+    .ant-input-number {
+      width: 44px;
+      font-size: 0.8rem;
+
+      ::ng-deep {
+        .ant-input-number-input {
+          padding-left: 5px;
+        }
+      }
+    }
   }
 }
 
