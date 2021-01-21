@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, NgZone } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
@@ -39,6 +39,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _accountsManager: AccountsManager,
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
+    public themeHandler: ThemesHandler,
     private _workspaceService: WorkspacesManager,
   ) { }
 
@@ -79,6 +80,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     this._workspaceService.workspaces
+      .pipe(
+        untilDestroyed(this)
+      )
       .subscribe((workspaces: Workspace[]) => {
         const activeWorkspace = workspaces.find(w => w.isActive);
 
@@ -107,6 +111,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this._settingsService.settings
       .subscribe(s => {
         this.settings = { ...s };
+        this.themeHandler.changeTheme(s.theme as Themes);
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)
