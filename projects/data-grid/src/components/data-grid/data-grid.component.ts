@@ -153,7 +153,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   public onDestroy$ = new Subject();
 
-  showContextMenu = false;
 
   get inverseTranslation() {
     return 0;
