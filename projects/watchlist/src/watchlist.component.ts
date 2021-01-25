@@ -5,11 +5,10 @@ import { ItemsBuilder, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
 import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
-import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
+import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { finalize, first } from 'rxjs/operators';
-import { IConnection, IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
+import { IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { WatchlistItem } from './models/watchlist.item';
 import { InstrumentSelectComponent } from '../../instrument-select/src/lib/instrument-select.component';
 
@@ -74,7 +73,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     protected _repository: InstrumentsRepository,
     private _levelOneDatafeed: Level1DataFeed,
     protected cd: ChangeDetectorRef,
-    private layoutHandler: LayoutHandler,
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
     protected _accountsManager: AccountsManager,

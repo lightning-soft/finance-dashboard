@@ -1,4 +1,5 @@
 @import "themes/index";
+
 $selectHeightContainer: 32px;
 $selectMarginBottom: 15px;
 
@@ -9,19 +10,58 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
+    .ant-select-arrow {
+      top: 50%;
+      right: 5px;
+
+      .anticon {
+        font-size: 8px;
+        vertical-align: middle;
+      }
+    }
+
+    .ant-tabs-bar {
+      margin-left: 8px;
+      margin-bottom: 6px;
+      border: none;
+    }
+
+    .ant-tabs-nav .ant-tabs-tab {
+      margin-right: 26px;
+      padding: 6px 0;
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+    }
+
+    .ant-tabs-ink-bar {
+      background: $primary;
+    }
+
+    .ant-tabs-nav .ant-tabs-tab-active {
+      color: $primary;
+    }
+
     nz-select-top-control {
       border: none !important;
       box-shadow: none !important;
 
     }
 
-    .wrapper{
+    .wrapper {
       height: 100%;
       padding-top: 10px;
     }
+
+    window-header, .wrapper {
+      background: #242730;
+    }
+
+    .ant-tabs-top-content {
+      height: 100%;
+    }
   }
 
-  .select-container{
+  .select-container {
     position: relative;
     cursor: pointer;
     border-radius: 4px;
@@ -32,7 +72,7 @@ $selectMarginBottom: 15px;
     min-width: 100px;
   }
 
-  .icon-arrow-dropdown{
+  .icon-arrow-dropdown {
     position: absolute;
     font-size: 4px;
     cursor: pointer;
@@ -50,4 +90,81 @@ $selectMarginBottom: 15px;
   }
 }
 
+nz-tabset {
+  height: 100%;
+}
+
+.add-container {
+  margin-left: 16px;
+  display: flex;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  cursor: pointer;
+  align-items: center;
+  background: $darkBackground;
+  border-radius: 2px;
+
+  i {
+    font-size: 9px;
+    line-height: 1;
+  }
+}
+
+::ng-deep {
+  .custom-form-control.type-select, .custom-form-control.status-select {
+    margin-left: 4px;
+    height: 20px;
+    min-width: 70px;
+    width: auto;
+    border-radius: 2px;
+    font-size: 0.8rem;
+  }
+
+
+  .order-dropdown-list {
+    min-width: 130px;
+
+    .ant-select-dropdown {
+      background: $light;
+    }
+
+    nz-option-item {
+      background: $light;
+      border-radius: 2px;
+      padding: 4px;
+
+      &:first-child {
+        border-bottom: 1px solid #51535A;
+      }
+
+      &:not(:first-child) {
+        margin-top: 4px;
+      }
+    }
+
+    .ant-select-item-option-active:not(.ant-select-item-option-disabled), .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
+      background: $light;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+}
+
+:host ::ng-deep {
+
+  .ant-select-single .ant-select-selector .ant-select-selection-item, .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    height: 20px;
+    line-height: 20px;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    padding-left: 10px;
+  }
+}
 

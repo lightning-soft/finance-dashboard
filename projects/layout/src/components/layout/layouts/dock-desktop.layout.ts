@@ -33,9 +33,10 @@ export class DockDesktopLayout extends Layout {
     let componentState: any;
     let config: any;
 
-    if (typeof componentNameOrConfig === 'string')
+    if (typeof componentNameOrConfig === 'string') {
       componentName = componentNameOrConfig;
-    else {
+      config = {};
+    } else {
       const { component, ..._config } = componentNameOrConfig;
       config = _config;
       componentState = component?.state;

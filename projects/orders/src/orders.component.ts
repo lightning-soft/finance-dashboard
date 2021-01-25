@@ -1,12 +1,13 @@
 import { Component, Injector } from '@angular/core';
 import { RealtimeItemsComponent, ViewItemsBuilder } from 'base-components';
-import { Id } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { LoadingService } from 'lazy-modules';
-import { IOrder, IOrderParams, OrdersFeed, OrdersRepository } from 'trading';
+import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
+import { Components } from 'src/app/modules';
 
 const headers = [
   'averageFillPrice',
@@ -25,7 +26,8 @@ const headers = [
   'close',
 ];
 
-export interface OrdersComponent extends ILayoutNode { }
+export interface OrdersComponent extends ILayoutNode {
+}
 
 @Component({
   selector: 'orders-list',
@@ -36,6 +38,8 @@ export interface OrdersComponent extends ILayoutNode { }
 export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams> {
 
   columns: Column[];
+  orderTypes = ['All', ...Object.values(OrderType)];
+  orderStatus = ['Show All', ...Object.values(OrderStatus)];
 
   builder = new ViewItemsBuilder();
 
@@ -103,6 +107,11 @@ export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams
     this.setTabTitle('Orders');
   }
 
+  protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
+    super._handleResponse(response, params);
+    this.setTabTitle(`Orders (${response.data.length})`);
+  }
+
   handleAccountChange(accountId: Id): void {
     this.accountId = accountId;
   }
@@ -124,5 +133,9 @@ export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams
 
     if (state && state.columns)
       this.columns = state.columns;
+  }
+
+  openOrderForm() {
+    this.layout.addComponent(Components.OrderForm);
   }
 }
