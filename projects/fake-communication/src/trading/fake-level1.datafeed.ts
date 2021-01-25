@@ -24,9 +24,9 @@ export class FakeLevel1Datafeed extends DatafeedRepository {
         const tickSize = 0.01;
         const instrumentId = this._subscribedInstruments[i];
         const value = lastPrices.get(instrumentId);
-        const price = randomIntFromInterval(value - tickSize, value + tickSize);
-        const bidPrice = randomIntFromInterval(price - tickSize, price);
-        const askPrice = randomIntFromInterval(price, price + tickSize);
+        const price = randomIntFromInterval(value - tickSize * 2, value + tickSize * 2);
+        const bidPrice = randomIntFromInterval(price - tickSize * 2, price);
+        const askPrice = randomIntFromInterval(price, price + tickSize * 2);
 
         const ask = +randomIntFromInterval(10, 30).toFixed(0)
         const bid = +randomIntFromInterval(10, 30).toFixed(0);
@@ -58,7 +58,7 @@ export class FakeLevel1Datafeed extends DatafeedRepository {
 
       // this._triggerQuotes(quotes);
       // console.timeEnd('q');
-    }, 300);
+    }, 100);
   }
 
   protected _subscribe(instruemntId: Id) {

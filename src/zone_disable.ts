@@ -1,5 +1,3 @@
-import './zone_disable';
-
 /**
  * This file includes polyfills needed by Angular and is loaded before the app.
  * You can add your own extra polyfills to this file.
@@ -59,20 +57,7 @@ import './zone_disable';
  * Zone JS is required by default for Angular itself.
  */
 
-const _window: any = window;
-
-_window.requestAnimationFrame =
-  _window.requestAnimationFrame ||
-  _window.webkitRequestAnimationFrame ||
-  _window.mozRequestAnimationFrame ||
-  _window.oRequestAnimationFrame ||
-  _window.msRequestAnimationFrame ||
-  ((fn) => setTimeout(fn, 30));
-
-
-import 'zone.js/dist/zone'; // Included with Angular CLI.
-import './string';
-
-/***************************************************************************************************
- * APPLICATION IMPORTS
- */
+(window as any).__Zone_disable_requestAnimationFrame = true;
+// (window as any).__Zone_disable_timers = true; // animation ngzorro depends
+(window as any).__Zone_disable_defineProperty = true;
+(window as any).__Zone_disable_toString = true;

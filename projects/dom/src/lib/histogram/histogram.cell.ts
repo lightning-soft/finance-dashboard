@@ -14,6 +14,8 @@ export class HistogramCell extends NumberCell {
   hist = 0;
   settings: IHistogramSettings;
 
+  private _histValue;
+
   constructor(config) {
     super({
       strategy: AddClassStrategy.NONE,
@@ -22,8 +24,16 @@ export class HistogramCell extends NumberCell {
     this.settings = config.settings;
   }
 
-  update(value: number, total: number, time: number) {
-    super.updateValue(value, time);
-    this.hist = value / total;
+  updateValue(value: number) {
+    const r = super.updateValue(value);
+    if (this._histValue != null)
+      this.calcHist(this._histValue);
+
+      return r;
+  }
+
+  calcHist(value: number) {
+    this.hist = this._value / value;
+    this._histValue = value;
   }
 }

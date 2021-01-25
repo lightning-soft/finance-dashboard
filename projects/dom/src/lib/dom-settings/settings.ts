@@ -73,7 +73,7 @@ export class DomSettings {
     textAlign: TextAlign.Right,
     fontColor: 'rgba(235, 90, 90, 1)',
   };
-  volumeProfile: any = {
+  volume: any = {
     highlightBackgroundColor: 'rgba(73, 187, 169, 0.3)',
     histogramOrientation: HistogramOrientation.Right
   };

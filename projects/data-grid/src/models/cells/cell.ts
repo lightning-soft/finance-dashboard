@@ -38,6 +38,7 @@ export abstract class Cell implements ICell {
   colSpan = 0;
   _bold: boolean;
   settings = {};
+  drawed = false; // performance solution
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
@@ -60,6 +61,7 @@ export abstract class Cell implements ICell {
 
   clear() {
     this.value = '';
+    this.drawed = false;
   }
 
   toString() {

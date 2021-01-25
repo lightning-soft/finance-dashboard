@@ -38,7 +38,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
         { tab: SettingTab.Ask, label: 'Ask' },
         { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
         { tab: SettingTab.TotalBid, label: 'Total At Bid' },
-        { tab: SettingTab.VolumeProfile, label: 'Volume Profile' },
+        { tab: SettingTab.Volume, label: 'Volume Profile' },
         { tab: SettingTab.OrderColumn, label: 'Order' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },

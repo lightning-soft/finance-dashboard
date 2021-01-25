@@ -74,7 +74,8 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   if (code)
     window.history.replaceState({}, document.title, '/');
   else {
-    location.replace(generateLoginLink(config.identity));
+    // todo uncoment this
+    // location.replace(generateLoginLink(config.identity));
   }
 
   return authService.initialize(code);

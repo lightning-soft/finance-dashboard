@@ -270,7 +270,7 @@ export const commonFields: IFieldConfig[] = [
           { label: 'Total At Ask', key: 'totalAtAsk' },
           { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
           { label: 'Last Traded Quantity(LQT)', key: 'lqt' },
-          { label: 'Volume Profile', key: 'volumeProfile' },
+          { label: 'Volume Profile', key: 'volume' },
           { label: 'Orders', key: 'orders' },
           { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
           { label: 'Bid Depth', key: 'bidDepth' },
@@ -433,7 +433,7 @@ export const hotkeyFields: FormlyFieldConfig[] = [
   {
     type: FieldType.Input,
     templateOptions: { label: 'Clear Volume Profile' },
-    key: 'clearVolumeProfile',
+    key: 'clearVolume',
   },
 ];
 export const generalFields: IFieldConfig[] = [
@@ -838,7 +838,7 @@ export enum SettingTab {
   AskDepth = 'askDepth',
   TotalAsk = 'totalAsk',
   TotalBid = 'totalBid',
-  VolumeProfile = 'volumeProfile',
+  Volume = 'volume',
   OrderColumn = 'order',
   CurrentAtBid = 'currentAtBid',
   Note = 'note',
@@ -860,7 +860,7 @@ export const SettingsConfig = {
   [SettingTab.AskDepth]: askDepthFields,
   [SettingTab.TotalAsk]: getTotalFields('Total At Ask', 'totalAsk'),
   [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),
-  [SettingTab.VolumeProfile]: volumeFields,
+  [SettingTab.Volume]: volumeFields,
   [SettingTab.OrderColumn]: orderColumnFields,
   [SettingTab.CurrentAtBid]: getCurrentFields('Bid'),
   [SettingTab.CurrentAtAsk]: getCurrentFields('Ask'),

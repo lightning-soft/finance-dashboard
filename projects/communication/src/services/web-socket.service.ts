@@ -38,7 +38,7 @@ export class WebSocketService {
     }
 
     const url = this._config.rithmic.ws.url;
-    this._websocket = new ReconnectingWebSocket(url) as any;
+    this._websocket = new ReconnectingWebSocket(url, [], { minReconnectionDelay: 3000 }) as any;
     this._websocket.onopen = (event: Event) => {
       if (onOpen)
         onOpen();

@@ -6,13 +6,13 @@ export interface IDomDataTimes extends IDomData {
   price: number;
 }
 export interface IDomData {
-  readonly volume: number;
-  readonly currentAsk: number;
-  readonly currentBid: number;
-  readonly ask: number;
-  readonly bid: number;
-  readonly totalAsk: number;
-  readonly totalBid: number;
+  volume: number;
+  currentAsk: number;
+  currentBid: number;
+  ask: number;
+  bid: number;
+  totalAsk: number;
+  totalBid: number;
 
   time?: IDomDataTimes;
   updatedAt?: number;
@@ -142,14 +142,23 @@ export class DomHandler {
 
   handleTrade(trade: ITrade) {
     this._total.handleTrade(trade);
-    this._columns.handleChange(this._getAccamulateTrade(trade.price).handleTrade(trade));
+    // this._columns.handleChange(
+    const t = this._getAccamulateTrade(trade.price)
+    t.handleTrade(trade);
+
+    if (this.columns.volume < t.volume)
+      this.columns.volume = t.volume;
+
+    // );
   }
 
   handleL2(l2: L2) {
     if (!l2)
       return;
 
-    this._columns.handleChange(this._getAccamulateTrade(l2.price).handleL2(l2));
+    // this._columns.handleChange(
+    this._getAccamulateTrade(l2.price).handleL2(l2)
+    // );
   }
 
   getItemData(price: number): IDomData {

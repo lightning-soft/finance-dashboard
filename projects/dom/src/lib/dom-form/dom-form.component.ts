@@ -77,20 +77,20 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   private _loadHistory() {
-    const instrument = this.instrument;
-    return this._historyRepository.getItems({
-      id: instrument.id,
-      Exchange: instrument.exchange,
-      ...historyParams,
-    }).subscribe(
-      res => {
-        const data = res.data;
-        const length = data.length;
-        this.dailyInfo = data[length - 1];
-        this.prevItem = data[length - 2];
-      },
-      err => this._notifier.showError(err)
-    );
+    // const instrument = this.instrument;
+    // return this._historyRepository.getItems({
+    //   id: instrument.id,
+    //   Exchange: instrument.exchange,
+    //   ...historyParams,
+    // }).subscribe(
+    //   res => {
+    //     const data = res.data;
+    //     const length = data.length;
+    //     this.dailyInfo = data[length - 1];
+    //     this.prevItem = data[length - 2];
+    //   },
+    //   err => this._notifier.showError(err)
+    // );
   }
 
   createForm() {

@@ -47,7 +47,7 @@ export class FakeLevel2Datafeed extends DatafeedRepository implements Level2Data
 
       // this._triggerQuotes(quotes);
       // console.timeEnd('q');
-    }, 500);
+    }, 50);
   }
 
   unsubscribe(instrument: IInstrument) {

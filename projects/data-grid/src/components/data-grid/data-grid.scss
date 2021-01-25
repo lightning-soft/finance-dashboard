@@ -13,6 +13,18 @@
   width: 100%;
   background: #1b1d22;
 
+  ::ng-deep canvas-datagrid {
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: relative;
+
+    canvas {
+      font-smooth: never;
+      -webkit-font-smoothing: none;
+    }
+  }
+
   .grid {
     height: 100%;
     width: 100%;
@@ -109,5 +121,4 @@
   //     }
   //   }
   // }
-
 }
