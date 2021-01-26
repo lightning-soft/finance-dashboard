@@ -12,10 +12,16 @@ $toolbarMargin: 4px;
     max-height: 90vh;
     overflow: auto;
   }
+
+  .modal.scxDialog {
+    h4 {
+      color: white;
+    }
+  }
 }
 
 :host ::ng-deep {
-  .scxBackground {
+  .scxBackground, .scxDateScale, .scxValueScale {
     background: rgb(27, 29, 34) !important;
   }
 
@@ -33,13 +39,20 @@ $toolbarMargin: 4px;
   .custom-form-control.ant-select-focused .ant-select-selector {
     border: 1px solid transparent !important;
   }
+
   .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector {
     height: 20px;
   }
+
   .ant-select-selection-search {
     height: 18px;
     line-height: 1;
   }
+}
+
+instrument-select {
+  height: 20px;
+  max-width: 110px;
 }
 
 :host ::ng-deep .icon-container {

@@ -1,24 +1,43 @@
-<!-- {{builder.items | json}} -->
 <window-header className="widget" [window]="this">
-  <button
-    class="wm-header-btn mr-2"
-    (click)="grid.createComponentModal()"
-  >
-    <i class="icon-setting-gear"></i>
-  </button>
+  <!--  <button
+      class="wm-header-btn mr-2"
+      (click)="grid.createComponentModal()"
+    >
+      <i class="icon-setting-gear"></i>
+    </button>-->
   <account-select
     size="small"
     className="custom-form-control"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
+  <span class="group-container">
+  <i  nz-dropdown [nzDropdownMenu]="menu" class="icon-group"></i>
+    </span>
 </window-header>
 
-<div class="tabs">
-  <div [class.active]="isList" (click)="isList = true" class="tab"><i class="tab-icon icon-list"></i>List
-  </div>
-
-  <div [class.active]="!isList" (click)="isList = false" class="tab"><i class="tab-icon icon-folder"></i>Group
-  </div>
-</div>
-
 <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+<div class="bottom-info">
+  <span class="bottom-title">Total p/l</span>
+  <div class="bottom-data">{{open + realized}}</div>
+  <span class="bottom-title">Open</span>
+  <div class="bottom-data empty">{{open}}</div>
+  <span class="bottom-title">Realized</span>
+  <div class="bottom-data">{{realized}}</div>
+  <nz-select class="currency-select">
+    <nz-option nzLabel="USD" nzValue="USD"></nz-option>
+    <nz-option  nzLabel="EUR" nzValue="EUR"></nz-option>
+
+  </nz-select>
+</div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="position-menu">
+    <li nz-menu-item>
+      <nz-radio-group  [ngModel]="groupBy"  (ngModelChange)="handleGroupChange($event)" class="d-flex flex-column">
+        <label nz-radio [nzValue]="groupByOptions.None">None</label>
+        <div class="divider"></div>
+        <label nz-radio [nzValue]="groupByOptions.AccountId">Account</label>
+        <label nz-radio [nzValue]="groupByOptions.InstrumentName">Instrument</label>
+      </nz-radio-group>
+    </li>
+  </ul>
+</nz-dropdown-menu>

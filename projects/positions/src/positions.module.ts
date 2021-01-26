@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzSelectModule } from 'ng-zorro-antd';
+import { NzDropDownModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
 import { AccountSelectModule } from 'account-select';
 import { LayoutModule } from 'layout';
@@ -14,11 +14,13 @@ import { WindowHeaderModule } from 'window-header';
     CommonModule,
     DataGridModule,
     NzSelectModule,
-    FormsModule,
     ReactiveFormsModule,
     AccountSelectModule,
     LayoutModule,
     WindowHeaderModule,
+    NzDropDownModule,
+    NzRadioModule,
+    FormsModule,
   ],
   exports: [
     PositionsComponent

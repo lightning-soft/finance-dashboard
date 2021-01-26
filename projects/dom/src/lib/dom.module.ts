@@ -39,7 +39,7 @@ import { AccountSelectModule } from 'account-select';
     TypeButtonsComponent,
     SlUnitsComponent,
     TpUnitsComponent,
-    DailyInfoComponent
+    DailyInfoComponent,
   ],
   providers: [
     CssApplier,

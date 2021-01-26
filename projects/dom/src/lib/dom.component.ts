@@ -14,6 +14,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
+import { KeyboardListener, KeyBinding } from 'keyboard';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -61,11 +62,14 @@ interface IDomState {
   instrument: IInstrument;
   settings?: any;
 }
+
 const directionsHints = {
   'window-left': 'Left View',
   'full-screen-window': 'Horizontal View',
   'window-right': 'Right View',
 };
+const topDirectionIndex = 1;
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -110,7 +114,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }));
 
   accountId: Id;
-
+  keysStack: KeyboardListener = new KeyboardListener();
+  domKeyHandlers = {
+    autoCenter: () => {
+    },
+    autoCenterAllWindows: () => {
+    },
+    buyMarket: () => {
+    },
+    sellMarket: () => {
+    },
+    hitBid: () => {
+    },
+    joinBid: () => {
+    },
+    liftOffer: () => {
+    },
+    oco: () => {
+    },
+    flatten: () => {
+    },
+    cancelAllOrders: () => {
+    },
+    quantity1: () => {
+    },
+    quantity2: () => {
+    },
+    quantity3: () => {
+    },
+    quantity4: () => {
+    },
+    quantity5: () => {
+    },
+    quantityToPos: () => {
+    },
+    stopsToPrice: () => {
+    },
+    clearAlerts: () => {
+    },
+    clearAlertsAllWindow: () => {
+    },
+    clearAllTotals: () => {
+    },
+    clearCurrentTradesAllWindows: () => {
+    },
+    clearCurrentTradesDown: () => {
+    },
+    clearCurrentTradesDownAllWindows: () => {
+    },
+    clearCurrentTradesUp: () => {
+    },
+    clearCurrentTradesUpAllWindows: () => {
+    },
+    clearTotalTradesDown: () => {
+    },
+    clearTotalTradesDownAllWindows: () => {
+    },
+    clearTotalTradesUp: () => {
+    },
+    clearTotalTradeUpAllWindows: () => {
+    },
+    clearVolumeProfile: () => {
+    }
+  };
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
@@ -134,6 +200,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   isFormOpen = true;
   isLocked: boolean;
+  bracketActive = true;
+  isExtended = true;
+
   directionsHints = directionsHints;
 
   private _instrument: IInstrument;
@@ -151,6 +220,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._priceFormatter = new RoundFormatter(3);
     this._levelOneDatafeed.subscribe(value);
     this._levelTwoDatafeed.subscribe(value);
+  }
+
+  get isFormOnTop() {
+    return this.currentDirection === this.directions[topDirectionIndex];
   }
 
   visibleRows = 0;
@@ -180,8 +253,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private get _tickSize() {
     // const tickSize = this.instrument.tickSize ?? 0.25;
-    return 0.01
+    return 0.01;
   }
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
+
+
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -192,7 +270,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector,
   ) {
     super();
-    this.setTabIcon('icon-widget-positions');
+    this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
   }
 
@@ -296,6 +374,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _handleL2(l2: L2) {
+    // console.time('_handleL2')
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(l2.price);
@@ -348,9 +427,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case LayoutNodeEvent.Restore:
         this._handleResize();
         break;
+      case LayoutNodeEvent.Event:
+        this._handleKey(data);
+    }
+    return true;
+  }
+
+  private  _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+    this.keysStack.handle(event);
+    const keyBinding = Object.entries(this._settings.hotkeys)
+      .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
+      .find(([name, binding]) => {
+        return (binding as KeyBinding).equals(this.keysStack);
+      });
+    if (keyBinding) {
+      this.domKeyHandlers[keyBinding[0] as string]();
     }
 
-    return true;
   }
 
   @SynchronizeFrames()
@@ -378,20 +474,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       afterResize();
   }
 
-  saveState?(): IDomState {
+  saveState ?(): IDomState {
     return {
       instrument: this.instrument,
       settings: this._settings.toJson()
     };
   }
 
-  loadState?(state: IDomState) {
+  loadState ?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
     this.openSettings(true);
 
     // for debug purposes
-    if (!state)
+    if (!
+      state
+    )
       state = {} as any;
 
     if (!state?.instrument)
@@ -420,10 +518,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
-      removeIfExists: hidden,
+      width: 680,
+      resizable: false,
+      removeIfExists: true,
       hidden,
-      width: 1000,
-      height: 1000,
     });
   }
 
@@ -462,6 +560,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._levelTwoDatafeed.unsubscribe(instrument);
   }
 }
+
 
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);

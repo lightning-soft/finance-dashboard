@@ -10,6 +10,9 @@ import { Workspace, WorkspacesManager } from 'workspace-manager';
 
 export enum DashboardCommand {
   SavePage = 'save_page',
+  Copy = 'Copy',
+  Paste = 'Paste',
+  CUT = 'Cut',
 }
 
 export const DashboardCommandToUIString = {
@@ -151,6 +154,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this._save();
         break;
       }
+ /*     case DashboardCommand.CUT: {
+        console.log(command);
+        break;
+      }
+      case DashboardCommand.Copy: {
+        console.log(command);
+        break;
+      }
+      case DashboardCommand.Paste: {
+        console.log(command);
+        break;
+      }*/
     }
   }
 
