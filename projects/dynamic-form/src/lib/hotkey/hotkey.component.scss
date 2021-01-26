@@ -1,0 +1,24 @@
+.hotkey-input {
+  background: #1B1D22;
+  border: none;
+  height: 30px;
+  padding: 4px 11px;
+  font-size: 1rem;
+}
+
+.hotkey-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  & > * {
+    width: 50%;
+  }
+}
+
+label {
+  color: #A1A2A5;
+  font-size: 0.8rem;
+  line-height: 1.07;
+  margin: 0;
+}

@@ -24,6 +24,7 @@ export enum FieldType {
   Radio = 'radio',
   TextAlign = 'textAlign',
   Switch = 'switch',
+  Hotkey = 'hotkey',
 }
 
 export enum InputType {

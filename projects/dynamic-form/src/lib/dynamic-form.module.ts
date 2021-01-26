@@ -10,10 +10,11 @@ import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { NumberInputComponent } from './number-input/number-input.component';
 import { TextAlignComponent } from './text-align/text-align.component';
 import { SwitchComponent } from './switch/switch.component';
+import { HotkeyComponent } from './hotkey/hotkey.component';
 
 
 @NgModule({
-  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent, SwitchComponent],
+  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent, SwitchComponent, HotkeyComponent],
   imports: [
     CommonModule,
     ColorPickerModule,
@@ -21,6 +22,9 @@ import { SwitchComponent } from './switch/switch.component';
     FormsModule,
     FormlyModule.forRoot({
       types: [
+        {
+          name: FieldType.Hotkey, component: HotkeyComponent,
+        },
         {
           name: FieldType.Color, component: ColorPickerComponent,
         },

@@ -1,11 +1,18 @@
 import * as merge from 'deepmerge';
 import { TextAlign } from 'dynamic-form';
 import { HistogramOrientation } from './settings-fields';
+import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
+
+function getKeyBindings(keyCodes = []) {
+  return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
+}
 
 export class DomSettings {
 
   general: any = {};
-  hotkeys: any = {};
+  hotkeys: any = {
+    autoCenter: getKeyBindings([KeyCode.KEY_R, KeyCode.KEY_T]),
+  };
   columns: any = {};
   common: any = {};
   ltq: any = {

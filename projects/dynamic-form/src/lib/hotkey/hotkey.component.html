@@ -1,0 +1,6 @@
+<div [formlyAttributes]="field"
+     class="hotkey-wrapper"
+>
+ <label>{{field.templateOptions?.label}}</label>
+  <div class="hotkey-input" (dblclick)="changeHotkey($event)" >{{getKeyStringTitle()}}</div>
+</div>
