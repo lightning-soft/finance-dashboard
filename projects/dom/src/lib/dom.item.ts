@@ -119,4 +119,10 @@ export class DomItem implements IBaseItem {
       bid: this.bid._value,
     }
   }
+
+  dehighlight(key: string) {
+    if (this[key] && this[key].dehightlight) {
+      this[key].dehightlight();
+    }
+  }
 }

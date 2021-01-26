@@ -31,6 +31,11 @@ export interface ICellConfig {
   settings?: ICellSettings;
 }
 
+export enum CellStatus {
+  Highlight = 'highlight',
+  None = '',
+}
+
 export abstract class Cell implements ICell {
   name: string = '';
   value = '';
@@ -39,6 +44,7 @@ export abstract class Cell implements ICell {
   _bold: boolean;
   settings = {};
   drawed = false; // performance solution
+  status: string = '';
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
@@ -58,6 +64,15 @@ export abstract class Cell implements ICell {
   }
 
   abstract updateValue(...args: any[]);
+
+  dehightlight() {
+    if (this.status == CellStatus.Highlight)
+      this.status = CellStatus.None;
+  }
+
+  hightlight() {
+    this.status = CellStatus.Highlight;
+  }
 
   clear() {
     this.value = '';

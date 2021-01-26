@@ -59,28 +59,6 @@ export class DomItemMax {
     return result;
   }
 }
-
-class RedrawInfo {
-  _needRedraw = false;
-
-  private _scrolledItems = 0;
-
-  public get scrolledItems() {
-    return this._scrolledItems;
-  }
-  public set scrolledItems(value) {
-    this.needRedraw()
-    this._scrolledItems = value;
-  }
-
-  needRedraw() {
-    this._needRedraw = true;
-  }
-
-  markDrawed() {
-    this._needRedraw = false;
-  }
-}
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
@@ -162,8 +140,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   directionsHints = directionsHints;
 
   private _instrument: IInstrument;
-  private _redrawInfo = new RedrawInfo();
-
   private _priceFormatter: IFormatter;
 
   public get instrument(): IInstrument {
@@ -191,6 +167,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _max = new DomItemMax()
+  private _lastChangesItem: { [key: number]: DomItem } = {}
 
   private _map = new Map<number, DomItem>();
 
@@ -247,44 +224,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._ordersRepository = this._ordersRepository.forConnection(connection);
   }
 
-  scroll = (e: WheelEvent) => {
-    const info = this._redrawInfo;
-    if (e.deltaY > 0) {
-      info.scrolledItems++;
-    } else if (e.deltaY < 0) {
-      info.scrolledItems--;
-    }
-
-    this._calculate();
-    e.preventDefault();
-  }
-
   ngAfterViewInit() {
     this._handleResize();
-    const element = this.dataGridElement && this.dataGridElement.nativeElement;
-    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
   }
 
   centralize() {
-    this._redrawInfo.scrolledItems = 0;
     this._calculate();
     this.detectChanges();
   }
 
   @SynchronizeFrames()
   detectChanges(force = false) {
-    // console.time('detectChanges')
     this.dataGrid.detectChanges(force);
-    // console.timeEnd('detectChanges')
-    // console.log(Date.now() - this._lastSyncTime)
     this._lastSyncTime = Date.now();
   }
-
-  // @SynchronizeFrames()
-  // private _calculateAsync() {
-  //   this._calculate();
-  //   this.dataGrid.detectChanges();
-  // }
 
   private _getItem(price: number): DomItem {
     if (!this._map.has(price)) {
@@ -327,7 +280,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const item = this._getItem(lastPrice);
-    this._handleMaxChange(item.handleTrade(trade));
+    this._handleMaxChange(item.handleTrade(trade), item);
     const newChangedTime = Math.max(item.currentAsk.time, item.currentBid.time);
     if (newChangedTime != this._changedTime) {
       for (const i of this.items)
@@ -344,16 +297,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // console.time('_handleL2')
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
     // this._dom.handleL2(l2);
-    this._handleMaxChange(this._getItem(l2.price).handleL2(l2));
+    const item = this._getItem(l2.price);
+    this._handleMaxChange(item.handleL2(l2), item);
     // console.timeEnd('_handleL2')
 
     // this._calculateAsync();
     this.detectChanges();
   }
 
-  private _handleMaxChange(max: any) {
-    const hist = this._max.handleChanges(max)
-    const keys = hist && Object.keys(hist)
+  private _handleMaxChange(changes: any, item: DomItem) {
+    const hist = this._max.handleChanges(changes);
+    const keys = hist && Object.keys(hist);
+
+    for (const key in changes) {
+      const prevItem = this._lastChangesItem[key];
+      if (prevItem)
+        prevItem.dehighlight(key);
+
+      this._lastChangesItem[key] = item;
+    }
 
     if (Array.isArray(keys) && keys.length) {
       for (const i of this.items) {
@@ -364,9 +326,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           (i[key] as HistogramCell).calcHist(hist[key]);
         }
       }
-
-      // if (this.items.some(i => i.bid.hist > 1))
-      //   console.warn('more than 1')
     }
   }
 
@@ -377,7 +336,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!instrument)
       return;
 
-    const info = this._redrawInfo;
     const data: DomItem[] = this.items;
     const dom = this._dom;
     const precision = instrument.precision;
