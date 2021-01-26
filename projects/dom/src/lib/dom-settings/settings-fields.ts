@@ -1,6 +1,6 @@
-import { FieldType } from 'dynamic-form';
 import { FormlyFieldConfig, FormlyTemplateOptions } from '@ngx-formly/core';
 import * as merge from 'deepmerge';
+import { FieldType } from 'dynamic-form';
 
 type EjectCssFn = (value: any) => any;
 
@@ -33,7 +33,6 @@ class FieldConfig implements IFieldConfig {
   }
 
   getCss(value: any): any {
-
     if (this.key && value) {
       return {
         [` .${this.key}`]: this.fieldGroup
@@ -194,12 +193,12 @@ function getBackgroundColor() {
 }
 
 function getFontColor() {
-  return getColor('Font Color');
+  return getColor({ key: 'color', label: 'Font Color' });
 }
 
 const histogramFields = [
   getColor('Background Color'),
-  getColor('Font Color', 'color'),
+  getFontColor(),
   getHistogramColor(),
   // getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } })),
 ];
@@ -602,9 +601,9 @@ export const priceFields: IFieldConfig[] = [
       getHightlightColor(),
       getColor('Traded Price Back Color'),
       getColor('Last Traded Price Font Color'),
-      getColor({ label: 'Price Font Color', key: 'fontColor' }),
+      getColor({ label: 'Price Font Color', key: 'color' }),
       getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),
-      getColor({ label: 'Non Traded Price Font Color', key: 'nonTradedPriceBackColor' }),
+      getColor({ label: 'Non Traded Price Font Color', key: 'nonTradedPriceColor' }),
       getTextAlign(),
     ]
   }),
@@ -624,18 +623,6 @@ function getDeltaFields(label: string) {
   ];
 }
 
-export const askFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Ask',
-    fieldGroup: [
-      ...histogramFields,
-      {
-        ...getTextAlign(), className: 'w-100'
-      }
-    ]
-  }),
-];
-
 const bidConfig = (label) => {
   return new FieldConfig({
     label,
@@ -643,10 +630,10 @@ const bidConfig = (label) => {
       ...histogramFields,
       getColor('Total Font Color'),
       {
-        ...getCheckboxes([{ key: generateKeyFromLabel(label), label: `${label} Histogram` }, {
-          key: 'highlightLargeBids',
-          label: 'Highlight Large Bids Only'
-        }]),
+        ...getCheckboxes([
+          { key: 'histogramEnabled', label: `${label} Histogram` },
+          { key: 'highlightLargeBids', label: 'Highlight Large Bids Only' }
+        ]),
         className: 'w-100',
       },
       getTextAlign(),
@@ -658,32 +645,33 @@ const bidConfig = (label) => {
     ]
   });
 };
-export const bidDepthFields: IFieldConfig[] = [
-  bidConfig('Bid Depth'),
-];
-export const bidFields: IFieldConfig[] = [
-  bidConfig('Bid'),
-];
-export const askDepthFields: IFieldConfig[] = [
-  new FieldConfig({
-    label: 'Ask Depth',
+
+export const bidFields: IFieldConfig[] = [bidConfig('Bid')];
+
+export const askFields: IFieldConfig[] = [bidConfig('Ask')];
+
+
+function getDepthConfig(label: string) {
+  return new FieldConfig({
+    label: `${label} Depth`,
     fieldGroup: [
       ...histogramFields,
       getColor('Total Font Color'),
       {
-        ...getCheckboxes([{ key: 'askDepth', label: 'Ask Depth Histogram' }, {
-          key: 'highlightLargeAsks',
-          label: 'Highlight Large Asks Only'
-        }]),
+        ...getCheckboxes([
+          { key: 'histogramEnabled', label: `${label} Depth Histogram` },
+          { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]),
         className: 'w-100',
       },
-      getNumber('font-size', 'Large Ask Size'),
+      getNumber('font-size', `Large ${label} Size`),
       getTextAlign(),
       getHistogramOrientation(),
     ]
-  }),
+  });
+}
+export const bidDepthFields: IFieldConfig[] = [getDepthConfig('Bid')];
 
-];
+export const askDepthFields: IFieldConfig[] = [getDepthConfig('Ask')];
 
 
 function getTotalFields(label: string, key: string) {
@@ -696,7 +684,7 @@ function getTotalFields(label: string, key: string) {
         getHightlightColor(),
         getFontColor(),
         getHistogramColor(),
-        getCheckboxes([{ key: 'enableHistogram', label: label + ' Histogram' }]),
+        getCheckboxes([{ key: 'histogramEnabled', label: label + ' Histogram' }]),
         getTextAlign(),
         getHistogramOrientation(),
       ]
@@ -707,6 +695,7 @@ function getTotalFields(label: string, key: string) {
 export const volumeFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Volume Profile',
+    key: 'volume',
     // fieldGroupClassName: '',
     fieldGroup: [
       ...histogramFields,
@@ -715,7 +704,7 @@ export const volumeFields: IFieldConfig[] = [
       getColor('VWAP Color'),
 
       getCheckboxes([
-        { key: 'enableHistogram', label: 'Volume Profile Histogram' },
+        { key: 'histogramEnabled', label: 'Volume Profile Histogram' },
         { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
         { key: 'poc', label: 'Point of Control' },
         { label: 'Value Area', key: 'valueArea' },
@@ -776,7 +765,7 @@ function getCurrentFields(suffix: string) {
       label: `Current At ${suffix}`,
       key: `current${suffix}`,
       fieldGroup: [
-        getCheckboxes([{ key: 'enableHistogram', label: `Current At ${suffix} Histogram` }]),
+        getCheckboxes([{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }]),
         getBackgroundColor(),
         getFontColor(),
         getColor('Inside Bid Background Color'),
@@ -815,7 +804,7 @@ export const noteColumnFields: IFieldConfig[] = [
       getColor('Added Orders Color'),
       getColor('Pulled Orders Color'),
       getColor('Background Color'),
-      getColor('Font Color'),
+      getFontColor(),
       getColor('Highlight Background Color'),
     ]
   }),
@@ -854,9 +843,9 @@ export const SettingsConfig = {
   [SettingTab.Price]: priceFields,
   [SettingTab.BidDelta]: getDeltaFields('Bid Delta'),
   [SettingTab.AskDelta]: getDeltaFields('Ask Delta'),
-  [SettingTab.BidDepth]: bidDepthFields,
   [SettingTab.Ask]: askFields,
   [SettingTab.Bid]: bidFields,
+  [SettingTab.BidDepth]: bidDepthFields,
   [SettingTab.AskDepth]: askDepthFields,
   [SettingTab.TotalAsk]: getTotalFields('Total At Ask', 'totalAsk'),
   [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),

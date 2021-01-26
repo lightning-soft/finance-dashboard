@@ -9,7 +9,7 @@ enum TextAlign {
 
 export interface ICellSettings {
   backgroundColor?: string;
-  fontColor?: string;
+  color?: string;
   textAlign?: TextAlign;
   highlightBackgroundColor?: string;
   fontSize?: number;

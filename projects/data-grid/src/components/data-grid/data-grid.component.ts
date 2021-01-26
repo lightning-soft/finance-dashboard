@@ -67,7 +67,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() detach: boolean = false;
 
-  public activeColumns: Column[] = [];
+  // public activeColumns: Column[] = [];
 
   private _handlers = [];
   private _subscribedEvents = [];
@@ -116,18 +116,17 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   ) { }
 
   ngOnInit(): void {
-    this.columns = this.columns.map(i => ({ ...i, width: 100 }));
-    this.activeColumns = this.columns.filter((column: Column) => column.visible);
+    // this.activeColumns = this.columns.filter((column: Column) => column.visible);
     if (this.detach)
       this._cd.detach();
     const cellBorderColor = "#24262C";
     const cellBackgroundColor = '#1B1D22';
     const cellColor = '#D0D0D2';
     const font = "14px Open Sans";
-    const horizontalAlignment = "center";
-    const columns = [];
+    // const horizontalAlignment = "center";
 
-    for (const column of this.columns) {
+    for (let i = 0; i < this.columns.length; i++) {
+      const column = this.columns[i];
       column.style = {
         // background: 'grey',
         histogram: {
@@ -140,7 +139,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         textAlign: 'center',
         ...column.style,
       }
-      columns.push(column);
+
+      if (!column.width)
+        column.width = 100;
     }
 
     const grid = canvasDatagrid({
@@ -186,11 +187,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this._grid = grid;
   }
 
-  detectChanges() {
+  detectChanges(force = false) {
     const grid = this._grid;
 
     if (grid)
-      grid.draw();
+      grid.draw(force);
   }
 
   ngAfterViewInit(): void {
@@ -227,8 +228,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     modal.afterClose.subscribe(result => {
       if (result) {
-        this.columns = [...result];
-        this.activeColumns = this.columns.filter((column: Column) => column.visible);
+        // this.columns = [...result];
+        // this.activeColumns = this.columns.filter((column: Column) => column.visible);
       }
     });
   }

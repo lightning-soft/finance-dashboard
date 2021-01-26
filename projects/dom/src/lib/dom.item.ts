@@ -1,10 +1,9 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { DomHandler } from './handlers';
+import { ITrade, L2, OrderSide } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
-import { ITrade, L2, OrderSide } from 'trading';
 
 
 class TotalCell extends HistogramCell {
@@ -93,6 +92,8 @@ export class DomItem implements IBaseItem {
       volume: this.volume._value,
       totalAsk: this.totalAsk._value,
       totalBid: this.totalBid._value,
+      currentAsk: this.currentAsk._value,
+      currentBid: this.currentBid._value,
     }
   }
 

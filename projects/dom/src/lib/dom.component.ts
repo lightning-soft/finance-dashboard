@@ -27,6 +27,8 @@ export class DomItemMax {
   volume: number;
   totalAsk: number;
   totalBid: number;
+  currentAsk: number;
+  currentBid: number;
 
   handleChanges(change): any {
     let result;
@@ -111,8 +113,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ['bidDelta', 'delta'],
     ['bid', 'bid', 'histogram'],
     'ltq',
-    ['currentBid', 'c.bid'],
-    ['currentAsk', 'c.ask'],
+    ['currentBid', 'c.bid', 'histogram'],
+    ['currentAsk', 'c.ask', 'histogram'],
     ['ask', 'ask', 'histogram'],
     ['askDelta', 'delta'],
     ['totalBid', 't.bid', 'histogram'],
@@ -233,7 +235,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings) => {
+        console.log(settings);
         this._settings.merge(settings);
+        this.detectChanges(true);
       }
     });
   }
@@ -268,19 +272,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   @SynchronizeFrames()
-  detectChanges() {
+  detectChanges(force = false) {
     // console.time('detectChanges')
-    this.dataGrid.detectChanges();
+    this.dataGrid.detectChanges(force);
     // console.timeEnd('detectChanges')
     // console.log(Date.now() - this._lastSyncTime)
     this._lastSyncTime = Date.now();
   }
 
-  @SynchronizeFrames()
-  private _calculateAsync() {
-    this._calculate();
-    this.dataGrid.detectChanges();
-  }
+  // @SynchronizeFrames()
+  // private _calculateAsync() {
+  //   this._calculate();
+  //   this.dataGrid.detectChanges();
+  // }
 
   private _getItem(price: number): DomItem {
     if (!this._map.has(price)) {
@@ -328,9 +332,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (newChangedTime != this._changedTime) {
       for (const i of this.items)
         i.clearDelta();
-
-      this._changedTime = newChangedTime;
     }
+    this._changedTime = newChangedTime;
     // console.timeEnd('_handleTrade')
     // this._dom.handleTrade(trade);
     // this._calculateAsync();
@@ -362,8 +365,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
-      if (this.items.some(i => i.bid.hist > 1))
-        console.warn('more than 1')
+      // if (this.items.some(i => i.bid.hist > 1))
+      //   console.warn('more than 1')
     }
   }
 
@@ -447,29 +450,29 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   renderText = (e) => {
-    const ctx = e.ctx;
-    const cell = e.cell;
-    const value = cell.value;
+    // const ctx = e.ctx;
+    // const cell = e.cell;
+    // const value = cell.value;
 
-    const settings = value.settings;
+    // const settings = value.settings;
 
-    if (!settings)
-      return;
+    // if (!settings)
+    //   return;
 
-    if (settings.textAlign)
-      cell.horizontalAlignment = settings.textAlign;
+    // if (settings.textAlign)
+    //   cell.horizontalAlignment = settings.textAlign;
 
-    if (settings.fontColor)
-      e.ctx.fillStyle = settings.fontColor;
+    // if (settings.fontColor)
+    //   e.ctx.fillStyle = settings.fontColor;
 
-    if (cell.header.name == 'price') {
-      const s: any = settings;
-      const v: PriceCell = value;
+    // if (cell.header.name == 'price') {
+    //   const s: any = settings;
+    //   const v: PriceCell = value;
 
-      if (!v.isTraded && s.nonTradedPriceBackColor) {
-        ctx.fillStyle = s.nonTradedPriceBackColor;
-      }
-    }
+    //   if (!v.isTraded && s.nonTradedPriceBackColor) {
+    //     ctx.fillStyle = s.nonTradedPriceBackColor;
+    //   }
+    // }
 
   }
 
@@ -586,6 +589,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
+    this._settings.columns = this.columns;
     this.openSettings(true);
 
     // for debug purposes
