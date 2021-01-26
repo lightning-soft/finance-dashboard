@@ -30,11 +30,11 @@ export class QuantityInputComponent implements ControlValueAccessor {
   }
 
   updateValue(item: any) {
-    this.currentValue = item.label;
-    this.onChange(item.label);
+    this.currentValue = item.value;
+    this.onChange(item.value);
   }
 
   isCurrentValue(item: any) {
-    return this.currentValue === item.label;
+    return this.currentValue === item.value;
   }
 }

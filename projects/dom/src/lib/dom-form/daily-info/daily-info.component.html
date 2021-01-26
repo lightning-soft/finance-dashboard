@@ -1,7 +1,9 @@
 <div *ngIf="dailyInfo" class="chart-data">
-  <div class="income">{{ income }} ({{incomePercentage}}%)</div>
-  <div class="chart-info">H: {{dailyInfo.high}}</div>
-  <div class="chart-info">L: {{dailyInfo.low}}</div>
-  <div class="chart-info">O: {{dailyInfo.open}}</div>
-  <div class="chart-info">V: {{getVolume()}}</div>
+  <div [class.d-none]="!showInstrumentChange" class="income">{{ income }} ({{incomePercentage}}%)</div>
+  <ng-container *ngIf="showOHLVInfo">
+    <div class="chart-info">H: {{dailyInfo.high}}</div>
+    <div class="chart-info">L: {{dailyInfo.low}}</div>
+    <div class="chart-info">O: {{dailyInfo.open}}</div>
+    <div class="chart-info">V: {{getVolume()}}</div>
+  </ng-container>
 </div>

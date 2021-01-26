@@ -23,6 +23,8 @@ export enum FieldType {
   Color = 'color',
   Radio = 'radio',
   TextAlign = 'textAlign',
+  Switch = 'switch',
+  Hotkey = 'hotkey',
 }
 
 export enum InputType {

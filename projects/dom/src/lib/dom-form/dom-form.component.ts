@@ -15,6 +15,17 @@ const historyParams = {
   BarCount: 10
 };
 
+export interface DomFormSettings {
+  showInstrumentChange: boolean;
+  closePositionButton: boolean;
+  showOHLVInfo: boolean;
+  showFlattenButton: boolean;
+  showPLInfo: boolean;
+  showIcebergButton: boolean;
+  roundPL: boolean;
+  includeRealizedPL: boolean;
+}
+
 @Component({
   selector: 'dom-form',
   templateUrl: './dom-form.component.html',
@@ -26,6 +37,28 @@ export class DomFormComponent extends FormComponent<any> {
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
   @Input() trade;
+  @Input() showUnits = true;
+  @Input() isFormOnTop = false;
+  @Input() isExtended = false;
+
+  _settings: DomFormSettings = {
+    showInstrumentChange: true,
+    closePositionButton: true,
+    showOHLVInfo: true,
+    showFlattenButton: true,
+    showPLInfo: true,
+    showIcebergButton: true,
+    roundPL: false,
+    includeRealizedPL: false,
+  };
+
+  get setting() {
+    return this._settings;
+  }
+
+  @Input() set domSettings(value) {
+    Object.assign(this._settings, value);
+  }
 
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id)
@@ -36,10 +69,26 @@ export class DomFormComponent extends FormComponent<any> {
     return this.instrument$.getValue();
   }
 
+  get isIce() {
+    return this.formValue.isIce;
+  }
+
+  get isIceEnabled() {
+    return this.setting.showIcebergButton;
+  }
+
+  get isTypeStopLimit() {
+    return this.formValue.type === OrderType.StopLimit;
+  }
+
+  get isIceAmountVisible() {
+    return this.isIce && this.isIceEnabled && this.isTypeStopLimit;
+  }
+
   amountButtons = [
-    { label: 1 }, { label: 2, black: true },
-    { label: 10 }, { label: 50 },
-    { label: 100 }, { label: 5 }
+    { value: 1 }, { value: 2, black: true },
+    { value: 10 }, { value: 50 },
+    { value: 100 }, { value: 5 }
   ];
   typeButtons = [
     { label: 'LMT', value: OrderType.Limit }, { label: 'STP MKT', value: OrderType.StopMarket, black: true },
@@ -49,16 +98,23 @@ export class DomFormComponent extends FormComponent<any> {
     { label: 'MIT', value: OrderType.MIT },
     { label: 'LIT', value: OrderType.LIT },
 
-    // { label: 'ICE', value: 'ICE', black: true },
-    // {label: 10},
+    // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
   tifButtons = [
-    // { label: 'DAY', value: OrderDuration.DAY },
-    { label: 'GTD', value: OrderDuration.GTD },
-    { label: 'GTC', value: OrderDuration.GTC, black: true },
+    // { label: 'DAY', value: OrderDuration.DAY  },{ label: 'GTD', value: OrderDuration.GTD }, { label: 'GTC', value: OrderDuration.GTC, black: true },
     { label: 'FOK', value: OrderDuration.FOK, black: true },
     { label: 'IOC', value: OrderDuration.IOC, black: true },
   ];
+  editAmount = false;
+  editIceAmount = false;
+
+  get amount() {
+    return this.formValue.amount;
+  }
+
+  get iceAmount() {
+    return this.formValue.iceAmount;
+  }
 
   constructor(
     protected _injector: Injector,
@@ -108,6 +164,9 @@ export class DomFormComponent extends FormComponent<any> {
         count: 12,
         unit: 'ticks'
       }),
+      amount: new FormControl(1),
+      isIce: new FormControl(false),
+      iceAmount: new FormControl(10),
 
     });
   }
@@ -118,11 +177,19 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   getPl() {
+    const precision = this.setting.roundPL ? 0 : 5;
     if (this.dailyInfo)
-      return (+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open);
+      return ((+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open))
+        .toFixed(precision);
   }
 
 
+  toggleIce() {
+    const { isIce } = this.formValue;
+    this.form.patchValue({
+      isIce: !isIce
+    });
+  }
 }
 
 
