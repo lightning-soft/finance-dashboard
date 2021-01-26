@@ -1,21 +1,18 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
-import { PriceCell } from './price.cell';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
 import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
-import { ICellSettings } from 'data-grid';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
-import { DomHandler } from './handlers';
-import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
+import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -45,20 +42,21 @@ export class DomItemMax {
       this[key] = change[key];
       result[key] = change[key];
     }
-
-    // if (result && Object.keys(result).some(k => {
-    //   if(result[k] == null) {
-    //     delete result[k];
-    //     return true
-    //   }
-    //   return false
-    // })) {
-    //   console.error('suke')
-    // }
-
     return result;
   }
+
+  clear() {
+    this.ask = null;
+    this.bid = null;
+    this.volume = null;
+    this.totalAsk = null;
+    this.totalBid = null;
+    this.currentAsk = null;
+    this.currentBid = null;
+  }
 }
+
+const ROWS = 400;
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
@@ -113,7 +111,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   accountId: Id;
 
-  private _dom = new DomHandler();
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
@@ -179,9 +176,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _settings: DomSettings = new DomSettings();
 
-  private _lastSyncTime = 0;
-
   private _changedTime = 0;
+
+  private get _tickSize() {
+    // const tickSize = this.instrument.tickSize ?? 0.25;
+    return 0.01
+  }
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -190,7 +190,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector,
-    private _renderer: Renderer2
   ) {
     super();
     this.setTabIcon('icon-widget-positions');
@@ -229,14 +228,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   centralize() {
-    this._calculate();
+    this._handleResize();
+    requestAnimationFrame(() => {
+      const grid = this.dataGrid;
+      const visibleRows = grid.getVisibleRows();
+      grid.scrollTop = ROWS * grid.rowHeight / 2 - visibleRows / 2 * grid.rowHeight;
+    });
     this.detectChanges();
   }
 
   @SynchronizeFrames()
   detectChanges(force = false) {
     this.dataGrid.detectChanges(force);
-    this._lastSyncTime = Date.now();
   }
 
   private _getItem(price: number): DomItem {
@@ -247,6 +250,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     return this._map.get(price);
+  }
+
+  private _fillData(lastPrice: number) {
+    this.items = [];
+    this._map.clear();
+    this._max.clear()
+    const data = this.items;
+    const tickSize = this._tickSize;
+
+    let price = lastPrice - tickSize * ROWS / 2;
+    const maxPrice = lastPrice + tickSize * ROWS / 2;
+
+    while (price < maxPrice) {
+      price = +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision)
+      data.push(this._getItem(price));
+    }
   }
 
   protected _handleTrade(trade: ITrade) {
@@ -261,22 +280,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const lastPrice = this._lastPrice = Math.round(trade && trade.price / tickSize) * tickSize;
 
     if (!this.items.length) {
-      const data = this.items;
-      const rows = 400;
-      let price = lastPrice - tickSize * rows / 2;
-      const maxPrice = lastPrice + tickSize * rows / 2;
-
-      while (price < maxPrice) {
-        price = +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision)
-        data.push(this._getItem(price));
-      }
-
-      this._handleResize();
-      requestAnimationFrame(() => {
-        const grid = this.dataGrid;
-        const visibleRows = grid.getVisibleRows();
-        grid.scrollTop = rows * grid.rowHeight / 2 - visibleRows / 2 * grid.rowHeight;
-      });
+      this._fillData(lastPrice); // todo: load order book
+      this.centralize();
     }
 
     const item = this._getItem(lastPrice);
@@ -287,21 +292,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         i.clearDelta();
     }
     this._changedTime = newChangedTime;
-    // console.timeEnd('_handleTrade')
-    // this._dom.handleTrade(trade);
-    // this._calculateAsync();
     this.detectChanges();
   }
 
   protected _handleL2(l2: L2) {
-    // console.time('_handleL2')
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
-    // this._dom.handleL2(l2);
+
     const item = this._getItem(l2.price);
     this._handleMaxChange(item.handleL2(l2), item);
-    // console.timeEnd('_handleL2')
-
-    // this._calculateAsync();
     this.detectChanges();
   }
 
@@ -329,74 +327,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  private _calculate() {
-    const itemsCount = this.items.length;
-
-    const instrument = this.instrument;
-    if (!instrument)
-      return;
-
-    const data: DomItem[] = this.items;
-    const dom = this._dom;
-    const precision = instrument.precision;
-    const tickSize = instrument.tickSize;
-    let last = this._lastPrice;
-
-    // if (!info._needRedraw) {
-    //   for (const item of data) {
-    //     item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
-    //   }
-    // } else {
-    //   let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
-    //   // const tickSize = 0.01;
-    //   let upIndex = centerIndex - 1;
-    //   let downIndex = centerIndex + 1;
-    //   let price = last;
-    //   let item: DomItem;
-
-    //   if (last == null || isNaN(last))
-    //     return;
-
-    //   if (centerIndex >= 0 && centerIndex < itemsCount) {
-    //     item = data[centerIndex];
-    //     item.updatePrice(last, dom, true);
-    //   }
-
-    //   while (upIndex >= 0) {
-    //     price = sum(price, tickSize, precision);
-    //     if (upIndex >= itemsCount) {
-    //       upIndex--;
-    //       continue;
-    //     }
-
-    //     item = data[upIndex];
-    //     item.updatePrice(price, dom);
-    //     upIndex--;
-    //   }
-
-    //   price = last;
-
-    //   while (downIndex < itemsCount) {
-    //     price = sum(price, -tickSize, precision);
-    //     if (downIndex < 0) {
-    //       downIndex++;
-    //       continue;
-    //     }
-
-    //     item = data[downIndex];
-    //     item.updatePrice(price, dom);
-    //     downIndex++;
-    //   }
-
-    //   info.markDrawed();
-    // }
-
-    this._lastSyncTime = Date.now();
-  }
-
   afterDraw = (grid) => {
     const ctx = grid.ctx;
-    // ctx.save();
+
     const y = Math.ceil(this.visibleRows / 2) * this.dataGrid.rowHeight;
     const width = grid.ctx.canvas.width;
     ctx.beginPath();
@@ -404,99 +337,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ctx.moveTo(0, y);
     ctx.lineTo(width, y);
     ctx.stroke();
-    // ctx.restore();
-  }
-
-  renderText = (e) => {
-    // const ctx = e.ctx;
-    // const cell = e.cell;
-    // const value = cell.value;
-
-    // const settings = value.settings;
-
-    // if (!settings)
-    //   return;
-
-    // if (settings.textAlign)
-    //   cell.horizontalAlignment = settings.textAlign;
-
-    // if (settings.fontColor)
-    //   e.ctx.fillStyle = settings.fontColor;
-
-    // if (cell.header.name == 'price') {
-    //   const s: any = settings;
-    //   const v: PriceCell = value;
-
-    //   if (!v.isTraded && s.nonTradedPriceBackColor) {
-    //     ctx.fillStyle = s.nonTradedPriceBackColor;
-    //   }
-    // }
-
-  }
-
-  renderCell = (e) => {
-    const cell = e.cell;
-    const value = cell.value;
-
-    const settings: ICellSettings = value.settings;
-
-    if (!settings)
-      return;
-    const ctx = e.ctx;
-
-    if (settings.backgroundColor)
-      ctx.fillStyle = settings.backgroundColor;
-
-    if (cell.header.name == 'price') {
-      const s: any = settings;
-      const v: PriceCell = value;
-
-      if (v.isTraded && s.tradedPriceBackColor) {
-        ctx.fillStyle = s.tradedPriceBackColor;
-      }
-    }
-
-    if (settings.highlightBackgroundColor && value.time >= this._lastSyncTime)
-      ctx.fillStyle = settings.highlightBackgroundColor;
-  }
-
-  afterRenderCell = (e) => {
-    const ctx = e.ctx;
-    const cell = e.cell;
-    const value = cell.value;
-    const data = cell.data;
-
-    const name = cell.header.name;
-
-    if (data.isCenter && name == 'price')
-      e.ctx.fillStyle = 'red';
-
-    const settings = value.settings;
-
-    if (!settings)
-      return;
-
-    if (settings.backgroundColor)
-      e.ctx.fillStyle = settings.backgroundColor;
-
-    if (!value?.component)
-      return;
-
-    switch (value.component) {
-      case 'histogram-component':
-        const s: IHistogramSettings = settings as IHistogramSettings;
-        if (s.enableHistogram == false || !value.hist)
-          return;
-        // ctx.save();
-        ctx.fillStyle = s.histogramColor ?? 'grey';
-        if (s.histogramOrientation == 'right') {
-          ctx.fillRect(cell.x + cell.width * (1 - value.hist), cell.y, cell.width * value.hist, cell.height);
-        } else {
-          ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
-        }
-        // ctx.restore();
-        break;
-    }
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
