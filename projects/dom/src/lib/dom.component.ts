@@ -25,6 +25,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -39,7 +40,7 @@ class RedrawInfo {
   }
 
   public set scrolledItems(value) {
-    this.needRedraw()
+    this.needRedraw();
     this._scrolledItems = value;
   }
 
@@ -105,7 +106,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }));
 
   accountId: Id;
-
+  keysStack: KeyboardListener = new KeyboardListener();
+  domKeyHandlers = {
+    autoCenter: () => {
+    },
+    autoCenterAllWindows: () => {
+    },
+    buyMarket: () => {
+    },
+    sellMarket: () => {
+    },
+    hitBid: () => {
+    },
+    joinBid: () => {
+    },
+    liftOffer: () => {
+    },
+    oco: () => {
+    },
+    flatten: () => {
+    },
+    cancelAllOrders: () => {
+    },
+    quantity1: () => {
+    },
+    quantity2: () => {
+    },
+    quantity3: () => {
+    },
+    quantity4: () => {
+    },
+    quantity5: () => {
+    },
+    quantityToPos: () => {
+    },
+    stopsToPrice: () => {
+    },
+    clearAlerts: () => {
+    },
+    clearAlertsAllWindow: () => {
+    },
+    clearAllTotals: () => {
+    },
+    clearCurrentTradesAllWindows: () => {
+    },
+    clearCurrentTradesDown: () => {
+    },
+    clearCurrentTradesDownAllWindows: () => {
+    },
+    clearCurrentTradesUp: () => {
+    },
+    clearCurrentTradesUpAllWindows: () => {
+    },
+    clearTotalTradesDown: () => {
+    },
+    clearTotalTradesDownAllWindows: () => {
+    },
+    clearTotalTradesUp: () => {
+    },
+    clearTotalTradeUpAllWindows: () => {
+    },
+    clearVolumeProfile: () => {
+    }
+  };
   private _dom = new DomHandler();
 
   @ViewChild(DomFormComponent)
@@ -281,14 +344,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const dom = this._dom;
     const precision = instrument.precision;
     const tickSize = instrument.tickSize;
-    let last = Math.ceil(trade && trade.price / tickSize) * tickSize;
+    const last = Math.ceil(trade && trade.price / tickSize) * tickSize;
 
     if (!info._needRedraw) {
       for (const item of data) {
         item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
       }
     } else {
-      let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
+      const centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
       // const tickSize = 0.01;
       let upIndex = centerIndex - 1;
       let downIndex = centerIndex + 1;
@@ -455,9 +518,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case LayoutNodeEvent.Restore:
         this._handleResize();
         break;
+      case LayoutNodeEvent.Event:
+        this._handleKey(data);
+    }
+    return true;
+  }
+
+  private _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+    this.keysStack.handle(event);
+    const keyBinding = Object.entries(this._settings.hotkeys)
+      .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
+      .find(([name, binding]) => {
+        return (binding as KeyBinding).equals(this.keysStack);
+      });
+    if (keyBinding) {
+      this.domKeyHandlers[keyBinding[0] as string]();
     }
 
-    return true;
   }
 
   @SynchronizeFrames()
@@ -487,7 +567,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this.openSettings(true);
-    console.log(this._settings);
 
     // for debug purposes
     if (!state)

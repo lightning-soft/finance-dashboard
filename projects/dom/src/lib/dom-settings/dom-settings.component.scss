@@ -1,3 +1,4 @@
+@import "~src/scss/variables";
 
 :host-context(.wm-window), :host {
   background: #1B1D22;
@@ -59,37 +60,40 @@ cdk-virtual-scroll-viewport {
       padding-left: 8px;
       padding-right: 8px;
     }
-
-    nz-form-item {
-      flex-direction: row;
-
-      .ant-form-item-label {
-        border-bottom: none;
-
-        label {
-          color: #A1A2A5;
-          font-size: 0.8rem;
-          line-height: 1.07;
-
-        }
-      }
-
-      nz-form-label,
-      nz-form-control {
-        width: 50%;
-      }
-
-      input {
-        background: #1B1D22;
-        border: none;
-      }
-    }
-
   }
 
   number-input {
     margin-top: 4px;
     display: inline-block;
+  }
+
+  .current-level {
+    & > * {
+      &:not(:first-child) {
+        margin-top: 6px;
+        display: block;
+      }
+    }
+  }
+
+  .tail-checkbox {
+    margin-left: 4px;
+  }
+
+  .color-levels {
+    nz-form-label {
+      border-bottom: none;
+      margin-bottom: 0;
+
+      label {
+        color: $text-60;
+        margin: 0;
+        font-size: 0.6rem;
+        padding: 0;
+        font-weight: normal;
+        line-height: 0.8rem;
+      }
+    }
   }
 
   .two-rows {

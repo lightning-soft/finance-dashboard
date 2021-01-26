@@ -49,6 +49,26 @@ function generateKeyFromLabel(label) {
   return lowerFirstLetter((label as string).replace(/ /g, ''));
 }
 
+function getHotkey(config: any | string) {
+  let label;
+  let key;
+  if (typeof config === 'string') {
+    label = config;
+    key = generateKeyFromLabel(config);
+  } else {
+    label = config.label;
+    key = config.key;
+  }
+  return {
+    templateOptions: {
+      label
+    },
+    className: 'mt-3 d-block',
+    type: FieldType.Hotkey,
+    key,
+  };
+}
+
 function getHistogramColor(label = 'Histogram Color', key = 'histogramColor') {
   const histogramBackgroundColor = 'rgba(72,149,245,0.7)';
   return {
@@ -303,10 +323,50 @@ export const commonFields: IFieldConfig[] = [
       }
     ]
   }),
-
-
 ];
-export const hotkeyFields: FormlyFieldConfig[] = [
+export const hotkeyFields: IFieldConfig[] = [
+  new FieldConfig(
+    {
+      label: '',
+      key: 'hotkeys',
+      fieldGroupClassName: 'w-100',
+      fieldGroup: [
+        getHotkey('Auto Center'),
+        getHotkey('Auto Center All Windows'),
+        getHotkey('Buy Market '),
+        getHotkey('Sell Market'),
+        getHotkey('Hit Bid'),
+        getHotkey('Join Bid'),
+
+        getHotkey('Lift Offer'),
+        getHotkey({ label: 'OCO', key: 'oco' }),
+        getHotkey('Flatten'),
+        getHotkey('Cancel All Orders'),
+        getHotkey({ label: 'Quantity 1 Preset', key: 'quantity1' }),
+        getHotkey({ label: 'Quantity 2 Preset', key: 'quantity2' }),
+        getHotkey({ label: 'Quantity 3 Preset', key: 'quantity3' }),
+        getHotkey({ label: 'Quantity 4 Preset', key: 'quantity4' }),
+        getHotkey({ label: 'Quantity 5 Preset', key: 'quantity5' }),
+        getHotkey({ label: 'Quantity to Position Size', key: 'quantityToPos' }),
+        getHotkey({ label: 'Set All Stops to Price', key: 'stopsToPrice' }),
+        getHotkey('Clear Alerts'),
+        getHotkey('Clear Alerts All Window'),
+        getHotkey('Clear All Totals'),
+        getHotkey('Clear Current Trades All Windows'),
+        getHotkey('Clear Current Trades Down'),
+        getHotkey('Clear Current Trades Down All Windows'),
+        getHotkey('Clear Current Trades Up'),
+        getHotkey('Clear Current Trades Up All Windows'),
+        getHotkey('Clear Total Trades Down'),
+        getHotkey('Clear Total Trades Down All Windows'),
+        getHotkey('Clear Total Trades Up'),
+        getHotkey('Clear Total Trades Up All Windows'),
+        getHotkey('Clear Volume Profile'),
+      ]
+    }
+  ),
+];
+/*export const hotkeyFields: FormlyFieldConfig[] = [
   {
     type: FieldType.Input,
     templateOptions: { label: 'Auto Center' },
@@ -457,7 +517,7 @@ export const hotkeyFields: FormlyFieldConfig[] = [
     templateOptions: { label: 'Clear Volume Profile' },
     key: 'clearVolumeProfile',
   },
-];
+];*/
 export const generalFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: '',
@@ -858,23 +918,42 @@ function getCurrentFields(suffix: string) {
       fieldGroup: [
         getCheckboxes([{ key: 'enableHistogram', label: `Current At ${suffix} Histogram` }]),
         getBackgroundColor(),
-        getFontColor(),
-        getColor('Inside Bid Background Color'),
-        getHightlightColor(),
-        getHistogramColor(),
-        getTextAlign(),
+        new FieldConfig({
+          label: 'Tails Background Colors',
+          className: 'color-levels',
+          fieldGroupClassName: 'current-level',
+          fieldGroup: [
+            getColor('Level 1'),
+            getColor('Level 2'),
+            getColor('Level 3'),
+            getColor('Level 4'),
+            getColor('Level 5'),
+            getColor('Level 6'),
+            getColor('Level 7'),
+            getColor('Level 8'),
+          ]
+        }),
+        new FieldConfig({
+          fieldGroupClassName: 'current-level',
+          fieldGroup: [
+            getFontColor(),
+            getColor('Inside Bid Background Color'),
+            getHightlightColor(),
+            getHistogramColor(),
+            getTextAlign(),
 
-        getColor('Level 1'),
-        getColor('Level 2'),
-        getColor('Level 3'),
-        getColor('Level 4'),
-        getColor('Level 5'),
-        getColor('Level 6'),
-        getColor('Level 7'),
-        getColor('Level 8'),
-        getColor('Tail Inside Ask Fore'),
-        getCheckboxes([{ key: `tailInside${suffix}Fore`, label: `Tail Inside ${suffix} Bold` }]),
-        getCheckboxes([{ key: `tailInside${suffix}Bold`, label: `Tail Inside ${suffix} Bold` }]),
+          ]
+        }),
+        new FieldConfig(
+          {
+            fieldGroupClassName: '',
+            fieldGroup: [
+              getColor('Tail Inside Ask Fore'),
+              wrapWithClass(getCheckboxes([{ key: `tailInside${suffix}Fore`, label: `Tail Inside ${suffix} Bold` }]),
+                'd-block tail-checkbox'),
+            ]
+          }
+        ),
       ]
     }),
   ];

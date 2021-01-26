@@ -58,6 +58,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
 
   constructor(private _applier: CssApplier) {
     this.setTabTitle('Dom settings');
+    this.setTabIcon('icon-setting-gear');
   }
 
   ngAfterViewInit() {
