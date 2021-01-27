@@ -15,6 +15,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
+import { lastPrices } from '../../../fake-communication/src/trading/fake-level1.datafeed';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -116,8 +117,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   accountId: Id;
   keysStack: KeyboardListener = new KeyboardListener();
   domKeyHandlers = {
-    autoCenter: () => {
-    },
+    autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => {
     },
     buyMarket: () => {
@@ -252,8 +252,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _changedTime = 0;
 
   private get _tickSize() {
-    // const tickSize = this.instrument.tickSize ?? 0.25;
-    return 0.01;
+    return this.instrument.tickSize ?? 0.01;
+    // return 0.01;
   }
   get domFormSettings() {
     return this._settings.orderArea.formSettings;
@@ -373,9 +373,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const prevItem = this._getItem(this._lastPrice);
-    prevItem.clearLTQ();
+    const lastPrice = this._normalizePrice(trade && trade.price);
 
-    const lastPrice = this._lastPrice = this._normalizePrice(trade && trade.price);
+    if (this._lastPrice != lastPrice)
+      prevItem.clearLTQ();
+
+    this._lastPrice = lastPrice;
 
     if (!this.items.length) {
       this._fillData(lastPrice); // todo: load order book
@@ -441,7 +444,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
-    })
+    });
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -552,10 +555,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrder(column: string, item: DomItem) {
+    console.log(column, item);
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');
       return;
     }
+
     const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
     const requestPayload = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;

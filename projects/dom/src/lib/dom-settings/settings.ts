@@ -7,6 +7,7 @@ import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
+const DefaultClearInterval = 4000;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -38,7 +39,7 @@ export class DomSettings {
     hideFromLeft: true,
     hideFromRight: true,
     intervals: {
-      clearTradersTimer: 8,
+      clearTradersTimer: DefaultClearInterval,
       updateInterval: 8,
       orderQuantityStep: 7,
       scrollWheelSensitivity: 6,
@@ -142,6 +143,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramColor: 'rgba(72,149,245,0,3)',
     histogramEnabled: true,
+    clearInterval: DefaultClearInterval,
     // totalFontColor: 'transparent',
   };
   ask: any = {
@@ -154,6 +156,7 @@ export class DomSettings {
     largeSize: 14,
     highlightLarge: false,
     histogramEnabled: true,
+    clearInterval: DefaultClearInterval,
     // totalFontColor: 'transparent',
   };
   bidDepth: any = {
@@ -310,6 +313,9 @@ export class DomSettings {
         console.warn(`Missing column ${key}`);
       }
     }
+
+    this.ask.clearInterval = this.general.intervals.clearTradersTimer;
+    this.bid.clearInterval = this.general.intervals.clearTradersTimer;
 
     console.log(data);
   }

@@ -7,11 +7,10 @@ import { ContextMenuService } from 'context-menu';
 import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutHandler, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NzContextMenuService } from 'ng-zorro-antd';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { finalize, first } from 'rxjs/operators';
-import { IConnection, IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
-import { WatchlistItem } from './models/watchlist.item';
+import { IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { InstrumentSelectComponent } from '../../instrument-select/src/lib/instrument-select.component';
+import { WatchlistItem } from './models/watchlist.item';
 
 const headers = [
   'name',
