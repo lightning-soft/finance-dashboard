@@ -8,7 +8,16 @@ import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
+import {
+  IConnection,
+  IInstrument,
+  ITrade,
+  L2,
+  Level1DataFeed,
+  Level2DataFeed,
+  OrderSide,
+  OrdersRepository
+} from 'trading';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -58,6 +67,8 @@ export class DomItemMax {
 }
 
 const ROWS = 400;
+const DOM_HOTKEYS = 'domHotkeys';
+
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
@@ -117,8 +128,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   keysStack: KeyboardListener = new KeyboardListener();
   domKeyHandlers = {
     autoCenter: () => {
+      this.centralize();
     },
     autoCenterAllWindows: () => {
+      this.broadcastHotkeyCommand('autoCenter');
     },
     buyMarket: () => {
     },
@@ -155,28 +168,63 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     clearAlertsAllWindow: () => {
     },
     clearAllTotals: () => {
+      for (let item of this.items) {
+        item.totalBid.clear();
+        item.totalAsk.clear();
+      }
+    },
+    clearCurrentTrades: () => {
+      for (let item of this.items) {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      }
     },
     clearCurrentTradesAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTrades');
     },
     clearCurrentTradesDown: () => {
+      this.getDownItems(item => {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      });
     },
     clearCurrentTradesDownAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTradesDown');
     },
     clearCurrentTradesUp: () => {
+      this.getUpItems((item) => {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      });
     },
     clearCurrentTradesUpAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTradesUp');
     },
     clearTotalTradesDown: () => {
+      this.getDownItems((item) => {
+        item.totalAsk.clear();
+        item.totalBid.clear();
+      });
     },
     clearTotalTradesDownAllWindows: () => {
+      this.broadcastHotkeyCommand('clearTotalTradesDown');
     },
     clearTotalTradesUp: () => {
+      this.getUpItems((item) => {
+        item.totalAsk.clear();
+        item.totalBid.clear();
+      });
     },
-    clearTotalTradeUpAllWindows: () => {
+    clearTotalTradesUpAllWindows: () => {
+      this.broadcastHotkeyCommand('clearTotalTradesUp');
     },
     clearVolumeProfile: () => {
+      for (let item of this.items) {
+        item.volume.clear();
+      }
     }
   };
+
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
@@ -255,6 +303,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // const tickSize = this.instrument.tickSize ?? 0.25;
     return 0.01;
   }
+
   get domFormSettings() {
     return this._settings.orderArea.formSettings;
   }
@@ -283,11 +332,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
-
+    this.addLinkObserver({
+      link: DOM_HOTKEYS,
+      handleLinkData: (key: string) => {
+        this.domKeyHandlers[key]();
+      },
+    });
     this.addLinkObserver({
       link: DomSettingsSelector,
       handleLinkData: (settings: DomSettings) => {
-        console.log(settings);
         const common = settings.common;
         if (common) {
           for (const column of this.columns) {
@@ -302,6 +355,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.detectChanges(true);
       }
     });
+  }
+
+  broadcastHotkeyCommand(commandName: string) {
+    this.broadcastData(DOM_HOTKEYS, commandName);
+  }
+
+  getUpItems(handler: (item) => void) {
+    const centerIndex = this.items.findIndex(item => item.isCenter);
+    this.items.slice(0, centerIndex)
+      .forEach(item => {
+        handler(item);
+      });
+  }
+
+  getDownItems(handler: (item) => void) {
+    const centerIndex = this.items.findIndex(item => item.isCenter);
+    this.items.slice(centerIndex, this.items.length)
+      .forEach(item => {
+        handler(item);
+      });
   }
 
   protected _handleConnection(connection: IConnection) {

@@ -45,7 +45,7 @@ export class HotkeyComponent extends FieldType {
     });
 
     this.keyboardListener.onCleared(() => {
-      this.updateHotkey(this.keyboardListener.snapshot());
+       this.updateHotkey(this.keyboardListener.snapshot());
     });
 
     this.keyboardListener.onChanged(() => this.updateHotkey(this.keyboardListener.snapshot()));
