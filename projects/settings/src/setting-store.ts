@@ -2,8 +2,9 @@ import { Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { SettingsData } from './types';
 import { SettingsRepository } from 'trading';
+import { map, tap } from 'rxjs/operators';
+import { KeyBinding } from 'keyboard';
 
-const localStorageKey = 'settings';
 
 export interface ISettingsStore {
   getItem(): Observable<any>;
@@ -13,22 +14,38 @@ export interface ISettingsStore {
 
 @Injectable()
 export class SettingsStore implements ISettingsStore {
+  hasSettings = false;
+
   constructor(private settingsRepository: SettingsRepository) {
   }
 
-  data;
-
   getItem(): Observable<SettingsData> {
-    const data = this.settingsRepository.getItems() as any;
-    this.data = data;
-    return data;
+    return this.settingsRepository.getItems()
+      .pipe(
+        map((item: any) => item.settings),
+        map(settings => {
+          this.hasSettings = true;
+          const hotkeys = [...settings.hotkeys].map(item => {
+            item[1] = KeyBinding.fromDTO(item[1]);
+            return item;
+          });
+          settings.hotkeys = hotkeys;
+          return settings;
+        })) as any;
   }
 
-  setItem(data: SettingsData): Observable<any> {
-    if (this.data.id)
-      return this.settingsRepository.updateItem(data as any);
+  setItem(_settings: SettingsData): Observable<any> {
+    const settings = { ..._settings, hotkeys: [..._settings.hotkeys] };
+    settings.hotkeys = _settings.hotkeys.map(item => {
+        const result = [...item];
+        result[1] = item[1].toDTO() as any;
+        return result as any;
+      }
+    );
+    if (this.hasSettings)
+      return this.settingsRepository.updateItem({ settings });
     else {
-      return this.settingsRepository.createItem(data);
+      return this.settingsRepository.createItem({ settings });
 
     }
   }

@@ -125,8 +125,6 @@ export class DomSettings {
 
       Object.assign(this[key], data[key]);
     }
-
-    console.log(data);
   }
 
   toJson() {
