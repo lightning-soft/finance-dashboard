@@ -51,7 +51,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
-  @Input() afterDraw = (grid) => null;
+  @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
 
@@ -171,8 +171,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     // grid.addEventListener('rendercell', this.renderCell)
     // grid.addEventListener('afterrendercell', this.afterRenderCell)
     // grid.addEventListener('rendertext', this.renderText)
-    grid.addEventListener('afterdraw', this.afterDraw)
-    grid.addEventListener('currentCellChanged', this.currentCellChanged)
+    grid.addEventListener('afterdraw', (e) => this.afterDraw(e, this._grid));
+    grid.addEventListener('currentCellChanged', this.currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 

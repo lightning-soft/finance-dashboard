@@ -4,6 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
@@ -14,7 +15,6 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
-import { KeyboardListener, KeyBinding } from 'keyboard';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -318,7 +318,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     requestAnimationFrame(() => {
       const grid = this.dataGrid;
       const visibleRows = grid.getVisibleRows();
-      grid.scrollTop = ROWS * grid.rowHeight / 2 - visibleRows / 2 * grid.rowHeight;
+      var index = ROWS / 2;
+      if (this._lastPrice) {
+        for (let i = 0; i < this.items.length; i++) {
+          const item = this.items[i];
+          if (item.lastPrice == this._lastPrice)
+            index = i;
+
+          item.isCenter = false;
+        }
+      }
+
+      if (this.items[index])
+        this.items[index].isCenter = true;
+
+      grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     });
     this.detectChanges();
   }
@@ -349,7 +363,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const maxPrice = lastPrice + tickSize * ROWS / 2;
 
     while (price < maxPrice) {
-      price = +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision)
+      price = this._normalizePrice(price);
       data.push(this._getItem(price));
     }
   }
@@ -361,9 +375,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevItem = this._getItem(this._lastPrice);
     prevItem.clearLTQ();
 
-    // const tickSize = this.instrument.tickSize ?? 0.25;
-    const tickSize = 0.01
-    const lastPrice = this._lastPrice = Math.round(trade && trade.price / tickSize) * tickSize;
+    const lastPrice = this._lastPrice = this._normalizePrice(trade && trade.price);
 
     if (!this.items.length) {
       this._fillData(lastPrice); // todo: load order book
@@ -414,16 +426,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  afterDraw = (grid) => {
-    const ctx = grid.ctx;
+  afterDraw = (e, grid) => {
+    grid.forEachRow((row, y) => {
+      if (!row.isCenter)
+        return;
 
-    const y = Math.ceil(this.visibleRows / 2) * this.dataGrid.rowHeight;
-    const width = grid.ctx.canvas.width;
-    ctx.beginPath();
-    ctx.strokeStyle = '#A1A2A5';
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+      const ctx = e.ctx;
+      const width = e.ctx.canvas.width;
+      const rowHeight = grid.style.rowHeight;
+      y += rowHeight;
+
+      ctx.beginPath();
+      ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    })
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -556,6 +574,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .catch((err) => {
         this.notifier.showError(err);
       });
+  }
+
+  private _normalizePrice(price) {
+    const tickSize = this._tickSize;
+    return +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
 
   ngOnDestroy() {

@@ -40,9 +40,12 @@ export class DomItem implements IBaseItem {
 
   isCenter = false;
 
+  get lastPrice(): number {
+    return this.price._value;
+  }
+
   _id: Cell = new NumberCell();
   price: PriceCell;
-  lastPrice: number;
   orders: Cell = new DataCell();
   ltq: NumberCell;
   bid: HistogramCell;
