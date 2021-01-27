@@ -8,6 +8,8 @@ export interface IHistogramSettings extends ICellSettings {
   highlightBackgroundColor: string;
   histogramColor: string;
   enableHistogram: boolean;
+  highlightLarge?: boolean;
+  largeSize?: number;
 }
 
 export class HistogramCell extends NumberCell {
@@ -19,7 +21,7 @@ export class HistogramCell extends NumberCell {
   constructor(config) {
     super({
       strategy: AddClassStrategy.NONE,
-      component: histogramComponent,
+      component: 'histogram',
     });
     this.settings = config.settings;
   }
@@ -29,7 +31,7 @@ export class HistogramCell extends NumberCell {
     if (this._histValue != null)
       this.calcHist(this._histValue);
 
-      return r;
+    return r;
   }
 
   calcHist(value: number) {

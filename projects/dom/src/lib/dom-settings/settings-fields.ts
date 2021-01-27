@@ -188,7 +188,7 @@ function getSwitch(key, label, config = {}) {
 }
 
 function getCheckboxes(checkboxes: { key: string, label: string, config?: any }[], label?: string,
-                       additionalFields: FormlyFieldConfig[] = [], config = {}) {
+  additionalFields: FormlyFieldConfig[] = [], config = {}) {
   return {
     wrappers: ['form-field'],
     templateOptions: {
@@ -255,8 +255,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-            { label: 'Monospace', value: 'monospace' },
-            { label: 'Sans Serif', value: 'sans-serif' }],
+          { label: 'Monospace', value: 'monospace' },
+          { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -268,7 +268,7 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [
-            { label: 'Regular', value: '400' }, { label: 'Bold', value: '600' }, { label: 'Bolder', value: '700' }]
+            { label: 'Regular', value: '' }, { label: 'Bold', value: 'bold' }]
         },
         key: 'fontWeight',
         getCss: (value) => {
@@ -524,12 +524,12 @@ export const generalFields: IFieldConfig[] = [
     key: 'general',
     fieldGroup: [
       getCheckboxes([
-          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-          { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-          { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-          { label: 'Re-Center On New Position', key: 'recenter' },
-          { label: 'All Windows', key: 'allWindows' },
-        ],
+        { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+        { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+        { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+        { label: 'Re-Center On New Position', key: 'recenter' },
+        { label: 'All Windows', key: 'allWindows' },
+      ],
         'Reset settings'),
       getCheckboxes([
         { label: 'Hide Account Name', key: 'hideAccountName' },
@@ -664,15 +664,15 @@ export const ltqFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-          fieldGroup: [
-            getFontColor(),
-            getColor('Sell Background Color'),
-            getColor('Background Color'),
-            getColor({ label: 'Highlight Color', key: 'highlightBackgroundColor' }),
-            //  getHistogramColor(),
-            getColor('Buy Background Color'),
-          ]
-        },
+        fieldGroup: [
+          getFontColor(),
+          getColor('Sell Background Color'),
+          getColor('Background Color'),
+          getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+          //  getHistogramColor(),
+          getColor('Buy Background Color'),
+        ]
+      },
       ),
       {
         fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -775,7 +775,7 @@ function getDeltaFields(label: string) {
   ];
 }
 
-const bidConfig = (label) => {
+const bidAskConfig = (label) => {
   return new FieldConfig({
     label,
     fieldGroup: [
@@ -784,24 +784,23 @@ const bidConfig = (label) => {
       {
         ...getCheckboxes([
           { key: 'histogramEnabled', label: `${label} Histogram` },
-          { key: 'highlightLargeBids', label: 'Highlight Large Bids Only' }
+          { key: 'highlightLarge', label: `Highlight Large ${label}s Only` }
         ]),
         className: 'w-100',
       },
       getHistogramOrientation(),
       wrapWithClass(getTextAlign(), 'mt-2'),
-
       {
-        ...getNumber('font-size', 'Large Bid Size'), className: 'w-100',
+        ...getNumber('largeSize', 'Large Bid Size'), className: 'w-100',
       },
 
     ]
   });
 };
 
-export const bidFields: IFieldConfig[] = [bidConfig('Bid')];
+export const bidFields: IFieldConfig[] = [bidAskConfig('Bid')];
 
-export const askFields: IFieldConfig[] = [bidConfig('Ask')];
+export const askFields: IFieldConfig[] = [bidAskConfig('Ask')];
 
 
 function getDepthConfig(label: string) {
@@ -817,7 +816,7 @@ function getDepthConfig(label: string) {
         className: 'w-100',
       },
       getHistogramOrientation(),
-      getNumber('font-size', `Large ${label} Size`),
+      getNumber('largeSize', `Large ${label} Size`),
       getTextAlign(),
     ]
   });
@@ -902,7 +901,7 @@ export const orderColumnFields: IFieldConfig[] = [
         fieldGroup: [
           {
             ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-              { key: 'includePnl', label: 'Include Closed PnL' }]),
+            { key: 'includePnl', label: 'Include Closed PnL' }]),
             fieldGroupClassName: ''
           },
           getTextAlign(),
@@ -929,7 +928,7 @@ export const orderColumnFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-          disableExpression(getColor('Sell Orders Column'), '!model.split')]
+        disableExpression(getColor('Sell Orders Column'), '!model.split')]
       })
     ]
   }),

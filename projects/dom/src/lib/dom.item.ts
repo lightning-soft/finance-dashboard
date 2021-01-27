@@ -10,6 +10,19 @@ class TotalCell extends HistogramCell {
   updateValue(value: number) {
     return super.updateValue((this._value ?? 0) + (value ?? 0));
   }
+
+  hightlight() {
+    if (this.settings.highlightLarge && this._value > (this.settings.largeSize || 0)) {
+      super.hightlight();
+    }
+  }
+}
+
+class LtqCell extends NumberCell {
+  clear() {
+    if ((this.settings as any).accumulateTrades == false)
+      super.clear();
+  }
 }
 
 class TotalTimeCell extends HistogramCell {
@@ -31,7 +44,7 @@ export class DomItem implements IBaseItem {
   price: PriceCell;
   lastPrice: number;
   orders: Cell = new DataCell();
-  ltq: Cell;
+  ltq: NumberCell;
   bid: HistogramCell;
   ask: HistogramCell;
   currentAsk: HistogramCell;
@@ -60,7 +73,7 @@ export class DomItem implements IBaseItem {
     this.volume = new TotalCell({ settings: settings.volume });
     this.askDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta });
     this.bidDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta });
-    this.ltq = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
+    this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this._id.updateValue(index);
   }
 
@@ -94,6 +107,7 @@ export class DomItem implements IBaseItem {
       totalBid: this.totalBid._value,
       currentAsk: this.currentAsk._value,
       currentBid: this.currentBid._value,
+      ltq: this.ltq._value,
     }
   }
 

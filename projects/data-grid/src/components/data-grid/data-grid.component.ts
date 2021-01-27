@@ -23,6 +23,14 @@ export interface DataGridItem {
   [key: string]: ICell;
 }
 
+
+interface GridStyles {
+  font?: string;
+  color?: string;
+  background?: string;
+  gridBorderColor?: string;
+}
+
 @Component({
   selector: 'data-grid',
   templateUrl: 'data-grid.component.html',
@@ -43,10 +51,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
-  @Input() beforeRenderCell = (e) => null;
-  @Input() renderCell = (e) => null;
-  @Input() afterRenderCell = (e) => null;
-  @Input() renderText = (e) => null;
   @Input() afterDraw = (grid) => null;
 
   private _items: T[] = [];
@@ -67,7 +71,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() detach: boolean = false;
 
-  // public activeColumns: Column[] = [];
 
   private _handlers = [];
   private _subscribedEvents = [];
@@ -79,19 +82,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   public list: TransferItem[] = [];
 
   public onDestroy$ = new Subject();
-
-  get inverseTranslation() {
-    return 0;
-  }
-
-  // get inverseTranslation(): string {
-  //   // if (!this.viewPort || !this.viewPort._renderedContentOffset) {
-  //   //   return '-0px';
-  //   // }
-
-  //   // const offset = this.viewPort._renderedContentOffset + 1;
-  //   // return `-${offset}px`;
-  // }
 
   _grid: any;
 
@@ -112,7 +102,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
-    private _zone: NgZone
   ) { }
 
   ngOnInit(): void {
@@ -135,7 +124,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
           orientation: 'left',
         },
         color: cellColor,
-        font,
+        // font,
         textAlign: 'center',
         ...column.style,
       }
@@ -158,6 +147,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         color: cellColor,
         background: cellBackgroundColor,
         gridBorderColor: cellBorderColor,
+        scrollBarBackgroundColor: cellBackgroundColor,
+        // scrollBarBoxColor: 'red',
         rowHeight: this.rowHeight,
         // cellHeight:
       },
@@ -176,15 +167,27 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.columnHeaderClickBehavior = 'none'
 
     // grid.applyComponentStyle();
-    grid.addEventListener('beforerendercell', this.beforeRenderCell);
-    grid.addEventListener('rendercell', this.renderCell)
-    grid.addEventListener('afterrendercell', this.afterRenderCell)
-    grid.addEventListener('rendertext', this.renderText)
+    // grid.addEventListener('beforerendercell', this.beforeRenderCell);
+    // grid.addEventListener('rendercell', this.renderCell)
+    // grid.addEventListener('afterrendercell', this.afterRenderCell)
+    // grid.addEventListener('rendertext', this.renderText)
     grid.addEventListener('afterdraw', this.afterDraw)
+    grid.addEventListener('currentCellChanged', this.currentCellChanged)
     grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
+  }
+
+  applyStyles(styles: GridStyles) {
+    const grid = this._grid;
+
+    grid.style = {
+      ...styles,
+      ...grid.style,
+    }
+
+    this.detectChanges(true);
   }
 
   detectChanges(force = false) {
@@ -239,8 +242,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _handleClick(e) {
-    const cell = e.cell;
-    console.log(cell.rowIndex, cell.columnIndex)
+    console.log('_handleClick', e);
+  }
+
+  private currentCellChanged(e) {
+    console.log('currentCellChanged', e);
   }
 
   private _handleEvent = (event) => {
@@ -283,7 +289,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   ngOnDestroy(): void {
     if (this._grid) {
-      this._grid.removeEventListener('rendercell', this.renderCell)
+      // this._grid.removeEventListener('rendercell', this.renderCell)
       // this._grid.removeEventListener('afterrendercell', afterRenderCell);
     }
     this.onDestroy$.next();

@@ -259,8 +259,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea.formSettings;
   }
 
-
-
   constructor(
     private _ordersRepository: OrdersRepository,
     private _levelOneDatafeed: Level1DataFeed,
@@ -288,8 +286,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => {
+      handleLinkData: (settings: DomSettings) => {
         console.log(settings);
+        const common = settings.common;
+        if (common) {
+          for (const column of this.columns) {
+            column.visible = common[column.name] != false;
+          }
+        }
+        this.dataGrid.applyStyles({
+          font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
+          gridBorderColor: common.generalColors.gridLineColor,
+        })
         this._settings.merge(settings);
         this.detectChanges(true);
       }
@@ -397,7 +405,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (Array.isArray(keys) && keys.length) {
       for (const i of this.items) {
         for (const key of keys) {
-          if (hist[key] == null)
+          if (hist[key] == null || i[key].component != 'histogram')
             continue;
 
           (i[key] as HistogramCell).calcHist(hist[key]);
@@ -433,7 +441,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return true;
   }
 
-  private  _handleKey(event) {
+  private _handleKey(event) {
     if (!(event instanceof KeyboardEvent)) {
       return;
     }
@@ -474,14 +482,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       afterResize();
   }
 
-  saveState ?(): IDomState {
+  saveState?(): IDomState {
     return {
       instrument: this.instrument,
       settings: this._settings.toJson()
     };
   }
 
-  loadState ?(state: IDomState) {
+  loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
     this.openSettings(true);
