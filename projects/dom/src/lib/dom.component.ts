@@ -183,7 +183,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.broadcastHotkeyCommand('clearCurrentTrades');
     },
     clearCurrentTradesDown: () => {
-      this.getDownItems(item => {
+      this.forDownItems(item => {
         item.currentAsk.clear();
         item.currentBid.clear();
       });
@@ -192,7 +192,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.broadcastHotkeyCommand('clearCurrentTradesDown');
     },
     clearCurrentTradesUp: () => {
-      this.getUpItems((item) => {
+      this.forUpItems((item) => {
         item.currentAsk.clear();
         item.currentBid.clear();
       });
@@ -201,7 +201,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.broadcastHotkeyCommand('clearCurrentTradesUp');
     },
     clearTotalTradesDown: () => {
-      this.getDownItems((item) => {
+      this.forDownItems((item) => {
         item.totalAsk.clear();
         item.totalBid.clear();
       });
@@ -210,7 +210,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.broadcastHotkeyCommand('clearTotalTradesDown');
     },
     clearTotalTradesUp: () => {
-      this.getUpItems((item) => {
+      this.forUpItems((item) => {
         item.totalAsk.clear();
         item.totalBid.clear();
       });
@@ -361,20 +361,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.broadcastData(DOM_HOTKEYS, commandName);
   }
 
-  getUpItems(handler: (item) => void) {
-    const centerIndex = this.items.findIndex(item => item.isCenter);
-    this.items.slice(0, centerIndex)
-      .forEach(item => {
+  forUpItems(handler: (data) => void) {
+    let emit = true;
+    for (let item of this.items) {
+      if (item.isCenter)
+        emit = false;
+
+      if (emit)
         handler(item);
-      });
+    }
+
   }
 
-  getDownItems(handler: (item) => void) {
-    const centerIndex = this.items.findIndex(item => item.isCenter);
-    this.items.slice(centerIndex, this.items.length)
-      .forEach(item => {
+  forDownItems(handler: (item) => void) {
+    let emit = false;
+    for (let item of this.items) {
+      if (item.isCenter)
+        emit = true;
+
+      if (emit)
         handler(item);
-      });
+    }
   }
 
   protected _handleConnection(connection: IConnection) {
