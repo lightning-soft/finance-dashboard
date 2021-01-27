@@ -580,6 +580,7 @@ export const generalFields: IFieldConfig[] = [
       ]),
       new FieldConfig({
         label: 'Depth & Market',
+        key: 'marketDepth',
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
         fieldGroup: [
           {
