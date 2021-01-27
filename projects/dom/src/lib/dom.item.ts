@@ -12,9 +12,11 @@ class TotalCell extends HistogramCell {
   }
 
   hightlight() {
-    if (this.settings.highlightLarge && this._value > (this.settings.largeSize || 0)) {
-      super.hightlight();
+    if (this.settings.highlightLarge && this._value < (this.settings.largeSize || 0)) {
+      return;
     }
+
+    super.hightlight();
   }
 }
 
