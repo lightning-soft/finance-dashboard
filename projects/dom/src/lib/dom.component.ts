@@ -192,7 +192,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isLocked: boolean;
+  isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
 
