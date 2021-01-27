@@ -3,12 +3,9 @@ import { NumberCell } from 'data-grid';
 export class PriceCell extends NumberCell {
   isTraded = false;
 
-  clear() {
-    this.revertStatus();
-  }
+  dehightlight() {
+    super.dehightlight();
 
-  revertStatus() {
-    super.revertStatus();
     if (!this.status && this.isTraded) {
       this.status = 'tradedPrice';
     }

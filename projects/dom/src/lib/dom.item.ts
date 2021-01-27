@@ -59,8 +59,8 @@ export class DomItem implements IBaseItem {
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
   volume: HistogramCell;
-  askDelta: Cell;
-  bidDelta: Cell;
+  askDelta: NumberCell;
+  bidDelta: NumberCell;
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
@@ -147,6 +147,8 @@ export class DomItem implements IBaseItem {
     return {
       ask: this.ask._value,
       bid: this.bid._value,
+      askDelta: this.askDelta._value,
+      bidDelta: this.bidDelta._value,
     }
   }
 

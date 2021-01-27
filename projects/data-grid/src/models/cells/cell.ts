@@ -67,6 +67,9 @@ export abstract class Cell implements ICell {
   abstract updateValue(...args: any[]);
 
   changeStatus(status: string) {
+    if (status == this.status)
+      return;
+
     this._prevStatus = this.status;
     this.status = status;
   }
