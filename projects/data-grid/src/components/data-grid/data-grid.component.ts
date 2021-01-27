@@ -12,11 +12,8 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
 import { ModalComponent } from '../modal/modal.component';
-import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { NgZone } from '@angular/core';
-import { styles } from '../../../../lazy-assets/src/config';
+import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
 
 declare function canvasDatagrid(params: any);
 export interface DataGridItem {
@@ -71,9 +68,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() detach: boolean = false;
 
-
-  private _handlers = [];
-  private _subscribedEvents = [];
+  // private _subscribedEvents = [];
 
   public isVisible = false;
 
@@ -198,25 +193,25 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   ngAfterViewInit(): void {
-    this._handlers = this.initHandlers() || [];
-    for (const handler of this._handlers) {
-      handler.events.forEach(e => this._subscribeOnEvents(e));
-    }
+    // this._handlers = this.initHandlers() || [];
+    // for (const handler of this._handlers) {
+    //   handler.events.forEach(e => this._subscribeOnEvents(e));
+    // }
   }
 
-  initHandlers(): IHandler[] {
-    const handlers = [];
+  // initHandlers(): IHandler[] {
+  //   const handlers = [];
 
-    if (!Array.isArray(this.handlers))
-      this.handlers = [];
+  //   if (!Array.isArray(this.handlers))
+  //     this.handlers = [];
 
-    this.handlers.forEach(h => h.dataGrid = this);
+  //   this.handlers.forEach(h => h.dataGrid = this);
 
-    return [
-      ...this.handlers.map(h => h.tableHandler),
-      ...handlers
-    ];
-  }
+  //   return [
+  //     ...this.handlers.map(h => h.tableHandler),
+  //     ...handlers
+  //   ];
+  // }
 
   createComponentModal(): void {
     const modal = this.modalService.create({
@@ -243,35 +238,48 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   private _handleClick(e) {
     console.log('_handleClick', e);
+    const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
+
+    if (!Array.isArray(_handlers))
+      return;
+
+    for (const handler of _handlers as any[]) {
+      if (handler.event != Events.Click || handler.column != e.column?.name)
+        return;
+
+      handler.notify(e.item);
+    }
+
+    // _handlers
   }
 
   private currentCellChanged(e) {
     console.log('currentCellChanged', e);
   }
 
-  private _handleEvent = (event) => {
-    if (!this._handlers)
-      return;
+  // private _handleEvent = (event) => {
+  //   if (!this._handlers)
+  //     return;
 
-    for (const handler of this._handlers) {
-      if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
-        return null;
-    }
-  }
+  //   for (const handler of this._handlers) {
+  //     if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
+  //       return null;
+  //   }
+  // }
 
-  private _subscribeOnEvents(event: Events) {
-    const element = this.tableContainer && this.tableContainer.nativeElement;
-    if (!element)
-      return;
+  // private _subscribeOnEvents(event: Events) {
+  //   const element = this.tableContainer && this.tableContainer.nativeElement;
+  //   if (!element)
+  //     return;
 
-    if (this._subscribedEvents.every(e => e !== event)) {
-      this._subscribedEvents.push(event);
-      const fn = (evt: Event) => this._handleEvent(evt);
+  //   if (this._subscribedEvents.every(e => e !== event)) {
+  //     this._subscribedEvents.push(event);
+  //     const fn = (evt: Event) => this._handleEvent(evt);
 
-      element.addEventListener(event, fn);
-      this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
-    }
-  }
+  //     element.addEventListener(event, fn);
+  //     this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
+  //   }
+  // }
 
   getVisibleRows() {
     const bodyElement = this.container && this.container.nativeElement;

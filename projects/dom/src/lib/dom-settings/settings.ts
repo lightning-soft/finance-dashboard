@@ -7,6 +7,7 @@ import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
+const DefaultClearInterval = 4000;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -38,7 +39,7 @@ export class DomSettings {
     hideFromLeft: true,
     hideFromRight: true,
     intervals: {
-      clearTradersTimer: 8,
+      clearTradersTimer: DefaultClearInterval,
       updateInterval: 8,
       orderQuantityStep: 7,
       scrollWheelSensitivity: 6,
@@ -61,7 +62,7 @@ export class DomSettings {
     clearTotalTradesDown: getKeyBindings([KeyCode.KEY_T, KeyCode.KEY_D]),
     clearTotalTradesUp: getKeyBindings([KeyCode.KEY_T, KeyCode.KEY_U]),
     clearCurrentTradesAllWindows:
-      getKeyBindings([ KeyCode.KEY_W, KeyCode.KEY_T]),
+      getKeyBindings([KeyCode.KEY_W, KeyCode.KEY_T]),
     clearCurrentTradesDownAllWindows:
       getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_D, KeyCode.KEY_W]),
     clearCurrentTradesUpAllWindows:
@@ -160,6 +161,7 @@ export class DomSettings {
     histogramColor: 'rgba(72,149,245,0,3)',
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
+    clearInterval: DefaultClearInterval,
   };
   ask: any = {
     color: 'white',
@@ -172,6 +174,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
+    clearInterval: DefaultClearInterval,
   };
   bidDepth: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
@@ -203,7 +206,7 @@ export class DomSettings {
     textAlign: TextAlign.Right,
     color: 'rgba(72, 149, 245, 1)',
     backgroundColor: 'transparent',
-   // backgroundColor: 'rgba(1, 43, 54, 1)',
+    // backgroundColor: 'rgba(1, 43, 54, 1)',
     highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
     histogramOrientation: HistogramOrientation.Left,
   };
@@ -336,6 +339,9 @@ export class DomSettings {
       }
       Object.assign(this[key], data[key]);
     }
+
+    this.ask.clearInterval = this.general.intervals.clearTradersTimer;
+    this.bid.clearInterval = this.general.intervals.clearTradersTimer;
 
     console.log(data);
   }

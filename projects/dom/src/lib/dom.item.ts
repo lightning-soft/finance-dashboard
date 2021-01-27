@@ -21,17 +21,17 @@ class TotalCell extends HistogramCell {
 }
 
 class LtqCell extends NumberCell {
-  clear() {
-    if ((this.settings as any).accumulateTrades == false)
-      super.clear();
+  updateValue(value: number) {
+    if ((this.settings as any).accumulateTrades != false)
+      return super.updateValue(this._value + value);
+    else
+      return super.updateValue(value);
   }
 }
 
 class TotalTimeCell extends HistogramCell {
-  trackTime = 4000;
-
   updateValue(value: number) {
-    if (this.time + this.trackTime < Date.now())
+    if (this.time + ((this.settings as any).clearInterval || 0) < Date.now())
       return super.updateValue(this._value + value);
     else
       return super.updateValue(value);
