@@ -29,6 +29,7 @@ class LtqCell extends NumberCell {
 
 class TotalTimeCell extends HistogramCell {
   trackTime = 4000;
+
   updateValue(value: number) {
     if (this.time + this.trackTime < Date.now())
       return super.updateValue(this._value + value);
@@ -68,7 +69,11 @@ export class DomItem implements IBaseItem {
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.id = index;
-    this.price = new PriceCell({ strategy: AddClassStrategy.NONE, formatter: _priceFormatter, settings: settings.price });
+    this.price = new PriceCell({
+      strategy: AddClassStrategy.NONE,
+      formatter: _priceFormatter,
+      settings: settings.price
+    });
     this.bid = new TotalCell({ settings: settings.bid });
     this.ask = new TotalCell({ settings: settings.ask });
     this.currentAsk = new TotalTimeCell({ settings: settings.currentAsk });
@@ -105,6 +110,11 @@ export class DomItem implements IBaseItem {
     this.currentBid.updateValue(data.bidInfo.volume);
     this.totalAsk.updateValue(data.askInfo.volume);
     this.totalBid.updateValue(data.bidInfo.volume);
+    if (this.volume._value) {
+      this.price.changeStatus('tradedPrice');
+    }
+    this.price.isTraded = this.volume._value != null;
+
 
     return {
       volume: this.volume._value,
@@ -113,6 +123,7 @@ export class DomItem implements IBaseItem {
       currentAsk: this.currentAsk._value,
       currentBid: this.currentBid._value,
       ltq: this.ltq._value,
+      price: this.price._value,
     }
   }
 
