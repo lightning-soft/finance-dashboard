@@ -52,7 +52,24 @@ export class DomSettings {
     useCustomTickSize: true,
   };
   hotkeys: any = {
-    autoCenter: getKeyBindings([KeyCode.KEY_R, KeyCode.KEY_T]),
+    autoCenter: getKeyBindings([KeyCode.KEY_A, KeyCode.KEY_C]),
+    autoCenterAllWindows: getKeyBindings([KeyCode.KEY_A, KeyCode.KEY_W]),
+    clearAllTotals: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_T]),
+    clearCurrentTradesDown: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_D]),
+    clearCurrentTradesUp: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_U]),
+    clearVolumeProfile: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_V]),
+    clearTotalTradesDown: getKeyBindings([KeyCode.KEY_T, KeyCode.KEY_D]),
+    clearTotalTradesUp: getKeyBindings([KeyCode.KEY_T, KeyCode.KEY_U]),
+    clearCurrentTradesAllWindows:
+      getKeyBindings([ KeyCode.KEY_W, KeyCode.KEY_T]),
+    clearCurrentTradesDownAllWindows:
+      getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_D, KeyCode.KEY_W]),
+    clearCurrentTradesUpAllWindows:
+      getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_U, KeyCode.KEY_W]),
+    clearTotalTradesDownAllWindows:
+      getKeyBindings([KeyCode.KEY_D, KeyCode.KEY_W]),
+    clearTotalTradesUpAllWindows:
+      getKeyBindings([KeyCode.KEY_U, KeyCode.KEY_W]),
   };
   // columns: any = {};
   common: any = {
@@ -309,6 +326,7 @@ export class DomSettings {
       } else {
         console.warn(`Missing column ${key}`);
       }
+      Object.assign(this[key], data[key]);
     }
 
     console.log(data);
