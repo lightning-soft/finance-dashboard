@@ -752,7 +752,7 @@ export const priceFields: IFieldConfig[] = [
     label: 'Price',
     fieldGroup: [
       getHightlightColor(),
-      getColor('Traded Price Back Color'),
+      getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
       getColor('Last Traded Price Font Color'),
       getColor({ label: 'Price Font Color', key: 'color' }),
       getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),

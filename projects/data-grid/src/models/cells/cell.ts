@@ -45,6 +45,7 @@ export abstract class Cell implements ICell {
   settings = {};
   drawed = false; // performance solution
   status: string = '';
+  private _prevStatus = '';
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
@@ -65,14 +66,27 @@ export abstract class Cell implements ICell {
 
   abstract updateValue(...args: any[]);
 
+  changeStatus(status: string) {
+    if (status == this.status)
+      return;
+
+    this._prevStatus = this.status;
+    this.status = status;
+  }
+
+  revertStatus() {
+    this.status = this._prevStatus;
+  }
+
   dehightlight() {
     if (this.status == CellStatus.Highlight)
-      this.status = CellStatus.None;
+      this.revertStatus();
   }
 
   hightlight() {
-    this.status = CellStatus.Highlight;
+    this.changeStatus(CellStatus.Highlight);
   }
+
 
   clear() {
     this.value = '';
