@@ -12,4 +12,5 @@ export type SettingsData = {
   autoSaveDelay: number;
   language: string;
   hotkeys: HotkeyEntire[];
+  tradingEnabled: boolean;
 };

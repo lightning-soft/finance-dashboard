@@ -26,6 +26,7 @@ const defaultSettings = {
   autoSaveDelay: null,
   language: 'English',
   hotkeys: defaultHotkeyEntries,
+  tradingEnabled: true,
 };
 
 @Injectable()
@@ -60,6 +61,10 @@ export class SettingsService {
 
   changeTheme(theme): void {
     this._updateState({ theme });
+  }
+
+  updateTradingLock(tradingEnabled: boolean) {
+    this._updateState({tradingEnabled});
   }
 
   saveState(): void {
