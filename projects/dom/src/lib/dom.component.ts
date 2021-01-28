@@ -24,6 +24,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -46,7 +47,7 @@ export class DomItemMax {
       if (change[key] == null || this[key] >= change[key])
         continue;
 
-      if (result == null)
+      if (result == null);
         result = {};
 
       this[key] = change[key];
@@ -247,7 +248,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isLocked: boolean;
+  isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
 
@@ -296,6 +297,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _settings: DomSettings = new DomSettings();
+
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
 
   private _changedTime = 0;
 

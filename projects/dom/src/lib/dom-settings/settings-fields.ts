@@ -188,7 +188,7 @@ function getSwitch(key, label, config = {}) {
 }
 
 function getCheckboxes(checkboxes: { key: string, label: string, config?: any }[], label?: string,
-  additionalFields: FormlyFieldConfig[] = [], config = {}) {
+                       additionalFields: FormlyFieldConfig[] = [], config = {}) {
   return {
     wrappers: ['form-field'],
     templateOptions: {
@@ -255,8 +255,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-          { label: 'Monospace', value: 'monospace' },
-          { label: 'Sans Serif', value: 'sans-serif' }],
+            { label: 'Monospace', value: 'monospace' },
+            { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -524,12 +524,12 @@ export const generalFields: IFieldConfig[] = [
     key: 'general',
     fieldGroup: [
       getCheckboxes([
-        { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-        { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-        { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-        { label: 'Re-Center On New Position', key: 'recenter' },
-        { label: 'All Windows', key: 'allWindows' },
-      ],
+          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          { label: 'Re-Center On New Position', key: 'recenter' },
+          { label: 'All Windows', key: 'allWindows' },
+        ],
         'Reset settings'),
       getCheckboxes([
         { label: 'Hide Account Name', key: 'hideAccountName' },
@@ -660,9 +660,9 @@ export const generalFields: IFieldConfig[] = [
 
 export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Last Traded Quantity (LTQ)',
-    key: 'ltq',
-    fieldGroupClassName: '',
+      label: 'Last Traded Quantity (LTQ)',
+      key: 'ltq',
+      fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
         fieldGroup: [

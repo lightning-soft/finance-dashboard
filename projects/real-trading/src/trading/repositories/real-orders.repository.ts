@@ -1,15 +1,29 @@
-import { Id, IPaginationResponse } from 'communication';
+import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communication';
 import { map } from 'rxjs/operators';
 import { IOrder } from 'trading';
 import { BaseRepository } from './base-repository';
+import { Observable, throwError } from 'rxjs';
+import { TradeHandler } from 'src/app/components';
+import { Inject, Injectable, Injector, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
+@Injectable()
 export class RealOrdersRepository extends BaseRepository<IOrder> {
   protected get suffix(): string {
     return 'Order';
   }
 
+  constructor(@Inject(TradeHandler) public tradeHandler: TradeHandler,
+              @Inject(HttpClient) protected _http: HttpClient,
+              @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
+              @Optional() @Inject(Injector) protected _injector: Injector
+  ) {
+    super(_http, _communicationConfig, _injector);
+  }
+
   _getRepository() {
     return new RealOrdersRepository(
+      this.tradeHandler,
       this._http,
       this._communicationConfig,
       this._injector
@@ -51,6 +65,14 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
         } as any
       }
     );
+  }
+
+  createItem(item: ExcludeId<IOrder>, options?: any): Observable<any> {
+    if (this.tradeHandler.tradingEnabled)
+      return super.createItem(item, options);
+    else {
+      return throwError('You can\'t create order when trading is locked ');
+    }
   }
 
   protected _filter(item: IOrder, params: any = {}) {

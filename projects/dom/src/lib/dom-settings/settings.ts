@@ -127,6 +127,26 @@ export class DomSettings {
       includeRealizedPL: false
     },
   };
+  orderArea = {
+    buyButtonsBackgroundColor: '#2A8AD2',
+    flatButtonsBackgroundColor: '#383A40',
+    buyButtonsFontColor: '#F2F2F2',
+    flatButtonFontColor: '#fff',
+    sellButtonsBackgroundColor: '#DC322F',
+    cancelButtonBackgroundColor: '#51535A',
+    sellButtonsFontColor: '#F2F2F2',
+    cancelButtonFontColor: '#fff',
+    formSettings: {
+      showInstrumentChange: true,
+      closePositionButton: true,
+      showOHLVInfo: true,
+      showFlattenButton: true,
+      showPLInfo: true,
+      showIcebergButton: true,
+      roundPL: false,
+      includeRealizedPL: false
+    },
+  };
   price: any = {
     backgroundColor: 'rgba(16, 17, 20, 1)',
     color: 'rgba(208, 208, 210, 1)',
@@ -315,6 +335,12 @@ export class DomSettings {
     return settings;
   }
 
+  static fromJson(json: any): DomSettings {
+    const settings = new DomSettings();
+    settings.merge(json);
+    return settings;
+  }
+
   merge(data: Partial<DomSettings>) {
     for (const key in data) {
       if (!this.hasOwnProperty(key) || key == '_columns' || key == 'columns') {
@@ -336,8 +362,6 @@ export class DomSettings {
       }
       Object.assign(this[key], data[key]);
     }
-
-    console.log(data);
   }
 
   private _setDataToColumns() {

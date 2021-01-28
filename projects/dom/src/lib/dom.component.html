@@ -37,8 +37,8 @@
       class="icon-{{item}} direction window-icon"></i>
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
       [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
-    <i (click)="isLocked = !isLocked" [class.icon-lock]="!isLocked" [title]="isLocked? 'Lock' : 'Unlock'"
-      [class.icon-unlock]="isLocked" class="window-icon large"></i>
+    <i (click)="isTradingLocked = !isTradingLocked" [class.icon-lock]="!isTradingLocked" [title]="isTradingLocked? 'Lock' : 'Unlock'"
+       [class.icon-unlock]="isTradingLocked" class="window-icon large"></i>
 
   </span>
 </div>

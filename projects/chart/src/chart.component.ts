@@ -61,7 +61,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   set instrument(value) {
     this.chart.instrument = value;
-
+    this.refresh();
     this._orders.refresh();
     this._positions.refresh();
   }
