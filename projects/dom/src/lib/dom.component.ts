@@ -4,7 +4,6 @@ import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
-import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
@@ -47,7 +46,7 @@ export class DomItemMax {
       if (change[key] == null || this[key] >= change[key])
         continue;
 
-      if (result == null);
+      if (result == null)
         result = {};
 
       this[key] = change[key];
@@ -309,9 +308,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return 0.01;
   }
 
-  get domFormSettings() {
-    return this._settings.orderArea.formSettings;
-  }
 
   constructor(
     private _ordersRepository: OrdersRepository,
