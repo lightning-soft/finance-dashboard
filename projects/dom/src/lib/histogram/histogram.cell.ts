@@ -38,4 +38,10 @@ export class HistogramCell extends NumberCell {
     this.hist = this._value / value;
     this._histValue = value;
   }
+
+  clear() {
+    super.clear();
+    if (this._histValue != null)
+      this.calcHist(this._histValue);
+  }
 }

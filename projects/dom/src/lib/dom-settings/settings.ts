@@ -340,8 +340,8 @@ export class DomSettings {
       Object.assign(this[key], data[key]);
     }
 
-    this.ask.clearInterval = this.general.intervals.clearTradersTimer;
-    this.bid.clearInterval = this.general.intervals.clearTradersTimer;
+    this.currentAsk.clearInterval = this.general.intervals.clearTradersTimer;
+    this.currentBid.clearInterval = this.general.intervals.clearTradersTimer;
 
     console.log(data);
   }

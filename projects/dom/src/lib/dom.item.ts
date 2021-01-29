@@ -1,6 +1,6 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { ITrade, L2, OrderSide } from 'trading';
+import { IInfo, ITrade, L2, OrderSide } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -27,6 +27,13 @@ class LtqCell extends NumberCell {
     else
       return super.updateValue(value);
   }
+
+  // clear(isTheSameItem?: boolean) {
+  //   if ((this.settings as any).accumulateTrades != false && isTheSameItem)
+  //     return;
+
+  //   super.clear();
+  // }
 }
 
 class TotalTimeCell extends HistogramCell {
@@ -50,7 +57,7 @@ export class DomItem implements IBaseItem {
   _id: Cell = new NumberCell();
   price: PriceCell;
   orders: Cell = new DataCell();
-  ltq: NumberCell;
+  ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
   currentAsk: HistogramCell;
@@ -64,8 +71,8 @@ export class DomItem implements IBaseItem {
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
-  private _bid: number;
-  private _ask: number;
+  private _bid = 0;
+  private _ask = 0;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.id = index;
@@ -74,15 +81,15 @@ export class DomItem implements IBaseItem {
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new TotalCell({ settings: settings.bid });
-    this.ask = new TotalCell({ settings: settings.ask });
+    this.bid = new HistogramCell({ settings: settings.bid });
+    this.ask = new HistogramCell({ settings: settings.ask });
     this.currentAsk = new TotalTimeCell({ settings: settings.currentAsk });
     this.currentBid = new TotalTimeCell({ settings: settings.currentBid });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
-    this.volume = new TotalCell({ settings: settings.volume });
-    this.askDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta });
-    this.bidDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta });
+    this.volume = new HistogramCell({ settings: settings.volume });
+    this.askDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
+    this.bidDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this._id.updateValue(index);
   }
@@ -90,8 +97,8 @@ export class DomItem implements IBaseItem {
   clearDelta() {
     this.askDelta.clear();
     this.bidDelta.clear();
-    this._ask = null;
-    this._bid = null;
+    this._ask = this.ask._value || 0;
+    this._bid = this.bid._value || 0;
   }
 
   clearLTQ() {
@@ -102,25 +109,42 @@ export class DomItem implements IBaseItem {
     this.price.updateValue(price);
   }
 
-  handleTrade(data: ITrade) {
-    this.setPrice(data.price);
-    this.ltq.updateValue(data.volume);
-    this.volume.updateValue(data.volume);
-    this.currentAsk.updateValue(data.askInfo.volume);
-    this.currentBid.updateValue(data.bidInfo.volume);
-    this.totalAsk.updateValue(data.askInfo.volume);
-    this.totalBid.updateValue(data.bidInfo.volume);
-    if (this.volume._value) {
-      this.price.changeStatus('tradedPrice');
+  handleAsk(data: IInfo) {
+    if (data && data.timestamp > (this.currentAsk.time || 0)) {
+      this.currentAsk.updateValue(data.volume);
+      this.totalAsk.updateValue(data.volume);
     }
-    this.price.isTraded = this.volume._value != null;
 
+    this.ltq.updateValue(data.volume);
+    this.ltq.changeStatus('ask');
+    this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
+    this.price.isTraded = this.volume._value != null;
+    this.setPrice(data.price);
 
     return {
       volume: this.volume._value,
       totalAsk: this.totalAsk._value,
-      totalBid: this.totalBid._value,
       currentAsk: this.currentAsk._value,
+      ltq: this.ltq._value,
+      price: this.price._value,
+    }
+  }
+
+  handleBid(data: IInfo) {
+    if (data && data.timestamp > (this.currentBid.time || 0)) {
+      this.currentBid.updateValue(data.volume);
+      this.totalBid.updateValue(data.volume);
+    }
+
+    this.ltq.updateValue(data.volume);
+    this.ltq.changeStatus('bid');
+    this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
+    this.price.isTraded = this.volume._value != null;
+    this.setPrice(data.price);
+
+    return {
+      volume: this.volume._value,
+      totalBid: this.totalBid._value,
       currentBid: this.currentBid._value,
       ltq: this.ltq._value,
       price: this.price._value,
@@ -134,14 +158,14 @@ export class DomItem implements IBaseItem {
       if (this._ask == null)
         this._ask = this.ask._value;
 
-      this.askDelta.updateValue(this._ask - this.ask._value);
+      this.askDelta.updateValue(this.ask._value - this._ask);
     } else if (l2.side == OrderSide.Sell) {
       this.bid.updateValue(l2.size);
 
       if (this._bid == null)
         this._bid = this.bid._value;
 
-      this.bidDelta.updateValue(this._bid - this.bid._value);
+      this.bidDelta.updateValue(this.bid._value - this._bid);
     }
 
     return {

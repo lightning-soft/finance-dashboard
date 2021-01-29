@@ -91,7 +91,8 @@ export class DomFormComponent extends FormComponent<any> {
     { value: 100 }, { value: 5 }
   ];
   typeButtons = [
-    { label: 'LMT', value: OrderType.Limit }, { label: 'STP MKT', value: OrderType.StopMarket, black: true },
+    { label: 'LMT', value: OrderType.Limit },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true },
     { label: 'MKT', value: OrderType.Market },
     // { label: 'OCO', value: 'OCO', black: true },
     { label: 'STP LMT', value: OrderType.StopLimit, black: true },

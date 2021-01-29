@@ -24,7 +24,6 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
-import { lastPrices } from '../../../fake-communication/src/trading/fake-level1.datafeed';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -284,11 +283,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _max = new DomItemMax()
-  private _lastChangesItem: { [key: number]: DomItem } = {}
+  private _lastChangesItem: { [key: string]: DomItem } = {}
 
   private _map = new Map<number, DomItem>();
 
-  private _lastPrice: number;
+  private get _lastPrice(): number {
+    return this._lastChangesItem.ltq?.price?._value;
+  }
 
   get trade() {
     return this._lastPrice;
@@ -318,6 +319,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     super();
     this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
+    (window as any).dom = this;
   }
 
   ngOnInit(): void {
@@ -369,7 +371,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (emit)
         handler(item);
     }
-
   }
 
   forDownItems(handler: (item) => void) {
@@ -398,18 +399,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const grid = this.dataGrid;
       const visibleRows = grid.getVisibleRows();
       var index = ROWS / 2;
+
       if (this._lastPrice) {
         for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
-          if (item.lastPrice == this._lastPrice)
-            index = i;
 
-          item.isCenter = false;
+          item.isCenter = item.lastPrice == this._lastPrice;
         }
       }
-
-      if (this.items[index])
-        this.items[index].isCenter = true;
 
       grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     });
@@ -438,8 +435,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const data = this.items;
     const tickSize = this._tickSize;
 
-    let price = lastPrice - tickSize * ROWS / 2;
-    const maxPrice = lastPrice + tickSize * ROWS / 2;
+    let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+    const maxPrice = this._normalizePrice(lastPrice + tickSize * ROWS / 2);
 
     while (price < maxPrice) {
       price = this._normalizePrice(price);
@@ -447,36 +444,84 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  private _handleTrades = true;
+
   protected _handleTrade(trade: ITrade) {
-    // console.time('_handleTrade')
+    if (!this._handleTrades)
+      return;
+
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
-    const prevItem = this._getItem(this._lastPrice);
-    const lastPrice = this._normalizePrice(trade && trade.price);
+    let changes = this._lastChangesItem;
+    let prevltqItem = changes.ltq;
 
-    if (this._lastPrice != lastPrice)
-      prevItem.clearLTQ();
+    if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
+      const item = this._getItem(trade.askInfo.price);
+      this._handleMaxChange(item.handleAsk(trade.askInfo), item);
 
-    this._lastPrice = lastPrice;
+      if (prevltqItem != changes.ltq && prevltqItem) {
+        prevltqItem.clearLTQ();
+
+        for (const item of this.items) {
+          if (changes.ltq == item)
+            return;
+
+          item.clearDelta();
+
+          // if (item.price._value < price) {
+          //   item.bid.clear();
+          // } else if (item.price._value > price) {
+          //   item.ask.clear();
+          // } else {
+          //   if (item.bid._time > item.ask._time) {
+          //     item.ask.clear();
+          //   } else {
+          //     item.bid.clear();
+          //   }
+          // }
+        }
+      }
+    }
+
+    if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
+      const item = this._getItem(trade.bidInfo.price);
+      this._handleMaxChange(item.handleBid(trade.bidInfo), item);
+
+      if (prevltqItem != changes.ltq && prevltqItem) {
+        prevltqItem.clearLTQ();
+
+        for (const item of this.items) {
+          if (changes.ltq == item)
+            return;
+
+          item.clearDelta();
+
+          // if (item.price._value < price) {
+          //   item.bid.clear();
+          // } else if (item.price._value > price) {
+          //   item.ask.clear();
+          // } else {
+          //   if (item.bid._time > item.ask._time) {
+          //     item.ask.clear();
+          //   } else {
+          //     item.bid.clear();
+          //   }
+          // }
+        }
+      }
+    }
 
     if (!this.items.length) {
-      this._fillData(lastPrice); // todo: load order book
+      if (this._lastPrice)
+        this._fillData(this._lastPrice); // todo: load order book
       this.centralize();
     }
 
-    const item = this._getItem(lastPrice);
-    this._handleMaxChange(item.handleTrade(trade), item);
-    const newChangedTime = Math.max(item.currentAsk.time, item.currentBid.time);
-    if (newChangedTime != this._changedTime) {
-      for (const i of this.items)
-        i.clearDelta();
-    }
-    this._changedTime = newChangedTime;
+    this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
   }
 
   protected _handleL2(l2: L2) {
-    // console.time('_handleL2')
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(l2.price);
@@ -559,23 +604,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   @SynchronizeFrames()
   private _handleResize(afterResize?: Function) {
-    const data = this.items;
     const visibleRows = this.dataGrid.getVisibleRows();
-    const diff = this.visibleRows - visibleRows;
-    const change = Math.ceil(diff / 2);
     this.visibleRows = visibleRows;
-
-    if (change != 0) {
-      // if (change > 0) {
-      //   while
-      //   if (data.length > visibleRows)
-      //     data.splice(visibleRows, data.length - visibleRows);
-      //   else if (data.length < visibleRows)
-      //     while (data.length <= visibleRows + 1)
-      //       data.push(new DomItem(data.length, this._settings, this._priceFormatter));
-      // }
-      // this._redrawInfo.needRedraw();
-    }
 
     this.dataGrid.resize();
     if (afterResize)
@@ -641,12 +671,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
-    const requestPayload = this._domForm.getDto();
+    const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
-    requestPayload.stopPrice = requestPayload.sl.count;
-    requestPayload.limitPrice = requestPayload.tp.count;
+
+    form.stopPrice = form.sl.count;
+    form.limitPrice = form.tp.count;
+
     this._ordersRepository.createItem({
-      ...requestPayload,
+      ...form,
       exchange,
       side,
       accountId: this.accountId,

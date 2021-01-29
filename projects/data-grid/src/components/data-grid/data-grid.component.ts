@@ -232,12 +232,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     });
   }
 
-  trackByFn(item) {
-    return item.id;
-  }
-
-  private _handleClick(e) {
-    console.log('_handleClick', e);
+  private _handleClick = (e) => {
     const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
 
     if (!Array.isArray(_handlers))
@@ -245,16 +240,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     for (const handler of _handlers as any[]) {
       if (handler.event != Events.Click || handler.column != e.column?.name)
-        return;
+        continue;
 
-      handler.notify(e.item);
+      handler.notify(e);
     }
-
-    // _handlers
   }
 
   private currentCellChanged(e) {
-    console.log('currentCellChanged', e);
+    // console.log('currentCellChanged', e);
   }
 
   // private _handleEvent = (event) => {
