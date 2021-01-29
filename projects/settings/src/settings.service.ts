@@ -8,12 +8,12 @@ import { HotkeyEntire, ICommand, SettingsData } from './types';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
-    name, 
+    name,
     UIString: uiSstring
   }
 }
 
-const defaultHotkeyEntries: HotkeyEntire[] = [
+export const defaultHotkeyEntries: HotkeyEntire[] = [
   [createCommand('save_page', 'Save page'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)])],
   [createCommand('Copy'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_C)])],
   [createCommand('Paste'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_P)])],
@@ -26,6 +26,7 @@ const defaultSettings = {
   autoSaveDelay: null,
   language: 'English',
   hotkeys: defaultHotkeyEntries,
+  tradingEnabled: true,
 };
 
 @Injectable()
@@ -45,7 +46,7 @@ export class SettingsService {
     this._settingStore
       .getItem()
       .subscribe(
-        (s) => s && this._updateState(s),
+        (s) => s && this._updateState(s, false),
         (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
@@ -59,16 +60,24 @@ export class SettingsService {
   }
 
   changeTheme(theme): void {
-    this.themeHandler.changeTheme(theme);
     this._updateState({ theme });
+  }
+
+  updateTradingLock(tradingEnabled: boolean) {
+    this._updateState({tradingEnabled});
   }
 
   saveState(): void {
     this._settingStore.setItem(this.settings.value).toPromise();
   }
 
-  private _updateState(settings: object): void {
+  saveKeyBinding(hotkeys: HotkeyEntire[]) {
+     this._updateState({ hotkeys });
+  }
+
+  private _updateState(settings: object, saveInStorage = true): void {
     this.settings.next({ ...this.settings.value, ...settings });
-    this.saveState();
+    if (saveInStorage)
+      this.saveState();
   }
 }

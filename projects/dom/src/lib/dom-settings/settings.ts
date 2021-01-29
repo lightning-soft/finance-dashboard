@@ -318,6 +318,7 @@ export class DomSettings {
     return settings;
   }
 
+
   merge(data: Partial<DomSettings>) {
     for (const key in data) {
       if (!this.hasOwnProperty(key) || key == '_columns' || key == 'columns') {

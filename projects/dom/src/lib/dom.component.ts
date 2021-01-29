@@ -4,7 +4,6 @@ import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
-import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
@@ -24,6 +23,7 @@ import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -245,7 +245,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isLocked: boolean;
+  isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
 
@@ -297,6 +297,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _settings: DomSettings = new DomSettings();
 
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
+
   private _changedTime = 0;
 
   private get _tickSize() {
@@ -304,9 +308,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // return 0.01;
   }
 
-  get domFormSettings() {
-    return this._settings.orderArea.formSettings;
-  }
 
   constructor(
     private _ordersRepository: OrdersRepository,

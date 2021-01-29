@@ -1,8 +1,10 @@
-import { Injectable, Injector } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { NumberHelper } from 'base-components';
 import { RealtimeAction } from 'communication';
 import { IOrder, IPosition, OrderDuration, OrderSide, OrderStatus, OrderType, PositionsRepository, Side } from 'trading';
 import { FakeTradingRepository } from './fake-trading.repository';
+import { throwError } from 'rxjs';
+import { TradeHandler } from 'src/app/components';
 
 const { randomFixedNumber } = NumberHelper;
 
@@ -10,7 +12,8 @@ const { randomFixedNumber } = NumberHelper;
 export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
   protected _positionsRepository: PositionsRepository;
 
-  constructor(protected _injector: Injector) {
+  constructor(protected _injector: Injector,
+              @Inject(TradeHandler) public tradeHandler: TradeHandler) {
     super();
 
     setTimeout(() => {
@@ -21,10 +24,15 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
   }
 
   createItem(item: IOrder) {
-    return super.createItem({
-      ...this._getItemSample(),
-      ...item,
-    });
+    if (this.tradeHandler.tradingEnabled)
+      return super.createItem({
+        ...this._getItemSample(),
+        ...item,
+      });
+    else {
+      return throwError('You can\'t create order when trading is locked ');
+    }
+
   }
 
   closeOrder(order: IOrder) {

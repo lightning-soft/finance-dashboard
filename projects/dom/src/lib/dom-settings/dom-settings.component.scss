@@ -81,13 +81,11 @@ cdk-virtual-scroll-viewport {
     margin-top: 4px;
     display: inline-block;
   }
-
   .current-level-item {
     margin-top: -2px !important;
   }
 
   .current-level {
-
     & > * {
       &:not(:first-child) {
         margin-top: 6px;
