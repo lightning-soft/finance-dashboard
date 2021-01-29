@@ -14,6 +14,7 @@ export interface IInfo {
   volume: number;
   price: number;
   orderCount: number;
+  timestamp: number;
 }
 
 @Injectable()

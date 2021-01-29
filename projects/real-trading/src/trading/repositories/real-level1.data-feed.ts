@@ -11,7 +11,13 @@ export class RealLevel1DataFeed extends RealFeed<ITrade, IInstrument> {
   unsubscribeType = WSMessageTypes.SUBSCRIBE;
 
   protected _filter(trade: ITrade) {
-    return !isNaN(trade.askInfo.price) && !isNaN(trade.bidInfo.price);
+    if (trade.askInfo)
+      trade.askInfo.timestamp *= 1000;
+
+    if (trade.bidInfo)
+      trade.bidInfo.timestamp *= 1000;
+
+    return true;
   }
 }
 

@@ -80,7 +80,7 @@ export class NumberCell extends Cell {
     this.drawed = false;
     this._value = value;
     this.time = time ?? Date.now();
-
+    this.hightlight();
     return true;
   }
 

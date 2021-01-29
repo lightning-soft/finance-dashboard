@@ -43,11 +43,13 @@ export class FakeLevel1Datafeed extends DatafeedRepository {
             volume: ask,
             price: askPrice,
             orderCount: 1,
+            timestamp: Date.now(),
           },
           bidInfo: {
             volume: bid,
             price: bidPrice,
             orderCount: 2,
+            timestamp: Date.now(),
           }
         };
         lastPrices.set(instrumentId, price);

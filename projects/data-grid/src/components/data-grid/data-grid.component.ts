@@ -12,15 +12,20 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
 import { ModalComponent } from '../modal/modal.component';
-import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { NgZone } from '@angular/core';
-import { styles } from '../../../../lazy-assets/src/config';
+import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
 
 declare function canvasDatagrid(params: any);
 export interface DataGridItem {
   [key: string]: ICell;
+}
+
+
+interface GridStyles {
+  font?: string;
+  color?: string;
+  background?: string;
+  gridBorderColor?: string;
 }
 
 @Component({
@@ -43,11 +48,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
-  @Input() beforeRenderCell = (e) => null;
-  @Input() renderCell = (e) => null;
-  @Input() afterRenderCell = (e) => null;
-  @Input() renderText = (e) => null;
-  @Input() afterDraw = (grid) => null;
+  @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
 
@@ -67,10 +68,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() detach: boolean = false;
 
-  public activeColumns: Column[] = [];
-
-  private _handlers = [];
-  private _subscribedEvents = [];
+  // private _subscribedEvents = [];
 
   public isVisible = false;
 
@@ -79,19 +77,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   public list: TransferItem[] = [];
 
   public onDestroy$ = new Subject();
-
-  get inverseTranslation() {
-    return 0;
-  }
-
-  // get inverseTranslation(): string {
-  //   // if (!this.viewPort || !this.viewPort._renderedContentOffset) {
-  //   //   return '-0px';
-  //   // }
-
-  //   // const offset = this.viewPort._renderedContentOffset + 1;
-  //   // return `-${offset}px`;
-  // }
 
   _grid: any;
 
@@ -112,22 +97,20 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
-    private _zone: NgZone
   ) { }
 
   ngOnInit(): void {
-    this.columns = this.columns.map(i => ({ ...i, width: 100 }));
-    this.activeColumns = this.columns.filter((column: Column) => column.visible);
+    // this.activeColumns = this.columns.filter((column: Column) => column.visible);
     if (this.detach)
       this._cd.detach();
     const cellBorderColor = "#24262C";
     const cellBackgroundColor = '#1B1D22';
     const cellColor = '#D0D0D2';
     const font = "14px Open Sans";
-    const horizontalAlignment = "center";
-    const columns = [];
+    // const horizontalAlignment = "center";
 
-    for (const column of this.columns) {
+    for (let i = 0; i < this.columns.length; i++) {
+      const column = this.columns[i];
       column.style = {
         // background: 'grey',
         histogram: {
@@ -136,11 +119,13 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
           orientation: 'left',
         },
         color: cellColor,
-        font,
+        // font,
         textAlign: 'center',
         ...column.style,
       }
-      columns.push(column);
+
+      if (!column.width)
+        column.width = 100;
     }
 
     const grid = canvasDatagrid({
@@ -157,6 +142,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         color: cellColor,
         background: cellBackgroundColor,
         gridBorderColor: cellBorderColor,
+        scrollBarBackgroundColor: cellBackgroundColor,
+        // scrollBarBoxColor: 'red',
         rowHeight: this.rowHeight,
         // cellHeight:
       },
@@ -175,44 +162,56 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.columnHeaderClickBehavior = 'none'
 
     // grid.applyComponentStyle();
-    grid.addEventListener('beforerendercell', this.beforeRenderCell);
-    grid.addEventListener('rendercell', this.renderCell)
-    grid.addEventListener('afterrendercell', this.afterRenderCell)
-    grid.addEventListener('rendertext', this.renderText)
-    grid.addEventListener('afterdraw', this.afterDraw)
+    // grid.addEventListener('beforerendercell', this.beforeRenderCell);
+    // grid.addEventListener('rendercell', this.renderCell)
+    // grid.addEventListener('afterrendercell', this.afterRenderCell)
+    // grid.addEventListener('rendertext', this.renderText)
+    grid.addEventListener('afterdraw', (e) => this.afterDraw(e, this._grid));
+    grid.addEventListener('currentCellChanged', this.currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
   }
 
-  detectChanges() {
+  applyStyles(styles: GridStyles) {
+    const grid = this._grid;
+
+    grid.style = {
+      ...styles,
+      ...grid.style,
+    }
+
+    this.detectChanges(true);
+  }
+
+  detectChanges(force = false) {
     const grid = this._grid;
 
     if (grid)
-      grid.draw();
+      grid.draw(force);
   }
 
   ngAfterViewInit(): void {
-    this._handlers = this.initHandlers() || [];
-    for (const handler of this._handlers) {
-      handler.events.forEach(e => this._subscribeOnEvents(e));
-    }
+    // this._handlers = this.initHandlers() || [];
+    // for (const handler of this._handlers) {
+    //   handler.events.forEach(e => this._subscribeOnEvents(e));
+    // }
   }
 
-  initHandlers(): IHandler[] {
-    const handlers = [];
+  // initHandlers(): IHandler[] {
+  //   const handlers = [];
 
-    if (!Array.isArray(this.handlers))
-      this.handlers = [];
+  //   if (!Array.isArray(this.handlers))
+  //     this.handlers = [];
 
-    this.handlers.forEach(h => h.dataGrid = this);
+  //   this.handlers.forEach(h => h.dataGrid = this);
 
-    return [
-      ...this.handlers.map(h => h.tableHandler),
-      ...handlers
-    ];
-  }
+  //   return [
+  //     ...this.handlers.map(h => h.tableHandler),
+  //     ...handlers
+  //   ];
+  // }
 
   createComponentModal(): void {
     const modal = this.modalService.create({
@@ -227,44 +226,53 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     modal.afterClose.subscribe(result => {
       if (result) {
-        this.columns = [...result];
-        this.activeColumns = this.columns.filter((column: Column) => column.visible);
+        // this.columns = [...result];
+        // this.activeColumns = this.columns.filter((column: Column) => column.visible);
       }
     });
   }
 
-  trackByFn(item) {
-    return item.id;
-  }
+  private _handleClick = (e) => {
+    const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
 
-  private _handleClick(e) {
-    const cell = e.cell;
-    console.log(cell.rowIndex, cell.columnIndex)
-  }
-
-  private _handleEvent = (event) => {
-    if (!this._handlers)
+    if (!Array.isArray(_handlers))
       return;
 
-    for (const handler of this._handlers) {
-      if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
-        return null;
+    for (const handler of _handlers as any[]) {
+      if (handler.event != Events.Click || handler.column != e.column?.name)
+        continue;
+
+      handler.notify(e);
     }
   }
 
-  private _subscribeOnEvents(event: Events) {
-    const element = this.tableContainer && this.tableContainer.nativeElement;
-    if (!element)
-      return;
-
-    if (this._subscribedEvents.every(e => e !== event)) {
-      this._subscribedEvents.push(event);
-      const fn = (evt: Event) => this._handleEvent(evt);
-
-      element.addEventListener(event, fn);
-      this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
-    }
+  private currentCellChanged(e) {
+    // console.log('currentCellChanged', e);
   }
+
+  // private _handleEvent = (event) => {
+  //   if (!this._handlers)
+  //     return;
+
+  //   for (const handler of this._handlers) {
+  //     if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
+  //       return null;
+  //   }
+  // }
+
+  // private _subscribeOnEvents(event: Events) {
+  //   const element = this.tableContainer && this.tableContainer.nativeElement;
+  //   if (!element)
+  //     return;
+
+  //   if (this._subscribedEvents.every(e => e !== event)) {
+  //     this._subscribedEvents.push(event);
+  //     const fn = (evt: Event) => this._handleEvent(evt);
+
+  //     element.addEventListener(event, fn);
+  //     this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
+  //   }
+  // }
 
   getVisibleRows() {
     const bodyElement = this.container && this.container.nativeElement;
@@ -282,7 +290,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   ngOnDestroy(): void {
     if (this._grid) {
-      this._grid.removeEventListener('rendercell', this.renderCell)
+      // this._grid.removeEventListener('rendercell', this.renderCell)
       // this._grid.removeEventListener('afterrendercell', afterRenderCell);
     }
     this.onDestroy$.next();

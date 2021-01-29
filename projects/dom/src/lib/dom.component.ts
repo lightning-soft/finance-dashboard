@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
-import { CellClickDataGridHandler, Column, DataGrid, ICellSettings, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
@@ -13,10 +13,8 @@ import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
-import { DomHandler } from './handlers';
-import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
+import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
-import { PriceCell } from './price.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -27,6 +25,8 @@ export class DomItemMax {
   volume: number;
   totalAsk: number;
   totalBid: number;
+  currentAsk: number;
+  currentBid: number;
 
   handleChanges(change): any {
     let result;
@@ -43,43 +43,22 @@ export class DomItemMax {
       this[key] = change[key];
       result[key] = change[key];
     }
-
-    // if (result && Object.keys(result).some(k => {
-    //   if(result[k] == null) {
-    //     delete result[k];
-    //     return true
-    //   }
-    //   return false
-    // })) {
-    //   console.error('suke')
-    // }
-
     return result;
   }
-}
 
-class RedrawInfo {
-  _needRedraw = false;
-
-  private _scrolledItems = 0;
-
-  public get scrolledItems() {
-    return this._scrolledItems;
-  }
-
-  public set scrolledItems(value) {
-    this.needRedraw();
-    this._scrolledItems = value;
-  }
-
-  needRedraw() {
-    this._needRedraw = true;
-  }
-
-  markDrawed() {
-    this._needRedraw = false;
+  clear() {
+    this.ask = null;
+    this.bid = null;
+    this.volume = null;
+    this.totalAsk = null;
+    this.totalBid = null;
+    this.currentAsk = null;
+    this.currentBid = null;
   }
 }
+
+const ROWS = 400;
+const DOM_HOTKEYS = 'domHotkeys';
 
 interface IDomState {
   instrument: IInstrument;
@@ -109,15 +88,15 @@ const topDirectionIndex = 1;
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   columns: Column[] = [
-    '_id',
+    // '_id',
     'orders',
     ['volume', 'volume', 'histogram'],
     'price',
     ['bidDelta', 'delta'],
     ['bid', 'bid', 'histogram'],
     'ltq',
-    ['currentBid', 'c.bid'],
-    ['currentAsk', 'c.ask'],
+    ['currentBid', 'c.bid', 'histogram'],
+    ['currentAsk', 'c.ask', 'histogram'],
     ['ask', 'ask', 'histogram'],
     ['askDelta', 'delta'],
     ['totalBid', 't.bid', 'histogram'],
@@ -139,9 +118,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   accountId: Id;
   keysStack: KeyboardListener = new KeyboardListener();
   domKeyHandlers = {
-    autoCenter: () => {
-    },
+    autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => {
+      this.broadcastHotkeyCommand('autoCenter');
     },
     buyMarket: () => {
     },
@@ -178,29 +157,63 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     clearAlertsAllWindow: () => {
     },
     clearAllTotals: () => {
+      for (let item of this.items) {
+        item.totalBid.clear();
+        item.totalAsk.clear();
+      }
+    },
+    clearCurrentTrades: () => {
+      for (let item of this.items) {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      }
     },
     clearCurrentTradesAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTrades');
     },
     clearCurrentTradesDown: () => {
+      this.forDownItems(item => {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      });
     },
     clearCurrentTradesDownAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTradesDown');
     },
     clearCurrentTradesUp: () => {
+      this.forUpItems((item) => {
+        item.currentAsk.clear();
+        item.currentBid.clear();
+      });
     },
     clearCurrentTradesUpAllWindows: () => {
+      this.broadcastHotkeyCommand('clearCurrentTradesUp');
     },
     clearTotalTradesDown: () => {
+      this.forDownItems((item) => {
+        item.totalAsk.clear();
+        item.totalBid.clear();
+      });
     },
     clearTotalTradesDownAllWindows: () => {
+      this.broadcastHotkeyCommand('clearTotalTradesDown');
     },
     clearTotalTradesUp: () => {
+      this.forUpItems((item) => {
+        item.totalAsk.clear();
+        item.totalBid.clear();
+      });
     },
-    clearTotalTradeUpAllWindows: () => {
+    clearTotalTradesUpAllWindows: () => {
+      this.broadcastHotkeyCommand('clearTotalTradesUp');
     },
     clearVolumeProfile: () => {
+      for (let item of this.items) {
+        item.volume.clear();
+      }
     }
   };
-  private _dom = new DomHandler();
+
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
@@ -230,8 +243,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   directionsHints = directionsHints;
 
   private _instrument: IInstrument;
-  private _redrawInfo = new RedrawInfo();
-
   private _priceFormatter: IFormatter;
 
   public get instrument(): IInstrument {
@@ -263,10 +274,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _max = new DomItemMax()
+  private _lastChangesItem: { [key: string]: DomItem } = {}
 
   private _map = new Map<number, DomItem>();
 
-  private _lastPrice: number;
+  private get _lastPrice(): number {
+    return this._lastChangesItem.ltq?.price?._value;
+  }
 
   get trade() {
     return this._lastPrice;
@@ -278,9 +292,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea.formSettings;
   }
 
-  private _lastSyncTime = 0;
-
   private _changedTime = 0;
+
+  private get _tickSize() {
+    return this.instrument.tickSize ?? 0.01;
+    // return 0.01;
+  }
+
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -289,11 +307,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector,
-    private _renderer: Renderer2
   ) {
     super();
     this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
+    (window as any).dom = this;
   }
 
   ngOnInit(): void {
@@ -307,13 +325,55 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
-
+    this.addLinkObserver({
+      link: DOM_HOTKEYS,
+      handleLinkData: (key: string) => {
+        this.domKeyHandlers[key]();
+      },
+    });
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings) => {
+      handleLinkData: (settings: DomSettings) => {
+        const common = settings.common;
+        if (common) {
+          for (const column of this.columns) {
+            column.visible = common[column.name] != false;
+          }
+        }
+        this.dataGrid.applyStyles({
+          font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
+          gridBorderColor: common.generalColors.gridLineColor,
+        })
         this._settings.merge(settings);
+        this.detectChanges(true);
       }
     });
+  }
+
+  broadcastHotkeyCommand(commandName: string) {
+    this.broadcastData(DOM_HOTKEYS, commandName);
+  }
+
+  forUpItems(handler: (data) => void) {
+    let emit = true;
+    for (let item of this.items) {
+      if (item.isCenter)
+        emit = false;
+
+      if (emit)
+        handler(item);
+    }
+  }
+
+  forDownItems(handler: (item) => void) {
+    let emit = false;
+    for (let item of this.items) {
+      if (item.isCenter)
+        emit = true;
+
+      if (emit)
+        handler(item);
+    }
   }
 
   protected _handleConnection(connection: IConnection) {
@@ -321,43 +381,33 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._ordersRepository = this._ordersRepository.forConnection(connection);
   }
 
-  scroll = (e: WheelEvent) => {
-    const info = this._redrawInfo;
-    if (e.deltaY > 0) {
-      info.scrolledItems++;
-    } else if (e.deltaY < 0) {
-      info.scrolledItems--;
-    }
-
-    this._calculate();
-    e.preventDefault();
-  }
-
   ngAfterViewInit() {
     this._handleResize();
-    const element = this.dataGridElement && this.dataGridElement.nativeElement;
-    this.onRemove(this._renderer.listen(element, 'wheel', this.scroll));
   }
 
   centralize() {
-    this._redrawInfo.scrolledItems = 0;
-    this._calculate();
+    this._handleResize();
+    requestAnimationFrame(() => {
+      const grid = this.dataGrid;
+      const visibleRows = grid.getVisibleRows();
+      var index = ROWS / 2;
+
+      if (this._lastPrice) {
+        for (let i = 0; i < this.items.length; i++) {
+          const item = this.items[i];
+
+          item.isCenter = item.lastPrice == this._lastPrice;
+        }
+      }
+
+      grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
+    });
     this.detectChanges();
   }
 
   @SynchronizeFrames()
-  detectChanges() {
-    // console.time('detectChanges')
-    this.dataGrid.detectChanges();
-    // console.timeEnd('detectChanges')
-    // console.log(Date.now() - this._lastSyncTime)
-    this._lastSyncTime = Date.now();
-  }
-
-  @SynchronizeFrames()
-  private _calculateAsync() {
-    this._calculate();
-    this.dataGrid.detectChanges();
+  detectChanges(force = false) {
+    this.dataGrid.detectChanges(force);
   }
 
   private _getItem(price: number): DomItem {
@@ -370,250 +420,147 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._map.get(price);
   }
 
+  private _fillData(lastPrice: number) {
+    this.items = [];
+    this._map.clear();
+    this._max.clear()
+    const data = this.items;
+    const tickSize = this._tickSize;
+
+    let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+    const maxPrice = this._normalizePrice(lastPrice + tickSize * ROWS / 2);
+
+    while (price < maxPrice) {
+      price = this._normalizePrice(price);
+      data.push(this._getItem(price));
+    }
+  }
+
+  private _handleTrades = true;
+
   protected _handleTrade(trade: ITrade) {
-    // console.time('_handleTrade')
+    if (!this._handleTrades)
+      return;
+
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
-    const prevItem = this._getItem(this._lastPrice);
-    prevItem.clearLTQ();
+    let changes = this._lastChangesItem;
+    let prevltqItem = changes.ltq;
 
-    // const tickSize = this.instrument.tickSize ?? 0.25;
-    const tickSize = 0.01
-    const lastPrice = this._lastPrice = Math.round(trade && trade.price / tickSize) * tickSize;
+    if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
+      const item = this._getItem(trade.askInfo.price);
+      this._handleMaxChange(item.handleAsk(trade.askInfo), item);
+
+      if (prevltqItem != changes.ltq && prevltqItem) {
+        prevltqItem.clearLTQ();
+
+        for (const item of this.items) {
+          if (changes.ltq == item)
+            return;
+
+          item.clearDelta();
+
+          // if (item.price._value < price) {
+          //   item.bid.clear();
+          // } else if (item.price._value > price) {
+          //   item.ask.clear();
+          // } else {
+          //   if (item.bid._time > item.ask._time) {
+          //     item.ask.clear();
+          //   } else {
+          //     item.bid.clear();
+          //   }
+          // }
+        }
+      }
+    }
+
+    if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
+      const item = this._getItem(trade.bidInfo.price);
+      this._handleMaxChange(item.handleBid(trade.bidInfo), item);
+
+      if (prevltqItem != changes.ltq && prevltqItem) {
+        prevltqItem.clearLTQ();
+
+        for (const item of this.items) {
+          if (changes.ltq == item)
+            return;
+
+          item.clearDelta();
+
+          // if (item.price._value < price) {
+          //   item.bid.clear();
+          // } else if (item.price._value > price) {
+          //   item.ask.clear();
+          // } else {
+          //   if (item.bid._time > item.ask._time) {
+          //     item.ask.clear();
+          //   } else {
+          //     item.bid.clear();
+          //   }
+          // }
+        }
+      }
+    }
 
     if (!this.items.length) {
-      const data = this.items;
-      const rows = 400;
-      let price = lastPrice - tickSize * rows / 2;
-      const maxPrice = lastPrice + tickSize * rows / 2;
-
-      while (price < maxPrice) {
-        price = +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision)
-        data.push(this._getItem(price));
-      }
-
-      this._handleResize();
-      requestAnimationFrame(() => {
-        const grid = this.dataGrid;
-        const visibleRows = grid.getVisibleRows();
-        grid.scrollTop = rows * grid.rowHeight / 2 - visibleRows / 2 * grid.rowHeight;
-      });
+      if (this._lastPrice)
+        this._fillData(this._lastPrice); // todo: load order book
+      this.centralize();
     }
 
-    const item = this._getItem(lastPrice);
-    this._handleMaxChange(item.handleTrade(trade));
-    const newChangedTime = Math.max(item.currentAsk.time, item.currentBid.time);
-    if (newChangedTime != this._changedTime) {
-      for (const i of this.items)
-        i.clearDelta();
-
-      this._changedTime = newChangedTime;
-    }
-    // console.timeEnd('_handleTrade')
-    // this._dom.handleTrade(trade);
-    // this._calculateAsync();
+    this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
   }
 
   protected _handleL2(l2: L2) {
-    // console.time('_handleL2')
     if (l2.instrument?.symbol !== this.instrument?.symbol) return;
-    // this._dom.handleL2(l2);
-    this._handleMaxChange(this._getItem(l2.price).handleL2(l2));
-    // console.timeEnd('_handleL2')
 
-    // this._calculateAsync();
+    const item = this._getItem(l2.price);
+    this._handleMaxChange(item.handleL2(l2), item);
     this.detectChanges();
   }
 
-  private _handleMaxChange(max: any) {
-    const hist = this._max.handleChanges(max)
-    const keys = hist && Object.keys(hist)
+  private _handleMaxChange(changes: any, item: DomItem) {
+    const hist = this._max.handleChanges(changes);
+    const keys = hist && Object.keys(hist);
+
+    for (const key in changes) {
+      const prevItem = this._lastChangesItem[key];
+      if (prevItem)
+        prevItem.dehighlight(key);
+
+      this._lastChangesItem[key] = item;
+    }
 
     if (Array.isArray(keys) && keys.length) {
       for (const i of this.items) {
         for (const key of keys) {
-          if (hist[key] == null)
+          if (hist[key] == null || i[key].component != 'histogram')
             continue;
 
           (i[key] as HistogramCell).calcHist(hist[key]);
         }
       }
-
-      if (this.items.some(i => i.bid.hist > 1))
-        console.warn('more than 1')
     }
   }
 
-  private _calculate() {
-    const itemsCount = this.items.length;
+  afterDraw = (e, grid) => {
+    grid.forEachRow((row, y) => {
+      if (!row.isCenter)
+        return;
 
-    const instrument = this.instrument;
-    if (!instrument)
-      return;
+      const ctx = e.ctx;
+      const width = e.ctx.canvas.width;
+      const rowHeight = grid.style.rowHeight;
+      y += rowHeight;
 
-    const info = this._redrawInfo;
-    const data: DomItem[] = this.items;
-    const dom = this._dom;
-    const precision = instrument.precision;
-    const tickSize = instrument.tickSize;
-    let last = this._lastPrice;
-
-    // if (!info._needRedraw) {
-    //   for (const item of data) {
-    //     item.updatePrice(item.lastPrice, dom, item.lastPrice === last);
-    //   }
-    // } else {
-    //   let centerIndex = Math.floor((itemsCount - 1) / 2) + info.scrolledItems;
-    //   // const tickSize = 0.01;
-    //   let upIndex = centerIndex - 1;
-    //   let downIndex = centerIndex + 1;
-    //   let price = last;
-    //   let item: DomItem;
-
-    //   if (last == null || isNaN(last))
-    //     return;
-
-    //   if (centerIndex >= 0 && centerIndex < itemsCount) {
-    //     item = data[centerIndex];
-    //     item.updatePrice(last, dom, true);
-    //   }
-
-    //   while (upIndex >= 0) {
-    //     price = sum(price, tickSize, precision);
-    //     if (upIndex >= itemsCount) {
-    //       upIndex--;
-    //       continue;
-    //     }
-
-    //     item = data[upIndex];
-    //     item.updatePrice(price, dom);
-    //     upIndex--;
-    //   }
-
-    //   price = last;
-
-    //   while (downIndex < itemsCount) {
-    //     price = sum(price, -tickSize, precision);
-    //     if (downIndex < 0) {
-    //       downIndex++;
-    //       continue;
-    //     }
-
-    //     item = data[downIndex];
-    //     item.updatePrice(price, dom);
-    //     downIndex++;
-    //   }
-
-    //   info.markDrawed();
-    // }
-
-    this._lastSyncTime = Date.now();
-  }
-
-  afterDraw = (grid) => {
-    const ctx = grid.ctx;
-    // ctx.save();
-    const y = Math.ceil(this.visibleRows / 2) * this.dataGrid.rowHeight;
-    const width = grid.ctx.canvas.width;
-    ctx.beginPath();
-    ctx.strokeStyle = '#A1A2A5';
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-    // ctx.restore();
-  }
-
-  renderText = (e) => {
-    const ctx = e.ctx;
-    const cell = e.cell;
-    const value = cell.value;
-
-    const settings = value.settings;
-
-    if (!settings)
-      return;
-
-    if (settings.textAlign)
-      cell.horizontalAlignment = settings.textAlign;
-
-    if (settings.fontColor)
-      e.ctx.fillStyle = settings.fontColor;
-
-    if (cell.header.name == 'price') {
-      const s: any = settings;
-      const v: PriceCell = value;
-
-      if (!v.isTraded && s.nonTradedPriceBackColor) {
-        ctx.fillStyle = s.nonTradedPriceBackColor;
-      }
-    }
-
-  }
-
-  renderCell = (e) => {
-    const cell = e.cell;
-    const value = cell.value;
-
-    const settings: ICellSettings = value.settings;
-
-    if (!settings)
-      return;
-    const ctx = e.ctx;
-
-    if (settings.backgroundColor)
-      ctx.fillStyle = settings.backgroundColor;
-
-    if (cell.header.name == 'price') {
-      const s: any = settings;
-      const v: PriceCell = value;
-
-      if (v.isTraded && s.tradedPriceBackColor) {
-        ctx.fillStyle = s.tradedPriceBackColor;
-      }
-    }
-
-    if (settings.highlightBackgroundColor && value.time >= this._lastSyncTime)
-      ctx.fillStyle = settings.highlightBackgroundColor;
-  }
-
-  afterRenderCell = (e) => {
-    const ctx = e.ctx;
-    const cell = e.cell;
-    const value = cell.value;
-    const data = cell.data;
-
-    const name = cell.header.name;
-
-    if (data.isCenter && name == 'price')
-      e.ctx.fillStyle = 'red';
-
-    const settings = value.settings;
-
-    if (!settings)
-      return;
-
-    if (settings.backgroundColor)
-      e.ctx.fillStyle = settings.backgroundColor;
-
-    if (!value?.component)
-      return;
-
-    switch (value.component) {
-      case 'histogram-component':
-        const s: IHistogramSettings = settings as IHistogramSettings;
-        if (s.enableHistogram == false || !value.hist)
-          return;
-        // ctx.save();
-        ctx.fillStyle = s.histogramColor ?? 'grey';
-        if (s.histogramOrientation == 'right') {
-          ctx.fillRect(cell.x + cell.width * (1 - value.hist), cell.y, cell.width * value.hist, cell.height);
-        } else {
-          ctx.fillRect(cell.x, cell.y, cell.width * value.hist, cell.height);
-        }
-        // ctx.restore();
-        break;
-    }
+      ctx.beginPath();
+      ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    });
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -649,23 +596,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   @SynchronizeFrames()
   private _handleResize(afterResize?: Function) {
-    const data = this.items;
     const visibleRows = this.dataGrid.getVisibleRows();
-    const diff = this.visibleRows - visibleRows;
-    const change = Math.ceil(diff / 2);
     this.visibleRows = visibleRows;
-
-    if (change != 0) {
-      // if (change > 0) {
-      //   while
-      //   if (data.length > visibleRows)
-      //     data.splice(visibleRows, data.length - visibleRows);
-      //   else if (data.length < visibleRows)
-      //     while (data.length <= visibleRows + 1)
-      //       data.push(new DomItem(data.length, this._settings, this._priceFormatter));
-      // }
-      // this._redrawInfo.needRedraw();
-    }
 
     this.dataGrid.resize();
     if (afterResize)
@@ -681,10 +613,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
+    this._settings.columns = this.columns;
     this.openSettings(true);
 
     // for debug purposes
-    if (!state)
+    if (!
+      state
+    )
       state = {} as any;
 
     if (!state?.instrument)
@@ -713,23 +648,29 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
+      width: 680,
+      resizable: false,
       removeIfExists: true,
       hidden,
     });
   }
 
   private _createOrder(column: string, item: DomItem) {
+    console.log(column, item);
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');
       return;
     }
+
     const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
-    const requestPayload = this._domForm.getDto();
+    const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
-    requestPayload.stopPrice = requestPayload.sl.count;
-    requestPayload.limitPrice = requestPayload.tp.count;
+
+    form.stopPrice = form.sl.count;
+    form.limitPrice = form.tp.count;
+
     this._ordersRepository.createItem({
-      ...requestPayload,
+      ...form,
       exchange,
       side,
       accountId: this.accountId,
@@ -743,6 +684,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       });
   }
 
+  private _normalizePrice(price) {
+    const tickSize = this._tickSize;
+    return +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision);
+  }
+
   ngOnDestroy() {
     super.ngOnDestroy();
     const instrument = this.instrument;
@@ -753,6 +699,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._levelTwoDatafeed.unsubscribe(instrument);
   }
 }
+
 
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);

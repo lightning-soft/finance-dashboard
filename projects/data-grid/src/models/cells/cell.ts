@@ -9,7 +9,7 @@ enum TextAlign {
 
 export interface ICellSettings {
   backgroundColor?: string;
-  fontColor?: string;
+  color?: string;
   textAlign?: TextAlign;
   highlightBackgroundColor?: string;
   fontSize?: number;
@@ -31,6 +31,11 @@ export interface ICellConfig {
   settings?: ICellSettings;
 }
 
+export enum CellStatus {
+  Highlight = 'highlight',
+  None = '',
+}
+
 export abstract class Cell implements ICell {
   name: string = '';
   value = '';
@@ -39,6 +44,8 @@ export abstract class Cell implements ICell {
   _bold: boolean;
   settings = {};
   drawed = false; // performance solution
+  status: string = '';
+  private _prevStatus = '';
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
@@ -58,6 +65,28 @@ export abstract class Cell implements ICell {
   }
 
   abstract updateValue(...args: any[]);
+
+  changeStatus(status: string) {
+    if (status == this.status)
+      return;
+
+    this._prevStatus = this.status;
+    this.status = status;
+  }
+
+  revertStatus() {
+    this.status = this._prevStatus;
+  }
+
+  dehightlight() {
+    if (this.status == CellStatus.Highlight)
+      this.revertStatus();
+  }
+
+  hightlight() {
+    this.changeStatus(CellStatus.Highlight);
+  }
+
 
   clear() {
     this.value = '';

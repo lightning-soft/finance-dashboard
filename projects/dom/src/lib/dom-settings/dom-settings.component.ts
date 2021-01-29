@@ -23,12 +23,12 @@ export const DomSettingsSelector = 'dom-settings';
 export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit {
   list = [
     { tab: SettingTab.General, label: 'General' },
-    { tab: SettingTab.Common, label: 'Common' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
     { tab: SettingTab.OrderArea, label: 'Order Area' },
     {
       label: 'Columns',
       children: [
+        { tab: SettingTab.Common, label: 'Common' },
         { tab: SettingTab.LTQ, label: 'LTQ' },
         { tab: SettingTab.Price, label: 'Price' },
         { tab: SettingTab.BidDelta, label: 'Bid Delta' },
@@ -74,6 +74,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
 
   private _handleChange(value: any) {
     this.broadcastData(DomSettingsSelector, this.settings);
+    console.log(this.settings);
     this._applyCss();
   }
 

@@ -6,7 +6,7 @@ export class DataCell<T = any> extends Cell {
 
   constructor(private transformFunction?: (value: T) => string) {
     super();
-  } l
+  }
 
   updateValue(value: T) {
     const newValue = this.transformFunction ? this.transformFunction(value) : value;
