@@ -3,13 +3,12 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { LoadingComponent } from 'base-components';
 import { Id } from 'communication';
-import { PriceCell } from './price.cell';
-import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataGrid, ICellSettings, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
 import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
-import { ICellSettings } from 'data-grid';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -17,6 +16,7 @@ import { DomItem } from './dom.item';
 import { DomHandler } from './handlers';
 import { histogramComponent, HistogramComponent, IHistogramSettings } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
+import { PriceCell } from './price.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -66,8 +66,9 @@ class RedrawInfo {
   public get scrolledItems() {
     return this._scrolledItems;
   }
+
   public set scrolledItems(value) {
-    this.needRedraw()
+    this.needRedraw();
     this._scrolledItems = value;
   }
 
@@ -79,15 +80,19 @@ class RedrawInfo {
     this._needRedraw = false;
   }
 }
+
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
 }
+
 const directionsHints = {
   'window-left': 'Left View',
   'full-screen-window': 'Horizontal View',
   'window-right': 'Right View',
 };
+const topDirectionIndex = 1;
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -132,7 +137,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }));
 
   accountId: Id;
-
+  keysStack: KeyboardListener = new KeyboardListener();
+  domKeyHandlers = {
+    autoCenter: () => {
+    },
+    autoCenterAllWindows: () => {
+    },
+    buyMarket: () => {
+    },
+    sellMarket: () => {
+    },
+    hitBid: () => {
+    },
+    joinBid: () => {
+    },
+    liftOffer: () => {
+    },
+    oco: () => {
+    },
+    flatten: () => {
+    },
+    cancelAllOrders: () => {
+    },
+    quantity1: () => {
+    },
+    quantity2: () => {
+    },
+    quantity3: () => {
+    },
+    quantity4: () => {
+    },
+    quantity5: () => {
+    },
+    quantityToPos: () => {
+    },
+    stopsToPrice: () => {
+    },
+    clearAlerts: () => {
+    },
+    clearAlertsAllWindow: () => {
+    },
+    clearAllTotals: () => {
+    },
+    clearCurrentTradesAllWindows: () => {
+    },
+    clearCurrentTradesDown: () => {
+    },
+    clearCurrentTradesDownAllWindows: () => {
+    },
+    clearCurrentTradesUp: () => {
+    },
+    clearCurrentTradesUpAllWindows: () => {
+    },
+    clearTotalTradesDown: () => {
+    },
+    clearTotalTradesDownAllWindows: () => {
+    },
+    clearTotalTradesUp: () => {
+    },
+    clearTotalTradeUpAllWindows: () => {
+    },
+    clearVolumeProfile: () => {
+    }
+  };
   private _dom = new DomHandler();
 
   @ViewChild(DomFormComponent)
@@ -156,7 +223,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isLocked: boolean;
+  isTradingLocked = false;
+  bracketActive = true;
+  isExtended = true;
+
   directionsHints = directionsHints;
 
   private _instrument: IInstrument;
@@ -176,6 +246,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._priceFormatter = new RoundFormatter(3);
     this._levelOneDatafeed.subscribe(value);
     this._levelTwoDatafeed.subscribe(value);
+  }
+
+  get isFormOnTop() {
+    return this.currentDirection === this.directions[topDirectionIndex];
   }
 
   visibleRows = 0;
@@ -200,6 +274,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _settings: DomSettings = new DomSettings();
 
+  get domFormSettings() {
+    return this._settings.orderArea.formSettings;
+  }
+
   private _lastSyncTime = 0;
 
   private _changedTime = 0;
@@ -214,7 +292,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _renderer: Renderer2
   ) {
     super();
-    this.setTabIcon('icon-widget-positions');
+    this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
   }
 
@@ -547,9 +625,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case LayoutNodeEvent.Restore:
         this._handleResize();
         break;
+      case LayoutNodeEvent.Event:
+        this._handleKey(data);
+    }
+    return true;
+  }
+
+  private _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+    this.keysStack.handle(event);
+    const keyBinding = Object.entries(this._settings.hotkeys)
+      .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
+      .find(([name, binding]) => {
+        return (binding as KeyBinding).equals(this.keysStack);
+      });
+    if (keyBinding) {
+      this.domKeyHandlers[keyBinding[0] as string]();
     }
 
-    return true;
   }
 
   @SynchronizeFrames()
@@ -618,10 +713,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
-      removeIfExists: hidden,
+      removeIfExists: true,
       hidden,
-      width: 1000,
-      height: 1000,
     });
   }
 

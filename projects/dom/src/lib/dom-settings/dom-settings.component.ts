@@ -25,6 +25,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Common, label: 'Common' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
+    { tab: SettingTab.OrderArea, label: 'Order Area' },
     {
       label: 'Columns',
       children: [
@@ -57,6 +58,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
 
   constructor(private _applier: CssApplier) {
     this.setTabTitle('Dom settings');
+    this.setTabIcon('icon-setting-gear');
   }
 
   ngAfterViewInit() {
@@ -76,7 +78,6 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   private _applyCss() {
-    return;
     let cssData = {};
     for (let configKey in SettingsConfig) {
       const configs = SettingsConfig[configKey];
@@ -89,7 +90,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
           }, {})
       };
     }
-    this._applier.apply('lib-dom', cssData);
+    this._applier.apply('lib-dom', cssData, 'dom-settings');
   }
 
 

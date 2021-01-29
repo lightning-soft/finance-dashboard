@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import {Inject, Injectable, Renderer2, RendererFactory2} from '@angular/core';
+import { Inject, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import * as merge from 'deepmerge';
 
 @Injectable()
@@ -10,27 +10,39 @@ export class CssApplier {
 
   constructor(
     rendererFactory: RendererFactory2,
-    @Inject(DOCUMENT) private document: any
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
   }
 
-  apply(selector: string, config: any) {
+  apply(selector: string, config: any, id: string) {
     if (config == this.config)
       return;
     const css = getCss(config, selector);
-    this._setStyle(css);
+    this._setStyle(css, id);
     this.config = config;
   }
 
-  private _setStyle(css: string) {
+  private _setStyle(css: string, id: string) {
     if (!this.style) {
+      this.prepareStyleElement(id);
+    }
+    this.style.innerHTML = css ?? '';
+  }
+
+  prepareStyleElement(id) {
+    const styleElement = this.getStyleIfExists(id);
+    if (styleElement) {
+      this.style = styleElement;
+    } else {
       this.style = this.document.createElement('STYLE') as HTMLStyleElement;
-      this.style.id = 'dom-settings';
+      this.style.id = id;
       this.renderer.appendChild(this.document.head, this.style);
     }
+  }
 
-    this.style.innerHTML = css ?? '';
+  getStyleIfExists(id) {
+    return this.document.getElementById(id);
   }
 }
 

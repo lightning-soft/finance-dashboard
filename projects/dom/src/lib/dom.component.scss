@@ -1,5 +1,6 @@
 $border-color: #24262c;
 $cell-background: #1b1d22;
+@import "~src/scss/variables";
 
 :host {
   display: flex;
@@ -59,6 +60,43 @@ $cell-background: #1b1d22;
   width: 100%;
   display: flex;
   align-items: center;
+}
+
+daily-info {
+  margin-left: 4px;
+}
+
+.form-switcher {
+  background: #101114;
+  padding: 2px;
+  border-radius: 2px;
+  width: 40px;
+  height: 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  .switch-item {
+    height: 16px;
+    width: 16px;
+    text-align: center;
+    background: $light;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 2px;
+
+    i {
+      font-size: 10px;
+      line-height: 1;
+      color: $text-40;
+    }
+
+    &.extended {
+      margin-left: 2px;
+    }
+  }
 }
 
 .grid-wrapper {
@@ -133,12 +171,16 @@ $cell-background: #1b1d22;
   }
 }
 
+.text-active {
+  color: $primary !important;
+}
+
 .icon-lock {
   color: rgba(201, 59, 59, 1);
 }
 
 dom-form {
-  width: 130px;
+  width: 100px;
   display: block;
   height: 100%;
 }
@@ -146,8 +188,7 @@ dom-form {
 .window-icon-container {
   display: inline-flex;
   align-items: center;
-  position: absolute;
-  right: 5px;
+  margin-right: 10px;
   margin-left: auto;
   justify-content: flex-end;
 }

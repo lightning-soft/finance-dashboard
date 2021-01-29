@@ -23,7 +23,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
   protected get _params(): any {
     const { accountId, instrument } = this._instance;
 
-    return { accountId, instrument };
+    return { accountId, instrument: instrument.id };
   }
 
   constructor(instance: any) {
@@ -92,6 +92,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
     if (!this._instance.accountId || !this._instance.instrument) {
       return;
     }
+    console.log(this._instance.instrument);
 
     this._repository.getItems(this._params)
       .pipe(untilDestroyed(this._instance))

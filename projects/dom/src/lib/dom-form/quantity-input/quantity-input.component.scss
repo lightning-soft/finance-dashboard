@@ -1,57 +1,11 @@
 @import "../general";
 
-:host ::ng-deep {
-  .ant-input-number:focus, .ant-input-number-focused {
-    box-shadow: none;
-  }
-
-  .ant-input-number-handler-wrap {
-    border-left: none;
-  }
-
-  .ant-input-number-handler-down {
-    border-top: none;
-  }
-
-  nz-input-number {
-    height: 24px;
-    font-size: 0.8rem;
-
-    .ant-input-number-input {
-      height: 24px;
-    }
-
-    .ant-input-number-handler-wrap:hover .ant-input-number-handler {
-      height: 50%;
-    }
-
-    .ant-input-number-handler-wrap .ant-input-number-handler .ant-input-number-handler-up-inner,
-    .ant-input-number-handler-wrap .ant-input-number-handler .ant-input-number-handler-down-inner {
-      mask: url('~src/assets/img/svg/arrow-up.svg');
-      mask-size: 8px;
-      mask-repeat: no-repeat;
-      background-color: rgb(81, 83, 90);
-
-      svg {
-        display: none;
-      }
-
-    }
-
-    .ant-input-number-handler-wrap .ant-input-number-handler .ant-input-number-handler-down-inner {
-      mask-image: url('~src/assets/img/svg/arrow-down.svg');
-    }
-
-    .ant-input-number-handler-up:hover, .ant-input-number-handler-down:hover {
-      height: 50% !important;
-    }
-  }
-}
 
 :host-context(.full-screen-window) {
 
   nz-input-number {
     min-width: 35px;
+    max-width: 50px;
   }
 
   ::ng-deep {
@@ -63,4 +17,14 @@
 
 nz-input-number {
   margin-top: 2px;
+}
+:host .ant-input-number {
+  width: 43px;
+  font-size: 0.8rem;
+
+  ::ng-deep {
+    .ant-input-number-input {
+      padding-left: 5px;
+    }
+  }
 }

@@ -10,3 +10,4 @@ export * from './dashboard/drag-drawer/drag-drawer.component';
 export * from './navbar/workspace/confirm-modal/confirm-modal.component';
 export * from './navbar/workspace/rename-modal/rename-modal.component';
 export * from './navbar/workspace/create-modal/create-modal.component';
+export * from './navbar/trade-lock/trade-handle';

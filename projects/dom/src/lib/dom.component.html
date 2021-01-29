@@ -8,25 +8,48 @@
 
   <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
-  <button [title]="'Bracket'" class="wm-header-btn icon-dom-bracket"></button>
-  <button [title]="'Strategy'" class="wm-header-btn icon-dom-strategy"></button>
-  <daily-info [instrument]="instrument" [prevItem]="domForm.prevItem" [class.d-none]="isFormOpen"
+  <button
+    [title]="'Bracket'"
+    [class.bracket-active]="bracketActive"
+    (click)="bracketActive = !bracketActive"
+    class="wm-header-btn icon-dom-bracket"></button>
+  <button
+    [title]="'Strategy'"
+    class="wm-header-btn icon-dom-strategy"></button>
+  <daily-info [instrument]="instrument"
+              [prevItem]="domForm.prevItem"
+              [showInstrumentChange]="domFormSettings.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings.showOHLVInfo"
+              [class.d-none]="isFormOpen && !isFormOnTop"
     class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">
+    <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
+      <span title="Slim" (click)="isExtended = false" class="slim switch-item">
+        <i [class.text-active]="!isExtended" class="icon-dom-slim"></i>
+      </span>
+      <span title="Normal" (click)="isExtended = true" class="extended switch-item">
+                <i [class.text-active]="isExtended" class="icon-dom-extended"></i>
+
+      </span>
+    </span>
     <i *ngFor="let item of directions" (click)="currentDirection = item" [title]="directionsHints[item]"
       [class.d-none]="!isFormOpen" [class.active]="currentDirection === item"
       class="icon-{{item}} direction window-icon"></i>
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
       [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
-    <i (click)="isLocked = !isLocked" [class.icon-lock]="!isLocked" [title]="isLocked? 'Lock' : 'Unlock'"
-      [class.icon-unlock]="isLocked" class="window-icon large"></i>
+    <i (click)="isTradingLocked = !isTradingLocked" [class.icon-lock]="!isTradingLocked" [title]="isTradingLocked? 'Lock' : 'Unlock'"
+       [class.icon-unlock]="isTradingLocked" class="window-icon large"></i>
 
   </span>
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
     <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
-      class="{{currentDirection}}"></dom-form>
+      [showUnits]="bracketActive"
+      [isFormOnTop]="isFormOnTop"
+      [domSettings]="domFormSettings"
+      [isExtended]="isExtended"
+      class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
     <data-grid #grid [columns]="columns" detach="true"
