@@ -151,10 +151,13 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   createForm() {
+    const type = this.typeButtons.find(i => i.black);
+    const duration = this.tifButtons.find(i => i.black);
+
     return new FormGroup({
       quantity: new FormControl(10, Validators.required),
-      type: new FormControl(null, Validators.required),
-      duration: new FormControl(null, Validators.required),
+      type: new FormControl(type.value, Validators.required),
+      duration: new FormControl(duration.value, Validators.required),
       sl: new FormControl({
         stopLoss: false,
         count: 10,
@@ -168,7 +171,6 @@ export class DomFormComponent extends FormComponent<any> {
       amount: new FormControl(1),
       isIce: new FormControl(false),
       iceAmount: new FormControl(10),
-
     });
   }
 

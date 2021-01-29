@@ -7,11 +7,11 @@ import { skip, take } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class TradeHandler {
-  isTradingEnabled$ = new BehaviorSubject<boolean>(false);
+  isTradingEnabled$ = new BehaviorSubject<boolean>(true);
 
   constructor(private settingsService: SettingsService) {
     // skip is needed to ignore default value;
-    this.settingsService.settings.pipe(skip(1), take(1) ).toPromise()
+    this.settingsService.settings.pipe(skip(1), take(1)).toPromise()
       .then(item => {
         this.isTradingEnabled$.next(item.tradingEnabled);
       });
@@ -19,7 +19,7 @@ export class TradeHandler {
 
   set tradingEnabled(value: boolean) {
     if (value !== this.tradingEnabled) {
-      this.settingsService.updateTradingLock( value);
+      this.settingsService.updateTradingLock(value);
       this.isTradingEnabled$.next(value);
     }
   }

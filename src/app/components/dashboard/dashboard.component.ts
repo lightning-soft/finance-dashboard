@@ -159,18 +159,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this._save();
         break;
       }
- /*     case DashboardCommand.CUT: {
-        console.log(command);
-        break;
-      }
-      case DashboardCommand.Copy: {
-        console.log(command);
-        break;
-      }
-      case DashboardCommand.Paste: {
-        console.log(command);
-        break;
-      }*/
+      /*     case DashboardCommand.CUT: {
+             console.log(command);
+             break;
+           }
+           case DashboardCommand.Copy: {
+             console.log(command);
+             break;
+           }
+           case DashboardCommand.Paste: {
+             console.log(command);
+             break;
+           }*/
     }
   }
 

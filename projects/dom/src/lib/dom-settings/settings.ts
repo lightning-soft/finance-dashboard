@@ -129,14 +129,14 @@ export class DomSettings {
     },
   };
   price: any = {
-    backgroundColor: 'rgba(16, 17, 20, 1)',
+    // backgroundColor,
     color: 'rgba(208, 208, 210, 1)',
     // highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     // lastTradedPriceColor: 'rgba(0, 0, 0, 1)',
     // nonTradedPriceBackColor: 'rgba(131, 148, 150, 1)',
     // nonTradedPriceColor: 'rgba(0, 0, 0, 1)',
     textAlign: TextAlign.Center,
-    // tradedPriceBackColor: 'rgba(1, 43, 54, 1)',
+    tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
@@ -230,7 +230,7 @@ export class DomSettings {
     histogramOrientation: HistogramOrientation.Right,
     VWAP: false,
     controlColor: 'rgba(211, 53, 130, 1)',
-    histogramEnabled: false,
+    histogramEnabled: true,
     ltq: false,
     poc: false,
     vWAPColor: 'rgba(203, 75, 22, 1)',

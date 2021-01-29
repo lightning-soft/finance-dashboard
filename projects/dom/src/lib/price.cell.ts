@@ -6,8 +6,10 @@ export class PriceCell extends NumberCell {
   dehightlight() {
     super.dehightlight();
 
-    if (!this.status && this.isTraded) {
-      this.status = 'tradedPrice';
+    if (this.status != 'tradedPrice' && this.isTraded) {
+      this.changeStatus('tradedPrice');
+    } else if (this.status == 'tradedPrice' && !this.isTraded) {
+      this.changeStatus('');
     }
   }
 }

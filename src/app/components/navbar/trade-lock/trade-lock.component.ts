@@ -29,7 +29,7 @@ const unlock = {
 export class TradeLockComponent {
 
   lockIcons: [string, string] = ['lock', 'unlock'];
-  unlocked = false;
+  unlocked = true;
 
   private timerId;
 
@@ -43,7 +43,6 @@ export class TradeLockComponent {
   }
 
   handleLock(): void {
-
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;

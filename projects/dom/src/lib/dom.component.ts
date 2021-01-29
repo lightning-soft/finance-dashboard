@@ -397,6 +397,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           const item = this.items[i];
 
           item.isCenter = item.lastPrice == this._lastPrice;
+          if (item.isCenter)
+            index = i;
         }
       }
 

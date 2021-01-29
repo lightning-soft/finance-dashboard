@@ -3,7 +3,31 @@ import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { IConnection } from 'trading';
+import { Broker, IConnection } from 'trading';
+
+class Connection implements IConnection {
+  broker: Broker;
+  name: string;
+  username: string;
+  password?: string;
+  server: string;
+  aggregatedQuotes: boolean;
+  gateway: string;
+  autoSavePassword: boolean;
+  connectOnStartUp: boolean;
+  connected: boolean;
+  favourite: boolean;
+  connectionData: any;
+  id: Id;
+
+  constructor(connection: IConnection) {
+    Object.assign(this, connection)
+  }
+
+  toString() {
+    return this.name ?? `${this.server}(${this.gateway})`;
+  }
+}
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
@@ -129,7 +153,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
 
   protected _getItems(): IConnection[] {
     try {
-      return JSON.parse(localStorage.getItem('connections')) || [];
+      const items = JSON.parse(localStorage.getItem('connections')) || [];
+      if (!Array.isArray(items))
+        return [];
+
+      return items.map(i => new Connection(i))
     } catch {
       return [];
     }

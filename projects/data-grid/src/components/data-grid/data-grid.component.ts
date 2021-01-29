@@ -177,10 +177,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
 
-    grid.style = {
-      ...styles,
-      ...grid.style,
-    }
+    grid.style = { ...styles }
 
     this.detectChanges(true);
   }
