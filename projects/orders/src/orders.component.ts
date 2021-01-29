@@ -1,5 +1,5 @@
 import { Component, Injector } from '@angular/core';
-import { RealtimeItemsComponent, ViewItemsBuilder, RealtimeGridComponent } from 'base-components';
+import { RealtimeItemsComponent, ViewItemsBuilder, RealtimeGridComponent, convertToColumn } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
 import { ILayoutNode, LayoutNode } from 'layout';
@@ -10,10 +10,10 @@ import { OrderItem } from './models/order.item';
 import { Components } from 'src/app/modules';
 
 const headers = [
-  'averageFillPrice',
+  ['averageFillPrice', 'Average Fill Price'],
   'description',
   'duration',
-  'filledQuantity',
+  ['filledQuantity', 'Filled Quantity'],
   'quantity',
   'side',
   'status',
@@ -29,6 +29,9 @@ const headers = [
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
 
+const allTypes = 'All';
+const allStatuses = 'Show All';
+
 @Component({
   selector: 'orders-list',
   templateUrl: './orders.component.html',
@@ -39,9 +42,22 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
-  orderStatus = ['Show All', ...Object.values(OrderStatus)];
+  orderStatuses = ['Show All', ...Object.values(OrderStatus)];
 
-  builder = new ViewItemsBuilder();
+  orderStatus = allStatuses;
+  orderType = allTypes;
+
+  builder = new ViewItemsBuilder<IOrder, OrderItem>();
+
+  get items(): any[] {
+    const items = this.builder.items;
+    if (!items)
+      return [];
+
+    return items.filter(item => this.orderType === allTypes
+      || item.order.type === this.orderType
+    ).filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus);
+  }
 
   private _accountId;
 
@@ -101,7 +117,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       unwrap: (item: OrderItem) => item.order,
     });
 
-    this.columns = headers.map(header => ({ name: header, visible: true }));
+    this.columns = headers.map(convertToColumn);
 
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
@@ -109,7 +125,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
     super._handleResponse(response, params);
-    this.setTabTitle(`Orders (${response.data.length})`);
+    this.updateTitle();
   }
 
   handleAccountChange(accountId: Id): void {
@@ -137,5 +153,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   openOrderForm() {
     this.layout.addComponent(Components.OrderForm);
+  }
+
+  updateTitle() {
+    setTimeout(() => this.setTabTitle(`Orders (${this.items.length})`));
   }
 }

@@ -51,6 +51,9 @@
 .bottom-title {
   text-transform: uppercase;
   margin-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:not(:first-child) {
     margin-left: 14px;
@@ -58,7 +61,7 @@
 }
 
 .bottom-data {
-  min-width: 90px;
+  min-width: 80px;
   background: rgba($primary, 0.8);
   margin-left: 6px;
   border-radius: 2px;
@@ -73,7 +76,7 @@
 }
 
 :host ::ng-deep {
-  .currency-select.ant-select {
+  .select.ant-select {
     height: 20px;
     width: 80px;
     font-size: 0.8rem;
@@ -84,6 +87,10 @@
       height: 20px !important;
       border: none !important;
       overflow: hidden;
+    }
+
+    input {
+      height: 20px !important;
     }
 
     nz-select-item {

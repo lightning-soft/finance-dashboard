@@ -8,11 +8,11 @@
   <div (click)="openOrderForm()" class="add-container">
     <i class="icon-add"></i>
   </div>
-  <nz-select nzDropdownClassName="order-dropdown-list" class="custom-form-control type-select">
+  <nz-select (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" class="custom-form-control type-select">
     <nz-option *ngFor="let item of orderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
   </nz-select>
-  <nz-select nzDropdownClassName="order-dropdown-list" class="custom-form-control status-select">
-    <nz-option *ngFor="let item of orderStatus" [nzLabel]="item" [nzValue]="item"></nz-option>
+  <nz-select (ngModelChange)="updateTitle()" [(ngModel)]="orderStatus" nzDropdownClassName="order-dropdown-list" class="custom-form-control status-select">
+    <nz-option *ngFor="let item of orderStatuses" [nzLabel]="item" [nzValue]="item"></nz-option>
 
   </nz-select>
 
@@ -32,7 +32,7 @@
   </div>
   <nz-tabset>
     <nz-tab nzTitle="Working orders">
-      <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
 
     </nz-tab>
 <!--    <nz-tab nzTitle="History">
