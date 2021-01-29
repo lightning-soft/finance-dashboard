@@ -39,7 +39,7 @@ export interface ILayoutNode {
 
   setTabTitle?(value: string);
 
-  handleNodeEvent(name: LayoutNodeEvent, event);
+  handleNodeEvent(name: LayoutNodeEvent, event: any);
 
   broadcastLinkData?(data: any);
 

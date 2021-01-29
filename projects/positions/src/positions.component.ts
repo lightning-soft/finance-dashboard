@@ -1,13 +1,13 @@
 import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
-import { RealtimeItemsComponent, ViewGroupItemsBuilder } from 'base-components';
+import { RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
-import { ILayoutNode, LayoutNode } from 'layout';
+import { LayoutNode } from 'layout';
 import { positionsLevelOneDataFeedHandler } from 'real-trading';
-import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
-import { PositionItem } from './models/position.item';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import { PositionItem } from './models/position.item';
 
 const headers = [
   'account',
@@ -20,7 +20,7 @@ const headers = [
   'exchange',
 ];
 
-export interface PositionsComponent extends ILayoutNode {
+export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
 }
 
 enum GroupByItem {
@@ -35,7 +35,7 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends RealtimeItemsComponent<IPosition> implements OnInit, OnDestroy {
+export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
   protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
@@ -52,9 +52,11 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
 
     return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
-  get positions(): IPosition []{
+
+  get positions(): IPosition[] {
     return this.items.filter(item => item.position).map(item => item.position);
   }
+
   get open() {
     return this.positions.reduce((total, current) => total + current.unrealized, 0);
   }
@@ -77,7 +79,6 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
       this.builder.ungroupItems();
     else
       this.groupItems($event);
-
   }
 
   set status(value: PositionStatus) {

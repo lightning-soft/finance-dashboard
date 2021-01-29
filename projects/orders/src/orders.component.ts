@@ -1,5 +1,5 @@
 import { Component, Injector } from '@angular/core';
-import { RealtimeItemsComponent, ViewItemsBuilder } from 'base-components';
+import { RealtimeItemsComponent, ViewItemsBuilder, RealtimeGridComponent } from 'base-components';
 import { Id } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
 import { ILayoutNode, LayoutNode } from 'layout';
@@ -25,7 +25,7 @@ const headers = [
   'close',
 ];
 
-export interface OrdersComponent extends ILayoutNode { }
+export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> { }
 
 @Component({
   selector: 'orders-list',
@@ -33,7 +33,7 @@ export interface OrdersComponent extends ILayoutNode { }
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends RealtimeItemsComponent<IOrder, IOrderParams> {
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 
   columns: Column[];
 

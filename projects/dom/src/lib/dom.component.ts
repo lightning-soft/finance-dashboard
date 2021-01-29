@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { LoadingComponent } from 'base-components';
-import { Id } from 'communication';
+import { convertToColumn, LoadingComponent } from 'base-components';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -104,19 +103,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // 'tradeColumn',
     // 'askDepth',
     // 'bidDepth',
-  ]
-    .map(name => Array.isArray(name) ? name : ([name, name]))
-    .map(([name, title, type]) => ({
-      name,
-      type,
-      // style: name,
-      // style: type,
-      title: title.toUpperCase(),
-      visible: true
-    }));
+  ].map(convertToColumn);
 
-  accountId: Id;
   keysStack: KeyboardListener = new KeyboardListener();
+
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => {
@@ -214,7 +204,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   };
 
-
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
 
@@ -225,6 +214,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       })
     )),
   ];
+
+  private _accountId: string;
 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
@@ -299,7 +290,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // return 0.01;
   }
 
-
   constructor(
     private _ordersRepository: OrdersRepository,
     private _levelOneDatafeed: Level1DataFeed,
@@ -348,6 +338,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.detectChanges(true);
       }
     });
+  }
+
+  handleAccountChange(account: string) {
+    this._accountId = account;
   }
 
   broadcastHotkeyCommand(commandName: string) {
@@ -593,7 +587,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (keyBinding) {
       this.domKeyHandlers[keyBinding[0] as string]();
     }
-
   }
 
   @SynchronizeFrames()
@@ -619,9 +612,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.openSettings(true);
 
     // for debug purposes
-    if (!
-      state
-    )
+    if (!state)
       state = {} as any;
 
     if (!state?.instrument)
@@ -675,15 +666,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       ...form,
       exchange,
       side,
-      accountId: this.accountId,
-      symbol
-    }).toPromise()
-      .then((res) => {
-        this.notifier.showSuccess('Order successfully created');
-      })
-      .catch((err) => {
-        this.notifier.showError(err);
-      });
+      symbol,
+      accountId: this._accountId,
+    }).subscribe(
+      (res) => this.notifier.showSuccess('Order successfully created'),
+      (err) => this.notifier.showError(err)
+    );
   }
 
   private _normalizePrice(price) {
