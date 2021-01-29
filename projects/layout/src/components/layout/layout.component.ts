@@ -16,7 +16,6 @@ import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
 import { WindowManagerService } from 'window-manager';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
-import { GoldenLayoutHandler } from '../../models/golden-layout-handler';
 import { ILayoutStore } from '../../store';
 import { DockDesktopLayout } from './layouts/dock-desktop.layout';
 import { IDropable } from './layouts/dropable';
@@ -48,7 +47,6 @@ export class LayoutComponent implements IDropable, AfterViewInit {
     private ngZone: NgZone,
     private _loadingService: LoadingService,
     private _lazyLoadingService: LazyLoadingService,
-    private _layoutHandler: GoldenLayoutHandler,
     private layoutStore: ILayoutStore,
     private _creationsService: LoadingService,
     private _changeDetectorRef: ChangeDetectorRef,
@@ -63,7 +61,7 @@ export class LayoutComponent implements IDropable, AfterViewInit {
     this._windowManagerService.createWindowManager(this.container);
   }
 
-  addComponent(options: ComponentOptions) {
+  addComponent(options: ComponentOptions | string) {
     if (this.layout)
       this.layout.addComponent(options);
   }

@@ -35,7 +35,7 @@ export abstract class Layout implements IDropable {
   ) {
   }
 
-  abstract addComponent(componentOptions: ComponentOptions);
+  abstract addComponent(componentOptions: ComponentOptions | string);
 
   handleResize() {
 
