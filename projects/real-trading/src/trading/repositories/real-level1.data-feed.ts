@@ -8,7 +8,7 @@ export class RealLevel1DataFeed extends RealFeed<ITrade, IInstrument> {
   type = RealtimeType.Quote;
 
   subscribeType = WSMessageTypes.SUBSCRIBE;
-  unsubscribeType = WSMessageTypes.SUBSCRIBE;
+  unsubscribeType = WSMessageTypes.UNSUBSCRIBE;
 
   protected _filter(trade: ITrade) {
     if (trade.askInfo)
