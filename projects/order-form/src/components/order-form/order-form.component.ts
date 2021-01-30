@@ -60,7 +60,7 @@ export class OrderFormComponent extends FormComponent<IOrder> implements OnInit 
     this.autoLoadData = false;
 
     this.setTabIcon('icon-widget-create-orders');
-    this.setTabTitle('Orders form');
+    this.setTabTitle('Order Ticket');
   }
 
   ngOnInit() {

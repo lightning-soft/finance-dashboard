@@ -4,20 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { AccountSelectModule } from 'account-select';
 import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzSelectModule } from 'ng-zorro-antd';
+import { NzSelectModule, NzTabsModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrdersComponent } from './orders.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    DataGridModule,
-    NzSelectModule,
-    FormsModule,
-    AccountSelectModule,
-    WindowHeaderModule,
-  ],
+    imports: [
+        CommonModule,
+        DataGridModule,
+        NzSelectModule,
+        FormsModule,
+        AccountSelectModule,
+        WindowHeaderModule,
+        NzTabsModule,
+    ],
   exports: [
     OrdersComponent,
     OrdersToolbarComponent

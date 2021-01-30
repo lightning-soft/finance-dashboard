@@ -1,5 +1,5 @@
 import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
-import { RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
+import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -16,7 +16,7 @@ const headers = [
   'realized',
   'unrealized',
   'total',
-  'instrumentName',
+  ['instrumentName', 'instrument'],
   'exchange',
 ];
 
@@ -126,7 +126,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       unwrap: (item: PositionItem) => item.position,
     });
 
-    this._columns = headers.map(header => ({ name: header, visible: true }));
+    this._columns = headers.map(convertToColumn);
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');

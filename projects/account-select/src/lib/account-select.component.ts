@@ -14,6 +14,7 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> {
 
   @Input() placeholder = 'Select account';
   @Input() className = '';
+  @Input() nzDropdownClassName = '';
   @Input() size = 'default';
   @Output() accountChange: EventEmitter<Id> = new EventEmitter();
 

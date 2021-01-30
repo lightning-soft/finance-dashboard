@@ -10,8 +10,6 @@ import { LoaderModule } from 'ui';
 import { WindowManagerModule } from 'window-manager';
 import { LayoutComponent } from './components/layout/layout.component';
 import { LinkSelectComponent } from './components/link-select/link-select.component';
-import { GoldenLayoutHandler } from './models/golden-layout-handler';
-import { LayoutHandler } from './models/layout-handler';
 import { ILayoutStore, LocalLayoutStore } from './store';
 import { WorkspacesModule } from 'workspace-manager';
 
@@ -55,12 +53,6 @@ export class LayoutModule {
     return {
       ngModule: LayoutModule,
       providers: [
-        {
-          provide: LayoutHandler,
-          useExisting: GoldenLayoutHandler,
-          multi: false
-        },
-        GoldenLayoutHandler,
       ]
     };
   }
