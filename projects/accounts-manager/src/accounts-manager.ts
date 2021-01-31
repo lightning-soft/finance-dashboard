@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { WebSocketService } from 'communication';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, tap, first, take } from 'rxjs/operators';
+import { catchError, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
+import { HttpErrorInterceptor } from './interceptor';
 
 @Injectable()
 @UntilDestroy()
@@ -14,6 +15,7 @@ export class AccountsManager {
   constructor(
     protected _connectionsRepository: ConnectionsRepository,
     private _webSocketService: WebSocketService,
+    private _interceptor: HttpErrorInterceptor
   ) { }
 
   getActiveConnection() {
@@ -22,6 +24,7 @@ export class AccountsManager {
 
   async init() {
     this._webSocketService.on(this._handleStream.bind(this));
+    this._interceptor.disconnectError.subscribe(() => this._deactivateConnection())
     this._updateConnections();
 
     return this.connections.pipe(
@@ -34,12 +37,17 @@ export class AccountsManager {
       return;
 
     if (msg.result?.value == "No connection!") {
-      const connection = this.getActiveConnection();
+      this._deactivateConnection();
+    }
+  }
 
-      if (connection) {
-        this._connectionsRepository.updateItem({ ...connection, connected: false })
-          .pipe(tap(() => this._updateConnections()))
-      }
+  private _deactivateConnection() {
+    const connection = this.getActiveConnection();
+
+    if (connection) {
+      this._connectionsRepository.updateItem({ ...connection, connected: false })
+        .pipe(tap(() => this._updateConnections()))
+        .subscribe();
     }
   }
 

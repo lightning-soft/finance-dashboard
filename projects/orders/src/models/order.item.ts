@@ -18,7 +18,7 @@ export class OrderItem implements IViewItem<IOrder> {
   side = new DataCell();
   status = new DataCell();
   type = new DataCell();
-  close = new IconCell('icon-close-window');
+  close = new IconCell();
   order: IOrder;
 
   get id(): Id {

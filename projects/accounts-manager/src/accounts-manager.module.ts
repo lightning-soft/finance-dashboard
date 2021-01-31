@@ -1,5 +1,7 @@
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { AccountsManager } from './accounts-manager';
+import { HttpErrorInterceptor } from './interceptor';
 
 @NgModule({})
 export class AccountsManagerModule {
@@ -8,6 +10,12 @@ export class AccountsManagerModule {
       ngModule: AccountsManagerModule,
       providers: [
         AccountsManager,
+        HttpErrorInterceptor,
+        {
+          provide: HTTP_INTERCEPTORS,
+          useExisting: HttpErrorInterceptor,
+          multi: true
+        }
       ],
     };
   }

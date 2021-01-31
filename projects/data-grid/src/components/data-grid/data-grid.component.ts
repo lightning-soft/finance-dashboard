@@ -239,7 +239,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       if (handler.event != Events.Click || handler.column != e.column?.name)
         continue;
 
-      handler.notify(e);
+      const item = e.row;
+
+      if (item)
+        handler.notify(item);
     }
   }
 
