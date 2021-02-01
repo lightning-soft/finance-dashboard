@@ -70,7 +70,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   get status() {
     return this._status;
   }
-  get isGroupSelected(){
+  get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
   }
 
