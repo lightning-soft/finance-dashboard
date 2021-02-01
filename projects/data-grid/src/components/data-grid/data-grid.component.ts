@@ -141,9 +141,12 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         font,
         color: cellColor,
         background: cellBackgroundColor,
+        columnHeaderCellFont: '11px Open Sans',
+        // columnHeaderCellColor: 'red',
+        columnHeaderCellColor: '#A1A2A5',
         gridBorderColor: cellBorderColor,
         scrollBarBackgroundColor: cellBackgroundColor,
-        // scrollBarBoxColor: 'red',
+        scrollBarBoxColor: '#383A40',
         rowHeight: this.rowHeight,
         // cellHeight:
       },

@@ -7,11 +7,11 @@
     </button>-->
   <account-select
     size="small"
-    className="custom-form-control account-select"
+    className="custom-form-control select account-select"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
   <span class="group-container">
-  <i  nz-dropdown [nzDropdownMenu]="menu" class="icon-group"></i>
+  <i  nz-dropdown [nzDropdownMenu]="menu" [class.active]="isGroupSelected" class="icon-group "></i>
     </span>
 </window-header>
 

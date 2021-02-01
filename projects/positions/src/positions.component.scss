@@ -76,6 +76,21 @@
 }
 
 :host ::ng-deep {
+  account-select {
+    .select.ant-select {
+      width: auto;
+      height: 18px !important;
+
+      nz-select-top-control {
+        height: 18px !important;
+      }
+
+      nz-select-item {
+        line-height: 18px !important;
+      }
+    }
+  }
+
   .select.ant-select {
     height: 20px;
     width: 80px;
@@ -108,11 +123,17 @@
   align-items: center;
   margin-left: 12px;
   cursor: pointer;
+  border-radius: 2px;
 
   i {
-    color: $primary;
+
     font-size: 11px;
     line-height: 1;
+    transition: color 0.3s;
+
+    &.active {
+      color: $primary;
+    }
   }
 }
 
