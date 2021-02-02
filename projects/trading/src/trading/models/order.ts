@@ -1,5 +1,4 @@
-import { Id, IPaginationParams } from 'communication';
-import { IBaseItem } from 'communication';
+import { IBaseItem, Id, IPaginationParams } from 'communication';
 import { IInstrument } from './instrument';
 
 export type OrderAccount = {
@@ -22,6 +21,7 @@ export interface IOrder extends IBaseItem {
   type: OrderType;
   exchange: string;
   symbol: string;
+  price?: number;
 }
 
 export enum OrderSide {

@@ -3,7 +3,6 @@ import { convertToColumn, RealtimeGridComponent, ViewItemsBuilder } from 'base-c
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { LoadingService } from 'lazy-modules';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
@@ -106,7 +105,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     protected _repository: OrdersRepository,
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
-    private _loadingService: LoadingService,
   ) {
     super();
     this.autoLoadData = false;

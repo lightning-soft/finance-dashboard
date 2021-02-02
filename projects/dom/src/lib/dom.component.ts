@@ -5,9 +5,8 @@ import { convertToColumn, LoadingComponent } from 'base-components';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { NotifierService } from 'notifier';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderSide, OrdersRepository } from 'trading';
+import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrderSide, OrdersRepository } from 'trading';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -248,6 +247,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._priceFormatter = new RoundFormatter(3);
     this._levelOneDatafeed.subscribe(value);
     this._levelTwoDatafeed.subscribe(value);
+    this._onInstrumentChange();
   }
 
   get isFormOnTop() {
@@ -292,11 +292,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   constructor(
     private _ordersRepository: OrdersRepository,
+    private _orderBooksRepository: OrderBooksRepository,
     private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
-    protected _notifier: NotifierService,
     private _levelTwoDatafeed: Level2DataFeed,
-    protected _injector: Injector,
+    protected _injector: Injector
   ) {
     super();
     this.setTabIcon('icon-widget-dom');
@@ -305,11 +305,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
         this._ordersRepository = this._ordersRepository.forConnection(connection);
+        this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
+        this._loadOrderBook();
       });
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
@@ -340,8 +343,97 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
+  _onInstrumentChange() {
+    this._loadOrderBook();
+  }
+
+  protected _loadOrderBook() {
+    if (!this._accountId || !this._instrument)
+      return;
+
+    const { symbol, exchange } = this._instrument;
+    this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
+      res => {
+        console.log(res);
+        this._clear();
+        let prevPrice = 0;
+
+        let { asks, bids } = res.data[0];
+
+        bids.sort((a, b) => b.price - a.price);
+        for (let i = 0; i < Math.max(bids.length, 200); i++) {
+          const data = bids[i];
+          prevPrice = data?.price ?? this._normalizePrice(prevPrice - this._tickSize);
+          const item = this._getItem(prevPrice);
+          if (data)
+            item.handleBid(data);
+
+          item.dehighlight('all');
+          item.clearLTQ();
+          this.items.unshift(item);
+        }
+
+        prevPrice = 0;
+        this.centralize()
+
+        asks.sort((a, b) => a.price - b.price);
+        for (let i = 0; i < Math.max(asks.length, 200); i++) {
+          const data = asks[i];
+          prevPrice = data?.price ?? this._normalizePrice(prevPrice + this._tickSize);
+          const item = this._getItem(prevPrice);
+          if (data)
+            item.handleAsk(data);
+
+          if (i != 0)
+            item.clearLTQ();
+
+          item.dehighlight('all');
+          this.items.push(item);
+        }
+
+        this._loadOrders();
+      },
+      error => this.notifier.showError(error)
+    )
+  }
+
+  protected _loadOrders() {
+    if (!this._accountId)
+      return;
+
+    this._ordersRepository.getItems({ id: this._accountId }).subscribe(
+      res => {
+        const orders = res.data;
+        if (!Array.isArray(orders))
+          return;
+
+        for (let i = 0; i < orders.length; i++) {
+          const o = orders[i];
+
+          o.price = this._normalizePrice(this._lastPrice + this._tickSize * (i + 1) * 2);
+        }
+
+        console.log(orders);
+        this._handleOrders(orders);
+      },
+      error => this.notifier.showError(error),
+    )
+  }
+
+  private _handleOrders(orders) {
+    for (const order of orders) {
+      const item = this._getItem(order.price);
+
+      if (!item)
+        continue;
+
+      item.handleOrder(order);
+    }
+  }
+
   handleAccountChange(account: string) {
     this._accountId = account;
+    this._loadOrderBook();
   }
 
   broadcastHotkeyCommand(commandName: string) {
@@ -416,21 +508,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._map.get(price);
   }
 
-  private _fillData(lastPrice: number) {
+  private _clear() {
     this.items = [];
     this._map.clear();
     this._max.clear()
-    const data = this.items;
-    const tickSize = this._tickSize;
-
-    let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
-    const maxPrice = this._normalizePrice(lastPrice + tickSize * ROWS / 2);
-
-    while (price < maxPrice) {
-      price = this._normalizePrice(price);
-      data.push(this._getItem(price));
-    }
   }
+
+  // private _fillData(lastPrice: number) {
+  //   this.items = [];
+  //   this._map.clear();
+  //   this._max.clear()
+  //   const data = this.items;
+  //   const tickSize = this._tickSize;
+
+  //   let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+  //   const maxPrice = this._normalizePrice(lastPrice + tickSize * ROWS / 2);
+
+  //   while (price < maxPrice) {
+  //     price = this._normalizePrice(price);
+  //     data.push(this._getItem(price));
+  //   }
+  // }
 
   private _handleTrades = true;
 
@@ -499,11 +597,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
-    if (!this.items.length) {
-      if (this._lastPrice)
-        this._fillData(this._lastPrice); // todo: load order book
-      this.centralize();
-    }
+    // if (!this.items.length) {
+    //   if (this._lastPrice)
+    //     this._fillData(this._lastPrice); // todo: load order book
+    //   this.centralize();
+    // }
 
     this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
