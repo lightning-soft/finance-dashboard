@@ -4,7 +4,15 @@ import { IInfo, ITrade, L2, OrderSide } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
+import { IOrder } from 'trading';
 
+
+class OrderCell extends DataCell {
+  updateValue(value: IOrder) {
+
+    // this.value = value.quantity
+  }
+}
 
 class TotalCell extends HistogramCell {
   updateValue(value: number) {
@@ -110,7 +118,7 @@ export class DomItem implements IBaseItem {
   }
 
   handleAsk(data: IInfo) {
-    if (data && data.timestamp > (this.currentAsk.time || 0)) {
+    if (data && data.timestamp >= (this.currentAsk.time || 0)) {
       this.currentAsk.updateValue(data.volume);
       this.totalAsk.updateValue(data.volume);
     }
@@ -131,7 +139,7 @@ export class DomItem implements IBaseItem {
   }
 
   handleBid(data: IInfo) {
-    if (data && data.timestamp > (this.currentBid.time || 0)) {
+    if (data && data.timestamp >= (this.currentBid.time || 0)) {
       this.currentBid.updateValue(data.volume);
       this.totalBid.updateValue(data.volume);
     }
@@ -176,7 +184,14 @@ export class DomItem implements IBaseItem {
     }
   }
 
+  handleOrder(order: IOrder) {
+    this.orders.updateValue(order);
+  }
+
   dehighlight(key: string) {
+    if (key == 'all')
+      return Object.keys(this).forEach(i => this.dehighlight(i));
+
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
     }

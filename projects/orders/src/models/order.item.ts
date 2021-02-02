@@ -1,11 +1,11 @@
 import { IViewItem } from 'base-components';
 import { Id } from 'communication';
-import { DataCell, DateCell, IconCell } from 'data-grid';
+import { DataCell, IconCell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
 
 export class OrderItem implements IViewItem<IOrder> {
-  exchange = new DateCell();
+  exchange = new DataCell();
   symbol = new DataCell();
   fcmId = new DataCell();
   identifier = new DataCell();

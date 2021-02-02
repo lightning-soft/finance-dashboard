@@ -1,13 +1,12 @@
 import { Component, Injector } from '@angular/core';
-import { RealtimeItemsComponent, ViewItemsBuilder, RealtimeGridComponent, convertToColumn } from 'base-components';
+import { convertToColumn, RealtimeGridComponent, ViewItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { LoadingService } from 'lazy-modules';
+import { LayoutNode } from 'layout';
+import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
-import { Components } from 'src/app/modules';
 
 const headers = [
   ['averageFillPrice', 'Average Fill Price'],
@@ -106,7 +105,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     protected _repository: OrdersRepository,
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
-    private _loadingService: LoadingService,
   ) {
     super();
     this.autoLoadData = false;
@@ -118,6 +116,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     });
 
     this.columns = headers.map(convertToColumn);
+    const column = this.columns.find(i => i.name == 'description');
+    column.style = { ...column.style, textOverflow: true };
 
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');

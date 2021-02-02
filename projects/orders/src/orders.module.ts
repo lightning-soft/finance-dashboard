@@ -10,15 +10,15 @@ import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.comp
 import { OrdersComponent } from './orders.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        DataGridModule,
-        NzSelectModule,
-        FormsModule,
-        AccountSelectModule,
-        WindowHeaderModule,
-        NzTabsModule,
-    ],
+  imports: [
+    CommonModule,
+    DataGridModule,
+    NzSelectModule,
+    FormsModule,
+    AccountSelectModule,
+    WindowHeaderModule,
+    NzTabsModule,
+  ],
   exports: [
     OrdersComponent,
     OrdersToolbarComponent
