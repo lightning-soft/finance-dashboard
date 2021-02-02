@@ -57,7 +57,7 @@ $selectMarginBottom: 15px;
     }
 
     .ant-tabs-top-content {
-      height: 100%;
+      height: calc(100% - 34px);
     }
   }
 
