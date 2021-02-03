@@ -71,7 +71,8 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
   }
 
   writeValue(obj: any): void {
-    this.form.patchValue(obj);
+    if (obj)
+      this.form.patchValue(obj);
   }
 
   setDisabledState(isDisabled: boolean) {

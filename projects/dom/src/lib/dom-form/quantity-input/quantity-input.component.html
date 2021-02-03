@@ -2,7 +2,6 @@
 
   <ng-container *ngFor="let item of amountButtons">
     <button
-      nz-tooltip nzTooltipTitle="Edit the default number"
       [class.black-btn]="item.black"
       [class.selected]="isCurrentValue(item)"
       (click)="updateValue(item)"

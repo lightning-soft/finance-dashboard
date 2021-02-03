@@ -43,16 +43,10 @@
     </li>
   </ul>
   <table class="tab-content table" *ngIf="activeTab === 'hotkeys'">
-    <thead class="header">
-      <tr>
-        <th>Action</th>
-        <th>Hotkey</th>
-      </tr>
-    </thead>
     <tbody>
-      <tr *ngFor="let entry of settings.hotkeys">
-        <td>{{entry[0].UIString}}</td>
-        <td (dblclick)="changeHotkey($event, entry)">{{entry[1].toUIString()}}</td>
+      <tr *ngFor="let entry of settings.hotkeys;let i = index ">
+        <td class="hotkey-name">{{entry[0].UIString}}</td>
+        <td class="hotkey-reader"><hotkey-input (valueChange)="updateHotkey($event, i)" [value]="entry[1]"></hotkey-input></td>
       </tr>
     </tbody>
   </table>
