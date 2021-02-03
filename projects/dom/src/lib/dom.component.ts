@@ -686,8 +686,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
     }
 
-    console.log('keysStack', this.keysStack.toUIString());
-
     this.keysStack.handle(event);
     const keyBinding = Object.entries(this._settings.hotkeys)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
