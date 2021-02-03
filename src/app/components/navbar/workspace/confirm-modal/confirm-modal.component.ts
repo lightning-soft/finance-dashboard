@@ -8,6 +8,8 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 })
 export class ConfirmModalComponent {
   message: string;
+  confirmText = 'OK';
+  cancelText = 'Cancel';
 
   constructor(private modal: NzModalRef) {
     this.message = this.modal.getConfig().nzComponentParams.message;

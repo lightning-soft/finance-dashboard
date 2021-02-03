@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
@@ -7,7 +7,18 @@ import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderSto
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, IOrder, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrderSide, OrdersRepository } from 'trading';
+import {
+  IConnection,
+  IInstrument,
+  IOrder,
+  ITrade,
+  L2,
+  Level1DataFeed,
+  Level2DataFeed,
+  OrderBooksRepository,
+  OrderSide,
+  OrdersRepository
+} from 'trading';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -328,9 +339,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
-      handleLinkData: (key: string) => {
-        this.domKeyHandlers[key]();
-      },
+      handleLinkData: (key: string) => this.handleHotkey(key),
     });
     this.addLinkObserver({
       link: DomSettingsSelector,
@@ -349,6 +358,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.detectChanges(true);
       }
     });
+  }
+
+  handleHotkey(key){
+    this.domKeyHandlers[key]();
   }
 
   _handleRealtime(action: RealtimeActionData<IOrder>) {
@@ -484,6 +497,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._handleResize();
   }
 
+  @HostListener('window:resize')
+  onResize() {
+    setTimeout(() => {
+      console.warn('data');
+    }, 1500);
+  }
+
   centralize() {
     this._handleResize();
     requestAnimationFrame(() => {
@@ -524,7 +544,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _clear() {
     this.items = [];
     this._map.clear();
-    this._max.clear()
+    this._max.clear();
   }
 
   // private _fillData(lastPrice: number) {

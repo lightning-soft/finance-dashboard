@@ -22,7 +22,7 @@ export class WorkspacesManager {
       .subscribe(
         (w) => this._handleStoreWorkspaces(w),
         (e) => console.error(`Something goes wrong ${e.message}`)
-      )
+      );
   }
 
   private _handleStoreWorkspaces(workspaces: Workspace[]) {
@@ -94,14 +94,14 @@ export class WorkspacesManager {
     return this._workspacesStore.getItemConfig(id);
   }
 
-  public saveWorkspaces(id: WorkspaceId, state: any): void {
+  public async saveWorkspaces(id: WorkspaceId, state: any) {
     const workspace = this.workspaces.value.find(w => w.id === id);
 
     if (!workspace)
       return;
 
-    this._workspacesStore.setItemConfig(workspace.configId, state);
-    this._workspacesStore.setItems(this.workspaces.value);
+    await this._workspacesStore.setItemConfig(workspace.configId, state).toPromise();
+    await this._workspacesStore.setItems(this.workspaces.value).toPromise();
   }
 
   public renameWorkspace(id: WorkspaceId, name: string): void {

@@ -11,7 +11,7 @@
 </button>
 <nz-dropdown-menu nzClassName="workspaces-dropdown" #menu="nzDropdownMenu">
   <div class="workspaces">
-    <nz-radio-group [(ngModel)]="activeWorkspaceId" (ngModelChange)="switchWorkspace()">
+    <nz-radio-group [ngModel]="activeWorkspaceId" (ngModelChange)="switchWorkspace($event)">
       <ul class="workspaces-list">
         <li
           class="workspace"
