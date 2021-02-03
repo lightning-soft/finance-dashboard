@@ -110,7 +110,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.autoLoadData = false;
 
     this.builder.setParams({
-      order: 'desc',
+      order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
       unwrap: (item: OrderItem) => item.order,
     });
@@ -134,6 +134,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   protected _deleteItem(item: IOrder) {
     return this.repository.deleteItem(item);
+  }
+
+  protected _showSuccessDelete() {
+    // handle by realtime
   }
 
   protected _handleDeleteItems(items) {

@@ -1,16 +1,68 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, ITrade, L2, OrderSide } from 'trading';
+import { IInfo, IOrder, L2, OrderSide, OrderStatus } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
-import { IOrder } from 'trading';
 
+class OrderCell extends NumberCell {
+  private _order: IOrder;
+  private _text: string;
 
-class OrderCell extends DataCell {
-  updateValue(value: IOrder) {
+  orderStyle: 'ask' | 'bid';
 
-    // this.value = value.quantity
+  addOrder(order: IOrder) {
+    this._order = order;
+    this._changeText();
+  }
+
+  clearOrder() {
+    this._order = null;
+    this._text = '';
+  }
+
+  _changeText() {
+    if (!this._order)
+      return;
+
+    const type = this._order.type.replace(/[^A-Z]/g, "");
+    this._text = `${this._order.quantity}${type}`;
+  }
+
+  draw(context) {
+    if (!this._order)
+      return;
+
+    const ctx = context?.ctx;
+    if (!ctx)
+      return;
+
+    ctx.save();
+    const x = context.x;
+    const y = context.y;
+    const width = context.width;
+    const height = context.height;
+
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+    if (this.orderStyle == 'ask') {
+      ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
+      ctx.strokeStyle = '#C93B3B';
+    } else {
+      ctx.fillStyle = 'rgba(72, 149, 245, 0.5)';
+      ctx.strokeStyle = '#4895F5';
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "end";
+    ctx.fillStyle = 'white';
+
+    ctx.fillText(this._text, x + width, (y + height / 2), width);
+    ctx.restore();
+
+    return true;
   }
 }
 
@@ -64,7 +116,7 @@ export class DomItem implements IBaseItem {
 
   _id: Cell = new NumberCell();
   price: PriceCell;
-  orders: Cell = new DataCell();
+  orders: OrderCell = new OrderCell();
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -74,8 +126,8 @@ export class DomItem implements IBaseItem {
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
   volume: HistogramCell;
-  askDelta: NumberCell;
-  bidDelta: NumberCell;
+  askDelta: OrderCell;
+  bidDelta: OrderCell;
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
 
@@ -96,8 +148,8 @@ export class DomItem implements IBaseItem {
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new HistogramCell({ settings: settings.volume });
-    this.askDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
-    this.bidDelta = new NumberCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
+    this.askDelta = new OrderCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
+    this.bidDelta = new OrderCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this._id.updateValue(index);
   }
@@ -185,7 +237,28 @@ export class DomItem implements IBaseItem {
   }
 
   handleOrder(order: IOrder) {
-    this.orders.updateValue(order);
+    // switch (order.status) {
+    //   case OrderStatus.Filled:
+    //   case OrderStatus.Canceled:
+    //   case OrderStatus.Rejected:
+    //     this.orders.clearOrder();
+    //     this.askDelta.clearOrder();
+    //     this.bidDelta.clearOrder();
+    //     break;
+    //   default:
+    this.orders.addOrder(order);
+
+    if (order.side == OrderSide.Sell) {
+      this.askDelta.addOrder(order);
+      this.askDelta.orderStyle = 'ask';
+      this.orders.orderStyle = 'ask';
+    } else {
+      this.bidDelta.addOrder(order);
+      this.bidDelta.orderStyle = 'bid';
+      this.orders.orderStyle = 'bid';
+    }
+    //     break;
+    // }
   }
 
   dehighlight(key: string) {

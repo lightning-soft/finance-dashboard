@@ -2,11 +2,12 @@ import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } fro
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
+import { RealtimeActionData } from 'communication';
 import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { IConnection, IInstrument, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrderSide, OrdersRepository } from 'trading';
+import { IConnection, IInstrument, IOrder, ITrade, L2, Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrderSide, OrdersRepository } from 'trading';
 import { DomFormComponent } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -70,6 +71,12 @@ const directionsHints = {
 };
 const topDirectionIndex = 1;
 
+enum Columns {
+  BidDelta = 'bidDelta',
+  AskDelta = 'askDelta',
+  All = 'all',
+}
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -90,13 +97,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     'orders',
     ['volume', 'volume', 'histogram'],
     'price',
-    ['bidDelta', 'delta'],
+    [Columns.BidDelta, 'delta'],
     ['bid', 'bid', 'histogram'],
     'ltq',
     ['currentBid', 'c.bid', 'histogram'],
     ['currentAsk', 'c.ask', 'histogram'],
     ['ask', 'ask', 'histogram'],
-    ['askDelta', 'delta'],
+    [Columns.AskDelta, 'delta'],
     ['totalBid', 't.bid', 'histogram'],
     ['totalAsk', 't.ask', 'histogram'],
     // 'tradeColumn',
@@ -207,7 +214,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _domForm: DomFormComponent;
 
   handlers = [
-    ...['bid', 'ask'].map(column => (
+    ...[Columns.AskDelta, Columns.BidDelta].map(column => (
       new CellClickDataGridHandler<DomItem>({
         column, handler: (item) => this._createOrder(column, item),
       })
@@ -244,9 +251,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this._instrument = value;
-    this._priceFormatter = new RoundFormatter(3);
-    this._levelOneDatafeed.subscribe(value);
-    this._levelTwoDatafeed.subscribe(value);
     this._onInstrumentChange();
   }
 
@@ -312,8 +316,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         const connection = this._accountsManager.getActiveConnection();
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
-        this._loadOrderBook();
+        this._onInstrumentChange();
       });
+    this._ordersRepository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe((action) => this._handleRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
@@ -343,7 +350,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
+  _handleRealtime(action: RealtimeActionData<IOrder>) {
+    if (action.items)
+      this._handleOrders(action.items);
+  }
+
   _onInstrumentChange() {
+    const instrument = this.instrument;
+    this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
+    this._levelOneDatafeed.subscribe(instrument);
+    this._levelTwoDatafeed.subscribe(instrument);
+
     this._loadOrderBook();
   }
 
@@ -356,41 +373,37 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       res => {
         console.log(res);
         this._clear();
-        let prevPrice = 0;
 
         let { asks, bids } = res.data[0];
 
-        bids.sort((a, b) => b.price - a.price);
-        for (let i = 0; i < Math.max(bids.length, 200); i++) {
-          const data = bids[i];
-          prevPrice = data?.price ?? this._normalizePrice(prevPrice - this._tickSize);
-          const item = this._getItem(prevPrice);
-          if (data)
-            item.handleBid(data);
+        bids.sort((a, b) => a.price - b.price);
+        asks.sort((a, b) => b.price - a.price);
 
-          item.dehighlight('all');
-          item.clearLTQ();
-          this.items.unshift(item);
+        let index = 0;
+        let price = asks[asks.length - 1].price;
+        const tickSize = this._tickSize;
+        const minPrice = bids[0].price;
+        const maxPrice = asks[0].price;
+
+        while (price <= maxPrice || index < ROWS) {
+          this.items.unshift(this._getItem(price));
+          price = this._normalizePrice(price + tickSize);
+          index++;
         }
 
-        prevPrice = 0;
+        index = 0
+        price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+
+        while (price >= minPrice || index < ROWS) {
+          this.items.push(this._getItem(price));
+          price = this._normalizePrice(price - tickSize);
+          index++;
+        }
+
+        asks.forEach((askInfo) => this._handleTrade({ askInfo } as any));
+        bids.forEach((bidInfo) => this._handleTrade({ bidInfo } as any));
+
         this.centralize()
-
-        asks.sort((a, b) => a.price - b.price);
-        for (let i = 0; i < Math.max(asks.length, 200); i++) {
-          const data = asks[i];
-          prevPrice = data?.price ?? this._normalizePrice(prevPrice + this._tickSize);
-          const item = this._getItem(prevPrice);
-          if (data)
-            item.handleAsk(data);
-
-          if (i != 0)
-            item.clearLTQ();
-
-          item.dehighlight('all');
-          this.items.push(item);
-        }
-
         this._loadOrders();
       },
       error => this.notifier.showError(error)
@@ -407,12 +420,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (!Array.isArray(orders))
           return;
 
-        for (let i = 0; i < orders.length; i++) {
-          const o = orders[i];
-
-          o.price = this._normalizePrice(this._lastPrice + this._tickSize * (i + 1) * 2);
-        }
-
         console.log(orders);
         this._handleOrders(orders);
       },
@@ -420,15 +427,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     )
   }
 
-  private _handleOrders(orders) {
+  private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      const item = this._getItem(order.price);
+      if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
+        continue;
+
+      const item = this._getItem(order.limitPrice || order.stopPrice);
 
       if (!item)
         continue;
 
       item.handleOrder(order);
     }
+
+    this.detectChanges(true);
   }
 
   handleAccountChange(account: string) {
@@ -530,11 +542,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   //   }
   // }
 
-  private _handleTrades = true;
-
   protected _handleTrade(trade: ITrade) {
-    if (!this._handleTrades)
-      return;
 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
@@ -707,7 +715,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
-    this.openSettings(true);
+    // this.openSettings(true);
 
     // for debug purposes
     if (!state)
@@ -753,12 +761,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
     }
 
-    const side = column === 'bid' ? OrderSide.Buy : OrderSide.Sell;
+    const side = column === Columns.AskDelta ? OrderSide.Sell : OrderSide.Buy;
+    const price = item.price._value;
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
 
-    form.stopPrice = form.sl.count;
-    form.limitPrice = form.tp.count;
+    form.stopPrice = price;
+    form.limitPrice = price;
 
     this._ordersRepository.createItem({
       ...form,
@@ -774,7 +783,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _normalizePrice(price) {
     const tickSize = this._tickSize;
-    return +(Math.round((price + tickSize) / tickSize) * tickSize).toFixed(this.instrument.precision);
+    return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
 
   ngOnDestroy() {

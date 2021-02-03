@@ -22,6 +22,9 @@ export interface IOrder extends IBaseItem {
   exchange: string;
   symbol: string;
   price?: number;
+  accountId?: string,
+  limitPrice?: number;
+  stopPrice?: number;
 }
 
 export enum OrderSide {
