@@ -160,8 +160,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     },
     clearCurrentTrades: () => {
       for (let item of this.items) {
-        item.currentAsk.clear();
-        item.currentBid.clear();
+        item.orders.clearOrder();
+        item.askDelta.clear();
+        item.bidDelta.clear();
       }
     },
     clearCurrentTradesAllWindows: () => {
@@ -684,12 +685,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!(event instanceof KeyboardEvent)) {
       return;
     }
+
+    console.log('keysStack', this.keysStack.hashCode());
+
     this.keysStack.handle(event);
     const keyBinding = Object.entries(this._settings.hotkeys)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
-      .find(([name, binding]) => {
-        return (binding as KeyBinding).equals(this.keysStack);
-      });
+      .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
+
     if (keyBinding) {
       this.domKeyHandlers[keyBinding[0] as string]();
     }
@@ -755,6 +758,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrder(column: string, item: DomItem) {
+    if (this.isTradingLocked)
+      return;
+
     console.log(column, item);
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');
