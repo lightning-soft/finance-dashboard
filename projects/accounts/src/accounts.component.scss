@@ -11,7 +11,8 @@
   .right-border {
     border-right: 1px solid rgb(81, 83, 90);
     width: 184px;
-    nz-collapse{
+
+    nz-collapse {
       margin-right: 8px;
     }
   }
@@ -51,6 +52,10 @@ small {
   &:hover {
     background: $inputBackground
   }
+}
+
+.selectable-item {
+  outline: none;
 }
 
 .renaming.selectable-item:hover {

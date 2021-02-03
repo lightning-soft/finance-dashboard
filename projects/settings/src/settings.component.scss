@@ -12,13 +12,38 @@
     }
   }
 
+  .table > tbody > tr > {
+    td {
+      border-bottom: none;
+      border-top: none;
+    }
+
+  }
+
+  .hotkey-name {
+    color: $text-muted;
+    font-size: 1rem;
+    line-height: 2;
+    width: 35%;
+  }
+
+  .hotkey-reader {
+    width: 65%;
+  }
+
+  hotkey-input {
+    display: block;
+  }
+
   .settings {
     height: 100%;
     display: flex;
     background-color: transparent;
-    nz-select{
+
+    nz-select {
       color: white !important;
     }
+
     ul {
       margin: 0;
       padding: 0;
@@ -50,10 +75,6 @@
 
     .table {
       margin-left: 4px;
-
-      .header {
-        background-color: #1B1D22;
-      }
     }
 
     .tab-content {
@@ -75,6 +96,7 @@
           color: #FFFFFF;
           width: 180px;
           font-weight: 400;
+
           .ant-select-selector {
             border: none;
             font-size: 0.9rem;

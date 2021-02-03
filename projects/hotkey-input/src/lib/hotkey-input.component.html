@@ -1,0 +1,4 @@
+<div
+  [class.recording]="isKeyboardRecording"
+  [title]="!isKeyboardRecording ? 'Click to record hotkey': ''"
+  class="hotkey-input" (click)="changeHotkey($event)" >{{isKeyboardRecording ? 'Recording hotkey': ''}} {{getKeyStringTitle()}}</div>

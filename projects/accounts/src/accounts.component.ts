@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -171,7 +171,9 @@ export class AccountsComponent implements OnInit {
         this.builder.updateItem(response, index);
         this.builder.updateGroupItems();
       },
-      err => this._notifier.showError(err),
+      err => {
+        this._notifier.showError(err);
+      },
     );
   }
 
@@ -243,5 +245,19 @@ export class AccountsComponent implements OnInit {
       this.form.get(control).enable();
     else
       this.form.get(control).disable();
+  }
+
+  clearMenu(broker: IBroker) {
+    this.getBrokerItems(broker).forEach(data => {
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          item['menuOpen'] = false;
+          item['rename'] = false;
+        });
+      } else {
+        data['menuOpen'] = false;
+        data['rename'] = false;
+      }
+    });
   }
 }

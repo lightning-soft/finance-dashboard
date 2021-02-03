@@ -686,7 +686,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
     }
 
-    console.log('keysStack', this.keysStack.hashCode());
+    console.log('keysStack', this.keysStack.toUIString());
 
     this.keysStack.handle(event);
     const keyBinding = Object.entries(this._settings.hotkeys)
@@ -694,6 +694,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
 
     if (keyBinding) {
+      console.warn(keyBinding[0]);
       this.domKeyHandlers[keyBinding[0] as string]();
     }
   }

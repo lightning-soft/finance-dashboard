@@ -23,7 +23,13 @@
               <div
                 *ngFor="let item of getBrokerItems(broker)"
                 class="selectable-item pl-4 mt-1"
-                nz-popover [nzPopoverContent]="contentTemplate"
+                nz-popover
+                tabindex="1"
+                (focusout)="item.menuOpen = false"
+                [nzPopoverVisible]="item.menuOpen"
+                nzPopoverTrigger=""
+                (dblclick)="item.menuOpen = !item.menuOpen"
+                [nzPopoverContent]="contentTemplate"
                 nzPopoverOverlayClassName="broker-actions"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
@@ -55,8 +61,8 @@
                 <input *ngIf="item.rename" #input (keydown.enter)="item.rename = false; rename(input.value, item)"
                        [value]="item.name" nz-input type="text">
                 <ng-template #contentTemplate>
-                  <div (click)="item.rename = true; " class="broker-action">Rename</div>
-                  <div (click)="delete($event, item)" class="broker-action">Delete</div>
+                  <div (click)="item.rename = true; item.menuOpen = false " class="broker-action">Rename</div>
+                  <div (click)="delete($event, item); item.menuOpen = false" class="broker-action">Delete</div>
                 </ng-template>
               </div>
             </div>

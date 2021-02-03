@@ -49,7 +49,7 @@ export class SettingsComponent implements OnInit {
   }
 
   set currentTheme(theme: Themes) {
-     if (this.currentTheme !== theme)
+    if (this.currentTheme !== theme)
       this._settingsService.changeTheme(theme);
   }
 
@@ -102,29 +102,8 @@ export class SettingsComponent implements OnInit {
     return false;
   }
 
-  changeHotkey(event: Event, entry): void {
-    const prevBinding = entry[1].clone();
-    entry[1].clear();
-    this.currentEntery = entry;
-    this.isKeyboardRecording = true;
-
-    this.keyboardListener.onFinised(() => {
-      entry[1] = this.keyboardListener.snapshot();
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
-      this._settingsService.saveKeyBinding(this.settings.hotkeys);
-    });
-
-    this.keyboardListener.onCanceled(() => {
-      entry[1] = prevBinding;
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
-    })
-
-    this.keyboardListener.onCleared(() => {
-      entry[1] = this.keyboardListener.snapshot();
-    })
-
-    this.keyboardListener.onChanged(() => entry[1] = this.keyboardListener.snapshot())
+  updateHotkey(item: any, index) {
+    this.settings.hotkeys[index][1] = item;
+    this._settingsService.saveKeyBinding(this.settings.hotkeys);
   }
 }

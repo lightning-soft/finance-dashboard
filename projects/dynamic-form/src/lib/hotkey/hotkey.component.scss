@@ -1,18 +1,3 @@
-@import "~src/scss/variables";
-
-.hotkey-input {
-  background: #1B1D22;
-  border: 1px solid transparent;
-  height: 30px;
-  padding: 4px 11px;
-  font-size: 1rem;
-  border-radius: 2px;
-  transition: all 0.4s;
-
-  &.recording {
-    border: 1px solid $primary;
-  }
-}
 
 .hotkey-wrapper {
   display: flex;

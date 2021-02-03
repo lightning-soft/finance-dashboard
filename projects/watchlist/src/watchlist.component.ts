@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { ItemsBuilder, ItemsComponent } from 'base-components';
+import { ItemsBuilder, ItemsComponent, RealtimeGridComponent } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
 import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
@@ -11,6 +11,7 @@ import { finalize, first } from 'rxjs/operators';
 import { IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { InstrumentSelectComponent } from '../../instrument-select/src/lib/instrument-select.component';
 import { WatchlistItem } from './models/watchlist.item';
+import { SynchronizeFrames } from "performance";
 
 const headers = [
   'name',
@@ -145,14 +146,25 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
       }
     }
   }
+  @SynchronizeFrames()
+  private _handleResize() {
+    this._dataGrid.resize();
+  }
 
-  handleNodeEvent(name: LayoutNodeEvent, event: any) {
+  handleNodeEvent(name: LayoutNodeEvent, data: any) {
     switch (name) {
       case LayoutNodeEvent.Resize:
-        this._dataGrid.detectChanges();
+      case LayoutNodeEvent.Show:
+      case LayoutNodeEvent.Open:
+      case LayoutNodeEvent.Maximize:
+      case LayoutNodeEvent.Restore:
+        this._handleResize();
         break;
     }
+
+    return true;
   }
+
 
   saveState() {
     return {

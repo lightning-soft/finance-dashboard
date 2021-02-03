@@ -141,7 +141,10 @@
       ],
       "dynamic-form": [
         "projects/dynamic-form/index"
-      ]
+      ],
+      "hotkey-input": [
+        "projects/hotkey-input/index"
+      ],
     }
   }
 }

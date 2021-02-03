@@ -11,6 +11,7 @@ import { NumberInputComponent } from './number-input/number-input.component';
 import { TextAlignComponent } from './text-align/text-align.component';
 import { SwitchComponent } from './switch/switch.component';
 import { HotkeyComponent } from './hotkey/hotkey.component';
+import { HotkeyInputModule } from '../../../hotkey-input';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { HotkeyComponent } from './hotkey/hotkey.component';
         }
       ]
     }),
+    HotkeyInputModule,
     FormlyNgZorroAntdModule,
     NzInputModule,
     NzSwitchModule,

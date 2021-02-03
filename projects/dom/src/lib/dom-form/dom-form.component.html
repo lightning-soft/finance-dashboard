@@ -30,7 +30,6 @@
       </span>
       <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
        <button
-         nz-tooltip nzTooltipTitle="Edit the number"
          (contextmenu)="editIceAmount = true;"
          [class.d-none]="editIceAmount"
          nz-button>{{iceAmount}}</button>
@@ -46,7 +45,6 @@
     <type-buttons class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
           <span [class.d-none]="!isIceAmountVisible" class="ice-amount" iceAmount>
        <button
-         nz-tooltip nzTooltipTitle="Edit the number"
          (contextmenu)="editIceAmount = true;"
          [class.d-none]="editIceAmount"
          nz-button>{{iceAmount}}</button>

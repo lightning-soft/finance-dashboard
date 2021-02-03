@@ -2,8 +2,4 @@
      class="hotkey-wrapper"
 >
  <label>{{field.templateOptions?.label}}</label>
-  <div
-    [class.recording]="isKeyboardRecording"
-    [title]="!isKeyboardRecording ? 'Click to record hotkey': ''"
-    class="hotkey-input" (click)="changeHotkey($event)" >{{isKeyboardRecording ? 'Recording hotkey': ''}} {{getKeyStringTitle()}}</div>
-</div>
+  <hotkey-input [formControl]="formControl"></hotkey-input>
