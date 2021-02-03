@@ -7,7 +7,7 @@ import { DynamicFormModule } from 'dynamic-form';
 import { InstrumentSelectModule } from 'instrument-select';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import {
-    NzCheckboxModule, NzInputModule, NzInputNumberModule,
+    NzCheckboxModule, NzDropDownModule, NzInputModule, NzInputNumberModule,
     NzMenuModule,
     NzPopoverModule,
 
@@ -64,6 +64,7 @@ import { AccountSelectModule } from 'account-select';
         NzToolTipModule,
         ReactiveFormsModule,
         NzInputNumberModule,
+        NzDropDownModule,
     ],
   exports: [
     DomComponent,
