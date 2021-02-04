@@ -130,6 +130,7 @@ export class DomItem implements IBaseItem {
   bidDelta: OrderCell;
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
+  notes: Cell = new DataCell();
 
   private _bid = 0;
   private _ask = 0;
@@ -247,6 +248,7 @@ export class DomItem implements IBaseItem {
     //     break;
     //   default:
     this.orders.addOrder(order);
+    this.notes.updateValue(order.description);
 
     if (order.side == OrderSide.Sell) {
       this.askDelta.addOrder(order);

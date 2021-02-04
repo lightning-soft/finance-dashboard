@@ -83,8 +83,8 @@ const directionsHints = {
 const topDirectionIndex = 1;
 
 enum Columns {
-  BidDelta = 'bidDelta',
-  AskDelta = 'askDelta',
+  Bid = 'bid',
+  Ask = 'ask',
   All = 'all',
 }
 
@@ -103,24 +103,7 @@ enum Columns {
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
-  columns: Column[] = [
-    // '_id',
-    'orders',
-    ['volume', 'volume', 'histogram'],
-    'price',
-    [Columns.BidDelta, 'delta'],
-    ['bid', 'bid', 'histogram'],
-    'ltq',
-    ['currentBid', 'c.bid', 'histogram'],
-    ['currentAsk', 'c.ask', 'histogram'],
-    ['ask', 'ask', 'histogram'],
-    [Columns.AskDelta, 'delta'],
-    ['totalBid', 't.bid', 'histogram'],
-    ['totalAsk', 't.ask', 'histogram'],
-    // 'tradeColumn',
-    // 'askDepth',
-    // 'bidDepth',
-  ].map(convertToColumn);
+  columns = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
 
@@ -226,7 +209,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _domForm: DomFormComponent;
 
   handlers = [
-    ...[Columns.AskDelta, Columns.BidDelta].map(column => (
+    ...[Columns.Ask, Columns.Bid].map(column => (
       new CellClickDataGridHandler<DomItem>({
         column, handler: (item) => this._createOrder(column, item),
       })
@@ -318,6 +301,35 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.setTabIcon('icon-widget-dom');
     this.setTabTitle('Dom');
     (window as any).dom = this;
+
+    this.columns = [
+      ...[
+        // '_id',
+        'orders',
+        ['volume', 'volume', 'histogram'],
+        'price',
+        [Columns.Bid, 'delta'],
+        ['bid', 'bid', 'histogram'],
+        'ltq',
+        ['currentBid', 'c.bid', 'histogram'],
+        ['currentAsk', 'c.ask', 'histogram'],
+        ['ask', 'ask', 'histogram'],
+        [Columns.Ask, 'delta'],
+        ['totalBid', 't.bid', 'histogram'],
+        ['totalAsk', 't.ask', 'histogram'],
+        // 'tradeColumn',
+        // 'askDepth',
+      ].map(convertToColumn),
+      {
+        name: 'notes',
+        style: {
+          textOverflow: true,
+          textAlign: 'left',
+        },
+        title: 'NOTES',
+        visible: true
+      }
+    ];
   }
 
   ngOnInit(): void {
@@ -360,7 +372,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  handleHotkey(key){
+  handleHotkey(key) {
     this.domKeyHandlers[key]();
   }
 
@@ -786,7 +798,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
     }
 
-    const side = column === Columns.AskDelta ? OrderSide.Sell : OrderSide.Buy;
+    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
     const price = item.price._value;
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;

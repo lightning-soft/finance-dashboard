@@ -305,20 +305,22 @@ export const commonFields: IFieldConfig[] = [
       }),
       {
         ...getCheckboxes([
-          { key: 'notes', label: 'Notes' },
+          { label: 'Notes', key: 'notes' },
           { label: 'Bid Delta', key: 'bidDelta' },
-          { label: 'Total At Bid', key: 'totalAtBid' },
+          { label: 'Total At Bid', key: 'totalBid' },
           { label: 'Ask Delta', key: 'askDelta' },
-          { label: 'Total At Ask', key: 'totalAtAsk' },
-          { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
-          { label: 'Last Traded Quantity(LQT)', key: 'lqt' },
+          { label: 'Total At Ask', key: 'totalAsk' },
+          // { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
+          { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
           { label: 'Volume Profile', key: 'volume' },
           { label: 'Orders', key: 'orders' },
-          { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
-          { label: 'Bid Depth', key: 'bidDepth' },
-          { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },
-          { label: 'Ask Depth', key: 'askDepth' },
+          // { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
+          { label: 'Bid Depth', key: 'bid' },
+          // { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },
+          { label: 'Ask Depth', key: 'ask' },
           { label: 'Price', key: 'price' },
+          { label: 'Сurrent Ask', key: 'currentAsk' },
+          { label: 'Сurrent Bid', key: 'currentBid' },
         ], 'Columns View', [], { className: 'w-100' }), className: 'w-100'
       }
     ]
@@ -613,7 +615,7 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap ',
         fieldGroup: [
           {
-            templateOptions: { label: 'Clear Traders Timer Interval' },
+            templateOptions: { label: 'Clear Trades Timer Interval' },
             key: 'clearTradersTimer',
             type: FieldType.Number,
           },
@@ -776,37 +778,38 @@ function getDeltaFields(label: string) {
   ];
 }
 
-const bidAskConfig = (label) => {
-  return new FieldConfig({
-    label,
-    fieldGroup: [
-      ...histogramFields,
-      getColor('Total Font Color'),
-      {
-        ...getCheckboxes([
-          { key: 'histogramEnabled', label: `${label} Histogram` },
-          { key: 'highlightLarge', label: `Highlight Large ${label}s Only` }
-        ]),
-        className: 'w-100',
-      },
-      getHistogramOrientation(),
-      wrapWithClass(getTextAlign(), 'mt-2'),
-      {
-        ...getNumber('largeSize', 'Large Bid Size'), className: 'w-100',
-      },
+// const bidAskConfig = (label) => {
+//   return new FieldConfig({
+//     label,
+//     fieldGroup: [
+//       ...histogramFields,
+//       getColor('Total Font Color'),
+//       {
+//         ...getCheckboxes([
+//           { key: 'histogramEnabled', label: `${label} Histogram` },
+//           { key: 'highlightLarge', label: `Highlight Large ${label}s Only` }
+//         ]),
+//         className: 'w-100',
+//       },
+//       getHistogramOrientation(),
+//       wrapWithClass(getTextAlign(), 'mt-2'),
+//       {
+//         ...getNumber('largeSize', 'Large Bid Size'), className: 'w-100',
+//       },
 
-    ]
-  });
-};
+//     ]
+//   });
+// };
 
-export const bidFields: IFieldConfig[] = [bidAskConfig('Bid')];
+// export const bidFields: IFieldConfig[] = [bidAskConfig('Bid')];
 
-export const askFields: IFieldConfig[] = [bidAskConfig('Ask')];
+// export const askFields: IFieldConfig[] = [bidAskConfig('Ask')];
 
 
 function getDepthConfig(label: string) {
   return new FieldConfig({
     label: `${label} Depth`,
+    key: label.toLowerCase(),
     fieldGroup: [
       ...histogramFields,
       getColor('Total Font Color'),
@@ -1026,10 +1029,10 @@ export enum SettingTab {
   Price = 'price',
   BidDelta = 'bidDelta',
   AskDelta = 'askDelta',
-  BidDepth = 'bidDepth',
+  // BidDepth = 'bidDepth',
   Ask = 'ask',
   Bid = 'bid',
-  AskDepth = 'askDepth',
+  // AskDepth = 'askDepth',
   TotalAsk = 'totalAsk',
   TotalBid = 'totalBid',
   Volume = 'volume',
@@ -1049,10 +1052,10 @@ export const SettingsConfig = {
   [SettingTab.OrderArea]: orderAreaFields,
   [SettingTab.BidDelta]: getDeltaFields('Bid Delta'),
   [SettingTab.AskDelta]: getDeltaFields('Ask Delta'),
-  [SettingTab.Ask]: askFields,
-  [SettingTab.Bid]: bidFields,
-  [SettingTab.BidDepth]: bidDepthFields,
-  [SettingTab.AskDepth]: askDepthFields,
+  // [SettingTab.Ask]: askFields,
+  // [SettingTab.Bid]: bidFields,
+  [SettingTab.Bid]: bidDepthFields,
+  [SettingTab.Ask]: askDepthFields,
   [SettingTab.TotalAsk]: getTotalFields('Total At Ask', 'totalAsk'),
   [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),
   [SettingTab.Volume]: volumeFields,
