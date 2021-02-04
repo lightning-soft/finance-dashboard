@@ -29,9 +29,8 @@ export class AccountComponent implements OnInit {
 
         if (this.isAuthenticated)
           this.userName = this._authService.userInfo.name;
-          // todo uncoment this
-        // else
-          // this.loginLink = this.generateLoginLink(this._appConfig.identity);
+        else
+          this.loginLink = this.generateLoginLink(this._appConfig.identity);
       });
   }
 
