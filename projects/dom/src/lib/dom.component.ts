@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
-import { CellClickDataGridHandler, Column, DataGrid, IFormatter, IViewBuilderStore, RoundFormatter } from 'data-grid';
+import { CellClickDataGridHandler, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
@@ -17,13 +17,12 @@ import {
   Level2DataFeed,
   OrderBooksRepository,
   OrderSide,
-  OrdersRepository
+  OrdersRepository, PositionsRepository
 } from 'trading';
-import { DomFormComponent } from './dom-form/dom-form.component';
+import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
-import { histogramComponent, HistogramComponent } from './histogram';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -92,14 +91,6 @@ enum Columns {
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
   styleUrls: ['./dom.component.scss'],
-  providers: [
-    {
-      provide: IViewBuilderStore,
-      useValue: {
-        [histogramComponent]: HistogramComponent
-      }
-    }
-  ]
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
@@ -109,13 +100,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
-    autoCenterAllWindows: () => {
-      this.broadcastHotkeyCommand('autoCenter');
-    },
-    buyMarket: () => {
-    },
-    sellMarket: () => {
-    },
+    autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
+    buyMarket: () => this._createOrder(OrderSide.Buy),
+    sellMarket: () => this._createOrder(OrderSide.Sell),
     hitBid: () => {
     },
     joinBid: () => {
@@ -124,10 +111,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     },
     oco: () => {
     },
-    flatten: () => {
-    },
-    cancelAllOrders: () => {
-    },
+    flatten: () => this.handleFormAction(FormActions.Flatten),
+    cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
     quantity1: () => {
     },
     quantity2: () => {
@@ -211,7 +196,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
       new CellClickDataGridHandler<DomItem>({
-        column, handler: (item) => this._createOrder(column, item),
+        column, handler: (item) => this._createOrderByClick(column, item),
       })
     )),
   ];
@@ -291,6 +276,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   constructor(
     private _ordersRepository: OrdersRepository,
+    private _positionsRepository: PositionsRepository,
     private _orderBooksRepository: OrderBooksRepository,
     private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
@@ -339,12 +325,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
         this._ordersRepository = this._ordersRepository.forConnection(connection);
+        this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
         this._onInstrumentChange();
       });
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
-      .subscribe((action) => this._handleRealtime(action));
+      .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
@@ -376,7 +363,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.domKeyHandlers[key]();
   }
 
-  _handleRealtime(action: RealtimeActionData<IOrder>) {
+  _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
     if (action.items)
       this._handleOrders(action.items);
   }
@@ -406,12 +393,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         asks.sort((a, b) => b.price - a.price);
 
         let index = 0;
-        let price = asks[asks.length - 1].price;
+        let price = this._normalizePrice(asks[asks.length - 1].price);
         const tickSize = this._tickSize;
         const minPrice = bids[0].price;
         const maxPrice = asks[0].price;
+        const maxRows = ROWS * 2;
 
-        while (price <= maxPrice || index < ROWS) {
+        while (index < maxRows && (price <= maxPrice || index < ROWS)) {
           this.items.unshift(this._getItem(price));
           price = this._normalizePrice(price + tickSize);
           index++;
@@ -420,7 +408,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         index = 0
         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-        while (price >= minPrice || index < ROWS) {
+        while (index < maxRows && (price >= minPrice || index < ROWS)) {
           this.items.push(this._getItem(price));
           price = this._normalizePrice(price - tickSize);
           index++;
@@ -509,13 +497,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._handleResize();
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    setTimeout(() => {
-      console.warn('data');
-    }, 1500);
-  }
-
   centralize() {
     this._handleResize();
     requestAnimationFrame(() => {
@@ -544,13 +525,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getItem(price: number): DomItem {
-    if (!this._map.has(price)) {
-      const item = new DomItem(price, this._settings, this._priceFormatter);
+    let item = this._map.get(price)
+    if (!item) {
+      item = new DomItem(price, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
     }
 
-    return this._map.get(price);
+    return item ?? this._map.get(price);
   }
 
   private _clear() {
@@ -576,67 +558,41 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // }
 
   protected _handleTrade(trade: ITrade) {
-
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     let changes = this._lastChangesItem;
     let prevltqItem = changes.ltq;
+    let isChanged = false;
+
 
     if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
       const item = this._getItem(trade.askInfo.price);
       this._handleMaxChange(item.handleAsk(trade.askInfo), item);
-
-      if (prevltqItem != changes.ltq && prevltqItem) {
-        prevltqItem.clearLTQ();
-
-        for (const item of this.items) {
-          if (changes.ltq == item)
-            return;
-
-          item.clearDelta();
-
-          // if (item.price._value < price) {
-          //   item.bid.clear();
-          // } else if (item.price._value > price) {
-          //   item.ask.clear();
-          // } else {
-          //   if (item.bid._time > item.ask._time) {
-          //     item.ask.clear();
-          //   } else {
-          //     item.bid.clear();
-          //   }
-          // }
-        }
-      }
+      isChanged = true;
     }
 
     if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
       const item = this._getItem(trade.bidInfo.price);
       this._handleMaxChange(item.handleBid(trade.bidInfo), item);
+      isChanged = true;
+    }
 
-      if (prevltqItem != changes.ltq && prevltqItem) {
-        prevltqItem.clearLTQ();
+    // if (trade.price > 3822.25)
+    //   console.log('prevltqItem', prevltqItem == changes.ltq, changes.ltq?.price?._value, changes.ltq?.ltq?._value);
 
-        for (const item of this.items) {
-          if (changes.ltq == item)
-            return;
+    if (prevltqItem && prevltqItem != changes.ltq) {
+      prevltqItem.clearLTQ();
 
+      for (const item of this.items) {
+        if (changes.ltq != item) {
           item.clearDelta();
-
-          // if (item.price._value < price) {
-          //   item.bid.clear();
-          // } else if (item.price._value > price) {
-          //   item.ask.clear();
-          // } else {
-          //   if (item.bid._time > item.ask._time) {
-          //     item.ask.clear();
-          //   } else {
-          //     item.bid.clear();
-          //   }
-          // }
+        } else {
+          console.log('prevltqItem', prevltqItem, changes.ltq);
         }
       }
     }
+
+    // console.log('prevltqItem != changes.ltq && prevltqItem', count, prevltqItem != changes.ltq, prevltqItem.ltq._value, changes.ltq.ltq._value)
 
     // if (!this.items.length) {
     //   if (this._lastPrice)
@@ -664,6 +620,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const prevItem = this._lastChangesItem[key];
       if (prevItem)
         prevItem.dehighlight(key);
+
+      if (key == 'ltq')
+        console.log('item.price.value', item.price.value, this._lastChangesItem[key] === item);
 
       this._lastChangesItem[key] = item;
     }
@@ -788,23 +747,23 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  private _createOrder(column: string, item: DomItem) {
+  private _createOrder(side: OrderSide, price?: number) {
     if (this.isTradingLocked)
       return;
 
-    console.log(column, item);
+
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');
       return;
     }
 
-    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
-    const price = item.price._value;
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
 
-    form.stopPrice = price;
-    form.limitPrice = price;
+    if (price) {
+      form.stopPrice = price;
+      form.limitPrice = price;
+    }
 
     this._ordersRepository.createItem({
       ...form,
@@ -813,8 +772,58 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       symbol,
       accountId: this._accountId,
     }).subscribe(
-      (res) => this.notifier.showSuccess('Order successfully created'),
+      (res) => console.log('Order successfully created'),
       (err) => this.notifier.showError(err)
+    );
+  }
+
+  private _createOrderByClick(column: string, item: DomItem) {
+    this._createOrder(column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy, item.price._value);
+  }
+
+  handleFormAction(action: FormActions) {
+    switch (action) {
+      case FormActions.CloseOrders:
+      case FormActions.CloseBuyOrders:
+      case FormActions.CloseSellOrders:
+        this._closeOrders(action);
+        break;
+      case FormActions.ClosePositions:
+        this._closePositions();
+        break;
+      case FormActions.Flatten:
+        this._flatten();
+        break;
+      default:
+        console.error('Undefined action');
+    }
+  }
+
+  private _flatten() {
+
+  }
+
+  private _closePositions() {
+    this._positionsRepository.deleteMany({
+      accountId: this._accountId,
+      ...this._instrument,
+    }).subscribe(
+      () => console.log('_closePositions'),
+      (error) => this.notifier.showError(error),
+    )
+  }
+
+  private _closeOrders(action: FormActions) {
+    let orders = this.items.reduce((acc, i) => ([...acc, ...i.orders.orders]), []);
+
+    if (action === FormActions.CloseSellOrders)
+      orders = orders.filter(i => i.side === OrderSide.Sell);
+    else if (action === FormActions.CloseBuyOrders)
+      orders = orders.filter(i => i.side === OrderSide.Buy);
+
+    this._ordersRepository.deleteMany(orders).subscribe(
+      () => console.log('delete many'),
+      (error) => this.notifier.showError(error),
     );
   }
 

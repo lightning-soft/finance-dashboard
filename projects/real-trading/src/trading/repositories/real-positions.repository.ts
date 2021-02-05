@@ -2,8 +2,10 @@ import { Id, IPaginationResponse } from 'communication';
 import { map } from 'rxjs/operators';
 import { IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
+import { PositionsRepository, IDeletePositionsParams } from 'trading';
+import { Observable } from 'rxjs';
 
-export class RealPositionsRepository extends BaseRepository<IPosition> {
+export class RealPositionsRepository extends BaseRepository<IPosition> implements PositionsRepository {
   protected get suffix(): string {
     return 'Position';
   }
@@ -50,7 +52,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
     );
   }
 
-  deleteItem(item: IPosition | Id) {
+  deleteItem(item: IPosition | Id): Observable<any> {
     if (typeof item !== 'object')
       throw new Error('Invalid position');
 
@@ -65,6 +67,10 @@ export class RealPositionsRepository extends BaseRepository<IPosition> {
         }
       }
     );
+  }
+
+  deleteMany({ accountId, ...params }: IDeletePositionsParams | any): Observable<any> {
+    return this._http.post(this._getRESTURL(accountId), null, { ...this._httpOptions, params });
   }
 
   protected _filter(item: IPosition, params: any = {}) {

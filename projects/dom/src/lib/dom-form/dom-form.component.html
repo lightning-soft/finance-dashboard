@@ -87,13 +87,13 @@
       <tp-units formControlName="tp"></tp-units>
     </div>
     <div class="cxl">
-      <button class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
-      <button class="cxl-btn cxl-all" nz-button>CXL All</button>
-      <button class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
+      <button (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
+      <button (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL All</button>
+      <button (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
     </div>
     <div class="bottom-btns">
-      <button [class.d-none]="!setting.closePositionButton" nz-button>CLOSE POSITION</button>
-      <button [class.d-none]="!setting.showFlattenButton" class="flatten" nz-button>FLATTEN</button>
+      <button (click)="emit(FormActions.ClosePositions)" [class.d-none]="!setting.closePositionButton" nz-button>CLOSE POSITION</button>
+      <button (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.showFlattenButton" class="flatten" nz-button>FLATTEN</button>
     </div>
   </form>
 </cdk-virtual-scroll-viewport>

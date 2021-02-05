@@ -5,20 +5,30 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
 
-class OrderCell extends NumberCell {
+class OrdersCell extends NumberCell {
+  orders: IOrder[] = [];
   private _order: IOrder;
   private _text: string;
 
   orderStyle: 'ask' | 'bid';
 
   addOrder(order: IOrder) {
+    const index = this.orders.findIndex(i => i.id === order.id);
+
+    if (index !== -1)
+      Object.assign(this.orders[index], order);
+    else
+      this.orders.push(order);
+
     this._order = order;
     this._changeText();
+    this.drawed = false;
   }
 
   clearOrder() {
     this._order = null;
     this._text = '';
+    this.drawed = false;
   }
 
   _changeText() {
@@ -80,7 +90,7 @@ class TotalCell extends HistogramCell {
   }
 }
 
-class LtqCell extends NumberCell {
+class LtqCell extends HistogramCell {
   updateValue(value: number) {
     if ((this.settings as any).accumulateTrades != false)
       return super.updateValue(this._value + value);
@@ -116,7 +126,7 @@ export class DomItem implements IBaseItem {
 
   _id: Cell = new NumberCell();
   price: PriceCell;
-  orders: OrderCell = new OrderCell();
+  orders: OrdersCell = new OrdersCell();
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -126,8 +136,8 @@ export class DomItem implements IBaseItem {
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
   volume: HistogramCell;
-  askDelta: OrderCell;
-  bidDelta: OrderCell;
+  askDelta: OrdersCell;
+  bidDelta: OrdersCell;
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
   notes: Cell = new DataCell();
@@ -149,8 +159,8 @@ export class DomItem implements IBaseItem {
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new HistogramCell({ settings: settings.volume });
-    this.askDelta = new OrderCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
-    this.bidDelta = new OrderCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
+    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
+    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this._id.updateValue(index);
   }

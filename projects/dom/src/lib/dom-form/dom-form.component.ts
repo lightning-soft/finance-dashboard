@@ -1,20 +1,19 @@
-import { Component, Injector, Input } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { FormComponent } from 'base-components';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { HistoryRepository, IConnection, IInstrument, Periodicity } from 'trading';
-import { OrderDuration, OrderType } from 'trading';
+import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType } from 'trading';
 
 
-const historyParams = {
-  Periodicity: Periodicity.Hourly,
-  BarSize: 1,
-  Skip: 0,
-  BarCount: 10
-};
-
+export enum FormActions {
+  ClosePositions,
+  Flatten,
+  CloseOrders,
+  CloseBuyOrders,
+  CloseSellOrders,
+}
 export interface DomFormSettings {
   showInstrumentChange: boolean;
   closePositionButton: boolean;
@@ -33,9 +32,11 @@ export interface DomFormSettings {
 })
 @UntilDestroy()
 export class DomFormComponent extends FormComponent<any> {
+  FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
+
   @Input() trade;
   @Input() showUnits = true;
   @Input() isFormOnTop = false;
@@ -51,6 +52,9 @@ export class DomFormComponent extends FormComponent<any> {
     roundPL: false,
     includeRealizedPL: false,
   };
+
+  @Output()
+  actions = new EventEmitter<FormActions>();
 
   get setting() {
     return this._settings;
@@ -102,7 +106,9 @@ export class DomFormComponent extends FormComponent<any> {
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
   tifButtons = [
-    // { label: 'DAY', value: OrderDuration.DAY  },{ label: 'GTD', value: OrderDuration.GTD }, { label: 'GTC', value: OrderDuration.GTC, black: true },
+    { label: 'DAY', value: OrderDuration.DAY },
+    { label: 'GTD', value: OrderDuration.GTD },
+    // { label: 'GTC', value: OrderDuration.GTC, black: true },
     { label: 'FOK', value: OrderDuration.FOK, black: true },
     { label: 'IOC', value: OrderDuration.IOC, black: true },
   ];
@@ -186,12 +192,15 @@ export class DomFormComponent extends FormComponent<any> {
         .toFixed(precision);
   }
 
-
   toggleIce() {
     const { isIce } = this.formValue;
     this.form.patchValue({
       isIce: !isIce
     });
+  }
+
+  emit(action: FormActions) {
+    this.actions.emit(action);
   }
 }
 

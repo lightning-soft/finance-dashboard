@@ -53,6 +53,7 @@
       [isFormOnTop]="isFormOnTop"
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
+      (actions)="handleFormAction($event)"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
