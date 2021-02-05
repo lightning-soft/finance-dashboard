@@ -1,6 +1,6 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide } from 'trading';
+import { IInfo, IOrder, L2, OrderSide, OrderStatus } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -265,29 +265,29 @@ export class DomItem implements IBaseItem {
   }
 
   handleOrder(order: IOrder) {
-    // switch (order.status) {
-    //   case OrderStatus.Filled:
-    //   case OrderStatus.Canceled:
-    //   case OrderStatus.Rejected:
-    //     this.orders.clearOrder();
-    //     this.askDelta.clearOrder();
-    //     this.bidDelta.clearOrder();
-    //     break;
-    //   default:
-    this.orders.addOrder(order);
-    this.notes.updateValue(order.description);
+    switch (order.status) {
+      case OrderStatus.Filled:
+      case OrderStatus.Canceled:
+      case OrderStatus.Rejected:
+        this.orders.clearOrder();
+        this.askDelta.clearOrder();
+        this.bidDelta.clearOrder();
+        break;
+      default:
+        this.orders.addOrder(order);
+        this.notes.updateValue(order.description);
 
-    if (order.side == OrderSide.Sell) {
-      this.askDelta.addOrder(order);
-      this.askDelta.orderStyle = 'ask';
-      this.orders.orderStyle = 'ask';
-    } else {
-      this.bidDelta.addOrder(order);
-      this.bidDelta.orderStyle = 'bid';
-      this.orders.orderStyle = 'bid';
+        if (order.side == OrderSide.Sell) {
+          this.askDelta.addOrder(order);
+          this.askDelta.orderStyle = 'ask';
+          this.orders.orderStyle = 'ask';
+        } else {
+          this.bidDelta.addOrder(order);
+          this.bidDelta.orderStyle = 'bid';
+          this.orders.orderStyle = 'bid';
+        }
+        break;
     }
-    //     break;
-    // }
   }
 
   dehighlight(key: string) {

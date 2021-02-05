@@ -14,8 +14,10 @@ export function convertToColumn(nameOrArr: any) {
   return {
     name,
     type,
-    // style: name,
-    // style: type,
+    style: {
+      textOverflow: true,
+      textAlign: 'left',
+    },
     title: title.toUpperCase(),
     visible: true
   };
