@@ -62,6 +62,7 @@ export class DomFormComponent extends FormComponent<any> {
   @Output()
   actions = new EventEmitter<FormActions>();
 
+
   get setting() {
     return this._settings;
   }
@@ -170,20 +171,36 @@ export class DomFormComponent extends FormComponent<any> {
       quantity: new FormControl(10, Validators.required),
       type: new FormControl(type.value, Validators.required),
       duration: new FormControl(duration.value, Validators.required),
-      sl: new FormControl({
+      stopLoss: new FormControl({
         stopLoss: false,
-        count: 10,
+        ticks: 10,
         unit: 'ticks'
       }),
-      tp: new FormControl({
+      takeProfit: new FormControl({
         takeProfit: false,
-        count: 12,
+        ticks: 12,
         unit: 'ticks'
       }),
       amount: new FormControl(1),
       isIce: new FormControl(false),
       iceAmount: new FormControl(10),
     });
+  }
+
+  getDto() {
+    const value = { ...this.form.value };
+    if (value.stopLoss?.stopLoss) {
+      value.stopLoss.quantity = value.quantity;
+    } else {
+      delete value.stopLoss;
+    }
+
+    if (value.takeProfit?.takeProfit) {
+      value.takeProfit.quantity = value.quantity;
+    } else {
+      delete value.takeProfit;
+    }
+    return value;
   }
 
   increaseQuantity(value: number) {

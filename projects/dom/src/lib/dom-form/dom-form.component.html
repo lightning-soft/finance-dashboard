@@ -83,8 +83,8 @@
     </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
     <div [class.d-none]="!showUnits" class="ticks">
-      <sl-units formControlName="sl"></sl-units>
-      <tp-units formControlName="tp"></tp-units>
+      <sl-units formControlName="stopLoss"></sl-units>
+      <tp-units formControlName="takeProfit"></tp-units>
     </div>
     <div class="cxl">
       <button (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
