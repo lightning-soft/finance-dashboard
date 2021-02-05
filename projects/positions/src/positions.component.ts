@@ -6,12 +6,13 @@ import { LayoutNode } from 'layout';
 import { positionsLevelOneDataFeedHandler } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, ITrade, Level1DataFeed, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
 
 const headers = [
   'account',
   'price',
+  'side',
   'size',
   'realized',
   'unrealized',
@@ -118,43 +119,48 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
-  ) {
-    super();
-    this.autoLoadData = false;
-
-    this.builder.setParams({
-      groupBy: ['accountId', 'instrumentName'],
-      order: 'desc',
-      wrap: (item: IPosition) => new PositionItem(item),
-      unwrap: (item: PositionItem) => item.position,
-    });
-
-    this._columns = headers.map(convertToColumn);
-
-    this.setTabIcon('icon-widget-positions');
-    this.setTabTitle('Positions');
-  }
-
-  // need for group by InstrumentName
-  protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
-    return this.repository.getItems(params)
+    ) {
+      super();
+      this.autoLoadData = false;
+      
+      this.builder.setParams({
+        groupBy: ['accountId', 'instrumentName'],
+        order: 'desc',  
+        wrap: (item: IPosition) => new PositionItem(item),
+        unwrap: (item: PositionItem) => item.position,
+      });  
+      
+      this._columns = headers.map(convertToColumn);
+      
+      this.setTabIcon('icon-widget-positions');
+      this.setTabTitle('Positions');
+      this._levelOneDataFeedHandler = this._handlePositionUnrealized;
+    }  
+    
+    private _handlePositionUnrealized(trade: ITrade): void {
+      this.items.map(i => i.updateUnrealized(trade));
+    }
+    
+    // need for group by InstrumentName
+    protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
+      return this.repository.getItems(params)
       .pipe(map(response => {
         response.data = response.data.map(item => {
           return { ...item, instrumentName: item.instrument.symbol };
-        });
-        return response;
-      }));
-  }
-
+      });  
+      return response;
+    }));  
+  }  
+  
   groupItems(groupBy) {
     this.builder.groupItems(groupBy, item => {
       if (groupBy === GroupByItem.AccountId) {
         return this.getGroupHeaderItem(item, 'account');
       } else {
         return this.getGroupHeaderItem(item, 'instrumentName');
-      }
-    });
-  }
+      }  
+    });  
+  }  
 
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new PositionItem();
