@@ -1,5 +1,6 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { QuantityPositions } from 'dom';
 
 @Component({
   selector: 'quantity-input',
@@ -36,5 +37,10 @@ export class QuantityInputComponent implements ControlValueAccessor {
 
   isCurrentValue(item: any) {
     return this.currentValue === item.value;
+  }
+
+  selectByPosition(position: QuantityPositions): void {
+    const item = this.amountButtons[position];
+    this.updateValue(item);
   }
 }

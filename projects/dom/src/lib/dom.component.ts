@@ -87,6 +87,15 @@ enum Columns {
   All = 'all',
 }
 
+export enum QuantityPositions {
+  FIRST,
+  SECOND,
+  THIRD,
+  FORTH,
+  FIFTH,
+  SIXTH
+}
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -97,6 +106,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   columns = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
+
+  
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
@@ -113,16 +124,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
-    quantity1: () => {
-    },
-    quantity2: () => {
-    },
-    quantity3: () => {
-    },
-    quantity4: () => {
-    },
-    quantity5: () => {
-    },
+    quantity1: () => this._handleQuantitySelect(QuantityPositions.FIRST),
+    quantity2: () => this._handleQuantitySelect(QuantityPositions.SECOND),
+    quantity3: () => this._handleQuantitySelect(QuantityPositions.THIRD),
+    quantity4: () => this._handleQuantitySelect(QuantityPositions.FORTH),
+    quantity5: () => this._handleQuantitySelect(QuantityPositions.FIFTH),
+    quantity6: () => this._handleQuantitySelect(QuantityPositions.SIXTH),
     quantityToPos: () => {
     },
     stopsToPrice: () => {
@@ -819,6 +826,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _normalizePrice(price) {
     const tickSize = this._tickSize;
     return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
+  }
+  
+  private _handleQuantitySelect(position: number): void {
+    this._domForm.selectQuantityByPosition(position);
   }
 
   ngOnDestroy() {

@@ -349,6 +349,7 @@ export const hotkeyFields: IFieldConfig[] = [
         getHotkey({ label: 'Quantity 3 Preset', key: 'quantity3' }),
         getHotkey({ label: 'Quantity 4 Preset', key: 'quantity4' }),
         getHotkey({ label: 'Quantity 5 Preset', key: 'quantity5' }),
+        getHotkey({ label: 'Quantity 6 Preset', key: 'quantity6' }),
         getHotkey({ label: 'Quantity to Position Size', key: 'quantityToPos' }),
         getHotkey({ label: 'Set All Stops to Price', key: 'stopsToPrice' }),
         getHotkey('Clear Alerts'),
