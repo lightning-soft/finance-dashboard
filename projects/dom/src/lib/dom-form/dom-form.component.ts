@@ -1,10 +1,12 @@
-import { Component, EventEmitter, Injector, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { FormComponent } from 'base-components';
+import { QuantityPositions } from 'dom';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
 import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType } from 'trading';
+import { QuantityInputComponent } from './quantity-input/quantity-input.component';
 
 
 export enum FormActions {
@@ -13,6 +15,7 @@ export enum FormActions {
   CloseOrders,
   CloseBuyOrders,
   CloseSellOrders,
+  SelectQuantity,
 }
 export interface DomFormSettings {
   showInstrumentChange: boolean;
@@ -36,6 +39,9 @@ export class DomFormComponent extends FormComponent<any> {
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
+
+  @ViewChild('quantity')
+  public quantitySelect: QuantityInputComponent;
 
   @Input() trade;
   @Input() showUnits = true;
@@ -201,6 +207,10 @@ export class DomFormComponent extends FormComponent<any> {
 
   emit(action: FormActions) {
     this.actions.emit(action);
+  }
+
+  selectQuantityByPosition(position: QuantityPositions) {
+    this.quantitySelect.selectByPosition(position);
   }
 }
 

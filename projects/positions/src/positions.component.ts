@@ -43,7 +43,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _columns: Column[] = [];
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
-
+  menuVisible = false;
   get columns() {
     const closeColumn: Column = {
       name: 'close',

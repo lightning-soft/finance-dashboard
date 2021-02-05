@@ -108,6 +108,11 @@ $selectHeight: 22px;
     }
 
     &.slim {
+      /*   .top-position-btn, .type-select {
+           align-self: center;
+           margin-top: 3px;
+         }*/
+
       .ice-button, .ice-amount {
         margin-left: 4px;
         margin-top: 0;
@@ -225,6 +230,14 @@ $selectHeight: 22px;
     }
   }
 
+}
+
+quantity-input, {
+  margin-top: 4px;
+}
+
+.type-buttons {
+  margin-top: 12px;
 }
 
 .slim-amount {

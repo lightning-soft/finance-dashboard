@@ -4,9 +4,63 @@
   display: block;
   height: 100%;
 
+  ::ng-deep {
+    .ant-form label {
+      font-size: 0.75rem;
+    }
+
+    .custom-panel-fixed {
+      width: auto !important;
+    }
+
+    .custom-checkbox {
+      span {
+        display: flex;
+        align-items: center;
+        line-height: 1.4rem;
+      }
+    }
+
+    nz-collapse-panel {
+      &:hover {
+        .ant-collapse-extra {
+          opacity: 1;
+        }
+      }
+    }
+
+    .ant-collapse-extra {
+      position: absolute;
+      right: 10px;
+      top: 6px;
+      font-size: 10px;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .broker-description {
+      font-size: 0.6rem;
+
+      img {
+        height: 20px;
+      }
+    }
+  }
+
+  table {
+    font-size: 0.75rem;
+  }
+
+
+  .right-text {
+    padding-left: 19px;
+  }
+
   .custom-panel-body {
+    outline: none;
     background: transparent !important;
   }
+
 
   .right-border {
     border-right: 1px solid rgb(81, 83, 90);
@@ -18,6 +72,10 @@
   }
 
   ::ng-deep {
+    .custom-collapse-ghost .ant-collapse-header {
+      padding-left: 12px !important;
+    }
+
     .wm-draggable {
       color: $text-muted;
 
@@ -31,6 +89,10 @@
 
 cdk-virtual-scroll-viewport {
   height: 100%;
+}
+
+.indicator-table {
+  margin-top: 2.5px;
 }
 
 small {

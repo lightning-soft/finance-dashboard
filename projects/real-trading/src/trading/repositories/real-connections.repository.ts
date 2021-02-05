@@ -62,7 +62,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
       tap(i => {
-        this._updateItem(i);
+        this._updateItem(i, false);
       }),
     );
   }
@@ -112,23 +112,24 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
       const items = this._getItems().map(i => ({ ...i, connected: false }));
 
       const id = this._getLastId(items) + 1;
-      const _item = { ...item, connectionData: result, id } as IConnection;
+      const password = this.getPassword(item);
+      const _item = { ...item, password, connectionData: result, id } as IConnection;
 
       this._setItems([...items, _item]);
 
       return _item;
-    }))
+    }));
   }
 
-  protected _updateItem(item: IConnection) {
+  protected _updateItem(item: IConnection, makeDisconnected = true) {
     const items = this._getItems().map(i => {
       if (i.id === item.id) {
-        const password = item.autoSavePassword ? item.password : null;
+        const password = this.getPassword(item);
 
         return { ...i, ...item, password };
       }
 
-      if (item.connected) {
+      if (item.connected && makeDisconnected) {
         return { ...i, connected: false };
       }
 
@@ -140,6 +141,10 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     this._onUpdate(
       item.connected ? items : items.find(i => i.id === item.id)
     );
+  }
+
+  getPassword(item) {
+    return item.autoSavePassword ? item.password : null;
   }
 
   protected _deleteItem(id: Id): Observable<any> {

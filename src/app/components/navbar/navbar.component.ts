@@ -50,6 +50,8 @@ export class NavbarComponent {
       width: 300,
       single: true,
       removeIfExists: true,
+   /*   maximizable: false,
+      minimizable: false,*/
     });
   }
 

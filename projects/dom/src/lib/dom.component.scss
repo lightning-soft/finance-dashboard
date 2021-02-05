@@ -10,6 +10,16 @@ $cell-background: #1b1d22;
   }
 
   ::ng-deep {
+    account-select {
+      .custom-form-control {
+        background-color: transparent;
+      }
+    }
+
+    nz-select-item {
+      line-height: 18px !important;
+    }
+
     window-header {
       daily-info {
         margin-left: 7px;
@@ -39,7 +49,7 @@ $cell-background: #1b1d22;
     }
 
     .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      height: 22px;
+      height: 20px;
     }
 
     .ant-select-single .ant-select-selector .ant-select-selection-item {
@@ -66,39 +76,6 @@ daily-info {
   margin-left: 4px;
 }
 
-.form-switcher {
-  background: #101114;
-  padding: 2px;
-  border-radius: 2px;
-  width: 40px;
-  height: 20px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-
-  .switch-item {
-    height: 16px;
-    width: 16px;
-    text-align: center;
-    background: $light;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border-radius: 2px;
-
-    i {
-      font-size: 10px;
-      line-height: 1;
-      color: $text-40;
-    }
-
-    &.extended {
-      margin-left: 2px;
-    }
-  }
-}
-
 daily-info {
   margin-left: 4px;
 }
@@ -117,12 +94,23 @@ daily-info {
     height: 16px;
     width: 16px;
     text-align: center;
-    background: $light;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     border-radius: 2px;
+
+    &-active {
+      background: $light;
+    }
+
+    &.slim {
+      margin-right: 2px;
+    }
+
+    &.extended {
+      margin-left: 2px;
+    }
 
     i {
       font-size: 10px;
@@ -130,9 +118,7 @@ daily-info {
       color: $text-40;
     }
 
-    &.extended {
-      margin-left: 2px;
-    }
+
   }
 }
 
@@ -153,7 +139,7 @@ daily-info {
       border-radius: 2px;
       color: $text-80;
 
-      &:hover{
+      &:hover {
         color: white;
         background: $inputBackground;
       }

@@ -7,7 +7,7 @@
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <input [class.d-none]="!setting.showPLInfo" class="pl-input" disabled [value]="getPl()" nz-input type="number">
     <button title="Positions" class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
-    <quantity-input formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
+    <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeButtons"
                  [nzLabel]="item.label" [nzValue]="item.value"

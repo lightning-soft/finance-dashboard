@@ -10,6 +10,7 @@
   font-size: 15px;
 }
 
+
 .navigation-bar {
   display: flex;
   align-items: center;
@@ -63,30 +64,61 @@
   .preferences {
     display: flex;
     flex-wrap: nowrap;
-    border-right: 1px solid $lightBackground;
-    border-left: 1px solid $lightBackground;
-    height: 28px;
+    /*  border-right: 1px solid ]
+    *;
+      border-left: 1px solid $lightBackground;*/
+    align-items: center;
+    height: 100%;
+    padding-left: 6px;
+    padding-right: 6px;
+    position: relative;
 
-    ::ng-deep button {
-      padding: 0 12px;
-      background-color: $tabFrameColor;
-      position: relative;
+    &:before, &:after {
+      position: absolute;
+      left: 0;
+      content: '';
+      width: 1px;
       height: 28px;
+      background: $lightBackground;
+    }
 
-      & > .icon-ellipse {
-        font-size: 0.5em;
-        color: $risingColor;
-        position: absolute;
-        left: 48%;
-        top: 15%;
+    &:after {
+      left: unset;
+      right: 0;
+    }
+
+    ::ng-deep {
+
+      button {
+        padding: 0 12px;
+        background-color: $tabFrameColor;
+        position: relative;
+        transition: background 0.3s;
+        width: 36px;
+        height: 36px;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+
+        &:hover {
+          background: $inputBackground;
+        }
+
+        & > .icon-ellipse {
+          font-size: 0.5em;
+          color: $risingColor;
+          position: absolute;
+          left: 48%;
+          top: 15%;
+        }
       }
     }
   }
 
   .time {
-    padding: 0 16px;
     border-right: 1px solid $lightBackground;
     min-width: 90px;
+    height: 100%;
   }
 
   .control {

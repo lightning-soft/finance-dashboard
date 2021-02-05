@@ -20,10 +20,10 @@
     <app-workspace [layout]="layout"></app-workspace>
     <button
       [title]="'Settings'"
-      (click)="openSettings()" class="icon-setting-gear"></button>
+      (click)="openSettings()" class="icon-setting-gear navbar-button"></button>
     <button
       [title]="'Notifications'"
-      (click)="openNotificationsList()" class="icon-notification">
+      (click)="openNotificationsList()" class="icon-notification  navbar-button">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
     <app-account></app-account>
@@ -34,9 +34,9 @@
 
   <div class="control">
     <button class="icon-minimize-window native-minimize-button"
-      onclick="window.nativeMinimize && window.nativeMinimize()"></button>
+            onclick="window.nativeMinimize && window.nativeMinimize()"></button>
     <button class="icon-full-screen-window native-maximize-button"
-      onclick="window.nativeMaximize && window.nativeMaximize()"></button>
+            onclick="window.nativeMaximize && window.nativeMaximize()"></button>
     <button class="icon-close-window native-close-button" onclick="window.nativeClose && window.nativeClose()"></button>
   </div>
 
