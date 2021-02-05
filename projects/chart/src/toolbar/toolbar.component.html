@@ -1,12 +1,15 @@
 <div class="toolbar-container">
-
   <div class="tool btn-group">
     <nz-button-group
-      nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
       nz-dropdown
+      (click)="toggleDrawingVisible()"
+      [nzTrigger]="null"
+      (focusout)="shouldDrawingBeOpened = false"
+      [nzClickHide]="false"
+      [nzVisible]="isDrawingsVisible"
       [nzDropdownMenu]="menu2"
-      nzPlacement="bottomRight"
+      nzPlacement="bottomLeft"
     >
       <button nz-button>
         <span class="icon-tool-drawings"></span>
@@ -15,8 +18,9 @@
     </nz-button-group>
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
-      <ul nz-menu>
-        <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item *ngFor="let drawing of lastUsedDrawings">
+      <ul class="drawing-menu" nz-menu>
+        <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item
+            *ngFor="let drawing of lastUsedDrawings">
           <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>
         </li>
         <li *ngIf="lastUsedDrawings.length" class=" toolbar divider"></li>
@@ -25,7 +29,7 @@
 
           <i
             [ngStyle]="{color: chart?.stayInDrawingMode? '#0c6ce4': null}"
-             class="icon-pen"></i>
+            class="icon-pen"></i>
         </li>
         <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu
             [title]="drawingInstrument.name"
@@ -42,6 +46,7 @@
             </li>
           </ul>
         </li>
+        <li class="divider toolbar"></li>
         <li title="Make Snapshot" nz-menu-item (click)="makeSnapshot()">
           <i class="icon-tool-camera"></i>
         </li>
@@ -52,6 +57,10 @@
         </li>
         <li title="Remove Drawing" nz-menu-item (click)="removeDrawing()">
           <i class="icon-delete"></i>
+        </li>
+        <li nz-menu-item class="empty-element"></li>
+        <li title="Pin" (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
+          <i [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
         </li>
       </ul>
     </nz-dropdown-menu>
@@ -89,7 +98,7 @@
     <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
   </div>
 
-  <div title="Bar Style"  class="tool">
+  <div title="Bar Style" class="tool">
     <nz-select
       #price
       [nzShowArrow]="false"
@@ -113,8 +122,8 @@
   </div>
 
 
-  <div title="Indicators" class="tool btn-group">
-    <nz-button-group>
+  <div title="Indicators" class="tool center">
+    <nz-button-group nzSize='small'>
       <button
         nz-button
         nzPlacement="bottomRight"
@@ -122,12 +131,11 @@
       >
         <span class="icon-tool-indicators"></span>
       </button>
-      <i class="icon-arrow-down"></i>
     </nz-button-group>
   </div>
 
 
-  <div title="Zoom"  class="tool btn-group">
+  <div title="Zoom" class="tool btn-group">
     <nz-button-group
       nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
@@ -155,7 +163,7 @@
   </div>
 
 
-  <div title="Cursor type"  class="tool">
+  <div title="Cursor type" class="tool">
     <nz-select
       #cross
       [nzShowArrow]="false"
@@ -177,7 +185,7 @@
     <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>
   </div>
 
-  <div title="Make snapshot" class="tool photo">
+  <div title="Make snapshot" class="tool center">
     <nz-button-group nzSize='small'>
       <button nz-button nzType="link" (click)="makeSnapshot()">
         <span class="icon-tool-camera"></span>

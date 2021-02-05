@@ -202,8 +202,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     if (state && state.instrument) {
       this.setTabTitle(state.instrument.symbol);
-    } else {
-      this.setTabTitle('Chart');
     }
 
     return new StockChartX.Chart({

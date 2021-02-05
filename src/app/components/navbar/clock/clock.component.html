@@ -1,9 +1,10 @@
 <div
   nz-dropdown
   nzTrigger="click"
-  [nzClickHide]="false"
-  [nzDropdownMenu]="menu"
+  class="clock-container"
 >
+  <!-- [nzClickHide]="false"
+  [nzDropdownMenu]="menu"-->
   <div *ngIf="time; else block">{{ time | date: "HH:mm:ss" }}</div>
   <ng-template #block><span>--:--:--</span></ng-template>
 </div>

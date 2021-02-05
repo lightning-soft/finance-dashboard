@@ -5,7 +5,7 @@
   </ul>
 
   <ul class="tab-content" *ngIf="activeTab === 'general'">
-    <li>
+ <!--   <li>
       <div class="title">THEME</div>
         <nz-select
           class="select"
@@ -21,13 +21,13 @@
           </nz-option>
         </nz-select>
         <i class="icon-arrow-dropdown"></i>
-    </li>
-    <li>
+    </li>-->
+<!--    <li>
       <div class="title">LANGUAGE</div>
       <nz-select nzSize="small" class="select" ngModel="en-GB" nzDisabled>
         <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
       </nz-select>
-    </li>
+    </li>-->
     <li>
       <nz-radio-group [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
         <div >

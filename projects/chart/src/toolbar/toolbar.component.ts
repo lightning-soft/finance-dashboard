@@ -26,6 +26,7 @@ const periodicityMap = new Map([
 export class ToolbarComponent {
 
   showToolbar = true;
+  isDrawingsPinned = false;
   lastUsedDrawings = [];
 
   timeFrameOptions = [
@@ -48,6 +49,13 @@ export class ToolbarComponent {
     'line', 'mountain', 'pointAndFigure'];
 
   zoomOptions = ['dateRange', 'rect'];
+  shouldDrawingBeOpened = false;
+
+  get isDrawingsVisible() {
+    return this.isDrawingsPinned || this.shouldDrawingBeOpened;
+  }
+
+
 
   // allDrawings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
   //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
@@ -162,6 +170,10 @@ export class ToolbarComponent {
 
   set iconCross(value: string) {
     this.chart.crossHairType = value;
+  }
+
+  toggleDrawingVisible() {
+    this.shouldDrawingBeOpened = !this.shouldDrawingBeOpened;
   }
 
   hasOneDrawing(drawingInstrument: any) {
@@ -296,6 +308,7 @@ export class ToolbarComponent {
   //     });
   //   });
   // }
+
 
   public transformToUIName(str: string): string {
     const nameUI = str.replace(/[A-Z]/g, ' $&');

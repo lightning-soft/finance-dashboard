@@ -38,6 +38,10 @@
     i {
       color: #D0D0D2;
       font-size: 10px;
+      transition: all .3s;
+      &:hover{
+        color: white;
+      }
     }
   }
 }

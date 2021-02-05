@@ -10,8 +10,11 @@
     className="custom-form-control select account-select"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
-  <span class="group-container">
-  <i  nz-dropdown [nzDropdownMenu]="menu" [class.active]="isGroupSelected" class="icon-group "></i>
+  <span [class.opened]="menuVisible"
+        class="group-container">
+  <i nz-dropdown (nzVisibleChange)="menuVisible = $event" [nzDropdownMenu]="menu"
+     nzTrigger="click"
+     [class.active]="isGroupSelected" class="icon-group "></i>
     </span>
 </window-header>
 
@@ -25,14 +28,14 @@
   <div class="bottom-data">{{realized}}</div>
   <nz-select class="select">
     <nz-option nzLabel="USD" nzValue="USD"></nz-option>
-    <nz-option  nzLabel="EUR" nzValue="EUR"></nz-option>
+    <nz-option nzLabel="EUR" nzValue="EUR"></nz-option>
 
   </nz-select>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="position-menu">
     <li nz-menu-item>
-      <nz-radio-group  [ngModel]="groupBy"  (ngModelChange)="handleGroupChange($event)" class="d-flex flex-column">
+      <nz-radio-group [ngModel]="groupBy" (ngModelChange)="handleGroupChange($event)" class="d-flex flex-column">
         <label nz-radio [nzValue]="groupByOptions.None">None</label>
         <div class="divider"></div>
         <label nz-radio [nzValue]="groupByOptions.AccountId">Account</label>

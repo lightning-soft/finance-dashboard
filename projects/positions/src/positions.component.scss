@@ -79,7 +79,7 @@
   account-select {
     .select.ant-select {
       width: auto;
-      height: 18px !important;
+        height: 18px !important;
 
       nz-select-top-control {
         height: 18px !important;
@@ -89,13 +89,18 @@
         line-height: 18px !important;
       }
     }
+
+    .ant-select-arrow {
+      font-size: 8px;
+      top: 63%;
+    }
   }
 
   .select.ant-select {
     height: 20px;
     width: 80px;
     font-size: 0.8rem;
-    background: $inputBackground;
+    background: transparent;
     margin-left: 16px;
 
     nz-select-top-control {
@@ -124,6 +129,8 @@
   margin-left: 12px;
   cursor: pointer;
   border-radius: 2px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
 
   i {
 
@@ -135,11 +142,17 @@
       color: $primary;
     }
   }
+
+  &.opened {
+    border: 1px solid $primary;
+  }
 }
 
 ::ng-deep {
   .position-menu {
     background: #24262C;
+    border-radius: 2px;
+    box-shadow: 0px 0px 10px 0px rgba(21, 22, 29, 1);
 
     .ant-dropdown-menu-item:hover, .ant-dropdown-menu-submenu-title:hover {
       background-color: transparent;
