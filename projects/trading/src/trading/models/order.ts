@@ -25,6 +25,7 @@ export interface IOrder extends IBaseItem {
   accountId?: string,
   limitPrice?: number;
   stopPrice?: number;
+  currentSequenceNumber?: string;
 }
 
 export enum OrderSide {

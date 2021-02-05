@@ -1,6 +1,6 @@
-import { IPosition, Side } from 'trading';
 import { Id } from 'base-components';
 import { DataCell, IconCell, NumberCell } from 'data-grid';
+import { IPosition, Side } from 'trading';
 
 export class PositionItem {
   get id(): Id | undefined {

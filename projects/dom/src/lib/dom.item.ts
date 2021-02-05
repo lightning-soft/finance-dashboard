@@ -1,6 +1,6 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide, OrderStatus } from 'trading';
+import { IInfo, IOrder, L2, OrderSide } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -48,14 +48,21 @@ class OrdersCell extends NumberCell {
       return;
 
     ctx.save();
+    const padding = 2;
     const x = context.x;
     const y = context.y;
+    const px = context.x + padding;
+    const py = context.y + padding;
     const width = context.width;
     const height = context.height;
+    const pwidth = context.width - padding * 2;
+    const pheight = context.height - padding * 2;
+    const sequenceNumber = this._order.currentSequenceNumber;
+    const isAsk = this.orderStyle == 'ask';
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
-    if (this.orderStyle == 'ask') {
+    if (isAsk) {
       ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
       ctx.strokeStyle = '#C93B3B';
     } else {
@@ -66,10 +73,20 @@ class OrdersCell extends NumberCell {
     ctx.stroke();
 
     ctx.textBaseline = "middle";
-    ctx.textAlign = "end";
+    ctx.textAlign = isAsk ? "end" : "start";
     ctx.fillStyle = 'white';
 
-    ctx.fillText(this._text, x + width, (y + height / 2), width);
+    ctx.fillText(this._text, px + (isAsk ? width : 0), (py + pheight / 2), pwidth);
+
+    if (sequenceNumber) {
+      ctx.textAlign = isAsk ? "start" : "end";
+      const size = ctx.font.match(/\d*/)[0];
+      const font = ctx.font.replace(/\d*/, size * 0.6);
+      ctx.font = font;
+
+      ctx.fillText(sequenceNumber, px + (isAsk ? 0 : pwidth), (py + pheight / 3), pwidth);
+    }
+
     ctx.restore();
 
     return true;
