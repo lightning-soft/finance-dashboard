@@ -18,8 +18,8 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class TpUnitsComponent implements ControlValueAccessor {
   form = new FormGroup({
     takeProfit: new FormControl(false),
-    unit: new FormControl(),
-    count: new FormControl()
+    ticks: new FormControl(),
+    unit: new FormControl()
   });
 
   registerOnChange(fn: any): void {
@@ -32,8 +32,17 @@ export class TpUnitsComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    if (obj)
+    if (obj) {
       this.form.patchValue(obj);
+      this.onValueChange(obj.takeProfit);
+    }
   }
 
+  onValueChange($event: boolean) {
+    const { ticks } = this.form.controls;
+    if ($event)
+      ticks.enable();
+    else
+      ticks.disable();
+  }
 }

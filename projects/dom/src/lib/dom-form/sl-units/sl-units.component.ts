@@ -26,8 +26,8 @@ export class SlUnitsComponent implements ControlValueAccessor {
   form = new FormGroup({
     stopLoss: new FormControl(false),
     type: new FormControl(),
+    ticks: new FormControl(),
     unit: new FormControl(),
-    count: new FormControl(),
     amount: new FormControl(),
   });
 
@@ -35,15 +35,16 @@ export class SlUnitsComponent implements ControlValueAccessor {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe(res => fn(res));
-
   }
 
   registerOnTouched(fn: any): void {
   }
 
   writeValue(obj: any): void {
-    if (obj)
+    if (obj) {
       this.form.patchValue(obj);
+      this.onValueChange(obj.stopLoss);
+    }
   }
 
   updateType(type: SlType) {
@@ -52,5 +53,13 @@ export class SlUnitsComponent implements ControlValueAccessor {
 
   isCurrentType(type: SlType) {
     return this.form.value.type === type;
+  }
+
+  onValueChange($event: boolean) {
+    const { ticks } = this.form.controls;
+    if ($event)
+      ticks.enable();
+    else
+      ticks.disable();
   }
 }
