@@ -107,7 +107,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   keysStack: KeyboardListener = new KeyboardListener();
 
-  
+
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
@@ -287,7 +287,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _orderBooksRepository: OrderBooksRepository,
     private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
-    private _levelTwoDatafeed: Level2DataFeed,
+    // private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector
   ) {
     super();
@@ -341,7 +341,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
-      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
+      // this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -379,7 +379,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const instrument = this.instrument;
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
     this._levelOneDatafeed.subscribe(instrument);
-    this._levelTwoDatafeed.subscribe(instrument);
+    // this._levelTwoDatafeed.subscribe(instrument);
 
     this._loadOrderBook();
   }
@@ -398,6 +398,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         bids.sort((a, b) => a.price - b.price);
         asks.sort((a, b) => b.price - a.price);
+
+        if (!asks.length && !bids.length)
+          return;
 
         let index = 0;
         let price = this._normalizePrice(asks[asks.length - 1].price);
@@ -827,7 +830,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const tickSize = this._tickSize;
     return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
-  
+
   private _handleQuantitySelect(position: number): void {
     this._domForm.selectQuantityByPosition(position);
   }
@@ -839,7 +842,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this._levelOneDatafeed.unsubscribe(instrument);
-    this._levelTwoDatafeed.unsubscribe(instrument);
+    // this._levelTwoDatafeed.unsubscribe(instrument);
   }
 }
 

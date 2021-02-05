@@ -209,12 +209,21 @@ export class DomItem implements IBaseItem {
     this.price.isTraded = this.volume._value != null;
     this.setPrice(data.price);
 
+    this.ask.updateValue(data.orderCount);
+
+    if (this._ask == null)
+      this._ask = this.ask._value;
+
+    this.askDelta.updateValue(this.ask._value - this._ask);
+
     return {
       volume: this.volume._value,
       totalAsk: this.totalAsk._value,
       currentAsk: this.currentAsk._value,
       ltq: this.ltq._value,
       price: this.price._value,
+      ask: this.ask._value,
+      askDelta: this.askDelta._value,
     }
   }
 
@@ -230,37 +239,46 @@ export class DomItem implements IBaseItem {
     this.price.isTraded = this.volume._value != null;
     this.setPrice(data.price);
 
+    this.bid.updateValue(data.orderCount);
+
+    if (this._bid == null)
+      this._bid = this.bid._value;
+
+    this.bidDelta.updateValue(this.bid._value - this._bid);
+
     return {
       volume: this.volume._value,
       totalBid: this.totalBid._value,
       currentBid: this.currentBid._value,
       ltq: this.ltq._value,
       price: this.price._value,
+      bid: this.bid._value,
+      bidDelta: this.bidDelta._value,
     }
   }
 
   handleL2(l2: L2) {
-    if (l2.side == OrderSide.Buy) {
-      this.ask.updateValue(l2.size);
+    // if (l2.side == OrderSide.Buy) {
+    //   this.ask.updateValue(l2.size);
 
-      if (this._ask == null)
-        this._ask = this.ask._value;
+    //   if (this._ask == null)
+    //     this._ask = this.ask._value;
 
-      this.askDelta.updateValue(this.ask._value - this._ask);
-    } else if (l2.side == OrderSide.Sell) {
-      this.bid.updateValue(l2.size);
+    //   this.askDelta.updateValue(this.ask._value - this._ask);
+    // } else if (l2.side == OrderSide.Sell) {
+    //   this.bid.updateValue(l2.size);
 
-      if (this._bid == null)
-        this._bid = this.bid._value;
+    //   if (this._bid == null)
+    //     this._bid = this.bid._value;
 
-      this.bidDelta.updateValue(this.bid._value - this._bid);
-    }
+    //   this.bidDelta.updateValue(this.bid._value - this._bid);
+    // }
 
     return {
-      ask: this.ask._value,
-      bid: this.bid._value,
-      askDelta: this.askDelta._value,
-      bidDelta: this.bidDelta._value,
+      // ask: this.ask._value,
+      // bid: this.bid._value,
+      // askDelta: this.askDelta._value,
+      // bidDelta: this.bidDelta._value,
     }
   }
 
