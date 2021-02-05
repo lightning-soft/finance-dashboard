@@ -107,7 +107,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   keysStack: KeyboardListener = new KeyboardListener();
 
-  
+
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
@@ -827,7 +827,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const tickSize = this._tickSize;
     return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
-  
+
   private _handleQuantitySelect(position: number): void {
     this._domForm.selectQuantityByPosition(position);
   }
