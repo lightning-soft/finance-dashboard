@@ -294,13 +294,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         'orders',
         ['volume', 'volume', 'histogram'],
         'price',
-        [Columns.Bid, 'delta'],
+        ['bidDelta', 'delta'],
         ['bid', 'bid', 'histogram'],
         'ltq',
         ['currentBid', 'c.bid', 'histogram'],
         ['currentAsk', 'c.ask', 'histogram'],
         ['ask', 'ask', 'histogram'],
-        [Columns.Ask, 'delta'],
+        ['askDelta', 'delta'],
         ['totalBid', 't.bid', 'histogram'],
         ['totalAsk', 't.ask', 'histogram'],
         // 'tradeColumn',
@@ -532,7 +532,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       item.setPrice(price);
     }
 
-    return item ?? this._map.get(price);
+    return item;
   }
 
   private _clear() {
@@ -562,43 +562,34 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let changes = this._lastChangesItem;
     let prevltqItem = changes.ltq;
-    let isChanged = false;
-
 
     if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
       const item = this._getItem(trade.askInfo.price);
       this._handleMaxChange(item.handleAsk(trade.askInfo), item);
-      isChanged = true;
+
+      if (prevltqItem && prevltqItem != changes.ltq) {
+        prevltqItem.clearLTQ();
+        prevltqItem = changes.ltq;
+        for (const item of this.items) {
+          if (changes.ltq != item)
+            item.clearDelta();
+        }
+      }
     }
 
     if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
       const item = this._getItem(trade.bidInfo.price);
       this._handleMaxChange(item.handleBid(trade.bidInfo), item);
-      isChanged = true;
-    }
 
-    // if (trade.price > 3822.25)
-    //   console.log('prevltqItem', prevltqItem == changes.ltq, changes.ltq?.price?._value, changes.ltq?.ltq?._value);
+      if (prevltqItem && prevltqItem != changes.ltq) {
+        prevltqItem.clearLTQ();
 
-    if (prevltqItem && prevltqItem != changes.ltq) {
-      prevltqItem.clearLTQ();
-
-      for (const item of this.items) {
-        if (changes.ltq != item) {
-          item.clearDelta();
-        } else {
-          console.log('prevltqItem', prevltqItem, changes.ltq);
+        for (const item of this.items) {
+          if (changes.ltq != item)
+            item.clearDelta();
         }
       }
     }
-
-    // console.log('prevltqItem != changes.ltq && prevltqItem', count, prevltqItem != changes.ltq, prevltqItem.ltq._value, changes.ltq.ltq._value)
-
-    // if (!this.items.length) {
-    //   if (this._lastPrice)
-    //     this._fillData(this._lastPrice); // todo: load order book
-    //   this.centralize();
-    // }
 
     this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
@@ -620,9 +611,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const prevItem = this._lastChangesItem[key];
       if (prevItem)
         prevItem.dehighlight(key);
-
-      if (key == 'ltq')
-        console.log('item.price.value', item.price.value, this._lastChangesItem[key] === item);
 
       this._lastChangesItem[key] = item;
     }
