@@ -5,7 +5,7 @@
       [class.black-btn]="item.black"
       [class.selected]="isCurrentValue(item)"
       (click)="updateValue(item)"
-      (contextmenu)="item.edit = true;"
+      (contextmenu)="$event.preventDefault(); item.edit = true;"
       *ngIf="!item.edit"
       nz-button>{{item.value}}</button>
     <nz-input-number *ngIf="item.edit"

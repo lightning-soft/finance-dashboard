@@ -5,7 +5,7 @@ button, button:hover, button:active, button:focus-within {
   transition: all 0.3s;
   color: white;
   margin-top: 2px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   height: 24px;
   padding: 0;
   display: flex;
@@ -31,7 +31,6 @@ button:hover, button.selected {
 .inner-buttons {
   display: flex;
   flex-flow: wrap;
-  margin-top: 10px;
 
   & > * {
     width: 47%;

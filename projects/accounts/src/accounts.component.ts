@@ -3,13 +3,17 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
-import { ILayoutNode, LayoutNode } from 'layout';
+import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize, take } from 'rxjs/operators';
-import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
+import { BrokersRepository, IBroker, IConnection } from 'trading';
 
 export interface AccountsComponent extends ILayoutNode {
+}
+
+interface AccountsState {
+  selectedItem?: IConnection;
 }
 
 const maxAccountsPerConnection = 4;
@@ -21,7 +25,7 @@ const maxAccountsPerConnection = 4;
   styleUrls: ['./accounts.component.scss'],
 })
 @LayoutNode()
-export class AccountsComponent implements OnInit {
+export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, OnDestroy {
 
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
@@ -43,11 +47,6 @@ export class AccountsComponent implements OnInit {
   ) {
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
-  }
-
-  ngOnInit() {
-    this.builder.setParams({ groupBy: ['broker'] });
-
     this.form = this.fb.group({
       id: [null],
       name: [null],
@@ -60,6 +59,10 @@ export class AccountsComponent implements OnInit {
       connectOnStartUp: [null],
       broker: [null],
     });
+  }
+
+  ngOnInit() {
+    this.builder.setParams({ groupBy: ['broker'] });
 
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
@@ -72,19 +75,41 @@ export class AccountsComponent implements OnInit {
       );
 
     this._accountsManager.connections
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this))
       .subscribe((items: any) => {
         if (items) {
           this.builder.replaceItems(items);
           this.expandBrokers();
+          this._updateSelectedItem();
         }
       });
 
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
         const item = items.find(item => item.connected);
-        this.selectItem(item);
+        if (!this.selectedItem)
+          this.selectItem(item);
       });
+  }
+
+  saveState(): AccountsState {
+    return { selectedItem: this.selectedItem };
+  }
+
+  loadState(state: AccountsState) {
+    const { selectedItem } = state;
+    console.log(selectedItem);
+    if (selectedItem)
+      this.selectItem(selectedItem);
+  }
+
+  private _updateSelectedItem() {
+    if (this.selectedItem) {
+      const item = this.builder.items.find(data => data.id === this.selectedItem.id);
+      if (item)
+        this.selectedItem = { ...item };
+    }
   }
 
   getBrokerItems(broker) {
@@ -129,8 +154,8 @@ export class AccountsComponent implements OnInit {
     else if ((typeof _server === 'object'))
       server = _server['name'];
 
-    const { username, password, gateway, ...data } = item;
-    const userData = { username, password, server, gateway };
+    const { username, password, autoSavePassword, gateway, ...data } = item;
+    const userData = { username, password, server, gateway, autoSavePassword };
     return { ...data, broker, userData };
   }
 
@@ -247,6 +272,10 @@ export class AccountsComponent implements OnInit {
       this.form.get(control).disable();
   }
 
+  clearAllMenu() {
+    this.brokers.forEach(item => this.clearMenu(item));
+  }
+
   clearMenu(broker: IBroker) {
     this.getBrokerItems(broker).forEach(data => {
       if (Array.isArray(data)) {
@@ -259,5 +288,9 @@ export class AccountsComponent implements OnInit {
         data['rename'] = false;
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.clearAllMenu();
   }
 }

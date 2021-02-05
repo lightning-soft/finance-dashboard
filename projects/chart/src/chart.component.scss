@@ -6,6 +6,9 @@
 @import "themes/template";
 
 $toolbarMargin: 4px;
+app-window-toolbar {
+  margin-left: 4px;
+}
 
 ::ng-deep {
   .modal-content {
@@ -21,6 +24,15 @@ $toolbarMargin: 4px;
 }
 
 :host ::ng-deep {
+  .custom-form-control {
+    background: transparent;
+    width: auto;
+  }
+
+  nz-select-placeholder, nz-select-item {
+    line-height: 18px !important;
+  }
+
   .scxBackground, .scxDateScale, .scxValueScale {
     background: rgb(27, 29, 34) !important;
   }
@@ -30,9 +42,15 @@ $toolbarMargin: 4px;
     color: white !important;
   }
 
+  account-select {
+    line-height: 1;
+    height: 20px;
+  }
+
   .ant-select-arrow {
-    top: 70%;
+    top: 64%;
     font-size: 8px;
+  /*  right: 6px;*/
     line-height: 1;
   }
 

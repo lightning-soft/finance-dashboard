@@ -1,5 +1,19 @@
 @import "../../../../scss/dark.theme";
-@import "../themes/index";
+// @import "../themes/index";
+
+:host {
+  height: 100%;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  background: $light;
+  cursor: pointer;
+  transition: background 0.3s;
+  &:hover {
+    background: $inputBackground;
+  }
+}
+
 
 .clock {
   padding: 12px 16px;

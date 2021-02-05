@@ -59,6 +59,49 @@
 }
 
 ::ng-deep {
+  .drawing-menu {
+    background: $light !important;
+    width: 32px;
+
+    /*   li {
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         width: 32px;
+         padding-left: 0;
+         padding-right: 0;
+       }*/
+    i {
+      font-size: 14px;
+    }
+
+    .ant-dropdown-menu-item {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      width: 32px;
+      padding-left: 6px;
+      padding-right: 0;
+    }
+
+    .ant-dropdown-menu-submenu-title {
+      padding-left: 5px;
+    }
+
+    .empty-element {
+      background-color: $inputBackground !important;
+    }
+
+    .ant-dropdown-menu-submenu-arrow {
+      top: 3px !important;
+      right: 0;
+    }
+
+    .ant-dropdown-menu-submenu-arrow-icon {
+      font-size: 8px !important;
+    }
+  }
+
   app-toolbar {
 
     .toolbar-dropdown nz-option-container {
@@ -122,11 +165,14 @@
     .scx-icon {
       margin-right: 16px !important;
     }
+
+    .ant-select-item {
+      font-size: 0.7rem;
+    }
+
     .toolbar.divider {
-      width: 80%;
-      margin-top: 0;
-      margin-bottom: 0;
-      margin-left: 10%;
+      width: 64%;
+      margin: 0 18%;
       background: #383A40;
     }
 
@@ -241,7 +287,7 @@
     width: 45px;
   }
 
-  .tool.photo {
+  .tool.center {
     display: flex;
     justify-content: center;
     align-items: center;

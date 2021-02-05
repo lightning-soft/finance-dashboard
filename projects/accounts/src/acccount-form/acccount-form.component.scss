@@ -1,7 +1,37 @@
+@import "~src/scss/variables";
+
 .password:-webkit-autofill {
   box-shadow: 0 0 0px 1000px #13141A inset !important;
   border-radius: 0px;
-  color: rgba(255, 255, 255, 0.65) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+:host {
+  ::ng-deep {
+    .ant-form-item-control-input {
+      min-height: 1px;
+    }
+
+    .ant-input, .ant-select, {
+      font-size: 0.75rem;
+      line-height: 2.1;
+    }
+  }
+
+}
+
+.active {
+  color: $primary;
+}
+
+.icon-save {
+  font-size: 11px;
+  margin-left: 7px;
+}
+
+.form-item {
+  margin-bottom: 2px;
 }
 
 nz-input-group {
