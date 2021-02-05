@@ -666,6 +666,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.keysStack.handle(event);
+    console.log('this.keysStack', this.keysStack.hashCode())
     const keyBinding = Object.entries(this._settings.hotkeys)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));

@@ -100,8 +100,8 @@ export class DomFormComponent extends FormComponent<any> {
     { label: 'MKT', value: OrderType.Market },
     // { label: 'OCO', value: 'OCO', black: true },
     { label: 'STP LMT', value: OrderType.StopLimit, black: true },
-    { label: 'MIT', value: OrderType.MIT },
-    { label: 'LIT', value: OrderType.LIT },
+    // { label: 'MIT', value: OrderType.MIT },
+    // { label: 'LIT', value: OrderType.LIT },
 
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
