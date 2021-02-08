@@ -198,63 +198,74 @@ export class DomItem implements IBaseItem {
   }
 
   handleAsk(data: IInfo) {
+    const res: any = {};
+
     if (data && data.timestamp >= (this.currentAsk.time || 0)) {
-      this.currentAsk.updateValue(data.volume);
-      this.totalAsk.updateValue(data.volume);
+      if (this.currentAsk.updateValue(data.volume))
+        res.currentAsk = this.currentAsk._value;
+
+      if (this.totalAsk.updateValue(data.volume))
+        res.totalAsk = this.totalAsk._value;
     }
 
-    this.ltq.updateValue(data.volume);
-    this.ltq.changeStatus('ask');
-    this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
-    this.price.isTraded = this.volume._value != null;
-    this.setPrice(data.price);
-
-    this.ask.updateValue(data.orderCount);
-
-    if (this._ask == null)
-      this._ask = this.ask._value;
-
-    this.askDelta.updateValue(this.ask._value - this._ask);
-
-    return {
-      volume: this.volume._value,
-      totalAsk: this.totalAsk._value,
-      currentAsk: this.currentAsk._value,
-      ltq: this.ltq._value,
-      price: this.price._value,
-      ask: this.ask._value,
-      askDelta: this.askDelta._value,
+    if (this._changeLtq(data.volume, 'ask')) {
+      res.ltq = this.ltq._value;
+      res.volume = this.volume._value;
     }
+
+    if (this.ask.updateValue(data.orderCount)) {
+      res.ask = this.ask._value;
+
+      if (this._ask == null)
+        this._ask = this.ask._value;
+
+      if (this.askDelta.updateValue(this.ask._value - this._ask))
+        res.askDelta = this.askDelta.value;
+    }
+
+    return res;
+  }
+
+  private _changeLtq(volume: number, side: string) {
+    if (this.ltq.updateValue(volume)) {
+      this.ltq.changeStatus(side);
+      this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
+      this.price.isTraded = this.volume._value != null;
+      this.setPrice(this.price._value);
+
+      return true;
+    }
+
+    return false;
   }
 
   handleBid(data: IInfo) {
+    const res: any = {};
+
     if (data && data.timestamp >= (this.currentBid.time || 0)) {
-      this.currentBid.updateValue(data.volume);
-      this.totalBid.updateValue(data.volume);
+      if (this.currentBid.updateValue(data.volume))
+        res.currentBid = this.currentBid._value;
+
+      if (this.totalBid.updateValue(data.volume))
+        res.totalBid = this.totalBid._value;
     }
 
-    this.ltq.updateValue(data.volume);
-    this.ltq.changeStatus('bid');
-    this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
-    this.price.isTraded = this.volume._value != null;
-    this.setPrice(data.price);
-
-    this.bid.updateValue(data.orderCount);
-
-    if (this._bid == null)
-      this._bid = this.bid._value;
-
-    this.bidDelta.updateValue(this.bid._value - this._bid);
-
-    return {
-      volume: this.volume._value,
-      totalBid: this.totalBid._value,
-      currentBid: this.currentBid._value,
-      ltq: this.ltq._value,
-      price: this.price._value,
-      bid: this.bid._value,
-      bidDelta: this.bidDelta._value,
+    if (this._changeLtq(data.volume, 'bid')) {
+      res.ltq = this.ltq._value;
+      res.volume = this.volume._value;
     }
+
+    if (this.bid.updateValue(data.orderCount)) {
+      res.bid = this.bid._value;
+
+      if (this._bid == null)
+        this._bid = this.bid._value;
+
+      if (this.bidDelta.updateValue(this.bid._value - this._bid))
+        res.bidDelta = this.bidDelta._value;
+    }
+
+    return res;
   }
 
   handleL2(l2: L2) {
