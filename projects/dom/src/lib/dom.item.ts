@@ -213,7 +213,7 @@ export class DomItem implements IBaseItem {
       res.volume = this.volume._value;
     }
 
-    if (this.ask.updateValue(data.orderCount)) {
+    if (this.ask.updateValue(data.volume)) {
       res.ask = this.ask._value;
 
       if (this._ask == null)
@@ -255,7 +255,7 @@ export class DomItem implements IBaseItem {
       res.volume = this.volume._value;
     }
 
-    if (this.bid.updateValue(data.orderCount)) {
+    if (this.bid.updateValue(data.volume)) {
       res.bid = this.bid._value;
 
       if (this._bid == null)
