@@ -16,16 +16,6 @@ body.#{$themeName} {
   .toolbar-dropdown nz-option-container {
     background: $tabBackground !important;
     width: 140px;
-
-    .ant-select-item-option-content {
-      color: $textColor !important;
-
-    }
-
-    .ant-select-item-option-selected {
-      color: inherit;
-      background: inherit;
-    }
   }
 
   .ant-modal-close {
@@ -46,11 +36,6 @@ body.#{$themeName} {
     .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
       background-color: $textColorSecondary;
     }
-  }
-
-  .toolbar-submenu {
-    background-color: $tabBackground !important;
-    color: $textColor !important;
   }
 
     .ant-notification-hook-holder, .ant-notification-notice {

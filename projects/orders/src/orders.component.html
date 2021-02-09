@@ -1,17 +1,19 @@
 <window-header className="widget" [window]="this">
 
   <account-select
-    size="small"
-    className="custom-form-control type-select account-select"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
   <div (click)="openOrderForm()" class="add-container">
     <i class="icon-add"></i>
   </div>
-  <nz-select (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" class="custom-form-control type-select">
+  <nz-select class="ml-1"
+             [nzOptionHeightPx]="22"
+             (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" >
     <nz-option *ngFor="let item of orderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
   </nz-select>
-  <nz-select (ngModelChange)="updateTitle()" [(ngModel)]="orderStatus" nzDropdownClassName="order-dropdown-list" class="custom-form-control status-select">
+  <nz-select
+    [nzOptionHeightPx]="22"
+    class="ml-1" (ngModelChange)="updateTitle()" [(ngModel)]="orderStatus" nzDropdownClassName="order-dropdown-list">
     <nz-option *ngFor="let item of orderStatuses" [nzLabel]="item" [nzValue]="item"></nz-option>
 
   </nz-select>

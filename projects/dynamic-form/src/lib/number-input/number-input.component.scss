@@ -2,10 +2,14 @@
 input {
   width: 70px;
   background:  #24262C;
+  height: 20px;
   border: none !important;
   border-radius: 2px;
+  font-size: .7rem;
 }
 .number-label{
   margin-left: 10px;
+  font-size: .7rem;
+  line-height: 1.1rem;
   color: #D0D0D2;;
 }

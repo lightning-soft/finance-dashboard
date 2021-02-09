@@ -5,49 +5,53 @@
   </ul>
 
   <ul class="tab-content" *ngIf="activeTab === 'general'">
- <!--   <li>
-      <div class="title">THEME</div>
-        <nz-select
-          class="select"
-          nzDropdownClassName="setting-dropdown"
-          nzSize="small"
-          [(ngModel)]="currentTheme"
-        >
-          <nz-option
-            *ngFor="let theme of themes"
-            [nzValue]="theme"
-            [nzLabel]="theme"
-          >
-          </nz-option>
-        </nz-select>
-        <i class="icon-arrow-dropdown"></i>
-    </li>-->
-<!--    <li>
-      <div class="title">LANGUAGE</div>
-      <nz-select nzSize="small" class="select" ngModel="en-GB" nzDisabled>
-        <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
-      </nz-select>
-    </li>-->
+    <!--   <li>
+         <div class="title">THEME</div>
+           <nz-select
+             class="select"
+             nzDropdownClassName="setting-dropdown"
+             nzSize="small"
+             [(ngModel)]="currentTheme"
+           >
+             <nz-option
+               *ngFor="let theme of themes"
+               [nzValue]="theme"
+               [nzLabel]="theme"
+             >
+             </nz-option>
+           </nz-select>
+           <i class="icon-arrow-dropdown"></i>
+       </li>-->
+    <!--    <li>
+          <div class="title">LANGUAGE</div>
+          <nz-select nzSize="small" class="select" ngModel="en-GB" nzDisabled>
+            <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
+          </nz-select>
+        </li>-->
     <li>
-      <nz-radio-group [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
-        <div >
+      <nz-radio-group [nzSize]="'large'" [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
+        <div>
           <label nz-radio [nzValue]="saveDelayValues.fiveMin">Auto save settings every 5 minutes</label>
         </div>
         <div>
           <label nz-radio [nzValue]="saveDelayValues.autoSave">Auto save</label>
+
         </div>
         <div>
           <label nz-radio [nzValue]="saveDelayValues.manualSave">Manual save</label>
+
         </div>
       </nz-radio-group>
     </li>
   </ul>
   <table class="tab-content table" *ngIf="activeTab === 'hotkeys'">
     <tbody>
-      <tr *ngFor="let entry of settings.hotkeys;let i = index ">
-        <td class="hotkey-name">{{entry[0].UIString}}</td>
-        <td class="hotkey-reader"><hotkey-input (valueChange)="updateHotkey($event, i)" [value]="entry[1]"></hotkey-input></td>
-      </tr>
+    <tr *ngFor="let entry of settings.hotkeys;let i = index ">
+      <td class="hotkey-name">{{entry[0].UIString}}</td>
+      <td class="hotkey-reader">
+        <hotkey-input (valueChange)="updateHotkey($event, i)" [value]="entry[1]"></hotkey-input>
+      </td>
+    </tr>
     </tbody>
   </table>
 </div>

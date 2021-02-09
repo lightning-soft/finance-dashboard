@@ -1,13 +1,21 @@
 import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { FormComponent } from 'base-components';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType } from 'trading';
-import { QuantityInputComponent } from './quantity-input/quantity-input.component';
+import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity } from 'trading';
+import { QuantityInputComponent } from 'base-order-form';
+import { BaseOrderForm } from 'base-order-form';
+import { skip } from 'rxjs/operators';
+import { PositionsRepository } from "../../../../trading";
 
+const historyParams = {
+  Periodicity: Periodicity.Hourly,
+  BarSize: 1,
+  Skip: 0,
+  BarCount: 10
+};
 
 export enum FormActions {
   ClosePositions,
@@ -17,6 +25,7 @@ export enum FormActions {
   CloseSellOrders,
   SelectQuantity,
 }
+
 export interface DomFormSettings {
   showInstrumentChange: boolean;
   closePositionButton: boolean;
@@ -34,7 +43,7 @@ export interface DomFormSettings {
   styleUrls: ['./dom-form.component.scss']
 })
 @UntilDestroy()
-export class DomFormComponent extends FormComponent<any> {
+export class DomFormComponent extends BaseOrderForm {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
@@ -42,11 +51,12 @@ export class DomFormComponent extends FormComponent<any> {
 
   @ViewChild('quantity')
   public quantitySelect: QuantityInputComponent;
-
   @Input() trade;
   @Input() showUnits = true;
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
+  @Input() accountId;
+
 
   _settings: DomFormSettings = {
     showInstrumentChange: true,
@@ -72,17 +82,15 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (this.instrument$.getValue()?.id !== value.id)
+    if (this.instrument$.getValue()?.id !== value.id) {
       this.instrument$.next(value);
+    }
   }
 
   get instrument() {
     return this.instrument$.getValue();
   }
 
-  get isIce() {
-    return this.formValue.isIce;
-  }
 
   get isIceEnabled() {
     return this.setting.showIcebergButton;
@@ -123,17 +131,15 @@ export class DomFormComponent extends FormComponent<any> {
   editIceAmount = false;
 
   get amount() {
-    return this.formValue.amount;
+    return this.formValue['amount'];
   }
 
-  get iceAmount() {
-    return this.formValue.iceAmount;
-  }
 
   constructor(
     protected _injector: Injector,
     private _historyRepository: HistoryRepository,
-  ) {
+    protected positionsRepository: PositionsRepository,
+) {
     super();
     this.autoLoadData = false;
   }
@@ -141,26 +147,37 @@ export class DomFormComponent extends FormComponent<any> {
   protected _handleConnection(connection: IConnection) {
     super._handleConnection(connection);
     this._historyRepository = this._historyRepository.forConnection(connection);
+    this.positionsRepository = this.positionsRepository.forConnection(connection);
+    this.loadPositions();
 
-    if (connection != null)
+    if (connection != null) {
       this._loadHistory();
+      this.instrument$
+        .pipe(
+          skip(1),
+          untilDestroyed(this)
+        )
+        .subscribe((res) => {
+          this._loadHistory();
+        });
+    }
   }
 
   private _loadHistory() {
-    // const instrument = this.instrument;
-    // return this._historyRepository.getItems({
-    //   id: instrument.id,
-    //   Exchange: instrument.exchange,
-    //   ...historyParams,
-    // }).subscribe(
-    //   res => {
-    //     const data = res.data;
-    //     const length = data.length;
-    //     this.dailyInfo = data[length - 1];
-    //     this.prevItem = data[length - 2];
-    //   },
-    //   err => this._notifier.showError(err)
-    // );
+    const instrument = this.instrument;
+    return this._historyRepository.getItems({
+      id: instrument.id,
+      Exchange: instrument.exchange,
+      ...historyParams,
+    }).subscribe(
+      res => {
+        const data = res.data;
+        const length = data.length;
+        this.dailyInfo = data[length - 1];
+        this.prevItem = data[length - 2];
+      },
+      err => this._notifier.showError(err)
+    );
   }
 
   createForm() {
@@ -187,25 +204,9 @@ export class DomFormComponent extends FormComponent<any> {
     });
   }
 
-  getDto() {
-    const value = { ...this.form.value };
-    if (value.stopLoss?.stopLoss) {
-      value.stopLoss.quantity = value.quantity;
-    } else {
-      delete value.stopLoss;
-    }
-
-    if (value.takeProfit?.takeProfit) {
-      value.takeProfit.quantity = value.quantity;
-    } else {
-      delete value.takeProfit;
-    }
-    return value;
-  }
 
   increaseQuantity(value: number) {
-    const quantity = (+this.form.value.quantity) + value;
-    this.form.patchValue({ quantity });
+   this.quantitySelect.currentItem.value += value;
   }
 
   getPl() {
@@ -215,12 +216,6 @@ export class DomFormComponent extends FormComponent<any> {
         .toFixed(precision);
   }
 
-  toggleIce() {
-    const { isIce } = this.formValue;
-    this.form.patchValue({
-      isIce: !isIce
-    });
-  }
 
   emit(action: FormActions) {
     this.actions.emit(action);

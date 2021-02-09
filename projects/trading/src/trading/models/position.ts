@@ -14,6 +14,8 @@ export interface IPosition extends IBaseItem {
   size: number;
   realized: number;
   unrealized: number;
+  buyVolume: number;
+  sellVolume: number;
   total: number;
   side: Side;
   status: PositionStatus;

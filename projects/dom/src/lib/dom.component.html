@@ -1,6 +1,6 @@
 <window-header [window]="this">
-  <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
-  <account-select size="small" className="custom-form-control" (accountChange)="handleAccountChange($event)"></account-select>
+  <instrument-select class="ml-1" [(instrument)]="instrument"></instrument-select>
+  <account-select class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
 <div class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
@@ -48,7 +48,9 @@
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-    <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
+    <dom-form [instrument]="instrument"
+              [accountId]="accountId"
+              [trade]="trade" #domForm [class.d-none]="!isFormOpen"
       [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
       [domSettings]="domFormSettings"

@@ -9,7 +9,7 @@
 
 
   ::ng-deep data-grid {
-    height: calc(100% - 54px);
+    height: calc(100% - 45px);
   }
 }
 
@@ -75,50 +75,6 @@
   }
 }
 
-:host ::ng-deep {
-  account-select {
-    .select.ant-select {
-      width: auto;
-        height: 18px !important;
-
-      nz-select-top-control {
-        height: 18px !important;
-      }
-
-      nz-select-item {
-        line-height: 18px !important;
-      }
-    }
-
-    .ant-select-arrow {
-      font-size: 8px;
-      top: 63%;
-    }
-  }
-
-  .select.ant-select {
-    height: 20px;
-    width: 80px;
-    font-size: 0.8rem;
-    background: transparent;
-    margin-left: 16px;
-
-    nz-select-top-control {
-      height: 20px !important;
-      border: none !important;
-      overflow: hidden;
-    }
-
-    input {
-      height: 20px !important;
-    }
-
-    nz-select-item {
-      line-height: 20px !important;
-    }
-  }
-}
-
 .group-container {
   background-color: $darkBackground;
   width: 24px;
@@ -151,6 +107,8 @@
 ::ng-deep {
   .position-menu {
     background: #24262C;
+    padding-left: 10px;
+    padding-right: 10px;
     border-radius: 2px;
     box-shadow: 0px 0px 10px 0px rgba(21, 22, 29, 1);
 
@@ -163,7 +121,7 @@
     }
 
     .ant-radio-wrapper {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 400;
       margin-top: 6px;
       line-height: 1.2rem;
@@ -171,7 +129,13 @@
     }
   }
 }
-
+.select.ant-select {
+  height: 20px;
+  width: 80px;
+  font-size: 0.8rem;
+  background: transparent;
+  margin-left: 8px;
+}
 .ant-select {
   width: 140px;
 }

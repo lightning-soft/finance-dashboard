@@ -40,7 +40,9 @@ export class DailyInfoComponent {
   }
   updateIncome() {
     const income = this.dailyInfo.close - this.prevItem.close;
-    this.incomePercentage = (income / this.dailyInfo.close).toFixed(this.instrument?.precision ?? 4);
+    this.incomePercentage = ((income / this.dailyInfo.close) * 100)
+      .toFixed(this.instrument?.precision ?? 4);
+
     this.income = income.toFixed(this.instrument?.precision ?? 4);
     // console.log('income', (this.income / this.dailyInfo.close).toFixed(4));
   }

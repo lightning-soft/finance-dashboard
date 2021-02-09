@@ -1,5 +1,217 @@
+@import "~src/scss/variables";
+
 .order-button {
   height: 48px;
   border-radius: 0;
   line-height: 1.2;
 }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.gap-4 {
+  grid-gap: 4px;
+}
+
+.close-position, .close-position:hover, .close-position:focus {
+  background: $light2;
+  color: $text-80;
+  border-radius: 2px;
+  border: none;
+  font-size: 0.8rem;
+  height: 24px;
+  width: 100%;
+}
+
+.position-button,  {
+  background: $primary;
+  border-radius: 2px;
+  width: 100%;
+  font-size: 0.8rem;
+  color: white;
+  cursor: default;
+  height: 24px;
+  outline: none;
+}
+
+.pos-title {
+  margin-right: 15px;
+  font-size: 0.75rem;
+}
+
+.main-grid {
+  column-gap: 8px;
+  row-gap: 10px;
+  grid-auto-rows: min-content;
+}
+
+.buy-button, .sell-button {
+  width: 100%;
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ice-active {
+  border: 1px solid $primary !important;
+}
+
+.lmt-title {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.limit-number-input {
+  width: 100%;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.pos-negative {
+  background: $red;
+}
+
+:host {
+  .order-number-input {
+    font-size: 0.8rem;
+    height: 20px;
+    width: 100%;
+
+    ::ng-deep {
+      input {
+        height: 20px;
+      }
+    }
+  }
+
+  ::ng-deep {
+    cdk-virtual-scroll-viewport, .cdk-virtual-scroll-content-wrapper {
+      height: 100%;
+    }
+  }
+}
+
+.grey-button, .dark-button {
+  height: 20px;
+  background: $light3;
+  border: 1px solid transparent;
+  padding: 0;
+  box-shadow: none;
+  font-size: 0.8rem;
+  color: white;
+  transition: all 0.3s;
+
+  &:hover, &:focus {
+    color: white;
+    box-shadow: none;
+  }
+}
+
+.dark-button {
+  background: $light;
+}
+
+.buy-button {
+  background: $primary;
+}
+
+.sell-button {
+  background: $red;
+}
+
+.buy-info, .sell-info {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  padding: 3px 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.buy-info {
+  color: $primary;
+  background: rgba($primary, 0.1);
+}
+
+.sell-info {
+  color: $red;
+  background: rgba($red, 0.1);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+:host {
+  .count {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(36, 38, 44, 1);
+
+    .icon-arrow-up, .icon-arrow-down {
+      font-size: 7px;
+    }
+
+    .number {
+      border: none;
+      height: 100%;
+      box-shadow: none;
+      font-size: 1.3rem;
+      color: white;
+
+      ::ng-deep {
+
+        .ant-input-number-handler-wrap {
+          display: none;
+        }
+
+        .ant-input-number-input-wrap {
+          height: 100%;
+
+          input {
+            height: 100%;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+
+  ::ng-deep {
+    .ant-input-number-disabled {
+      background: transparent;
+    }
+
+    quantity-input {
+      .inner-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 4px;
+
+        & > * {
+          width: 100% !important;
+          margin: 0 !important;
+        }
+      }
+    }
+  }
+}
+
+:host {
+  .order-form-wrapper {
+    background: $inputBackground;
+  }
+}
+

@@ -1,5 +1,5 @@
 @import "../ticks";
-@import "../general";
+@import "~projects/dom/src/lib/dom-form/general";
 
 .tp-tick, .tp-tick:focus, .tp-tick:hover, .tp-tick:focus-within {
   background: rgba(72, 149, 245, 0.2);

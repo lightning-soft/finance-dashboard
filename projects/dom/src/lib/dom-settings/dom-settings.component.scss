@@ -22,7 +22,7 @@ cdk-virtual-scroll-viewport {
 
     .ant-form-item-label {
       text-align: start;
-      margin-bottom: 5px;
+      margin-bottom: 0px;
       border-bottom: 1px solid #383A40;
       margin-right: 12px;
 
@@ -117,7 +117,7 @@ cdk-virtual-scroll-viewport {
   .two-rows {
     > * {
       width: 48%;
-      margin-top: 7px;
+      margin-top: 6px;
 
       &:nth-child(even) {
         margin-left: 4px;
@@ -156,7 +156,7 @@ cdk-virtual-scroll-viewport {
     list-style: none;
     padding-left: 8px;
     padding-top: 4px;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1.25;
     font-weight: 400;
     padding-bottom: 4px;

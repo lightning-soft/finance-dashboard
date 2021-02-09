@@ -2,6 +2,8 @@
 $primary: #4895F5;
 $secondary: #1B1D22;
 $light: #24262C;
+$light2: #51535A;
+$light3: rgba(56, 58, 64, 1);
 $dark: #13141A;
 $darkBackground: #101114;
 $success: #009950;
@@ -17,7 +19,7 @@ $lighter: #383A40;
 $theme-colors: (
   "lighter": $lighter,
 );
-
+$red: rgba(201, 59, 59, 1);
 // Other
 $navbarHeight: 36px;
 
