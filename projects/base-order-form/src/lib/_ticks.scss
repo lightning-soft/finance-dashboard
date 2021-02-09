@@ -1,10 +1,12 @@
 
 .checkbox-right {
-  float: right;
+  margin-left: auto;
 }
 
 ::ng-deep {
   .tick-overlay {
+    width: 160px;
+
     .ant-popover-inner {
       background: #24262C;
     }
@@ -12,11 +14,18 @@
 }
 
 .checkbox-title {
-  font-size: 1rem;
+  font-size: 0.7rem;
 }
 
 .number-input {
   margin-top: 8px;
+  width: 100%;
+  height: 20px;
+  font-size: 0.8rem;
+
+  ::ng-deep input{
+    height: 20px;
+  }
 }
 
 .tick-btn {

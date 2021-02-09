@@ -16,10 +16,6 @@ $cell-background: #1b1d22;
       }
     }
 
-    nz-select-item {
-      line-height: 18px !important;
-    }
-
     window-header {
       daily-info {
         margin-left: 7px;
@@ -42,20 +38,6 @@ $cell-background: #1b1d22;
     window-header {
       align-items: flex-start !important;
     }
-
-    .ant-select {
-      color: #ffffff !important;
-      font-size: 0.9rem;
-    }
-
-    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      height: 20px;
-    }
-
-    .ant-select-single .ant-select-selector .ant-select-selection-item {
-      line-height: 18px;
-    }
-
     .window-content {
       margin-left: 0px !important;
       align-items: flex-start !important;

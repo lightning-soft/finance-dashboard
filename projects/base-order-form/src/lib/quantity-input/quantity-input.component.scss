@@ -1,5 +1,5 @@
-@import "../general";
-
+@import "~projects/dom/src/lib/dom-form/general";
+@import "~src/scss/variables";
 
 :host-context(.full-screen-window) {
 
@@ -18,13 +18,23 @@
 nz-input-number {
   margin-top: 2px;
 }
+
 :host .ant-input-number {
   width: 43px;
-  font-size: 0.8rem;
+  font-size: 0.65rem;
 
   ::ng-deep {
+
+
     .ant-input-number-input {
       padding-left: 5px;
     }
+  }
+}
+
+:host ::ng-deep {
+  &.black-input {
+    background: $inputBackground;
+    border: none;
   }
 }

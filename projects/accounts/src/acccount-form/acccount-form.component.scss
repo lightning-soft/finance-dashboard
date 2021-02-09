@@ -9,16 +9,16 @@
 
 :host {
   ::ng-deep {
-    .ant-form-item-control-input {
-      min-height: 1px;
-    }
-
-    .ant-input, .ant-select, {
+    .ant-input, {
       font-size: 0.75rem;
       line-height: 2.1;
     }
   }
 
+}
+
+nz-select {
+  width: 100%;
 }
 
 .active {

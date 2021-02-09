@@ -18,7 +18,7 @@ $selectHeight: 22px;
 
       .ice-amount {
         margin-left: 0;
-        grid-row-start: 2;
+        grid-row-start: 1;
         grid-column-start: 5;
       }
 
@@ -86,11 +86,11 @@ $selectHeight: 22px;
         grid-column-end: span 4;
 
         nz-input-number {
-          width: 47px;
+          width: 53px;
         }
 
         .amount-input {
-          margin-left: 8px;
+          margin-left: 19px;
         }
 
         > * {
@@ -284,7 +284,11 @@ cdk-virtual-scroll-viewport {
       display: none;
       min-width: 80px;
       border-radius: 2px;
-      background: $secondary;
+
+      nz-select-top-control {
+        background: $secondary !important;
+
+      }
     }
 
     .ant-select-single .ant-select-selector .ant-select-selection-item {
@@ -321,14 +325,12 @@ button.top-position-btn {
   color: white;
   height: 24px;
   line-height: 1;
+  cursor: default;
   font-size: 0.9rem;
   border: 1px solid transparent;
 }
-
-::ng-deep {
-  .tick-overlay {
-    width: 160px;
-  }
+.pos-negative{
+  background: $red !important;
 }
 
 

@@ -80,6 +80,7 @@
       #frame
       [nzShowArrow]="false"
       [compareWith]="compareTimeFrame"
+      [nzOptionHeightPx]="22"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="timeFrame"
       [nzCustomTemplate]="timeFrameTemplate"
@@ -102,6 +103,7 @@
     <nz-select
       #price
       [nzShowArrow]="false"
+      [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="priceStyle"
@@ -167,6 +169,7 @@
     <nz-select
       #cross
       [nzShowArrow]="false"
+      [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
       [(ngModel)]="iconCross"
