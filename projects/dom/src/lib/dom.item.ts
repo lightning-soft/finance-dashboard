@@ -11,6 +11,12 @@ class OrdersCell extends NumberCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid';
+  private _isOrderColumn = false;
+
+  constructor(config) {
+    super(config);
+    this._isOrderColumn = config.isOrderColumn == true;
+  }
 
   addOrder(order: IOrder) {
     const index = this.orders.findIndex(i => i.id === order.id);
@@ -49,16 +55,17 @@ class OrdersCell extends NumberCell {
 
     ctx.save();
     const padding = 2;
-    const x = context.x;
-    const y = context.y;
+    const x = context.x + 1;
+    const y = context.y + 1;
     const px = context.x + padding;
     const py = context.y + padding;
-    const width = context.width;
-    const height = context.height;
+    const width = context.width - 2;
+    const height = context.height - 2;
     const pwidth = context.width - padding * 2;
     const pheight = context.height - padding * 2;
     const sequenceNumber = this._order.currentSequenceNumber;
     const isAsk = this.orderStyle == 'ask';
+    const isOrderColumn = this._isOrderColumn;
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
@@ -73,18 +80,18 @@ class OrdersCell extends NumberCell {
     ctx.stroke();
 
     ctx.textBaseline = "middle";
-    ctx.textAlign = isAsk ? "end" : "start";
+    ctx.textAlign = isOrderColumn ? "end" : isAsk ? "start" : "end";
     ctx.fillStyle = 'white';
 
-    ctx.fillText(this._text, px + (isAsk ? width : 0), (py + pheight / 2), pwidth);
+    ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
     if (sequenceNumber) {
-      ctx.textAlign = isAsk ? "start" : "end";
+      ctx.textAlign = isOrderColumn ? "start" : isAsk ? "end" : "start";
       const size = ctx.font.match(/\d*/)[0];
       const font = ctx.font.replace(/\d*/, size * 0.6);
       ctx.font = font;
 
-      ctx.fillText(sequenceNumber, px + (isAsk ? 0 : pwidth), (py + pheight / 3), pwidth);
+      ctx.fillText(sequenceNumber, px + (isOrderColumn ? 0 : isAsk ? pwidth: 0), (py + pheight / 3), pwidth);
     }
 
     ctx.restore();
@@ -143,7 +150,7 @@ export class DomItem implements IBaseItem {
 
   _id: Cell = new NumberCell();
   price: PriceCell;
-  orders: OrdersCell = new OrdersCell();
+  orders: OrdersCell;
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -179,6 +186,7 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
+    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
     this._id.updateValue(index);
   }
 

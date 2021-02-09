@@ -14,9 +14,8 @@ import {
   ITrade,
   L2,
   Level1DataFeed,
-  Level2DataFeed,
-  OrderBooksRepository,
-  OrderSide,
+
+  OrderBooksRepository, OrdersFeed, OrderSide,
   OrdersRepository, PositionsRepository
 } from 'trading';
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
@@ -114,14 +113,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
     buyMarket: () => this._createOrder(OrderSide.Buy),
     sellMarket: () => this._createOrder(OrderSide.Sell),
-    hitBid: () => {
-    },
-    joinBid: () => {
-    },
-    liftOffer: () => {
-    },
-    oco: () => {
-    },
+    hitBid: () => { },
+    joinBid: () => { },
+    liftOffer: () => { },
+    oco: () => { },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
     quantity1: () => this._handleQuantitySelect(QuantityPositions.FIRST),
@@ -130,14 +125,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     quantity4: () => this._handleQuantitySelect(QuantityPositions.FORTH),
     quantity5: () => this._handleQuantitySelect(QuantityPositions.FIFTH),
     quantity6: () => this._handleQuantitySelect(QuantityPositions.SIXTH),
-    quantityToPos: () => {
-    },
-    stopsToPrice: () => {
-    },
-    clearAlerts: () => {
-    },
-    clearAlertsAllWindow: () => {
-    },
+    quantityToPos: () => { },
+    stopsToPrice: () => { },
+    clearAlerts: () => { },
+    clearAlertsAllWindow: () => { },
     clearAllTotals: () => {
       for (let item of this.items) {
         item.totalBid.clear();
@@ -285,6 +276,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
     private _orderBooksRepository: OrderBooksRepository,
+    private _ordersFeed: OrdersFeed,
     private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
     // private _levelTwoDatafeed: Level2DataFeed,
@@ -341,6 +333,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
+      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       // this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
     this.addLinkObserver({

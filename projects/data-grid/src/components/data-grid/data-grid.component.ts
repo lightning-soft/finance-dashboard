@@ -148,6 +148,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         scrollBarBackgroundColor: cellBackgroundColor,
         scrollBarBoxColor: '#383A40',
         rowHeight: this.rowHeight,
+        overflowY: 'hidden',
+        overflowX: 'hidden',
         // cellHeight:
       },
       data: [],
