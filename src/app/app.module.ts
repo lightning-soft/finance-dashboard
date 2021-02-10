@@ -71,13 +71,13 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get('code');
 
-  if (code)
-    window.history.replaceState({}, document.title, '/');
-  else {
-    location.replace(generateLoginLink(config.identity));
-  }
+  // if (code)
+  //   window.history.replaceState({}, document.title, '/');
+  // else {
+  //   location.replace(generateLoginLink(config.identity));
+  // }
 
-  return authService.initialize(code);
+  // return authService.initialize(code);
 }
 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {

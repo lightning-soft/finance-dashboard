@@ -1,6 +1,7 @@
 import {
   AfterViewInit, ChangeDetectorRef, Component,
   ElementRef,
+  HostBinding,
   Input,
   OnDestroy,
   OnInit,
@@ -70,6 +71,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   @Input() detach: boolean = false;
+
+  @HostBinding('attr.title')
+  title: string;
 
   // private _subscribedEvents = [];
 
@@ -254,7 +258,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _currentCellChanged = (e) => {
-    // console.log('currentCellChanged', e);
+    console.log('currentCellChanged', e);
+    this.title = e?.item?.toString() ?? '';
   }
 
   private _afterDraw = (e) => {
