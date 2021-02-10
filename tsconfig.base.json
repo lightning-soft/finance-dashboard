@@ -145,6 +145,9 @@
       "hotkey-input": [
         "projects/hotkey-input/index"
       ],
+      "base-order-form": [
+        "projects/base-order-form/index",
+      ]
     }
   }
 }

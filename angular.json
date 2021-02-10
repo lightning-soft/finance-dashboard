@@ -37,7 +37,6 @@
             ],
             "styles": [
               "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
-              "node_modules/ng-zorro-antd/ng-zorro-antd.dark.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -1738,6 +1737,46 @@
             "tsConfig": [
               "projects/hotkey-input/tsconfig.lib.json",
               "projects/hotkey-input/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "base-order-form": {
+      "projectType": "library",
+      "root": "projects/base-order-form",
+      "sourceRoot": "projects/base-order-form/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/base-order-form/tsconfig.lib.json",
+            "project": "projects/base-order-form/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/base-order-form/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/base-order-form/src/test.ts",
+            "tsConfig": "projects/base-order-form/tsconfig.spec.json",
+            "karmaConfig": "projects/base-order-form/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/base-order-form/tsconfig.lib.json",
+              "projects/base-order-form/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

@@ -39,6 +39,8 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
               accountId: item.account.id,
               price,
               size,
+              sellVolume: item.sellVolume,
+              buyVolume: item.buyVolume,
               realized: item.realisedPL,
               unrealized: 0,
               total: size * price,

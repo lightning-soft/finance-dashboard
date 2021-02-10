@@ -6,9 +6,11 @@
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <input [class.d-none]="!setting.showPLInfo" class="pl-input" disabled [value]="getPl()" nz-input type="number">
-    <button title="Positions" class="top-position-btn" (click)="increaseQuantity(5)" nz-button>+5</button>
+    <button title="Positions" class="top-position-btn"
+            [class.pos-negative]="isPositionsNegative"
+            >{{positionSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
-    <nz-select formControlName="type" class="type-select">
+    <nz-select [nzOptionHeightPx]="20" formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeButtons"
                  [nzLabel]="item.label" [nzValue]="item.value"
       ></nz-option>
@@ -76,7 +78,7 @@
 
 
     <span class="tif">TIF</span>
-    <nz-select formControlName="duration" class="type-select tif-select">
+    <nz-select [nzOptionHeightPx]="20" formControlName="duration" class="type-select tif-select">
       <nz-option *ngFor="let item of tifButtons"
                  [nzLabel]="item.label" [nzValue]="item.value"
       ></nz-option>

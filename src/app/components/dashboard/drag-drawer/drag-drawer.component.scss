@@ -16,6 +16,14 @@ button {
 
 }
 
+::ng-deep {
+  .side-navigation {
+    &__item {
+      display: list-item;
+    }
+  }
+}
+
 .add-container {
   &:hover {
     .icon-add {

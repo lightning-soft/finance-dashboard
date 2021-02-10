@@ -902,12 +902,12 @@ export const orderColumnFields: IFieldConfig[] = [
         ],
       }),
       new FieldConfig({
-
         fieldGroup: [
           {
             ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
             { key: 'includePnl', label: 'Include Closed PnL' }]),
-            fieldGroupClassName: ''
+            fieldGroupClassName: '',
+            className: 'pl-1',
           },
           getTextAlign(),
         ]
@@ -926,7 +926,7 @@ export const orderColumnFields: IFieldConfig[] = [
               { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
               { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
             ]),
-            fieldGroupClassName: '', className: 'w-100'
+            fieldGroupClassName: '', className: 'w-100 m-0 pl-1'
           },
 
         ]

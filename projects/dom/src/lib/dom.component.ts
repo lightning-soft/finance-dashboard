@@ -201,6 +201,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _accountId: string;
 
+  get accountId(){
+    return this._accountId;
+  }
+
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
@@ -254,9 +258,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private get _lastPrice(): number {
     return this._lastChangesItem.ltq?.price?._value;
   }
+  private _lastTrade: ITrade;
 
   get trade() {
-    return this._lastPrice;
+    return this._lastTrade;
   }
 
   private _settings: DomSettings = new DomSettings();
@@ -594,7 +599,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
     }
-
+    this._lastTrade = trade;
     this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
   }
@@ -736,7 +741,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       },
       closeBtn: true,
       single: true,
-      width: 680,
+      width: 618,
       resizable: false,
       removeIfExists: true,
       hidden,
@@ -806,7 +811,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }).subscribe(
       () => console.log('_closePositions'),
       (error) => this.notifier.showError(error),
-    )
+    );
   }
 
   private _closeOrders(action: FormActions) {

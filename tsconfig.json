@@ -7,7 +7,7 @@
       "workspaces": [
         "dist/workspaces/workspaces",
         "dist/workspaces"
-      ]
+      ],
     }
   },
   "references": [

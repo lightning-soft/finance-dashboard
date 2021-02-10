@@ -31,12 +31,17 @@ export class DragDrawerComponent {
     {
       icon: 'icon-widget-create-orders',
       name: 'Add orders',
-      component: Components.OrderForm
+      component:  Components.OrderForm,
+      options: {
+        height: 315,
+        width: 369,
+        maximizable: false,
+      }
     },
-/*    {
-      icon: 'icon-widget-market-watch',
-      name: 'Market Watch',
-    },*/
+    /*    {
+          icon: 'icon-widget-market-watch',
+          name: 'Market Watch',
+        },*/
     {
       icon: 'icon-widget-watchlist',
       name: 'Watchlist',
@@ -64,6 +69,7 @@ export class DragDrawerComponent {
       component: {
         name: item.component,
       },
+      ...item.options
     });
   }
 }

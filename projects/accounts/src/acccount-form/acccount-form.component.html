@@ -26,14 +26,14 @@
   </div>
   <div class="form-item">
     <small class="text-muted px-2 mb-1">System</small>
-    <nz-select nzSize="small" class="custom-form-control" formControlName="server">
+    <nz-select formControlName="server">
       <nz-option *ngFor="let item of items" [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>
   </div>
   <div class="form-item">
     <small class="text-muted px-2 mb-1">Gateway</small>
-    <nz-select nzSize="small" class="custom-form-control" formControlName="gateway">
+    <nz-select formControlName="gateway">
       <nz-option *ngFor="let item of gateways " [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>

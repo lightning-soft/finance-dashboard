@@ -79,6 +79,8 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
       accountId: (id % 2 === 0) ? 'EURUSD' : 'BTCUSD',
       price: randomFixedNumber(100),
       size: randomFixedNumber(),
+      buyVolume: randomFixedNumber(),
+      sellVolume: randomFixedNumber(),
       realized: randomFixedNumber(),
       unrealized: randomFixedNumber(),
       total: randomFixedNumber(),

@@ -16,8 +16,10 @@ import { QuantityPositions } from 'dom';
 })
 export class QuantityInputComponent implements ControlValueAccessor {
   @Input() amountButtons = [];
+  @Input() allowEdit = true;
   onChange;
   currentValue: number;
+  currentItem: any;
 
   registerOnChange(fn: any): void {
     this.onChange = fn;
@@ -30,9 +32,15 @@ export class QuantityInputComponent implements ControlValueAccessor {
     this.currentValue = obj;
   }
 
-  updateValue(item: any) {
-    this.currentValue = item.value;
-    this.onChange(item.value);
+  updateValue(value) {
+    this.currentValue = value;
+    this.onChange(value);
+  }
+
+  updateItem(item: any) {
+    this.currentItem = item;
+    this.currentValue += item.value;
+    this.onChange(this.currentValue);
   }
 
   isCurrentValue(item: any) {
@@ -41,6 +49,15 @@ export class QuantityInputComponent implements ControlValueAccessor {
 
   selectByPosition(position: QuantityPositions): void {
     const item = this.amountButtons[position];
-    this.updateValue(item);
+    this.updateItem(item);
+  }
+
+  editButton(item: any) {
+    if (this.allowEdit)
+      item.edit = true;
+  }
+
+  isSelected(item: any) {
+    return this.currentItem === item;
   }
 }

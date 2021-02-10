@@ -107,11 +107,11 @@
     .toolbar-dropdown nz-option-container {
       width: 140px;
 
-      .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+/*      .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
         color: inherit;
         font-weight: inherit;
         background-color: inherit;
-      }
+      }*/
     }
 
     .ant-btn,
@@ -175,12 +175,6 @@
       margin: 0 18%;
       background: #383A40;
     }
-
-    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
-      color: inherit;
-      background: inherit;
-    }
-
     .ant-dropdown-menu-submenu-active {
       background: $secondary;
 
@@ -221,39 +215,6 @@
   }
 
   //.ant-btn > span,
-  .ant-select-selection-item {
-    font-size: 0.7rem !important;
-  }
-
-  .ant-select-item {
-    color: inherit;
-  }
-
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    color: inherit;
-    font-weight: inherit;
-    background-color: inherit;
-  }
-
-  .ant-dropdown-menu {
-    background-color: unset;
-    color: inherit;
-    box-shadow: none;
-  }
-
-  .ant-btn:hover, .ant-btn, .ant-btn:focus, .ant-btn-group {
-    color: inherit;
-    border: none;
-    box-shadow: none;
-
-    &:after {
-      display: none;
-    }
-  }
-
-  .ant-btn {
-    border-radius: 2px !important;
-  }
 
   .btn-group .ant-btn {
     margin: 0;

@@ -51,7 +51,7 @@
           (click)="openAccounts(connection)"
           (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
         >
-          <div class="pl-3 position-relative">
+          <div class="pl-4 position-relative">
               <div class="indicator menu-indicator prefix mr-2" [ngClass]="{
                 'text-success': connection.connected,
                 'text-danger': connection.error
@@ -65,7 +65,7 @@
   </div>
 </nz-dropdown-menu>
 <nz-dropdown-menu #connectionContextMenuDropdown="nzDropdownMenu">
-  <ul nz-menu class="bg-lighter">
+  <ul nz-menu>
     <li nz-menu-item (click)="connect()" *ngIf="!contextMenuConnection?.connected">Connect</li>
     <li nz-menu-item (click)="disconnect()" *ngIf="contextMenuConnection?.connected">Disconnect</li>
     <li nz-menu-item (click)="removeFromFavourites()">Remove from top menu</li>

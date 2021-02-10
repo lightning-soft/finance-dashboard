@@ -10,16 +10,6 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
-    .ant-select-arrow {
-      top: 50%;
-      right: 5px;
-
-      .anticon {
-        font-size: 8px;
-        vertical-align: middle;
-      }
-    }
-
     .ant-tabs-bar {
       margin-left: 8px;
       margin-bottom: 6px;
@@ -41,19 +31,8 @@ $selectMarginBottom: 15px;
       color: $primary;
     }
 
-    nz-select-top-control {
-      border: none !important;
-      box-shadow: none !important;
-
-    }
-
     .wrapper {
       height: 100%;
-
-    }
-
-    window-header, .wrapper {
-      background: #242730;
     }
 
     .ant-tabs-top-content {
@@ -113,58 +92,13 @@ nz-tabset {
 }
 
 ::ng-deep {
-  .custom-form-control.type-select, .custom-form-control.status-select {
-    margin-left: 4px;
-    height: 20px;
-    min-width: 70px;
-    width: auto;
-    border-radius: 2px;
-    font-size: 0.8rem;
-  }
-
-
   .order-dropdown-list {
     min-width: 130px;
 
-    .ant-select-dropdown {
-      background: $light;
-    }
-
     nz-option-item {
-      background: $light;
-      border-radius: 2px;
-      padding: 4px;
-
       &:first-child {
         border-bottom: 1px solid #51535A;
       }
-
-      &:not(:first-child) {
-        margin-top: 4px;
-      }
-    }
-
-    .ant-select-item-option-active:not(.ant-select-item-option-disabled), .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-      background-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
-      background: $light;
-      padding-left: 10px;
-      padding-right: 10px;
     }
   }
 }
-
-:host ::ng-deep {
-
-  .ant-select-single .ant-select-selector .ant-select-selection-item, .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
-    height: 20px;
-    line-height: 20px;
-  }
-
-  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-    padding-left: 10px;
-  }
-}
-
