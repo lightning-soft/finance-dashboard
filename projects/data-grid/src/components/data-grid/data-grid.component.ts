@@ -16,16 +16,19 @@ import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
 
 declare function canvasDatagrid(params: any);
+
+export const DefaultScrollSensetive = 6;
+
 export interface DataGridItem {
   [key: string]: ICell;
 }
-
 
 interface GridStyles {
   font?: string;
   color?: string;
   background?: string;
   gridBorderColor?: string;
+  scrollSensetive?: number;
 }
 
 @Component({
@@ -134,7 +137,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       allowRowResize: false,
       autoResizeRows: false,
       editable: false,
-      // showPerformance: true,
       parentNode: this.tableContainer.nativeElement,
       schema: this.columns,
       style: {
@@ -150,7 +152,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         rowHeight: this.rowHeight,
         overflowY: 'hidden',
         overflowX: 'hidden',
-        // cellHeight:
+        scrollSensetive: DefaultScrollSensetive,
       },
       data: [],
     });
@@ -171,8 +173,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     // grid.addEventListener('rendercell', this.renderCell)
     // grid.addEventListener('afterrendercell', this.afterRenderCell)
     // grid.addEventListener('rendertext', this.renderText)
-    grid.addEventListener('afterdraw', (e) => this.afterDraw(e, this._grid));
-    grid.addEventListener('currentCellChanged', this.currentCellChanged);
+    grid.addEventListener('afterdraw', this._afterDraw);
+    grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
@@ -251,8 +253,12 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     }
   }
 
-  private currentCellChanged(e) {
+  private _currentCellChanged = (e) => {
     // console.log('currentCellChanged', e);
+  }
+
+  private _afterDraw = (e) => {
+    this.afterDraw(e, this._grid);
   }
 
   // private _handleEvent = (event) => {
@@ -295,8 +301,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   ngOnDestroy(): void {
     if (this._grid) {
-      // this._grid.removeEventListener('rendercell', this.renderCell)
-      // this._grid.removeEventListener('afterrendercell', afterRenderCell);
+      const grid = this._grid;
+      grid.addEventListener('afterdraw', this._afterDraw);
+      grid.addEventListener('currentCellChanged', this._currentCellChanged);
+      grid.addEventListener('click', this._handleClick);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();

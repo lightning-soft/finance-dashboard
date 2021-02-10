@@ -35,8 +35,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   selectedBroker: IBroker;
   splitConnections = false;
 
-  gateways = {};
-
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,

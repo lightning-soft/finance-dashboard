@@ -352,6 +352,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.dataGrid.applyStyles({
           font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
           gridBorderColor: common.generalColors.gridLineColor,
+          scrollSensetive: settings.general.intervals.scrollWheelSensitivity,
         })
         this._settings.merge(settings);
         this.detectChanges(true);
@@ -631,6 +632,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   afterDraw = (e, grid) => {
+    if (!this._settings.general.centerLine)
+      return;
+
     grid.forEachRow((row, y) => {
       if (!row.isCenter)
         return;

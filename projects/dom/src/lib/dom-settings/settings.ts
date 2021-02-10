@@ -1,4 +1,4 @@
-import { Column } from 'data-grid';
+import { Column, DefaultScrollSensetive } from 'data-grid';
 import * as merge from 'deepmerge';
 import { TextAlign } from 'dynamic-form';
 import { HistogramOrientation } from './settings-fields';
@@ -42,7 +42,7 @@ export class DomSettings {
       clearTradersTimer: DefaultClearInterval,
       updateInterval: 8,
       orderQuantityStep: 7,
-      scrollWheelSensitivity: 6,
+      scrollWheelSensitivity: DefaultScrollSensetive,
       momentumIntervalMs: 8,
       printOutlines: false,
       momentumTails: false,
