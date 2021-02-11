@@ -25,8 +25,8 @@ export class DailyInfoComponent {
         this.dailyInfo.low = value.price;
       }
 
-      this.dailyInfo.volume = this.dailyInfo.volume + (value.volume / 1000);
-      this.volume = this.dailyInfo.volume.toFixed(precision)
+      this.dailyInfo.volume = this.dailyInfo.volume + value.volume;
+      this.volume = this.dailyInfo.volume;
       const income = this.dailyInfo.close - this.prevItem.close;
       this.incomePercentage = ((income / this.dailyInfo.close) * 100).toFixed(precision);
       this.income = income.toFixed(precision);

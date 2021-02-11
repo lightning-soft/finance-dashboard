@@ -819,15 +819,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._closePositions();
         break;
       case FormActions.Flatten:
-        this._flatten();
+        this._closeOrders(FormActions.CloseOrders);
+        this._closePositions();
         break;
       default:
         console.error('Undefined action');
     }
-  }
-
-  private _flatten() {
-
   }
 
   private _closePositions() {
