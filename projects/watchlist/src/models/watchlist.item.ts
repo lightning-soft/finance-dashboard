@@ -27,8 +27,8 @@ export class WatchlistItem implements IBaseItem {
         if (!quote || quote.instrument.symbol !== this.instrument.symbol)
             return;
 
-        this.ask.updateValue(quote.askInfo.price);
-        this.bid.updateValue(quote.bidInfo.price);
+        // this.ask.updateValue(quote.askInfo.price);
+        // this.bid.updateValue(quote.bidInfo.price);
         this.timestamp.updateValue(quote.timestamp);
         this.volume.updateValue(quote.volume);
         this.price.updateValue(quote.price);

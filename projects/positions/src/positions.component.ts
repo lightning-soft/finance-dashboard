@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IPosition, IPositionParams, ITrade, Level1DataFeed, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
+import { IQuote } from '../../trading/src/trading/models/quote';
 
 const headers = [
   'account',
@@ -39,7 +40,7 @@ enum GroupByItem {
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
-  protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
+  protected _levelOneDataFeedHandler = (trade: IQuote) => this.items.map(i => i.updateUnrealized(trade));
 
   private _columns: Column[] = [];
   groupBy = GroupByItem.None;
@@ -119,48 +120,43 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
-    ) {
-      super();
-      this.autoLoadData = false;
-      
-      this.builder.setParams({
-        groupBy: ['accountId', 'instrumentName'],
-        order: 'desc',  
-        wrap: (item: IPosition) => new PositionItem(item),
-        unwrap: (item: PositionItem) => item.position,
-      });  
-      
-      this._columns = headers.map(convertToColumn);
-      
-      this.setTabIcon('icon-widget-positions');
-      this.setTabTitle('Positions');
-      this._levelOneDataFeedHandler = this._handlePositionUnrealized;
-    }  
-    
-    private _handlePositionUnrealized(trade: ITrade): void {
-      this.items.map(i => i.updateUnrealized(trade));
-    }
-    
-    // need for group by InstrumentName
-    protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
-      return this.repository.getItems(params)
+  ) {
+    super();
+    this.autoLoadData = false;
+
+    this.builder.setParams({
+      groupBy: ['accountId', 'instrumentName'],
+      order: 'desc',
+      wrap: (item: IPosition) => new PositionItem(item),
+      unwrap: (item: PositionItem) => item.position,
+    });
+
+    this._columns = headers.map(convertToColumn);
+
+    this.setTabIcon('icon-widget-positions');
+    this.setTabTitle('Positions');
+  }
+
+  // need for group by InstrumentName
+  protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
+    return this.repository.getItems(params)
       .pipe(map(response => {
         response.data = response.data.map(item => {
           return { ...item, instrumentName: item.instrument.symbol };
-      });  
-      return response;
-    }));  
-  }  
-  
+        });
+        return response;
+      }));
+  }
+
   groupItems(groupBy) {
     this.builder.groupItems(groupBy, item => {
       if (groupBy === GroupByItem.AccountId) {
         return this.getGroupHeaderItem(item, 'account');
       } else {
         return this.getGroupHeaderItem(item, 'instrumentName');
-      }  
-    });  
-  }  
+      }
+    });
+  }
 
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new PositionItem();

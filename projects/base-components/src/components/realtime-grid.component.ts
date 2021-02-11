@@ -4,8 +4,9 @@ import { IBaseItem, IPaginationParams } from 'communication';
 import { DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
-import { ITrade, Level1DataFeed, OnTradeFn } from 'trading';
+import { Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
+import { IQuote } from '../../../trading/src/trading/models/quote';
 
 export function convertToColumn(nameOrArr: any) {
   nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr]);
@@ -37,7 +38,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
 
   protected _dataFeed: any;
   protected _levelOneDataFeed: Level1DataFeed;
-  protected _levelOneDataFeedHandler: OnTradeFn<ITrade>;
+  protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
 
   ngOnInit() {
     super.ngOnInit();

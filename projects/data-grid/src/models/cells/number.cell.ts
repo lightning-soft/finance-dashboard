@@ -84,6 +84,14 @@ export class NumberCell extends Cell {
     return true;
   }
 
+  hightlight() {
+    const settings: any = this.settings;
+    if (settings.highlightLarge == true && settings.largeSize != null && this._value < settings.largeSize)
+      return;
+
+    super.hightlight();
+  }
+
   clear() {
     super.clear();
     this._value = null;

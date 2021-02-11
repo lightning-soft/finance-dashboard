@@ -1,9 +1,10 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide, OrderStatus } from 'trading';
+import { TradeSide, TradePrint, IInfo, IOrder, L2, OrderSide, OrderStatus } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
+import { IQuote } from '../../../trading/src/trading/models/quote';
 
 class OrdersCell extends NumberCell {
   orders: IOrder[] = [];
@@ -117,7 +118,7 @@ class TotalCell extends HistogramCell {
 class LtqCell extends HistogramCell {
   updateValue(value: number) {
     if ((this.settings as any).accumulateTrades != false)
-      return super.updateValue(this._value + value);
+      return super.updateValue((this._value || 0) + value);
     else
       return super.updateValue(value);
   }
@@ -203,6 +204,44 @@ export class DomItem implements IBaseItem {
 
   setPrice(price) {
     this.price.updateValue(price);
+  }
+
+  handleTrade(trade: TradePrint) {
+    const res: any = {};
+    // this._changeLtq(trade.volume, trade.side);
+
+    if (trade.side == TradeSide.Bid) {
+      if (this.currentBid.updateValue(trade.volume))
+        res.currentBid = this.currentBid._value;
+
+      if (this.totalBid.updateValue(trade.volume))
+        res.totalBid = this.totalBid._value;
+
+      if (this._changeLtq(trade.volume, 'bid')) {
+        res.ltq = this.ltq._value;
+        res.volume = this.volume._value;
+      }
+    } else {
+      if (this.currentAsk.updateValue(trade.volume))
+        res.currentAsk = this.currentAsk._value;
+
+      if (this.totalAsk.updateValue(trade.volume))
+        res.totalAsk = this.totalAsk._value;
+
+      if (this._changeLtq(trade.volume, 'ask')) {
+        res.ltq = this.ltq._value;
+        res.volume = this.volume._value;
+      }
+    }
+
+    return res;
+  }
+
+  handleQuote(data: IQuote) {
+    if (data.side == OrderSide.Buy)
+      return this.handleAsk({ volume: data.volume } as any);
+    else
+      return this.handleBid({ volume: data.volume } as any);
   }
 
   handleAsk(data: IInfo) {

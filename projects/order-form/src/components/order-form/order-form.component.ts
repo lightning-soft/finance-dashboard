@@ -2,21 +2,19 @@ import { Component, Injector, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
+import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
 import { Id } from 'communication';
 import { ILayoutNode, LayoutNode } from 'layout';
 import {
   IInfo,
   IInstrument,
-  IOrder,
-  ITrade,
-  Level1DataFeed,
+  IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
   PositionsRepository
 } from 'trading';
-import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
 
 export interface OrderFormComponent extends ILayoutNode {
 }
@@ -127,10 +125,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit {
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
 
-    this.onRemove(this._levelOneDatafeedService.on((trade: ITrade) => {
+    this.onRemove(this._levelOneDatafeedService.on((trade: IQuote) => {
       if (trade.instrument?.symbol === this.instrument?.symbol) {
-        this.askInfo = trade.askInfo;
-        this.bidInfo = trade.bidInfo;
+        // this.askInfo = trade.askInfo;
+        // this.bidInfo = trade.bidInfo;
       }
     }));
   }

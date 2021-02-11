@@ -10,20 +10,16 @@ import { SynchronizeFrames } from 'performance';
 import {
   IConnection,
   IInstrument,
-  IOrder,
-  ITrade,
+  IOrder, IQuote, ITrade,
   L2,
-  Level1DataFeed,
-
-  OrderBooksRepository, OrdersFeed, OrderSide,
-  OrdersRepository, PositionsRepository
+  Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrdersFeed, OrderSide,
+  OrdersRepository, PositionsRepository, TradeDataFeed, TradePrint
 } from 'trading';
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
-import { Level2DataFeed } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -292,6 +288,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _orderBooksRepository: OrderBooksRepository,
     private _ordersFeed: OrdersFeed,
     private _levelOneDatafeed: Level1DataFeed,
+    private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
     private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector
@@ -346,9 +343,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
-      this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
+      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
+      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item)),
+      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -388,6 +386,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
     this._levelOneDatafeed.subscribe(instrument);
     this._levelTwoDatafeed.subscribe(instrument);
+    this._tradeDatafeed.subscribe(instrument);
 
     this._loadOrderBook();
   }
@@ -433,11 +432,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const instrument = this.instrument;
-        asks.forEach((askInfo) => this._handleTrade({ askInfo, instrument, price: null, timestamp: 0, volume: null, bidInfo: null } as ITrade));
-        bids.forEach((bidInfo) => this._handleTrade({ bidInfo, instrument, price: null, timestamp: 0, volume: null, askInfo: null } as ITrade));
+        // asks.forEach((askInfo) => this._handleTrade({ askInfo, instrument, price: null, timestamp: 0, volume: null, bidInfo: null } as ITrade));
+        // bids.forEach((bidInfo) => this._handleTrade({ bidInfo, instrument, price: null, timestamp: 0, volume: null, askInfo: null } as ITrade));
+        asks.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Buy } as IQuote));
+        bids.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Sell } as IQuote));
 
-        for (const i of this.items)
+        for (const i of this.items) {
           i.clearDelta();
+          i.dehighlight(Columns.All);
+        }
 
         this.centralize()
         this._loadOrders();
@@ -579,46 +582,38 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   //   }
   // }
 
-  protected _handleTrade(trade: ITrade) {
+  protected _handleTrade(trade: TradePrint) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     let changes = this._lastChangesItem;
     let prevltqItem = changes.ltq;
-    let item;
 
-    // if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
-    if (trade.askInfo) {
-      item = this._getItem(trade.askInfo.price);
-      this._handleMaxChange(item.handleAsk(trade.askInfo), item);
-
-      if (prevltqItem && prevltqItem != changes.ltq) {
+    if (prevltqItem?.lastPrice != trade.price) {
+      if (prevltqItem)
         prevltqItem.clearLTQ();
-        prevltqItem = changes.ltq;
-        for (const item of this.items) {
-          if (changes.ltq != item)
-            item.clearDelta();
-        }
+      const price = trade.price;
+      // const
+
+      for (const item of this.items) {
+        item.clearDelta();
       }
     }
-    // }
 
-    // if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
-    if (trade.bidInfo) {
-      item = this._getItem(trade.bidInfo.price);
-      this._handleMaxChange(item.handleBid(trade.bidInfo), item);
+    const _item = this._getItem(trade.price);
+    this._handleMaxChange(_item.handleTrade(trade), _item);
 
-      if (prevltqItem && prevltqItem != changes.ltq) {
-        prevltqItem.clearLTQ();
+    if (!prevltqItem)
+      this.centralize();
 
-        for (const item of this.items) {
-          if (changes.ltq != item)
-            item.clearDelta();
-        }
-      }
-    }
-    // }
-    this._lastTrade = trade;
-    this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
+    this.detectChanges();
+  }
+
+  protected _handleQuote(trade: IQuote) {
+    if (trade.instrument?.symbol !== this.instrument?.symbol) return;
+
+    const item = this._getItem(trade.price);
+    this._handleMaxChange(item.handleQuote(trade), item);
+
     this.detectChanges();
   }
 
@@ -868,6 +863,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._levelOneDatafeed.unsubscribe(instrument);
     this._levelTwoDatafeed.unsubscribe(instrument);
+    this._tradeDatafeed.unsubscribe(instrument);
   }
 }
 

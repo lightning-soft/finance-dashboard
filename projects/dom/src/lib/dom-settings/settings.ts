@@ -24,7 +24,7 @@ export class DomSettings {
   general: any = {
     allWindows: false,
     autoCenter: false,
-    centerLine: false,
+    centerLine: true,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
@@ -105,7 +105,7 @@ export class DomSettings {
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
     color: 'white',
-    accumulateTrades: false,
+    accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
     // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
     textAlign: TextAlign.Center,

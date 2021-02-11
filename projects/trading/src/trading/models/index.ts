@@ -9,3 +9,4 @@ export * from './connection';
 export * from './periodicity';
 export * from './settings';
 export * from './order-book';
+export * from './trade-print';

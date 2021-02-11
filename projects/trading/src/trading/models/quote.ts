@@ -1,15 +1,9 @@
 import { IInstrument } from './instrument';
-
-export type PriceInfo = {
-    price: number;
-    orderCount: number;
-    volume: number;
-};
+import { OrderSide } from './order';
 
 export interface IQuote {
-    timestamp: Date;
-    askInfo: PriceInfo;
-    bidInfo: PriceInfo;
+    timestamp: number;
+    side: OrderSide;
     instrument: IInstrument;
     price: number;
     volume: number;
