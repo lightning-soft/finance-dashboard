@@ -32,7 +32,7 @@ export class FakeLevel2Datafeed extends DatafeedRepository implements Level2Data
             exchange: 'NASDAQ',
             id: instrumentId,
           },
-          timestamp: new Date(),
+          timestamp: Date.now(),
           orderId: Math.random().toString(),
           price,
           previousPrice: NaN,

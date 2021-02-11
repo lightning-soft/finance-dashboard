@@ -91,7 +91,7 @@ class OrdersCell extends NumberCell {
       const font = ctx.font.replace(/\d*/, size * 0.6);
       ctx.font = font;
 
-      ctx.fillText(sequenceNumber, px + (isOrderColumn ? 0 : isAsk ? pwidth: 0), (py + pheight / 3), pwidth);
+      ctx.fillText(sequenceNumber, px + (isOrderColumn ? 0 : isAsk ? pwidth : 0), (py + pheight / 3), pwidth);
     }
 
     ctx.restore();
@@ -208,19 +208,6 @@ export class DomItem implements IBaseItem {
   handleAsk(data: IInfo) {
     const res: any = {};
 
-    if (data && data.timestamp >= (this.currentAsk.time || 0)) {
-      if (this.currentAsk.updateValue(data.volume))
-        res.currentAsk = this.currentAsk._value;
-
-      if (this.totalAsk.updateValue(data.volume))
-        res.totalAsk = this.totalAsk._value;
-    }
-
-    if (this._changeLtq(data.volume, 'ask')) {
-      res.ltq = this.ltq._value;
-      res.volume = this.volume._value;
-    }
-
     if (this.ask.updateValue(data.volume)) {
       res.ask = this.ask._value;
 
@@ -235,6 +222,7 @@ export class DomItem implements IBaseItem {
   }
 
   private _changeLtq(volume: number, side: string) {
+    console.log('volume', this.price._value, volume);
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(side);
       this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
@@ -250,19 +238,6 @@ export class DomItem implements IBaseItem {
   handleBid(data: IInfo) {
     const res: any = {};
 
-    if (data && data.timestamp >= (this.currentBid.time || 0)) {
-      if (this.currentBid.updateValue(data.volume))
-        res.currentBid = this.currentBid._value;
-
-      if (this.totalBid.updateValue(data.volume))
-        res.totalBid = this.totalBid._value;
-    }
-
-    if (this._changeLtq(data.volume, 'bid')) {
-      res.ltq = this.ltq._value;
-      res.volume = this.volume._value;
-    }
-
     if (this.bid.updateValue(data.volume)) {
       res.bid = this.bid._value;
 
@@ -277,28 +252,33 @@ export class DomItem implements IBaseItem {
   }
 
   handleL2(l2: L2) {
+    const res: any = {};
     // if (l2.side == OrderSide.Buy) {
-    //   this.ask.updateValue(l2.size);
+    //   if (this.currentBid.updateValue(l2.size))
+    //     res.currentBid = this.currentBid._value;
 
-    //   if (this._ask == null)
-    //     this._ask = this.ask._value;
+    //   if (this.totalBid.updateValue(l2.size))
+    //     res.totalBid = this.totalBid._value;
 
-    //   this.askDelta.updateValue(this.ask._value - this._ask);
+
+    //   if (this._changeLtq(l2.size, 'bid')) {
+    //     res.ltq = this.ltq._value;
+    //     res.volume = this.volume._value;
+    //   }
     // } else if (l2.side == OrderSide.Sell) {
-    //   this.bid.updateValue(l2.size);
+    //   if (this.currentAsk.updateValue(l2.size))
+    //     res.currentAsk = this.currentAsk._value;
 
-    //   if (this._bid == null)
-    //     this._bid = this.bid._value;
+    //   if (this.totalAsk.updateValue(l2.size))
+    //     res.totalAsk = this.totalAsk._value;
 
-    //   this.bidDelta.updateValue(this.bid._value - this._bid);
+    //   if (this._changeLtq(l2.size, 'ask')) {
+    //     res.ltq = this.ltq._value;
+    //     res.volume = this.volume._value;
+    //   }
     // }
 
-    return {
-      // ask: this.ask._value,
-      // bid: this.bid._value,
-      // askDelta: this.askDelta._value,
-      // bidDelta: this.bidDelta._value,
-    }
+    return res;
   }
 
   handleOrder(order: IOrder) {

@@ -3,7 +3,7 @@ import { IRealtimeInstrument } from '../models/realtime-instrument';
 import { DataFeed } from './data-feed';
 
 export interface ITrade {
-  timestamp: Date;
+  timestamp: number;
   instrument: IRealtimeInstrument;
   askInfo: IInfo;
   bidInfo: IInfo;

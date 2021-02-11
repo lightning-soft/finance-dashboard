@@ -36,7 +36,7 @@ export class FakeLevel1Datafeed extends DatafeedRepository {
             exchange: 'NASDAQ',
             id: instrumentId,
           },
-          timestamp: new Date(),
+          timestamp: Date.now(),
           volume: ask + bid,
           price,
           askInfo: {

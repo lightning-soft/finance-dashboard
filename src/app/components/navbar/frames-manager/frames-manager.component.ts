@@ -41,6 +41,8 @@ export class FramesManagerComponent implements AfterViewInit {
 
   public handleClick(window: IWindow): void {
     window.minimize();
+    if (!window.minimized)
+      window.focus();
   }
 
   private sortWindows(windows: IWindow[]): void {

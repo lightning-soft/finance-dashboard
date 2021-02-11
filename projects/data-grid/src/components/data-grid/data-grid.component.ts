@@ -18,7 +18,7 @@ import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.h
 
 declare function canvasDatagrid(params: any);
 
-export const DefaultScrollSensetive = 6;
+export const DefaultScrollSensetive = 2;
 
 export interface DataGridItem {
   [key: string]: ICell;

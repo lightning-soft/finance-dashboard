@@ -4,7 +4,7 @@ import { IRealtimeInstrument } from '../models/realtime-instrument';
 import { DataFeed } from './data-feed';
 
 export interface L2 {
-  timestamp: Date;
+  timestamp: number;
   instrument: IRealtimeInstrument;
   orderId: number | string;
   previousPrice: number

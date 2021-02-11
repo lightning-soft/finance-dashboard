@@ -23,6 +23,7 @@ import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { Level2DataFeed } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -201,7 +202,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _accountId: string;
 
-  get accountId(){
+  get accountId() {
     return this._accountId;
   }
 
@@ -284,7 +285,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _ordersFeed: OrdersFeed,
     private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
-    // private _levelTwoDatafeed: Level2DataFeed,
+    private _levelTwoDatafeed: Level2DataFeed,
     protected _injector: Injector
   ) {
     super();
@@ -339,7 +340,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.onRemove(
       this._levelOneDatafeed.on((trade: ITrade) => this._handleTrade(trade)),
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      // this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
+      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item))
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -378,7 +379,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const instrument = this.instrument;
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
     this._levelOneDatafeed.subscribe(instrument);
-    // this._levelTwoDatafeed.subscribe(instrument);
+    this._levelTwoDatafeed.subscribe(instrument);
 
     this._loadOrderBook();
   }
@@ -423,8 +424,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           index++;
         }
 
-        asks.forEach((askInfo) => this._handleTrade({ askInfo } as any));
-        bids.forEach((bidInfo) => this._handleTrade({ bidInfo } as any));
+        const instrument = this.instrument;
+        asks.forEach((askInfo) => this._handleTrade({ askInfo, instrument, price: null, timestamp: 0, volume: null, bidInfo: null } as ITrade));
+        bids.forEach((bidInfo) => this._handleTrade({ bidInfo, instrument, price: null, timestamp: 0, volume: null, askInfo: null } as ITrade));
+
+        for (const i of this.items)
+          i.clearDelta();
 
         this.centralize()
         this._loadOrders();
@@ -571,9 +576,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let changes = this._lastChangesItem;
     let prevltqItem = changes.ltq;
+    let item;
 
-    if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
-      const item = this._getItem(trade.askInfo.price);
+    // if (trade.askInfo && trade.askInfo.timestamp > this._changedTime) {
+    if (trade.askInfo) {
+      item = this._getItem(trade.askInfo.price);
       this._handleMaxChange(item.handleAsk(trade.askInfo), item);
 
       if (prevltqItem && prevltqItem != changes.ltq) {
@@ -585,9 +592,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
     }
+    // }
 
-    if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
-      const item = this._getItem(trade.bidInfo.price);
+    // if (trade.bidInfo && trade.bidInfo.timestamp > this._changedTime) {
+    if (trade.bidInfo) {
+      item = this._getItem(trade.bidInfo.price);
       this._handleMaxChange(item.handleBid(trade.bidInfo), item);
 
       if (prevltqItem && prevltqItem != changes.ltq) {
@@ -599,6 +608,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
     }
+    // }
     this._lastTrade = trade;
     this._changedTime = Math.max(changes.currentAsk?.currentAsk?.time || 0, changes.currentBid?.currentBid?.time || 0);
     this.detectChanges();
@@ -844,7 +854,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this._levelOneDatafeed.unsubscribe(instrument);
-    // this._levelTwoDatafeed.unsubscribe(instrument);
+    this._levelTwoDatafeed.unsubscribe(instrument);
   }
 }
 
