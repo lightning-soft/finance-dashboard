@@ -2,19 +2,21 @@
 
   <ng-container *ngFor="let item of amountButtons">
     <button
-      (click)="updateItem(item)"
+      (click)="setValue(item)"
       (contextmenu)="$event.preventDefault(); editButton(item)"
       *ngIf="!item.edit && !item.black"
       nz-button>{{item.value}}</button>
     <nz-input-number
       [class.black-input]="item.black"
       [ngModel]="currentValue"
+      [nzMin]="0"
       (ngModelChange)="updateValue($event)"
       *ngIf="item.black"></nz-input-number>
     <nz-input-number *ngIf="item.edit "
-           (keyup.enter)="updateItem(item); item.edit = false"
-           (focusout)="updateItem(item); item.edit = false"
-           [(ngModel)]="item.value">
+                     [nzMin]="0"
+                     (keyup.enter)="updateItem(item); item.edit = false"
+                     (focusout)="updateItem(item); item.edit = false"
+                     [(ngModel)]="item.value">
     </nz-input-number>
   </ng-container>
 </div>

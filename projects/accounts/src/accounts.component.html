@@ -1,7 +1,7 @@
 <window-header [window]="this"></window-header>
 <div class="custom-panels">
   <div class="custom-panel custom-panel-fixed">
-    <div tabindex="1" (focusout)="clearAllMenu()" class="custom-panel-body">
+    <div class="custom-panel-body">
       <cdk-virtual-scroll-viewport class="right-border" [itemSize]="">
         <nz-collapse class="custom-collapse-ghost">
           <nz-collapse-panel
@@ -24,24 +24,19 @@
               <div
                 *ngFor="let item of getBrokerItems(broker)"
                 class="selectable-item pl-4 mt-1"
-                nz-popover
-                [nzPopoverVisible]="item.menuOpen"
-                nzPopoverTrigger=""
-                (contextmenu)="$event.preventDefault(); clearMenu(broker); item.menuOpen = !item.menuOpen"
-                [nzPopoverContent]="contentTemplate"
-                nzPopoverOverlayClassName="broker-actions"
+                (contextmenu)="contextMenu($event, contentTemplate)"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
                 [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
                 (click)="selectItem(item)"
               >
                 <ng-container *ngIf="!item.rename">
-                  <div class="position-relative pl-2">
+                  <div [title]="item" class="position-relative pl-2">
                 <span class="indicator prefix" [ngClass]="{
                   'text-success': item.connected,
                   'text-danger': item.error
                 }" *ngIf="item.connected || item.error"></span>
-                    {{ item }}
+                    <span class="connection-name">{{ item }}</span>
                   </div>
                   <div>
                   <span
@@ -57,12 +52,16 @@
 
                   </div>
                 </ng-container>
-                <input *ngIf="item.rename" #input (keydown.enter)="item.rename = false; rename(input.value, item)"
-                       [value]="item.name" nz-input type="text">
-                <ng-template #contentTemplate>
-                  <div (click)="clearMenu(broker); item.rename = true;  " class="broker-action">Rename</div>
-                  <div (click)="clearMenu(broker); delete($event, item);" class="broker-action">Delete</div>
-                </ng-template>
+                <input *ngIf="item.rename"
+                       class="rename"
+                       #input (keydown.enter)="item.rename = false; rename(input.value, item)"
+                       [value]="item.name || item.toString()" nz-input type="text">
+                <nz-dropdown-menu  #contentTemplate="nzDropdownMenu">
+                  <ul class="broker-actions" nz-menu>
+                    <li nz-menu-item (click)="item.rename = true; " class="broker-action">Rename</li>
+                    <li nz-menu-item (click)="delete($event, item);" class="broker-action">Delete</li>
+                  </ul>
+                </nz-dropdown-menu>
               </div>
             </div>
           </nz-collapse-panel>
@@ -135,7 +134,7 @@
               nz-button
               nzType="primary"
               nzBlock
-              class="ant-btn ant-btn-primary text-uppercase mt-3"
+              class="ant-btn connect-button ant-btn-primary text-uppercase mt-3"
             >Connect
             </button>
           </form>
@@ -183,13 +182,13 @@
               nz-button
               nzType="primary"
               nzBlock
-              class="bg-secondary text-uppercase mt-3"
+              class="bg-secondary text-uppercase disconnect-button"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
               (click)="disconnect(selectedItem)"
             >Disconnect
             </button>
           </div>
-          <div class="text-muted" *ngIf="selectedBroker?.description">
+          <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">
             <div class="broker-description text-center" [innerHTML]="selectedBroker.description"></div>
           </div>
         </div>

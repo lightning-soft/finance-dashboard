@@ -9,6 +9,7 @@ import { ILayoutNode } from 'layout';
 export class WindowHeaderComponent {
   @Input() window: ILayoutNode;
   @Input() className: string;
+  @Input() marginClass = 'mx-3';
   @Output() close = new EventEmitter<boolean>();
 
   onClose() {
