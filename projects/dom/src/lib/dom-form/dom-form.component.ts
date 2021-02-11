@@ -8,7 +8,7 @@ import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, 
 import { QuantityInputComponent } from 'base-order-form';
 import { BaseOrderForm } from 'base-order-form';
 import { skip } from 'rxjs/operators';
-import { PositionsRepository } from "../../../../trading";
+import { PositionsRepository } from 'trading';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
