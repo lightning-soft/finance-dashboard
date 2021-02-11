@@ -1,6 +1,6 @@
 <window-header [window]="this">
   <instrument-select class="ml-1" [(instrument)]="instrument"></instrument-select>
-  <account-select class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
+  <account-select [labelTransformer]="transformLabel.bind(this)" class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
 <div class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
@@ -53,13 +53,16 @@
               [trade]="trade" #domForm [class.d-none]="!isFormOpen"
       [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
+              [positions]="positions"
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
       (actions)="handleFormAction($event)"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [columns]="columns" detach="true" [afterDraw]="afterDraw" [handlers]="handlers">
+    <data-grid #grid [columns]="columns"
+               (currentCellChanged)="onCurrentCellChanged($event)"
+               detach="true" [afterDraw]="afterDraw" [handlers]="handlers">
     </data-grid>
   </div>
 

@@ -36,5 +36,15 @@ nz-input-number {
   &.black-input {
     background: $inputBackground;
     border: none;
+
+    .ant-input-number-handler-wrap {
+      display: none;
+    }
+
+    .ant-input-number-input {
+      padding-left: 5px;
+      padding-right: 5px;
+      text-align: center;
+    }
   }
 }

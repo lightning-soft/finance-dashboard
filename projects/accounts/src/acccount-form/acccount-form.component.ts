@@ -49,7 +49,7 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
       .pipe(untilDestroyed(this))
       .subscribe((value) => {
         controls.gateway.patchValue(this.items.find(i => i.name == value)?.gateways[0]?.name);
-      })
+      });
   }
 
   toggleAutoSave() {

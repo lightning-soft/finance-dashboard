@@ -3,18 +3,25 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
-import { CellClickDataGridHandler, ContextMenuClickDataGridHandler, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
+import {
+  CellClickDataGridHandler,
+  ContextMenuClickDataGridHandler,
+  DataGrid,
+  IFormatter,
+  RoundFormatter
+} from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
 import {
   IConnection,
   IInstrument,
-  IOrder, IQuote, ITrade,
+  IOrder, IPosition, IQuote, ITrade,
   L2,
   Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrdersFeed, OrderSide,
-  OrdersRepository, PositionsRepository, TradeDataFeed, TradePrint
+  OrdersRepository, OrderStatus, PositionsFeed, PositionsRepository, PositionStatus, TradeDataFeed, TradePrint
 } from 'trading';
+import { RealPositionsRepository } from "../../../real-trading";
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -87,12 +94,11 @@ enum Columns {
 }
 
 export enum QuantityPositions {
-  FIRST,
-  SECOND,
-  THIRD,
-  FORTH,
-  FIFTH,
-  SIXTH
+  FIRST = 0,
+  SECOND = 2,
+  THIRD = 3,
+  FORTH = 4,
+  FIFTH = 5,
 }
 
 @Component({
@@ -106,17 +112,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   keysStack: KeyboardListener = new KeyboardListener();
 
-
+  private currentCell;
+  positions: IPosition[] = [];
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
     buyMarket: () => this._createOrder(OrderSide.Buy),
     sellMarket: () => this._createOrder(OrderSide.Sell),
-    hitBid: () => { },
-    joinBid: () => { },
-    liftOffer: () => { },
-    oco: () => { },
+    hitBid: () => {
+      this._createOrderByCurrent(OrderSide.Sell, 'currentBid');
+    },
+    joinBid: () => {
+      this._createOrderByCurrent(OrderSide.Buy, 'currentBid');
+    },
+    liftOffer: () => {
+      this._createOrderByCurrent(OrderSide.Buy, 'currentAsk');
+    },
+    joinAsk: () => {
+      this._createOrderByCurrent(OrderSide.Sell, 'currentAsk');
+    },
+    oco: () => {
+    },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
     quantity1: () => this._handleQuantitySelect(QuantityPositions.FIRST),
@@ -124,11 +141,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     quantity3: () => this._handleQuantitySelect(QuantityPositions.THIRD),
     quantity4: () => this._handleQuantitySelect(QuantityPositions.FORTH),
     quantity5: () => this._handleQuantitySelect(QuantityPositions.FIFTH),
-    quantity6: () => this._handleQuantitySelect(QuantityPositions.SIXTH),
-    quantityToPos: () => { },
-    stopsToPrice: () => { },
-    clearAlerts: () => { },
-    clearAlertsAllWindow: () => { },
+    quantityToPos: () => {
+      this._domForm.positionsToQuantity();
+    },
+    stopsToPrice: () => {
+      this.allStopsToPrice();
+    },
+    stopsToLimit: () => {
+      this.allLimitToPrice();
+    },
+    clearAlerts: () => {
+    },
+    clearAlertsAllWindow: () => {
+    },
     clearAllTotals: () => {
       for (let item of this.items) {
         item.totalBid.clear();
@@ -263,6 +288,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private get _lastPrice(): number {
     return this._lastChangesItem.ltq?.price?._value;
   }
+
   private _lastTrade: ITrade;
 
   get trade() {
@@ -287,6 +313,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _positionsRepository: PositionsRepository,
     private _orderBooksRepository: OrderBooksRepository,
     private _ordersFeed: OrdersFeed,
+    private _positionsFeed: PositionsFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
@@ -295,7 +322,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   ) {
     super();
     this.setTabIcon('icon-widget-dom');
-    this.setTabTitle('Dom');
     (window as any).dom = this;
 
     this.columns = [
@@ -339,6 +365,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
         this._onInstrumentChange();
       });
+    this._positionsFeed.on((pos) => {
+      this.handlePosition(pos);
+    });
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
@@ -372,8 +401,103 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
+  allStopsToPrice() {
+/*    const row = this.currentCell.row;
+    if (row) {
+      const _orders = row.orders.orders;
+      const price = row.price.value;
+      const orders = _orders.filter(item => [OrderType.StopLimit, OrderType.StopMarket]).map(item => {
+        return {...item, stopPrice: price, limitPrice: price};
+      });
+      orders.map(item => this._ordersRepository.updateItem(item).toPromise());
+    }*/
+  }
+
+  allLimitToPrice() {
+  /*  const row = this.currentCell.row;
+    if (row) {
+      const _orders = row.orders.orders;
+      const price = row.price.value;
+      const orders = _orders.filter(item => [OrderType.Limit, OrderType.StopLimit]).map(item => {
+        return {...item, stopPrice: price, limitPrice: price};
+      });
+      orders.map(item => this._ordersRepository.updateItem(item).toPromise());
+    }*/
+  }
+
+  _createOrderByCurrent(side: OrderSide, from) {
+    const row = this.currentCell.row;
+    if (row) {
+      const price = row[from].value;
+      this._createOrder(side, price);
+    }
+  }
+
   handleHotkey(key) {
     this.domKeyHandlers[key]();
+  }
+
+  handlePosition(pos) {
+    if (pos.instrument.id !== this.instrument.id)
+      return;
+    const newPosition = RealPositionsRepository.transformPosition(pos);
+    const oldPosition = this.positions.find(item => item.id === newPosition.id);
+    const {
+      closeOutstandingOrders,
+    } = this._settings.general;
+    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
+    if (isNewPosition) {
+      this.positions.push(newPosition);
+      this.applySettingsOnNewPosition();
+    } else {
+      if (closeOutstandingOrders && oldPosition?.status === PositionStatus.Open
+        && newPosition.status === PositionStatus.Close) {
+        this.deleteOutstandingOrders();
+      }
+      if (oldPosition)
+        Object.assign(oldPosition, newPosition);
+    }
+  }
+
+  applySettingsOnNewPosition() {
+    const {
+      recenter,
+      clearCurrentTrades,
+      clearTotalTrades,
+      allWindows
+    } = this._settings.general;
+    if (clearCurrentTrades) {
+      if (allWindows) {
+        this.domKeyHandlers.clearCurrentTradesAllWindows();
+      } else
+        this.domKeyHandlers.clearCurrentTrades();
+    }
+    if (clearTotalTrades) {
+      if (allWindows) {
+        this.domKeyHandlers.clearTotalTradesDownAllWindows();
+        this.domKeyHandlers.clearTotalTradesUpAllWindows();
+      } else {
+        this.domKeyHandlers.clearTotalTradesDown();
+        this.domKeyHandlers.clearTotalTradesUp();
+      }
+    }
+    if (recenter) {
+      if (allWindows) {
+        this.domKeyHandlers.autoCenterAllWindows();
+      } else {
+        this.domKeyHandlers.autoCenter();
+      }
+    }
+  }
+
+  deleteOutstandingOrders() {
+    const orders = this.items.reduce((acc, i) => ([...acc, ...i.orders.orders]), [])
+      .filter(item => item.status === OrderStatus.Pending);
+    this._ordersRepository.deleteMany(orders)
+      .pipe(untilDestroyed(this))
+      .subscribe((res) => {
+        this.notifier.showSuccess('Success');
+      }, (err) => this.notifier.showError(err));
   }
 
   _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
@@ -432,8 +556,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const instrument = this.instrument;
-        // asks.forEach((askInfo) => this._handleTrade({ askInfo, instrument, price: null, timestamp: 0, volume: null, bidInfo: null } as ITrade));
-        // bids.forEach((bidInfo) => this._handleTrade({ bidInfo, instrument, price: null, timestamp: 0, volume: null, askInfo: null } as ITrade));
         asks.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Buy } as IQuote));
         bids.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Sell } as IQuote));
 
@@ -485,6 +607,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   handleAccountChange(account: string) {
     this._accountId = account;
     this._loadOrderBook();
+    this.loadPositions();
+
+  }
+
+  loadPositions() {
+    this._positionsRepository.getItems({ accountId: this._accountId })
+      .pipe(untilDestroyed(this))
+      .subscribe(items => this.positions = items.data);
   }
 
   broadcastHotkeyCommand(commandName: string) {
@@ -668,6 +798,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       ctx.lineTo(width, y);
       ctx.stroke();
     });
+  }
+
+  transformLabel(label: string) {
+    const replacer = '*';
+    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    if (hideAccountName) {
+
+      if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
+        return replacer.repeat(label.length);
+      }
+      if ((hideFromLeft || hideFromRight) && digitsToHide >= label.length) {
+        return replacer.repeat(label.length);
+      }
+      let _label = label;
+      if (hideFromLeft)
+        _label = replacer.repeat(digitsToHide) + _label.substring(digitsToHide, label.length);
+      if (hideFromRight)
+        _label = _label.substring(0, label.length - digitsToHide) + replacer.repeat(digitsToHide);
+      return _label;
+    }
+    return label;
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -865,8 +1016,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._levelTwoDatafeed.unsubscribe(instrument);
     this._tradeDatafeed.unsubscribe(instrument);
   }
+
+  onCurrentCellChanged($event: any) {
+    this.currentCell = $event;
+  }
 }
 
+function diffSize(position: IPosition) {
+  return position.buyVolume - position.sellVolume;
+}
 
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);

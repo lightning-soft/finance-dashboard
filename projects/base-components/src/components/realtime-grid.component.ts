@@ -102,8 +102,8 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
       return;
     }
 
-    this._dataFeed.on((item: T) => {
-      console.log(this._dataFeed.type, item);
+    this._dataFeed.on((_item: T) => {
+      const item = this._transformDataFeedItem(_item);
 
       const oldItem = this.items.find(i => i.id === item.id);
 
@@ -115,6 +115,9 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
         this._handleCreateItems([item]);
       }
     });
+  }
+  protected _transformDataFeedItem(item){
+    return item;
   }
 
   protected _onLevelOneDataFeed() {

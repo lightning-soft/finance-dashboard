@@ -16,6 +16,7 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> {
   @Input() className = '';
   @Input() nzDropdownClassName = '';
   @Output() accountChange: EventEmitter<Id> = new EventEmitter();
+  @Input() labelTransformer = (label) => label;
 
   activeAccountId: Id;
 

@@ -113,6 +113,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
       unwrap: (item: OrderItem) => item.order,
+       addNewItems: 'start',
     });
 
     this.columns = headers.map(convertToColumn);

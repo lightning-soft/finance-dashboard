@@ -1,7 +1,7 @@
 import { FormComponent } from 'base-components';
 import { IOrder } from 'trading';
-import { IPosition, PositionsRepository } from "../../../trading";
-import { untilDestroyed } from "@ngneat/until-destroy";
+import { IPosition, PositionsRepository } from 'trading';
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 export abstract class BaseOrderForm extends FormComponent<IOrder> {
   protected positionsRepository: PositionsRepository;
@@ -14,7 +14,7 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     if (!this.instrument){
       return '-';
     }
-    const posSum = this.positions.filter(item => item.instrument.id === this.instrument.id)
+    const posSum = this.positions.filter(item => item.instrument.symbol === this.instrument.symbol)
       .reduce((total: number, item ) => {
         return (item.buyVolume - item.sellVolume) + (total || 0);
       }, null);

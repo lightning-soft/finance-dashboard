@@ -34,10 +34,10 @@ export class DomSettings {
       showDepthHistory: false,
       bidAskDeltaFilter: 8
     },
-    digitsToHide: 6,
+    digitsToHide: 4,
     hideAccountName: true,
     hideFromLeft: true,
-    hideFromRight: true,
+    hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,
       updateInterval: 8,
@@ -53,7 +53,19 @@ export class DomSettings {
     useCustomTickSize: true,
   };
   hotkeys: any = {
+    quantity1: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_1]),
+    quantity2: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_2]),
+    quantity3: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_3]),
+    quantity4: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_4]),
+    quantity5: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_5]),
     autoCenter: getKeyBindings([KeyCode.KEY_A, KeyCode.KEY_C]),
+    quantityToPos: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_P]),
+    hitBid: getKeyBindings([KeyCode.KEY_H, KeyCode.KEY_B]),
+    joinBid: getKeyBindings([KeyCode.KEY_J, KeyCode.KEY_B]),
+    liftOffer: getKeyBindings([KeyCode.KEY_L, KeyCode.KEY_O]),
+    joinAsk: getKeyBindings([KeyCode.KEY_J, KeyCode.KEY_A]),
+    stopsToPrice: getKeyBindings([KeyCode.KEY_S, KeyCode.KEY_P]),
+    stopsToLimit: getKeyBindings([KeyCode.KEY_S, KeyCode.KEY_L]),
     autoCenterAllWindows: getKeyBindings([KeyCode.KEY_A, KeyCode.KEY_W]),
     clearAllTotals: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_T]),
     clearCurrentTradesDown: getKeyBindings([KeyCode.KEY_C, KeyCode.KEY_D]),
