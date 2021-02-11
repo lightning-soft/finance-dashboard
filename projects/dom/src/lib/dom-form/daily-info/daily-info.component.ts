@@ -1,6 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { IHistoryItem } from 'trading';
-import { ITrade } from 'trading';
+import { Component, Input } from '@angular/core';
+import { IHistoryItem, ITrade } from 'trading';
 
 @Component({
   selector: 'daily-info',

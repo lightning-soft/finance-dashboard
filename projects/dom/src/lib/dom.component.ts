@@ -3,7 +3,7 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
-import { CellClickDataGridHandler, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
+import { CellClickDataGridHandler, ContextMenuClickDataGridHandler, DataGrid, IFormatter, RoundFormatter } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { SynchronizeFrames } from 'performance';
@@ -84,6 +84,9 @@ const topDirectionIndex = 1;
 enum Columns {
   Bid = 'bid',
   Ask = 'ask',
+  AskDelta = 'askDelta',
+  BidDelta = 'bidDelta',
+  Orders = 'orders',
   All = 'all',
 }
 
@@ -196,6 +199,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ...[Columns.Ask, Columns.Bid].map(column => (
       new CellClickDataGridHandler<DomItem>({
         column, handler: (item) => this._createOrderByClick(column, item),
+      })
+    )),
+    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => (
+      new ContextMenuClickDataGridHandler<DomItem>({
+        column, handler: (item) => this._cancelOrderByClick(column, item),
       })
     )),
   ];
@@ -790,6 +798,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _createOrderByClick(column: string, item: DomItem) {
     this._createOrder(column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy, item.price._value);
+  }
+
+  private _cancelOrderByClick(column: string, item: DomItem) {
+    if (item.orders?.orders?.length)
+      this._ordersRepository.deleteMany(item.orders.orders).subscribe(
+        () => console.log('delete order'),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   handleFormAction(action: FormActions) {

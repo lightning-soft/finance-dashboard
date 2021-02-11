@@ -114,6 +114,11 @@ export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
   }
 }
 
+export class ContextMenuClickDataGridHandler<T> extends CellClickDataGridHandler<T> {
+  event = Events.ContextMenu;
+}
+
+
 // export interface IContextMenuData {
 //   item: any;
 //   event: MouseEvent;

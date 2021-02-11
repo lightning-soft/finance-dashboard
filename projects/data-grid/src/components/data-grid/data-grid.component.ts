@@ -180,6 +180,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('afterdraw', this._afterDraw);
     grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
+    grid.addEventListener('contextmenu', this._handleContextmenu);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
@@ -240,14 +241,25 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     });
   }
 
+  private _handleContextmenu = (e) => {
+    if (e?.e)
+      e.e.preventDefault();
+
+    this._triggerHandler(Events.ContextMenu, e);
+  }
+
   private _handleClick = (e) => {
+    this._triggerHandler(Events.Click, e);
+  }
+
+  private _triggerHandler(event, e) {
     const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
 
     if (!Array.isArray(_handlers))
       return;
 
     for (const handler of _handlers as any[]) {
-      if (handler.event != Events.Click || handler.column != e.column?.name)
+      if (handler.event != event || handler.column != e.column?.name)
         continue;
 
       const item = e.row;
@@ -307,9 +319,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   ngOnDestroy(): void {
     if (this._grid) {
       const grid = this._grid;
-      grid.addEventListener('afterdraw', this._afterDraw);
-      grid.addEventListener('currentCellChanged', this._currentCellChanged);
-      grid.addEventListener('click', this._handleClick);
+      grid.removeEventListener('afterdraw', this._afterDraw);
+      grid.removeEventListener('currentCellChanged', this._currentCellChanged);
+      grid.removeEventListener('click', this._handleClick);
+      grid.removeEventListener('contextmenu', this._handleContextmenu);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();
