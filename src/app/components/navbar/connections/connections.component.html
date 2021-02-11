@@ -3,7 +3,7 @@
   *ngIf="favourites.length < 3"
 >
   <div
-    class="d-flex align-items-center  connection-item"
+    class="d-flex align-items-center   connection-item"
     (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
     *ngFor="let connection of items"
   >
@@ -12,7 +12,7 @@
       'text-danger': connection.error
     }"></div>
     <div
-      class="text-bold"
+      class="text-bold text-ellipsis connection-name"
       (click)="openAccounts(connection)"
     >{{ connection }}</div>
   </div>
@@ -51,12 +51,12 @@
           (click)="openAccounts(connection)"
           (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
         >
-          <div class="pl-4 position-relative">
+          <div class="pl-4 text-ellipsis position-relative">
               <div class="indicator menu-indicator prefix mr-2" [ngClass]="{
                 'text-success': connection.connected,
                 'text-danger': connection.error
               }"></div>
-              {{ connection.name }}
+              <span class="dropdown-connection-name text-ellipsis">{{ connection }}</span>
             <div class="small">{{ connection.username }}</div>
           </div>
         </li>

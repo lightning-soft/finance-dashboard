@@ -25,16 +25,6 @@ $cell-background: #1b1d22;
         }
       }
     }
-
-    .ant-select-arrow {
-      top: 57%;
-      font-size: 9px;
-    }
-
-    .content {
-      align-items: self-start !important;
-    }
-
     window-header {
       align-items: flex-start !important;
     }
@@ -52,6 +42,7 @@ $cell-background: #1b1d22;
   display: flex;
   align-items: center;
   padding-bottom: 3px;
+  padding-top: 2px;
 }
 
 daily-info {

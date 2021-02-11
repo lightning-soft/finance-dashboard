@@ -3,7 +3,7 @@ import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'b
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { positionsLevelOneDataFeedHandler } from 'real-trading';
+import { positionsLevelOneDataFeedHandler, RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IPosition, IPositionParams, ITrade, Level1DataFeed, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
@@ -83,6 +83,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       this.builder.ungroupItems();
     else
       this.groupItems($event);
+
+    console.warn(JSON.parse(JSON.stringify(this.builder)));
   }
 
   set status(value: PositionStatus) {
@@ -122,45 +124,50 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     ) {
       super();
       this.autoLoadData = false;
-      
+
       this.builder.setParams({
         groupBy: ['accountId', 'instrumentName'],
-        order: 'desc',  
+        order: 'desc',
         wrap: (item: IPosition) => new PositionItem(item),
         unwrap: (item: PositionItem) => item.position,
-      });  
-      
+      });
+
       this._columns = headers.map(convertToColumn);
-      
+
       this.setTabIcon('icon-widget-positions');
       this.setTabTitle('Positions');
       this._levelOneDataFeedHandler = this._handlePositionUnrealized;
-    }  
-    
+    }
+
     private _handlePositionUnrealized(trade: ITrade): void {
       this.items.map(i => i.updateUnrealized(trade));
     }
-    
+  _transformDataFeedItem(item){
+    return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
+  }
     // need for group by InstrumentName
     protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
       return this.repository.getItems(params)
       .pipe(map(response => {
         response.data = response.data.map(item => {
-          return { ...item, instrumentName: item.instrument.symbol };
-      });  
-      return response;
-    }));  
-  }  
-  
+          return this._addInstrumentName(item);
+      });
+        return response;
+    }));
+  }
+  _addInstrumentName(item){
+    return { ...item, instrumentName: item.instrument.symbol };
+  }
+
   groupItems(groupBy) {
     this.builder.groupItems(groupBy, item => {
       if (groupBy === GroupByItem.AccountId) {
         return this.getGroupHeaderItem(item, 'account');
       } else {
         return this.getGroupHeaderItem(item, 'instrumentName');
-      }  
-    });  
-  }  
+      }
+    });
+  }
 
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new PositionItem();

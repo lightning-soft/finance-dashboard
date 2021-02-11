@@ -8,7 +8,8 @@ import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, 
 import { QuantityInputComponent } from 'base-order-form';
 import { BaseOrderForm } from 'base-order-form';
 import { skip } from 'rxjs/operators';
-import { PositionsRepository } from "../../../../trading";
+import { PositionsRepository } from 'trading';
+import { IPosition } from 'projects/trading';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -55,7 +56,17 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() showUnits = true;
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
-  @Input() accountId;
+  @Input() positions: IPosition[] = [];
+  _accountId;
+  get accountId() {
+    return this._accountId;
+  }
+
+  @Input() set accountId(value) {
+    if (this._accountId !== value) {
+      this._accountId = value;
+    }
+  }
 
 
   _settings: DomFormSettings = {
@@ -139,7 +150,7 @@ export class DomFormComponent extends BaseOrderForm {
     protected _injector: Injector,
     private _historyRepository: HistoryRepository,
     protected positionsRepository: PositionsRepository,
-) {
+  ) {
     super();
     this.autoLoadData = false;
   }
@@ -148,7 +159,6 @@ export class DomFormComponent extends BaseOrderForm {
     super._handleConnection(connection);
     this._historyRepository = this._historyRepository.forConnection(connection);
     this.positionsRepository = this.positionsRepository.forConnection(connection);
-    this.loadPositions();
 
     if (connection != null) {
       this._loadHistory();
@@ -180,6 +190,12 @@ export class DomFormComponent extends BaseOrderForm {
     );
   }
 
+  positionsToQuantity() {
+    if (typeof this.positionSum === 'number' && this.positionSum != 0) {
+      this.form.patchValue({quantity: Math.abs(this.positionSum)});
+    }
+  }
+
   createForm() {
     const type = this.typeButtons.find(i => i.black);
     const duration = this.tifButtons.find(i => i.black);
@@ -206,7 +222,7 @@ export class DomFormComponent extends BaseOrderForm {
 
 
   increaseQuantity(value: number) {
-   this.quantitySelect.currentItem.value += value;
+    this.quantitySelect.currentItem.value += value;
   }
 
   getPl() {

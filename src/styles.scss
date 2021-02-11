@@ -40,6 +40,12 @@ body {
   font-size: $baseFontSize;
 }
 
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .ant-select, .ant-checkbox-wrapper, .ant-radio-wrapper {
   font-size: 0.7rem;
 }

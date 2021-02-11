@@ -339,8 +339,8 @@ export const hotkeyFields: IFieldConfig[] = [
         getHotkey('Sell Market'),
         getHotkey('Hit Bid'),
         getHotkey('Join Bid'),
-
         getHotkey('Lift Offer'),
+        getHotkey('Join Ask'),
         getHotkey({ label: 'OCO', key: 'oco' }),
         getHotkey('Flatten'),
         getHotkey('Cancel All Orders'),
@@ -349,9 +349,9 @@ export const hotkeyFields: IFieldConfig[] = [
         getHotkey({ label: 'Quantity 3 Preset', key: 'quantity3' }),
         getHotkey({ label: 'Quantity 4 Preset', key: 'quantity4' }),
         getHotkey({ label: 'Quantity 5 Preset', key: 'quantity5' }),
-        getHotkey({ label: 'Quantity 6 Preset', key: 'quantity6' }),
         getHotkey({ label: 'Quantity to Position Size', key: 'quantityToPos' }),
         getHotkey({ label: 'Set All Stops to Price', key: 'stopsToPrice' }),
+        getHotkey({ label: 'Set All Limits to Price', key: 'stopsToLimit' }),
         getHotkey('Clear Alerts'),
         getHotkey('Clear Alerts All Window'),
         getHotkey('Clear All Totals'),
@@ -540,7 +540,7 @@ export const generalFields: IFieldConfig[] = [
         { label: 'Hide From Right', key: 'hideFromRight' },
 
       ], 'Account Name', [{
-        templateOptions: { label: 'Account Digits To Hide' },
+        templateOptions: { label: 'Account Digits To Hide',  min: 0 },
         key: 'digitsToHide',
         type: FieldType.Number,
       }]),

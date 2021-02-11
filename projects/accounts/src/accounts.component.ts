@@ -4,7 +4,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { NzModalService } from 'ng-zorro-antd';
+import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize, take } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
@@ -25,7 +25,7 @@ const maxAccountsPerConnection = 4;
   styleUrls: ['./accounts.component.scss'],
 })
 @LayoutNode()
-export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, OnDestroy {
+export class AccountsComponent implements IStateProvider<AccountsState>, OnInit {
 
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
@@ -42,6 +42,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
     private modal: NzModalService,
+    protected nzContextMenuService: NzContextMenuService
   ) {
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
@@ -91,13 +92,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       });
   }
 
+  contextMenu($event: MouseEvent, menu: any) {
+    this.nzContextMenuService.create($event, menu);
+  }
+
   saveState(): AccountsState {
     return { selectedItem: this.selectedItem };
   }
 
   loadState(state: AccountsState) {
     const { selectedItem } = state;
-    console.log(selectedItem);
     if (selectedItem)
       this.selectItem(selectedItem);
   }
@@ -233,7 +237,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
-        this.disconnect(item);
+        if (item.connected)
+          this.disconnect(item);
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
@@ -270,25 +275,4 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       this.form.get(control).disable();
   }
 
-  clearAllMenu() {
-    this.brokers.forEach(item => this.clearMenu(item));
-  }
-
-  clearMenu(broker: IBroker) {
-    this.getBrokerItems(broker).forEach(data => {
-      if (Array.isArray(data)) {
-        data.forEach(item => {
-          item['menuOpen'] = false;
-          item['rename'] = false;
-        });
-      } else {
-        data['menuOpen'] = false;
-        data['rename'] = false;
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.clearAllMenu();
-  }
 }

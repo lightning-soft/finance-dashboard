@@ -4,6 +4,18 @@
   display: block;
   height: 100%;
 
+  .rename {
+    border-radius: 2px;
+  }
+
+  .connection-name {
+    width: 124px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   ::ng-deep {
     .ant-form label {
       font-size: 0.75rem;
@@ -40,6 +52,7 @@
 
     .broker-description {
       font-size: 0.6rem;
+      color: $text-40;
 
       img {
         height: 20px;
@@ -87,6 +100,19 @@
   }
 }
 
+.connect-button, .disconnect-button {
+  font-size: 0.7rem;
+  height: 22px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.disconnect-button {
+  margin-top: 12px;
+}
+
 cdk-virtual-scroll-viewport {
   height: 100%;
 }
@@ -108,7 +134,7 @@ small {
   border-radius: 2px;
   padding-bottom: 4px;
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   line-height: 1.2;
 
   &:hover {
@@ -122,6 +148,10 @@ small {
 
 .renaming.selectable-item:hover {
   background: transparent;
+}
+
+.renaming {
+  padding-right: 0;
 }
 
 .split-connection {
@@ -179,12 +209,11 @@ small {
 }
 
 ::ng-deep {
-  .broker-actions .ant-popover-inner {
+  .broker-actions {
     background: $light;
     min-width: 90px;
-
-    .ant-popover-inner-content {
-      padding: 4px;
-    }
+    padding: 4px;
+    border: 1px solid $lighter;
+    box-shadow: 0px 0px 10px #15161d;
   }
 }

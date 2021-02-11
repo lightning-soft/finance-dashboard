@@ -14,6 +14,7 @@ import { LoadingService } from 'lazy-modules';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { Orders, Positions } from './objects';
 import { Id } from 'communication';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -40,6 +41,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
+  @ViewChild(ToolbarComponent) toolbar;
   chart: IChart;
 
   private _accountId: Id;
@@ -129,7 +131,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
       this._setUnavaliableIfNeed();
       this.instrument = event.value;
-      this.setTabTitle(event.value.symbol);
 
       this.broadcastLinkData({
         instrument: {
@@ -200,10 +201,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return null;
     }
 
-    if (state && state.instrument) {
-      this.setTabTitle(state.instrument.symbol);
-    }
-
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
       keyboardEventsEnabled: false, // todo: handle key shortcut
@@ -271,6 +268,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
         this.setNeedUpdate();
+        this.toolbar.update();
+        break;
+      case LayoutNodeEvent.Move:
+        this.toolbar.update();
         break;
     }
   }

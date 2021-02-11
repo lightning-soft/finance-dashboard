@@ -9,7 +9,24 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
   protected get suffix(): string {
     return 'Position';
   }
+  static transformPosition(item): IPosition{
+    const { averageFillPrice: price, volume: size, instrument } = item;
 
+    return {
+      id: instrument.exchange + instrument.symbol,
+      instrument,
+      accountId: item.account.id,
+      price,
+      size,
+      sellVolume: item.sellVolume,
+      buyVolume: item.buyVolume,
+      realized: item.realisedPL,
+      unrealized: 0,
+      total: size * price,
+      side: item.type,
+      status: PositionStatus.Open,
+    };
+  }
   _getRepository() {
     return new RealPositionsRepository(
       this._http,
@@ -31,22 +48,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
         const data = res.result
           .filter((item: any) => this._filter(item, _params))
           .map((item: any) => {
-            const { averageFillPrice: price, volume: size, instrument } = item;
-
-            return {
-              id: instrument.exchange + instrument.symbol,
-              instrument,
-              accountId: item.account.id,
-              price,
-              size,
-              sellVolume: item.sellVolume,
-              buyVolume: item.buyVolume,
-              realized: item.realisedPL,
-              unrealized: 0,
-              total: size * price,
-              side: item.type,
-              status: PositionStatus.Open,
-            };
+            return RealPositionsRepository.transformPosition(item);
           });
 
         return { data } as IPaginationResponse<IPosition>;

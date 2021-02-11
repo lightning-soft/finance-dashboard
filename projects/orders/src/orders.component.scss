@@ -10,6 +10,12 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
+    .regular {
+      nz-select-item {
+        font-weight: 400;
+      }
+    }
+
     .ant-tabs-bar {
       margin-left: 8px;
       margin-bottom: 6px;

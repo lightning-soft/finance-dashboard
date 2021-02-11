@@ -4,9 +4,10 @@ import {
   HostBinding,
   Input,
   OnDestroy,
-  OnInit,
+  OnInit, Output,
   ViewChild,
-  ViewContainerRef
+  ViewContainerRef,
+  EventEmitter
 } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
@@ -47,6 +48,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @ViewChild(ModalComponent)
   modalComponent: ModalComponent;
+
+  @Output() currentCellChanged = new EventEmitter();
 
   @Input()
   handlers: DataGridHandler[] = [];
@@ -270,7 +273,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _currentCellChanged = (e) => {
-    console.log('currentCellChanged', e);
+    this.currentCellChanged.emit(e);
     this.title = e?.item?.toString() ?? '';
   }
 
