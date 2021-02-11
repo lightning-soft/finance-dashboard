@@ -46,9 +46,9 @@ export enum OrderType {
   Limit = 'Limit',
   StopMarket = 'StopMarket',
   StopLimit = 'StopLimit',
-  MIT = 'MIT',
-  LIT = 'LIT',
-  ICE = 'ICE'
+  // MIT = 'MIT',
+  // LIT = 'LIT',
+  // ICE = 'ICE'
 }
 
 export enum OrderStatus {

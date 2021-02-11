@@ -1,15 +1,13 @@
 import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
 import { QuantityPositions } from 'dom';
+import { IPosition } from 'projects/trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity } from 'trading';
-import { QuantityInputComponent } from 'base-order-form';
-import { BaseOrderForm } from 'base-order-form';
 import { skip } from 'rxjs/operators';
-import { PositionsRepository } from 'trading';
-import { IPosition } from 'projects/trading';
+import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity, PositionsRepository } from 'trading';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,

@@ -26,7 +26,7 @@
     </div>
     <div class="grid gap-4">
       <nz-select formControlName="type" [nzOptionHeightPx]="20">
-        <nz-option *ngFor="let item of OrderTypes" [nzValue]="item" [nzLabel]="item">
+        <nz-option *ngFor="let item of OrderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
       <nz-select formControlName="duration" [nzOptionHeightPx]="20">
@@ -54,6 +54,7 @@
     <nz-input-number
       [class.d-none]="!isStopLimit"
       class="limit-number-input"
+      nzMin="1"
       [ngModelOptions]="{standalone: true}"
       [(ngModel)]="limitPrice"></nz-input-number>
     <div class="count">

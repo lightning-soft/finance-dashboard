@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { Id } from 'communication';
-import { ILayoutNode, LayoutNode } from 'layout';
+import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
   IInfo,
   IInstrument,
@@ -18,6 +18,10 @@ import {
 } from 'trading';
 import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
 
+interface OrderFormState {
+  instrument: IInstrument;
+}
+
 export interface OrderFormComponent extends ILayoutNode {
 }
 
@@ -28,9 +32,15 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
-export class OrderFormComponent extends BaseOrderForm implements OnInit {
+export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
   OrderDurations = Object.values(OrderDuration);
-  OrderTypes = Object.values(OrderType);
+  OrderTypes = [
+    {label: 'MKT', value: OrderType.Market},
+    {label: 'LMT', value: OrderType.Limit},
+    {label: 'STP LMT', value: OrderType.StopLimit},
+    {label: 'STP MKT', value: OrderType.StopMarket},
+
+  ];
   step = 1;
   OrderSide = OrderSide;
   editIceAmount: boolean;
@@ -69,7 +79,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit {
     this._levelOneDatafeedService.subscribe(value);
     this._instrument = value;
     const { symbol, exchange } = value;
-    this.form.patchValue({ symbol, exchange });
+    this.form?.patchValue({ symbol, exchange });
 
     this.bidInfo = null;
     this.askInfo = null;
@@ -116,6 +126,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit {
     return dto;
   }
 
+  loadState(state: OrderFormState) {
+    if (state?.instrument)
+      this.instrument = state.instrument;
+  }
+
+  saveState(): OrderFormState {
+    return { instrument: this.instrument };
+  }
+
   ngOnInit() {
     super.ngOnInit();
 
@@ -150,7 +169,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit {
       accountId: [null],
       type: [OrderType.Market],
       quantity: [1],
-      exchange: null,
+      exchange: this.instrument?.exchange,
       stopLoss: {
         stopLoss: false,
         ticks: 10,
@@ -163,7 +182,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit {
         ticks: 10,
         unit: 'ticks'
       },
-      symbol: null,
+      symbol: this.instrument?.symbol,
       duration: [OrderDuration.GTC],
       side: [null],
       limitPrice: [null],

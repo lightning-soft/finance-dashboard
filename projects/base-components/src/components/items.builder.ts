@@ -18,6 +18,7 @@ export interface IItemsBuilderParams<T, VM> {
   filter?: (item: T) => boolean;
   wrap?: (item: T) => VM;
   unwrap?: (item: VM) => T;
+  addNewItems?: 'start' | 'end';
 }
 
 export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> implements IItemsBuilder<T, VM> {
@@ -45,7 +46,13 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
   }
 
   addItems(items: T[]) {
-    this._items = this._order([this._items, this._handle(items)]);
+    let data;
+    if (this._params.addNewItems === 'start') {
+      data = [this._handle(items), this._items];
+    } else {
+      data = [this._items, this._handle(items)];
+    }
+    this._items = this._order(data);
   }
 
   wrap(data: T | T[]): any {
