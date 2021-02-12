@@ -1,9 +1,13 @@
 import { IInstrument } from './instrument';
-import { OrderSide } from './order';
+
+export enum QuoteSide {
+  Ask = 'Ask',
+  Bid = 'Bid',
+}
 
 export interface IQuote {
     timestamp: number;
-    side: OrderSide;
+    side: QuoteSide;
     instrument: IInstrument;
     price: number;
     volume: number;

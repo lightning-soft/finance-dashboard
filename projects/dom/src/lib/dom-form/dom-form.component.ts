@@ -8,6 +8,7 @@ import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity, PositionsRepository } from 'trading';
+import { ITypeButton } from './type-buttons/type-buttons.component';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -23,6 +24,7 @@ export enum FormActions {
   CloseBuyOrders,
   CloseSellOrders,
   SelectQuantity,
+  CreateMarketOrder
 }
 
 export interface DomFormSettings {
@@ -118,23 +120,25 @@ export class DomFormComponent extends BaseOrderForm {
     { value: 10 }, { value: 50 },
     { value: 100 }, { value: 5 }
   ];
-  typeButtons = [
-    { label: 'LMT', value: OrderType.Limit },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true },
-    { label: 'MKT', value: OrderType.Market },
+  typeButtons: ITypeButton[] = [
+    { label: 'LMT', value: OrderType.Limit, selectable: true  },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true  },
+    { label: 'MKT', value: OrderType.Market, onClick: () => {
+     this.emit(FormActions.CreateMarketOrder);
+      }, selectable: false },
     // { label: 'OCO', value: 'OCO', black: true },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true },
+    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true  },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
 
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
-  tifButtons = [
-    { label: 'DAY', value: OrderDuration.DAY },
-    { label: 'GTD', value: OrderDuration.GTD },
+  tifButtons: ITypeButton[] = [
+    { label: 'DAY', value: OrderDuration.DAY, selectable: true },
+    { label: 'GTD', value: OrderDuration.GTD, selectable: true },
     // { label: 'GTC', value: OrderDuration.GTC, black: true },
-    { label: 'FOK', value: OrderDuration.FOK, black: true },
-    { label: 'IOC', value: OrderDuration.IOC, black: true },
+    { label: 'FOK', value: OrderDuration.FOK, black: true, selectable: true },
+    { label: 'IOC', value: OrderDuration.IOC, black: true, selectable: true },
   ];
   editAmount = false;
   editIceAmount = false;

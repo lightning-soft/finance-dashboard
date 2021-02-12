@@ -1,6 +1,6 @@
 import { Id } from 'base-components';
 import { DataCell, IconCell, NumberCell } from 'data-grid';
-import { IPosition, ITrade, Side } from 'trading';
+import { IPosition, IQuote, Side } from 'trading';
 
 export class PositionItem {
   get id(): Id | undefined {
@@ -42,7 +42,7 @@ export class PositionItem {
     this.close.updateClass(iconClass);
   }
 
-  public updateUnrealized(trade: ITrade) {
+  public updateUnrealized(trade: IQuote) {
     const currentPrice = +this.price.value;
     const { volume, price } = trade;
 

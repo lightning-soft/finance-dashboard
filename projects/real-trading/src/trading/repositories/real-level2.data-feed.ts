@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IInstrument, ITrade } from 'trading';
+import { IInstrument } from 'trading';
 import { RealFeed, WSMessageTypes } from './real-feed';
 import { RealtimeType } from './realtime';
 
@@ -9,7 +9,7 @@ export class RealLevel2DataFeed extends RealFeed<any, IInstrument>{
   subscribeType = WSMessageTypes.SUBSCRIBE_L2;
   unsubscribeType = WSMessageTypes.SUBSCRIBE_L2;
 
-  protected _filter(trade: ITrade) {
+  protected _filter(trade) {
     // return !isNaN(trade.askInfo.price) && !isNaN(trade.bidInfo.price);
     return true;
   }

@@ -47,6 +47,19 @@ export abstract class Cell implements ICell {
   status: string = '';
   private _prevStatus = '';
 
+  private _visibility = true;
+
+  get visible() {
+    return this._visibility;
+  }
+
+  set visible(value) {
+    if (!value)
+      this.value = '';
+    this.drawed = false;
+    this._visibility = value;
+  }
+
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
   }
@@ -86,7 +99,6 @@ export abstract class Cell implements ICell {
   hightlight() {
     this.changeStatus(CellStatus.Highlight);
   }
-
 
   clear() {
     this.value = '';

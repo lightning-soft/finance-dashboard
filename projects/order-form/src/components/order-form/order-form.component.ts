@@ -6,14 +6,13 @@ import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
 import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
-  IInfo,
   IInstrument,
-  IOrder, IQuote, Level1DataFeed,
+  IOrder,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository
+  PositionsRepository, TradeDataFeed, TradePrint
 } from 'trading';
 
 interface OrderFormState {
@@ -33,18 +32,21 @@ export interface OrderFormComponent extends ILayoutNode {
 export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
   OrderDurations = Object.values(OrderDuration);
   OrderTypes = [
-    {label: 'MKT', value: OrderType.Market},
-    {label: 'LMT', value: OrderType.Limit},
-    {label: 'STP LMT', value: OrderType.StopLimit},
-    {label: 'STP MKT', value: OrderType.StopMarket},
+    { label: 'MKT', value: OrderType.Market },
+    { label: 'LMT', value: OrderType.Limit },
+    { label: 'STP LMT', value: OrderType.StopLimit },
+    { label: 'STP MKT', value: OrderType.StopMarket },
 
   ];
   step = 1;
   OrderSide = OrderSide;
   editIceAmount: boolean;
 
-  bidInfo: IInfo;
-  askInfo: IInfo;
+  bidPrice: number;
+  askPrice: number;
+
+  askVolume: number;
+  bidVolume: number;
 
   limitPrice: number;
 
@@ -73,14 +75,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     if (value?.id === this.instrument?.id)
       return;
 
-    this._levelOneDatafeedService.unsubscribe(this._instrument);
-    this._levelOneDatafeedService.subscribe(value);
+    this._tradeDataFeed.unsubscribe(this._instrument);
+    this._tradeDataFeed.subscribe(value);
     this._instrument = value;
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
 
-    this.bidInfo = null;
-    this.askInfo = null;
+    this.bidPrice = null;
+    this.askPrice = null;
+    this.askVolume = null;
+    this.bidVolume = null;
   }
 
   get instrument(): IInstrument {
@@ -101,7 +105,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected positionsRepository: PositionsRepository,
-    protected _levelOneDatafeedService: Level1DataFeed,
+    // protected _levelOneDatafeedService: Level1DataFeed,
+    private _tradeDataFeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -127,6 +132,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   loadState(state: OrderFormState) {
     if (state?.instrument)
       this.instrument = state.instrument;
+    else
+      this.instrument = {
+        id: 'ESH1',
+        description: 'E-Mini S&P 500',
+        exchange: 'CME',
+        tickSize: 0.25,
+        precision: 2,
+        symbol: 'ESH1',
+      };
   }
 
   saveState(): OrderFormState {
@@ -144,10 +158,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
 
-    this.onRemove(this._levelOneDatafeedService.on((trade: IQuote) => {
+    this.onRemove(this._tradeDataFeed.on((trade: TradePrint) => {
       if (trade.instrument?.symbol === this.instrument?.symbol) {
-        // this.askInfo = trade.askInfo;
-        // this.bidInfo = trade.bidInfo;
+        if (trade.side === OrderSide.Buy) {
+          this.askPrice = trade.price;
+          this.askVolume = trade.volumeBuy;
+        } else {
+          this.bidVolume = trade.volumeSell;
+          this.bidPrice = trade.price;
+        }
       }
     }));
   }
