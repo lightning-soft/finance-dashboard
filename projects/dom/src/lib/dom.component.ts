@@ -27,6 +27,7 @@ import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { QuoteSide } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -162,9 +163,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     },
     clearCurrentTrades: () => {
       for (let item of this.items) {
-        item.orders.clearOrder();
-        item.askDelta.clear();
-        item.bidDelta.clear();
+        item.currentBid.clear();
+        item.currentAsk.clear();
       }
     },
     clearCurrentTradesAllWindows: () => {
@@ -402,27 +402,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   allStopsToPrice() {
-/*    const row = this.currentCell.row;
-    if (row) {
-      const _orders = row.orders.orders;
-      const price = row.price.value;
-      const orders = _orders.filter(item => [OrderType.StopLimit, OrderType.StopMarket]).map(item => {
-        return {...item, stopPrice: price, limitPrice: price};
-      });
-      orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-    }*/
+    /*    const row = this.currentCell.row;
+        if (row) {
+          const _orders = row.orders.orders;
+          const price = row.price.value;
+          const orders = _orders.filter(item => [OrderType.StopLimit, OrderType.StopMarket]).map(item => {
+            return {...item, stopPrice: price, limitPrice: price};
+          });
+          orders.map(item => this._ordersRepository.updateItem(item).toPromise());
+        }*/
   }
 
   allLimitToPrice() {
-  /*  const row = this.currentCell.row;
-    if (row) {
-      const _orders = row.orders.orders;
-      const price = row.price.value;
-      const orders = _orders.filter(item => [OrderType.Limit, OrderType.StopLimit]).map(item => {
-        return {...item, stopPrice: price, limitPrice: price};
-      });
-      orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-    }*/
+    /*  const row = this.currentCell.row;
+      if (row) {
+        const _orders = row.orders.orders;
+        const price = row.price.value;
+        const orders = _orders.filter(item => [OrderType.Limit, OrderType.StopLimit]).map(item => {
+          return {...item, stopPrice: price, limitPrice: price};
+        });
+        orders.map(item => this._ordersRepository.updateItem(item).toPromise());
+      }*/
   }
 
   _createOrderByCurrent(side: OrderSide, from) {
@@ -556,8 +556,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const instrument = this.instrument;
-        asks.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Buy } as IQuote));
-        bids.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: OrderSide.Sell } as IQuote));
+        asks.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: QuoteSide.Ask } as IQuote));
+        bids.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: QuoteSide.Bid } as IQuote));
 
         for (const i of this.items) {
           i.clearDelta();
@@ -724,8 +724,29 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const price = trade.price;
       // const
 
-      for (const item of this.items) {
-        item.clearDelta();
+      const offset = this._settings.general?.marketDepth?.bidAskDeltaDepth ?? 10000;
+      const index = this.items.findIndex(i => i.lastPrice == price);
+
+      if (index != -1) {
+        const items = this.items;
+        let up = index;
+        let down = index;
+
+        while (--up >= 0) {
+          items[up].clearDelta();
+          items[up].clearBid();
+
+          if (items[up].setOffset(index - up, index - up > offset))
+            break;
+        }
+
+        while (++down < items.length) {
+          items[down].clearDelta();
+          items[down].clearAsk();
+
+          if (items[down].setOffset(down - index, down - index > offset))
+            break;
+        }
       }
     }
 

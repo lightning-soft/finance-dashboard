@@ -1,14 +1,10 @@
 import { IInstrument } from './instrument';
-
-export enum TradeSide {
-  Ask = 'Ask',
-  Bid = 'Bid',
-}
+import { OrderSide } from './order';
 
 export interface TradePrint {
   instrument: IInstrument;
   price: number
-  side: TradeSide;
+  side: OrderSide;
   timestamp: number;
   volume: number;
   volumeBuy: number;

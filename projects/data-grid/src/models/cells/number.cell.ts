@@ -72,7 +72,7 @@ export class NumberCell extends Cell {
         this.class = '';
     }
 
-    if (this.ignoreZero && value == 0)
+    if (this.ignoreZero && value == 0 || !this.visible)
       this.value = ''
     else
       this.value = this.formatter ? this.formatter.format(value) : value.toString();
