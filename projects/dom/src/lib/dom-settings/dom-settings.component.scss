@@ -16,6 +16,20 @@ cdk-virtual-scroll-viewport {
     contain: unset;
   }
 
+  .ticks-per-price {
+    margin-left: calc(48% + 6px) !important;
+  }
+
+  .use-tick-size {
+    margin-left: 6px;
+  }
+
+  .custom-tick-size {
+    nz-form-item {
+      margin-bottom: 0;
+    }
+  }
+
   nz-form-item {
     flex-direction: column;
     margin-bottom: 7px;
@@ -81,6 +95,7 @@ cdk-virtual-scroll-viewport {
     margin-top: 4px;
     display: inline-block;
   }
+
   .current-level-item {
     margin-top: -2px !important;
   }

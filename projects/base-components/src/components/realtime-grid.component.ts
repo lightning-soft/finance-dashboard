@@ -3,7 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
 import { DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
-import { SynchronizeFrames } from 'performance';
+// import { SynchronizeFrames } from 'performance';
 import { ITrade, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 
@@ -53,7 +53,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
     this._handleResize();
   }
 
-  @SynchronizeFrames()
+ // @SynchronizeFrames()
   private _handleResize() {
     this.dataGrid.resize();
   }

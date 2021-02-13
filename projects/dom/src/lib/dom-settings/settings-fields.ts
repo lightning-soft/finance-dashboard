@@ -540,47 +540,61 @@ export const generalFields: IFieldConfig[] = [
         { label: 'Hide From Right', key: 'hideFromRight' },
 
       ], 'Account Name', [{
-        templateOptions: { label: 'Account Digits To Hide',  min: 0 },
+        templateOptions: { label: 'Account Digits To Hide', min: 0 },
         key: 'digitsToHide',
         type: FieldType.Number,
       }]),
       new FieldConfig({
         label: 'Common View',
         fieldGroup: [
+          getCheckboxes([
+            {
+              label: 'Always on Top',
+              key: 'onTop',
+            },
+            {
+              label: 'Center Line',
+              key: 'centerLine'
+            },
+            {
+              label: 'Reset on new Session',
+              key: 'resetOnNewSession'
+            },
+            {
+              label: 'Auto Center',
+              key: 'autoCenter',
+            },
+          ], null, [], {className: 'w-100'}),
           {
             templateOptions: { label: 'Auto Center Ticks' },
             key: 'autoCenterTicks',
+            className: 'ml-0 mr-0',
             type: FieldType.Number,
           },
+          getCheckboxes([{
+            label: 'Use Custom Tick Size',
+            key: 'useCustomTickSize',
+            config: {className: 'm-0'}
+          }], null, [], {className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
+            fieldGroupClassName: '',
+            wrappers: [],
+          }),
           {
-            templateOptions: { label: 'Ticks per price' },
+            templateOptions: {
+              min: 0,
+              step: 0.25,
+              label: 'Ticks per price'
+            },
+            expressionProperties: {
+              'templateOptions.disabled': '!model.useCustomTickSize',
+            },
+            className: 'ticks-per-price',
             key: 'ticksPerPrice',
             type: FieldType.Number,
           },
         ]
       }),
-      getCheckboxes([
-        {
-          label: 'Always on Top',
-          key: 'onTop',
-        },
-        {
-          label: 'Center Line',
-          key: 'centerLine'
-        },
-        {
-          label: 'Reset on new Session',
-          key: 'resetOnNewSession'
-        },
-        {
-          label: 'Auto Center',
-          key: 'autoCenter',
-        },
-        {
-          label: 'Use Custom Tick Size',
-          key: 'useCustomTickSize'
-        },
-      ]),
+
       new FieldConfig({
         label: 'Depth & Market',
         key: 'marketDepth',
@@ -663,20 +677,20 @@ export const generalFields: IFieldConfig[] = [
 
 export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
-      label: 'Last Traded Quantity (LTQ)',
-      key: 'ltq',
-      fieldGroupClassName: '',
+    label: 'Last Traded Quantity (LTQ)',
+    key: 'ltq',
+    fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-        fieldGroup: [
-          getFontColor(),
-          getColor('Sell Background Color'),
-          getColor('Background Color'),
-          getColor({ label: 'Highlight Color', key: 'highlightColor' }),
-          //  getHistogramColor(),
-          getColor('Buy Background Color'),
-        ]
-      },
+          fieldGroup: [
+            getFontColor(),
+            getColor('Sell Background Color'),
+            getColor('Background Color'),
+            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+            //  getHistogramColor(),
+            getColor('Buy Background Color'),
+          ]
+        },
       ),
       {
         fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -905,7 +919,7 @@ export const orderColumnFields: IFieldConfig[] = [
         fieldGroup: [
           {
             ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-            { key: 'includePnl', label: 'Include Closed PnL' }]),
+              { key: 'includePnl', label: 'Include Closed PnL' }]),
             fieldGroupClassName: '',
             className: 'pl-1',
           },
@@ -933,7 +947,7 @@ export const orderColumnFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-        disableExpression(getColor('Sell Orders Column'), '!model.split')]
+          disableExpression(getColor('Sell Orders Column'), '!model.split')]
       })
     ]
   }),

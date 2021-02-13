@@ -6,7 +6,7 @@ import { LayoutNode } from 'layout';
 import { positionsLevelOneDataFeedHandler, RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IPosition, IPositionParams, ITrade, Level1DataFeed, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, ITrade, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
 
 const headers = [
@@ -84,7 +84,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     else
       this.groupItems($event);
 
-    console.warn(JSON.parse(JSON.stringify(this.builder)));
   }
 
   set status(value: PositionStatus) {
