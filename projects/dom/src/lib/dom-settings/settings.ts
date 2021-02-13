@@ -23,12 +23,16 @@ export class DomSettings {
 
   general: any = {
     allWindows: false,
-    autoCenter: false,
-    centerLine: false,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
-    commonView: { autoCenterTicks: 10, ticksPerPrice: 5 },
+    commonView: { autoCenterTicks: 10, ticksPerPrice: 0.25,
+      onTop: true,
+      resetOnNewSession: true,
+      autoCenter: false,
+      centerLine: false,
+      useCustomTickSize: true,
+    },
     marketDepth: {
       bidAskDeltaDepth: 9, marketDepth: 9,
       showDepthHistory: false,
@@ -47,10 +51,7 @@ export class DomSettings {
       printOutlines: false,
       momentumTails: false,
     },
-    onTop: true,
     recenter: true,
-    resetOnNewSession: true,
-    useCustomTickSize: true,
   };
   hotkeys: any = {
     quantity1: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_1]),

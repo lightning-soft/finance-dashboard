@@ -12,7 +12,7 @@ import {
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { SynchronizeFrames } from 'performance';
+// import { SynchronizeFrames } from 'performance';
 import {
   IConnection,
   IInstrument,
@@ -434,7 +434,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const row = this.currentCell.row;
     if (row) {
       const price = row[from].value;
-      this._createOrder(side, price);
+      if (price !== '')
+        this._createOrder(side, +price);
     }
   }
 
@@ -443,7 +444,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handlePosition(pos) {
-    if (pos.instrument.id !== this.instrument.id)
+    if (pos.instrument.symbol !== this.instrument.symbol)
       return;
     const newPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
@@ -690,7 +691,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  @SynchronizeFrames()
+  // @SynchronizeFrames()
   detectChanges(force = false) {
     this.dataGrid.detectChanges(force);
   }
@@ -877,7 +878,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  @SynchronizeFrames()
+  // @SynchronizeFrames()
   private _handleResize(afterResize?: Function) {
     const visibleRows = this.dataGrid.getVisibleRows();
     this.visibleRows = visibleRows;
