@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
-import { IInstrument, IQuote } from 'trading';
+import { IInstrument, TradePrint } from 'trading';
 import { RealFeed, WSMessageTypes } from './real-feed';
 import { RealtimeType } from './realtime';
 
 @Injectable()
-export class RealLevel1DataFeed extends RealFeed<IQuote, IInstrument> {
-  type = RealtimeType.Quote;
-
+export class RealTradeDataFeed extends RealFeed<TradePrint, IInstrument> {
+  type = RealtimeType.TradePrint;
   subscribeType = WSMessageTypes.SUBSCRIBE;
   unsubscribeType = WSMessageTypes.UNSUBSCRIBE;
 
-  protected _filter(item: IQuote) {
-    item.timestamp *= 1000;
-
+  protected _filter(trade: TradePrint) {
+    trade.timestamp *= 1000;
     return true;
   }
 }

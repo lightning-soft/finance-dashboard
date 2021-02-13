@@ -1,8 +1,8 @@
 import { Column, DefaultScrollSensetive } from 'data-grid';
 import * as merge from 'deepmerge';
 import { TextAlign } from 'dynamic-form';
-import { HistogramOrientation } from './settings-fields';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
+import { HistogramOrientation } from './settings-fields';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
@@ -23,10 +23,13 @@ export class DomSettings {
 
   general: any = {
     allWindows: false,
+    autoCenter: false,
+    centerLine: true,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
-    commonView: { autoCenterTicks: 10, ticksPerPrice: 0.25,
+    commonView: {
+      autoCenterTicks: 10, ticksPerPrice: 0.25,
       onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
@@ -118,7 +121,7 @@ export class DomSettings {
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
     color: 'white',
-    accumulateTrades: false,
+    accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
     // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
     textAlign: TextAlign.Center,

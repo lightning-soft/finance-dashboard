@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IPosition, IPositionParams, ITrade, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
+import { IQuote } from '../../trading/src/trading/models/quote';
 
 const headers = [
   'account',
@@ -39,7 +40,7 @@ enum GroupByItem {
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
-  protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
+  protected _levelOneDataFeedHandler = (trade: IQuote) => this.items.map(i => i.updateUnrealized(trade));
 
   private _columns: Column[] = [];
   groupBy = GroupByItem.None;
@@ -120,41 +121,37 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
-    ) {
-      super();
-      this.autoLoadData = false;
+  ) {
+    super();
+    this.autoLoadData = false;
 
-      this.builder.setParams({
-        groupBy: ['accountId', 'instrumentName'],
-        order: 'desc',
-        wrap: (item: IPosition) => new PositionItem(item),
-        unwrap: (item: PositionItem) => item.position,
-      });
+    this.builder.setParams({
+      groupBy: ['accountId', 'instrumentName'],
+      order: 'desc',
+      wrap: (item: IPosition) => new PositionItem(item),
+      unwrap: (item: PositionItem) => item.position,
+    });
 
-      this._columns = headers.map(convertToColumn);
+    this._columns = headers.map(convertToColumn);
 
-      this.setTabIcon('icon-widget-positions');
-      this.setTabTitle('Positions');
-      this._levelOneDataFeedHandler = this._handlePositionUnrealized;
-    }
+    this.setTabIcon('icon-widget-positions');
+    this.setTabTitle('Positions');
+  }
 
-    private _handlePositionUnrealized(trade: ITrade): void {
-      this.items.map(i => i.updateUnrealized(trade));
-    }
-  _transformDataFeedItem(item){
+  _transformDataFeedItem(item) {
     return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
   }
-    // need for group by InstrumentName
-    protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
-      return this.repository.getItems(params)
+  // need for group by InstrumentName
+  protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
+    return this.repository.getItems(params)
       .pipe(map(response => {
         response.data = response.data.map(item => {
           return this._addInstrumentName(item);
-      });
+        });
         return response;
-    }));
+      }));
   }
-  _addInstrumentName(item){
+  _addInstrumentName(item) {
     return { ...item, instrumentName: item.instrument.symbol };
   }
 

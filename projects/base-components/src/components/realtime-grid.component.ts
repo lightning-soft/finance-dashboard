@@ -3,8 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
 import { DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
-// import { SynchronizeFrames } from 'performance';
-import { ITrade, Level1DataFeed, OnTradeFn } from 'trading';
+import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 
 export function convertToColumn(nameOrArr: any) {
@@ -37,7 +36,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
 
   protected _dataFeed: any;
   protected _levelOneDataFeed: Level1DataFeed;
-  protected _levelOneDataFeedHandler: OnTradeFn<ITrade>;
+  protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
 
   ngOnInit() {
     super.ngOnInit();

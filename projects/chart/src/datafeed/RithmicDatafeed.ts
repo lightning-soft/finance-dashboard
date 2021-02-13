@@ -4,11 +4,12 @@ import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 import {
   HistoryRepository,
-  InstrumentsRepository, ITrade,
-  Level1DataFeed
+  InstrumentsRepository,
+  Level1DataFeed,
+  IQuote,
 } from 'trading';
 import { Datafeed } from './Datafeed';
-import { IBarsRequest, IQuote, IRequest } from './models';
+import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity } from './TimeFrame';
 
 declare let StockChartX: any;
@@ -115,29 +116,19 @@ export class RithmicDatafeed extends Datafeed {
     this._levelOneDatafeedService.subscribe(instrument);
 
     this._unsubscribe();
-    this._unsubscribeFn = this._levelOneDatafeedService.on((trade: ITrade) => {
-      const quote: IQuote = {
-        askInfo: {
-          price: trade.askInfo.price,
-          volume: trade.askInfo.volume,
-          order: trade.askInfo.orderCount
-        },
-        bidInfo: {
-          price: trade.bidInfo.price,
-          volume: trade.bidInfo.volume,
-          order: trade.bidInfo.orderCount
-        },
-        price: (trade.bidInfo.price + trade.askInfo.price) / 2,
-        date: new Date(trade.timestamp),
-        instrument: {
-          symbol: trade.instrument.symbol,
-          company: trade.instrument.symbol,
-          exchange: trade.instrument.exchange,
-          tickSize: 0.2,
-          id: Date.now,
-        }
+    this._unsubscribeFn = this._levelOneDatafeedService.on((quote: IQuote) => {
+      const _quote: ChartQuote = {
+        // Ask: quote.volume;
+        // AskSize: number;
+        // Bid: number;
+        // BidSize: number;
+        // Instrument: string;
+        Price: quote.price,
+        Time: quote.timestamp,
+        Volume: quote.volume,
       } as any;
-      this.processQuote(chart, quote);
+
+      this.processQuote(chart, _quote);
     });
   }
 
