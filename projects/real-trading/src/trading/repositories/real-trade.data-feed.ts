@@ -8,10 +8,5 @@ export class RealTradeDataFeed extends RealFeed<TradePrint, IInstrument> {
   type = RealtimeType.TradePrint;
   subscribeType = WSMessageTypes.SUBSCRIBE;
   unsubscribeType = WSMessageTypes.UNSUBSCRIBE;
-
-  protected _filter(trade: TradePrint) {
-    trade.timestamp *= 1000;
-    return true;
-  }
 }
 

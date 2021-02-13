@@ -1,6 +1,14 @@
 import { Component, forwardRef, Input, OnInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+export interface ITypeButton {
+  label: string;
+  value: any;
+  selectable: boolean;
+  black?: boolean;
+  onClick?: () => void;
+}
+
 @Component({
   selector: 'type-buttons',
   templateUrl: './type-buttons.component.html',
@@ -14,7 +22,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class TypeButtonsComponent implements ControlValueAccessor {
-  @Input() typeButtons = [];
+  @Input() typeButtons: ITypeButton[] = [];
   onChange;
   private currentValue: any;
 
@@ -38,5 +46,12 @@ export class TypeButtonsComponent implements ControlValueAccessor {
 
   isCurrentValue(item: any) {
     return this.currentValue === item.value;
+  }
+
+  onClick(item: ITypeButton) {
+    if (item.onClick)
+      item.onClick();
+    if (item.selectable)
+      this.updateValue(item);
   }
 }

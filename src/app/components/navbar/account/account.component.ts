@@ -23,7 +23,7 @@ export class AccountComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this._authService.isAuthenticated
+    this._authService.isAuthorizedChange
       .subscribe((res: boolean) => {
         this.isAuthenticated = res;
 

@@ -29,13 +29,9 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   private _shouldHandleRefreshToken(request) {
-    const isInIgnoreList = ignoredUrls.find(item => {
-      return request.url.includes(item);
-    });
+    const isInIgnoreList = ignoredUrls.find(item => request.url.includes(item));
 
-    return !isInIgnoreList  &&
-      this.auth.getRefreshToken() && this.auth.tokenExpirationDate
-      && Date.now() > this.auth.tokenExpirationDate;
+    return !isInIgnoreList && this.auth.isTokenInvalid();
   }
 
   private _handleRefreshToken(request, next: HttpHandler) {
@@ -62,14 +58,15 @@ export class TokenInterceptor implements HttpInterceptor {
 
   private _prepareRequest(request) {
     const token = this.auth.getToken();
+
     if (token) {
       request = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${this.auth.getToken()}`
+          Authorization: `Bearer ${token}`
         }
       });
-      return request;
     }
+
     return request;
   }
 }

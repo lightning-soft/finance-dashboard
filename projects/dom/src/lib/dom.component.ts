@@ -12,22 +12,20 @@ import {
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-// import { SynchronizeFrames } from 'performance';
+import { RealPositionsRepository } from 'real-trading';
 import {
   IConnection,
   IInstrument,
-  IOrder, IPosition, IQuote, ITrade,
+  IOrder, IPosition, IQuote,
   L2,
   Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrdersFeed, OrderSide,
-  OrdersRepository, OrderStatus, PositionsFeed, PositionsRepository, PositionStatus, TradeDataFeed, TradePrint
+  OrdersRepository, OrderStatus, OrderType, PositionsFeed, PositionsRepository, PositionStatus, QuoteSide, TradeDataFeed, TradePrint
 } from 'trading';
-import { RealPositionsRepository } from "../../../real-trading";
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
-import { QuoteSide } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -156,13 +154,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     clearAlertsAllWindow: () => {
     },
     clearAllTotals: () => {
-      for (let item of this.items) {
+      for (const item of this.items) {
         item.totalBid.clear();
         item.totalAsk.clear();
       }
     },
     clearCurrentTrades: () => {
-      for (let item of this.items) {
+      for (const item of this.items) {
         item.currentBid.clear();
         item.currentAsk.clear();
       }
@@ -207,7 +205,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.broadcastHotkeyCommand('clearTotalTradesUp');
     },
     clearVolumeProfile: () => {
-      for (let item of this.items) {
+      for (const item of this.items) {
         item.volume.clear();
       }
     }
@@ -280,8 +278,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.items = value;
   }
 
-  private _max = new DomItemMax()
-  private _lastChangesItem: { [key: string]: DomItem } = {}
+  private _max = new DomItemMax();
+  private _lastChangesItem: { [key: string]: DomItem } = {};
 
   private _map = new Map<number, DomItem>();
 
@@ -289,7 +287,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._lastChangesItem.ltq?.price?._value;
   }
 
-  private _lastTrade: ITrade;
+  private _lastTrade: TradePrint;
 
   get trade() {
     return this._lastTrade;
@@ -300,8 +298,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   get domFormSettings() {
     return this._settings.orderArea.formSettings;
   }
-
-  private _changedTime = 0;
 
   private get _tickSize() {
     return this.instrument.tickSize ?? 0.01;
@@ -394,7 +390,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
           gridBorderColor: common.generalColors.gridLineColor,
           scrollSensetive: settings.general.intervals.scrollWheelSensitivity,
-        })
+        });
         this._settings.merge(settings);
         this.detectChanges(true);
       }
@@ -526,7 +522,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         console.log(res);
         this._clear();
 
-        let { asks, bids } = res.data[0];
+        const { asks, bids } = res.data[0];
 
         bids.sort((a, b) => a.price - b.price);
         asks.sort((a, b) => b.price - a.price);
@@ -547,7 +543,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           index++;
         }
 
-        index = 0
+        index = 0;
         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
         while (index < maxRows && (price >= minPrice || index < ROWS)) {
@@ -557,19 +553,31 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const instrument = this.instrument;
-        asks.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: QuoteSide.Ask } as IQuote));
-        bids.forEach((info) => this._handleQuote({ instrument, price: info.price, timestamp: 0, volume: info.volume, side: QuoteSide.Bid } as IQuote));
+        asks.forEach((info) => this._handleQuote({
+          instrument,
+          price: info.price,
+          timestamp: 0,
+          volume: info.volume,
+          side: QuoteSide.Ask
+        } as IQuote));
+        bids.forEach((info) => this._handleQuote({
+          instrument,
+          price: info.price,
+          timestamp: 0,
+          volume: info.volume,
+          side: QuoteSide.Bid
+        } as IQuote));
 
         for (const i of this.items) {
           i.clearDelta();
           i.dehighlight(Columns.All);
         }
 
-        this.centralize()
+        this.centralize();
         this._loadOrders();
       },
       error => this.notifier.showError(error)
-    )
+    );
   }
 
   protected _loadOrders() {
@@ -586,7 +594,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._handleOrders(orders);
       },
       error => this.notifier.showError(error),
-    )
+    );
   }
 
   private _handleOrders(orders: IOrder[]) {
@@ -624,7 +632,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   forUpItems(handler: (data) => void) {
     let emit = true;
-    for (let item of this.items) {
+    for (const item of this.items) {
       if (item.isCenter)
         emit = false;
 
@@ -635,7 +643,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   forDownItems(handler: (item) => void) {
     let emit = false;
-    for (let item of this.items) {
+    for (const item of this.items) {
       if (item.isCenter)
         emit = true;
 
@@ -658,7 +666,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     requestAnimationFrame(() => {
       const grid = this.dataGrid;
       const visibleRows = grid.getVisibleRows();
-      var index = ROWS / 2;
+      let index = ROWS / 2;
 
       if (this._lastPrice) {
         for (let i = 0; i < this.items.length; i++) {
@@ -675,13 +683,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  // @SynchronizeFrames()
   detectChanges(force = false) {
     this.dataGrid.detectChanges(force);
   }
 
   private _getItem(price: number): DomItem {
-    let item = this._map.get(price)
+    let item = this._map.get(price);
     if (!item) {
       item = new DomItem(price, this._settings, this._priceFormatter);
       this._map.set(price, item);
@@ -716,8 +723,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
-    let changes = this._lastChangesItem;
-    let prevltqItem = changes.ltq;
+    const changes = this._lastChangesItem;
+    const prevltqItem = changes.ltq;
 
     if (prevltqItem?.lastPrice != trade.price) {
       if (prevltqItem)
@@ -756,7 +763,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!prevltqItem)
       this.centralize();
-
+    this._lastTrade = trade;
     this.detectChanges();
   }
 
@@ -864,7 +871,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.keysStack.handle(event);
-    console.log('this.keysStack', this.keysStack.hashCode())
+    console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
@@ -875,7 +882,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  // @SynchronizeFrames()
   private _handleResize(afterResize?: Function) {
     const visibleRows = this.dataGrid.getVisibleRows();
     this.visibleRows = visibleRows;
@@ -990,9 +996,29 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._closeOrders(FormActions.CloseOrders);
         this._closePositions();
         break;
+      case FormActions.CreateMarketOrder:
+        this._createMarketOrder();
+        break;
       default:
+
         console.error('Undefined action');
     }
+  }
+
+  _createMarketOrder() {
+    const data = this._domForm.getDto();
+    const { exchange, symbol } = this.instrument;
+    // #TODO investigate what side of order should be added.
+    this._ordersRepository.createItem({ ...data,
+      accountId: this._accountId,
+      type: OrderType.Market,
+      side: OrderSide.Buy, exchange, symbol })
+      .toPromise()
+      .then(() => {
+        this.notifier.showSuccess('Order Created');
+      }).catch((err) => {
+        this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {

@@ -3,12 +3,11 @@ import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'b
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { positionsLevelOneDataFeedHandler, RealPositionsRepository } from 'real-trading';
+import { RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IPosition, IPositionParams, ITrade, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import { IPosition, IPositionParams, IQuote, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
-import { IQuote } from '../../trading/src/trading/models/quote';
 
 const headers = [
   'account',
@@ -40,8 +39,6 @@ enum GroupByItem {
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
-  protected _levelOneDataFeedHandler = (trade: IQuote) => this.items.map(i => i.updateUnrealized(trade));
-
   private _columns: Column[] = [];
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
@@ -54,6 +51,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
+
+  protected _levelOneDataFeedHandler = (quote: IQuote) => this.items.map(i => i.updateUnrealized(quote));
 
   get positions(): IPosition[] {
     return this.items.filter(item => item.position).map(item => item.position);

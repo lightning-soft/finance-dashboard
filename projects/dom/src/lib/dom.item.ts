@@ -1,7 +1,7 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
 import { IInfo, IOrder, L2, OrderSide, OrderStatus, TradePrint } from 'trading';
-import { IQuote, QuoteSide } from "trading";
+import { IQuote, QuoteSide } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
