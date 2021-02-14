@@ -1,11 +1,11 @@
-import { AfterContentChecked, Component, ElementRef, HostListener, Injector, Input, ViewChild } from '@angular/core';
+import { Component, Injector, Input } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { DomHelper, ItemsComponent } from 'base-components';
+import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { ConnectionsRepository, IConnection } from 'trading';
 import { filter, skip } from "rxjs/operators";
+import { ConnectionsRepository, IConnection } from 'trading';
 
 
 @UntilDestroy()

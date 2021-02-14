@@ -359,7 +359,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
-        this._onInstrumentChange();
+
+        if (connection)
+          this._onInstrumentChange();
       });
     this._positionsFeed.on((pos) => {
       this.handlePosition(pos);
@@ -1009,16 +1011,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const data = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
     // #TODO investigate what side of order should be added.
-    this._ordersRepository.createItem({ ...data,
+    this._ordersRepository.createItem({
+      ...data,
       accountId: this._accountId,
       type: OrderType.Market,
-      side: OrderSide.Buy, exchange, symbol })
+      side: OrderSide.Buy, exchange, symbol
+    })
       .toPromise()
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
         this.notifier.showError(err);
-    });
+      });
   }
 
   private _closePositions() {

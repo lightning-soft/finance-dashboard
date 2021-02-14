@@ -7,7 +7,7 @@ import { RealtimeType } from './realtime';
 export class RealLevel2DataFeed extends RealFeed<any, IInstrument>{
   type = RealtimeType.Level2;
   subscribeType = WSMessageTypes.SUBSCRIBE_L2;
-  unsubscribeType = WSMessageTypes.SUBSCRIBE_L2;
+  unsubscribeType = WSMessageTypes.UNSUBSCRIBE_L2;
 
   protected _filter(trade) {
     // return !isNaN(trade.askInfo.price) && !isNaN(trade.bidInfo.price);

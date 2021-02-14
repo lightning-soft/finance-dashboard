@@ -24,7 +24,7 @@ export class AccountsManager {
 
   async init() {
     this._webSocketService.on(this._handleStream.bind(this));
-    this._interceptor.disconnectError.subscribe(() => this._deactivateConnection())
+    this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
     this._updateConnections();
 
     return this.connections.pipe(
