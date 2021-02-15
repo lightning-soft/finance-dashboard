@@ -126,7 +126,7 @@ class LtqCell extends HistogramCell {
 
 class TotalTimeCell extends HistogramCell {
   updateValue(value: number) {
-    if (Date.now() > this.time + ((this.settings as any).clearInterval || 0))
+    if (Date.now() < (this.time + ((this.settings as any).updateInterval || 0)))
       return super.updateValue((this._value || 0) + value);
     else
       return super.updateValue(value);
@@ -250,8 +250,7 @@ export class DomItem implements IBaseItem {
 
       if (this._ask == null)
         this._ask = this.ask._value;
-
-      if (this.askDelta.updateValue(this.ask._value - this._ask))
+      else if (this.askDelta.updateValue(this.ask._value - this._ask))
         res.askDelta = this.askDelta.value;
     }
 
@@ -266,8 +265,7 @@ export class DomItem implements IBaseItem {
 
       if (this._bid == null)
         this._bid = this.bid._value;
-
-      if (this.bidDelta.updateValue(this.bid._value - this._bid))
+      else if (this.bidDelta.updateValue(this.bid._value - this._bid))
         res.bidDelta = this.bidDelta._value;
     }
 
@@ -289,17 +287,17 @@ export class DomItem implements IBaseItem {
 
   clearBid() {
     this.bid.clear();
-    this.bid.visible = false;
+    // this.bid.visible = false;
     this.bidDelta.clear();
-    this.bidDelta.visible = false;
+    // this.bidDelta.visible = false;
   }
 
   clearAsk() {
     console.log(this.lastPrice);
     this.ask.clear();
-    this.ask.visible = false;
+    // this.ask.visible = false;
     this.askDelta.clear();
-    this.askDelta.visible = false;
+    // this.askDelta.visible = false;
   }
 
   refresh() {

@@ -397,16 +397,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             column.visible = common[column.name] != false;
           }
         }
+        const general = settings?.general;
         this.dataGrid.applyStyles({
           font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
           gridBorderColor: common.generalColors.gridLineColor,
-          scrollSensetive: settings.general.intervals.scrollWheelSensitivity,
+          scrollSensetive: general.intervals.scrollWheelSensitivity,
         });
-        const minToVisible = settings?.general?.marketDepth?.bidAskDeltaFilter ?? 0;
+        const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
+        const updateInterval = general.intervals.updateInterval ?? 0;
         this._tickSize = settings.general.commonView.ticksPerPrice;
 
         settings.bid.minToVisible = minToVisible;
         settings.ask.minToVisible = minToVisible;
+        settings.currentAsk.updateInterval = updateInterval;
+        settings.currentBid.updateInterval = updateInterval;
 
         this._settings.merge(settings);
         this._applyOfset(this._lastPrice);
@@ -538,7 +542,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const { symbol, exchange } = this._instrument;
     this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
       res => {
-        console.log(res);
+        // console.log(res);
         this._clear();
 
         const { asks, bids } = res.data[0];
@@ -747,6 +751,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
+    // console.log('_handleTrade', prevltqItem?.lastPrice, trade.price, trade.volume);
 
     if (prevltqItem?.lastPrice !== trade.price) {
       if (prevltqItem)
@@ -820,6 +825,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(trade.price);
+    console.log('_handleQuote', trade.price, trade.volume);
     this._handleMaxChange(item.handleQuote(trade), item);
 
     this.detectChanges();
