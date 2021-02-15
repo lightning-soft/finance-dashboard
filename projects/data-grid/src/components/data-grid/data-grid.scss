@@ -24,9 +24,9 @@
 
     canvas {
       font-smooth: never;
-    /*  position: absolute;
-      top: 0;
-      height: 100%;*/
+      /*  position: absolute;
+        top: 0;
+        height: 100%;*/
       -webkit-font-smoothing: none;
     }
   }
@@ -140,6 +140,7 @@
       animation: fadein 0.8s;
     }
 
+
     .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
       background: #1B1D22 !important;
     }
@@ -152,10 +153,38 @@
       font-size: 8px;
     }
 
+    .align {
+      margin-left: auto;
+      border-radius: 2px;
+      margin-right: 4px;
+      background: $inputBackground;
+      height: 16px;
+      width: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      i {
+        font-size: 8px;
+      }
+    }
+
     .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: $text-80;
       border-radius: 2px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 3px 0 3px 4px;
+
+      .ant-dropdown-menu-submenu-arrow {
+        right: 2px;
+      }
+    }
+
+    .menu-settings, .ant-dropdown-menu-submenu-title {
+      padding-left: 5px;
     }
 
     .ant-menu-item:hover, {
@@ -178,7 +207,7 @@
 
     .ant-checkbox-wrapper {
       color: $text-80;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: 400;
     }
   }

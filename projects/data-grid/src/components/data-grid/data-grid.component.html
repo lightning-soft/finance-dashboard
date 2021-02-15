@@ -1,7 +1,7 @@
 <div class="grid" #tableContainer></div>
 
-<nz-dropdown-menu  #menu="nzDropdownMenu">
-  <ul nz-menu  class="columns-items column-main-menu">
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="columns-items column-main-menu">
     <li nz-menu-item><label nz-checkbox
     >Header Panel</label></li>
     <li nz-menu-item><label nz-checkbox
@@ -12,12 +12,12 @@
         <li *ngFor="let item of columns" nz-menu-item>
           <label nz-checkbox
                  [nzValue]="item.visible"
-          >{{item.name}}</label>
+          >{{item.name}}</label> <span class="align"><i class="icon-align-left"></i></span>
         </li>
       </ul>
 
     </li>
-    <li nz-menu-item>Settings</li>
+    <li class="menu-settings" nz-menu-item>Settings</li>
   </ul>
 
 </nz-dropdown-menu>
