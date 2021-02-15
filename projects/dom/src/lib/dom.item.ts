@@ -137,6 +137,8 @@ export class DomItem implements IBaseItem {
   id: Id;
 
   isCenter = false;
+  isBelowCenter = false;
+  isAboveCenter = false;
   private _isOut: boolean;
   private _level: number;
 
