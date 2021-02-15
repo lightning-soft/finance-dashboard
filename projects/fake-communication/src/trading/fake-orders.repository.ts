@@ -45,7 +45,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
       side: position.side === Side.Long ? OrderSide.Buy : OrderSide.Sell,
       quantity: position.size,
       symbol: position.accountId,
-      duration: OrderDuration.GTD,
+      duration: OrderDuration.GTC,
     } as IOrder;
 
     (order as any).closePosition = true;

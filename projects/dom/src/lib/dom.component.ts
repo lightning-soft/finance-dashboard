@@ -16,10 +16,24 @@ import { RealPositionsRepository } from 'real-trading';
 import {
   IConnection,
   IInstrument,
-  IOrder, IPosition, IQuote,
+  IOrder,
+  IPosition,
+  IQuote,
   L2,
-  Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrdersFeed, OrderSide,
-  OrdersRepository, OrderStatus, OrderType, PositionsFeed, PositionsRepository, PositionStatus, QuoteSide, TradeDataFeed, TradePrint
+  Level1DataFeed,
+  Level2DataFeed,
+  OrderBooksRepository,
+  OrdersFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderStatus,
+  OrderType,
+  PositionsFeed,
+  PositionsRepository,
+  PositionStatus,
+  QuoteSide,
+  TradeDataFeed,
+  TradePrint
 } from 'trading';
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
@@ -421,27 +435,37 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   allStopsToPrice() {
-    /*    const row = this.currentCell.row;
-        if (row) {
-          const _orders = row.orders.orders;
-          const price = row.price.value;
-          const orders = _orders.filter(item => [OrderType.StopLimit, OrderType.StopMarket]).map(item => {
-            return {...item, stopPrice: price, limitPrice: price};
-          });
-          orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-        }*/
+    this._setPriceForOrders(OrderType.StopMarket, 'stopPrice');
   }
 
   allLimitToPrice() {
-    /*  const row = this.currentCell.row;
-      if (row) {
-        const _orders = row.orders.orders;
-        const price = row.price.value;
-        const orders = _orders.filter(item => [OrderType.Limit, OrderType.StopLimit]).map(item => {
-          return {...item, stopPrice: price, limitPrice: price};
-        });
-        orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-      }*/
+    this._setPriceForOrders(OrderType.Limit, 'limitPrice');
+  }
+
+  _setPriceForOrders(type: OrderType, priceType) {
+    const row = this.currentCell.row;
+    if (row) {
+      // #TODO investigate what side should be if row is in center
+      const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
+      const orders = this.items.reduce((total, item) => {
+        return total.concat(item.orders.orders.filter(order => {
+         return  order.type === type && order.side === side;
+        }));
+      }, []);
+      const price = +row.price.value;
+      orders.map(item => {
+        return {
+          quantity: item.quantity,
+          type: item.type,
+          duration: item.duration,
+          [priceType]: price,
+          orderId: item.id,
+          accountId: item.account.id,
+          symbol: item.instrument.symbol,
+          exchange: item.instrument.exchange,
+        };
+      }).map(item => this._ordersRepository.updateItem(item).toPromise());
+    }
   }
 
   _createOrderByCurrent(side: OrderSide, from) {
@@ -697,10 +721,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (this._lastPrice) {
         for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
-
           item.isCenter = item.lastPrice === this._lastPrice;
           if (item.isCenter)
             index = i;
+        }
+        for (let i = 0; i < this.items.length; i++){
+          const item = this.items[i];
+          item.isAboveCenter = i < index;
+          item.isBelowCenter = i > index;
         }
       }
 
@@ -1076,8 +1104,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-        this.notifier.showError(err);
-      });
+      this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {
