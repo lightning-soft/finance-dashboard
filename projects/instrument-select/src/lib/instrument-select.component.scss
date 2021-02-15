@@ -1,14 +1,6 @@
 .ant-select {
   width: 100%;
 }
-:host {
-  ::ng-deep {
-    input {
-      height: 100% !important;
-    }
-  }
-}
-
 nz-select {
   min-width: 70px;
 }

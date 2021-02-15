@@ -1,12 +1,59 @@
 @import "~src/scss/variables";
 
+$horizontal-padding: 8px;
 :host {
   display: flex;
   flex: 1 1 auto;
   justify-content: flex-end;
   position: relative;
   height: 100%;
-  margin: 0 16px;
+  padding: 0 $horizontal-padding;
+
+}
+
+.dropdown-connection-name, .connection-name {
+  width: 170px;
+  display: block;
+}
+
+/*.absolute-overlay{
+  left: unset;
+}*/
+.menu-indicator {
+  left: 1px;
+}
+
+.custom-panel-fixed {
+  width: auto !important;
+}
+
+.connections-container {
+  margin-right: -#{$horizontal-padding};
+}
+
+.navigation-button {
+  transition: all .3s;
+  height: 36px;
+  width: 36px;
+
+  &:hover {
+    background-color: $inputBackground;
+  }
+}
+
+.connection-item {
+  padding-left: 10px;
+  padding-right: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: $text-80;
+
+  &:hover {
+    background: $inputBackground;
+  }
 }
 
 .icon-signal {

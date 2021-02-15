@@ -1,34 +1,43 @@
 <form [formGroup]="form">
-  <div class="mb-1">
+  <div class="form-item">
     <small class="text-muted px-2 mb-1">Login</small>
-    <nz-form-control class="custom-form-control">
-      <input type="text" nz-input formControlName="username">
+    <nz-form-control class="custom-form-control text-control">
+      <input type="text" nzSize="small" nz-input formControlName="username">
     </nz-form-control>
   </div>
-  <div class="mb-1">
+  <div class="form-item">
     <small class="text-muted px-2 mb-1">Password</small>
 
     <nz-form-control class="custom-form-control">
-      <nz-input-group [nzSuffix]="suffixTemplate">
+      <nz-input-group nzSize="small" [nzSuffix]="suffixTemplate">
 
         <input class="password" [type]="passwordVisible ? 'password' : 'text'" nz-input formControlName="password">
       </nz-input-group>
 
     </nz-form-control>
     <ng-template #suffixTemplate>
-      <i nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" (click)="passwordVisible = !passwordVisible"></i>
+      <span class="d-flex align-items-center h-100">
+      <i
+        [title]="passwordVisible ?'Show password' : 'Hide password'"
+        class="cursor-pointer" nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+        (click)="passwordVisible = !passwordVisible"></i>
+      <i [title]="autoSave ? 'Turn off auto save password': 'Turn on auto save password'" [class.active]="autoSave"
+         (click)="toggleAutoSave()"
+         class="icon-save cursor-pointer"></i>
+        </span>
+
     </ng-template>
   </div>
-  <div class="mb-1">
+  <div class="form-item">
     <small class="text-muted px-2 mb-1">System</small>
-    <nz-select class="custom-form-control" formControlName="server">
+    <nz-select [nzOptionHeightPx]="20" class="select" formControlName="server">
       <nz-option *ngFor="let item of items" [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>
   </div>
-  <div class="mb-1">
+  <div class="form-item">
     <small class="text-muted px-2 mb-1">Gateway</small>
-    <nz-select class="custom-form-control" formControlName="gateway">
+    <nz-select [nzOptionHeightPx]="22" class="select" formControlName="gateway">
       <nz-option *ngFor="let item of gateways " [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>

@@ -24,12 +24,16 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
   get gateways() {
     return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
   }
+  get autoSave() {
+   return  this.form.value.autoSavePassword;
+  }
 
   form = new FormGroup({
     username: new FormControl(),
     password: new FormControl(),
     server: new FormControl(),
-    gateway: new FormControl()
+    gateway: new FormControl(),
+    autoSavePassword: new FormControl(false),
   });
 
   passwordVisible = true;
@@ -45,7 +49,12 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
       .pipe(untilDestroyed(this))
       .subscribe((value) => {
         controls.gateway.patchValue(this.items.find(i => i.name == value)?.gateways[0]?.name);
-      })
+      });
+  }
+
+  toggleAutoSave() {
+    const autoSavePassword = !this.autoSave;
+    this.form.patchValue({autoSavePassword});
   }
 
   getName(o) {
@@ -71,7 +80,8 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
   }
 
   writeValue(obj: any): void {
-    this.form.patchValue(obj);
+    if (obj)
+      this.form.patchValue(obj);
   }
 
   setDisabledState(isDisabled: boolean) {

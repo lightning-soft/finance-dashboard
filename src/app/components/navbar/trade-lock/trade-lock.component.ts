@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TimeoutError } from 'rxjs';
+import { TradeHandler } from './trade-handle';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 type Alert = {
   visible: boolean,
@@ -24,29 +25,30 @@ const unlock = {
   templateUrl: './trade-lock.component.html',
   styleUrls: ['./trade-lock.component.scss']
 })
-export class TradeLockComponent implements OnInit {
+@UntilDestroy()
+export class TradeLockComponent {
 
   lockIcons: [string, string] = ['lock', 'unlock'];
-  unlocked = false;
+  unlocked = true;
 
   private timerId;
 
   alert: Alert;
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor(private tradeHandler: TradeHandler) {
+    this.unlocked = this.tradeHandler.tradingEnabled;
+    this.tradeHandler.isTradingEnabled$
+      .pipe(untilDestroyed(this))
+      .subscribe(value => this.unlocked = value);
   }
 
   handleLock(): void {
-    console.log(`Todo -> set trading state to ${!this.unlocked}`);
-
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;
     }
 
-    this.unlocked = !this.unlocked;
+    this.tradeHandler.tradingEnabled = !this.unlocked;
 
     this.alert = this.unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
 

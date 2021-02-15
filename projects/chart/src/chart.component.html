@@ -1,13 +1,9 @@
-<window-header className="widget" [window]="this">
+<window-header marginClass="" className="widget" [window]="this">
   <account-select
-    size="small"
     class="mr-2"
-    className="custom-form-control"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
   <instrument-select
-    size="small"
-    class="custom-form-control"
     placeholder="Symbol"
     [instrument]="instrument"
     (instrumentChange)="instrument = $event"

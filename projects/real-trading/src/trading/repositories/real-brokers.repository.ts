@@ -21,19 +21,6 @@ export class RealBrokersRepository extends FakeRepository<IBroker> {
           The OMNE™ software is Copyright © 2020 by Omnesys, LLC and Omnesys Technologies, Inc.  All rights reserved.
         `,
       },
-      {
-        id: 2,
-        name: Broker.Rithmic2,
-        title: 'Rithmic 2',
-        logo: 'rithmic.png',
-        description: `
-          <img src="assets/img/brokers/omne.png" alt="" />
-          is a trademark of Omnesys, LLC and Omnesys Technologies, Inc.  All rights reserved.
-          The R | API™, R | API+™ and R | Protocol API™ software is Copyright © 2020 by Rithmic, LLC.  All rights reserved.
-          Trading Platform by Rithmic™ is a trademark of Rithmic, LLC.  All rights reserved.
-          The OMNE™ software is Copyright © 2020 by Omnesys, LLC and Omnesys Technologies, Inc.  All rights reserved.
-        `,
-      },
     ];
   }
 }

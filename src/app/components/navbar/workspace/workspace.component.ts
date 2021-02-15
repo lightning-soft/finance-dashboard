@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -6,6 +6,7 @@ import { Workspace, WorkspaceId, WorkspacesManager } from 'workspace-manager';
 import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 import { CreateModalComponent } from './create-modal/create-modal.component';
 import { RenameModalComponent } from './rename-modal/rename-modal.component';
+import { SettingsService } from 'settings';
 
 @Component({
   selector: 'app-workspace',
@@ -24,6 +25,7 @@ export class WorkspaceComponent implements OnInit {
   constructor(
     private _workspacesService: WorkspacesManager,
     private _modalService: NzModalService,
+    private _settingsService: SettingsService,
     private _notificationService: NotifierService,
   ) {
   }
@@ -36,7 +38,6 @@ export class WorkspaceComponent implements OnInit {
       this.activeWorkspaceId = activeWorkspace.id;
     });
   }
-
 
 
   rename(id: WorkspaceId) {
@@ -82,8 +83,33 @@ export class WorkspaceComponent implements OnInit {
     console.log('Share workspace');
   }
 
-  switchWorkspace() {
-    this._workspacesService.switchWorkspace(this.activeWorkspaceId);
+  switchWorkspace($event) {
+    if (this._settingsService.settings.value.autoSave) {
+      this.activeWorkspaceId = $event;
+      this._workspacesService.switchWorkspace(this.activeWorkspaceId);
+    }
+    else {
+      const modal = this._modalService.create({
+        nzTitle: 'Saving workspace',
+        nzContent: ConfirmModalComponent,
+        nzWrapClassName: 'modal-workspace vertical-center-modal',
+        nzComponentParams: {
+          message: 'Do you want save changes in workspace?',
+          confirmText: 'Yes',
+          cancelText: 'No'
+        },
+      });
+      modal.afterClose.subscribe(async (res) => {
+        if (res) {
+          await this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
+          this.activeWorkspaceId = $event;
+          this._workspacesService.switchWorkspace(this.activeWorkspaceId);
+        } else {
+          this.activeWorkspaceId = $event;
+          this._workspacesService.switchWorkspace(this.activeWorkspaceId);
+        }
+      });
+    }
   }
 
   createWorkspace() {

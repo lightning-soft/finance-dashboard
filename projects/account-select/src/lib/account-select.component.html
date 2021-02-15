@@ -1,10 +1,11 @@
 <nz-select
   [class]="className"
-  [nzSize]="size"
+  [nzDropdownClassName]="nzDropdownClassName"
   [nzPlaceHolder]="placeholder"
+  [nzOptionHeightPx]="23"
   [nzLoading]="loading"
   [(ngModel)]="activeAccountId"
   (ngModelChange)="select($event)"
 >
-  <nz-option *ngFor="let item of items" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+  <nz-option *ngFor="let item of items" [nzLabel]="labelTransformer(item.name)" [nzValue]="item.id"></nz-option>
 </nz-select>

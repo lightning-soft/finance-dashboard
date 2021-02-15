@@ -23,23 +23,23 @@ export const DomSettingsSelector = 'dom-settings';
 export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit {
   list = [
     { tab: SettingTab.General, label: 'General' },
-    { tab: SettingTab.Common, label: 'Common' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
     { tab: SettingTab.OrderArea, label: 'Order Area' },
     {
       label: 'Columns',
       children: [
+        { tab: SettingTab.Common, label: 'Common' },
         { tab: SettingTab.LTQ, label: 'LTQ' },
         { tab: SettingTab.Price, label: 'Price' },
         { tab: SettingTab.BidDelta, label: 'Bid Delta' },
         { tab: SettingTab.AskDelta, label: 'Ask Delta' },
-        { tab: SettingTab.BidDepth, label: 'Bid Depth' },
-        { tab: SettingTab.AskDepth, label: 'Ask Depth' },
-        { tab: SettingTab.Bid, label: 'Bid' },
-        { tab: SettingTab.Ask, label: 'Ask' },
+        { tab: SettingTab.Bid, label: 'Bid Depth' },
+        { tab: SettingTab.Ask, label: 'Ask Depth' },
+        // { tab: SettingTab.Bid, label: 'Bid' },
+        // { tab: SettingTab.Ask, label: 'Ask' },
         { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
         { tab: SettingTab.TotalBid, label: 'Total At Bid' },
-        { tab: SettingTab.VolumeProfile, label: 'Volume Profile' },
+        { tab: SettingTab.Volume, label: 'Volume Profile' },
         { tab: SettingTab.OrderColumn, label: 'Order' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
@@ -58,6 +58,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
 
   constructor(private _applier: CssApplier) {
     this.setTabTitle('Dom settings');
+    this.setTabIcon('icon-setting-gear');
   }
 
   ngAfterViewInit() {
@@ -73,6 +74,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
 
   private _handleChange(value: any) {
     this.broadcastData(DomSettingsSelector, this.settings);
+    console.log(this.settings);
     this._applyCss();
   }
 

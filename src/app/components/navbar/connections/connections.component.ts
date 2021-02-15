@@ -1,12 +1,12 @@
-import { AfterContentChecked, Component, ElementRef, HostListener, Injector, Input, ViewChild } from '@angular/core';
+import { Component, Injector, Input } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { DomHelper, ItemsComponent } from 'base-components';
+import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { filter, skip } from "rxjs/operators";
 import { ConnectionsRepository, IConnection } from 'trading';
 
-const { isContainerFitsElements } = DomHelper;
 
 @UntilDestroy()
 @Component({
@@ -14,8 +14,7 @@ const { isContainerFitsElements } = DomHelper;
   templateUrl: './connections.component.html',
   styleUrls: ['./connections.component.scss'],
 })
-export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements AfterContentChecked {
-  @ViewChild('connectionsContainer') connectionsContainer: ElementRef;
+export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
 
   @Input()
   layout: LayoutComponent;
@@ -23,9 +22,17 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
 
-  groupConnectionsIntoDropdown: boolean;
 
   protected _clearOnDisconnect = false;
+
+  get favourites() {
+    return this.items.filter(item => item.favourite);
+  }
+
+  get hasFavourites() {
+    return this.favourites.length;
+  }
+
 
   constructor(
     protected _injector: Injector,
@@ -34,34 +41,36 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     private nzContextMenuService: NzContextMenuService,
   ) {
     super();
-
     this.builder.setParams({
       filter: (connection: IConnection) => connection.favourite,
     });
-  }
-
-  ngAfterContentChecked() {
-    this.setGroupConnectionsIntoDropdown();
+    this._accountsManager.connections
+      .pipe(
+        skip(1),
+        filter(res => !!res),
+        untilDestroyed(this),
+      )
+      .subscribe((res) => {
+          // remove dublicates
+          const value = res.filter(item => item.favourite).filter((item) => {
+            return res.map(conn => conn.id).indexOf(item.id);
+          });
+          this.builder.replaceItems(value);
+        }
+      );
   }
 
   protected _handleConnection(connection: IConnection) {
     super._handleConnection(connection);
     this.activeConnection = connection;
 
-    this.setGroupConnectionsIntoDropdown();
   }
 
-  @HostListener('window:resize')
-  setGroupConnectionsIntoDropdown() {
-    const container = this.connectionsContainer;
-
-    this.groupConnectionsIntoDropdown = container && !isContainerFitsElements(container.nativeElement);
-  }
-
-  openAccounts(connection: IConnection = null) {
+  openAccounts(selectedItem: IConnection = null) {
     this.layout.addComponent({
       component: {
         name: 'accounts',
+        state: { selectedItem }
       },
       resizable: false,
       height: 463,
@@ -81,11 +90,23 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   }
 
   connect() {
+    if (!this.contextMenuConnection.password) {
+      this.openAccounts(this.contextMenuConnection);
+      return;
+    }
+
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => { },
-        err => console.error(err),
+        (item) => {
+          if (!item.error) {
+            this.activeConnection = item;
+            this.activeConnection.connected = true;
+          } else {
+            this.contextMenuConnection.error = item.error;
+          }
+        },
+        err => this._notifier.showError(err),
       );
   }
 
@@ -93,8 +114,11 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => { },
-        err => console.log(err),
+        () => {
+          this.contextMenuConnection.connected = false;
+          this.activeConnection = null;
+        },
+        err => this._notifier.showError(err),
       );
   }
 
@@ -102,7 +126,8 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     this._accountsManager.toggleFavourite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => { },
+        () => {
+        },
         err => console.error(err),
       );
   }

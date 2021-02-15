@@ -1,4 +1,5 @@
 @import "themes/index";
+
 $selectHeightContainer: 32px;
 $selectMarginBottom: 15px;
 
@@ -9,19 +10,43 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
-    nz-select-top-control {
-      border: none !important;
-      box-shadow: none !important;
-
+    .regular {
+      nz-select-item {
+        font-weight: 400;
+      }
     }
 
-    .wrapper{
+    .ant-tabs-bar {
+      margin-left: 8px;
+      margin-bottom: 6px;
+      border: none;
+    }
+
+    .ant-tabs-nav .ant-tabs-tab {
+      margin-right: 26px;
+      padding: 6px 0;
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+    }
+
+    .ant-tabs-ink-bar {
+      background: $primary;
+    }
+
+    .ant-tabs-nav .ant-tabs-tab-active {
+      color: $primary;
+    }
+
+    .wrapper {
       height: 100%;
-      padding-top: 10px;
+    }
+
+    .ant-tabs-top-content {
+      height: calc(100% - 34px);
     }
   }
 
-  .select-container{
+  .select-container {
     position: relative;
     cursor: pointer;
     border-radius: 4px;
@@ -32,7 +57,7 @@ $selectMarginBottom: 15px;
     min-width: 100px;
   }
 
-  .icon-arrow-dropdown{
+  .icon-arrow-dropdown {
     position: absolute;
     font-size: 4px;
     cursor: pointer;
@@ -50,4 +75,36 @@ $selectMarginBottom: 15px;
   }
 }
 
+nz-tabset {
+  height: 100%;
+}
 
+.add-container {
+  margin-left: 16px;
+  display: flex;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  cursor: pointer;
+  align-items: center;
+  background: $darkBackground;
+  border-radius: 2px;
+
+  i {
+    font-size: 9px;
+    line-height: 1;
+  }
+}
+
+::ng-deep {
+  .order-dropdown-list {
+    min-width: 130px;
+
+    nz-option-item {
+      &:first-child {
+        border-bottom: 1px solid #51535A;
+      }
+    }
+  }
+}

@@ -1,10 +1,11 @@
 <span
   [formlyAttributes]="field"
   class="color-wrapper"
+  [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
+  (colorPickerChange)="updateValue($event)" [colorPicker]="formControl?.value"
+  [class.disabled]="formControl.disabled"
  >
-  <span
-    [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-    (colorPickerChange)="updateValue($event)" [colorPicker]="formControl?.value">
+  <span>
     <input
       class="color-input" disabled [style.background]="formControl?.value"/>
     </span>

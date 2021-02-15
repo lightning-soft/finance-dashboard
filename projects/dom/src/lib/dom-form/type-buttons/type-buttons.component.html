@@ -2,7 +2,7 @@
   <button
     [class.black-btn]="item.black"
     [class.selected]="isCurrentValue(item)"
-    (click)="updateValue(item)"
+    (click)="onClick(item)"
     nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
   <ng-content select="[ice]"></ng-content>
   <ng-content select="[iceAmount]"></ng-content>

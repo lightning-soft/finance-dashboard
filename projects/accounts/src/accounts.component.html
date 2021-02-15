@@ -1,4 +1,4 @@
-<window-header  [window]="this"></window-header>
+<window-header [window]="this"></window-header>
 <div class="custom-panels">
   <div class="custom-panel custom-panel-fixed">
     <div class="custom-panel-body">
@@ -9,7 +9,7 @@
             [nzHeader]="broker.title"
             [nzExtra]="createButton"
             (click)="handleBrockerClick($event, broker)"
-            [nzShowArrow]="!!getBrokerItems(broker).length"
+            [nzShowArrow]="false"
             [nzActive]="broker == selectedBroker"
           >
             <ng-template #createButton>
@@ -20,23 +20,23 @@
             </ng-template>
 
             <div>
+
               <div
                 *ngFor="let item of getBrokerItems(broker)"
                 class="selectable-item pl-4 mt-1"
-                nz-popover [nzPopoverContent]="contentTemplate"
-                nzPopoverOverlayClassName="broker-actions"
+                (contextmenu)="contextMenu($event, contentTemplate)"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
                 [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
                 (click)="selectItem(item)"
               >
                 <ng-container *ngIf="!item.rename">
-                  <div class="position-relative">
+                  <div [title]="item" class="position-relative pl-2">
                 <span class="indicator prefix" [ngClass]="{
                   'text-success': item.connected,
                   'text-danger': item.error
                 }" *ngIf="item.connected || item.error"></span>
-                    {{ item.name }}
+                    <span class="connection-name">{{ item }}</span>
                   </div>
                   <div>
                   <span
@@ -52,12 +52,16 @@
 
                   </div>
                 </ng-container>
-                <input *ngIf="item.rename" #input (keydown.enter)="item.rename = false; rename(input.value, item)"
-                       [value]="item.name" nz-input type="text">
-                <ng-template #contentTemplate>
-                  <div (click)="item.rename = true; " class="broker-action">Rename</div>
-                  <div (click)="delete($event, item)" class="broker-action">Delete</div>
-                </ng-template>
+                <input *ngIf="item.rename"
+                       class="rename"
+                       #input (keydown.enter)="item.rename = false; rename(input.value, item)"
+                       [value]="item.name || item.toString()" nz-input type="text">
+                <nz-dropdown-menu  #contentTemplate="nzDropdownMenu">
+                  <ul class="broker-actions" nz-menu>
+                    <li nz-menu-item (click)="item.rename = true; " class="broker-action">Rename</li>
+                    <li nz-menu-item (click)="delete($event, item);" class="broker-action">Delete</li>
+                  </ul>
+                </nz-dropdown-menu>
               </div>
             </div>
           </nz-collapse-panel>
@@ -130,45 +134,62 @@
               nz-button
               nzType="primary"
               nzBlock
-              class="ant-btn ant-btn-primary text-uppercase mt-3"
+              class="ant-btn connect-button ant-btn-primary text-uppercase mt-3"
             >Connect
             </button>
           </form>
           <div *ngIf="selectedItem.connected">
             <div class="p-3 bg-secondary rounded">
-              <div>
-                <span class="text-muted">Status:</span>&nbsp;
-                <span class="d-inline-flex align-items-center">
-                <span class="indicator text-success mr-2"></span>
+              <table>
+                <tr>
+                  <td>
+                    <span class="text-muted">Status:&nbsp;</span>
+                  </td>
+                  <td>
+               <span class="d-flex">
+                <span class="indicator indicator-table text-success mr-2"></span>
                 Connected
               </span>
-              </div>
-              <div>
-                <span class="text-muted">Login:</span>&nbsp;
-                {{ selectedItem.username }}
-              </div>
-              <div>
-                <span class="text-muted">Server:</span>&nbsp;
-                {{ selectedItem.server }}
-              </div>
-              <div>
-                <span class="text-muted">Gateway:</span>&nbsp;
-                {{ selectedItem.gateway }}
-              </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="text-muted">Login:&nbsp;</span>
+                  </td>
+                  <td>
+                    <span class="right-text">{{ selectedItem.username }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="text-muted">Server:&nbsp;</span>
+                  </td>
+                  <td>
+                    <span class="right-text">{{ selectedItem.server }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="text-muted">Gateway:&nbsp;</span>
+                  </td>
+                  <td>
+                    <span class="right-text">{{ selectedItem.gateway }}</span>
+                  </td>
+                </tr>
+              </table>
             </div>
             <button
               nz-button
               nzType="primary"
               nzBlock
-              class="bg-secondary text-uppercase mt-3"
+              class="bg-secondary text-uppercase disconnect-button"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
               (click)="disconnect(selectedItem)"
             >Disconnect
             </button>
           </div>
-          <div class="text-muted" *ngIf="selectedBroker?.description">
-            <div class="divider mb-2"></div>
-            <div class="text-small text-center" [innerHTML]="selectedBroker.description"></div>
+          <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">
+            <div class="broker-description text-center" [innerHTML]="selectedBroker.description"></div>
           </div>
         </div>
       </cdk-virtual-scroll-viewport>

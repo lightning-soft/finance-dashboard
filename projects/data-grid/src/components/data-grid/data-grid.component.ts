@@ -1,99 +1,37 @@
 import {
   AfterViewInit, ChangeDetectorRef, Component,
   ElementRef,
+  HostBinding,
   Input,
   OnDestroy,
-  OnInit,
+  OnInit, Output,
   ViewChild,
-  ViewContainerRef
+  ViewContainerRef,
+  EventEmitter
 } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
-import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { DataGridHandler, Events, IHandler } from './data-grid.handler';
-import { NzContextMenuService } from 'ng-zorro-antd';
+import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
+import { NzContextMenuService } from 'ng-zorro-antd/dropdown';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 
 declare function canvasDatagrid(params: any);
+
+export const DefaultScrollSensetive = 1;
+
 export interface DataGridItem {
   [key: string]: ICell;
 }
 
-function afterRenderCell(e) {
-}
-
-function renderCell(e) {
-  const ctx = e.ctx;
-  const cell = e.cell.value;
-
-  if (!cell?.component)
-    return;
-
-  switch (cell.component) {
-    case 'histogram-component':
-
-      break;
-  }
-
-
-  // console.log(e.header.name, cell.name, JSON.stringify(cell.settings));
-  // const color = cell.settings.backgroundColor;
-  // e.ctx.fillStyle = cell.settings.backgroundColor ?? '#1b1d22';
-  // if (cell.value) return;
-
-  // var g,
-  //   gb,
-  //   x = 0,
-  //   d = +(cell.value[0] - cell.value[1]).toFixed(2),
-  //   m = Math.max.apply(null, cell.value),
-  //   a = cell.value.reduce(function (ac, c) { return ac + c; }, 0) / cell.value.length,
-  //   i = Math.min.apply(null, cell.value),
-  //   w = cell.width / cell.value.length,
-  //   ar = (d > 0 ? '\u25BC' : '\u25B2'),
-  //   r = cell.height / (m - (m * 0.1));
-
-  // function line(n, c) {
-  //   ctx.beginPath();
-  //   ctx.lineWidth = 1;
-  //   ctx.strokeStyle = c;
-  //   ctx.moveTo(cell.x, cell.y + (n * r));
-  //   ctx.lineTo(cell.x + cell.width, cell.y + (n * r));
-  //   ctx.stroke();
-  // }
-
-  // ctx.save();
-  // gb = ctx.createLinearGradient((cell.x + cell.width) / 2, cell.y, (cell.x + cell.width) / 2, cell.y + cell.height);
-  // gb.addColorStop(0, '#0C4B73');
-  // gb.addColorStop(1, (cell.selected || cell.active) ? '#B3C3CC' : '#041724');
-  // ctx.fillStyle = gb;
-  // ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
-  // ctx.beginPath();
-  // ctx.moveTo(cell.x, cell.y + cell.height);
-  // cell.value.forEach(function (d) {
-  //   var cx = cell.x + w + x,
-  //     cy = cell.y + (d * r);
-  //   ctx.lineTo(cx, cy);
-  //   if (d === i || d === m) {
-  //     ctx.fillStyle = d === m ? 'green' : 'red';
-  //     ctx.fillRect(cx - 2, cy - 2, 5, 5);
-  //   }
-  //   x += w;
-  // });
-  // ctx.lineTo(cell.x + cell.width, cell.y + cell.height);
-  // g = ctx.createLinearGradient((cell.x + cell.width) / 2, cell.y, (cell.x + cell.width) / 2, cell.y + cell.height);
-  // g.addColorStop(0, '#0F5C8C');
-  // g.addColorStop(1, '#499ABA');
-  // ctx.fillStyle = g;
-  // ctx.fill();
-  // ctx.strokeStyle = '#0B466B';
-  // ctx.stroke();
-  // line(a, d >= 0 ? 'green' : 'red');
-  // cell.parentGrid.data[cell.rowIndex].col1 = (d === 0 ? ' ' : ar) + ' Diff: ' + d
-  //   + 'Avg:' + a.toFixed(2) + '\nMin: ' + i.toFixed(2) + '\nMax: ' + m.toFixed(2);
-  // ctx.restore();
+interface GridStyles {
+  font?: string;
+  color?: string;
+  background?: string;
+  gridBorderColor?: string;
+  scrollSensetive?: number;
 }
 
 @Component({
@@ -111,15 +49,13 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
 
+  @Output() currentCellChanged = new EventEmitter();
+
   @Input()
   handlers: DataGridHandler[] = [];
 
   @Input() columns = [];
-  @Input() beforeRenderCell = (e) => null;
-  @Input() renderCell = (e) => null;
-  @Input() afterRenderCell = (e) => null;
-  @Input() renderText = (e) => null;
-  @Input() afterDraw = (grid) => null;
+  @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
 
@@ -139,11 +75,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input() detach: boolean = false;
 
-  public activeColumns: Column[] = [];
-  showHeaders = true;
+  @HostBinding('attr.title')
+  title: string;
 
-  private _handlers = [];
-  private _subscribedEvents = [];
+  // private _subscribedEvents = [];
 
   public isVisible = false;
 
@@ -153,21 +88,19 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   public onDestroy$ = new Subject();
 
+  _grid: any;
 
-  get inverseTranslation() {
-    return 0;
+  get scrollHeight() {
+    return this._grid.scrollHeight;
   }
 
-  // get inverseTranslation(): string {
-  //   // if (!this.viewPort || !this.viewPort._renderedContentOffset) {
-  //   //   return '-0px';
-  //   // }
+  get scrollTop() {
+    return this._grid.scrollTop;
+  }
 
-  //   // const offset = this.viewPort._renderedContentOffset + 1;
-  //   // return `-${offset}px`;
-  // }
-
-  _grid: any;
+  set scrollTop(value: number) {
+    this._grid.scrollTop = value;
+  }
 
   constructor(
     private modalService: NzModalService,
@@ -175,241 +108,36 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
     private nzContextMenuService: NzContextMenuService,
-) {
-  }
+  ) { }
 
   ngOnInit(): void {
-    this.columns = this.columns.map(i => ({ ...i, width: 100 }));
-    this.activeColumns = this.columns.filter((column: Column) => column.visible);
+    // this.activeColumns = this.columns.filter((column: Column) => column.visible);
     if (this.detach)
       this._cd.detach();
     const cellBorderColor = "#24262C";
     const cellBackgroundColor = '#1B1D22';
     const cellColor = '#D0D0D2';
-    const cellFont = "14px Open Sans";
-    const horizontalAlignment = "center";
+    const font = "14px Open Sans";
+    // const horizontalAlignment = "center";
 
-    let style = {
-      cellBackgroundColor,
-      cellColor,
-      activeCellBackgroundColor: cellBackgroundColor,
-      activeCellBorderColor: cellBorderColor,
-      activeCellBorderWidth: 1,
-      activeCellColor: cellColor,
-      activeCellFont: cellFont,
-      activeCellHoverBackgroundColor: cellBackgroundColor,
-      activeCellHorizontalAlignment: horizontalAlignment,
-      activeCellHoverColor: cellColor,
-      activeCellOverlayBorderColor: cellBorderColor,
-      activeCellOverlayBorderWidth: 1,
-      activeCellPaddingBottom: 5,
-      activeCellPaddingLeft: 5,
-      activeCellPaddingRight: 5,
-      activeCellPaddingTop: 5,
-      activeCellSelectedBackgroundColor: cellBackgroundColor,
-      activeCellSelectedColor: cellColor,
-      activeCellVerticalAlignment: "center",
-      activeColumnHeaderCellBackgroundColor: cellBackgroundColor,
-      activeColumnHeaderCellColor: '#A1A2A5',
-      activeRowHeaderCellBackgroundColor: cellBackgroundColor,
-      activeRowHeaderCellColor: '#A1A2A5',
-      autocompleteBottomMargin: 60,
-      autosizeHeaderCellPadding: 8,
-      autosizePadding: 5,
-      cellAutoResizePadding: 13,
-      cellBorderColor,
-      cellBorderWidth: 1,
-      cellFont,
-      cellGridHeight: 250,
-      cellHeight: this.rowHeight,
-      cellHeightWithChildGrid: 150,
-      cellHorizontalAlignment: horizontalAlignment,
-      cellHoverBackgroundColor: cellBackgroundColor,
-      cellHoverColor: cellColor,
-      cellPaddingBottom: 5,
-      cellPaddingLeft: 5,
-      cellPaddingRight: 5,
-      cellPaddingTop: 5,
-      cellSelectedBackgroundColor: cellBackgroundColor,
-      cellSelectedColor: cellColor,
-      cellVerticalAlignment: "center",
-      cellWidth: 250,
-      cellWidthWithChildGrid: 250,
-      cellWhiteSpace: "nowrap",
-      cellLineHeight: 1,
-      cellLineSpacing: 3,
-      childContextMenuArrowColor: cellBackgroundColor,
-      childContextMenuArrowHTML: "&#x25BA;",
-      childContextMenuMarginLeft: -11,
-      childContextMenuMarginTop: -6,
-      columnHeaderCellBackgroundColor: cellBackgroundColor,
-      columnHeaderCellBorderColor: cellBorderColor,
-      columnHeaderCellBorderWidth: 1,
-      columnHeaderCellCapBackgroundColor: cellBackgroundColor,
-      columnHeaderCellCapBorderColor: cellBorderColor,
-      columnHeaderCellCapBorderWidth: 1,
-      columnHeaderCellColor: '#A1A2A5',
-      columnHeaderCellFont: "11px Open Sans",
-      columnHeaderCellHeight: this.rowHeight,
-      columnHeaderCellHorizontalAlignment: horizontalAlignment,
-      columnHeaderCellHoverBackgroundColor: cellBackgroundColor,
-      columnHeaderCellHoverColor: cellColor,
-      columnHeaderCellPaddingBottom: 5,
-      columnHeaderCellPaddingLeft: 5,
-      columnHeaderCellPaddingRight: 5,
-      columnHeaderCellPaddingTop: 5,
-      columnHeaderCellVerticalAlignment: "center",
-      columnHeaderOrderByArrowBorderColor: cellBorderColor,
-      columnHeaderOrderByArrowBorderWidth: 1,
-      columnHeaderOrderByArrowColor: "rgba(155, 155, 155, 1)",
-      columnHeaderOrderByArrowHeight: 8,
-      columnHeaderOrderByArrowMarginLeft: 0,
-      columnHeaderOrderByArrowMarginRight: 5,
-      columnHeaderOrderByArrowMarginTop: 6,
-      columnHeaderOrderByArrowWidth: 13,
-      contextFilterButtonBorder: "solid 1px rgba(158, 163, 169, 1)",
-      contextFilterButtonBorderRadius: "3px",
-      contextFilterButtonHTML: "&#x25BC;",
-      contextFilterInputBackground: "rgba(255,255,255,1)",
-      contextFilterInputBorder: "solid 1px rgba(158, 163, 169, 1)",
-      contextFilterInputBorderRadius: "0",
-      contextFilterInputColor: "rgba(0,0,0,1)",
-      contextFilterInputFontFamily: "sans-serif",
-      contextFilterInputFontSize: "14px",
-      contextFilterInvalidRegExpBackground: "rgba(180, 6, 1, 1)",
-      contextFilterInvalidRegExpColor: "rgba(255, 255, 255, 1)",
-      contextMenuArrowColor: "rgba(43, 48, 43, 1)",
-      contextMenuArrowDownHTML: "&#x25BC;",
-      contextMenuArrowUpHTML: "&#x25B2;",
-      contextMenuBackground: cellBackgroundColor,
-      contextMenuBorder: "solid 1px rgba(158, 163, 169, 1)",
-      contextMenuBorderRadius: "3px",
-      contextMenuChildArrowFontSize: "12px",
-      contextMenuColor: cellColor,
-      contextMenuCursor: "default",
-      contextMenuFilterButtonFontFamily: "sans-serif",
-      contextMenuFilterButtonFontSize: "10px",
-      contextMenuFilterInvalidExpresion: "rgba(237, 155, 156, 1)",
-      contextMenuFontFamily: "sans-serif",
-      contextMenuFontSize: "16px",
-      contextMenuHoverBackground: "rgba(182, 205, 250, 1)",
-      contextMenuHoverColor: "rgba(43, 48, 153, 1)",
-      contextMenuItemBorderRadius: "3px",
-      contextMenuItemMargin: "2px",
-      contextMenuLabelDisplay: "inline-block",
-      contextMenuLabelMargin: "0 3px 0 0",
-      contextMenuLabelMaxWidth: "700px",
-      contextMenuLabelMinWidth: "75px",
-      contextMenuMarginLeft: 3,
-      contextMenuMarginTop: -3,
-      contextMenuOpacity: "0.98",
-      contextMenuPadding: "2px",
-      contextMenuWindowMargin: 30,
-      contextMenuZIndex: 10000,
-      cornerCellBackgroundColor: cellBackgroundColor,
-      cornerCellBorderColor: cellBorderColor,
-      debugBackgroundColor: "rgba(0, 0, 0, .0)",
-      debugColor: "rgba(255, 15, 24, 1)",
-      debugEntitiesColor: "rgba(76, 231, 239, 1.00)",
-      debugFont: "11px sans-serif",
-      debugPerfChartBackground: "rgba(29, 25, 26, 1.00)",
-      debugPerfChartTextColor: "rgba(255, 255, 255, 0.8)",
-      debugPerformanceColor: "rgba(252, 255, 37, 1.00)",
-      debugScrollHeightColor: "rgba(248, 33, 103, 1.00)",
-      debugScrollWidthColor: "rgba(66, 255, 27, 1.00)",
-      debugTouchPPSXColor: "rgba(246, 102, 24, 1.00)",
-      debugTouchPPSYColor: "rgba(186, 0, 255, 1.00)",
-      display: "inline",
-      editCellBackgroundColor: "white",
-      editCellBorder: "solid 1px rgba(110, 168, 255, 1)",
-      editCellBoxShadow: "0 2px 5px rgba(0,0,0,0.4)",
-      editCellColor: "black",
-      editCellFontFamily: "sans-serif",
-      editCellFontSize: "16px",
-      editCellPaddingLeft: 4,
-      editCellZIndex: 10000,
-      frozenMarkerHoverColor: "rgba(236, 243, 255, 1)",
-      frozenMarkerHoverBorderColor: "rgba(110, 168, 255, 1)",
-      frozenMarkerActiveColor: "rgba(236, 243, 255, 1)",
-      frozenMarkerActiveBorderColor: "rgba(110, 168, 255, 1)",
-      frozenMarkerColor: "rgba(222, 222, 222, 1)",
-      frozenMarkerBorderColor: "rgba(168, 168, 168, 1)",
-      frozenMarkerBorderWidth: 1,
-      frozenMarkerWidth: 2,
-      gridBackgroundColor: cellBackgroundColor,
-      gridBorderCollapse: "collapse",
-      gridBorderColor: cellBorderColor,
-      gridBorderWidth: 1,
-      height: "100%",
-      maxHeight: "none",
-      maxWidth: "none",
-      minColumnWidth: 45,
-      minHeight: "0px",
-      minRowHeight: this.rowHeight,
-      minWidth: "0px",
-      mobileContextMenuMargin: 10,
-      mobileEditInputHeight: 30,
-      mobileEditFontFamily: "sans-serif",
-      mobileEditFontSize: "16px",
-      moveOverlayBorderWidth: 1,
-      moveOverlayBorderColor: "rgba(66, 133, 244, 1)",
-      moveOverlayBorderSegments: [12, 7],
-      name: "default",
-      overflowY: "hidden",
-      overflowX: "hidden",
-      reorderMarkerBackgroundColor: "rgba(0, 0, 0, 0.1)",
-      reorderMarkerBorderColor: "rgba(0, 0, 0, 0.2)",
-      reorderMarkerBorderWidth: 1.25,
-      reorderMarkerIndexBorderColor: "rgba(66, 133, 244, 1)",
-      reorderMarkerIndexBorderWidth: 2.75,
-      rowHeaderCellBackgroundColor: cellBackgroundColor,
-      rowHeaderCellBorderColor: cellBorderColor,
-      rowHeaderCellBorderWidth: 1,
-      rowHeaderCellColor: '#A1A2A5',
-      rowHeaderCellFont: "16px sans-serif",
-      rowHeaderCellHeight: this.rowHeight,
-      rowHeaderCellHorizontalAlignment: "left",
-      rowHeaderCellHoverBackgroundColor: cellBackgroundColor,
-      rowHeaderCellHoverColor: '#A1A2A5',
-      rowHeaderCellPaddingBottom: 5,
-      rowHeaderCellPaddingLeft: 5,
-      rowHeaderCellPaddingRight: 5,
-      rowHeaderCellPaddingTop: 5,
-      rowHeaderCellSelectedBackgroundColor: cellBackgroundColor,
-      rowHeaderCellSelectedColor: cellColor,
-      rowHeaderCellVerticalAlignment: "center",
-      rowHeaderCellWidth: 57,
-      scrollBarActiveColor: "rgba(125, 125, 125, 1)",
-      scrollBarBackgroundColor: "rgba(240, 240, 240, 1)",
-      scrollBarBorderColor: "rgba(202, 202, 202, 1)",
-      scrollBarBorderWidth: 0.5,
-      scrollBarBoxBorderRadius: 4.125,
-      scrollBarBoxColor: "rgba(192, 192, 192, 1)",
-      scrollBarBoxMargin: 2,
-      scrollBarBoxMinSize: 15,
-      scrollBarBoxWidth: 8,
-      scrollBarCornerBackgroundColor: "rgba(240, 240, 240, 1)",
-      scrollBarCornerBorderColor: "rgba(202, 202, 202, 1)",
-      scrollBarWidth: 11,
-      selectionHandleBorderColor: "rgba(255, 255, 255, 1)",
-      selectionHandleBorderWidth: 1.5,
-      selectionHandleColor: '#A1A2A5',
-      selectionHandleSize: 8,
-      selectionHandleType: "square",
-      selectionOverlayBorderColor: cellBorderColor,
-      selectionOverlayBorderWidth: 1,
-      treeArrowBorderColor: "rgba(195, 199, 202, 1)",
-      treeArrowBorderWidth: 1,
-      treeArrowClickRadius: 5,
-      treeArrowColor: "rgba(155, 155, 155, 1)",
-      treeArrowHeight: 8,
-      treeArrowMarginLeft: 0,
-      treeArrowMarginRight: 5,
-      treeArrowMarginTop: 6,
-      treeArrowWidth: 13,
-      treeGridHeight: 250,
-    };
+    for (let i = 0; i < this.columns.length; i++) {
+      const column = this.columns[i];
+      column.style = {
+        // background: 'grey',
+        histogram: {
+          color: '#4895F5',
+          enabled: true,
+          orientation: 'left',
+        },
+        color: cellColor,
+        // font,
+        textAlign: 'center',
+        ...column.style,
+      }
 
+      if (!column.width)
+        column.width = 100;
+    }
 
     const grid = canvasDatagrid({
       allowColumnResize: true,
@@ -417,14 +145,27 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       allowRowResize: false,
       autoResizeRows: false,
       editable: false,
-      // showPerformance: true,
       parentNode: this.tableContainer.nativeElement,
       schema: this.columns,
-      style,
+      style: {
+        font,
+        color: cellColor,
+        background: cellBackgroundColor,
+        columnHeaderCellFont: '11px Open Sans',
+        // columnHeaderCellColor: 'red',
+        columnHeaderCellColor: '#A1A2A5',
+        gridBorderColor: cellBorderColor,
+        scrollBarBackgroundColor: cellBackgroundColor,
+        scrollBarBoxColor: '#383A40',
+        rowHeight: this.rowHeight,
+        overflowY: 'hidden',
+        overflowX: 'hidden',
+        scrollSensetive: DefaultScrollSensetive,
+      },
+      data: [],
     });
 
     (window as any).grid = grid;
-    (window as any).ss = style;
 
     grid.style.height = '100%';
     grid.style.width = '100%';
@@ -435,103 +176,121 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.snapToRow = true;
     grid.attributes.columnHeaderClickBehavior = 'none'
 
-    grid.applyComponentStyle();
-    grid.addEventListener('beforerendercell', this.beforeRenderCell);
-    grid.addEventListener('rendercell', this.renderCell)
-    grid.addEventListener('afterrendercell', this.afterRenderCell)
-    grid.addEventListener('rendertext', this.renderText)
-    grid.addEventListener('afterdraw', this.afterDraw)
+    // grid.applyComponentStyle();
+    // grid.addEventListener('beforerendercell', this.beforeRenderCell);
+    // grid.addEventListener('rendercell', this.renderCell)
+    // grid.addEventListener('afterrendercell', this.afterRenderCell)
+    // grid.addEventListener('rendertext', this.renderText)
+    grid.addEventListener('afterdraw', this._afterDraw);
+    grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
+    grid.addEventListener('contextmenu', this._handleContextmenu);
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
-
-    // const gridStyles = grid.style
-    // const prefixes = [
-    //   'cell', 'activeCell', 'columnHeaderCell', 'cornerCell', 'rowHeaderCell',
-    //   ...this.columns.map(i => i.name)
-    // ];
-
-    // for (const prefix of prefixes) {
-    //   gridStyles[prefix + 'BackgroundColor'] = cellBackgroundColor;
-    //   gridStyles[prefix + 'Color'] = cellColor;
-    //   gridStyles[prefix + 'BorderColor'] = cellBorderColor;
-    //   // gridStyles[prefix + 'Font'] = cellFont;
-    //   // gridStyles[prefix + 'HorizontalAlignment'] = horizontalAlignment;
-    //   // gridStyles[prefix + 'HoverBackgroundColor'] = cellBackgroundColor;
-    //   // gridStyles[prefix + 'HoverColor'] = cellColor;
-    //   // gridStyles[prefix + 'SelectedBackgroundColor'] = cellBackgroundColor;
-    //   // gridStyles[prefix + 'SelectedColor'] = cellColor;
-    //   // gridStyles[prefix + 'VerticalAlignment'] = "center";
-    //   // gridStyles[prefix + 'WhiteSpace'] = "nowrap";
-    // }
     this._grid = grid;
   }
 
-  detectChanges() {
+  applyStyles(styles: GridStyles) {
+    const grid = this._grid;
+
+    grid.style = { ...styles }
+
+    this.detectChanges(true);
+  }
+
+  detectChanges(force = false) {
     const grid = this._grid;
 
     if (grid)
-      grid.draw();
+      grid.draw(force);
   }
 
   ngAfterViewInit(): void {
-    this._handlers = this.initHandlers() || [];
-    for (const handler of this._handlers) {
-      handler.events.forEach(e => this._subscribeOnEvents(e));
-    }
+    // this._handlers = this.initHandlers() || [];
+    // for (const handler of this._handlers) {
+    //   handler.events.forEach(e => this._subscribeOnEvents(e));
+    // }
   }
 
-  initHandlers(): IHandler[] {
-    const handlers = [];
+  // initHandlers(): IHandler[] {
+  //   const handlers = [];
 
-    if (!Array.isArray(this.handlers))
-      this.handlers = [];
+  //   if (!Array.isArray(this.handlers))
+  //     this.handlers = [];
 
-    this.handlers.forEach(h => h.dataGrid = this);
+  //   this.handlers.forEach(h => h.dataGrid = this);
 
-    return [
-      ...this.handlers.map(h => h.tableHandler),
-      ...handlers
-    ];
-  }
+  //   return [
+  //     ...this.handlers.map(h => h.tableHandler),
+  //     ...handlers
+  //   ];
+  // }
 
   createComponentModal($event): void {
     $event.preventDefault();
     this.nzContextMenuService.create($event, this.contextMenuComponent);
   }
 
-  trackByFn(item) {
-    return item.id;
+  private _handleContextmenu = (e) => {
+    if (e?.e)
+      e.e.preventDefault();
+
+    this._triggerHandler(Events.ContextMenu, e);
   }
 
-  private _handleClick(e) {
-    const cell = e.cell;
-    console.log(cell.rowIndex, cell.columnIndex)
+  private _handleClick = (e) => {
+    this._triggerHandler(Events.Click, e);
   }
 
-  private _handleEvent = (event) => {
-    if (!this._handlers)
+  private _triggerHandler(event, e) {
+    const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
+
+    if (!Array.isArray(_handlers))
       return;
 
-    for (const handler of this._handlers) {
-      if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
-        return null;
+    for (const handler of _handlers as any[]) {
+      if (handler.event != event || handler.column != e.column?.name)
+        continue;
+
+      const item = e.row;
+
+      if (item)
+        handler.notify(item);
     }
   }
 
-  private _subscribeOnEvents(event: Events) {
-    const element = this.tableContainer && this.tableContainer.nativeElement;
-    if (!element)
-      return;
-
-    if (this._subscribedEvents.every(e => e !== event)) {
-      this._subscribedEvents.push(event);
-      const fn = (evt: Event) => this._handleEvent(evt);
-
-      element.addEventListener(event, fn);
-      this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
-    }
+  private _currentCellChanged = (e) => {
+    this.currentCellChanged.emit(e);
+    this.title = e?.item?.toString() ?? '';
   }
+
+  private _afterDraw = (e) => {
+    this.afterDraw(e, this._grid);
+  }
+
+  // private _handleEvent = (event) => {
+  //   if (!this._handlers)
+  //     return;
+
+  //   for (const handler of this._handlers) {
+  //     if (handler.events.some(e => e === 'click') && handler.handleEvent(event))
+  //       return null;
+  //   }
+  // }
+
+  // private _subscribeOnEvents(event: Events) {
+  //   const element = this.tableContainer && this.tableContainer.nativeElement;
+  //   if (!element)
+  //     return;
+
+  //   if (this._subscribedEvents.every(e => e !== event)) {
+  //     this._subscribedEvents.push(event);
+  //     const fn = (evt: Event) => this._handleEvent(evt);
+
+  //     element.addEventListener(event, fn);
+  //     this.onDestroy$.subscribe(() => element && element.removeEventListener(event, fn));
+  //   }
+  // }
 
   getVisibleRows() {
     const bodyElement = this.container && this.container.nativeElement;
@@ -543,13 +302,19 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       this._grid.resize(true);
   }
 
+  scrollTo(px: number) {
+    this._grid.scrollTo(px);
+  }
+
   ngOnDestroy(): void {
     if (this._grid) {
-      this._grid.removeEventListener('rendercell', this.renderCell)
-      // this._grid.removeEventListener('afterrendercell', afterRenderCell);
+      const grid = this._grid;
+      grid.removeEventListener('afterdraw', this._afterDraw);
+      grid.removeEventListener('currentCellChanged', this._currentCellChanged);
+      grid.removeEventListener('click', this._handleClick);
+      grid.removeEventListener('contextmenu', this._handleContextmenu);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
-
 }

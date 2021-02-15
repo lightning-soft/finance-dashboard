@@ -1,7 +1,63 @@
+@import "~src/scss/variables";
+
 .password:-webkit-autofill {
   box-shadow: 0 0 0px 1000px #13141A inset !important;
   border-radius: 0px;
-  color: rgba(255, 255, 255, 0.65) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+:host {
+  ::ng-deep {
+    .ant-input, {
+      font-size: 0.85rem;
+      height: 24px !important;
+      line-height: 2.1;
+    }
+
+    .select {
+      nz-select-top-control {
+        background: #13141A !important;
+        height: 24px !important;
+      }
+
+      nz-select-item {
+        line-height:  22px !important;
+      }
+    }
+  }
+
+}
+
+nz-select {
+  width: 100%;
+  height: 24px;
+}
+
+.text-control {
+  font-size: 0.85px;
+  height: 24px;
+}
+
+.ant-select {
+  font-size: 0.85rem;
+}
+
+nz-select {
+  width: 100%;
+}
+
+.active {
+  color: $primary;
+}
+
+.icon-save {
+  font-size: 11px;
+  margin-left: 7px;
+}
+
+.form-item {
+  margin-bottom: 2px;
 }
 
 nz-input-group {

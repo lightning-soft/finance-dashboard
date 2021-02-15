@@ -12,7 +12,6 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   @Input() instrument: IInstrument = null;
   @Input() placeholder = 'Select instrument';
   @Input() className = '';
-  @Input() size = 'default';
   @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
 
   get loading(): boolean {

@@ -1,9 +1,25 @@
-<window-header (contextmenu)="grid.createComponentModal($event)" className="widget" [window]="this">
+<window-header
+  (contextmenu)="grid.createComponentModal($event)"
+  className="widget" [window]="this">
+
   <account-select
-    size="small"
-    className="custom-form-control"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
+  <div (click)="openOrderForm()" class="add-container">
+    <i class="icon-add"></i>
+  </div>
+  <nz-select class="ml-1 regular"
+             [nzOptionHeightPx]="22"
+             (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" >
+    <nz-option *ngFor="let item of orderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
+  </nz-select>
+  <nz-select
+    [nzOptionHeightPx]="22"
+    class="ml-1 regular" (ngModelChange)="updateTitle()" [(ngModel)]="orderStatus" nzDropdownClassName="order-dropdown-list">
+    <nz-option *ngFor="let item of orderStatuses" [nzLabel]="item" [nzValue]="item"></nz-option>
+
+  </nz-select>
+
 </window-header>
 <div class="wrapper">
   <div class="toolbar">
@@ -18,5 +34,13 @@
       <i class="icon-arrow-dropdown"></i>
     </div> -->
   </div>
-  <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+  <nz-tabset>
+    <nz-tab nzTitle="Working orders">
+      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+
+    </nz-tab>
+<!--    <nz-tab nzTitle="History">
+      Content of Tab Pane 2
+    </nz-tab>-->
+  </nz-tabset>
 </div>

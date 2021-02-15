@@ -12,13 +12,67 @@
     }
   }
 
+  ::ng-deep {
+    .ant-radio-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .ant-radio-inner {
+      width: 18px;
+      height: 18px;
+
+      &:after {
+        top: 5px;
+        left: 5px;
+        display: block;
+        width: 6px;
+        height: 6px;
+      }
+    }
+  }
+
+  .table > tbody > tr > {
+    td {
+      border-bottom: none;
+      border-top: none;
+      padding: 0;
+      padding-top: 4px;
+    }
+
+  }
+
+  ::ng-deep {
+    table .hotkey-input {
+      height: 20px;
+      font-size: 0.75rem;
+    }
+  }
+
+  .hotkey-name {
+    color: $text-muted;
+    font-size: 0.8rem;
+    line-height: 2;
+    width: 35%;
+  }
+
+  .hotkey-reader {
+    width: 65%;
+  }
+
+  hotkey-input {
+    display: block;
+  }
+
   .settings {
     height: 100%;
     display: flex;
     background-color: transparent;
-    nz-select{
+
+    nz-select {
       color: white !important;
     }
+
     ul {
       margin: 0;
       padding: 0;
@@ -33,6 +87,7 @@
       border-radius: 4px;
       background-color: #1B1D22;
       width: 180px;
+      text-transform: capitalize;
       padding: 12px 8px;
 
       li {
@@ -50,10 +105,6 @@
 
     .table {
       margin-left: 4px;
-
-      .header {
-        background-color: #1B1D22;
-      }
     }
 
     .tab-content {
@@ -75,6 +126,7 @@
           color: #FFFFFF;
           width: 180px;
           font-weight: 400;
+
           .ant-select-selector {
             border: none;
             font-size: 0.9rem;
@@ -108,7 +160,7 @@
     font-weight: 400;
   }
 
-  .ant-select-item {
+  .setting-dropdown .ant-select-item {
     font-weight: 400;
     color: rgb(208, 208, 210);
     background: rgba(56, 58, 64, 1);

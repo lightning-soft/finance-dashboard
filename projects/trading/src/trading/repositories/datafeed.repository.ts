@@ -1,9 +1,9 @@
 import { Id } from "communication";
-import { IInstrument, IQuote } from "../models";
+import { IInstrument } from "../models";
 
 type UnsubscribeFn = () => void;
-type SubscribeFn = (quote: IQuote) => void;
-type SubscribeAllFn = (quotes: IQuote[]) => void;
+type SubscribeFn = (quote: any) => void;
+type SubscribeAllFn = (quotes: any[]) => void;
 
 class Subscription {
     executable = false;
@@ -11,7 +11,7 @@ class Subscription {
         this.executable = typeof _fn == 'function';
     }
 
-    execute(quote: IQuote) {
+    execute(quote: any) {
         this._fn(quote);
     }
 }
@@ -56,7 +56,7 @@ export abstract class DatafeedRepository {
         return () => this._quoteSubscribers.filter(i => i != fn);
     }
 
-    protected _triggerQuotes(quotes: IQuote[]) {
+    protected _triggerQuotes(quotes: any[]) {
         for (const fn of this._quoteSubscribers)
             fn(quotes);
 

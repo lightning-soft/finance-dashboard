@@ -1,15 +1,13 @@
 import { IInstrument } from './instrument';
 
-export type PriceInfo = {
-    price: number;
-    orderCount: number;
-    volume: number;
-};
+export enum QuoteSide {
+  Ask = 'Ask',
+  Bid = 'Bid',
+}
 
 export interface IQuote {
-    timestamp: Date;
-    askInfo: PriceInfo;
-    bidInfo: PriceInfo;
+    timestamp: number;
+    side: QuoteSide;
     instrument: IInstrument;
     price: number;
     volume: number;

@@ -1,5 +1,4 @@
-import { Id, IPaginationParams } from 'communication';
-import { IBaseItem } from 'communication';
+import { IBaseItem, Id, IPaginationParams } from 'communication';
 import { IInstrument } from './instrument';
 
 export type OrderAccount = {
@@ -22,6 +21,11 @@ export interface IOrder extends IBaseItem {
   type: OrderType;
   exchange: string;
   symbol: string;
+  price?: number;
+  accountId?: string,
+  limitPrice?: number;
+  stopPrice?: number;
+  currentSequenceNumber?: string;
 }
 
 export enum OrderSide {
@@ -42,9 +46,9 @@ export enum OrderType {
   Limit = 'Limit',
   StopMarket = 'StopMarket',
   StopLimit = 'StopLimit',
-  MIT = 'MIT',
-  LIT = 'LIT',
-  ICE = 'ICE'
+  // MIT = 'MIT',
+  // LIT = 'LIT',
+  // ICE = 'ICE'
 }
 
 export enum OrderStatus {

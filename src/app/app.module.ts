@@ -71,13 +71,15 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
   const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get('code');
 
-  if (code)
+  if (code) {
     window.history.replaceState({}, document.title, '/');
-  else {
-    location.replace(generateLoginLink(config.identity));
-  }
+    return authService.initialize(code);
+  } else {
+    await authService.refreshToken().toPromise();
 
-  return authService.initialize(code);
+    if (!authService.isAuthorized)
+      location.replace(generateLoginLink(config.identity));
+  }
 }
 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
@@ -106,96 +108,96 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     RenameModalComponent,
     ConfirmModalComponent,
   ],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        NzFormModule,
-        NzSelectModule,
-        NzRadioModule,
-        HttpClientModule,
-        CommunicationModule,
-        BrowserModule.withServerTransition({appId: 'serverApp'}),
-        NzModalModule,
-        NzDropDownModule,
-        ScrollingModule,
-        BrowserAnimationsModule,
-        NotifierModule,
-        ContextMenuModule,
-        WorkspacesModule,
-        WindowManagerModule,
-        SettingsModule.forRoot(),
-        ConfigModule.configure({
-            path: environment.config || 'config/config.json',
-            configClass: AppConfig,
-        }),
-        AccountsManagerModule.forRoot(),
-        CommunicationModule.forRoot([
-            {
-                provide: CommunicationConfig,
-                useExisting: AppConfig,
-            }
-        ]),
-        FakeCommunicationModule.forRoot(),
-        RealTradingModule.forRoot(),
-        LayoutModule.forRoot(),
-        AuthModule.forRoot(),
-        NotificationModule.forRoot(),
-        LoadingModule.forRoot([
-            {
-                path: Modules.NotificationList,
-                loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
-            },
-            {
-                path: Modules.Accounts,
-                loadChildren: () => import('accounts').then(i => i.AccountsModule)
-            },
-            {
-                path: Modules.Chart,
-                loadChildren: () => import('chart').then(i => i.ChartModule)
-            },
-            {
-                path: Modules.Watchlist,
-                loadChildren: () => import('watchlist').then(i => i.WatchlistModule)
-            },
-            {
-                path: Modules.Positions,
-                loadChildren: () => import('positions').then(i => i.PositionsModule)
-            },
-            {
-                path: Modules.Orders,
-                loadChildren: () => import('orders').then(i => i.OrdersModule)
-            },
-            {
-                path: Modules.OrderForm,
-                loadChildren: () => import('order-form').then(i => i.OrderFormModule)
-            },
-            {
-                path: Modules.Settings,
-                loadChildren: () => import('settings').then(i => i.SettingsModule)
-            },
-            {
-                path: Modules.Scripting,
-                loadChildren: () => import('scripting').then(i => i.ScriptingModule)
-            },
-            {
-                path: Modules.Dom,
-                loadChildren: () => import('dom').then(i => i.DomModule)
-            },
-        ], modulesStore),
-        RouterModule.forRoot([
-            {
-                path: '',
-                component: DashboardComponent,
-            },
-            {
-                path: '**',
-                component: DashboardComponent,
-            }
-        ]),
-        NzDropDownModule,
-        NzToolTipModule,
-        NzCheckboxModule,
-    ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NzFormModule,
+    NzSelectModule,
+    NzRadioModule,
+    HttpClientModule,
+    CommunicationModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    NzModalModule,
+    NzDropDownModule,
+    ScrollingModule,
+    BrowserAnimationsModule,
+    NotifierModule,
+    ContextMenuModule,
+    WorkspacesModule,
+    WindowManagerModule,
+    SettingsModule.forRoot(),
+    ConfigModule.configure({
+      path: environment.config || 'config/config.json',
+      configClass: AppConfig,
+    }),
+    AccountsManagerModule.forRoot(),
+    CommunicationModule.forRoot([
+      {
+        provide: CommunicationConfig,
+        useExisting: AppConfig,
+      }
+    ]),
+    FakeCommunicationModule.forRoot(),
+    RealTradingModule.forRoot(),
+    LayoutModule.forRoot(),
+    AuthModule.forRoot(),
+    NotificationModule.forRoot(),
+    LoadingModule.forRoot([
+      {
+        path: Modules.NotificationList,
+        loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
+      },
+      {
+        path: Modules.Accounts,
+        loadChildren: () => import('accounts').then(i => i.AccountsModule)
+      },
+      {
+        path: Modules.Chart,
+        loadChildren: () => import('chart').then(i => i.ChartModule)
+      },
+      {
+        path: Modules.Watchlist,
+        loadChildren: () => import('watchlist').then(i => i.WatchlistModule)
+      },
+      {
+        path: Modules.Positions,
+        loadChildren: () => import('positions').then(i => i.PositionsModule)
+      },
+      {
+        path: Modules.Orders,
+        loadChildren: () => import('orders').then(i => i.OrdersModule)
+      },
+      {
+        path: Modules.OrderForm,
+        loadChildren: () => import('order-form').then(i => i.OrderFormModule)
+      },
+      {
+        path: Modules.Settings,
+        loadChildren: () => import('settings').then(i => i.SettingsModule)
+      },
+      {
+        path: Modules.Scripting,
+        loadChildren: () => import('scripting').then(i => i.ScriptingModule)
+      },
+      {
+        path: Modules.Dom,
+        loadChildren: () => import('dom').then(i => i.DomModule)
+      },
+    ], modulesStore),
+    RouterModule.forRoot([
+      {
+        path: '',
+        component: DashboardComponent,
+      },
+      {
+        path: '**',
+        component: DashboardComponent,
+      }
+    ]),
+    NzDropDownModule,
+    NzToolTipModule,
+    NzCheckboxModule,
+  ],
   providers: [
     ThemesHandler,
     {

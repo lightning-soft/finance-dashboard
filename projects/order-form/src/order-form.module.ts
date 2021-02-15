@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AccountSelectModule } from 'account-select';
 import { InstrumentSelectModule } from 'instrument-select';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzButtonModule, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
+import { NzButtonModule, NzInputModule, NzInputNumberModule, NzSelectModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { PositionsComponent } from './components/positions/positions.component';
+import { BaseOrderFormModule } from 'base-order-form';
+import { ScrollingModule } from "@angular/cdk/scrolling";
 
 @NgModule({
   imports: [
@@ -17,8 +19,12 @@ import { PositionsComponent } from './components/positions/positions.component';
     NzInputNumberModule,
     NzButtonModule,
     AccountSelectModule,
+    BaseOrderFormModule,
     InstrumentSelectModule,
     WindowHeaderModule,
+    NzInputModule,
+    FormsModule,
+    ScrollingModule,
   ],
   declarations: [
     PositionsComponent,

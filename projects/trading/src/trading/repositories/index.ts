@@ -13,3 +13,5 @@ export * from './orders.feed';
 export * from './positions.feed';
 export * from './feed';
 export * from './settings.repository';
+export * from './order-books.repository';
+export * from './trade.data-feed';

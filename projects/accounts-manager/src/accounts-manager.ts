@@ -1,9 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { WebSocketService } from 'communication';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
+import { HttpErrorInterceptor } from './interceptor';
 
 @Injectable()
 @UntilDestroy()
@@ -11,7 +13,9 @@ export class AccountsManager {
   connections = new BehaviorSubject<IConnection[]>([]);
 
   constructor(
-    protected _connectionsRepository: ConnectionsRepository
+    protected _connectionsRepository: ConnectionsRepository,
+    private _webSocketService: WebSocketService,
+    private _interceptor: HttpErrorInterceptor
   ) { }
 
   getActiveConnection() {
@@ -19,29 +23,47 @@ export class AccountsManager {
   }
 
   async init() {
-    return this._connectionsRepository.getItems()
-      .pipe(
-        tap(() => this._updateConnections()),
-      )
-      .toPromise();
+    this._webSocketService.on(this._handleStream.bind(this));
+    this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
+    this._updateConnections();
+
+    return this.connections.pipe(
+      take(2), // first default value
+    ).toPromise()
+  }
+
+  private _handleStream(msg: any): void {
+    if (msg?.type != 'Error')
+      return;
+
+    if (msg.result?.value == "No connection!") {
+      this._deactivateConnection();
+    }
+  }
+
+  private _deactivateConnection() {
+    const connection = this.getActiveConnection();
+
+    if (connection) {
+      this._connectionsRepository.updateItem({ ...connection, connected: false })
+        .pipe(tap(() => this._updateConnections()))
+        .subscribe();
+    }
   }
 
   createConnection(connection: IConnection) {
     return this._connectionsRepository.createItem(connection)
-      .pipe(
-        tap(() => this._updateConnections()),
-      );
+      .pipe(tap(() => this._updateConnections()));
   }
 
   rename(name, connection: IConnection) {
-    return this._connectionsRepository.updateItem({ ...connection, name });
+    return this._connectionsRepository.updateItem({ ...connection, name })
+      .pipe(tap(() => this._updateConnections()));
   }
 
   connect(connection: IConnection) {
     return this._connectionsRepository.connect(connection)
-      .pipe(
-        tap(() => this._updateConnections()),
-      );
+      .pipe(tap(() => this._updateConnections()));
   }
 
   disconnect(connection: IConnection) {

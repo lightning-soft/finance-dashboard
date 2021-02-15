@@ -9,6 +9,7 @@ import { FieldType } from '@ngx-formly/core';
 export class ColorPickerComponent extends FieldType {
 
   updateValue($event: string) {
-    this.formControl.patchValue($event);
+    if (!this.formControl.disabled)
+      this.formControl.patchValue($event);
   }
 }

@@ -15,9 +15,28 @@ button {
   }
 
 }
+
+::ng-deep {
+  .side-navigation {
+    &__item {
+      display: list-item;
+    }
+  }
+}
+
+.add-container {
+  &:hover {
+    .icon-add {
+      color: $primary;
+    }
+  }
+}
+
 .icon-add {
   font-size: 15px;
+  transition: color 0.3s;
 }
+
 .side-navigation {
   position: absolute;
   width: 40px;
@@ -25,11 +44,13 @@ button {
   border-radius: 2px;
   z-index: 41;
   transition: transform 0.3s ease-out;
-  background-color: $lightBackground!important;
+  background-color: $lightBackground !important;
 }
-.icon-widget-market-watch{
+
+.icon-widget-market-watch {
   font-size: 12px;
 }
+
 .side-navigation {
 
   &__item {
@@ -41,11 +62,11 @@ button {
     text-align: center;
     line-height: 32px;
     border-radius: 2px;
-    background-color: $tabFrameColor!important;
+    background-color: $tabFrameColor !important;
 
     &:hover {
-      color: $titleColor!important;
-      background-color: $bodyBackground!important;
+      color: $titleColor !important;
+      background-color: $bodyBackground !important;
     }
   }
 }

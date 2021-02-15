@@ -1,0 +1,34 @@
+@import "../ticks";
+@import "~projects/dom/src/lib/dom-form/general";
+
+.sl-tick, .sl-tick:focus, .sl-tick:hover, .sl-tick:focus-within {
+  background: rgba(201, 59, 59, 0.2);
+  border: 1px solid #C93B3B
+}
+
+.stp-buttons {
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.popover-btn, .popover-btn:hover, .popover-btn:focus, .popover-btn:focus-within {
+  width: 59px;
+  font-size: 0.8rem;
+  padding: 0;
+  transition: all 0.3s;
+  background: #1B1D22;
+  border: 1px solid transparent;
+
+  &:not(:first-child) {
+    margin-left: 6px;
+  }
+}
+
+.btn-active {
+  border: 1px solid #4895F5;
+}
+:host-context(.full-screen-window) {
+  .sl-tick {
+    margin-top: 0;
+  }
+}

@@ -53,7 +53,7 @@ export abstract class Repository<T extends IBaseItem = any> {
       if (data == null)
         return;
 
-      const items = Array.isArray(data) ? data : [data];
+      const items = (Array.isArray(data) ? data : [data]).map(i => i.result ?? i);
 
       this.actions.next({
         action,

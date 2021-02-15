@@ -6,7 +6,7 @@ export class DataCell<T = any> extends Cell {
 
   constructor(private transformFunction?: (value: T) => string) {
     super();
-  }l
+  }
 
   updateValue(value: T) {
     const newValue = this.transformFunction ? this.transformFunction(value) : value;
@@ -14,6 +14,7 @@ export class DataCell<T = any> extends Cell {
     if (newValue == null || this.value === newValue)
       return;
 
+    this.drawed = false;
     this.value = typeof newValue === 'string'
       ? newValue
       : newValue.toString ? newValue.toString() : '';

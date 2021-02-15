@@ -4,6 +4,16 @@
   display: flex;
   justify-content: space-between;
 
+  ::ng-deep {
+    nz-select-item, nz-select-placeholder {
+      font-weight: 600;
+    }
+
+    .ant-select {
+      font-size: 0.85rem;
+    }
+  }
+
   .content {
     max-width: calc(100% - 60px);
     overflow: hidden;
@@ -38,6 +48,11 @@
     i {
       color: #D0D0D2;
       font-size: 10px;
+      transition: all .3s;
+
+      &:hover {
+        color: white;
+      }
     }
   }
 }

@@ -3,7 +3,31 @@ import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { IConnection } from 'trading';
+import { Broker, IConnection } from 'trading';
+
+class Connection implements IConnection {
+  broker: Broker;
+  name: string;
+  username: string;
+  password?: string;
+  server: string;
+  aggregatedQuotes: boolean;
+  gateway: string;
+  autoSavePassword: boolean;
+  connectOnStartUp: boolean;
+  connected: boolean;
+  favourite: boolean;
+  connectionData: any;
+  id: Id;
+
+  constructor(connection: IConnection) {
+    Object.assign(this, connection)
+  }
+
+  toString() {
+    return this.name ?? `${this.server}(${this.gateway})`;
+  }
+}
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
@@ -38,7 +62,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
       tap(i => {
-        this._updateItem(i);
+        this._updateItem(i, false);
       }),
     );
   }
@@ -88,23 +112,24 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
       const items = this._getItems().map(i => ({ ...i, connected: false }));
 
       const id = this._getLastId(items) + 1;
-      const _item = { ...item, connectionData: result, id } as IConnection;
+      const password = this.getPassword(item);
+      const _item = { ...item, password, connectionData: result, id } as IConnection;
 
       this._setItems([...items, _item]);
 
       return _item;
-    }))
+    }));
   }
 
-  protected _updateItem(item: IConnection) {
+  protected _updateItem(item: IConnection, makeDisconnected = true) {
     const items = this._getItems().map(i => {
       if (i.id === item.id) {
-        const password = item.autoSavePassword ? item.password : null;
+        const password = this.getPassword(item);
 
         return { ...i, ...item, password };
       }
 
-      if (item.connected) {
+      if (item.connected && makeDisconnected) {
         return { ...i, connected: false };
       }
 
@@ -118,6 +143,10 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     );
   }
 
+  getPassword(item) {
+    return item.autoSavePassword ? item.password : null;
+  }
+
   protected _deleteItem(id: Id): Observable<any> {
     const items = this._getItems().filter(i => i.id !== id);
 
@@ -129,7 +158,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
 
   protected _getItems(): IConnection[] {
     try {
-      return JSON.parse(localStorage.getItem('connections')) || [];
+      const items = JSON.parse(localStorage.getItem('connections')) || [];
+      if (!Array.isArray(items))
+        return [];
+
+      return items.map(i => new Connection(i))
     } catch {
       return [];
     }

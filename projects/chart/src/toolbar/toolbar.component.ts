@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, NgZone, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
+import { NzDropdownMenuComponent } from 'ng-zorro-antd';
 
 declare const StockChartX;
 
@@ -24,8 +25,10 @@ const periodicityMap = new Map([
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent {
+  @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
   showToolbar = true;
+  isDrawingsPinned = false;
   lastUsedDrawings = [];
 
   timeFrameOptions = [
@@ -48,6 +51,12 @@ export class ToolbarComponent {
     'line', 'mountain', 'pointAndFigure'];
 
   zoomOptions = ['dateRange', 'rect'];
+  shouldDrawingBeOpened = false;
+
+  get isDrawingsVisible() {
+    return this.isDrawingsPinned || this.shouldDrawingBeOpened;
+  }
+
 
   // allDrawings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
   //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
@@ -162,6 +171,14 @@ export class ToolbarComponent {
 
   set iconCross(value: string) {
     this.chart.crossHairType = value;
+  }
+
+  update() {
+    this.isDrawingsPinned = false;
+  }
+
+  toggleDrawingVisible() {
+    this.shouldDrawingBeOpened = !this.shouldDrawingBeOpened;
   }
 
   hasOneDrawing(drawingInstrument: any) {
@@ -296,6 +313,7 @@ export class ToolbarComponent {
   //     });
   //   });
   // }
+
 
   public transformToUIName(str: string): string {
     const nameUI = str.replace(/[A-Z]/g, ' $&');

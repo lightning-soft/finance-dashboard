@@ -5,7 +5,7 @@
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/utilities";
 
-@import "~ng-zorro-antd/style/index.min.css";
+// @import "~ng-zorro-antd/style/index.min.css";
 @import "assets/font/icon.css";
 
 @import "scss/utilities";
@@ -14,7 +14,7 @@
 @import "scss/animations";
 @import "scss/layout";
 @import "scss/modules";
-
+@import "./assets/ant/dark.css";
 @import "scss/dark.theme";
 @import "scss/template";
 
@@ -36,8 +36,70 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.ant-btn, .ant-collapse, .ant-select {
+.ant-btn, .ant-collapse, {
   font-size: $baseFontSize;
+}
+
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ant-select, .ant-checkbox-wrapper, .ant-radio-wrapper {
+  font-size: 0.7rem;
+}
+
+.ant-form-item-label > label {
+  font-size: 0.75rem;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  color: white;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled):hover {
+  color: white;
+  background: $lighter;
+}
+
+.ant-dropdown-menu-item {
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background: $lighter;
+  }
+}
+
+.ant-select-item-option-content {
+  display: flex;
+  align-items: center;
+}
+
+.ant-select-dropdown {
+  min-width: 90px;
+
+  .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+}
+
+.ant-select-item {
+  padding: 3px;
+  border-radius: 2px;
+  color: $text-80;
+
+  &:not(:first-child) {
+    margin-top: 4px;
+  }
+}
+
+.ant-select-arrow {
+  font-size: 8px;
+  right: 6px;
+  top: 63%;
 }
 
 small {
@@ -72,6 +134,30 @@ small {
   }
 }
 
+.ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  height: 20px;
+}
+
+nz-select {
+  height: 20px;
+}
+
+window-header {
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    background: transparent;
+  }
+}
+
+.ant-select-single .ant-select-selector .ant-select-selection-item {
+  line-height: 20px;
+}
+
+.ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-placeholder {
+  line-height: 17px;
+  font-size: 0.7rem;
+}
+
 button {
   outline: none;
   box-shadow: none;
@@ -101,6 +187,16 @@ button {
     opacity: 0;
     z-index: 9000000;
   }
+}
+
+.ant-dropdown-menu {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.ant-dropdown-menu-item {
+  border-radius: 2px;
+  padding: 3px;
 }
 
 .toolbar-dropdown {

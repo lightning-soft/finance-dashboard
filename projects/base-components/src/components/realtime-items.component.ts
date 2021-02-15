@@ -1,7 +1,7 @@
 import { Directive, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
-import { ITrade, Level1DataFeed, OnTradeFn } from 'trading';
+import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 
 @UntilDestroy()
@@ -11,7 +11,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
 
   protected _dataFeed: any;
   protected _levelOneDataFeed: Level1DataFeed;
-  protected _levelOneDataFeedHandler: OnTradeFn<ITrade>;
+  protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
 
   ngOnInit() {
     super.ngOnInit();

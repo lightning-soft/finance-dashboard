@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, NgZone } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
@@ -10,6 +10,9 @@ import { Workspace, WorkspacesManager } from 'workspace-manager';
 
 export enum DashboardCommand {
   SavePage = 'save_page',
+  Copy = 'Copy',
+  Paste = 'Paste',
+  CUT = 'Cut',
 }
 
 export const DashboardCommandToUIString = {
@@ -39,6 +42,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _accountsManager: AccountsManager,
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
+    public themeHandler: ThemesHandler,
     private _workspaceService: WorkspacesManager,
   ) { }
 
@@ -56,7 +60,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this._subscribeOnKeys();
 
     setTimeout(() => {
-      this.layout.loadState([{ "id": 1610890944402, "x": 30, "y": 30, "width": 500, "height": 500, "component": { "state": { "instrument": { "id": "ESH1", "description": "E-Mini S&P 500", "exchange": "CME", "tickSize": 0.25, "precision": 2, "symbol": "ESH1" }, "settings": { "general": {}, "hotkeys": {}, "columns": {}, "common": {}, "ltq": { "highlightBackgroundColor": "rgba(56, 58, 64, 1)" }, "price": { "backgroundColor": "rgba(16, 17, 20, 1)", "fontColor": "rgba(208, 208, 210, 1)", "highlightBackgroundColor": null, "lastTradedPriceFontColor": null, "nonTradedPriceBackColor": null, "nonTradedPriceFontColor": null, "textAlign": "center", "tradedPriceBackColor": null }, "bidDelta": { "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)" }, "askDelta": { "backgroundColor": "rgba(201, 59, 59, 0.3)", "textAlign": "center", "highlightBackgroundColor": "rgba(201, 59, 59, 1)" }, "bid": { "fontColor": "white", "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)", "textAlign": "center", "orientation": "left" }, "ask": { "fontColor": "white", "backgroundColor": "rgba(201, 59, 59, 0.3)", "histogramColor": "rgba(201, 59, 59, 0.2)", "highlightBackgroundColor": "rgba(201, 59, 59, 1)", "textAlign": "center", "orientation": "left" }, "bidDepth": { "backgroundColor": "rgba(201, 59, 59, 0.3)", "histogramColor": "rgba(201, 59, 59, 0.2)", "highlightBackgroundColor": "rgba(201, 59, 59, 1)", "textAlign": "center", "orientation": "left" }, "askDepth": { "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)", "textAlign": "center", "orientation": "left" }, "totalAsk": { "histogramColor": "rgba(72, 149, 245, 0.3)", "textAlign": "right", "fontColor": "rgba(72, 149, 245, 1)" }, "totalBid": { "histogramColor": "rgba(201, 59, 59, 0.3)", "textAlign": "right", "fontColor": "rgba(235, 90, 90, 1)" }, "volumeProfile": { "highlightBackgroundColor": "rgba(73, 187, 169, 0.3)", "orientation": "right" }, "order": {}, "currentBid": { "fontColor": "#EB5A5A", "histogramColor": "rgba(201, 59, 59, 0.4)" }, "note": {}, "currentAsk": { "fontColor": "#4895F5", "histogramColor": "rgba(72, 149, 245, 0.4)" } } }, "name": "dom" }, "order": 0 }, { "id": 1610890944425, "minimized": true, "x": 60, "y": 60, "width": 500, "height": 500, "component": { "state": { "general": {}, "hotkeys": {}, "columns": {}, "common": {}, "ltq": { "highlightBackgroundColor": "rgba(56, 58, 64, 1)" }, "price": { "backgroundColor": "rgba(16, 17, 20, 1)", "fontColor": "rgba(208, 208, 210, 1)", "highlightBackgroundColor": null, "lastTradedPriceFontColor": null, "nonTradedPriceBackColor": null, "nonTradedPriceFontColor": null, "textAlign": "center", "tradedPriceBackColor": null }, "bidDelta": { "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)" }, "askDelta": { "backgroundColor": "rgba(201, 59, 59, 0.3)", "textAlign": "center", "highlightBackgroundColor": "rgba(201, 59, 59, 1)" }, "bid": { "fontColor": "white", "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)", "textAlign": "center", "orientation": "left" }, "ask": { "fontColor": "white", "backgroundColor": "rgba(201, 59, 59, 0.3)", "histogramColor": "rgba(201, 59, 59, 0.2)", "highlightBackgroundColor": "rgba(201, 59, 59, 1)", "textAlign": "center", "orientation": "left" }, "bidDepth": { "backgroundColor": "rgba(201, 59, 59, 0.3)", "histogramColor": "rgba(201, 59, 59, 0.2)", "highlightBackgroundColor": "rgba(201, 59, 59, 1)", "textAlign": "center", "orientation": "left" }, "askDepth": { "backgroundColor": "rgba(72, 149, 245, 0.2)", "highlightBackgroundColor": "rgba(72, 149, 245, 1)", "textAlign": "center", "orientation": "left" }, "totalAsk": { "histogramColor": "rgba(72, 149, 245, 0.3)", "textAlign": "right", "fontColor": "rgba(72, 149, 245, 1)" }, "totalBid": { "histogramColor": "rgba(201, 59, 59, 0.3)", "textAlign": "right", "fontColor": "rgba(235, 90, 90, 1)" }, "volumeProfile": { "highlightBackgroundColor": "rgba(73, 187, 169, 0.3)", "orientation": "right" }, "order": {}, "currentBid": { "fontColor": "#EB5A5A", "histogramColor": "rgba(201, 59, 59, 0.4)" }, "note": {}, "currentAsk": { "fontColor": "#4895F5", "histogramColor": "rgba(72, 149, 245, 0.4)" }, "commonView": {}, "depth&Market": {}, "intervals": {} }, "name": "dom-settings" }, "order": 1 }])
+      // this.layout.loadState([{"id":1612041491891,"x":30,"y":30,"width":500,"height":500,"component":{"state":{"columns":[{"name":"account","type":"string","title":"ACCOUNT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"price","type":"string","title":"PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"size","type":"string","title":"SIZE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"realized","type":"string","title":"REALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"unrealized","type":"string","title":"UNREALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"total","type":"string","title":"TOTAL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"instrumentName","type":"string","title":"INSTRUMENT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1}]},"name":"positions"},"order":0},{"id":1612041494039,"x":340,"y":334,"width":1572,"height":735,"component":{"state":{"columns":[{"name":"averageFillPrice","type":"string","title":"AVERAGE FILL PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"description","type":"string","title":"DESCRIPTION","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"duration","type":"string","title":"DURATION","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"filledQuantity","type":"string","title":"FILLED QUANTITY","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"quantity","type":"string","title":"QUANTITY","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"side","type":"string","title":"SIDE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"status","type":"string","title":"STATUS","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"type","type":"string","title":"TYPE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":8,"columnIndex":8,"rowIndex":-1},{"name":"symbol","type":"string","title":"SYMBOL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":9,"columnIndex":9,"rowIndex":-1},{"name":"fcmId","type":"string","title":"FCMID","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":10,"columnIndex":10,"rowIndex":-1},{"name":"ibId","type":"string","title":"IBID","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":11,"columnIndex":11,"rowIndex":-1},{"name":"identifier","type":"string","title":"IDENTIFIER","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":12,"columnIndex":12,"rowIndex":-1},{"name":"close","type":"string","title":"CLOSE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":13,"columnIndex":13,"rowIndex":-1}]},"name":"orders"},"order":1},{"id":1612041523539,"x":60,"y":60,"width":1683,"height":591,"component":{"state":{"columns":[{"name":"account","type":"string","title":"ACCOUNT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"price","type":"string","title":"PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"size","type":"string","title":"SIZE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"realized","type":"string","title":"REALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"unrealized","type":"string","title":"UNREALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"total","type":"string","title":"TOTAL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"instrumentName","type":"string","title":"INSTRUMENT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1}]},"name":"positions"},"order":2}])
     }, 100);
     /*
     / For performance reason avoiding ng zone in some cases
@@ -79,6 +83,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     this._workspaceService.workspaces
+      .pipe(
+        untilDestroyed(this)
+      )
       .subscribe((workspaces: Workspace[]) => {
         const activeWorkspace = workspaces.find(w => w.isActive);
 
@@ -107,6 +114,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this._settingsService.settings
       .subscribe(s => {
         this.settings = { ...s };
+        this.themeHandler.changeTheme(s.theme as Themes);
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)
@@ -151,14 +159,27 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this._save();
         break;
       }
+      /*     case DashboardCommand.CUT: {
+             console.log(command);
+             break;
+           }
+           case DashboardCommand.Copy: {
+             console.log(command);
+             break;
+           }
+           case DashboardCommand.Paste: {
+             console.log(command);
+             break;
+           }*/
     }
   }
 
   private _save(): void {
     this._settingsService.saveState();
 
-    if (this.activeWorkspace)
-      this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState())
+    if (this.activeWorkspace) {
+      this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState());
+    }
   }
 
   @HostListener('window:beforeunload')

@@ -1,12 +1,14 @@
-import { Component, Injector, Input } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { FormComponent } from 'base-components';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
+import { QuantityPositions } from 'dom';
+import { IPosition } from 'projects/trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { HistoryRepository, IConnection, IInstrument, Periodicity } from 'trading';
-import { OrderDuration, OrderType } from 'trading';
-
+import { skip } from 'rxjs/operators';
+import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity, PositionsRepository } from 'trading';
+import { ITypeButton } from './type-buttons/type-buttons.component';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -14,6 +16,16 @@ const historyParams = {
   Skip: 0,
   BarCount: 10
 };
+
+export enum FormActions {
+  ClosePositions,
+  Flatten,
+  CloseOrders,
+  CloseBuyOrders,
+  CloseSellOrders,
+  SelectQuantity,
+  CreateMarketOrder
+}
 
 export interface DomFormSettings {
   showInstrumentChange: boolean;
@@ -32,14 +44,30 @@ export interface DomFormSettings {
   styleUrls: ['./dom-form.component.scss']
 })
 @UntilDestroy()
-export class DomFormComponent extends FormComponent<any> {
+export class DomFormComponent extends BaseOrderForm {
+  FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
+
+  @ViewChild('quantity')
+  public quantitySelect: QuantityInputComponent;
   @Input() trade;
   @Input() showUnits = true;
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
+  @Input() positions: IPosition[] = [];
+  _accountId;
+  get accountId() {
+    return this._accountId;
+  }
+
+  @Input() set accountId(value) {
+    if (this._accountId !== value) {
+      this._accountId = value;
+    }
+  }
+
 
   _settings: DomFormSettings = {
     showInstrumentChange: true,
@@ -52,6 +80,10 @@ export class DomFormComponent extends FormComponent<any> {
     includeRealizedPL: false,
   };
 
+  @Output()
+  actions = new EventEmitter<FormActions>();
+
+
   get setting() {
     return this._settings;
   }
@@ -61,17 +93,15 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (this.instrument$.getValue()?.id !== value.id)
+    if (this.instrument$.getValue()?.id !== value.id) {
       this.instrument$.next(value);
+    }
   }
 
   get instrument() {
     return this.instrument$.getValue();
   }
 
-  get isIce() {
-    return this.formValue.isIce;
-  }
 
   get isIceEnabled() {
     return this.setting.showIcebergButton;
@@ -90,35 +120,38 @@ export class DomFormComponent extends FormComponent<any> {
     { value: 10 }, { value: 50 },
     { value: 100 }, { value: 5 }
   ];
-  typeButtons = [
-    { label: 'LMT', value: OrderType.Limit }, { label: 'STP MKT', value: OrderType.StopMarket, black: true },
-    { label: 'MKT', value: OrderType.Market },
+  typeButtons: ITypeButton[] = [
+    { label: 'LMT', value: OrderType.Limit, selectable: true  },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true  },
+    { label: 'MKT', value: OrderType.Market, onClick: () => {
+     this.emit(FormActions.CreateMarketOrder);
+      }, selectable: false },
     // { label: 'OCO', value: 'OCO', black: true },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true },
-    { label: 'MIT', value: OrderType.MIT },
-    { label: 'LIT', value: OrderType.LIT },
+    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true  },
+    // { label: 'MIT', value: OrderType.MIT },
+    // { label: 'LIT', value: OrderType.LIT },
 
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
-  tifButtons = [
-    // { label: 'DAY', value: OrderDuration.DAY  },{ label: 'GTD', value: OrderDuration.GTD }, { label: 'GTC', value: OrderDuration.GTC, black: true },
-    { label: 'FOK', value: OrderDuration.FOK, black: true },
-    { label: 'IOC', value: OrderDuration.IOC, black: true },
+  tifButtons: ITypeButton[] = [
+    { label: 'DAY', value: OrderDuration.DAY, selectable: true },
+    { label: 'GTD', value: OrderDuration.GTD, selectable: true },
+    // { label: 'GTC', value: OrderDuration.GTC, black: true },
+    { label: 'FOK', value: OrderDuration.FOK, black: true, selectable: true },
+    { label: 'IOC', value: OrderDuration.IOC, black: true, selectable: true },
   ];
   editAmount = false;
   editIceAmount = false;
 
   get amount() {
-    return this.formValue.amount;
+    return this.formValue['amount'];
   }
 
-  get iceAmount() {
-    return this.formValue.iceAmount;
-  }
 
   constructor(
     protected _injector: Injector,
     private _historyRepository: HistoryRepository,
+    protected positionsRepository: PositionsRepository,
   ) {
     super();
     this.autoLoadData = false;
@@ -127,9 +160,19 @@ export class DomFormComponent extends FormComponent<any> {
   protected _handleConnection(connection: IConnection) {
     super._handleConnection(connection);
     this._historyRepository = this._historyRepository.forConnection(connection);
+    this.positionsRepository = this.positionsRepository.forConnection(connection);
 
-    if (connection != null)
+    if (connection != null) {
       this._loadHistory();
+      this.instrument$
+        .pipe(
+          skip(1),
+          untilDestroyed(this)
+        )
+        .subscribe((res) => {
+          this._loadHistory();
+        });
+    }
   }
 
   private _loadHistory() {
@@ -149,31 +192,39 @@ export class DomFormComponent extends FormComponent<any> {
     );
   }
 
+  positionsToQuantity() {
+    if (typeof this.positionSum === 'number' && this.positionSum != 0) {
+      this.form.patchValue({quantity: Math.abs(this.positionSum)});
+    }
+  }
+
   createForm() {
+    const type = this.typeButtons.find(i => i.black);
+    const duration = this.tifButtons.find(i => i.black);
+
     return new FormGroup({
       quantity: new FormControl(10, Validators.required),
-      type: new FormControl(null, Validators.required),
-      duration: new FormControl(null, Validators.required),
-      sl: new FormControl({
+      type: new FormControl(type.value, Validators.required),
+      duration: new FormControl(duration.value, Validators.required),
+      stopLoss: new FormControl({
         stopLoss: false,
-        count: 10,
+        ticks: 10,
         unit: 'ticks'
       }),
-      tp: new FormControl({
+      takeProfit: new FormControl({
         takeProfit: false,
-        count: 12,
+        ticks: 12,
         unit: 'ticks'
       }),
       amount: new FormControl(1),
       isIce: new FormControl(false),
       iceAmount: new FormControl(10),
-
     });
   }
 
+
   increaseQuantity(value: number) {
-    const quantity = (+this.form.value.quantity) + value;
-    this.form.patchValue({ quantity });
+    this.quantitySelect.currentItem.value += value;
   }
 
   getPl() {
@@ -184,11 +235,12 @@ export class DomFormComponent extends FormComponent<any> {
   }
 
 
-  toggleIce() {
-    const { isIce } = this.formValue;
-    this.form.patchValue({
-      isIce: !isIce
-    });
+  emit(action: FormActions) {
+    this.actions.emit(action);
+  }
+
+  selectQuantityByPosition(position: QuantityPositions) {
+    this.quantitySelect.selectByPosition(position);
   }
 }
 

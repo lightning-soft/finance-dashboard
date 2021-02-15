@@ -7,6 +7,7 @@ import { WindowHeaderModule } from 'window-header';
 import { SettingsStore } from './setting-store';
 import { SettingsComponent } from './settings.component';
 import { SettingsService } from './settings.service';
+import { HotkeyInputModule } from 'hotkey-input';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { SettingsService } from './settings.service';
     FormsModule,
     WindowHeaderModule,
     NzRadioModule,
+    HotkeyInputModule,
   ],
   exports: [
     SettingsComponent,

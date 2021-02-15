@@ -1,0 +1,17 @@
+@import "~src/scss/variables";
+
+.hotkey-input {
+  background: #1B1D22;
+  border: 1px solid transparent;
+  height: 20px;
+  padding: 4px 6px;
+  font-size: 0.7rem;
+  line-height: 1;
+  border-radius: 2px;
+  transition: all 0.4s;
+  outline: none;
+
+  &.recording {
+    border: 1px solid $primary;
+  }
+}

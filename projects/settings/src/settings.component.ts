@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { SettingsKeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
-import { SettingsService } from './settings.service';
+import { defaultHotkeyEntries, SettingsService } from './settings.service';
 import { SettingsData } from './types';
 
 export enum SAVE_DALEY {
@@ -12,7 +12,9 @@ export enum SAVE_DALEY {
   MANUAL_SAVE = 'MANUAL_SAVE',
 }
 
-export interface SettingsComponent extends ILayoutNode { }
+export interface SettingsComponent extends ILayoutNode {
+}
+
 @Component({
   selector: 'settings',
   templateUrl: './settings.component.html',
@@ -47,7 +49,8 @@ export class SettingsComponent implements OnInit {
   }
 
   set currentTheme(theme: Themes) {
-    this._settingsService.changeTheme(theme);
+    if (this.currentTheme !== theme)
+      this._settingsService.changeTheme(theme);
   }
 
   constructor(
@@ -60,15 +63,15 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this._settingsService.settings
+      .pipe(untilDestroyed(this))
       .subscribe(s => {
         this.settings = { ...s };
-
         if (s.autoSave && s.autoSaveDelay)
-          this.autoSaveSetting = s.autoSaveDelay
+          this.autoSaveSetting = s.autoSaveDelay;
         else if (s.autoSave)
-          this.autoSaveSetting = SAVE_DALEY.AUTO_SAVE
+          this.autoSaveSetting = SAVE_DALEY.AUTO_SAVE;
         else
-          this.autoSaveSetting = SAVE_DALEY.MANUAL_SAVE
+          this.autoSaveSetting = SAVE_DALEY.MANUAL_SAVE;
       });
   }
 
@@ -99,28 +102,8 @@ export class SettingsComponent implements OnInit {
     return false;
   }
 
-  changeHotkey(event: Event, entry): void {
-    const prevBinding = entry[1].clone();
-    entry[1].clear();
-    this.currentEntery = entry;
-    this.isKeyboardRecording = true;
-
-    this.keyboardListener.onFinised(() => {
-      entry[1] = this.keyboardListener.snapshot();
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
-    });
-
-    this.keyboardListener.onCanceled(() => {
-      entry[1] = prevBinding;
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
-    })
-
-    this.keyboardListener.onCleared(() => {
-      entry[1] = this.keyboardListener.snapshot();
-    })
-
-    this.keyboardListener.onChanged(() => entry[1] = this.keyboardListener.snapshot())
+  updateHotkey(item: any, index) {
+    this.settings.hotkeys[index][1] = item;
+    this._settingsService.saveKeyBinding(this.settings.hotkeys);
   }
 }

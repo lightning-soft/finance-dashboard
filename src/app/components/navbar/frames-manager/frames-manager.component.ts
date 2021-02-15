@@ -28,7 +28,7 @@ export class FramesManagerComponent implements AfterViewInit {
     [Components.Dom]: 'icon-widget-dom',
     [Components.OrderForm]: 'icon-widget-create-orders'
 
-};
+  };
 
   constructor(private windowManagerService: WindowManagerService) {
     this.windowManagerService.windows.subscribe(windows => {
@@ -36,10 +36,13 @@ export class FramesManagerComponent implements AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {
+  }
 
   public handleClick(window: IWindow): void {
     window.minimize();
+    if (!window.minimized)
+      window.focus();
   }
 
   private sortWindows(windows: IWindow[]): void {
@@ -54,7 +57,14 @@ export class FramesManagerComponent implements AfterViewInit {
   }
 
   getTitle(name: string) {
+    const componentTitle = componentTitles[name];
+    if (componentTitle)
+      return componentTitle;
     const title = name.replace(/-/g, ' ');
     return title[0].toUpperCase() + title.slice(1);
   }
 }
+
+const componentTitles = {
+  [Components.OrderForm]: 'Order Ticket'
+};

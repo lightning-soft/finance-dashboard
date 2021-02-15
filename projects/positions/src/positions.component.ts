@@ -1,23 +1,33 @@
 import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
-import { RealtimeItemsComponent, ViewGroupItemsBuilder } from 'base-components';
-import { Id } from 'communication';
+import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
+import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { positionsLevelOneDataFeedHandler } from 'real-trading';
-import { IPosition, IPositionParams, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import { LayoutNode } from 'layout';
+import { RealPositionsRepository } from 'real-trading';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IPosition, IPositionParams, IQuote, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
 import { PositionItem } from './models/position.item';
-
 
 const headers = [
   'account',
   'price',
+  'side',
   'size',
   'realized',
   'unrealized',
   'total',
+  ['instrumentName', 'instrument'],
+  'exchange',
 ];
 
-export interface PositionsComponent extends ILayoutNode {
+export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
+}
+
+enum GroupByItem {
+  None = 'none',
+  AccountId = 'accountId',
+  InstrumentName = 'instrumentName'
 }
 
 @Component({
@@ -26,35 +36,54 @@ export interface PositionsComponent extends ILayoutNode {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends RealtimeItemsComponent<IPosition> implements OnInit, OnDestroy {
+export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
   builder = new ViewGroupItemsBuilder();
 
-  protected _levelOneDataFeedHandler = positionsLevelOneDataFeedHandler;
+  private _columns: Column[] = [];
+  groupBy = GroupByItem.None;
+  groupByOptions = GroupByItem;
+  menuVisible = false;
+  get columns() {
+    const closeColumn: Column = {
+      name: 'close',
+      visible: true,
+    };
 
-  public _columns: Column[] = [];
-
-
-
-  private _isList = true;
-
-  set isList(isList) {
-    this._isList = isList;
-
-    if (!isList) {
-      this.groupItems();
-    } else {
-      this.builder.ungroupItems();
-    }
+    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
 
-  get isList() {
-    return this._isList;
+  protected _levelOneDataFeedHandler = (quote: IQuote) => this.items.map(i => i.updateUnrealized(quote));
+
+  get positions(): IPosition[] {
+    return this.items.filter(item => item.position).map(item => item.position);
+  }
+
+  get open() {
+    return this.positions.reduce((total, current) => total + current.unrealized, 0);
+  }
+
+  get realized() {
+    return this.positions.reduce((total, current) => total + current.realized, 0);
   }
 
   private _status: PositionStatus = PositionStatus.Open;
 
   get status() {
     return this._status;
+  }
+  get isGroupSelected() {
+    return this.groupBy !== GroupByItem.None;
+  }
+
+  handleGroupChange($event: any) {
+    if ($event === this.groupBy)
+      return;
+    this.groupBy = $event;
+    if ($event === GroupByItem.None)
+      this.builder.ungroupItems();
+    else
+      this.groupItems($event);
+
   }
 
   set status(value: PositionStatus) {
@@ -96,37 +125,53 @@ export class PositionsComponent extends RealtimeItemsComponent<IPosition> implem
     this.autoLoadData = false;
 
     this.builder.setParams({
-      groupBy: ['accountId'],
+      groupBy: ['accountId', 'instrumentName'],
       order: 'desc',
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
 
-    this._columns = headers.map(header => ({ name: header, visible: true }));
+    this._columns = headers.map(convertToColumn);
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
   }
 
-  getColumns() {
-    const closeColumn: Column = {
-      name: 'close',
-      visible: true,
-    };
-    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
+  _transformDataFeedItem(item) {
+    return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
+  }
+  // need for group by InstrumentName
+  protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
+    return this.repository.getItems(params)
+      .pipe(map(response => {
+        response.data = response.data.map(item => {
+          return this._addInstrumentName(item);
+        });
+        return response;
+      }));
+  }
+  _addInstrumentName(item) {
+    return { ...item, instrumentName: item.instrument.symbol };
   }
 
-  groupItems() {
-    this.builder.groupItems('accountId', account => {
-      const groupedItem = new PositionItem();
-      (groupedItem as any).symbol = account; // for now using for grouping TODO: use another class for grouped element
-      groupedItem.account = new DataCell();
-      groupedItem.account.updateValue(account);
-      groupedItem.account.bold = true;
-      groupedItem.account.colSpan = this.getColumns().length - 1;
-
-      return groupedItem;
+  groupItems(groupBy) {
+    this.builder.groupItems(groupBy, item => {
+      if (groupBy === GroupByItem.AccountId) {
+        return this.getGroupHeaderItem(item, 'account');
+      } else {
+        return this.getGroupHeaderItem(item, 'instrumentName');
+      }
     });
+  }
+
+  getGroupHeaderItem(item, groupBy) {
+    const groupedItem = new PositionItem();
+    (groupedItem as any).symbol = item; // for now using for grouping TODO: use another class for grouped element
+    groupedItem[groupBy] = new DataCell();
+    groupedItem[groupBy].updateValue(item);
+    groupedItem[groupBy].bold = true;
+    groupedItem[groupBy].colSpan = this.columns.length - 1;
+    return groupedItem;
   }
 
   delete(item: PositionItem) {

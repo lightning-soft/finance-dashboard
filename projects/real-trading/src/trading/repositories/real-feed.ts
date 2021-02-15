@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { IBaseItem, WebSocketService } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
+import { AccountsManager } from 'accounts-manager';
 import { RealtimeType } from './realtime';
 
 export enum WSMessageTypes {
@@ -19,8 +20,22 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
 
-  constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService) {
+  constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
+    @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
     this._webSocketService.on(this._handleTrade.bind(this));
+    this._webSocketService.connection$.subscribe(conected => !conected && this._clearSubscription());
+    this._accountsManager.connections.subscribe(() => {
+      const connection = this._accountsManager.getActiveConnection();
+      if (!connection || !connection.connected)
+        this._clearSubscription();
+    });
+  }
+
+  protected _clearSubscription() {
+    for (const key in this._subscriptions)
+      this._sendRequest(this.unsubscribeType, this._subscriptions[key], true);
+
+    this._subscriptions = {};
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -32,14 +47,14 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   subscribe(data: I | I[]) {
-    this._sendRequest(this.subscribeType, data, true);
+    this._sendRequest(this.subscribeType, data);
   }
 
   unsubscribe(data: I | I[]) {
     this._sendRequest(this.unsubscribeType, data);
   }
 
-  private _sendRequest(type: WSMessageTypes, data: I | I[], subscribe = false) {
+  private _sendRequest(type: WSMessageTypes, data: I | I[], force = false) {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
@@ -58,14 +73,14 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         });
       };
 
-      if (subscribe) {
+      if (type === this.subscribeType) {
         subscriptions[id] = (subscriptions[id] || 0) + 1;
-        if (subscriptions[id] === 1) {
+        if (force || subscriptions[id] === 1) {
           sendRequest();
         }
       } else {
         subscriptions[id] = (subscriptions[id] || 1) - 1;
-        if (subscriptions[id] === 0) {
+        if (force || subscriptions[id] === 0) {
           sendRequest();
         }
       }

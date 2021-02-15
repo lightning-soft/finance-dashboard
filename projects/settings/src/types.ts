@@ -1,4 +1,4 @@
-import { KeyBinding } from "keyboard";
+import { KeyBinding } from 'keyboard';
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;
@@ -12,4 +12,5 @@ export type SettingsData = {
   autoSaveDelay: number;
   language: string;
   hotkeys: HotkeyEntire[];
+  tradingEnabled: boolean;
 };

@@ -1,3 +1,4 @@
+@import "~src/scss/variables";
 
 :host-context(.wm-window), :host {
   background: #1B1D22;
@@ -15,14 +16,29 @@ cdk-virtual-scroll-viewport {
     contain: unset;
   }
 
+  .ticks-per-price {
+    margin-left: calc(48% + 6px) !important;
+  }
+
+  .use-tick-size {
+    margin-left: 6px;
+  }
+
+  .custom-tick-size {
+    nz-form-item {
+      margin-bottom: 0;
+    }
+  }
+
   nz-form-item {
     flex-direction: column;
     margin-bottom: 7px;
 
     .ant-form-item-label {
       text-align: start;
-      margin-bottom: 5px;
+      margin-bottom: 0px;
       border-bottom: 1px solid #383A40;
+      margin-right: 12px;
 
       label {
         font-weight: 600;
@@ -45,6 +61,20 @@ cdk-virtual-scroll-viewport {
     }
   }
 
+  .plain-label {
+    nz-form-item .ant-form-item-label {
+      margin: 0;
+
+      label {
+        font-weight: 400;
+        color: $text-80;
+        margin: 0;
+        /*font-size: 0.7rem;
+        line-height: 1.1rem;*/
+      }
+    }
+  }
+
   .iceberg-checkbox {
     padding-left: 48%;
     margin-left: 8px;
@@ -59,32 +89,6 @@ cdk-virtual-scroll-viewport {
       padding-left: 8px;
       padding-right: 8px;
     }
-
-    nz-form-item {
-      flex-direction: row;
-
-      .ant-form-item-label {
-        border-bottom: none;
-
-        label {
-          color: #A1A2A5;
-          font-size: 0.8rem;
-          line-height: 1.07;
-
-        }
-      }
-
-      nz-form-label,
-      nz-form-control {
-        width: 50%;
-      }
-
-      input {
-        background: #1B1D22;
-        border: none;
-      }
-    }
-
   }
 
   number-input {
@@ -92,10 +96,43 @@ cdk-virtual-scroll-viewport {
     display: inline-block;
   }
 
+  .current-level-item {
+    margin-top: -2px !important;
+  }
+
+  .current-level {
+    & > * {
+      &:not(:first-child) {
+        margin-top: 6px;
+        display: block;
+      }
+    }
+  }
+
+  .tail-checkbox {
+    margin-left: 4px;
+  }
+
+  .color-levels {
+    nz-form-label {
+      border-bottom: none;
+      margin-bottom: 0;
+
+      label {
+        color: $text-60;
+        margin: 0;
+        font-size: 0.6rem;
+        padding: 0;
+        font-weight: normal;
+        line-height: 0.8rem;
+      }
+    }
+  }
+
   .two-rows {
     > * {
       width: 48%;
-      margin-top: 3px;
+      margin-top: 6px;
 
       &:nth-child(even) {
         margin-left: 4px;
@@ -125,16 +162,16 @@ cdk-virtual-scroll-viewport {
 }
 
 .menu {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 6px;
+  padding-right: 6px;
   margin-top: 12px;
-  min-width: 180px;
+  min-width: 175px;
 
   .menu-item {
     list-style: none;
     padding-left: 8px;
     padding-top: 4px;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1.25;
     font-weight: 400;
     padding-bottom: 4px;

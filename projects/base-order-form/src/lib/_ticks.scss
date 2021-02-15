@@ -1,0 +1,61 @@
+
+.checkbox-right {
+  margin-left: auto;
+}
+
+::ng-deep {
+  .tick-overlay {
+    width: 160px;
+
+    .ant-popover-inner {
+      background: #24262C;
+    }
+  }
+}
+
+.checkbox-title {
+  font-size: 0.7rem;
+}
+
+.number-input {
+  margin-top: 8px;
+  width: 100%;
+  height: 20px;
+  font-size: 0.8rem;
+
+  ::ng-deep input{
+    height: 20px;
+  }
+}
+
+.tick-btn {
+  width: 100%;
+  font-weight: 600;
+
+  &:not(:first-child) {
+    margin-top: 6px;
+  }
+}
+
+.popover-select {
+  margin-top: 8px;
+}
+
+.divider {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.amount {
+  font-weight: 600;
+  font-size: 0.8rem;
+  line-height: 1.1;
+  color: #A1A2A5;
+  margin-right: 18px;
+  margin-bottom: 0;
+}
+
+nz-select {
+  width: 100%;
+}
+

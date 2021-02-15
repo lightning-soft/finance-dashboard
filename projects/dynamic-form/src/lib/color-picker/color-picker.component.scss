@@ -1,17 +1,30 @@
+:host {
+  height: 20px;
+}
+
 .color-input {
-  height: 25px;
-  width: 25px;
+  height: 12px;
+  width: 12px;
+  border-radius: 2px;
 }
 
 .color-wrapper {
   background: #24262C;
   display: inline-block;
-  padding: 5px;
+  padding: 2px;
+  padding-left: 6px;
   width: 100%;
   border-radius: 2px;
 }
 
+.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
 .color-label {
   margin-left: 10px;
-  color: #D0D0D2;;
+  color: #D0D0D2;
+  font-size: 0.75rem;
 }

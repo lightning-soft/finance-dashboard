@@ -53,15 +53,19 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
   }
 
   groupItems(groupBy: string, groupItemMap: (item: string) => any) {
-    this._groupItemsParams = { groupBy, groupItemMap };
-    this._groupedItems = [];
+    this._groupItemsParams = {groupBy, groupItemMap};
+    this.updateGroupedItems();
+  }
 
+
+  updateGroupedItems() {
+    const {groupBy, groupItemMap} = this._groupItemsParams;
     const group = this._groups[groupBy];
 
     if (!group) {
       return;
     }
-
+    this._groupedItems = [];
     Object.entries(group).forEach(([item, items]) => {
       this._groupedItems = this._order([
         this._groupedItems,

@@ -1,10 +1,12 @@
-<window-header  (contextmenu)="grid.createComponentModal($event)" [window]="this">
-  <instrument-select className="custom-form-control bg-light" [(instrument)]="instrument"></instrument-select>
+<window-header   (contextmenu)="grid.createComponentModal($event)"
+                 [window]="this">
+  <instrument-select class="ml-1"  [(instrument)]="instrument"></instrument-select>
+  <account-select [labelTransformer]="transformLabel.bind(this)" class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
 <div class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
   </button>
-  <button [title]="'Clear'" class="wm-header-btn icon-dom-clear-all"></button>
+  <button  nz-dropdown nzTrigger="click"  [nzDropdownMenu]="menu" [title]="'Clear'" class="wm-header-btn icon-dom-clear-all"></button>
 
   <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings()">
   </button>
@@ -24,10 +26,10 @@
     class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">
     <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
-      <span title="Slim" (click)="isExtended = false" class="slim switch-item">
+      <span [class.switch-item-active]="!isExtended" title="Slim" (click)="isExtended = false" class="slim switch-item">
         <i [class.text-active]="!isExtended" class="icon-dom-slim"></i>
       </span>
-      <span title="Normal" (click)="isExtended = true" class="extended switch-item">
+      <span [class.switch-item-active]="isExtended" title="Normal" (click)="isExtended = true" class="extended switch-item">
                 <i [class.text-active]="isExtended" class="icon-dom-extended"></i>
 
       </span>
@@ -37,28 +39,41 @@
       class="icon-{{item}} direction window-icon"></i>
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
       [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
-    <i (click)="isLocked = !isLocked" [class.icon-lock]="!isLocked" [title]="isLocked? 'Lock' : 'Unlock'"
-      [class.icon-unlock]="isLocked" class="window-icon large"></i>
+    <i (click)="isTradingLocked = !isTradingLocked"
+      [class.icon-lock]="isTradingLocked"
+      [class.icon-unlock]="!isTradingLocked"
+      [title]="isTradingLocked? 'Lock' : 'Unlock'"
+      class="window-icon large"></i>
 
   </span>
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-    <dom-form [instrument]="instrument" [trade]="trade" #domForm [class.d-none]="!isFormOpen"
+    <dom-form [instrument]="instrument"
+              [accountId]="accountId"
+              [trade]="trade" #domForm [class.d-none]="!isFormOpen"
       [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
+              [positions]="positions"
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
+      (actions)="handleFormAction($event)"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [columns]="columns" detach="true"
-      [beforeRenderCell]="beforeRenderCell"
-      [renderCell]="renderCell"
-      [afterRenderCell]="afterRenderCell"
-      [renderText]="renderText"
-      [afterDraw]="afterDraw">
+    <data-grid #grid [columns]="columns"
+               (currentCellChanged)="onCurrentCellChanged($event)"
+               detach="true" [afterDraw]="afterDraw" [handlers]="handlers">
     </data-grid>
   </div>
 
 </div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="clear-dropdown">
+    <li nz-menu-item (click)="handleHotkey('clearAllTotals');handleHotkey('clearCurrentTrades') ">All</li>
+    <li nz-menu-item (click)="handleHotkey('clearCurrentTrades')">Current</li>
+    <li nz-menu-item (click)="handleHotkey('clearTotalTradesUp'); handleHotkey('clearCurrentTradesUp')">Up </li>
+    <li nz-menu-item (click)="handleHotkey('clearTotalTradesDown'); handleHotkey('clearCurrentTradesDown')">Down</li>
+    <!--<li nz-menu-item>Notes</li>-->
+  </ul>
+</nz-dropdown-menu>

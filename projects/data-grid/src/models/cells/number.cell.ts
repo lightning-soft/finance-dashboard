@@ -59,7 +59,7 @@ export class NumberCell extends Cell {
 
   updateValue(value: number, time?: number) {
     if (typeof value !== 'number' || this._value === value)
-      return;
+      return false;
 
     switch (this.strategy) {
       case AddClassStrategy.RELATIVE_PREV_VALUE:
@@ -72,13 +72,24 @@ export class NumberCell extends Cell {
         this.class = '';
     }
 
-    if (this.ignoreZero && value == 0)
+    if (this.ignoreZero && value == 0 || !this.visible)
       this.value = ''
     else
       this.value = this.formatter ? this.formatter.format(value) : value.toString();
 
+    this.drawed = false;
     this._value = value;
-    this.time = time;
+    this.time = time ?? Date.now();
+    this.hightlight();
+    return true;
+  }
+
+  hightlight() {
+    const settings: any = this.settings;
+    if (settings.highlightLarge == true && settings.largeSize != null && this._value < settings.largeSize)
+      return;
+
+    super.hightlight();
   }
 
   clear() {

@@ -1,15 +1,19 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { NzModalService } from 'ng-zorro-antd';
+import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
+import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize, take } from 'rxjs/operators';
-import { Broker, BrokersRepository, IBroker, IConnection } from 'trading';
+import { BrokersRepository, IBroker, IConnection } from 'trading';
 
 export interface AccountsComponent extends ILayoutNode {
+}
+
+interface AccountsState {
+  selectedItem?: IConnection;
 }
 
 const maxAccountsPerConnection = 4;
@@ -21,7 +25,7 @@ const maxAccountsPerConnection = 4;
   styleUrls: ['./accounts.component.scss'],
 })
 @LayoutNode()
-export class AccountsComponent implements OnInit {
+export class AccountsComponent implements IStateProvider<AccountsState>, OnInit {
 
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
@@ -31,8 +35,6 @@ export class AccountsComponent implements OnInit {
   selectedBroker: IBroker;
   splitConnections = false;
 
-  gateways = {};
-
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
@@ -40,14 +42,10 @@ export class AccountsComponent implements OnInit {
     private _brokersRepository: BrokersRepository,
     private fb: FormBuilder,
     private modal: NzModalService,
+    protected nzContextMenuService: NzContextMenuService
   ) {
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
-  }
-
-  ngOnInit() {
-    this.builder.setParams({ groupBy: ['broker'] });
-
     this.form = this.fb.group({
       id: [null],
       name: [null],
@@ -60,6 +58,10 @@ export class AccountsComponent implements OnInit {
       connectOnStartUp: [null],
       broker: [null],
     });
+  }
+
+  ngOnInit() {
+    this.builder.setParams({ groupBy: ['broker'] });
 
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
@@ -72,19 +74,44 @@ export class AccountsComponent implements OnInit {
       );
 
     this._accountsManager.connections
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this))
       .subscribe((items: any) => {
         if (items) {
           this.builder.replaceItems(items);
           this.expandBrokers();
+          this._updateSelectedItem();
         }
       });
 
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
         const item = items.find(item => item.connected);
-        this.selectItem(item);
+        if (!this.selectedItem)
+          this.selectItem(item);
       });
+  }
+
+  contextMenu($event: MouseEvent, menu: any) {
+    this.nzContextMenuService.create($event, menu);
+  }
+
+  saveState(): AccountsState {
+    return { selectedItem: this.selectedItem };
+  }
+
+  loadState(state: AccountsState) {
+    const { selectedItem } = state;
+    if (selectedItem)
+      this.selectItem(selectedItem);
+  }
+
+  private _updateSelectedItem() {
+    if (this.selectedItem) {
+      const item = this.builder.items.find(data => data.id === this.selectedItem.id);
+      if (item)
+        this.selectedItem = { ...item };
+    }
   }
 
   getBrokerItems(broker) {
@@ -129,8 +156,8 @@ export class AccountsComponent implements OnInit {
     else if ((typeof _server === 'object'))
       server = _server['name'];
 
-    const { username, password, gateway, ...data } = item;
-    const userData = { username, password, server, gateway };
+    const { username, password, autoSavePassword, gateway, ...data } = item;
+    const userData = { username, password, server, gateway, autoSavePassword };
     return { ...data, broker, userData };
   }
 
@@ -171,7 +198,9 @@ export class AccountsComponent implements OnInit {
         this.builder.updateItem(response, index);
         this.builder.updateGroupItems();
       },
-      err => this._notifier.showError(err),
+      err => {
+        this._notifier.showError(err);
+      },
     );
   }
 
@@ -208,7 +237,8 @@ export class AccountsComponent implements OnInit {
       nzCancelText: 'Cancel',
       nzAutofocus: null,
       nzOnOk: () => {
-        this.disconnect(item);
+        if (item.connected)
+          this.disconnect(item);
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
@@ -244,4 +274,5 @@ export class AccountsComponent implements OnInit {
     else
       this.form.get(control).disable();
   }
+
 }
