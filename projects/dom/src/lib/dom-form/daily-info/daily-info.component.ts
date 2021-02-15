@@ -38,7 +38,8 @@ export class DailyInfoComponent {
       }
 
       this.dailyInfo.volume = this.dailyInfo.volume + value.volume;
-      this.updateIncome();
+      this.dailyInfo = { ...this.dailyInfo };
+     // this.updateIncome();
     }
   }
 

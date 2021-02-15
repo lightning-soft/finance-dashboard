@@ -5,6 +5,14 @@ import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
 import { Broker, IConnection } from 'trading';
 
+interface AccountSetting {
+  id: string;
+  name: string;
+  login: string;
+  password: string;
+  metadata: any;
+}
+
 class Connection implements IConnection {
   broker: Broker;
   name: string;
@@ -21,7 +29,7 @@ class Connection implements IConnection {
   id: Id;
 
   constructor(connection: IConnection) {
-    Object.assign(this, connection)
+    Object.assign(this, connection);
   }
 
   toString() {
@@ -31,16 +39,35 @@ class Connection implements IConnection {
 
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> {
+  connections: IConnection[] = [];
+
   protected get _baseUrl(): string {
     return `${this._communicationConfig.rithmic.http.url}Connection`;
   }
 
+  protected get _accountsSettings() {
+    return `${this._communicationConfig.setting.url}api/AccountSettings`;
+  }
+
   getItems(): Observable<IPaginationResponse<IConnection>> {
-    const data = this._getItems();
+    return this._http.get<AccountSetting[]>(this._accountsSettings, { ...this._httpOptions })
+      .pipe(
+        map(data => {
+          return data.map(item => {
+            const { metadata, ...rest } = item;
+            return { ...metadata, ...rest } as IConnection;
+          });
+        }),
+        map(data => {
+          console.warn(data);
+          return { data } as IPaginationResponse;
+        })
+      );
+  }
 
-    const res = { data } as IPaginationResponse<IConnection>;
-
-    return of(res).pipe(delay(0));
+  public deleteItem(id: Id): Observable<any> {
+    return this._http.delete(this._accountsSettings, this._httpOptions)
+      .pipe(tap(() => this._onDelete({ id })));
   }
 
   getServers() {
@@ -48,20 +75,14 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
-    this._updateItem(item);
-
-    return of(item);
-  }
-
-  deleteItem(id: Id): Observable<any> {
-    // return throwError('Implement');
-
-    return this._deleteItem(id);
+    return this._http.put<any>(this._accountsSettings, item, this._httpOptions)
+      .pipe(tap(() => this._onUpdate(item)));
   }
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
       tap(i => {
+        this._onUpdate(item);
         this._updateItem(i, false);
       }),
     );
@@ -72,7 +93,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
 
     return this._disconnect(item).pipe(
       map(() => _item),
-      tap(() => this._updateItem(_item)),
+      tap(() => this._onUpdate(item)),
     );
   }
 
@@ -108,73 +129,26 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   protected _createItem(item: ExcludeId<IConnection>, options?): Observable<IConnection> {
-    return super._createItem(item, options).pipe(map(({ result }) => {
-      const items = this._getItems().map(i => ({ ...i, connected: false }));
-
-      const id = this._getLastId(items) + 1;
-      const password = this.getPassword(item);
-      const _item = { ...item, password, connectionData: result, id } as IConnection;
-
-      this._setItems([...items, _item]);
-
+    const { ...metadata } = item;
+    const login = item.username;
+    const name = `${item.server}(${item.gateway})`;
+    const password = this.getPassword(item);
+    return this._http.post<AccountSetting>(this._accountsSettings, {
+      name,
+      login,
+      password,
+      metadata
+    }).pipe(map(({ result }) => {
+      const _item = { ...item, password, connectionData: result } as IConnection;
       return _item;
     }));
   }
 
   protected _updateItem(item: IConnection, makeDisconnected = true) {
-    const items = this._getItems().map(i => {
-      if (i.id === item.id) {
-        const password = this.getPassword(item);
-
-        return { ...i, ...item, password };
-      }
-
-      if (item.connected && makeDisconnected) {
-        return { ...i, connected: false };
-      }
-
-      return i;
-    });
-
-    this._setItems(items);
-
-    this._onUpdate(
-      item.connected ? items : items.find(i => i.id === item.id)
-    );
   }
 
   getPassword(item) {
-    return item.autoSavePassword ? item.password : null;
+    return item.autoSavePassword ? item.password : '';
   }
 
-  protected _deleteItem(id: Id): Observable<any> {
-    const items = this._getItems().filter(i => i.id !== id);
-
-    this._setItems(items);
-
-    this._onDelete({ id });
-    return of({ id });
-  }
-
-  protected _getItems(): IConnection[] {
-    try {
-      const items = JSON.parse(localStorage.getItem('connections')) || [];
-      if (!Array.isArray(items))
-        return [];
-
-      return items.map(i => new Connection(i))
-    } catch {
-      return [];
-    }
-  }
-
-  protected _setItems(items: IConnection[]) {
-    localStorage.setItem('connections', JSON.stringify(items));
-  }
-
-  protected _getLastId(items: IConnection[]) {
-    const ids = items.map(i => +i.id);
-
-    return Math.max(0, ...ids);
-  }
 }

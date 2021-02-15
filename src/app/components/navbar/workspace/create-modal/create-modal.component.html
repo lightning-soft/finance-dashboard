@@ -1,9 +1,9 @@
 <form
   [formGroup]="form"
-> 
+>
   <div class="mb-1 text-left">
     <small class="text-muted px-2 mb-1">Name new workspace</small>
-    <nz-select class="custom-form-control" [(ngModel)]="base" formControlName="base">
+    <nz-select [nzOptionHeightPx]="20" class="custom-form-control" [(ngModel)]="base" formControlName="base">
       <nz-option nzValue="blank" nzLabel="Blank workspace"></nz-option>
       <nz-option *ngFor="let workspace of workspaces" [nzValue]="workspace.id" [nzLabel]="workspace.name"></nz-option>
     </nz-select>

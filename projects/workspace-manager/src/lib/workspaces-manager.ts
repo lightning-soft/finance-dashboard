@@ -51,7 +51,7 @@ export class WorkspacesManager {
     }
 
     this._workspacesStore.setItems(workspaces);
-    this._workspacesStore.setItemConfig(workspace.configId, workspaceConfig);
+   // this._workspacesStore.setItemConfig(workspace.configId, workspaceConfig);
 
     this.workspaces.next(workspaces);
   }
@@ -85,7 +85,7 @@ export class WorkspacesManager {
       workspaces[0].isActive = true;
 
     this._workspacesStore.deleteItem(id);
-    this._workspacesStore.deleteItemConfig(workspace.configId);
+    // this._workspacesStore.deleteItemConfig(workspace.configId);
 
     this.workspaces.next(workspaces);
   }
@@ -99,8 +99,8 @@ export class WorkspacesManager {
 
     if (!workspace)
       return;
-
-    await this._workspacesStore.setItemConfig(workspace.configId, state).toPromise();
+    workspace.config = state;
+   // await this._workspacesStore.setItemConfig(workspace.configId, state).toPromise();
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
   }
 

@@ -29,7 +29,7 @@ export class AccountsManager {
 
     return this.connections.pipe(
       take(2), // first default value
-    ).toPromise()
+    ).toPromise();
   }
 
   private _handleStream(msg: any): void {
