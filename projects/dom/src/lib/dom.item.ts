@@ -16,7 +16,7 @@ class OrdersCell extends HistogramCell {
 
   constructor(config) {
     super(config);
-    this._isOrderColumn = config.isOrderColumn == true;
+    this._isOrderColumn = config.isOrderColumn === true;
   }
 
   addOrder(order: IOrder) {
@@ -65,7 +65,7 @@ class OrdersCell extends HistogramCell {
     const pwidth = context.width - padding * 2;
     const pheight = context.height - padding * 2;
     const sequenceNumber = this._order.currentSequenceNumber;
-    const isAsk = this.orderStyle == 'ask';
+    const isAsk = this.orderStyle === 'ask';
     const isOrderColumn = this._isOrderColumn;
 
     ctx.beginPath();
@@ -236,7 +236,7 @@ export class DomItem implements IBaseItem {
   handleQuote(data: IQuote) {
     // console.log(data.price, data.side, data.volume);
 
-    if (data.side == QuoteSide.Ask)
+    if (data.side === QuoteSide.Ask)
       return this._handleAsk({ volume: data.volume } as any);
     else
       return this._handleBid({ volume: data.volume } as any);
@@ -295,11 +295,15 @@ export class DomItem implements IBaseItem {
   }
 
   clearAsk() {
-    console.log(this.lastPrice)
+    console.log(this.lastPrice);
     this.ask.clear();
     this.ask.visible = false;
     this.askDelta.clear();
     this.askDelta.visible = false;
+  }
+
+  refresh() {
+    return Object.keys(this).forEach(key => this[key].refresh && this[key].refresh());
   }
 
   handleL2(l2: L2) {
@@ -333,8 +337,8 @@ export class DomItem implements IBaseItem {
   }
 
   setOffset(offset: number, isOut: boolean) {
-    const wasOut = this._isOut == true;
-    this._isOut = isOut == true;
+    const wasOut = this._isOut === true;
+    this._isOut = isOut === true;
     this._level = offset;
 
     const visible = !isOut;
@@ -359,7 +363,7 @@ export class DomItem implements IBaseItem {
         this.orders.addOrder(order);
         this.notes.updateValue(order.description);
 
-        if (order.side == OrderSide.Sell) {
+        if (order.side === OrderSide.Sell) {
           this.askDelta.addOrder(order);
           this.askDelta.orderStyle = 'ask';
           this.orders.orderStyle = 'ask';
@@ -373,7 +377,7 @@ export class DomItem implements IBaseItem {
   }
 
   dehighlight(key: string) {
-    if (key == 'all')
+    if (key === 'all')
       return Object.keys(this).forEach(i => this.dehighlight(i));
 
     if (this[key] && this[key].dehightlight) {

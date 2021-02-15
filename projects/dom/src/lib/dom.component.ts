@@ -33,6 +33,8 @@ export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 export class DomItemMax {
   ask: number;
   bid: number;
+  askDelta: number;
+  bidDelta: number;
   volume: number;
   totalAsk: number;
   totalBid: number;
@@ -65,6 +67,8 @@ export class DomItemMax {
     this.totalBid = null;
     this.currentAsk = null;
     this.currentBid = null;
+    this.askDelta = null;
+    this.bidDelta = null;
   }
 }
 
@@ -284,7 +288,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _map = new Map<number, DomItem>();
 
   private get _lastPrice(): number {
-    return this._lastChangesItem.ltq?.price?._value;
+    return this._lastChangesItem.ltq?.lastPrice;
   }
 
   private _lastTrade: TradePrint;
@@ -299,9 +303,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea.formSettings;
   }
 
+  private _customTickSize;
+
+  private set _tickSize(value: number) {
+    this._customTickSize = value;
+  }
+
   private get _tickSize() {
-    return this.instrument.tickSize ?? 0.01;
-    // return 0.01;
+    return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
   }
 
   constructor(
@@ -393,7 +402,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           gridBorderColor: common.generalColors.gridLineColor,
           scrollSensetive: settings.general.intervals.scrollWheelSensitivity,
         });
+        const minToVisible = settings?.general?.marketDepth?.bidAskDeltaFilter ?? 0;
+        this._tickSize = settings.general.commonView.ticksPerPrice;
+
+        settings.bid.minToVisible = minToVisible;
+        settings.ask.minToVisible = minToVisible;
+
         this._settings.merge(settings);
+        this._applyOfset(this._lastPrice);
+        this.items.forEach(i => i.refresh());
         this.detectChanges(true);
       }
     });
@@ -575,6 +592,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           i.dehighlight(Columns.All);
         }
 
+        price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+        this._applyOfset(price);
+        this._lastChangesItem.ltq = this._getItem(price);
         this.centralize();
         this._loadOrders();
       },
@@ -674,7 +694,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
 
-          item.isCenter = item.lastPrice == this._lastPrice;
+          item.isCenter = item.lastPrice === this._lastPrice;
           if (item.isCenter)
             index = i;
         }
@@ -728,36 +748,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
 
-    if (prevltqItem?.lastPrice != trade.price) {
+    if (prevltqItem?.lastPrice !== trade.price) {
       if (prevltqItem)
         prevltqItem.clearLTQ();
-      const price = trade.price;
-      // const
 
-      const offset = this._settings.general?.marketDepth?.bidAskDeltaDepth ?? 10000;
-      const index = this.items.findIndex(i => i.lastPrice == price);
-
-      if (index != -1) {
-        const items = this.items;
-        let up = index;
-        let down = index;
-
-        while (--up >= 0) {
-          items[up].clearDelta();
-          items[up].clearBid();
-
-          if (items[up].setOffset(index - up, index - up > offset))
-            break;
-        }
-
-        while (++down < items.length) {
-          items[down].clearDelta();
-          items[down].clearAsk();
-
-          if (items[down].setOffset(down - index, down - index > offset))
-            break;
-        }
-      }
+      this._applyOfset(trade.price);
     }
 
     const _item = this._getItem(trade.price);
@@ -765,8 +760,60 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!prevltqItem)
       this.centralize();
+
     this._lastTrade = trade;
     this.detectChanges();
+  }
+
+  private _applyOfset(centerPrice: number) {
+    const index = this.items.findIndex(i => i.lastPrice === centerPrice);
+
+    if (index === -1)
+      return;
+
+    const offset = this._settings.general?.marketDepth?.marketDepth ?? 10000;
+    const items = this.items;
+    let up = index;
+    let down = index;
+
+    this._max.bid = null;
+    this._max.ask = null;
+    this._max.bidDelta = null;
+    this._max.askDelta = null;
+    let item;
+    let isOut;
+
+    while (--up >= 0) {
+      item = items[up];
+      item.clearDelta();
+      item.clearBid();
+      isOut = index - up > offset;
+
+      if (!item.setOffset(index - up, index - up > offset)) {
+        this._handleMaxChange({
+          askDelta: item.askDelta._value,
+          ask: item.ask._value,
+        }, item);
+      } else {
+        break;
+      }
+    }
+
+    while (++down < items.length) {
+      item = items[down];
+      item.clearDelta();
+      item.clearAsk();
+      isOut = down - index > offset;
+
+      if (!item.setOffset(down - index, isOut)) {
+        this._handleMaxChange({
+          bidDelta: item.bidDelta._value,
+          bid: item.bid._value,
+        }, item);
+      } else {
+        break;
+      }
+    }
   }
 
   protected _handleQuote(trade: IQuote) {
@@ -791,17 +838,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const keys = hist && Object.keys(hist);
 
     for (const key in changes) {
-      const prevItem = this._lastChangesItem[key];
-      if (prevItem)
-        prevItem.dehighlight(key);
+      if (changes.hasOwnProperty(key)) {
+        const prevItem = this._lastChangesItem[key];
+        if (prevItem)
+          prevItem.dehighlight(key);
 
-      this._lastChangesItem[key] = item;
+        this._lastChangesItem[key] = item;
+      }
     }
 
     if (Array.isArray(keys) && keys.length) {
       for (const i of this.items) {
         for (const key of keys) {
-          if (hist[key] == null || i[key].component != 'histogram')
+          if (hist[key] == null || i[key].component !== 'histogram')
             continue;
 
           (i[key] as HistogramCell).calcHist(hist[key]);

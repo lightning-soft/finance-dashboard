@@ -47,17 +47,19 @@ export abstract class Cell implements ICell {
   status: string = '';
   private _prevStatus = '';
 
-  private _visibility = true;
+  protected _visibility = true;
 
   get visible() {
     return this._visibility;
   }
 
   set visible(value) {
-    if (!value)
-      this.value = '';
+    if (this._visibility === value)
+      return;
+
     this.drawed = false;
     this._visibility = value;
+    this._visibilityChange();
   }
 
   constructor(config?: ICellConfig) {
@@ -103,6 +105,14 @@ export abstract class Cell implements ICell {
   clear() {
     this.value = '';
     this.drawed = false;
+  }
+
+  protected _visibilityChange() {
+    throw new Error('Implement visibility change');
+  }
+
+  refresh() {
+
   }
 
   toString() {
