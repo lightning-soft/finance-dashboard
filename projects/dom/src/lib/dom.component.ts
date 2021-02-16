@@ -404,16 +404,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           scrollSensetive: general.intervals.scrollWheelSensitivity,
         });
         const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
-        const updateInterval = general.intervals.updateInterval ?? 0;
+        const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
         this._tickSize = settings.general.commonView.ticksPerPrice;
 
         settings.bid.minToVisible = minToVisible;
         settings.ask.minToVisible = minToVisible;
-        settings.currentAsk.updateInterval = updateInterval;
-        settings.currentBid.updateInterval = updateInterval;
+        settings.currentAsk.clearTradersTimer = clearTradersTimer;
+        settings.currentBid.clearTradersTimer = clearTradersTimer;
 
         this._settings.merge(settings);
-        this._applyOfset(this._lastPrice);
+        this._applyOffset(this._lastPrice);
         this.items.forEach(i => i.refresh());
         this.detectChanges(true);
       }
@@ -523,6 +523,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
     if (action.items)
       this._handleOrders(action.items);
+
+    this.detectChanges();
   }
 
   _onInstrumentChange() {
@@ -542,7 +544,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const { symbol, exchange } = this._instrument;
     this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
       res => {
-        // console.log(res);
         this._clear();
 
         const { asks, bids } = res.data[0];
@@ -597,7 +598,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
-        this._applyOfset(price);
+        this._applyOffset(price);
         this._lastChangesItem.ltq = this._getItem(price);
         this.centralize();
         this._loadOrders();
@@ -757,7 +758,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (prevltqItem)
         prevltqItem.clearLTQ();
 
-      this._applyOfset(trade.price);
+      this._applyOffset(trade.price);
     }
 
     const _item = this._getItem(trade.price);
@@ -770,14 +771,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  private _applyOfset(centerPrice: number) {
+  private _applyOffset(centerPrice: number) {
     const index = this.items.findIndex(i => i.lastPrice === centerPrice);
 
     if (index === -1)
       return;
 
-    const offset = this._settings.general?.marketDepth?.marketDepth ?? 10000;
+    const depth = this._settings.general?.marketDepth;
+    const marketDepth = depth?.marketDepth ?? 10000;
+    const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
     const items = this.items;
+
+    let changes;
     let up = index;
     let down = index;
 
@@ -786,38 +791,30 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._max.bidDelta = null;
     this._max.askDelta = null;
     let item;
-    let isOut;
 
     while (--up >= 0) {
       item = items[up];
       item.clearDelta();
       item.clearBid();
-      isOut = index - up > offset;
 
-      if (!item.setOffset(index - up, index - up > offset)) {
-        this._handleMaxChange({
-          askDelta: item.askDelta._value,
-          ask: item.ask._value,
-        }, item);
-      } else {
+      changes = item.setAskVisibility(index - marketDepth > up, index - marketDeltaDepth > up);
+
+      if (changes === true)
         break;
-      }
+
+      this._handleMaxChange(changes, item);
     }
 
-    while (++down < items.length) {
+    while (down++ < items.length) {
       item = items[down];
       item.clearDelta();
       item.clearAsk();
-      isOut = down - index > offset;
+      changes = item.setBidVisibility(down - index > marketDepth, down - index > marketDeltaDepth);
 
-      if (!item.setOffset(down - index, isOut)) {
-        this._handleMaxChange({
-          bidDelta: item.bidDelta._value,
-          bid: item.bid._value,
-        }, item);
-      } else {
+      if (changes === true)
         break;
-      }
+
+      this._handleMaxChange(changes, item);
     }
   }
 

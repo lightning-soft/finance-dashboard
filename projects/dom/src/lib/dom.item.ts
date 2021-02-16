@@ -126,10 +126,8 @@ class LtqCell extends HistogramCell {
 
 class TotalTimeCell extends HistogramCell {
   updateValue(value: number) {
-    if (Date.now() < (this.time + ((this.settings as any).updateInterval || 0)))
-      return super.updateValue((this._value || 0) + value);
-    else
-      return super.updateValue(value);
+    return super.updateValue(Date.now() > (this.time + ((this.settings as any).clearTradersTimer || 0))
+      ? value : (this._value || 0) + value);
   }
 }
 
@@ -137,8 +135,6 @@ export class DomItem implements IBaseItem {
   id: Id;
 
   isCenter = false;
-  private _isOut: boolean;
-  private _level: number;
 
   get lastPrice(): number {
     return this.price._value;
@@ -228,14 +224,10 @@ export class DomItem implements IBaseItem {
       }
     }
 
-    // console.log(trade.price, trade.side, this.currentAsk._value, this.currentAsk.drawed, this.currentBid._value, this.currentBid.drawed);
-
-    return this._isOut ? null : res;
+    return res;
   }
 
   handleQuote(data: IQuote) {
-    // console.log(data.price, data.side, data.volume);
-
     if (data.side === QuoteSide.Ask)
       return this._handleAsk({ volume: data.volume } as any);
     else
@@ -254,7 +246,8 @@ export class DomItem implements IBaseItem {
         res.askDelta = this.askDelta.value;
     }
 
-    return this._isOut ? null : res;
+    this.clearBid();
+    return res;
   }
 
   private _handleBid(data: IInfo) {
@@ -269,13 +262,15 @@ export class DomItem implements IBaseItem {
         res.bidDelta = this.bidDelta._value;
     }
 
-    return this._isOut ? null : res;
+    this.clearAsk();
+    return res;
   }
 
   private _changeLtq(volume: number, side: string) {
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(side);
-      this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
+
+      this.volume.updateValue((this.totalBid._value || 0) + (this.totalAsk._value || 0));
       this.price.isTraded = this.volume._value != null;
       this.setPrice(this.price._value);
 
@@ -334,18 +329,39 @@ export class DomItem implements IBaseItem {
     return res;
   }
 
-  setOffset(offset: number, isOut: boolean) {
-    const wasOut = this._isOut === true;
-    this._isOut = isOut === true;
-    this._level = offset;
+  setBidVisibility(isBidOut: boolean, isBidDeltaOut: boolean) {
+    const wasOut = !this.bidDelta.visible && !this.bid.visible;
+    this.bidDelta.visible = isBidDeltaOut !== true;
+    this.bid.visible = isBidOut !== true;
 
-    const visible = !isOut;
-    this.askDelta.visible = visible;
-    this.bidDelta.visible = visible;
-    this.ask.visible = visible;
-    this.bid.visible = visible;
+    const res: any = {};
 
-    return isOut && wasOut;
+    if (this.bid.visible) {
+      res.bid = this.bid._value;
+    }
+    if (this.bidDelta.visible) {
+      res.bidDelta = this.bidDelta._value;
+    }
+
+    return (this.bid.visible || this.bidDelta.visible) ? res : wasOut;
+  }
+
+  setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
+    const wasOut = !this.bidDelta.visible && !this.bid.visible;
+
+    this.askDelta.visible = isAskDeltaOut !== true;
+    this.ask.visible = isAskOut !== true;
+
+    const res: any = {};
+
+    if (this.ask.visible) {
+      res.ask = this.ask._value;
+    }
+    if (this.askDelta.visible) {
+      res.askDelta = this.askDelta._value;
+    }
+
+    return (this.ask.visible || this.askDelta.visible) ? res : wasOut;
   }
 
   handleOrder(order: IOrder) {
