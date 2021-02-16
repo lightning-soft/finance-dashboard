@@ -66,7 +66,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   public deleteItem(id: Id): Observable<any> {
-    return this._http.delete(this._accountsSettings, this._httpOptions)
+    return this._http.delete(this._accountsSettings, { params: { id: id as string } })
       .pipe(tap(() => this._onDelete({ id })));
   }
 
@@ -75,7 +75,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
-    return this._http.put<any>(this._accountsSettings, item, this._httpOptions)
+    return this._http.put<any>(this._accountsSettings, prepareItem(item, true), this._httpOptions)
       .pipe(tap(() => this._onUpdate(item)));
   }
 
@@ -129,26 +129,35 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
   }
 
   protected _createItem(item: ExcludeId<IConnection>, options?): Observable<IConnection> {
-    const { ...metadata } = item;
-    const login = item.username;
-    const name = `${item.server}(${item.gateway})`;
-    const password = this.getPassword(item);
-    return this._http.post<AccountSetting>(this._accountsSettings, {
-      name,
-      login,
-      password,
-      metadata
-    }).pipe(map(({ result }) => {
-      const _item = { ...item, password, connectionData: result } as IConnection;
-      return _item;
-    }));
+    return this._http.post<string>(this._accountsSettings, prepareItem(item))
+      .pipe(
+        map((id) => {
+          return {id} as IConnection;
+        })
+      );
   }
 
   protected _updateItem(item: IConnection, makeDisconnected = true) {
   }
 
-  getPassword(item) {
-    return item.autoSavePassword ? item.password : '';
-  }
+}
 
+function getPassword(item) {
+  return item.autoSavePassword ? item.password : '';
+}
+
+function prepareItem(item, includeId = false) {
+  const { username,  password: _password, id, ...metadata } = item;
+  const name = `${item.server}(${item.gateway})`;
+  const password = getPassword(item);
+  const data = {
+    name,
+    login: username,
+    id,
+    password,
+    metadata
+  };
+  if (!includeId)
+    delete data.id;
+  return data;
 }
