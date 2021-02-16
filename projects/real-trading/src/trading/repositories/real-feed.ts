@@ -15,6 +15,7 @@ export enum WSMessageTypes {
 export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
   private _subscriptions = {};
+  private _unsubscribeFns = {};
   private _executors: OnTradeFn<T>[] = [];
 
   subscribeType: WSMessageTypes;
@@ -32,10 +33,11 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _clearSubscription() {
-    for (const key in this._subscriptions)
-      this._sendRequest(this.unsubscribeType, this._subscriptions[key], true);
+    for (const key in this._unsubscribeFns)
+      this._unsubscribeFns[key]();
 
     this._subscriptions = {};
+    this._unsubscribeFns = {};
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -54,7 +56,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._sendRequest(this.unsubscribeType, data);
   }
 
-  private _sendRequest(type: WSMessageTypes, data: I | I[], force = false) {
+  private _sendRequest(type: WSMessageTypes, data: I | I[]) {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
@@ -63,29 +65,41 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       }
 
       const subscriptions = this._subscriptions;
-      const { id } = item;
-
-      const sendRequest = () => {
-        this._webSocketService.send({
-          Type: type,
-          Instruments: [item],
-          Timestamp: new Date(),
-        });
-      };
+      const hash = this._getHash(item);
 
       if (type === this.subscribeType) {
-        subscriptions[id] = (subscriptions[id] || 0) + 1;
-        if (force || subscriptions[id] === 1) {
-          sendRequest();
+        subscriptions[hash] = (subscriptions[hash] || 0) + 1;
+        if (subscriptions[hash] === 1) {
+          const dto = { Instruments: [item], Timestamp: new Date() };
+          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
+          this._webSocketService.send({ Type: type, ...dto });
         }
       } else {
-        subscriptions[id] = (subscriptions[id] || 1) - 1;
-        if (force || subscriptions[id] === 0) {
-          sendRequest();
+        subscriptions[hash] = (subscriptions[hash] || 1) - 1;
+        if (subscriptions[hash] === 0) {
+          if (this._unsubscribeFns[hash]) {
+            this._unsubscribeFns[hash]();
+            delete this._unsubscribeFns[hash];
+          }
         }
       }
     });
   }
+
+  protected _getHash(instrument: I) {
+    const { symbol, exchange } = instrument as any;
+
+    return [symbol, exchange].join('.');
+  }
+
+  // protected _getFromHash(hash: string): I {
+  //   const [symbol, exchange] = hash.split('.');
+
+  //   return {
+  //     symbol,
+  //     exchange
+  //   } as any;
+  // }
 
   protected _handleTrade(data) {
     const { type, result } = data;

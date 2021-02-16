@@ -135,8 +135,8 @@ export class DomFormComponent extends BaseOrderForm {
   ];
   tifButtons: ITypeButton[] = [
     { label: 'DAY', value: OrderDuration.DAY, selectable: true },
-    { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    // { label: 'GTC', value: OrderDuration.GTC, black: true },
+   // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
+    { label: 'GTC', value: OrderDuration.GTC, selectable: true,  },
     { label: 'FOK', value: OrderDuration.FOK, black: true, selectable: true },
     { label: 'IOC', value: OrderDuration.IOC, black: true, selectable: true },
   ];
@@ -200,12 +200,12 @@ export class DomFormComponent extends BaseOrderForm {
 
   createForm() {
     const type = this.typeButtons.find(i => i.black);
-    const duration = this.tifButtons.find(i => i.black);
+    const duration = OrderDuration.DAY;
 
     return new FormGroup({
       quantity: new FormControl(10, Validators.required),
       type: new FormControl(type.value, Validators.required),
-      duration: new FormControl(duration.value, Validators.required),
+      duration: new FormControl(duration, Validators.required),
       stopLoss: new FormControl({
         stopLoss: false,
         ticks: 10,

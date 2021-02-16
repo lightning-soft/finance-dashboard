@@ -72,24 +72,37 @@ export class NumberCell extends Cell {
         this.class = '';
     }
 
-    if (this.ignoreZero && value == 0 || !this.visible)
-      this.value = ''
-    else
-      this.value = this.formatter ? this.formatter.format(value) : value.toString();
-
-    this.drawed = false;
-    this._value = value;
+    this._setValue(value);
     this.time = time ?? Date.now();
     this.hightlight();
     return true;
   }
 
+  _setValue(value) {
+    const settings: any = this.settings;
+    if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && value < settings.minToVisible))
+      this.value = '';
+    else
+      this.value = this.formatter ? this.formatter.format(value) : (value?.toString() ?? '');
+
+    this.drawed = false;
+    this._value = value;
+  }
+
   hightlight() {
     const settings: any = this.settings;
-    if (settings.highlightLarge == true && settings.largeSize != null && this._value < settings.largeSize)
+    if (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize)
       return;
 
     super.hightlight();
+  }
+
+  _visibilityChange() {
+    this.refresh();
+  }
+
+  refresh() {
+    this._setValue(this._value);
   }
 
   clear() {

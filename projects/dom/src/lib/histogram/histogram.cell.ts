@@ -35,8 +35,13 @@ export class HistogramCell extends NumberCell {
   }
 
   calcHist(value: number) {
-    this.hist = this._value / value;
+    this.hist = this.visible ? this._value / value : 0;
     this._histValue = value;
+  }
+
+  _visibilityChange() {
+    super._visibilityChange();
+    this.calcHist(this._histValue);
   }
 
   clear() {

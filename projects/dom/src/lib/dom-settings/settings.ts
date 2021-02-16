@@ -37,9 +37,10 @@ export class DomSettings {
       useCustomTickSize: true,
     },
     marketDepth: {
-      bidAskDeltaDepth: 9, marketDepth: 9,
+      bidAskDeltaDepth: 9,
+      marketDepth: 9,
       showDepthHistory: false,
-      bidAskDeltaFilter: 8
+      bidAskDeltaFilter: 0
     },
     digitsToHide: 4,
     hideAccountName: true,
