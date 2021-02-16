@@ -5,7 +5,11 @@
                 [showOHLVInfo]="setting.showOHLVInfo"
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
-    <input [class.d-none]="!setting.showPLInfo" class="pl-input" disabled [value]="getPl()" nz-input type="number">
+    <nz-input-group class="pl-input"  [nzPrefix]="prefixTemplateUser">
+    <input [class.d-none]="!setting.showPLInfo"  disabled [value]="getPl()" nz-input type="number">
+      <ng-template #prefixTemplateUser>PL</ng-template>
+
+    </nz-input-group>
     <button title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"
             >{{positionSum}}</button>
@@ -21,14 +25,12 @@
         <span class="amount-text">Amount</span>
         <span class="amount-input">
       <nz-input-number
+        nzMin="1"
         formControlName="amount"
         class="amount-number"
       >
       </nz-input-number>
         </span>
-      </span>
-      <span class="{{isTypeStopLimit && isIceEnabled? 'd-flex': 'd-none'}} ice-button">
-        <button (click)="toggleIce()" nz-button [class.selected]="isIce">Ice</button>
       </span>
       <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
        <button
@@ -65,15 +67,13 @@
       <nz-input-number
         (keyup.enter)="$event.preventDefault();editAmount = false"
         formControlName="amount"
+        nzMin="1"
         class="amount-number"
         (focusout)="$event.stopPropagation();editAmount = false"
       >
       </nz-input-number>
         </span>
       </div>
-      <span ice class="{{isTypeStopLimit && isIceEnabled? 'd-inline-block': 'd-none'}} ice-button">
-        <button [class.selected]="isIce" nz-button (click)="toggleIce()">Ice</button>
-      </span>
     </type-buttons>
 
 

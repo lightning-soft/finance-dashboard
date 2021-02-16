@@ -48,8 +48,8 @@
       >
       </nz-input-number>
     </div>
-    <sl-units formControlName="stopLoss"></sl-units>
-    <tp-units formControlName="takeProfit"></tp-units>
+    <sl-units overlayClass="order-form-overlay" formControlName="stopLoss"></sl-units>
+    <tp-units overlayClass="order-form-overlay" formControlName="takeProfit"></tp-units>
     <div [class.d-none]="!isStopLimit" class="lmt-title">LMT</div>
     <nz-input-number
       [class.d-none]="!isStopLimit"

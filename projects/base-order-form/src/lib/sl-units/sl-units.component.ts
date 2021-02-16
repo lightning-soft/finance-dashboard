@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, forwardRef, Input, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -31,6 +31,8 @@ export class SlUnitsComponent implements ControlValueAccessor {
     amount: new FormControl(),
   });
 
+  @Input() overlayClass = '';
+
   registerOnChange(fn: any): void {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
@@ -61,5 +63,9 @@ export class SlUnitsComponent implements ControlValueAccessor {
       ticks.enable();
     else
       ticks.disable();
+  }
+
+  getTitle() {
+   return  `SL: ${this.form.getRawValue().ticks} ${this.form.value.unit}`;
   }
 }
