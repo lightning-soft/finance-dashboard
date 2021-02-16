@@ -136,6 +136,9 @@ export class DomItem implements IBaseItem {
 
   isCenter = false;
 
+  isBelowCenter = false;
+  isAboveCenter = false;
+
   get lastPrice(): number {
     return this.price._value;
   }
