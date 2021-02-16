@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { WebSocketService } from 'communication';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, take, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { HttpErrorInterceptor } from './interceptor';
 
@@ -56,7 +56,7 @@ export class AccountsManager {
 
   createConnection(connection: IConnection) {
     return this._connectionsRepository.createItem(connection)
-      .pipe(tap((conn) => this.onCreated({ ...connection, id: conn.id,  })));
+      .pipe(tap((conn) => this.onCreated(conn)));
   }
 
   rename(name, connection: IConnection) {
@@ -66,13 +66,18 @@ export class AccountsManager {
 
   connect(connection: IConnection) {
     return this._connectionsRepository.connect(connection)
-      .pipe(tap(() => this.onUpdated(connection)));
+      .pipe(
+        concatMap(item => {
+          return this._connectionsRepository.updateItem(item)
+            .pipe(map(_ => item));
+        }),
+        tap((conn) => this.onUpdated(conn)));
   }
 
   disconnect(connection: IConnection) {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        tap(() => this.onUpdated(connection)),
+        tap(() => this.onUpdated({ ...connection, connected: false })),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
             this.onUpdated(connection);
@@ -93,16 +98,22 @@ export class AccountsManager {
   }
 
   toggleFavourite(connection: IConnection) {
+   /* this.onUpdated({ ...connection, favourite: !connection.favourite });
+    return of({ ...connection, favourite: !connection.favourite });*/
     return this._connectionsRepository.updateItem({ ...connection, favourite: !connection.favourite })
       .pipe(
-        tap(() => this.onUpdated(connection)),
+        tap(() => this.onUpdated({ ...connection, favourite: !connection.favourite })),
       );
+  }
+
+  saveAccounts(){
+    this.connections.value.forEach(item => this._connectionsRepository.updateItem(item).toPromise());
   }
 
   protected onCreated(connection: IConnection) {
     const connections = this.connections.value;
-    if(connection.name){
-      connection.name =
+    if (!connection.name) {
+      connection.name = `${connection.server}(${connection.gateway})`;
     }
     connections.push(connection);
     this.connections.next(connections);

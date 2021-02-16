@@ -59,7 +59,6 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
           });
         }),
         map(data => {
-          console.warn(data);
           return { data } as IPaginationResponse;
         })
       );
@@ -83,7 +82,6 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     return this._connect(item).pipe(
       tap(i => {
         this._onUpdate(item);
-        this._updateItem(i, false);
       }),
     );
   }
@@ -132,13 +130,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> {
     return this._http.post<string>(this._accountsSettings, prepareItem(item))
       .pipe(
         map((id) => {
-          return {id} as IConnection;
+          return { ...item, id } as IConnection;
         })
       );
   }
 
-  protected _updateItem(item: IConnection, makeDisconnected = true) {
-  }
 
 }
 
@@ -147,12 +143,13 @@ function getPassword(item) {
 }
 
 function prepareItem(item, includeId = false) {
-  const { username,  password: _password, id, ...metadata } = item;
-  const name = `${item.server}(${item.gateway})`;
-  const password = getPassword(item);
+  let { password, name, id, ...metadata } = item;
+  if (!name)
+    name = `${item.server}(${item.gateway})`;
+  password = getPassword(item);
   const data = {
     name,
-    login: username,
+    login: item.username,
     id,
     password,
     metadata

@@ -4,7 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { filter, skip } from "rxjs/operators";
+import { filter, skip } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 
@@ -51,19 +51,15 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
         untilDestroyed(this),
       )
       .subscribe((res) => {
-          // remove dublicates
-          const value = res.filter(item => item.favourite).filter((item) => {
-            return res.map(conn => conn.id).indexOf(item.id);
-          });
+          const value = res.filter(item => item.favourite);
           this.builder.replaceItems(value);
         }
       );
   }
 
   protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
+   // super._handleConnection(connection);
     this.activeConnection = connection;
-
   }
 
   openAccounts(selectedItem: IConnection = null) {

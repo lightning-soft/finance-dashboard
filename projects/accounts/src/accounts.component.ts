@@ -180,6 +180,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
+          this.expandBrokers();
           this.selectItem(item);
           this.connect();
         },
@@ -194,9 +195,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         untilDestroyed(this)
       ).subscribe(
       (response: any) => {
-        const index = this.builder.items.findIndex(item => item.id === response.id);
-        this.builder.updateItem(response, index);
-        this.builder.updateGroupItems();
       },
       err => {
         this._notifier.showError(err);
