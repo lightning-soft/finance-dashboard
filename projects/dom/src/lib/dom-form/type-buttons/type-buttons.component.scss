@@ -1,1 +1,5 @@
 @import "../general";
+
+button.selected, button.selected:focus-within, button.selected:focus, button.selected:hover {
+  background: #24262C;
+}

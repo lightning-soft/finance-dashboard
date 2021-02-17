@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -21,13 +21,16 @@ export class TpUnitsComponent implements ControlValueAccessor {
     ticks: new FormControl(),
     unit: new FormControl()
   });
+  @Input() overlayClass = '';
 
   registerOnChange(fn: any): void {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe(res => fn(res));
   }
-
+  getTitle() {
+    return  `TP: ${this.form.getRawValue().ticks} ${this.form.value.unit}`;
+  }
   registerOnTouched(fn: any): void {
   }
 

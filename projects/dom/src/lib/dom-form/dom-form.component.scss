@@ -272,6 +272,7 @@ quantity-input, {
 .amount-number {
   border: none;
   background: $secondary;
+  font-size: 0.65rem;
 }
 
 cdk-virtual-scroll-viewport {
@@ -326,10 +327,11 @@ button.top-position-btn {
   height: 24px;
   line-height: 1;
   cursor: default;
-  font-size: 0.9rem;
+  font-size: 0.65rem;
   border: 1px solid transparent;
 }
-.pos-negative{
+
+.pos-negative {
   background: $red !important;
 }
 
@@ -350,7 +352,7 @@ button.top-position-btn {
 
   &-text {
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     padding-left: 2px;
     color: $text-60;
     line-height: 1rem;
@@ -458,7 +460,14 @@ button.top-position-btn {
   border: 1px solid #47494F;
   border-radius: 2px;
   padding: 1.5px;
-  font-size: 0.9rem;
+
+  font-size: 0.65rem;
   padding-left: 4px;
+
+  input {
+    color: white;
+    font-size: 0.65rem;
+    direction: rtl;
+  }
 }
 
