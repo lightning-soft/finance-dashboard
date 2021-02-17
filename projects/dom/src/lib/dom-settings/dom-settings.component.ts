@@ -57,7 +57,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   currentTab: SettingTab;
 
   constructor(private _applier: CssApplier) {
-    this.setTabTitle('Dom settings');
+    this.setTabTitle('DOM settings');
     this.setTabIcon('icon-setting-gear');
   }
 

@@ -120,9 +120,9 @@ export class DomFormComponent extends BaseOrderForm {
     { value: 100 }, { value: 5 }
   ];
   typeButtons: ITypeButton[] = [
-    { label: 'LMT', value: OrderType.Limit, selectable: true  },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true  },
-    { label: 'MKT', value: OrderType.Market, onClick: () => {
+    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true  },
+    { label: 'STP MKT',  value: OrderType.StopMarket, black: true, selectable: true  },
+    { label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
      this.emit(FormActions.CreateMarketOrder);
       }, selectable: false },
     // { label: 'OCO', value: 'OCO', black: true },
@@ -133,11 +133,11 @@ export class DomFormComponent extends BaseOrderForm {
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
   tifButtons: ITypeButton[] = [
-    { label: 'DAY', value: OrderDuration.DAY, selectable: true },
+    { label: 'DAY',  black: true, value: OrderDuration.DAY, selectable: true },
    // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    { label: 'GTC', value: OrderDuration.GTC, selectable: true,  },
-    { label: 'FOK', value: OrderDuration.FOK, black: true, selectable: true },
-    { label: 'IOC', value: OrderDuration.IOC, black: true, selectable: true },
+    { label: 'GTC',  black: true, value: OrderDuration.GTC, selectable: true,  },
+    { label: 'FOK',  black: true, value: OrderDuration.FOK,  selectable: true },
+    { label: 'IOC',  black: true, value: OrderDuration.IOC, selectable: true },
   ];
   editAmount = false;
   editIceAmount = false;

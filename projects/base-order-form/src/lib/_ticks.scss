@@ -1,3 +1,4 @@
+@import "~src/scss/variables";
 
 .checkbox-right {
   margin-left: auto;
@@ -5,12 +6,24 @@
 
 ::ng-deep {
   .tick-overlay {
-    width: 160px;
+    width: 140px;
 
     .ant-popover-inner {
       background: #24262C;
+      box-shadow: 0px 0px 10px #15161D;
+      border: 1px solid #383A40;
+    }
+
+    .ant-popover-inner-content {
+      padding: 8px;
     }
   }
+}
+
+button.turned-off, button.turned-off:hover, button.turned-off:focus, button.turned-off:focus-within {
+  background: #383A40;
+  border: 1px solid #51535A;
+  color: $text-60;
 }
 
 .checkbox-title {
@@ -23,7 +36,7 @@
   height: 20px;
   font-size: 0.8rem;
 
-  ::ng-deep input{
+  ::ng-deep input {
     height: 20px;
   }
 }
