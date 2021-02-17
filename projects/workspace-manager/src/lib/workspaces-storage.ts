@@ -42,7 +42,10 @@ export class WorkspacesStore {
   getItemConfig(configId: any): Observable<any[]> {
     const workspaces = this.settingsService.settings.value.workspaces;
     const workspace = workspaces.find(item => item.configId === configId);
-    return of(workspace.config);
+    if (workspace)
+      return of(workspace.config);
+    else
+      return of(null);
   }
 
   deleteItemConfig(configId: any): Observable<void> {

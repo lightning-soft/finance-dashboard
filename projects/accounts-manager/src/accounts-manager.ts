@@ -98,16 +98,10 @@ export class AccountsManager {
   }
 
   toggleFavourite(connection: IConnection) {
-   /* this.onUpdated({ ...connection, favourite: !connection.favourite });
-    return of({ ...connection, favourite: !connection.favourite });*/
     return this._connectionsRepository.updateItem({ ...connection, favourite: !connection.favourite })
       .pipe(
         tap(() => this.onUpdated({ ...connection, favourite: !connection.favourite })),
       );
-  }
-
-  saveAccounts(){
-    this.connections.value.forEach(item => this._connectionsRepository.updateItem(item).toPromise());
   }
 
   protected onCreated(connection: IConnection) {
