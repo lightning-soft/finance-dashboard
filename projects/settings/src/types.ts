@@ -1,4 +1,5 @@
 import { KeyBinding } from 'keyboard';
+import { Workspace } from 'workspace-manager';
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;
@@ -13,4 +14,5 @@ export type SettingsData = {
   language: string;
   hotkeys: HotkeyEntire[];
   tradingEnabled: boolean;
+  workspaces: Workspace[];
 };

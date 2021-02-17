@@ -12,9 +12,10 @@
       'text-danger': connection.error
     }"></div>
     <div
+      [title]="connection.name"
       class="text-bold text-ellipsis connection-name"
       (click)="openAccounts(connection)"
-    >{{ connection }}</div>
+    >{{ connection.name }}</div>
   </div>
 </div>
 <div
@@ -56,7 +57,7 @@
                 'text-success': connection.connected,
                 'text-danger': connection.error
               }"></div>
-              <span class="dropdown-connection-name text-ellipsis">{{ connection }}</span>
+              <span class="dropdown-connection-name text-ellipsis">{{ connection.name }}</span>
             <div class="small">{{ connection.username }}</div>
           </div>
         </li>

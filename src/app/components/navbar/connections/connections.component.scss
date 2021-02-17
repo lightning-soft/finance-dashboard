@@ -12,7 +12,8 @@ $horizontal-padding: 8px;
 }
 
 .dropdown-connection-name, .connection-name {
-  width: 170px;
+  max-width: 170px;
+  min-width: 60px;
   display: block;
 }
 

@@ -8,6 +8,7 @@ export class Workspace {
   name: string;
 
   isActive = false;
+  config: any;
 
   constructor(name: string) {
     this.id = Date.now();
