@@ -33,7 +33,7 @@ import {
   PositionStatus,
   QuoteSide,
   TradeDataFeed,
-  TradePrint
+  TradePrint, VolumeHistoryRepository
 } from 'trading';
 import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
@@ -337,6 +337,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
     private _levelTwoDatafeed: Level2DataFeed,
+    private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector
   ) {
     super();
@@ -382,6 +383,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
+        this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
 
         if (connection)
           this._onInstrumentChange();
@@ -419,12 +421,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         });
         const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
         const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
-        this._tickSize = settings.general.commonView.ticksPerPrice;
+        const overlayOrders = settings.order.overlay;
+        this._tickSize = general.commonView.ticksPerPrice;
 
         settings.bid.minToVisible = minToVisible;
         settings.ask.minToVisible = minToVisible;
         settings.currentAsk.clearTradersTimer = clearTradersTimer;
         settings.currentBid.clearTradersTimer = clearTradersTimer;
+        settings.bidDelta.overlayOrders = overlayOrders;
+        settings.askDelta.overlayOrders = overlayOrders;
 
         this._settings.merge(settings);
         this._applyOffset(this._lastPrice);
@@ -449,7 +454,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
       const orders = this.items.reduce((total, item) => {
         return total.concat(item.orders.orders.filter(order => {
-         return  order.type === type && order.side === side;
+          return order.type === type && order.side === side;
         }));
       }, []);
       const price = +row.price.value;
@@ -558,7 +563,23 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._levelTwoDatafeed.subscribe(instrument);
     this._tradeDatafeed.subscribe(instrument);
 
-    this._loadOrderBook();
+    this._loadData();
+  }
+
+  protected _loadVolumeHistory() {
+    if (!this._accountId || !this._instrument)
+      return;
+
+    const { symbol, exchange } = this._instrument;
+    this._volumeHistoryRepository.getItems({ symbol, exchange }).subscribe(
+      res => {
+        for (const vol of res.data) {
+          const item = this._getItem(vol.price);
+          this._handleMaxChange(item.setVolume(vol.volume), item);
+        }
+      },
+      error => this.notifier.showError(error)
+    );
   }
 
   protected _loadOrderBook() {
@@ -626,6 +647,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._lastChangesItem.ltq = this._getItem(price);
         this.centralize();
         this._loadOrders();
+        this._loadVolumeHistory();
       },
       error => this.notifier.showError(error)
     );
@@ -666,12 +688,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleAccountChange(account: string) {
     this._accountId = account;
-    this._loadOrderBook();
-    this.loadPositions();
-
+    this._loadData();
   }
 
-  loadPositions() {
+  protected _loadData() {
+    this._loadPositions();
+    this._loadOrderBook();
+  }
+
+  protected _loadPositions() {
     this._positionsRepository.getItems({ accountId: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(items => this.positions = items.data);
@@ -726,7 +751,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           if (item.isCenter)
             index = i;
         }
-        for (let i = 0; i < this.items.length; i++){
+        for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
           item.isAboveCenter = i < index;
           item.isBelowCenter = i > index;
@@ -812,7 +837,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let changes;
     let up = index;
-    let down = index;
+    let down = index - 1;
 
     this._max.bid = null;
     this._max.ask = null;
@@ -833,7 +858,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._handleMaxChange(changes, item);
     }
 
-    while (down++ < items.length) {
+    while (++down < items.length) {
       item = items[down];
       item.clearDelta();
       item.clearAsk();
@@ -1101,8 +1126,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-      this.notifier.showError(err);
-    });
+        this.notifier.showError(err);
+      });
   }
 
   private _closePositions() {

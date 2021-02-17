@@ -68,7 +68,6 @@ export class DomFormComponent extends BaseOrderForm {
     }
   }
 
-
   _settings: DomFormSettings = {
     showInstrumentChange: true,
     closePositionButton: true,

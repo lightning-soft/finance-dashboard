@@ -273,7 +273,7 @@ export class DomSettings {
     snowPnl: false,
     split: false,
     includePnl: false,
-    overlay: false,
+    overlay: true,
   };
   currentBid: any = {
     color: '#EB5A5A',

@@ -47,7 +47,7 @@ class OrdersCell extends HistogramCell {
   }
 
   draw(context) {
-    if (!this._order)
+    if (!this._order || (this.settings as any).overlayOrders == false)
       return;
 
     const ctx = context?.ctx;
@@ -177,12 +177,14 @@ export class DomItem implements IBaseItem {
     this.currentBid = new TotalTimeCell({ settings: settings.currentBid });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
-    this.volume = new HistogramCell({ settings: settings.volume });
+    this.volume = new TotalCell({ settings: settings.volume });
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
     this._id.updateValue(index);
+    this.setAskVisibility(true, true);
+    this.setBidVisibility(true, true);
   }
 
   clearDelta() {
@@ -250,7 +252,7 @@ export class DomItem implements IBaseItem {
     }
 
     this.clearBid();
-    return res;
+    return this._getAskValues();
   }
 
   private _handleBid(data: IInfo) {
@@ -266,7 +268,7 @@ export class DomItem implements IBaseItem {
     }
 
     this.clearAsk();
-    return res;
+    return this._getBidValues();
   }
 
   private _changeLtq(volume: number, side: string) {
@@ -333,10 +335,14 @@ export class DomItem implements IBaseItem {
   }
 
   setBidVisibility(isBidOut: boolean, isBidDeltaOut: boolean) {
-    const wasOut = !this.bidDelta.visible && !this.bid.visible;
     this.bidDelta.visible = isBidDeltaOut !== true;
     this.bid.visible = isBidOut !== true;
 
+    return this._getBidValues();
+  }
+
+  private _getBidValues() {
+    const wasOut = !this.bidDelta.visible && !this.bid.visible;
     const res: any = {};
 
     if (this.bid.visible) {
@@ -350,11 +356,14 @@ export class DomItem implements IBaseItem {
   }
 
   setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
-    const wasOut = !this.bidDelta.visible && !this.bid.visible;
-
     this.askDelta.visible = isAskDeltaOut !== true;
     this.ask.visible = isAskOut !== true;
 
+    return this._getAskValues();
+  }
+
+  private _getAskValues() {
+    const wasOut = !this.askDelta.visible && !this.ask.visible;
     const res: any = {};
 
     if (this.ask.visible) {
@@ -400,5 +409,11 @@ export class DomItem implements IBaseItem {
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
     }
+  }
+
+  setVolume(volume: number) {
+    this.volume.updateValue(volume);
+    this.volume.dehightlight();
+    return { volume: this.volume._value };
   }
 }
