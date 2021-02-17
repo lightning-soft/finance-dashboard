@@ -275,7 +275,7 @@ export class DomItem implements IBaseItem {
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(side);
 
-      this.volume.updateValue((this.totalBid._value || 0) + (this.totalAsk._value || 0));
+      this.volume.updateValue(volume);
       this.price.isTraded = this.volume._value != null;
       this.setPrice(this.price._value);
 
