@@ -120,6 +120,7 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
 
 @Component({
   selector: 'lib-dom',
@@ -243,12 +244,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         column, handler: (item) => this._createOrderByClick(column, item),
       })
     )),
-    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => (
+    ...OrderColumns.map(column => (
       new ContextMenuClickDataGridHandler<DomItem>({
         column, handler: (item) => this._cancelOrderByClick(column, item),
       })
     )),
-    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column =>
+    ...OrderColumns.map(column =>
       new MouseDownDataGridHandler<DomItem>({
         column, handler: (item) => {
           const orders = item.orders.orders;
@@ -258,7 +259,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
         },
       })),
-    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => new MouseUpDataGridHandler<DomItem>({
+    ...OrderColumns.map(column => new MouseUpDataGridHandler<DomItem>({
       column, handler: (item) => {
         if (this.draggingDomItemId && this.draggingDomItemId !== item.id) {
           this._setPriceForOrders(this.draggingOrders, +item.price.value);

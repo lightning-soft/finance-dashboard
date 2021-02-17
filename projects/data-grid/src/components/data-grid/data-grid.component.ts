@@ -107,7 +107,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     // this.activeColumns = this.columns.filter((column: Column) => column.visible);
@@ -337,6 +338,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('currentCellChanged', this._currentCellChanged);
       grid.removeEventListener('click', this._handleClick);
       grid.removeEventListener('contextmenu', this._handleContextmenu);
+      grid.removeEventListener('mousedown', this._handleMouseDown);
+      grid.removeEventListener('mouseup', this._handleMouseUp);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();
