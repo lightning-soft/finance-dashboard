@@ -8,7 +8,8 @@ import {
   ContextMenuClickDataGridHandler,
   DataGrid,
   IFormatter,
-  RoundFormatter
+  RoundFormatter,
+  MouseUpDataGridHandler
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -40,6 +41,8 @@ import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { Id } from 'projects/communication';
+import { MouseDownDataGridHandler } from 'projects/data-grid';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -231,6 +234,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
+  draggingOrders: IOrder[] = [];
+  draggingDomItemId: Id;
 
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
@@ -243,6 +248,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         column, handler: (item) => this._cancelOrderByClick(column, item),
       })
     )),
+    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column =>
+      new MouseDownDataGridHandler<DomItem>({
+        column, handler: (item) => {
+          const orders = item.orders.orders;
+          if (orders.length) {
+            this.draggingDomItemId = item.id;
+            this.draggingOrders = orders;
+          }
+        },
+      })),
+    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => new MouseUpDataGridHandler<DomItem>({
+      column, handler: (item) => {
+        if (this.draggingDomItemId && this.draggingDomItemId !== item.id) {
+          this._setPriceForOrders(this.draggingOrders, +item.price.value);
+        }
+        this.draggingDomItemId = null;
+        this.draggingOrders = [];
+      }
+    }))
   ];
 
   private _accountId: string;
@@ -440,37 +464,49 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   allStopsToPrice() {
-    this._setPriceForOrders(OrderType.StopMarket, 'stopPrice');
+    this._setPriceForAllOrders(OrderType.StopMarket);
   }
 
   allLimitToPrice() {
-    this._setPriceForOrders(OrderType.Limit, 'limitPrice');
+    this._setPriceForAllOrders(OrderType.Limit);
   }
 
-  _setPriceForOrders(type: OrderType, priceType) {
+  _setPriceForAllOrders(type: OrderType) {
     const row = this.currentCell.row;
     if (row) {
       // #TODO investigate what side should be if row is in center
       const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
       const orders = this.items.reduce((total, item) => {
         return total.concat(item.orders.orders.filter(order => {
-          return order.type === type && order.side === side;
+          return orderFilter(order, type, side);
         }));
       }, []);
       const price = +row.price.value;
-      orders.map(item => {
-        return {
-          quantity: item.quantity,
-          type: item.type,
-          duration: item.duration,
-          [priceType]: price,
-          orderId: item.id,
-          accountId: item.account.id,
-          symbol: item.instrument.symbol,
-          exchange: item.instrument.exchange,
-        };
-      }).map(item => this._ordersRepository.updateItem(item).toPromise());
+      this._setPriceForOrders(orders, price);
     }
+  }
+
+  _setPriceForOrders(orders, price) {
+    orders.map(item => {
+      const priceTypes: any = {};
+      if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+        priceTypes.limitPrice = price;
+      }
+      if ([OrderType.StopMarket, OrderType.StopLimit]) {
+        priceTypes.stopPrice = price;
+      }
+
+      return {
+        quantity: item.quantity,
+        type: item.type,
+        ...priceTypes,
+        duration: item.duration,
+        orderId: item.id,
+        accountId: item.account.id,
+        symbol: item.instrument.symbol,
+        exchange: item.instrument.exchange,
+      };
+    }).map(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
   _createOrderByCurrent(side: OrderSide, from) {
@@ -674,9 +710,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-
+      const oldItem = this.items.find(item => item.orders.orders.some(ord => compareOrders(order, ord)));
+      if (oldItem) {
+        oldItem.orders.removeOrder(order);
+        oldItem.askDelta.removeOrder(order);
+        oldItem.bidDelta.removeOrder(order);
+      }
       const item = this._getItem(order.limitPrice || order.stopPrice);
-
       if (!item)
         continue;
 
@@ -1126,8 +1166,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-        this.notifier.showError(err);
-      });
+      this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {
@@ -1181,6 +1221,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
+}
+
+function orderFilter(order: IOrder, type: OrderType, side: OrderSide) {
+  return order.type === type && order.side === side;
+}
+
+function compareOrders(a: IOrder, b: IOrder) {
+  return a.id == b.id;
 }
 
 export function sum(num1, num2, step = 1) {

@@ -62,7 +62,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   ngOnInit() {
     this.builder.setParams({ groupBy: ['broker'] });
-
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(

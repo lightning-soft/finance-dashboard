@@ -38,6 +38,11 @@ class OrdersCell extends HistogramCell {
     this.drawed = false;
   }
 
+  removeOrder(order){
+    this.orders = this.orders.filter(item => item.id !== order.id);
+    this.clearOrder();
+  }
+
   _changeText() {
     if (!this._order)
       return;

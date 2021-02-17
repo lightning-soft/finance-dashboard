@@ -184,6 +184,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     grid.addEventListener('contextmenu', this._handleContextmenu);
+    grid.addEventListener('mousedown', this._handleMouseDown);
+    grid.addEventListener('mouseup', this._handleMouseUp);
+
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
@@ -242,6 +245,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         // this.activeColumns = this.columns.filter((column: Column) => column.visible);
       }
     });
+  }
+
+  _handleMouseUp = (e) => {
+    this._triggerHandler(Events.MouseUp, { ...e, column: e.cell.column, row: e.cell.row });
+  }
+
+  private _handleMouseDown = (e) => {
+    this._triggerHandler(Events.MouseDown, { ...e, column: e.cell.column, row: e.cell.row });
   }
 
   private _handleContextmenu = (e) => {
