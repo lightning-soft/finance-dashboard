@@ -381,6 +381,7 @@ export class DomItem implements IBaseItem {
       case OrderStatus.Filled:
       case OrderStatus.Canceled:
       case OrderStatus.Rejected:
+        this.notes.updateValue('');
         this.orders.clearOrder();
         this.askDelta.clearOrder();
         this.bidDelta.clearOrder();

@@ -424,8 +424,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         const overlayOrders = settings.order.overlay;
         this._tickSize = general.commonView.ticksPerPrice;
 
-        settings.bid.minToVisible = minToVisible;
-        settings.ask.minToVisible = minToVisible;
+        settings.bidDelta.minToVisible = minToVisible;
+        settings.askDelta.minToVisible = minToVisible;
         settings.currentAsk.clearTradersTimer = clearTradersTimer;
         settings.currentBid.clearTradersTimer = clearTradersTimer;
         settings.bidDelta.overlayOrders = overlayOrders;
