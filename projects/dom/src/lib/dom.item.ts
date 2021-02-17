@@ -195,6 +195,7 @@ export class DomItem implements IBaseItem {
   }
 
   clearLTQ() {
+    this.ltq.changeStatus('');
     this.ltq.clear();
   }
 
@@ -212,7 +213,7 @@ export class DomItem implements IBaseItem {
       if (this.totalBid.updateValue(trade.volume))
         res.totalBid = this.totalBid._value;
 
-      if (this._changeLtq(trade.volume, 'bid')) {
+      if (this._changeLtq(trade.volume, 'buy')) {
         res.ltq = this.ltq._value;
         res.volume = this.volume._value;
       }
@@ -223,7 +224,7 @@ export class DomItem implements IBaseItem {
       if (this.totalAsk.updateValue(trade.volume))
         res.totalAsk = this.totalAsk._value;
 
-      if (this._changeLtq(trade.volume, 'ask')) {
+      if (this._changeLtq(trade.volume, 'sell')) {
         res.ltq = this.ltq._value;
         res.volume = this.volume._value;
       }
@@ -293,7 +294,7 @@ export class DomItem implements IBaseItem {
   }
 
   clearAsk() {
-    console.log(this.lastPrice);
+    // console.log(this.lastPrice);
     this.ask.clear();
     // this.ask.visible = false;
     this.askDelta.clear();

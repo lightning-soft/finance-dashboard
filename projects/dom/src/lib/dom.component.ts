@@ -875,7 +875,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(trade.price);
-    console.log('_handleQuote', trade.price, trade.volume);
+    // console.log('_handleQuote', trade.price, trade.volume);
     this._handleMaxChange(item.handleQuote(trade), item);
 
     this.detectChanges();
