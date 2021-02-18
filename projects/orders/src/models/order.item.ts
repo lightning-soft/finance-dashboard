@@ -46,6 +46,11 @@ export class OrderItem implements IViewItem<IOrder> {
         this[item].updateValue(order.account[item]);
       });
 
+    ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
+      .forEach((item) => {
+        this[item].changeStatus(this['side'].value.toLowerCase());
+      });
+
     this.identifier.updateValue(order.id);
 
     this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
