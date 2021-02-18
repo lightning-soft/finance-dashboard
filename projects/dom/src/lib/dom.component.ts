@@ -692,6 +692,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadData() {
+    if (!this._accountId || !this._instrument)
+      return;
+
     this._loadPositions();
     this._loadOrderBook();
   }
@@ -875,7 +878,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(trade.price);
-    // console.log('_handleQuote', trade.price, trade.volume);
+    console.log('_handleQuote',trade.updateType, trade.price, trade.volume);
     this._handleMaxChange(item.handleQuote(trade), item);
 
     this.detectChanges();
@@ -1082,6 +1085,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _cancelOrderByClick(column: string, item: DomItem) {
+    if (!item[column]?.canCancelOrder)
+      return;
+
     if (item.orders?.orders?.length)
       this._ordersRepository.deleteMany(item.orders.orders).subscribe(
         () => console.log('delete order'),

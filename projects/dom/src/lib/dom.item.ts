@@ -12,6 +12,11 @@ class OrdersCell extends HistogramCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid';
+
+  get canCancelOrder() {
+    return (!this._order || (this.settings as any).overlayOrders == false)
+  }
+
   private _isOrderColumn = false;
 
   constructor(config) {
@@ -178,8 +183,8 @@ export class DomItem implements IBaseItem {
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
-    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
-    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
+    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta });
+    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
     this._id.updateValue(index);
@@ -190,8 +195,8 @@ export class DomItem implements IBaseItem {
   clearDelta() {
     this.askDelta.clear();
     this.bidDelta.clear();
-    this._ask = this.ask._value || 0;
-    this._bid = this.bid._value || 0;
+    this._ask = this.ask._value;
+    this._bid = this.bid._value;
   }
 
   clearLTQ() {
@@ -248,8 +253,10 @@ export class DomItem implements IBaseItem {
 
       if (this._ask == null)
         this._ask = this.ask._value;
-      else if (this.askDelta.updateValue(this.ask._value - this._ask))
-        res.askDelta = this.askDelta.value;
+      else
+        this.askDelta.updateValue(this.ask._value - this._ask)
+
+      res.askDelta = this.askDelta.value;
     }
 
     this.clearBid();
@@ -264,8 +271,10 @@ export class DomItem implements IBaseItem {
 
       if (this._bid == null)
         this._bid = this.bid._value;
-      else if (this.bidDelta.updateValue(this.bid._value - this._bid))
-        res.bidDelta = this.bidDelta._value;
+      else
+        this.bidDelta.updateValue(this.bid._value - this._bid)
+
+      res.bidDelta = this.bidDelta._value;
     }
 
     this.clearAsk();
@@ -288,21 +297,18 @@ export class DomItem implements IBaseItem {
 
   clearBid() {
     this.bid.clear();
-    // this.bid.visible = false;
+    this._bid = this.ask._value;
     this.bidDelta.clear();
-    // this.bidDelta.visible = false;
   }
 
   clearAsk() {
-    // console.log(this.lastPrice);
     this.ask.clear();
-    // this.ask.visible = false;
     this.askDelta.clear();
-    // this.askDelta.visible = false;
+    this._ask = this.ask._value;
   }
 
   refresh() {
-    return Object.keys(this).forEach(key => this[key].refresh && this[key].refresh());
+    return Object.keys(this).forEach(key => this[key]?.refresh && this[key].refresh());
   }
 
   handleL2(l2: L2) {

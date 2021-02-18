@@ -107,6 +107,7 @@
     "deepmerge": "4.2.2",
     "electron-log": "^4.2.4",
     "express": "4.17.1",
+    "hashmap": "^2.4.0",
     "http-server": "^0.12.3",
     "jquery": "^3.5.1",
     "keyboard": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/b.tsap/keyboard",
