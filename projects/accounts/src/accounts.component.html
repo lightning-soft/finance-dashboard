@@ -86,7 +86,7 @@
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form *ngIf='!splitConnections' formControlName="userData"></acccount-form>
+            <acccount-form [isSubmitted]="isSubmitted" #userData [class.d-none]='splitConnections' formControlName="userData"></acccount-form>
             <div *ngIf="splitConnections" class="d-flex split-form">
               <div class="split-form-item">
                 <span class="split-form-title">Marker Data</span> <span class="switch-container"><span>Off</span>

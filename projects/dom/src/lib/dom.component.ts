@@ -479,7 +479,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
       const orders = this.items.reduce((total, item) => {
         return total.concat(item.orders.orders.filter(order => {
-          return orderFilter(order, type, side);
+          return order.type === type && order.side === side;
         }));
       }, []);
       const price = +row.price.value;
@@ -493,7 +493,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
         priceTypes.limitPrice = price;
       }
-      if ([OrderType.StopMarket, OrderType.StopLimit]) {
+      if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
         priceTypes.stopPrice = price;
       }
 
@@ -711,11 +711,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-      const oldItem = this.items.find(item => item.orders.orders.some(ord => compareOrders(order, ord)));
+      const oldItem = this.items.find(item => item.orders.orders.some(ord =>  order.id == ord.id));
       if (oldItem) {
-        oldItem.orders.removeOrder(order);
-        oldItem.askDelta.removeOrder(order);
-        oldItem.bidDelta.removeOrder(order);
+        oldItem.removeOrder(order);
       }
       const item = this._getItem(order.limitPrice || order.stopPrice);
       if (!item)
@@ -1222,14 +1220,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
-}
-
-function orderFilter(order: IOrder, type: OrderType, side: OrderSide) {
-  return order.type === type && order.side === side;
-}
-
-function compareOrders(a: IOrder, b: IOrder) {
-  return a.id == b.id;
 }
 
 export function sum(num1, num2, step = 1) {

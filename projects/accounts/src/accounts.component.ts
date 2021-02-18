@@ -1,4 +1,4 @@
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -8,6 +8,7 @@ import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { finalize, take } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
+import { AcccountFormComponent } from './acccount-form/acccount-form.component';
 
 export interface AccountsComponent extends ILayoutNode {
 }
@@ -34,6 +35,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   brokers: IBroker[];
   selectedBroker: IBroker;
   splitConnections = false;
+  @ViewChild('userData') userData: AcccountFormComponent;
+  isSubmitted = false;
 
   constructor(
     protected _accountsManager: AccountsManager,
@@ -143,7 +146,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   selectItem(item: IConnection) {
     this.selectedItem = item;
     this.expandBrokers();
-
+    this.isSubmitted = false;
     this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
@@ -161,6 +164,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   handleSubmit() {
+    this.isSubmitted = true;
+    if (!this.userData.isValid) {
+      return this;
+    }
     if (!this.selectedItem.id) {
       this.create();
     } else {

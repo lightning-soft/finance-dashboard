@@ -38,7 +38,7 @@ class OrdersCell extends HistogramCell {
     this.drawed = false;
   }
 
-  removeOrder(order){
+  removeOrder(order) {
     this.orders = this.orders.filter(item => item.id !== order.id);
     this.clearOrder();
   }
@@ -289,6 +289,12 @@ export class DomItem implements IBaseItem {
     }
 
     return false;
+  }
+
+  removeOrder(order: IOrder) {
+    this.orders.removeOrder(order);
+    this.askDelta.removeOrder(order);
+    this.bidDelta.removeOrder(order);
   }
 
   clearBid() {

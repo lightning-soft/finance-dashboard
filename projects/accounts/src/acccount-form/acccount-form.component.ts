@@ -1,5 +1,5 @@
 import { Component, forwardRef, Injectable, Input, OnInit, Injector } from '@angular/core';
-import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { HttpRepository, IPaginationResponse } from 'communication';
 import { ConnectionsRepository } from 'trading';
@@ -20,7 +20,7 @@ import { ItemsComponent } from '../../../base-components/src/components/items.co
   ]
 })
 @UntilDestroy()
-export class AcccountFormComponent extends ItemsComponent<any> implements ControlValueAccessor {
+export class AcccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
   get gateways() {
     return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
   }
@@ -28,11 +28,16 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
    return  this.form.value.autoSavePassword;
   }
 
+  get isValid(){
+    return this.form.valid;
+  }
+  @Input() isSubmitted = false;
+
   form = new FormGroup({
-    username: new FormControl(),
-    password: new FormControl(),
-    server: new FormControl(),
-    gateway: new FormControl(),
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required),
+    server: new FormControl(null, Validators.required),
+    gateway: new FormControl(null, Validators.required),
     autoSavePassword: new FormControl(false),
   });
 
@@ -92,6 +97,9 @@ export class AcccountFormComponent extends ItemsComponent<any> implements Contro
     }
   }
 
+  isInvalid(name: any) {
+    return this.form.controls[name].invalid;
+  }
 }
 
 @Injectable()
