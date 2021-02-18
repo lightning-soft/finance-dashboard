@@ -35,7 +35,8 @@ export class WorkspaceComponent implements OnInit {
       this.workspaces = [...workspaces];
 
       const activeWorkspace = workspaces.find(w => w.isActive);
-      this.activeWorkspaceId = activeWorkspace.id;
+      if (activeWorkspace)
+        this.activeWorkspaceId = activeWorkspace.id;
     });
   }
 
@@ -87,8 +88,7 @@ export class WorkspaceComponent implements OnInit {
     if (this._settingsService.settings.value.autoSave) {
       this.activeWorkspaceId = $event;
       this._workspacesService.switchWorkspace(this.activeWorkspaceId);
-    }
-    else {
+    } else {
       const modal = this._modalService.create({
         nzTitle: 'Saving workspace',
         nzContent: ConfirmModalComponent,

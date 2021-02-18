@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
+import { Workspace } from 'workspace-manager';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -27,6 +28,7 @@ const defaultSettings = {
   language: 'English',
   hotkeys: defaultHotkeyEntries,
   tradingEnabled: true,
+  workspaces: [],
 };
 
 @Injectable()
@@ -73,6 +75,9 @@ export class SettingsService {
 
   saveKeyBinding(hotkeys: HotkeyEntire[]) {
      this._updateState({ hotkeys });
+  }
+  saveWorkspaces(workspaces: Workspace[]){
+    this._updateState({ workspaces });
   }
 
   private _updateState(settings: object, saveInStorage = true): void {

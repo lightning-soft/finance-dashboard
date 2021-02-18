@@ -175,7 +175,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _save(): void {
-    this._settingsService.saveState();
+ //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
     if (this.activeWorkspace) {
       this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState());
