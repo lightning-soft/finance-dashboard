@@ -7,7 +7,15 @@ import { IPosition } from 'projects/trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
 import { skip } from 'rxjs/operators';
-import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity, PositionsRepository } from 'trading';
+import {
+  HistoryRepository,
+  IConnection,
+  IInstrument,
+  OrderDuration,
+  OrderType,
+  Periodicity,
+  PositionsRepository
+} from 'trading';
 import { ITypeButton } from './type-buttons/type-buttons.component';
 
 const historyParams = {
@@ -120,24 +128,26 @@ export class DomFormComponent extends BaseOrderForm {
     { value: 100 }, { value: 5 }
   ];
   typeButtons: ITypeButton[] = [
-    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true  },
-    { label: 'STP MKT',  value: OrderType.StopMarket, black: true, selectable: true  },
-    { label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
-     this.emit(FormActions.CreateMarketOrder);
-      }, selectable: false },
+    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },
+    {
+      label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
+        this.emit(FormActions.CreateMarketOrder);
+      }, selectable: false
+    },
     // { label: 'OCO', value: 'OCO', black: true },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true  },
+    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
 
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
   tifButtons: ITypeButton[] = [
-    { label: 'DAY',  black: true, value: OrderDuration.DAY, selectable: true },
-   // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    { label: 'GTC',  black: true, value: OrderDuration.GTC, selectable: true,  },
-    { label: 'FOK',  black: true, value: OrderDuration.FOK,  selectable: true },
-    { label: 'IOC',  black: true, value: OrderDuration.IOC, selectable: true },
+    { label: 'DAY', black: true, value: OrderDuration.DAY, selectable: true },
+    // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
+    { label: 'GTC', black: true, value: OrderDuration.GTC, selectable: true, },
+    { label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true },
+    { label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true },
   ];
   editAmount = false;
   editIceAmount = false;
@@ -180,20 +190,22 @@ export class DomFormComponent extends BaseOrderForm {
       id: instrument.id,
       Exchange: instrument.exchange,
       ...historyParams,
-    }).subscribe(
-      res => {
-        const data = res.data;
-        const length = data.length;
-        this.dailyInfo = data[length - 1];
-        this.prevItem = data[length - 2];
-      },
-      err => this._notifier.showError(err)
-    );
+    })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          const data = res.data;
+          const length = data.length;
+          this.dailyInfo = data[length - 1];
+          this.prevItem = data[length - 2];
+        },
+        err => this._notifier.showError(err)
+      );
   }
 
   positionsToQuantity() {
     if (typeof this.positionSum === 'number' && this.positionSum != 0) {
-      this.form.patchValue({quantity: Math.abs(this.positionSum)});
+      this.form.patchValue({ quantity: Math.abs(this.positionSum) });
     }
   }
 

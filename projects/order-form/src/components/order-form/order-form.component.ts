@@ -175,7 +175,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     this.positionsRepository.deleteMany({
       accountId: this.accountId,
       ...this._instrument,
-    }).subscribe(
+    }).pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(
       () => this.notifier.showSuccess(null),
       (error) => this.notifier.showError(error),
     );

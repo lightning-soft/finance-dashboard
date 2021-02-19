@@ -40,6 +40,9 @@ export abstract class ChartObjects<T extends IBaseItem> {
     this._loadItems();
   }
 
+  destroy() {
+  }
+
   protected _subscribeToConnections() {
     this._accountsManager.connections
       .pipe(untilDestroyed(this._instance))
@@ -110,6 +113,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
   }
 
   abstract create(item: T);
+
   abstract update(item: T);
 
   delete(id: Id) {
