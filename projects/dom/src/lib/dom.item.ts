@@ -130,9 +130,9 @@ class LtqCell extends HistogramCell {
 }
 
 class TotalTimeCell extends HistogramCell {
-  updateValue(value: number) {
-    return super.updateValue(Date.now() > (this.time + ((this.settings as any).clearTradersTimer || 0))
-      ? value : (this._value || 0) + value);
+  update(value: number, timestamp: number, forceAdd: boolean) {
+    return this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+      ? (this._value || 0) + value : value, timestamp);
   }
 }
 
@@ -154,8 +154,8 @@ export class DomItem implements IBaseItem {
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
-  currentAsk: HistogramCell;
-  currentBid: HistogramCell;
+  currentAsk: TotalTimeCell;
+  currentBid: TotalTimeCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
@@ -192,10 +192,13 @@ export class DomItem implements IBaseItem {
     this.setBidVisibility(true, true);
   }
 
-  clearDelta() {
+  clearAskDelta() {
     this.askDelta.clear();
-    this.bidDelta.clear();
     this._ask = this.ask._value;
+  }
+
+  clearBidDelta() {
+    this.bidDelta.clear();
     this._bid = this.bid._value;
   }
 
@@ -211,8 +214,10 @@ export class DomItem implements IBaseItem {
   handleTrade(trade: TradePrint) {
     const res: any = {};
 
+    const forceAdd = this.ltq._value > 0;
+
     if (trade.side == OrderSide.Sell) {
-      if (this.currentBid.updateValue(trade.volume))
+      if (this.currentBid.update(trade.volume, trade.timestamp, forceAdd))
         res.currentBid = this.currentBid._value;
 
       if (this.totalBid.updateValue(trade.volume))
@@ -223,7 +228,7 @@ export class DomItem implements IBaseItem {
         res.volume = this.volume._value;
       }
     } else {
-      if (this.currentAsk.updateValue(trade.volume))
+      if (this.currentAsk.update(trade.volume, trade.timestamp, forceAdd))
         res.currentAsk = this.currentAsk._value;
 
       if (this.totalAsk.updateValue(trade.volume))
@@ -240,12 +245,12 @@ export class DomItem implements IBaseItem {
 
   handleQuote(data: IQuote) {
     if (data.side === QuoteSide.Ask)
-      return this._handleAsk({ volume: data.volume } as any);
+      return this._handleAsk(data);
     else
-      return this._handleBid({ volume: data.volume } as any);
+      return this._handleBid(data);
   }
 
-  private _handleAsk(data: IInfo) {
+  private _handleAsk(data: IQuote) {
     const res: any = {};
 
     if (this.ask.updateValue(data.volume)) {
@@ -254,7 +259,7 @@ export class DomItem implements IBaseItem {
       if (this._ask == null)
         this._ask = this.ask._value;
       else
-        this.askDelta.updateValue(this.ask._value - this._ask)
+        this.askDelta.updateValue(this.ask._value - this._ask);
 
       res.askDelta = this.askDelta.value;
     }
@@ -263,7 +268,7 @@ export class DomItem implements IBaseItem {
     return this._getAskValues();
   }
 
-  private _handleBid(data: IInfo) {
+  private _handleBid(data: IQuote) {
     const res: any = {};
 
     if (this.bid.updateValue(data.volume)) {
@@ -272,7 +277,7 @@ export class DomItem implements IBaseItem {
       if (this._bid == null)
         this._bid = this.bid._value;
       else
-        this.bidDelta.updateValue(this.bid._value - this._bid)
+        this.bidDelta.updateValue(this.bid._value - this._bid);
 
       res.bidDelta = this.bidDelta._value;
     }
@@ -309,36 +314,6 @@ export class DomItem implements IBaseItem {
 
   refresh() {
     return Object.keys(this).forEach(key => this[key]?.refresh && this[key].refresh());
-  }
-
-  handleL2(l2: L2) {
-    const res: any = {};
-    // if (l2.side == OrderSide.Buy) {
-    //   if (this.currentBid.updateValue(l2.size))
-    //     res.currentBid = this.currentBid._value;
-
-    //   if (this.totalBid.updateValue(l2.size))
-    //     res.totalBid = this.totalBid._value;
-
-
-    //   if (this._changeLtq(l2.size, 'bid')) {
-    //     res.ltq = this.ltq._value;
-    //     res.volume = this.volume._value;
-    //   }
-    // } else if (l2.side == OrderSide.Sell) {
-    //   if (this.currentAsk.updateValue(l2.size))
-    //     res.currentAsk = this.currentAsk._value;
-
-    //   if (this.totalAsk.updateValue(l2.size))
-    //     res.totalAsk = this.totalAsk._value;
-
-    //   if (this._changeLtq(l2.size, 'ask')) {
-    //     res.ltq = this.ltq._value;
-    //     res.volume = this.volume._value;
-    //   }
-    // }
-
-    return res;
   }
 
   setBidVisibility(isBidOut: boolean, isBidDeltaOut: boolean) {

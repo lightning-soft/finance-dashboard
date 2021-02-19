@@ -7,7 +7,7 @@ import { HistogramOrientation } from './settings-fields';
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
-const DefaultClearInterval = 4000;
+const DefaultClearInterval = 2500;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -273,7 +273,7 @@ export class DomSettings {
     snowPnl: false,
     split: false,
     includePnl: false,
-    overlay: true,
+    overlay: false,
   };
   currentBid: any = {
     color: '#EB5A5A',
