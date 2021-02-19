@@ -80,7 +80,7 @@ export class NumberCell extends Cell {
 
   _setValue(value) {
     const settings: any = this.settings;
-    if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && value < settings.minToVisible))
+    if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && Math.abs(value) < settings.minToVisible))
       this.value = '';
     else
       this.value = this.formatter ? this.formatter.format(value) : (value?.toString() ?? '');

@@ -11,4 +11,5 @@ export interface IQuote {
     instrument: IInstrument;
     price: number;
     volume: number;
+    updateType: number;
 }
