@@ -1,5 +1,5 @@
 import { FormComponent } from 'base-components';
-import { IOrder } from 'trading';
+import { IOrder, OrderType } from 'trading';
 import { IPosition, PositionsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 
@@ -30,9 +30,11 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
   get isIce() {
     return this.formValue['isIce'];
   }
-
+  get isIceEnabled() {
+    return  this.formValue.type === OrderType.Limit;
+  }
   get iceAmount() {
-    return this.formValue['iceAmount'];
+    return this.formValue['iceQuantity'];
   }
 
   toggleIce() {
@@ -46,6 +48,9 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
 
     const value = { ...this.form.value };
     const quantity = value.quantity;
+    if (!this.isIceEnabled || !this.isIce){
+      delete value.iceQuantity;
+    }
     if (value.stopLoss?.stopLoss) {
       const { ticks } = value.stopLoss;
       value.stopLoss = { quantity, ticks };

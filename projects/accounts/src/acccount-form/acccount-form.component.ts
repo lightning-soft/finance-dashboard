@@ -24,13 +24,15 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   get gateways() {
     return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
   }
+
   get autoSave() {
-   return  this.form.value.autoSavePassword;
+    return this.form.value.autoSavePassword;
   }
 
-  get isValid(){
+  get isValid() {
     return this.form.valid;
   }
+
   @Input() isSubmitted = false;
 
   form = new FormGroup({
@@ -59,11 +61,15 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
 
   toggleAutoSave() {
     const autoSavePassword = !this.autoSave;
-    this.form.patchValue({autoSavePassword});
+    this.form.patchValue({ autoSavePassword });
   }
 
   getName(o) {
     return o?.name;
+  }
+
+  _handleConnection() {
+
   }
 
   onServerSwitch(gateways) {

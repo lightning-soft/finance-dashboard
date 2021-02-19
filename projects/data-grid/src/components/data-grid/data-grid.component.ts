@@ -249,11 +249,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   _handleMouseUp = (e) => {
-    this._triggerHandler(Events.MouseUp, { ...e, column: e.cell.column, row: e.cell.row });
+    this._triggerHandler(Events.MouseUp, { ...e, column: e.cell?.column, row: e.cell?.row });
   }
 
   private _handleMouseDown = (e) => {
-    this._triggerHandler(Events.MouseDown, { ...e, column: e.cell.column, row: e.cell.row });
+    this._triggerHandler(Events.MouseDown, { ...e, column: e.cell?.column, row: e.cell?.row });
   }
 
   private _handleContextmenu = (e) => {

@@ -4,6 +4,23 @@
   display: block;
   height: 100%;
 
+  .add-connection {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .add-disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+
+    &:hover, &:focus, &:focus-within {
+      color: inherit !important;
+    }
+  }
+
   .rename {
     border-radius: 2px;
   }
@@ -44,7 +61,7 @@
     .ant-collapse-extra {
       position: absolute;
       right: 10px;
-      top: 6px;
+      top: 7px;
       font-size: 10px;
       opacity: 0;
       transition: all 0.3s;

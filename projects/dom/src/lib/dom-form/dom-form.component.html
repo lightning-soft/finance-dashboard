@@ -15,7 +15,7 @@
             >{{positionSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select [nzOptionHeightPx]="20" formControlName="type" class="type-select">
-      <nz-option *ngFor="let item of typeButtons"
+      <nz-option *ngFor="let item of typeSelectOptions"
                  [nzLabel]="item.label" [nzValue]="item.value"
       ></nz-option>
     </nz-select>
@@ -32,31 +32,23 @@
       </nz-input-number>
         </span>
       </span>
+      <span class="{{isIceEnabled? 'd-flex': 'd-none'}} ice-button">
+        <button (click)="toggleIce()" nz-button  class="ice-btn"  [class.is-ice-active]="isIce">Ice</button>
+      </span>
       <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
-       <button
-         (contextmenu)="editIceAmount = true;"
-         [class.d-none]="editIceAmount"
-         nz-button>{{iceAmount}}</button>
       <nz-input-number
-        [class.d-none]="!editIceAmount"
-        (keyup.enter)="$event.preventDefault();editIceAmount = false"
-        formControlName="iceAmount"
-        (focusout)="$event.stopPropagation();editIceAmount = false"
+        formControlName="iceQuantity"
+        nzMin="1"
       >
       </nz-input-number>
     </span>
     </div>
-    <type-buttons class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
+    <type-buttons [class.is-oco-selected]="isOcoSelected"  class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
           <span [class.d-none]="!isIceAmountVisible" class="ice-amount" iceAmount>
-       <button
-         (contextmenu)="editIceAmount = true;"
-         [class.d-none]="editIceAmount"
-         nz-button>{{iceAmount}}</button>
+
       <nz-input-number
-        [class.d-none]="!editIceAmount"
-        (keyup.enter)="$event.preventDefault();editIceAmount = false"
-        formControlName="iceAmount"
-        (focusout)="$event.stopPropagation();editIceAmount = false"
+        formControlName="iceQuantity"
+        nzMin="1"
       >
       </nz-input-number>
     </span>
@@ -74,10 +66,12 @@
       </nz-input-number>
         </span>
       </div>
+      <span ice class="{{isIceEnabled? 'd-inline-block': 'd-none'}} ice-button">
+        <button   [class.is-ice-active]="isIce" class="ice-btn" nz-button (click)="toggleIce()">Ice</button>
+      </span>
     </type-buttons>
 
 
-    <span class="tif">TIF</span>
     <nz-select [nzOptionHeightPx]="20" formControlName="duration" class="type-select tif-select">
       <nz-option *ngFor="let item of tifButtons"
                  [nzLabel]="item.label" [nzValue]="item.value"

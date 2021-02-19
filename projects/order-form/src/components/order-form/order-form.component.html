@@ -43,7 +43,7 @@
         [class.d-none]="!editIceAmount"
         class="order-number-input w-100"
         (keyup.enter)="$event.preventDefault();editIceAmount = false"
-        formControlName="iceAmount"
+        formControlName="iceQuantity"
         (focusout)="$event.stopPropagation();editIceAmount = false"
       >
       </nz-input-number>

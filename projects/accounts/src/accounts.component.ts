@@ -139,8 +139,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   openCreateForm(event: MouseEvent, broker: IBroker) {
     event.stopPropagation();
-
-    this.selectItem({ broker: broker.name } as IConnection);
+    if (this.canAddAccount(broker))
+      this.selectItem({ broker: broker.name } as IConnection);
   }
 
   selectItem(item: IConnection) {
@@ -188,7 +188,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         (item: IConnection) => {
           this.expandBrokers();
           this.selectItem(item);
-          this.connect();
+          if (!this._accountsManager.getActiveConnection())
+            this.connect();
         },
         err => this._notifier.showError(err),
       );

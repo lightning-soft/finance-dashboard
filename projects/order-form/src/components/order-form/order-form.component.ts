@@ -192,7 +192,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
         ticks: 10,
         unit: 'ticks'
       },
-      iceAmount: [10],
+      iceQuantity: [10],
       isIce: [false],
       takeProfit: {
         takeProfit: false,

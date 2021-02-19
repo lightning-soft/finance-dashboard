@@ -8,8 +8,8 @@ import {
   ContextMenuClickDataGridHandler,
   DataGrid,
   IFormatter,
-  RoundFormatter,
-  MouseUpDataGridHandler
+  MouseUpDataGridHandler,
+  RoundFormatter
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -34,9 +34,10 @@ import {
   PositionStatus,
   QuoteSide,
   TradeDataFeed,
-  TradePrint, VolumeHistoryRepository
+  TradePrint,
+  VolumeHistoryRepository
 } from 'trading';
-import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
+import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
@@ -120,6 +121,7 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+
 const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
 
 @Component({
@@ -132,7 +134,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   columns = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
-
+  buyOcoOrder: IOrder;
+  sellOcoOrder: IOrder;
+  ocoStep = OcoStep.None;
   private currentCell;
   positions: IPosition[] = [];
 
@@ -154,6 +158,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._createOrderByCurrent(OrderSide.Sell, 'currentAsk');
     },
     oco: () => {
+      this.handleFormAction(FormActions.CreateOcoOrder);
     },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
@@ -489,13 +494,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _setPriceForOrders(orders, price) {
     orders.map(item => {
-      const priceTypes: any = {};
-      if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
-        priceTypes.limitPrice = price;
-      }
-      if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
-        priceTypes.stopPrice = price;
-      }
+      const priceTypes = getPriceSpecs(item, price);
 
       return {
         quantity: item.quantity,
@@ -711,14 +710,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-      const oldItem = this.items.find(item => item.orders.orders.some(ord =>  order.id == ord.id));
-      if (oldItem) {
-        oldItem.removeOrder(order);
-      }
+      const oldItem = this.items.forEach(item => {
+        item.removeOrder(order);
+      });
       const item = this._getItem(order.limitPrice || order.stopPrice);
       if (!item)
         continue;
-
       item.handleOrder(order);
     }
 
@@ -1117,7 +1114,41 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
-    this._createOrder(column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy, item.price._value);
+    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
+    if (this.ocoStep === OcoStep.None) {
+      this._createOrder(side, item.price._value);
+    } else {
+      this._addOcoOrder(side, item);
+    }
+  }
+
+  private _addOcoOrder(side, item: DomItem) {
+    if (!this.buyOcoOrder && side === OrderSide.Buy) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = getPriceSpecs(order, +item.price.value);
+      this.buyOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+    if (!this.sellOcoOrder && side === OrderSide.Sell) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = getPriceSpecs(order, +item.price.value);
+      this.sellOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+  }
+
+  private _createOcoOrder() {
+    this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
+    if (this.buyOcoOrder && this.sellOcoOrder) {
+      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+      this._ordersRepository.createItem(this.buyOcoOrder)
+        .pipe(untilDestroyed(this))
+        .subscribe(() => {
+          this._clearOcoOrders();
+        });
+    }
   }
 
   private _cancelOrderByClick(column: string, item: DomItem) {
@@ -1142,6 +1173,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._closeOrders(FormActions.CloseOrders);
         this._closePositions();
         break;
+      case FormActions.CreateOcoOrder:
+        if (this.ocoStep === OcoStep.None)
+          this.ocoStep = OcoStep.Fist;
+        break;
+      case FormActions.CancelOcoOrder:
+        this._clearOcoOrders();
+        break;
       case FormActions.CreateMarketOrder:
         this._createMarketOrder();
         break;
@@ -1149,6 +1187,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         console.error('Undefined action');
     }
+  }
+
+  _clearOcoOrders() {
+    this.ocoStep = OcoStep.None;
+    this.sellOcoOrder = null;
+    this.buyOcoOrder = null;
+    this.items.forEach(item => item.clearOcoOrder());
   }
 
   _createMarketOrder() {
@@ -1220,6 +1265,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
+}
+
+function getPriceSpecs(item: IOrder, price) {
+  const priceSpecs: any = {};
+  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.limitPrice = price;
+  }
+  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.stopPrice = price;
+  }
+  return priceSpecs;
 }
 
 export function sum(num1, num2, step = 1) {
