@@ -35,7 +35,8 @@ import {
   QuoteSide,
   TradeDataFeed,
   TradePrint,
-  VolumeHistoryRepository
+  VolumeHistoryRepository,
+  Side
 } from 'trading';
 import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
@@ -532,15 +533,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     } = this._settings.general;
     const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
     if (isNewPosition) {
-      this.positions.push(newPosition);
       this.applySettingsOnNewPosition();
     } else {
-      if (closeOutstandingOrders && oldPosition?.status === PositionStatus.Open
-        && newPosition.status === PositionStatus.Close) {
+      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
+        && newPosition.side === Side.Closed) {
         this.deleteOutstandingOrders();
       }
-      if (oldPosition)
-        Object.assign(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index =  this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
     }
   }
 
@@ -914,7 +918,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(trade.price);
-    console.log('_handleQuote',trade.updateType, trade.price, trade.volume);
+    console.log('_handleQuote', trade.updateType, trade.price, trade.volume);
     this._handleMaxChange(item.handleQuote(trade), item);
 
     this.detectChanges();
