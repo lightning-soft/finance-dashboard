@@ -18,13 +18,22 @@ $selectHeight: 22px;
 
       .ice-amount {
         margin-left: 0;
-        grid-row-start: 1;
+        grid-row-start: 2;
         grid-column-start: 5;
       }
 
-      .ice-amount, .ice-button button {
+      .ice-button {
+        width: 100%;
+        margin-left: 0;
+
+        button {
+          margin-top: 0;
+        }
+      }
+
+      .ice-amount {
         margin-top: 0;
-        width: 53px;
+        width: 55px;
       }
 
       .ticks {
@@ -90,7 +99,7 @@ $selectHeight: 22px;
         }
 
         .amount-input {
-          margin-left: 19px;
+          margin-left: 29px;
         }
 
         > * {
@@ -112,6 +121,9 @@ $selectHeight: 22px;
            align-self: center;
            margin-top: 3px;
          }*/
+      .ice-button {
+        width: 100%;
+      }
 
       .ice-button, .ice-amount {
         margin-left: 4px;
@@ -264,11 +276,6 @@ quantity-input, {
   }
 }
 
-.ice-button {
-  margin-left: 0;
-  margin-right: 2px;
-}
-
 .amount-number {
   border: none;
   background: $secondary;
@@ -281,6 +288,13 @@ cdk-virtual-scroll-viewport {
 
 :host {
   ::ng-deep {
+    .is-oco-selected, .is-ice-active {
+      .oco, .oco:hover, .oco:focus, .oco:focus-within, &.ice-btn {
+        background: rgba(72, 149, 245, 0.5);
+        border: 1px solid #4895F5;
+      }
+    }
+
     .type-select {
       display: none;
       min-width: 80px;
@@ -314,6 +328,10 @@ cdk-virtual-scroll-viewport {
   }
 }
 
+tp-units {
+  display: block;
+  margin-top: 6px;
+}
 
 type-buttons {
   display: block;
@@ -380,7 +398,8 @@ button.top-position-btn {
 
 :host {
   .ice-amount {
-    margin-top: 2px;
+    margin-top: 3px;
+    margin-left: 0;
 
     button {
       margin-top: 0;
@@ -388,22 +407,27 @@ button.top-position-btn {
 
     .ant-input-number {
       width: 44px;
-      font-size: 0.8rem;
+      font-size: 0.65rem;
+      background: $secondary;
+      border: none;
+
 
       ::ng-deep {
+        .ant-input-number-handler-wrap {
+          display: none;
+        }
+
         .ant-input-number-input {
-          padding-left: 5px;
+          padding: 0;
+          text-align: center;
         }
       }
     }
   }
 }
 
-.tif {
+.tif-buttons {
   margin-top: 12px;
-  margin-left: 3px;
-  font-size: 0.7rem;
-  line-height: 0.8rem;
 }
 
 :host ::ng-deep {

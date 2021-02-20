@@ -8,6 +8,8 @@ export enum Events {
   Keyup = 'keyup',
   Keydown = 'keydown',
   ContextMenu = 'contextmenu',
+  MouseUp = 'mouseup',
+  MouseDown = 'mousedown',
 }
 const enum TableNodes {
   Table = 'TABLE',
@@ -113,7 +115,14 @@ export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
     this.handler = config.handler;
   }
 }
+export class MouseUpDataGridHandler<T> extends CellClickDataGridHandler<T>{
+  event = Events.MouseUp;
 
+}
+export class MouseDownDataGridHandler<T> extends CellClickDataGridHandler<T>{
+  event = Events.MouseDown;
+
+}
 export class ContextMenuClickDataGridHandler<T> extends CellClickDataGridHandler<T> {
   event = Events.ContextMenu;
 }

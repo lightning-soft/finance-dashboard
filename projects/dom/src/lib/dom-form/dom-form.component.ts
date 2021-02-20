@@ -7,7 +7,15 @@ import { IPosition } from 'projects/trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
 import { skip } from 'rxjs/operators';
-import { HistoryRepository, IConnection, IInstrument, OrderDuration, OrderType, Periodicity, PositionsRepository } from 'trading';
+import {
+  HistoryRepository,
+  IConnection,
+  IInstrument,
+  OrderDuration,
+  OrderType,
+  Periodicity,
+  PositionsRepository
+} from 'trading';
 import { ITypeButton } from './type-buttons/type-buttons.component';
 
 const historyParams = {
@@ -24,7 +32,13 @@ export enum FormActions {
   CloseBuyOrders,
   CloseSellOrders,
   SelectQuantity,
-  CreateMarketOrder
+  CreateMarketOrder,
+  CreateOcoOrder,
+  CancelOcoOrder
+}
+
+export enum OcoStep {
+  Fist, Second, None
 }
 
 export interface DomFormSettings {
@@ -49,6 +63,30 @@ export class DomFormComponent extends BaseOrderForm {
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
+  private _ocoStep = OcoStep.None;
+
+  get isOcoSelected() {
+    return this._ocoStep !== OcoStep.None;
+  }
+
+  @Input() set ocoStep(value) {
+    this._ocoStep = value;
+    if (value === OcoStep.Fist) {
+      this.form.patchValue({type: OrderType.Limit});
+      this.typeButtons = this._typeButtons.map(item => {
+        const disabled = ![OrderType.Limit, 'OCO'].includes(item.value);
+        return { ...item, disabled };
+      });
+    } else if (value === OcoStep.Second) {
+      this.form.patchValue({type: OrderType.StopMarket});
+      this.typeButtons = this._typeButtons.map(item => {
+        const disabled = ![OrderType.StopMarket, OrderType.StopLimit, 'OCO'].includes(item.value);
+        return { ...item, disabled };
+      });
+    } else {
+      this.typeButtons = this._typeButtons;
+    }
+  }
 
   @ViewChild('quantity')
   public quantitySelect: QuantityInputComponent;
@@ -65,6 +103,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set accountId(value) {
     if (this._accountId !== value) {
       this._accountId = value;
+      this.form.patchValue({ accountId: value });
     }
   }
 
@@ -94,6 +133,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id) {
       this.instrument$.next(value);
+      this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
     }
   }
 
@@ -103,7 +143,7 @@ export class DomFormComponent extends BaseOrderForm {
 
 
   get isIceEnabled() {
-    return this.setting.showIcebergButton;
+    return this.formValue.type === OrderType.Limit && this.setting.showIcebergButton;
   }
 
   get isTypeStopLimit() {
@@ -111,7 +151,7 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   get isIceAmountVisible() {
-    return this.isIce && this.isIceEnabled && this.isTypeStopLimit;
+    return this.isIce && this.isIceEnabled;
   }
 
   amountButtons = [
@@ -119,25 +159,40 @@ export class DomFormComponent extends BaseOrderForm {
     { value: 10 }, { value: 50 },
     { value: 100 }, { value: 5 }
   ];
-  typeButtons: ITypeButton[] = [
-    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true  },
-    { label: 'STP MKT',  value: OrderType.StopMarket, black: true, selectable: true  },
-    { label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
-     this.emit(FormActions.CreateMarketOrder);
-      }, selectable: false },
-    // { label: 'OCO', value: 'OCO', black: true },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true  },
+  _typeButtons: ITypeButton[] = [
+    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },
+    {
+      label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
+        this.emit(FormActions.CreateMarketOrder);
+      }, selectable: false
+    },
+    {
+      label: 'OCO', value: 'OCO', className: 'oco', selectable: false, onClick: () => {
+        this.emit(FormActions.CreateOcoOrder);
+      }, contextMenu: () => {
+        this.emit(FormActions.CancelOcoOrder);
+      }, black: true
+    },
+    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
 
     // { label: 'ICE', value: OrderType.ICE, black: true },
   ];
+
+  typeButtons = this._typeButtons;
+
+  get typeSelectOptions() {
+    return this.typeButtons.filter(item => item.selectable);
+  }
+
   tifButtons: ITypeButton[] = [
-    { label: 'DAY',  black: true, value: OrderDuration.DAY, selectable: true },
-   // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    { label: 'GTC',  black: true, value: OrderDuration.GTC, selectable: true,  },
-    { label: 'FOK',  black: true, value: OrderDuration.FOK,  selectable: true },
-    { label: 'IOC',  black: true, value: OrderDuration.IOC, selectable: true },
+    { label: 'DAY', black: true, value: OrderDuration.DAY, selectable: true },
+    // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
+    { label: 'GTC', black: true, value: OrderDuration.GTC, selectable: true, },
+    { label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true },
+    { label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true },
   ];
   editAmount = false;
   editIceAmount = false;
@@ -193,7 +248,7 @@ export class DomFormComponent extends BaseOrderForm {
 
   positionsToQuantity() {
     if (typeof this.positionSum === 'number' && this.positionSum != 0) {
-      this.form.patchValue({quantity: Math.abs(this.positionSum)});
+      this.form.patchValue({ quantity: Math.abs(this.positionSum) });
     }
   }
 
@@ -203,6 +258,9 @@ export class DomFormComponent extends BaseOrderForm {
 
     return new FormGroup({
       quantity: new FormControl(10, Validators.required),
+      accountId: new FormControl(),
+      exchange: new FormControl(this.instrument?.exchange),
+      symbol: new FormControl(this.instrument?.symbol),
       type: new FormControl(type.value, Validators.required),
       duration: new FormControl(duration, Validators.required),
       stopLoss: new FormControl({
@@ -217,7 +275,7 @@ export class DomFormComponent extends BaseOrderForm {
       }),
       amount: new FormControl(1),
       isIce: new FormControl(false),
-      iceAmount: new FormControl(10),
+      iceQuantity: new FormControl(10),
     });
   }
 

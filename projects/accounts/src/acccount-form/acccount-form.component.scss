@@ -7,8 +7,29 @@
   -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
 }
 
+
 :host {
   ::ng-deep {
+    .is-submitted {
+      .is-invalid {
+
+        nz-select-top-control {
+          border: 1px solid $red !important;
+        }
+
+        &.custom-form-control .ant-input {
+          border: 1px solid $red !important;
+        }
+
+        &-password {
+          nz-input-group {
+            border: 1px solid $red !important;
+            box-shadow: none;
+          }
+        }
+      }
+    }
+
     .ant-input, {
       font-size: 0.85rem;
       height: 24px !important;
@@ -22,7 +43,7 @@
       }
 
       nz-select-item {
-        line-height:  22px !important;
+        line-height: 22px !important;
       }
     }
   }

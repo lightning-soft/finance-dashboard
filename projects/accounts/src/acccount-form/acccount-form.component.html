@@ -1,14 +1,14 @@
-<form [formGroup]="form">
+<form [class.is-submitted]="isSubmitted"  nz-form [formGroup]="form">
   <div class="form-item">
     <small class="text-muted px-2 mb-1">Login</small>
-    <nz-form-control class="custom-form-control text-control">
-      <input type="text" nzSize="small" nz-input formControlName="username">
+    <nz-form-control [class.is-invalid]="isInvalid('username')" class="custom-form-control text-control">
+      <input  type="text" nzSize="small" nz-input formControlName="username">
     </nz-form-control>
   </div>
   <div class="form-item">
     <small class="text-muted px-2 mb-1">Password</small>
 
-    <nz-form-control class="custom-form-control">
+    <nz-form-control  [class.is-invalid-password]="isInvalid('password')" class="custom-form-control">
       <nz-input-group nzSize="small" [nzSuffix]="suffixTemplate">
 
         <input class="password" [type]="passwordVisible ? 'password' : 'text'" nz-input formControlName="password">
@@ -30,14 +30,14 @@
   </div>
   <div class="form-item">
     <small class="text-muted px-2 mb-1">System</small>
-    <nz-select [nzOptionHeightPx]="20" class="select" formControlName="server">
+    <nz-select  [class.is-invalid]="isInvalid('server')" [nzOptionHeightPx]="20" class="select" formControlName="server">
       <nz-option *ngFor="let item of items" [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>
   </div>
   <div class="form-item">
     <small class="text-muted px-2 mb-1">Gateway</small>
-    <nz-select [nzOptionHeightPx]="22" class="select" formControlName="gateway">
+    <nz-select  [class.is-invalid]="isInvalid('gateway')" [nzOptionHeightPx]="22" class="select" formControlName="gateway">
       <nz-option *ngFor="let item of gateways " [nzValue]="item.name" [nzLabel]="item.name">
       </nz-option>
     </nz-select>

@@ -8,6 +8,7 @@ import {
   ContextMenuClickDataGridHandler,
   DataGrid,
   IFormatter,
+  MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -33,13 +34,17 @@ import {
   PositionStatus,
   QuoteSide,
   TradeDataFeed,
-  TradePrint, VolumeHistoryRepository
+  TradePrint,
+  VolumeHistoryRepository,
+  Side
 } from 'trading';
-import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
+import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { Id } from 'projects/communication';
+import { MouseDownDataGridHandler } from 'projects/data-grid';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -118,6 +123,8 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
+const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -128,7 +135,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   columns = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
-
+  buyOcoOrder: IOrder;
+  sellOcoOrder: IOrder;
+  ocoStep = OcoStep.None;
   private currentCell;
   positions: IPosition[] = [];
 
@@ -150,6 +159,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._createOrderByCurrent(OrderSide.Sell, 'currentAsk');
     },
     oco: () => {
+      this.handleFormAction(FormActions.CreateOcoOrder);
     },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
@@ -231,6 +241,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
+  draggingOrders: IOrder[] = [];
+  draggingDomItemId: Id;
 
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
@@ -238,11 +250,30 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         column, handler: (item) => this._createOrderByClick(column, item),
       })
     )),
-    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => (
+    ...OrderColumns.map(column => (
       new ContextMenuClickDataGridHandler<DomItem>({
         column, handler: (item) => this._cancelOrderByClick(column, item),
       })
     )),
+    ...OrderColumns.map(column =>
+      new MouseDownDataGridHandler<DomItem>({
+        column, handler: (item) => {
+          const orders = item.orders.orders;
+          if (orders.length) {
+            this.draggingDomItemId = item.id;
+            this.draggingOrders = orders;
+          }
+        },
+      })),
+    ...OrderColumns.map(column => new MouseUpDataGridHandler<DomItem>({
+      column, handler: (item) => {
+        if (this.draggingDomItemId && this.draggingDomItemId !== item.id) {
+          this._setPriceForOrders(this.draggingOrders, +item.price.value);
+        }
+        this.draggingDomItemId = null;
+        this.draggingOrders = [];
+      }
+    }))
   ];
 
   private _accountId: string;
@@ -440,14 +471,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   allStopsToPrice() {
-    this._setPriceForOrders(OrderType.StopMarket, 'stopPrice');
+    this._setPriceForAllOrders(OrderType.StopMarket);
   }
 
   allLimitToPrice() {
-    this._setPriceForOrders(OrderType.Limit, 'limitPrice');
+    this._setPriceForAllOrders(OrderType.Limit);
   }
 
-  _setPriceForOrders(type: OrderType, priceType) {
+  _setPriceForAllOrders(type: OrderType) {
     const row = this.currentCell.row;
     if (row) {
       // #TODO investigate what side should be if row is in center
@@ -458,19 +489,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }));
       }, []);
       const price = +row.price.value;
-      orders.map(item => {
-        return {
-          quantity: item.quantity,
-          type: item.type,
-          duration: item.duration,
-          [priceType]: price,
-          orderId: item.id,
-          accountId: item.account.id,
-          symbol: item.instrument.symbol,
-          exchange: item.instrument.exchange,
-        };
-      }).map(item => this._ordersRepository.updateItem(item).toPromise());
+      this._setPriceForOrders(orders, price);
     }
+  }
+
+  _setPriceForOrders(orders, price) {
+    orders.map(item => {
+      const priceTypes = getPriceSpecs(item, price);
+
+      return {
+        quantity: item.quantity,
+        type: item.type,
+        ...priceTypes,
+        duration: item.duration,
+        orderId: item.id,
+        accountId: item.account.id,
+        symbol: item.instrument.symbol,
+        exchange: item.instrument.exchange,
+      };
+    }).map(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
   _createOrderByCurrent(side: OrderSide, from) {
@@ -496,15 +533,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     } = this._settings.general;
     const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
     if (isNewPosition) {
-      this.positions.push(newPosition);
       this.applySettingsOnNewPosition();
     } else {
-      if (closeOutstandingOrders && oldPosition?.status === PositionStatus.Open
-        && newPosition.status === PositionStatus.Close) {
+      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
+        && newPosition.side === Side.Closed) {
         this.deleteOutstandingOrders();
       }
-      if (oldPosition)
-        Object.assign(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index =  this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
     }
   }
 
@@ -674,12 +714,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-
+      const oldItem = this.items.forEach(item => {
+        item.removeOrder(order);
+      });
       const item = this._getItem(order.limitPrice || order.stopPrice);
-
       if (!item)
         continue;
-
       item.handleOrder(order);
     }
 
@@ -878,7 +918,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
     const item = this._getItem(trade.price);
-    console.log('_handleQuote',trade.updateType, trade.price, trade.volume);
+    console.log('_handleQuote', trade.updateType, trade.price, trade.volume);
     this._handleMaxChange(item.handleQuote(trade), item);
 
     this.detectChanges();
@@ -1081,7 +1121,41 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
-    this._createOrder(column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy, item.price._value);
+    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
+    if (this.ocoStep === OcoStep.None) {
+      this._createOrder(side, item.price._value);
+    } else {
+      this._addOcoOrder(side, item);
+    }
+  }
+
+  private _addOcoOrder(side, item: DomItem) {
+    if (!this.buyOcoOrder && side === OrderSide.Buy) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = getPriceSpecs(order, +item.price.value);
+      this.buyOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+    if (!this.sellOcoOrder && side === OrderSide.Sell) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = getPriceSpecs(order, +item.price.value);
+      this.sellOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+  }
+
+  private _createOcoOrder() {
+    this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
+    if (this.buyOcoOrder && this.sellOcoOrder) {
+      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+      this._ordersRepository.createItem(this.buyOcoOrder)
+        .pipe(untilDestroyed(this))
+        .subscribe(() => {
+          this._clearOcoOrders();
+        });
+    }
   }
 
   private _cancelOrderByClick(column: string, item: DomItem) {
@@ -1109,6 +1183,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._closeOrders(FormActions.CloseOrders);
         this._closePositions();
         break;
+      case FormActions.CreateOcoOrder:
+        if (this.ocoStep === OcoStep.None)
+          this.ocoStep = OcoStep.Fist;
+        break;
+      case FormActions.CancelOcoOrder:
+        this._clearOcoOrders();
+        break;
       case FormActions.CreateMarketOrder:
         this._createMarketOrder();
         break;
@@ -1116,6 +1197,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         console.error('Undefined action');
     }
+  }
+
+  _clearOcoOrders() {
+    this.ocoStep = OcoStep.None;
+    this.sellOcoOrder = null;
+    this.buyOcoOrder = null;
+    this.items.forEach(item => item.clearOcoOrder());
   }
 
   _createMarketOrder() {
@@ -1132,8 +1220,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-        this.notifier.showError(err);
-      });
+      this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {
@@ -1187,6 +1275,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
+}
+
+function getPriceSpecs(item: IOrder, price) {
+  const priceSpecs: any = {};
+  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.limitPrice = price;
+  }
+  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.stopPrice = price;
+  }
+  return priceSpecs;
 }
 
 export function sum(num1, num2, step = 1) {

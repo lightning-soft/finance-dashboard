@@ -3,7 +3,7 @@
         nzPopoverOverlayClassName="tick-overlay {{overlayClass}}"
         [nzPopoverContent]="slTicksContent"
         [class.turned-off]="!form.value.stopLoss"
-        class="sl-tick tick-btn">{{form.value.stopLoss ? getTitle(): 'OFF'}}
+        class="sl-tick tick-btn">{{form.value.stopLoss ? getTitle(): 'SL: OFF'}}
 </button>
 <ng-template #slTicksContent>
   <form [formGroup]="form">
