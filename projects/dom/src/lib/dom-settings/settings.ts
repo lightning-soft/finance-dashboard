@@ -48,7 +48,7 @@ export class DomSettings {
     hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,
-      updateInterval: 8,
+      updateInterval: 100,
       orderQuantityStep: 7,
       scrollWheelSensitivity: DefaultScrollSensetive,
       momentumIntervalMs: 8,

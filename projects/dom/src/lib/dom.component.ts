@@ -24,7 +24,6 @@ import {
   IQuote,
   L2,
   Level1DataFeed,
-  Level2DataFeed,
   OrderBooksRepository,
   OrdersFeed,
   OrderSide,
@@ -274,6 +273,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   ];
 
   private _accountId: string;
+  private _updatedAt: number;
+  private _updateInterval: number;
+  private _clearInterval: () => void;
 
   get accountId() {
     return this._accountId;
@@ -354,7 +356,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private get _tickSize() {
     return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
   }
-  
+
   private _bestAskPrice: number;
   private _bestBidPrice: number;
 
@@ -367,7 +369,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
-    private _levelTwoDatafeed: Level2DataFeed,
     private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector
   ) {
@@ -427,9 +428,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item)),
       this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
+      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -437,37 +437,52 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings: DomSettings) => {
-        const common = settings.common;
-        if (common) {
-          for (const column of this.columns) {
-            column.visible = common[column.name] != false;
-          }
-        }
-        const general = settings?.general;
-        this.dataGrid.applyStyles({
-          font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
-          gridBorderColor: common.generalColors.gridLineColor,
-          scrollSensetive: general.intervals.scrollWheelSensitivity,
-        });
-        const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
-        const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
-        const overlayOrders = settings.order.overlay;
-        this._tickSize = general.commonView.ticksPerPrice;
-
-        settings.bidDelta.minToVisible = minToVisible;
-        settings.askDelta.minToVisible = minToVisible;
-        settings.currentAsk.clearTradersTimer = clearTradersTimer;
-        settings.currentBid.clearTradersTimer = clearTradersTimer;
-        settings.bidDelta.overlayOrders = overlayOrders;
-        settings.askDelta.overlayOrders = overlayOrders;
-
-        this._settings.merge(settings);
-        this._applyOffset(this._lastPrice);
-        this.items.forEach(i => i.refresh());
-        this.detectChanges(true);
-      }
+      handleLinkData: this._linkSettings,
     });
+  }
+
+  private _linkSettings = (settings: DomSettings) => {
+    const common = settings.common;
+    if (common) {
+      for (const column of this.columns) {
+        column.visible = common[column.name] != false;
+      }
+    }
+    const general = settings?.general;
+    this.dataGrid.applyStyles({
+      font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
+      gridBorderColor: common.generalColors.gridLineColor,
+      scrollSensetive: general.intervals.scrollWheelSensitivity,
+    });
+    const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
+    const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
+    const overlayOrders = settings.order.overlay;
+    this._tickSize = general.commonView.ticksPerPrice;
+
+    settings.bidDelta.minToVisible = minToVisible;
+    settings.askDelta.minToVisible = minToVisible;
+    settings.currentAsk.clearTradersTimer = clearTradersTimer;
+    settings.currentBid.clearTradersTimer = clearTradersTimer;
+    settings.bidDelta.overlayOrders = overlayOrders;
+    settings.askDelta.overlayOrders = overlayOrders;
+    if (this._updateInterval != general.intervals.updateInterval) {
+      this._updateInterval = general.intervals.updateInterval;
+
+      this._setUpTimer();
+    }
+
+    this._settings.merge(settings);
+    this._applyOffset(this._lastPrice);
+    this.items.forEach(i => i.refresh());
+    this.detectChanges(true);
+  }
+
+  _setUpTimer() {
+    if (this._clearInterval)
+      this._clearInterval();
+
+    const _interval = setInterval(this.detectChanges.bind(this), this._updateInterval)
+    this._clearInterval = () => clearInterval(_interval);
   }
 
   allStopsToPrice() {
@@ -541,7 +556,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
     if (oldPosition) {
-      const index =  this.positions.findIndex(item => item.id === newPosition.id);
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
       this.positions[index] = newPosition;
     } else {
       this.positions.push(newPosition);
@@ -600,7 +615,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const instrument = this.instrument;
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
     this._levelOneDatafeed.subscribe(instrument);
-    this._levelTwoDatafeed.subscribe(instrument);
     this._tradeDatafeed.subscribe(instrument);
 
     this._loadData();
@@ -803,7 +817,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   detectChanges(force = false) {
+    if (!force && (this._updatedAt + this._updateInterval) > Date.now())
+      return;
+
+    console.log('detectChanges');
+
     this.dataGrid.detectChanges(force);
+    this._updatedAt = Date.now();
   }
 
   private _getItem(price: number): DomItem {
@@ -953,13 +973,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       if (trade.side === QuoteSide.Bid) {
         if (this._bestAskPrice != price) {
+          item.clearAskDelta();
 
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
-            item.clearAskDelta();
-            if (item.lastPrice < price) {
-              item.clearAsk();
-            } else {
+            if (item.lastPrice >= price) {
               if (item.lastPrice == price)
                 index = i;
 
@@ -976,13 +994,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       } else {
         if (this._bestBidPrice != price) {
+          item.clearBidDelta();
 
           for (let i = 0; i < items.length; i++) {
             item = items[i];
-            item.clearBidDelta();
-            if (item.lastPrice > price) {
-              item.clearBid();
-            } else {
+            if (item.lastPrice <= price) {
               if (item.lastPrice == price)
                 index = i;
 
@@ -1130,6 +1146,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
+    this._linkSettings(this._settings);
     // this.openSettings(true);
 
     // for debug purposes
@@ -1299,8 +1316,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-      this.notifier.showError(err);
-    });
+        this.notifier.showError(err);
+      });
   }
 
   private _closePositions() {
@@ -1342,8 +1359,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!instrument)
       return;
 
+    if (this._clearInterval)
+      this._clearInterval();
+
     this._levelOneDatafeed.unsubscribe(instrument);
-    this._levelTwoDatafeed.unsubscribe(instrument);
     this._tradeDatafeed.unsubscribe(instrument);
   }
 
