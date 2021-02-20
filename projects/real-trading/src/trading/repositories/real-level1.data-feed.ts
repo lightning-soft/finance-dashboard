@@ -9,11 +9,5 @@ export class RealLevel1DataFeed extends RealFeed<IQuote, IInstrument> {
 
   subscribeType = WSMessageTypes.SUBSCRIBE;
   unsubscribeType = WSMessageTypes.UNSUBSCRIBE;
-
-  protected _filter(item: IQuote) {
-    item.timestamp *= 1000;
-
-    return true;
-  }
 }
 
