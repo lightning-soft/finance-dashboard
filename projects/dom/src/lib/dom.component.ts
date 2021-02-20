@@ -524,10 +524,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handlePosition(pos) {
-    if (pos.instrument.symbol !== this.instrument.symbol)
-      return;
     const newPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
+
+    if (pos.instrument.symbol == this.instrument.symbol) {
+      this._applyPositionSetting(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
+    }
+  }
+
+  _applyPositionSetting(oldPosition, newPosition) {
     const {
       closeOutstandingOrders,
     } = this._settings.general;
@@ -539,12 +550,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         && newPosition.side === Side.Closed) {
         this.deleteOutstandingOrders();
       }
-    }
-    if (oldPosition) {
-      const index =  this.positions.findIndex(item => item.id === newPosition.id);
-      this.positions[index] = newPosition;
-    } else {
-      this.positions.push(newPosition);
     }
   }
 
