@@ -638,9 +638,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const { symbol, exchange } = this._instrument;
-    //this._orderBooksRepository.getItems({ symbol, exchange })
-      .pipe(untilDestroyed(this))
-      .subscribe(
+    // this._orderBooksRepository.getItems({ symbol, exchange })
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(
       //  res => {
       //     this._clear();
 
