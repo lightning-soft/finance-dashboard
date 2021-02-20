@@ -21,6 +21,8 @@ export interface IOrder extends IBaseItem {
   type: OrderType;
   exchange: string;
   symbol: string;
+  ocoOrder?: IOrder;
+  iceQuantity?: number;
   price?: number;
   accountId?: string,
   limitPrice?: number;

@@ -4,7 +4,7 @@
         [class.turned-off]="!form.value.takeProfit"
         nzPopoverOverlayClassName="tick-overlay {{overlayClass}}"
         [nzPopoverContent]="tpTicksContent"
-        class="tp-tick tick-btn">{{form.value.takeProfit ? getTitle(): 'OFF'}}
+        class="tp-tick tick-btn">{{form.value.takeProfit ? getTitle(): 'TP: OFF'}}
 </button>
 <ng-template #tpTicksContent>
   <form [formGroup]="form">
