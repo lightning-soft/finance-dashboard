@@ -6,7 +6,10 @@ export interface ITypeButton {
   value: any;
   selectable: boolean;
   black?: boolean;
+  className?: string;
   onClick?: () => void;
+  disabled?: boolean;
+  contextMenu?: () => void;
 }
 
 @Component({

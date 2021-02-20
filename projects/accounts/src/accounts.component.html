@@ -13,8 +13,10 @@
             [nzActive]="broker == selectedBroker"
           >
             <ng-template #createButton>
-            <span *ngIf="canAddAccount(broker)"
-                  class="small link" (click)="openCreateForm($event, broker)">
+            <span
+              [title]="!canAddAccount(broker) ? 'You can\'t add more connections': ''"
+              [class.add-disabled]="!canAddAccount(broker)"
+              class="small add-connection link" (click)="openCreateForm($event, broker)">
               <i class="icon-add font-size-inherit"></i>
             </span>
             </ng-template>
@@ -56,7 +58,7 @@
                        class="rename"
                        #input (keydown.enter)="item.rename = false; rename(input.value, item)"
                        [value]="item.name || item.toString()" nz-input type="text">
-                <nz-dropdown-menu  #contentTemplate="nzDropdownMenu">
+                <nz-dropdown-menu #contentTemplate="nzDropdownMenu">
                   <ul class="broker-actions" nz-menu>
                     <li nz-menu-item (click)="item.rename = true; " class="broker-action">Rename</li>
                     <li nz-menu-item (click)="delete($event, item);" class="broker-action">Delete</li>
@@ -86,7 +88,8 @@
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form *ngIf='!splitConnections' formControlName="userData"></acccount-form>
+            <acccount-form [isSubmitted]="isSubmitted" #userData [class.d-none]='splitConnections'
+                           formControlName="userData"></acccount-form>
             <div *ngIf="splitConnections" class="d-flex split-form">
               <div class="split-form-item">
                 <span class="split-form-title">Marker Data</span> <span class="switch-container"><span>Off</span>

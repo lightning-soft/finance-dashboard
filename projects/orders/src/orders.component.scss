@@ -10,6 +10,13 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
+    window-header {
+      .title {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
     .regular {
       nz-select-item {
         font-weight: 400;
