@@ -107,7 +107,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     // this.activeColumns = this.columns.filter((column: Column) => column.visible);
@@ -184,6 +185,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     grid.addEventListener('contextmenu', this._handleContextmenu);
+    grid.addEventListener('mousedown', this._handleMouseDown);
+    grid.addEventListener('mouseup', this._handleMouseUp);
+
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
@@ -242,6 +246,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         // this.activeColumns = this.columns.filter((column: Column) => column.visible);
       }
     });
+  }
+
+  _handleMouseUp = (e) => {
+    this._triggerHandler(Events.MouseUp, { ...e, column: e.cell?.column, row: e.cell?.row });
+  }
+
+  private _handleMouseDown = (e) => {
+    this._triggerHandler(Events.MouseDown, { ...e, column: e.cell?.column, row: e.cell?.row });
   }
 
   private _handleContextmenu = (e) => {
@@ -326,6 +338,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('currentCellChanged', this._currentCellChanged);
       grid.removeEventListener('click', this._handleClick);
       grid.removeEventListener('contextmenu', this._handleContextmenu);
+      grid.removeEventListener('mousedown', this._handleMouseDown);
+      grid.removeEventListener('mouseup', this._handleMouseUp);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();

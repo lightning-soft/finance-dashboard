@@ -8,20 +8,33 @@ import { PriceCell } from './price.cell';
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
+  ocoOrder: IOrder;
   private _order: IOrder;
   private _text: string;
 
-  orderStyle: 'ask' | 'bid';
+  orderStyle: 'ask' | 'bid' | 'oco';
 
   get canCancelOrder() {
     return (!this._order || (this.settings as any).overlayOrders == false)
   }
-
   private _isOrderColumn = false;
 
   constructor(config) {
     super(config);
     this._isOrderColumn = config.isOrderColumn === true;
+  }
+
+  addOcoOrder(ocoOrder) {
+    this.ocoOrder = ocoOrder;
+    this._order = ocoOrder;
+    this.orderStyle = 'oco';
+    this._changeText();
+    this.drawed = false;
+  }
+
+  clearOcoOrder() {
+    this.ocoOrder = null;
+    this.clearOrder();
   }
 
   addOrder(order: IOrder) {
@@ -41,6 +54,11 @@ class OrdersCell extends HistogramCell {
     this._order = null;
     this._text = '';
     this.drawed = false;
+  }
+
+  removeOrder(order) {
+    this.orders = this.orders.filter(item => item.id !== order.id);
+    this.clearOrder();
   }
 
   _changeText() {
@@ -75,12 +93,19 @@ class OrdersCell extends HistogramCell {
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
-    if (isAsk) {
-      ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
-      ctx.strokeStyle = '#C93B3B';
-    } else {
-      ctx.fillStyle = 'rgba(72, 149, 245, 0.5)';
-      ctx.strokeStyle = '#4895F5';
+    switch (this.orderStyle) {
+      case 'ask':
+        ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
+        ctx.strokeStyle = '#C93B3B';
+        break;
+      case 'bid':
+        ctx.fillStyle = 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = '#4895f5';
+        break;
+      case 'oco':
+        ctx.fillStyle = 'rgba(190,60,177, 0.5)';
+        ctx.strokeStyle = '#be3cb1';
+        break;
     }
     ctx.fill();
     ctx.stroke();
@@ -300,6 +325,12 @@ export class DomItem implements IBaseItem {
     return false;
   }
 
+  removeOrder(order: IOrder) {
+    this.orders.removeOrder(order);
+    this.askDelta.removeOrder(order);
+    this.bidDelta.removeOrder(order);
+  }
+
   clearBid() {
     this.bid.clear();
     this._bid = this.ask._value;
@@ -383,6 +414,22 @@ export class DomItem implements IBaseItem {
         }
         break;
     }
+  }
+
+  createOcoOrder(side: OrderSide, _order: IOrder) {
+    const order = { ..._order, side };
+    this.orders.addOcoOrder(order);
+    if (side === OrderSide.Buy) {
+      this.bidDelta.addOcoOrder(order);
+    } else
+      this.askDelta.addOcoOrder(order);
+
+  }
+
+  clearOcoOrder() {
+    this.orders.clearOcoOrder();
+    this.bidDelta.clearOcoOrder();
+    this.askDelta.clearOcoOrder();
   }
 
   dehighlight(key: string) {

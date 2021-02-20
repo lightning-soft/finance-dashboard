@@ -11,6 +11,12 @@ button, button:hover, button:active, button:focus-within {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &[disabled] {
+    color: white;
+    border: none;
+    opacity: 0.5;
+  }
 }
 
 :host-context(.full-screen-window) {
