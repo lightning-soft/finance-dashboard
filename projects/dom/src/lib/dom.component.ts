@@ -516,7 +516,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // #TODO need test
   private _createOrderByCurrent(side: OrderSide, from: '_bestBidPrice' | '_bestAskPrice') {
     const price = this[from];
-    if (price)
+    if (price != null)
       this._createOrder(side, +price);
   }
 
@@ -525,10 +525,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handlePosition(pos) {
-    if (pos.instrument.symbol !== this.instrument.symbol)
-      return;
     const newPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
+
+    if (pos.instrument.symbol == this.instrument.symbol) {
+      this._applyPositionSetting(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
+    }
+  }
+
+  _applyPositionSetting(oldPosition, newPosition) {
     const {
       closeOutstandingOrders,
     } = this._settings.general;
@@ -685,8 +696,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //       i.dehighlight(Columns.All);
     //     }
 
-        this._loadOrders();
-        this._loadVolumeHistory();
+    this._loadOrders();
+    this._loadVolumeHistory();
     //   },
     //   error => this.notifier.showError(error)
     // );
@@ -1217,6 +1228,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       item.createOcoOrder(side, this._domForm.getDto());
       const order = { ...this._domForm.getDto(), side };
       const specs = this._getPriceSpecs(order, +item.price.value);
+
       this.buyOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
@@ -1318,8 +1330,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-      this.notifier.showError(err);
-    });
+        this.notifier.showError(err);
+      });
   }
 
   private _closePositions() {
@@ -1374,7 +1386,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
 }
-
 
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);
