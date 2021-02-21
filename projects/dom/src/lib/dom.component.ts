@@ -940,7 +940,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       data.unshift(this._getItem(price, ROWS - index));
     }
 
-    this.centralize();
+    requestAnimationFrame(() => this.centralize());
   }
 
   private _applyOffset(centerPrice: number) {
