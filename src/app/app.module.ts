@@ -121,7 +121,6 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
         NzDropDownModule,
         ScrollingModule,
         BrowserAnimationsModule,
-        NotifierModule,
         ContextMenuModule,
         WorkspacesModule,
         WindowManagerModule,
