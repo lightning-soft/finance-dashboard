@@ -58,6 +58,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
+  private _styles: GridStyles;
 
   get items(): T[] {
     if (!this._grid)
@@ -161,6 +162,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         overflowY: 'hidden',
         overflowX: 'hidden',
         scrollSensetive: DefaultScrollSensetive,
+        ...this._styles,
       },
       data: [],
     });
@@ -195,6 +197,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
+    this._styles = styles;
+
+    if (!grid)
+      return;
 
     grid.style = { ...styles }
 

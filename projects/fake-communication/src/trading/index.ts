@@ -5,3 +5,4 @@ export * from './fake-trading.repository';
 export * from './fake-positions.repository';
 export * from './fake-orders.repository';
 export * from './fake-account.repository';
+export * from './fake-trade.datafeed';

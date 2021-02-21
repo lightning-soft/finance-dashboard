@@ -1,10 +1,11 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide, OrderStatus, TradePrint } from 'trading';
-import { IQuote, QuoteSide } from 'trading';
+import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
+
+const Levels = 9;
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
@@ -154,15 +155,33 @@ class LtqCell extends HistogramCell {
   }
 }
 
-class TotalTimeCell extends HistogramCell {
+class LevelCell extends HistogramCell {
+  private _levelTime: number;
+
   update(value: number, timestamp: number, forceAdd: boolean) {
-    return this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
+
+    if (result)
+      this._levelTime = Date.now();
+
+    return result;
+  }
+
+  // return if no levels more, performance improvments
+  calculateLevel(): boolean {
+    const settings: any = this.settings;
+
+    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
+    this.changeStatus(`level${level}`);
+
+    return level <= Levels;
   }
 }
 
 export class DomItem implements IBaseItem {
   id: Id;
+  index: number;
 
   isCenter = false;
 
@@ -179,8 +198,8 @@ export class DomItem implements IBaseItem {
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
-  currentAsk: TotalTimeCell;
-  currentBid: TotalTimeCell;
+  currentAsk: LevelCell;
+  currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
@@ -195,7 +214,7 @@ export class DomItem implements IBaseItem {
   private _ask = 0;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
-    this.id = index;
+    this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
@@ -203,8 +222,8 @@ export class DomItem implements IBaseItem {
     });
     this.bid = new HistogramCell({ settings: settings.bid });
     this.ask = new HistogramCell({ settings: settings.ask });
-    this.currentAsk = new TotalTimeCell({ settings: settings.currentAsk });
-    this.currentBid = new TotalTimeCell({ settings: settings.currentBid });
+    this.currentAsk = new LevelCell({ settings: settings.currentAsk });
+    this.currentBid = new LevelCell({ settings: settings.currentBid });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
@@ -445,5 +464,9 @@ export class DomItem implements IBaseItem {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
     return { volume: this.volume._value };
+  }
+
+  calculateLevel(): boolean {
+    return this.currentAsk.calculateLevel() || this.currentBid.calculateLevel();
   }
 }
