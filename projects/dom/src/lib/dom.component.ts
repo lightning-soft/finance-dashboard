@@ -752,7 +752,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-     this.items.forEach(item => {
+      this.items.forEach(item => {
         item.removeOrder(order);
       });
       const item = this._getItem(order.limitPrice || order.stopPrice);
@@ -1051,7 +1051,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestAskPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
-            item.clearAskDelta();
+            if (!needClear)
+              item.clearAskDelta();
 
             if (item.lastPrice == price)
               index = i;
@@ -1076,7 +1077,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestBidPrice != price || needClear) {
           for (let i = 0; i < items.length; i++) {
             item = items[i];
-            item.clearBidDelta();
+            if (!needClear)
+              item.clearBidDelta();
 
             if (item.lastPrice == price)
               index = i;
