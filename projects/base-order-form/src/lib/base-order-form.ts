@@ -11,11 +11,11 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
   isPositionsNegative: boolean;
 
   get positionSum() {
-    if (!this.instrument){
+    if (!this.instrument) {
       return '-';
     }
     const posSum = this.positions.filter(item => item.instrument.symbol === this.instrument.symbol)
-      .reduce((total: number, item ) => {
+      .reduce((total: number, item) => {
         return (item.buyVolume - item.sellVolume) + (total || 0);
       }, null);
     this.isPositionsNegative = posSum < 0;
@@ -30,9 +30,11 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
   get isIce() {
     return this.formValue['isIce'];
   }
+
   get isIceEnabled() {
-    return  this.formValue.type === OrderType.Limit;
+    return this.formValue.type === OrderType.Limit;
   }
+
   get iceAmount() {
     return this.formValue['iceQuantity'];
   }
@@ -42,13 +44,23 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     this.form.patchValue({
       isIce: !isIce
     });
+    this.updateIceQuantityState();
+  }
+
+  updateIceQuantityState(){
+    if (!this.isIceEnabled || !this.isIce) {
+      this.form.controls.iceQuantity.disable();
+    }
+    else {
+      this.form.controls.iceQuantity.enable();
+    }
   }
 
   getDto() {
 
     const value = { ...this.form.value };
     const quantity = value.quantity;
-    if (!this.isIceEnabled || !this.isIce){
+    if (!this.isIceEnabled || !this.isIce) {
       delete value.iceQuantity;
     }
     if (value.stopLoss?.stopLoss) {
