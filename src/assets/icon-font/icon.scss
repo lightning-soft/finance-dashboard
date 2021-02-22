@@ -1,21 +1,20 @@
 @font-face {font-family: "icon";
-  src: url('icon.eot?t=1612540576714'); /* IE9*/
-  src: url('icon.eot?t=1612540576714#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("icon.woff2?t=1612540576714") format("woff2"),
-  url("icon.woff?t=1612540576714") format("woff"),
-  url('icon.ttf?t=1612540576714') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('icon.svg?t=1612540576714#icon') format('svg'); /* iOS 4.1- */
+  src: url('icon.eot?t=1613995234490'); /* IE9*/
+  src: url('icon.eot?t=1613995234490#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url("icon.woff2?t=1613995234490") format("woff2"),
+  url("icon.woff?t=1613995234490") format("woff"),
+  url('icon.ttf?t=1613995234490') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('icon.svg?t=1613995234490#icon') format('svg'); /* iOS 4.1- */
 }
 
 [class^="icon-"], [class*=" icon-"] {
   font-family: 'icon' !important;
-  font-size:16px;
+  font-size: 16px;
   font-style:normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-:global {
 .icon-add-image:before { content: "\ea01"; }
 .icon-add-list:before { content: "\ea02"; }
 .icon-add:before { content: "\ea03"; }
@@ -161,4 +160,148 @@
 .icon-window-left:before { content: "\ea8f"; }
 .icon-window-right:before { content: "\ea90"; }
 
-}
+$icon-add-image: "\ea01";
+$icon-add-list: "\ea02";
+$icon-add: "\ea03";
+$icon-align-center: "\ea04";
+$icon-align-left: "\ea05";
+$icon-align-right: "\ea06";
+$icon-arrow-down-general: "\ea07";
+$icon-arrow-down: "\ea08";
+$icon-arrow-left-general: "\ea09";
+$icon-arrow-left: "\ea0a";
+$icon-arrow-right-general: "\ea0b";
+$icon-arrow-right: "\ea0c";
+$icon-arrow-up-general: "\ea0d";
+$icon-arrow-up: "\ea0e";
+$icon-attach-window: "\ea0f";
+$icon-attach: "\ea10";
+$icon-bar-bars: "\ea11";
+$icon-bar-candles-volume: "\ea12";
+$icon-bar-candles: "\ea13";
+$icon-bar-coloured-bars: "\ea14";
+$icon-bar-equi-volume-shadow: "\ea15";
+$icon-bar-equi-volume: "\ea16";
+$icon-bar-heikin-ashi: "\ea17";
+$icon-bar-hollow-candles: "\ea18";
+$icon-bar-kagi: "\ea19";
+$icon-bar-line-break: "\ea1a";
+$icon-bar-line: "\ea1b";
+$icon-bar-mountains: "\ea1c";
+$icon-bar-point-and-figure: "\ea1d";
+$icon-bar-renko: "\ea1e";
+$icon-chart-market: "\ea1f";
+$icon-close-window: "\ea20";
+$icon-cursor-arrow-crosshairs: "\ea21";
+$icon-cursor-arrow-dot: "\ea22";
+$icon-cursor-arrow-with-markers: "\ea23";
+$icon-cursor-arrow: "\ea24";
+$icon-datafeed-connected: "\ea25";
+$icon-delete: "\ea26";
+$icon-deltaview: "\ea27";
+$icon-detach-window: "\ea28";
+$icon-detach: "\ea29";
+$icon-dom-bracket: "\ea2a";
+$icon-dom-clear-all: "\ea2b";
+$icon-dom-extended: "\ea2c";
+$icon-dom-slim: "\ea2d";
+$icon-dom-strategy: "\ea2e";
+$icon-duplicate: "\ea2f";
+$icon-edit: "\ea30";
+$icon-ellipse: "\ea31";
+$icon-facebook: "\ea32";
+$icon-fibonacci: "\ea33";
+$icon-full-screen-window: "\ea34";
+$icon-geometric: "\ea35";
+$icon-group: "\ea36";
+$icon-hide: "\ea37";
+$icon-indicator: "\ea38";
+$icon-list: "\ea39";
+$icon-lock: "\ea3a";
+$icon-log-out: "\ea3b";
+$icon-maximize-window (2): "\ea3c";
+$icon-maximize-window: "\ea3d";
+$icon-maximize: "\ea3e";
+$icon-measure: "\ea3f";
+$icon-menu-chart: "\ea40";
+$icon-minimize-window: "\ea41";
+$icon-minimize: "\ea42";
+$icon-minus: "\ea43";
+$icon-not-visible: "\ea44";
+$icon-notication-connected: "\ea45";
+$icon-notication-default: "\ea46";
+$icon-notifcation-error: "\ea47";
+$icon-notification-active: "\ea48";
+$icon-notification: "\ea49";
+$icon-order-reject: "\ea4a";
+$icon-pen: "\ea4b";
+$icon-pin: "\ea4c";
+$icon-rename: "\ea4d";
+$icon-replace: "\ea4e";
+$icon-reset: "\ea4f";
+$icon-resize: "\ea50";
+$icon-resize_vertical: "\ea51";
+$icon-save-image: "\ea52";
+$icon-save: "\ea53";
+$icon-search: "\ea54";
+$icon-set-header: "\ea55";
+$icon-setting-gear: "\ea56";
+$icon-settings-points: "\ea57";
+$icon-settings: "\ea58";
+$icon-show: "\ea59";
+$icon-signal: "\ea5a";
+$icon-some-error: "\ea5b";
+$icon-sort: "\ea5c";
+$icon-star-o: "\ea5d";
+$icon-star: "\ea5e";
+$icon-stocktwits: "\ea5f";
+$icon-text: "\ea60";
+$icon-tool-1d: "\ea61";
+$icon-tool-arrow: "\ea62";
+$icon-tool-bars: "\ea63";
+$icon-tool-brush: "\ea64";
+$icon-tool-camera: "\ea65";
+$icon-tool-chart-market (1): "\ea66";
+$icon-tool-chart-market (2): "\ea67";
+$icon-tool-chart-market (3): "\ea68";
+$icon-tool-chart-market (4): "\ea69";
+$icon-tool-chart-market (5): "\ea6a";
+$icon-tool-chart-market (6): "\ea6b";
+$icon-tool-chart-market: "\ea6c";
+$icon-tool-circle: "\ea6d";
+$icon-tool-delete: "\ea6e";
+$icon-tool-drawings: "\ea6f";
+$icon-tool-fibonacci-arcs: "\ea70";
+$icon-tool-fibonacci: "\ea71";
+$icon-tool-full-window: "\ea72";
+$icon-tool-geometric: "\ea73";
+$icon-tool-indicators: "\ea74";
+$icon-tool-line: "\ea75";
+$icon-tool-measure: "\ea76";
+$icon-tool-not-visible: "\ea77";
+$icon-tool-pen: "\ea78";
+$icon-tool-share: "\ea79";
+$icon-tool-text: "\ea7a";
+$icon-tool-tools: "\ea7b";
+$icon-tool-trand-channel: "\ea7c";
+$icon-tool-trend-channel-drawing: "\ea7d";
+$icon-tool-zoom-date-range: "\ea7e";
+$icon-tool-zoom-rect: "\ea7f";
+$icon-tool-zoom: "\ea80";
+$icon-trend-channel-drawing: "\ea81";
+$icon-twitter: "\ea82";
+$icon-union: "\ea83";
+$icon-unlock: "\ea84";
+$icon-unpin: "\ea85";
+$icon-user-icon: "\ea86";
+$icon-visible: "\ea87";
+$icon-widget-chart: "\ea88";
+$icon-widget-create-orders: "\ea89";
+$icon-widget-dom: "\ea8a";
+$icon-widget-market-watch: "\ea8b";
+$icon-widget-orders: "\ea8c";
+$icon-widget-positions: "\ea8d";
+$icon-widget-watchlist: "\ea8e";
+$icon-window-left: "\ea8f";
+$icon-window-right: "\ea90";
+
