@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
+import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, WebSocketService } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
-import { AccountsManager } from 'accounts-manager';
 import { RealtimeType } from './realtime';
 
 export enum WSMessageTypes {
@@ -20,6 +20,8 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
+  private _sucessfullyConected = false;
+  private _pendingRequests = [];
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
     @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
@@ -33,11 +35,13 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _clearSubscription() {
+    this._sucessfullyConected = false;
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
 
     this._subscriptions = {};
     this._unsubscribeFns = {};
+    this._pendingRequests = [];
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -72,7 +76,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         if (subscriptions[hash] === 1) {
           const dto = { Instruments: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
-          this._webSocketService.send({ Type: type, ...dto });
+          if (this._sucessfullyConected)
+            this._webSocketService.send({ Type: type, ...dto });
+          else
+            this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...dto }));
         }
       } else {
         subscriptions[hash] = (subscriptions[hash] || 1) - 1;
@@ -101,8 +108,19 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   //   } as any;
   // }
 
+  protected _onSucessfulyConnect() {
+    this._sucessfullyConected = true;
+    this._pendingRequests.forEach(fn => fn());
+    this._pendingRequests = [];
+  }
+
   protected _handleTrade(data) {
     const { type, result } = data;
+
+    if (type == 'Message' && result.value == 'Api-key accepted!') {
+      this._onSucessfulyConnect();
+      return;
+    }
 
     if (type !== this.type || !result || !this._filter(result))
       return;

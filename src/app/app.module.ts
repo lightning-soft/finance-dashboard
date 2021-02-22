@@ -19,7 +19,6 @@ import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotificationModule } from 'notification';
-import { NotifierModule } from 'notifier';
 import { RealTradingModule } from 'real-trading';
 import { first } from 'rxjs/operators';
 import { SettingsModule } from 'settings';

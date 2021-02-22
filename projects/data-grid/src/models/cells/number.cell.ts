@@ -99,6 +99,7 @@ export class NumberCell extends Cell {
 
   _visibilityChange() {
     this.refresh();
+    this.drawed = false;
   }
 
   refresh() {

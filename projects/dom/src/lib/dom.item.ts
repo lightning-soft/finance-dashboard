@@ -1,10 +1,11 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide, OrderStatus, TradePrint } from 'trading';
-import { IQuote, QuoteSide } from 'trading';
+import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
+
+const Levels = 9;
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
@@ -158,15 +159,53 @@ class LtqCell extends HistogramCell {
   }
 }
 
-class TotalTimeCell extends HistogramCell {
+class LevelCell extends HistogramCell {
+  private _levelTime: number;
+  best: QuoteSide = null;
+
   update(value: number, timestamp: number, forceAdd: boolean) {
-    return this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
+
+    if (result)
+      this._levelTime = Date.now();
+
+    if (this.best != null) {
+      this.changeStatus('tailInside');
+    }
+
+    return result;
+  }
+
+  // return if no levels more, performance improvments
+  calculateLevel(): boolean {
+    const settings: any = this.settings;
+
+    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
+    if (!isNaN(level) && level <= Levels)
+      this.changeStatus(`level${level}`);
+
+    return level < Levels;
+  }
+
+  changeBest(best?: QuoteSide) {
+    if (best == this.best)
+      return;
+
+    this.best = best;
+
+    if (best != null) {
+      this.changeStatus(`inside`);
+      this.clear();
+    } else if (this.status == `inside` || this.status == `tailInside`) {
+      this.changeStatus('');
+    }
   }
 }
 
 export class DomItem implements IBaseItem {
   id: Id;
+  index: number;
 
   isCenter = false;
 
@@ -183,8 +222,8 @@ export class DomItem implements IBaseItem {
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
-  currentAsk: TotalTimeCell;
-  currentBid: TotalTimeCell;
+  currentAsk: LevelCell;
+  currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
@@ -199,7 +238,7 @@ export class DomItem implements IBaseItem {
   private _ask = 0;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
-    this.id = index;
+    this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
@@ -207,8 +246,8 @@ export class DomItem implements IBaseItem {
     });
     this.bid = new HistogramCell({ settings: settings.bid });
     this.ask = new HistogramCell({ settings: settings.ask });
-    this.currentAsk = new TotalTimeCell({ settings: settings.currentAsk });
-    this.currentBid = new TotalTimeCell({ settings: settings.currentBid });
+    this.currentAsk = new LevelCell({ settings: settings.currentAsk });
+    this.currentBid = new LevelCell({ settings: settings.currentBid });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
@@ -282,6 +321,11 @@ export class DomItem implements IBaseItem {
   private _handleAsk(data: IQuote) {
     const res: any = {};
 
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentAsk.changeBest(QuoteSide.Ask);
+      // this.currentAsk.clear();
+    }
+
     if (this.ask.updateValue(data.volume)) {
       res.ask = this.ask._value;
 
@@ -299,6 +343,11 @@ export class DomItem implements IBaseItem {
 
   private _handleBid(data: IQuote) {
     const res: any = {};
+
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentBid.changeBest(QuoteSide.Bid);
+      // this.currentAsk.clear();
+    }
 
     if (this.bid.updateValue(data.volume)) {
       res.bid = this.bid._value;
@@ -338,14 +387,20 @@ export class DomItem implements IBaseItem {
 
   clearBid() {
     this.bid.clear();
-    this._bid = this.ask._value;
-    this.bidDelta.clear();
+    this.clearBidDelta();
   }
 
   clearAsk() {
     this.ask.clear();
-    this.askDelta.clear();
-    this._ask = this.ask._value;
+    this.clearAskDelta();
+  }
+
+  clearCurrentBidBest() {
+    this.currentBid.changeBest();
+  }
+
+  clearCurrentAskBest() {
+    this.currentAsk.changeBest();
   }
 
   refresh() {
@@ -450,5 +505,9 @@ export class DomItem implements IBaseItem {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
     return { volume: this.volume._value };
+  }
+
+  calculateLevel(): boolean {
+    return this.currentAsk.calculateLevel() || this.currentBid.calculateLevel();
   }
 }

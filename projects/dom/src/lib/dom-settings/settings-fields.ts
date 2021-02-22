@@ -25,7 +25,7 @@ class FieldConfig implements IFieldConfig {
       },
       ...config,
     });
-    if (config.key) {
+    if (config.key != null) {
       this.key = config.key as string;
     } else if (this.templateOptions.label) {
       this.key = generateKeyFromLabel(this.templateOptions.label);
@@ -188,7 +188,7 @@ function getSwitch(key, label, config = {}) {
 }
 
 function getCheckboxes(checkboxes: { key: string, label: string, config?: any }[], label?: string,
-                       additionalFields: FormlyFieldConfig[] = [], config = {}) {
+  additionalFields: FormlyFieldConfig[] = [], config = {}) {
   return {
     wrappers: ['form-field'],
     templateOptions: {
@@ -255,8 +255,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-            { label: 'Monospace', value: 'monospace' },
-            { label: 'Sans Serif', value: 'sans-serif' }],
+          { label: 'Monospace', value: 'monospace' },
+          { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -527,12 +527,12 @@ export const generalFields: IFieldConfig[] = [
     key: 'general',
     fieldGroup: [
       getCheckboxes([
-          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-          { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-          { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-          { label: 'Re-Center On New Position', key: 'recenter' },
-          { label: 'All Windows', key: 'allWindows' },
-        ],
+        { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+        { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+        { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+        { label: 'Re-Center On New Position', key: 'recenter' },
+        { label: 'All Windows', key: 'allWindows' },
+      ],
         'Reset settings'),
       getCheckboxes([
         { label: 'Hide Account Name', key: 'hideAccountName' },
@@ -564,7 +564,7 @@ export const generalFields: IFieldConfig[] = [
               label: 'Auto Center',
               key: 'autoCenter',
             },
-          ], null, [], {className: 'w-100'}),
+          ], null, [], { className: 'w-100' }),
           {
             templateOptions: { label: 'Auto Center Ticks' },
             key: 'autoCenterTicks',
@@ -574,8 +574,9 @@ export const generalFields: IFieldConfig[] = [
           getCheckboxes([{
             label: 'Use Custom Tick Size',
             key: 'useCustomTickSize',
-            config: {className: 'm-0'}
-          }], null, [], {className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
+            config: { className: 'm-0' }
+          }], null, [], {
+            className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
             fieldGroupClassName: '',
             wrappers: [],
           }),
@@ -682,15 +683,15 @@ export const ltqFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-          fieldGroup: [
-            getFontColor(),
-            getColor('Sell Background Color'),
-            getColor('Background Color'),
-            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
-            //  getHistogramColor(),
-            getColor('Buy Background Color'),
-          ]
-        },
+        fieldGroup: [
+          getFontColor(),
+          getColor('Sell Background Color'),
+          getColor('Background Color'),
+          getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+          //  getHistogramColor(),
+          getColor('Buy Background Color'),
+        ]
+      },
       ),
       {
         fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -919,7 +920,7 @@ export const orderColumnFields: IFieldConfig[] = [
         fieldGroup: [
           {
             ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-              { key: 'includePnl', label: 'Include Closed PnL' }]),
+            { key: 'includePnl', label: 'Include Closed PnL' }]),
             fieldGroupClassName: '',
             className: 'pl-1',
           },
@@ -947,7 +948,7 @@ export const orderColumnFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-          disableExpression(getColor('Sell Orders Column'), '!model.split')]
+        disableExpression(getColor('Sell Orders Column'), '!model.split')]
       })
     ]
   }),
@@ -972,29 +973,21 @@ function getCurrentFields(suffix: string) {
         getBackgroundColor(),
         new FieldConfig({
           label: 'Tails Background Colors',
+          key: '',
           className: 'color-levels',
           fieldGroupClassName: 'current-level',
-          fieldGroup: [
-            getColor('Level 1'),
-            getColor('Level 2'),
-            getColor('Level 3'),
-            getColor('Level 4'),
-            getColor('Level 5'),
-            getColor('Level 6'),
-            getColor('Level 7'),
-            getColor('Level 8'),
-          ]
+          fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
+            .map(i => getColor({ label: `Level ${i}`, key: `level${i}BackgroundColor` })),
         }),
         new FieldConfig({
           fieldGroupClassName: 'current-level',
           className: 'current-level-item',
           fieldGroup: [
             getFontColor(),
-            getColor('Inside Bid Background Color'),
+            getColor({ label: `Inside ${suffix} Background Color`, key: 'insideBackgroundColor' }),
             getHightlightColor(),
             getHistogramColor(),
             getTextAlign(),
-
           ]
         }),
         new FieldConfig(
@@ -1002,8 +995,8 @@ function getCurrentFields(suffix: string) {
             fieldGroupClassName: '',
             className: 'mt-0',
             fieldGroup: [
-              getColor('Tail Inside Ask Fore'),
-              wrapWithClass(getCheckboxes([{ key: `tailInside${suffix}Fore`, label: `Tail Inside ${suffix} Bold` }]),
+              getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
+              wrapWithClass(getCheckboxes([{ key: `tailInsideBold`, label: `Tail Inside ${suffix} Bold` }]),
                 'd-block tail-checkbox'),
             ]
           }

@@ -46,6 +46,7 @@ $selectMarginBottom: 15px;
 
     .wrapper {
       height: 100%;
+      text-align: right;
     }
 
     .ant-tabs-top-content {
@@ -110,7 +111,7 @@ nz-tabset {
 
     nz-option-item {
       &:first-child {
-        border-bottom: 1px solid #51535A;
+        border-bottom: 1px solid #51535a;
       }
     }
   }
