@@ -119,6 +119,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     };
   }
 
+  private _instrumentChangeHandler = (event) => {
+    this._setUnavaliableIfNeed();
+    this.instrument = event.value;
+
+    this.broadcastLinkData({
+      instrument: {
+        id: event.value.symbol,
+      },
+    });
+  }
   loadChart() {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
@@ -133,16 +143,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.init();
     this._positions.init();
 
-    chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
-      this._setUnavaliableIfNeed();
-      this.instrument = event.value;
-
-      this.broadcastLinkData({
-        instrument: {
-          id: event.value.symbol,
-        },
-      });
-    });
+    chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
 
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
@@ -301,7 +302,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
+    this._positions.destroy();
+    this._orders.destroy();
     if (this.chart) {
+      this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.destroy();
     }
 

@@ -161,19 +161,19 @@ export class DomFormComponent extends BaseOrderForm {
   ];
   _typeButtons: ITypeButton[] = [
     { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },
-    {
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },{
+
       label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
         this.emit(FormActions.CreateMarketOrder);
       }, selectable: false
+
     },
     {
       label: 'OCO', value: 'OCO', className: 'oco', selectable: false, onClick: () => {
         this.emit(FormActions.CreateOcoOrder);
       }, contextMenu: () => {
         this.emit(FormActions.CancelOcoOrder);
-      }, black: true
-    },
+      },black: true },
     { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
@@ -235,15 +235,17 @@ export class DomFormComponent extends BaseOrderForm {
       id: instrument.id,
       Exchange: instrument.exchange,
       ...historyParams,
-    }).subscribe(
-      res => {
-        const data = res.data;
-        const length = data.length;
-        this.dailyInfo = data[length - 1];
-        this.prevItem = data[length - 2];
-      },
-      err => this._notifier.showError(err)
-    );
+    })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          const data = res.data;
+          const length = data.length;
+          this.dailyInfo = data[length - 1];
+          this.prevItem = data[length - 2];
+        },
+        err => this._notifier.showError(err)
+      );
   }
 
   positionsToQuantity() {

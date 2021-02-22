@@ -1,6 +1,7 @@
 import { StringHelper } from 'base-components';
 import { IOrder, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { ChartObjects } from './chart-objects';
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 declare const StockChartX: any;
 
@@ -12,12 +13,21 @@ export class Orders extends ChartObjects<IOrder> {
   init() {
     super.init();
 
-    this._chart.on(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, ({ value }) => {
-      this._repository.deleteItem(value.order).subscribe(
+    this._chart.on(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
+  }
+
+  _cancelOrder = ({ value }) => {
+    this._repository.deleteItem(value.order)
+      .pipe(untilDestroyed(this._instance))
+      .subscribe(
         () => value.remove(),
         err => console.error(err),
       );
-    });
+  }
+
+  destroy() {
+    super.destroy();
+    this._chart?.off(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
   }
 
   create(item: IOrder) {
