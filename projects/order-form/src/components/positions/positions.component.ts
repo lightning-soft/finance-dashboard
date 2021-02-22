@@ -1,5 +1,5 @@
 import { Component, Injector, Input } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { GroupItemsBuilder, ItemsComponent } from 'base-components';
 import { IInstrument, IPosition, IPositionParams, PositionsRepository, PositionStatus, Side } from 'trading';
 
@@ -60,6 +60,7 @@ export class PositionsComponent extends ItemsComponent<IPosition, IPositionParam
 
     this.repository
       .deleteMany({ ids: items.map(i => i.id) })
+      .pipe(untilDestroyed(this))
       .subscribe(
         () => this._showSuccessDelete(),
         err => this._handleDeleteError(err),

@@ -35,16 +35,9 @@
       </nz-select>
       <button (click)="toggleIce()" class="dark-button {{isIce ? 'ice-active': ''}}" nz-button>ICE</button>
 
-      <button
-        [class.d-none]="editIceAmount"
-        (contextmenu)="$event.preventDefault(); editIceAmount = true" class="grey-button w-100"
-        nz-button>{{iceAmount}}</button>
       <nz-input-number
-        [class.d-none]="!editIceAmount"
         class="order-number-input w-100"
-        (keyup.enter)="$event.preventDefault();editIceAmount = false"
         formControlName="iceQuantity"
-        (focusout)="$event.stopPropagation();editIceAmount = false"
       >
       </nz-input-number>
     </div>
