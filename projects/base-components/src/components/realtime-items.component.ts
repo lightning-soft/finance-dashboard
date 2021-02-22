@@ -14,7 +14,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
   protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
   private _unsubscribeFunctions = [];
 
-  set unsubscribeFn(value) {
+  addUnsubscribeFn(value) {
     this._unsubscribeFunctions.push(value);
   }
 
@@ -33,7 +33,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
       return;
     }
 
-    this.unsubscribeFn = this._dataFeed.on((item: T) => {
+    this.addUnsubscribeFn(this._dataFeed.on((item: T) => {
       console.log(this._dataFeed.type, item);
 
       const oldItem = this.items.find(i => i.id === item.id);
@@ -45,7 +45,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
       } else {
         this._handleCreateItems([item]);
       }
-    });
+    }));
   }
 
   protected _onLevelOneDataFeed() {
@@ -53,7 +53,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
       return;
     }
 
-    this.unsubscribeFn = this._levelOneDataFeed.on(this._levelOneDataFeedHandler.bind(this));
+    this.addUnsubscribeFn(this._levelOneDataFeed.on(this._levelOneDataFeedHandler.bind(this)));
   }
 
   protected _subscribeToLevelOneDataFeed(items: T[]) {
