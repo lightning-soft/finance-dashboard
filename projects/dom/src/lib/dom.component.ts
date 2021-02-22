@@ -457,6 +457,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       gridBorderColor: common.generalColors.gridLineColor,
       scrollSensetive: general.intervals.scrollWheelSensitivity,
     });
+
+    this.setZIndex(general.commonView.onTop ? 500 : null);
+
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
     const overlayOrders = settings.order.overlay;
@@ -480,6 +483,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
+
     this._calculateDepth();
     this._applyOffset(this._lastPrice);
     this.items.forEach(i => i.refresh());
@@ -1030,8 +1034,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.fillData(trade.price);
 
     this._handleMaxChange(item.handleQuote(trade), item);
+    // const isBegin = false;
+    const needClear = trade.volume == 0;
 
-    if (trade.updateType === UpdateType.Undefined) {
+    if (trade.updateType === UpdateType.Undefined || needClear) {
       const depth = this._settings.general?.marketDepth;
       const marketDepth = depth?.marketDepth ?? 10000;
       const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
@@ -1040,9 +1046,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let index;
       let changes;
       let price = trade.price;
+      const isBid = trade.side === QuoteSide.Bid;
 
-      if (trade.side === QuoteSide.Bid) {
-        if (this._bestAskPrice != price) {
+      if (isBid || (needClear && !isBid)) {
+        if (this._bestAskPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
             item.clearAskDelta();
@@ -1059,13 +1066,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
                 break;
 
               this._handleMaxChange(changes, item);
+            } else {
+              changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
             }
           }
 
           this._bestAskPrice = price;
         }
-      } else {
-        if (this._bestBidPrice != price) {
+      } else if (!isBid || (needClear && isBid)) {
+        if (this._bestBidPrice != price || needClear) {
           for (let i = 0; i < items.length; i++) {
             item = items[i];
             item.clearBidDelta();
@@ -1082,6 +1091,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
                 break;
 
               this._handleMaxChange(changes, item);
+            } else {
+              changes = item.setBidVisibility(true, true);
             }
           }
 
@@ -1112,10 +1123,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (item.lastPrice >= this._bestBidPrice) {
         changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
 
-        if (changes === true)
-          break;
-
-        this._handleMaxChange(changes, item);
+        if (changes != true)
+          this._handleMaxChange(changes, item);
       }
     }
 
@@ -1128,10 +1137,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (item.lastPrice <= this._bestAskPrice) {
         changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
 
-        if (changes === true)
-          break;
-
-        this._handleMaxChange(changes, item);
+        if (changes != true)
+          this._handleMaxChange(changes, item);
       }
     }
   }
@@ -1309,7 +1316,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
     if (this.isTradingLocked)
       return;
-
 
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');

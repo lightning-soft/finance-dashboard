@@ -276,6 +276,9 @@ export class DomItem implements IBaseItem {
   }
 
   handleTrade(trade: TradePrint) {
+    if (this.ltq.time === trade.timestamp)
+      return;
+
     const res: any = {};
 
     const forceAdd = this.ltq._value > 0;
