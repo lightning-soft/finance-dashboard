@@ -94,6 +94,7 @@ const DOM_HOTKEYS = 'domHotkeys';
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
+  componentInstanceId: number,
 }
 
 const directionsHints = {
@@ -141,19 +142,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy),
-    sellMarket: () => this._createOrder(OrderSide.Sell),
+    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
+    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
     hitBid: () => {
-      this._createOrderByCurrent(OrderSide.Sell, 'currentBid');
+      this._createOrderByCurrent(OrderSide.Sell, '_bestBidPrice');
     },
     joinBid: () => {
-      this._createOrderByCurrent(OrderSide.Buy, 'currentBid');
+      this._createOrderByCurrent(OrderSide.Buy, '_bestBidPrice');
     },
     liftOffer: () => {
-      this._createOrderByCurrent(OrderSide.Buy, 'currentAsk');
+      this._createOrderByCurrent(OrderSide.Buy, '_bestAskPrice');
     },
     joinAsk: () => {
-      this._createOrderByCurrent(OrderSide.Sell, 'currentAsk');
+      this._createOrderByCurrent(OrderSide.Sell, '_bestAskPrice');
     },
     oco: () => {
       this.handleFormAction(FormActions.CreateOcoOrder);
@@ -357,6 +358,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _bestAskPrice: number;
   private _bestBidPrice: number;
+  componentInstanceId: number;
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -372,6 +374,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector
   ) {
     super();
+    this.componentInstanceId = Date.now();
     this.setTabIcon('icon-widget-dom');
     (window as any).dom = this;
 
@@ -436,7 +439,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       handleLinkData: (key: string) => this.handleHotkey(key),
     });
     this.addLinkObserver({
-      link: DomSettingsSelector,
+      link: DomSettingsSelector + this.componentInstanceId,
       handleLinkData: (settings: DomSettings) => {
         const common = settings.common;
         if (common) {
@@ -495,7 +498,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _setPriceForOrders(orders, price) {
     orders.map(item => {
-      const priceTypes = getPriceSpecs(item, price);
+      const priceTypes = this._getPriceSpecs(item, price);
 
       return {
         quantity: item.quantity,
@@ -510,13 +513,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }).map(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
-  _createOrderByCurrent(side: OrderSide, from) {
-    const row = this.currentCell.row;
-    if (row) {
-      const price = row[from].value;
-      if (price !== '')
-        this._createOrder(side, +price);
-    }
+  // #TODO need test
+  private _createOrderByCurrent(side: OrderSide, from: '_bestBidPrice' | '_bestAskPrice') {
+    const price = this[from];
+    if (price)
+      this._createOrder(side, +price);
   }
 
   handleHotkey(key) {
@@ -533,6 +534,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     } = this._settings.general;
     const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
     if (isNewPosition) {
+      // #TODO test all windows
       this.applySettingsOnNewPosition();
     } else {
       if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
@@ -541,7 +543,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
     if (oldPosition) {
-      const index =  this.positions.findIndex(item => item.id === newPosition.id);
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
       this.positions[index] = newPosition;
     } else {
       this.positions.push(newPosition);
@@ -695,12 +697,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       //      i.dehighlight(Columns.All);
       //     }
 
-
-          this._loadOrders();
-          this._loadVolumeHistory();
-      //  },
-      //  error => this.notifier.showError(error)
-      // );
+    this._loadOrders();
+    this._loadVolumeHistory();
+    //   },
+    //   error => this.notifier.showError(error)
+    // );
   }
 
   protected _loadOrders() {
@@ -1139,6 +1140,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
+      componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson()
     };
   }
@@ -1146,6 +1148,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
+    if (state?.componentInstanceId)
+      this.componentInstanceId = state.componentInstanceId;
     // this.openSettings(true);
 
     // for debug purposes
@@ -1174,7 +1178,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: this._settings,
+        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
       },
       closeBtn: true,
       single: true,
@@ -1185,7 +1189,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  private _createOrder(side: OrderSide, price?: number) {
+  private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
     if (this.isTradingLocked)
       return;
 
@@ -1197,14 +1201,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
-
-    if (price) {
-      form.stopPrice = price;
-      form.limitPrice = price;
-    }
-
+    // #TODO need test
+    const priceSpecs = this._getPriceSpecs({ ...form, side }, price);
     this._ordersRepository.createItem({
       ...form,
+      ...priceSpecs,
+      ...orderConfig,
       exchange,
       side,
       symbol,
@@ -1229,17 +1231,32 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this.buyOcoOrder && side === OrderSide.Buy) {
       item.createOcoOrder(side, this._domForm.getDto());
       const order = { ...this._domForm.getDto(), side };
-      const specs = getPriceSpecs(order, +item.price.value);
+      const specs = this._getPriceSpecs(order, +item.price.value);
       this.buyOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
     if (!this.sellOcoOrder && side === OrderSide.Sell) {
       item.createOcoOrder(side, this._domForm.getDto());
       const order = { ...this._domForm.getDto(), side };
-      const specs = getPriceSpecs(order, +item.price.value);
+      const specs = this._getPriceSpecs(order, +item.price.value);
       this.sellOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
+  }
+
+  _getPriceSpecs(item: IOrder & { amount: number }, price) {
+    const priceSpecs: any = {};
+    if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+      priceSpecs.limitPrice = price;
+    }
+    if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+      priceSpecs.stopPrice = price;
+    }
+    if (item.type === OrderType.StopLimit) {
+      const offset = this._tickSize * item.amount;
+      priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
+    }
+    return priceSpecs;
   }
 
   private _createOcoOrder() {
@@ -1372,16 +1389,6 @@ function diffSize(position: IPosition) {
   return position.buyVolume - position.sellVolume;
 }
 
-function getPriceSpecs(item: IOrder, price) {
-  const priceSpecs: any = {};
-  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
-    priceSpecs.limitPrice = price;
-  }
-  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
-    priceSpecs.stopPrice = price;
-  }
-  return priceSpecs;
-}
 
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);

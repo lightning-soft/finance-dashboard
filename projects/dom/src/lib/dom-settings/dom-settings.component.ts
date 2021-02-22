@@ -11,6 +11,10 @@ export interface DomSettingsComponent extends ILayoutNode {
 
 export const DomSettingsSelector = 'dom-settings';
 
+interface IDomSettingsState {
+  settings?: any;
+  componentInstanceId: number,
+}
 
 @UntilDestroy()
 @Component({
@@ -20,7 +24,7 @@ export const DomSettingsSelector = 'dom-settings';
   providers: []
 })
 @LayoutNode()
-export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit {
+export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, AfterViewInit {
   list = [
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
@@ -52,6 +56,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   form: FormlyForm;
 
   settings: any;
+  componentInstanceId: number;
 
   selectedConfig: any;
   currentTab: SettingTab;
@@ -73,7 +78,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   private _handleChange(value: any) {
-    this.broadcastData(DomSettingsSelector, this.settings);
+    this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
     console.log(this.settings);
     this._applyCss();
   }
@@ -108,11 +113,12 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   saveState() {
-    return this.settings;
+    return { settings: this.settings, componentInstanceId: this.componentInstanceId };
   }
 
-  loadState(state: any) {
-    this.settings = deepClone(state) ?? {};
+  loadState(state: IDomSettingsState) {
+    this.settings = deepClone(state.settings) ?? {};
+    this.componentInstanceId = state.componentInstanceId;
     this.select(this.list[0]);
     this._applyCss();
   }
