@@ -452,9 +452,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         column.visible = common[column.name] != false;
       }
     }
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
     const general = settings?.general;
     this.dataGrid.applyStyles({
-      font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
+      font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
       scrollSensetive: general.intervals.scrollWheelSensitivity,
     });
@@ -468,6 +469,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     settings.currentBid.clearTradersTimer = clearTradersTimer;
     settings.currentAsk.levelInterval = levelInterval;
     settings.currentBid.levelInterval = levelInterval;
+    settings.currentBid.tailInsideFont = getFont(settings.currentBid.tailInsideBold ? 200 : 700);
+    settings.currentAsk.tailInsideFont = getFont(settings.currentAsk.tailInsideBold ? 200 : 700);
 
     settings.bidDelta.minToVisible = minToVisible;
     settings.askDelta.minToVisible = minToVisible;
@@ -479,6 +482,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
+    this._calculateDepth();
     this._applyOffset(this._lastPrice);
     this.items.forEach(i => i.refresh());
     this.detectChanges(true);
@@ -653,37 +657,37 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
     //   res => {
     //     this._clear();
-    //
+
     //     const { asks, bids } = res.data[0];
-    //
+
     //     bids.sort((a, b) => a.price - b.price);
     //     asks.sort((a, b) => b.price - a.price);
-    //
+
     //     if (!asks.length && !bids.length)
     //       return;
-    //
+
     //     let index = 0;
     //     let price = this._normalizePrice(asks[asks.length - 1].price);
     //     const tickSize = this._tickSize;
     //     const minPrice = bids[0].price;
     //     const maxPrice = asks[0].price;
     //     const maxRows = ROWS * 2;
-    //
+
     //     while (index < maxRows && (price <= maxPrice || index < ROWS)) {
     //       this.items.unshift(this._getItem(price));
     //       price = this._normalizePrice(price + tickSize);
     //       index++;
     //     }
-    //
+
     //     index = 0;
     //     price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
-    //
+
     //     while (index < maxRows && (price >= minPrice || index < ROWS)) {
     //       this.items.push(this._getItem(price));
     //       price = this._normalizePrice(price - tickSize);
     //       index++;
     //     }
-    //
+
     //     const instrument = this.instrument;
     //     asks.forEach((info) => this._handleQuote({
     //       instrument,
@@ -699,7 +703,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //       volume: info.volume,
     //       side: QuoteSide.Bid
     //     } as IQuote));
-    //
+
     //     for (const i of this.items) {
     //       if (i.clearDelta)
     //         i.clearDelta();
@@ -876,7 +880,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    // console.log('_handleTrade', prevltqItem?.lastPrice, trade.timestamp, trade.price, trade.volume);
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -915,7 +919,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _calculateLevels() {
-    if (this._clearInterval)
+    if (this._clearInterval || !this._settings.general.momentumTails)
       return;
 
     const _interval = setInterval(() => {
@@ -1008,8 +1012,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleQuote(trade: IQuote) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
-    const item = this._getItem(trade.price);
-    console.log('_handleQuote', trade.side, trade.timestamp, trade.updateType, trade.price, trade.volume);
+    let item = this._getItem(trade.price);
+    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+
+    if (!this.items.length)
+      this.fillData(trade.price);
 
     this._handleMaxChange(item.handleQuote(trade), item);
 
@@ -1018,22 +1025,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const marketDepth = depth?.marketDepth ?? 10000;
       const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
       let items = this.items;
-      let item;
+
       let index;
       let changes;
       let price = trade.price;
 
       if (trade.side === QuoteSide.Bid) {
         if (this._bestAskPrice != price) {
-          item.clearAskDelta();
-
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
-            if (item.lastPrice >= price) {
-              if (item.lastPrice == price)
-                index = i;
+            item.clearAskDelta();
 
-              changes = item.setAskVisibility(i - marketDepth > index, i - marketDeltaDepth > index);
+            if (item.lastPrice == price)
+              index = i;
+            else
+              item.clearCurrentBidBest();
+
+            if (item.lastPrice >= price) {
+              changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
 
               if (changes === true)
                 break;
@@ -1046,15 +1055,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       } else {
         if (this._bestBidPrice != price) {
-          item.clearBidDelta();
-
           for (let i = 0; i < items.length; i++) {
             item = items[i];
-            if (item.lastPrice <= price) {
-              if (item.lastPrice == price)
-                index = i;
+            item.clearBidDelta();
 
-              changes = item.setBidVisibility(i - index > marketDepth, i - index > marketDeltaDepth);
+            if (item.lastPrice == price)
+              index = i;
+            else
+              item.clearCurrentAskBest();
+
+            if (item.lastPrice <= price) {
+              changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
 
               if (changes === true)
                 break;
@@ -1069,6 +1080,49 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.detectChanges();
+  }
+
+  _calculateDepth() {
+    const depth = this._settings.general?.marketDepth;
+    const marketDepth = depth?.marketDepth ?? 10000;
+    const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
+    const items = this.items;
+    let item;
+    let index;
+    let changes;
+
+
+    for (let i = items.length - 1; i >= 0; i--) {
+      item = items[i];
+
+      if (item.lastPrice == this._bestBidPrice)
+        index = i;
+
+      if (item.lastPrice >= this._bestBidPrice) {
+        changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
+
+        if (changes === true)
+          break;
+
+        this._handleMaxChange(changes, item);
+      }
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      item = items[i];
+
+      if (item.lastPrice == this._bestAskPrice)
+        index = i;
+
+      if (item.lastPrice <= this._bestAskPrice) {
+        changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
+
+        if (changes === true)
+          break;
+
+        this._handleMaxChange(changes, item);
+      }
+    }
   }
 
   protected _handleL2(l2: L2) {

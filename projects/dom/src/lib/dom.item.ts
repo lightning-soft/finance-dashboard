@@ -1,6 +1,6 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint } from 'trading';
+import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -157,6 +157,7 @@ class LtqCell extends HistogramCell {
 
 class LevelCell extends HistogramCell {
   private _levelTime: number;
+  best: QuoteSide = null;
 
   update(value: number, timestamp: number, forceAdd: boolean) {
     const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
@@ -164,6 +165,10 @@ class LevelCell extends HistogramCell {
 
     if (result)
       this._levelTime = Date.now();
+
+    if (this.best != null) {
+      this.changeStatus('tailInside');
+    }
 
     return result;
   }
@@ -173,9 +178,24 @@ class LevelCell extends HistogramCell {
     const settings: any = this.settings;
 
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
-    this.changeStatus(`level${level}`);
+    if (!isNaN(level) && level <= Levels)
+      this.changeStatus(`level${level}`);
 
-    return level <= Levels;
+    return level < Levels;
+  }
+
+  changeBest(best?: QuoteSide) {
+    if (best == this.best)
+      return;
+
+    this.best = best;
+
+    if (best != null) {
+      this.changeStatus(`inside`);
+      this.clear();
+    } else if (this.status == `inside` || this.status == `tailInside`) {
+      this.changeStatus('');
+    }
   }
 }
 
@@ -297,6 +317,11 @@ export class DomItem implements IBaseItem {
   private _handleAsk(data: IQuote) {
     const res: any = {};
 
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentAsk.changeBest(QuoteSide.Ask);
+      // this.currentAsk.clear();
+    }
+
     if (this.ask.updateValue(data.volume)) {
       res.ask = this.ask._value;
 
@@ -314,6 +339,11 @@ export class DomItem implements IBaseItem {
 
   private _handleBid(data: IQuote) {
     const res: any = {};
+
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentBid.changeBest(QuoteSide.Bid);
+      // this.currentAsk.clear();
+    }
 
     if (this.bid.updateValue(data.volume)) {
       res.bid = this.bid._value;
@@ -352,14 +382,20 @@ export class DomItem implements IBaseItem {
 
   clearBid() {
     this.bid.clear();
-    this._bid = this.ask._value;
-    this.bidDelta.clear();
+    this.clearBidDelta();
   }
 
   clearAsk() {
     this.ask.clear();
-    this.askDelta.clear();
-    this._ask = this.ask._value;
+    this.clearAskDelta();
+  }
+
+  clearCurrentBidBest() {
+    this.currentBid.changeBest();
+  }
+
+  clearCurrentAskBest() {
+    this.currentAsk.changeBest();
   }
 
   refresh() {

@@ -984,11 +984,10 @@ function getCurrentFields(suffix: string) {
           className: 'current-level-item',
           fieldGroup: [
             getFontColor(),
-            getColor('Inside Bid Background Color'),
+            getColor({ label: `Inside ${suffix} Background Color`, key: 'insideBackgroundColor' }),
             getHightlightColor(),
             getHistogramColor(),
             getTextAlign(),
-
           ]
         }),
         new FieldConfig(
@@ -996,8 +995,8 @@ function getCurrentFields(suffix: string) {
             fieldGroupClassName: '',
             className: 'mt-0',
             fieldGroup: [
-              getColor('Tail Inside Ask Fore'),
-              wrapWithClass(getCheckboxes([{ key: `tailInside${suffix}Fore`, label: `Tail Inside ${suffix} Bold` }]),
+              getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
+              wrapWithClass(getCheckboxes([{ key: `tailInsideBold`, label: `Tail Inside ${suffix} Bold` }]),
                 'd-block tail-checkbox'),
             ]
           }

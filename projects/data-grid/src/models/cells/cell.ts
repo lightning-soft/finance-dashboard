@@ -87,6 +87,7 @@ export abstract class Cell implements ICell {
 
     this._prevStatus = this.status;
     this.status = status;
+    this.drawed = false;
   }
 
   revertStatus() {
@@ -99,7 +100,7 @@ export abstract class Cell implements ICell {
   }
 
   hightlight() {
-    this.changeStatus(CellStatus.Highlight);
+    // this.changeStatus(CellStatus.Highlight);
   }
 
   clear() {

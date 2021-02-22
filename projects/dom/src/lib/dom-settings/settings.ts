@@ -32,7 +32,7 @@ export class DomSettings {
       onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
-      centerLine: false,
+      centerLine: true,
       useCustomTickSize: true,
     },
     marketDepth: {
@@ -54,7 +54,6 @@ export class DomSettings {
       printOutlines: false,
       momentumTails: false,
     },
-    recenter: true,
   };
   hotkeys: any = {
     quantity1: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_1]),
@@ -281,9 +280,9 @@ export class DomSettings {
     backgroundColor: 'transparent',
     highlightBackgroundColor: 'rgba(201, 59, 59, 0.4)',
     histogramEnabled: false,
-    insideBidBackgroundColor: 'rgba(0, 0, 0, 1)',
-    tailInsideAskFore: 'rgba(255, 255, 255, 1)',
-    tailInsideBidFore: false,
+    insideBackgroundColor: 'rgba(0, 0, 0, 1)',
+    tailInsideColor: 'rgba(255, 255, 255, 1)',
+    tailInsideBold: false,
     level1BackgroundColor: 'rgba(128, 64, 64, 1)',
     level2BackgroundColor: 'rgba(112, 61, 63, 1)',
     level3BackgroundColor: 'rgba(96, 59, 62, 1)',
@@ -310,10 +309,10 @@ export class DomSettings {
     backgroundColor: 'transparent',
     // backgroundColor: 'rgba(1, 43, 54, 1)'
     histogramEnabled: false,
-    insideAskBackgroundColor: 'rgba(0, 0, 0, 1)',
+    insideBackgroundColor: 'rgba(0, 0, 0, 1)',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
-    tailInsideAskFore: 'rgba(255, 255, 255, 1)',
-    tailInsideBidFore: false,
+    tailInsideColor: 'rgba(255, 255, 255, 1)',
+    tailInsideBold: false,
     level1BackgroundColor: 'rgba(4, 63, 128, 1)',
     level2BackgroundColor: 'rgba(3, 60, 119, 1)',
     level3BackgroundColor: 'rgba(3, 59, 110, 1)',
