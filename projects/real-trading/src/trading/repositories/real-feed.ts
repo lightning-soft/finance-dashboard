@@ -48,7 +48,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._executors.push(fn);
 
     return () => {
-      this._executors.filter(executor => executor !== fn);
+      this._executors = this._executors.filter(executor => executor !== fn);
     };
   }
 

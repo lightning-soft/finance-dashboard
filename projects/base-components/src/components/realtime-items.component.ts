@@ -12,6 +12,11 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
   protected _dataFeed: any;
   protected _levelOneDataFeed: Level1DataFeed;
   protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
+  private _unsubscribeFunctions = [];
+
+  addUnsubscribeFn(value) {
+    this._unsubscribeFunctions.push(value);
+  }
 
   ngOnInit() {
     super.ngOnInit();
@@ -23,18 +28,12 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
     this._onLevelOneDataFeed();
   }
 
-  ngOnDestroy() {
-    super.ngOnDestroy();
-
-    this._unsubscribeFromLevelOneDataFeed(this.items);
-  }
-
   protected _subscribeToDataFeed() {
     if (!this._dataFeed) {
       return;
     }
 
-    this._dataFeed.on((item: T) => {
+    this.addUnsubscribeFn(this._dataFeed.on((item: T) => {
       console.log(this._dataFeed.type, item);
 
       const oldItem = this.items.find(i => i.id === item.id);
@@ -46,7 +45,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
       } else {
         this._handleCreateItems([item]);
       }
-    });
+    }));
   }
 
   protected _onLevelOneDataFeed() {
@@ -54,7 +53,7 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
       return;
     }
 
-    this._levelOneDataFeed.on(this._levelOneDataFeedHandler.bind(this));
+    this.addUnsubscribeFn(this._levelOneDataFeed.on(this._levelOneDataFeedHandler.bind(this)));
   }
 
   protected _subscribeToLevelOneDataFeed(items: T[]) {
@@ -87,5 +86,14 @@ export class RealtimeItemsComponent<T extends IBaseItem, P extends IPaginationPa
     super._handleDeleteItems(items);
 
     this._unsubscribeFromLevelOneDataFeed(items);
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+
+    this._unsubscribeFromLevelOneDataFeed(this.items);
+    for (const fn of this._unsubscribeFunctions) {
+      fn();
+    }
   }
 }

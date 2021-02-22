@@ -309,7 +309,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
-
+    this._unsubscribeFromInstrument();
     this._instrument = value;
     this._onInstrumentChange();
   }
@@ -424,9 +424,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (connection)
           this._onInstrumentChange();
       });
-    this._positionsFeed.on((pos) => {
-      this.handlePosition(pos);
-    });
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
@@ -434,6 +431,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
       this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
+      this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -633,81 +631,92 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._loadData();
   }
 
+  _unsubscribeFromInstrument() {
+    const instrument = this.instrument;
+    if (instrument) {
+      this._levelOneDatafeed.unsubscribe(instrument);
+      this._tradeDatafeed.unsubscribe(instrument);
+    }
+  }
+
   protected _loadVolumeHistory() {
     if (!this._accountId || !this._instrument)
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange }).subscribe(
-      res => {
-        for (const vol of res.data) {
-          const item = this._getItem(vol.price);
-          this._handleMaxChange(item.setVolume(vol.volume), item);
-        }
-      },
-      error => this.notifier.showError(error)
-    );
+    this._volumeHistoryRepository.getItems({ symbol, exchange })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          for (const vol of res.data) {
+            const item = this._getItem(vol.price);
+            this._handleMaxChange(item.setVolume(vol.volume), item);
+          }
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrderBook() {
     if (!this._accountId || !this._instrument)
       return;
 
-    // const { symbol, exchange } = this._instrument;
-    // this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
-    //   res => {
+    const { symbol, exchange } = this._instrument;
+    // this._orderBooksRepository.getItems({ symbol, exchange })
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(
+    //  res => {
     //     this._clear();
 
     //     const { asks, bids } = res.data[0];
 
-    //     bids.sort((a, b) => a.price - b.price);
+    //    bids.sort((a, b) => a.price - b.price);
     //     asks.sort((a, b) => b.price - a.price);
 
-    //     if (!asks.length && !bids.length)
+    //    if (!asks.length && !bids.length)
     //       return;
 
-    //     let index = 0;
-    //     let price = this._normalizePrice(asks[asks.length - 1].price);
-    //     const tickSize = this._tickSize;
-    //     const minPrice = bids[0].price;
-    //     const maxPrice = asks[0].price;
+    //    let index = 0;
+    //    let price = this._normalizePrice(asks[asks.length - 1].price);
+    //    const tickSize = this._tickSize;
+    //    const minPrice = bids[0].price;
+    //    const maxPrice = asks[0].price;
     //     const maxRows = ROWS * 2;
 
-    //     while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-    //       this.items.unshift(this._getItem(price));
-    //       price = this._normalizePrice(price + tickSize);
-    //       index++;
+    //    while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+    //      this.items.unshift(this._getItem(price));
+    //      price = this._normalizePrice(price + tickSize);
+    //      index++;
     //     }
 
-    //     index = 0;
+    //    index = 0;
     //     price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-    //     while (index < maxRows && (price >= minPrice || index < ROWS)) {
-    //       this.items.push(this._getItem(price));
-    //       price = this._normalizePrice(price - tickSize);
-    //       index++;
+    //    while (index < maxRows && (price >= minPrice || index < ROWS)) {
+    //      this.items.push(this._getItem(price));
+    //      price = this._normalizePrice(price - tickSize);
+    //      index++;
     //     }
 
-    //     const instrument = this.instrument;
-    //     asks.forEach((info) => this._handleQuote({
-    //       instrument,
-    //       price: info.price,
-    //       timestamp: 0,
-    //       volume: info.volume,
-    //       side: QuoteSide.Ask
-    //     } as IQuote));
-    //     bids.forEach((info) => this._handleQuote({
-    //       instrument,
-    //       price: info.price,
-    //       timestamp: 0,
-    //       volume: info.volume,
-    //       side: QuoteSide.Bid
+    //    const instrument = this.instrument;
+    //    asks.forEach((info) => this._handleQuote({
+    //      instrument,
+    //      price: info.price,
+    //      timestamp: 0,
+    //      volume: info.volume,
+    //      side: QuoteSide.Ask
+    //    } as IQuote));
+    //    bids.forEach((info) => this._handleQuote({
+    //      instrument,
+    //      price: info.price,
+    //      timestamp: 0,
+    //      volume: info.volume,
+    //      side: QuoteSide.Bid
     //     } as IQuote));
 
-    //     for (const i of this.items) {
-    //       if (i.clearDelta)
-    //         i.clearDelta();
-    //       i.dehighlight(Columns.All);
+    //    for (const i of this.items) {
+    //      i.clearDelta();
+    //      i.dehighlight(Columns.All);
     //     }
 
     this._loadOrders();
@@ -721,17 +730,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
-    this._ordersRepository.getItems({ id: this._accountId }).subscribe(
-      res => {
-        const orders = res.data;
-        if (!Array.isArray(orders))
-          return;
+    this._ordersRepository.getItems({ id: this._accountId })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          const orders = res.data;
+          if (!Array.isArray(orders))
+            return;
 
-        console.log(orders);
-        this._handleOrders(orders);
-      },
-      error => this.notifier.showError(error),
-    );
+          console.log(orders);
+          this._handleOrders(orders);
+        },
+        error => this.notifier.showError(error),
+      );
   }
 
   private _handleOrders(orders: IOrder[]) {
@@ -1317,10 +1328,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       side,
       symbol,
       accountId: this._accountId,
-    }).subscribe(
-      (res) => console.log('Order successfully created'),
-      (err) => this.notifier.showError(err)
-    );
+    }).pipe(untilDestroyed(this))
+      .subscribe(
+        (res) => console.log('Order successfully created'),
+        (err) => this.notifier.showError(err)
+      );
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
@@ -1382,10 +1394,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     if (item.orders?.orders?.length)
-      this._ordersRepository.deleteMany(item.orders.orders).subscribe(
-        () => console.log('delete order'),
-        (error) => this.notifier.showError(error),
-      );
+      this._ordersRepository.deleteMany(item.orders.orders)
+        .pipe(untilDestroyed(this))
+        .subscribe(
+          () => console.log('delete order'),
+          (error) => this.notifier.showError(error),
+        );
   }
 
   handleFormAction(action: FormActions) {
@@ -1447,10 +1461,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._positionsRepository.deleteMany({
       accountId: this._accountId,
       ...this._instrument,
-    }).subscribe(
-      () => console.log('_closePositions'),
-      (error) => this.notifier.showError(error),
-    );
+    }).pipe(untilDestroyed(this))
+      .subscribe(
+        () => console.log('_closePositions'),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   private _closeOrders(action: FormActions) {
@@ -1461,10 +1476,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     else if (action === FormActions.CloseBuyOrders)
       orders = orders.filter(i => i.side === OrderSide.Buy);
 
-    this._ordersRepository.deleteMany(orders).subscribe(
-      () => console.log('delete many'),
-      (error) => this.notifier.showError(error),
-    );
+    this._ordersRepository.deleteMany(orders)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        () => console.log('delete many'),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   private _normalizePrice(price) {
@@ -1478,15 +1495,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    const instrument = this.instrument;
-    if (!instrument)
-      return;
-
     if (this._clearInterval)
       this._clearInterval();
 
-    this._levelOneDatafeed.unsubscribe(instrument);
-    this._tradeDatafeed.unsubscribe(instrument);
+    const instrument = this.instrument;
+    if (!instrument)
+      return;
+    this._unsubscribeFromInstrument();
   }
 
   onCurrentCellChanged($event: any) {
