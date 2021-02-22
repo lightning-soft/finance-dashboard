@@ -144,16 +144,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
     sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
     hitBid: () => {
-      this._createOrderByCurrent(OrderSide.Sell, '_bestBidPrice');
+      this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
     joinBid: () => {
-      this._createOrderByCurrent(OrderSide.Buy, '_bestBidPrice');
+      this._createOrderByCurrent(OrderSide.Buy, this._bestBidPrice);
     },
     liftOffer: () => {
-      this._createOrderByCurrent(OrderSide.Buy, '_bestAskPrice');
+      this._createOrderByCurrent(OrderSide.Buy, this._bestAskPrice);
     },
     joinAsk: () => {
-      this._createOrderByCurrent(OrderSide.Sell, '_bestAskPrice');
+      this._createOrderByCurrent(OrderSide.Sell, this._bestAskPrice);
     },
     oco: () => {
       this.handleFormAction(FormActions.CreateOcoOrder);
@@ -531,9 +531,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   // #TODO need test
-  private _createOrderByCurrent(side: OrderSide, from: '_bestBidPrice' | '_bestAskPrice') {
-    const price = this[from];
-    if (price != null)
+  private _createOrderByCurrent(side: OrderSide, price: number) {
+    if (price)
       this._createOrder(side, +price);
   }
 
@@ -753,7 +752,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-      const oldItem = this.items.forEach(item => {
+     this.items.forEach(item => {
         item.removeOrder(order);
       });
       const item = this._getItem(order.limitPrice || order.stopPrice);

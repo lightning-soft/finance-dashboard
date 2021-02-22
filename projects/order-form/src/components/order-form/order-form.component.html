@@ -25,7 +25,7 @@
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
     <div class="grid gap-4">
-      <nz-select formControlName="type" [nzOptionHeightPx]="20">
+      <nz-select (ngModelChange)="updateIceQuantityState()" formControlName="type" [nzOptionHeightPx]="20">
         <nz-option *ngFor="let item of OrderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
@@ -33,7 +33,7 @@
         <nz-option *ngFor="let item of OrderDurations" [nzValue]="item" [nzLabel]="item">
         </nz-option>
       </nz-select>
-      <button (click)="toggleIce()" class="dark-button {{isIce ? 'ice-active': ''}}" nz-button>ICE</button>
+      <button [disabled]="!isIceEnabled" (click)="toggleIce()" class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE</button>
 
       <nz-input-number
         class="order-number-input w-100"

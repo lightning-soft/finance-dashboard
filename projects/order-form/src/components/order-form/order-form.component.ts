@@ -149,7 +149,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
 
   ngOnInit() {
     super.ngOnInit();
-
+    this.updateIceQuantityState();
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {

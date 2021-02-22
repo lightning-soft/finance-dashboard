@@ -65,6 +65,7 @@
 
 .ice-active {
   border: 1px solid $primary !important;
+  background: rgba(72, 149, 245, 0.5) !important;
 }
 
 .lmt-title {
@@ -86,7 +87,7 @@
 
 :host {
   .order-number-input {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     height: 20px;
     width: 100%;
 
@@ -122,6 +123,10 @@
 
 .dark-button {
   background: $light;
+
+  &[disabled] {
+    opacity: 0.5;
+  }
 }
 
 .buy-button {

@@ -18,6 +18,7 @@ class OrdersCell extends HistogramCell {
   get canCancelOrder() {
     return (!this._order || (this.settings as any).overlayOrders == false)
   }
+
   private _isOrderColumn = false;
 
   constructor(config) {
@@ -34,8 +35,9 @@ class OrdersCell extends HistogramCell {
   }
 
   clearOcoOrder() {
+    if (this.ocoOrder)
+      this.clearOrder();
     this.ocoOrder = null;
-    this.clearOrder();
   }
 
   addOrder(order: IOrder) {
@@ -58,8 +60,10 @@ class OrdersCell extends HistogramCell {
   }
 
   removeOrder(order) {
-    this.orders = this.orders.filter(item => item.id !== order.id);
-    this.clearOrder();
+    if (this.orders.map(item => item.id).includes(order.id)) {
+      this.clearOrder();
+      this.orders = this.orders.filter(item => item.id !== order.id);
+    }
   }
 
   _changeText() {
@@ -381,6 +385,7 @@ export class DomItem implements IBaseItem {
     this.orders.removeOrder(order);
     this.askDelta.removeOrder(order);
     this.bidDelta.removeOrder(order);
+    this.notes.clear();
   }
 
   clearBid() {
@@ -462,13 +467,13 @@ export class DomItem implements IBaseItem {
         this.notes.updateValue(order.description);
 
         if (order.side === OrderSide.Sell) {
-          this.askDelta.addOrder(order);
           this.askDelta.orderStyle = 'ask';
           this.orders.orderStyle = 'ask';
+          this.askDelta.addOrder(order);
         } else {
-          this.bidDelta.addOrder(order);
           this.bidDelta.orderStyle = 'bid';
           this.orders.orderStyle = 'bid';
+          this.bidDelta.addOrder(order);
         }
         break;
     }
