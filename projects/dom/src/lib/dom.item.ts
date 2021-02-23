@@ -511,6 +511,9 @@ export class DomItem implements IBaseItem {
   }
 
   calculateLevel(): boolean {
-    return this.currentAsk.calculateLevel() || this.currentBid.calculateLevel();
+    const ask = this.currentAsk.calculateLevel();
+    const bid = this.currentBid.calculateLevel();
+
+    return ask || bid;
   }
 }

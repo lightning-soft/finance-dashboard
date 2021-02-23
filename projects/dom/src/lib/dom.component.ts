@@ -945,12 +945,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _calculateLevels() {
-    if (this._clearInterval || !this._settings.general.momentumTails)
+    if (this._clearInterval || !this._settings.general.intervals.momentumTails)
       return;
 
     const _interval = setInterval(() => {
-      this.detectChanges();
-
       let needStop;
 
       for (const item of this.items) {
@@ -961,10 +959,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (needStop && this._clearInterval)
         this._clearInterval();
 
+      this.detectChanges();
     }, this._levelsInterval);
 
     this._clearInterval = () => {
-      clearInterval(_interval)
+      clearInterval(_interval);
       this._clearInterval = null;
     };
   }

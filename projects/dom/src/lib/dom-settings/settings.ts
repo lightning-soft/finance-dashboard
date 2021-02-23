@@ -52,7 +52,7 @@ export class DomSettings {
       scrollWheelSensitivity: DefaultScrollSensetive,
       momentumIntervalMs: 500,
       printOutlines: false,
-      momentumTails: false,
+      momentumTails: true,
     },
   };
   hotkeys: any = {
@@ -118,11 +118,11 @@ export class DomSettings {
   ltq: any = {
     highlightColor: 'rgba(56, 58, 64, 1)',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
-    // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
+    buyBackgroundColor: 'rgba(72, 149, 245, 1)',
     color: 'white',
     accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
-    // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
+    sellBackgroundColor: 'rgba(220, 50, 47, 1)',
     textAlign: TextAlign.Center,
   };
   orderArea = {
