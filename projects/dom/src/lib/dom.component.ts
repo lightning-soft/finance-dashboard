@@ -919,6 +919,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
+    let sum = 0;
+    let priceSum = 0;
+    for (const i of this.items) {
+      if (!i.volume._value)
+        continue;
+
+      sum += i.volume._value;
+      priceSum = i.volume._value * i.lastPrice;
+    }
+
+    const vwap = priceSum / sum;
+    console.log(vwap, sum);
+
     if (!this.items.length)
       this.fillData(trade.price);
 

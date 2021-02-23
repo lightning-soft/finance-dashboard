@@ -20,7 +20,11 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
-  private _sucessfullyConected = false;
+
+  private get _sucessfullyConected() {
+    return this._webSocketService.sucessfulyConnected;
+  }
+
   private _pendingRequests = [];
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
@@ -35,7 +39,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _clearSubscription() {
-    this._sucessfullyConected = false;
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
 
@@ -109,7 +112,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   // }
 
   protected _onSucessfulyConnect() {
-    this._sucessfullyConected = true;
     this._pendingRequests.forEach(fn => fn());
     this._pendingRequests = [];
   }
