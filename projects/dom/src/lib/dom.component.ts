@@ -7,14 +7,12 @@ import {
   CellClickDataGridHandler,
   ContextMenuClickDataGridHandler,
   DataGrid,
-  IFormatter,
-  MouseUpDataGridHandler,
+  IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Id } from 'projects/communication';
-import { MouseDownDataGridHandler } from 'projects/data-grid';
 import { RealPositionsRepository } from 'real-trading';
 import {
   IConnection,
@@ -109,6 +107,7 @@ enum Columns {
   AskDelta = 'askDelta',
   BidDelta = 'bidDelta',
   Orders = 'orders',
+  Volume = 'volume',
   All = 'all',
 }
 
@@ -926,7 +925,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         continue;
 
       sum += i.volume._value;
-      priceSum = i.volume._value * i.lastPrice;
+      priceSum += (i.volume._value * i.lastPrice);
     }
 
     const vwap = priceSum / sum;
@@ -1061,6 +1060,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const isBid = trade.side === QuoteSide.Bid;
 
       if (isBid || (needClear && !isBid)) {
+        this._max.ask = 0;
         if (this._bestAskPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
@@ -1080,7 +1080,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
               this._handleMaxChange(changes, item);
             } else {
-              changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
+              item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
             }
           }
 
@@ -1088,6 +1088,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       } else if (!isBid || (needClear && isBid)) {
         if (this._bestBidPrice != price || needClear) {
+          this._max.bid = 0;
           for (let i = 0; i < items.length; i++) {
             item = items[i];
             if (!needClear)
@@ -1106,7 +1107,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
               this._handleMaxChange(changes, item);
             } else {
-              changes = item.setBidVisibility(true, true);
+              item.setBidVisibility(true, true);
             }
           }
 
