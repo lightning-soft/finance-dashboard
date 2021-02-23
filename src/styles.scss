@@ -36,6 +36,48 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.color-picker.open {
+  background: $inputBackground;
+  border: 1px solid $lighter;
+  box-sizing: border-box;
+  box-shadow: 0px 0px 10px $inputBackground;
+  border-radius: 2px;
+
+  input {
+    background: $darkBackground;
+    color: $text-80;
+    border: none !important;
+    outline: none;
+    font-size: 0.65rem;
+    height: 18px;
+  }
+
+  .saturation-lightness {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+  }
+
+  .selected-color {
+    border: none !important;
+    height: 30px;
+    width: 30px;
+
+    &-background {
+      height: 30px;
+      width: 30px;
+    }
+  }
+
+  .cursor, .box div .cursor {
+    border: 2px solid $text-80;
+  }
+
+  .box div {
+    color: $text-80 !important;
+    font-size: 0.65rem;
+  }
+}
+
 .ant-btn, .ant-collapse, {
   font-size: $baseFontSize;
 }
