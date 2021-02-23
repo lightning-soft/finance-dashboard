@@ -1,18 +1,18 @@
 <cdk-virtual-scroll-viewport itemSize="">
   <form [formGroup]="form" class="form-layout">
     <daily-info [instrument]="instrument"
-                [showInstrumentChange]="setting.showInstrumentChange"
-                [showOHLVInfo]="setting.showOHLVInfo"
+                [showInstrumentChange]="setting.formSettings.showInstrumentChange"
+                [showOHLVInfo]="setting.formSettings.showOHLVInfo"
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
-    <nz-input-group class="pl-input"  [nzPrefix]="prefixTemplateUser">
-    <input [class.d-none]="!setting.showPLInfo"  disabled [value]="getPl()" nz-input type="number">
+    <nz-input-group [class.d-none]="!setting.formSettings.showPLInfo" class="pl-input" [nzPrefix]="prefixTemplateUser">
+      <input disabled [value]="getPl()" nz-input type="number">
       <ng-template #prefixTemplateUser>PL</ng-template>
 
     </nz-input-group>
     <button title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"
-            >{{positionSum}}</button>
+    >{{positionSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select [nzOptionHeightPx]="20" formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeSelectOptions"
@@ -33,7 +33,7 @@
         </span>
       </span>
       <span class="{{isIceEnabled? 'd-flex': 'd-none'}} ice-button">
-        <button (click)="toggleIce()" nz-button  class="ice-btn"  [class.is-ice-active]="isIce">ICE</button>
+        <button (click)="toggleIce()" nz-button class="ice-btn" [class.is-ice-active]="isIce">ICE</button>
       </span>
       <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
       <nz-input-number
@@ -43,7 +43,8 @@
       </nz-input-number>
     </span>
     </div>
-    <type-buttons [class.is-oco-selected]="isOcoSelected"  class="type-buttons" formControlName="type" [typeButtons]="typeButtons">
+    <type-buttons [class.is-oco-selected]="isOcoSelected" class="type-buttons" formControlName="type"
+                  [typeButtons]="typeButtons">
           <span [class.d-none]="!isIceAmountVisible" class="ice-amount" iceAmount>
 
       <nz-input-number
@@ -67,7 +68,7 @@
         </span>
       </div>
       <span ice class="{{isIceEnabled? 'd-inline-block': 'd-none'}} ice-button">
-        <button   [class.is-ice-active]="isIce" class="ice-btn" nz-button (click)="toggleIce()">ICE</button>
+        <button [class.is-ice-active]="isIce" class="ice-btn" nz-button (click)="toggleIce()">ICE</button>
       </span>
     </type-buttons>
 
@@ -83,13 +84,27 @@
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
     <div class="cxl">
-      <button (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
-      <button (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL All</button>
-      <button (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
+      <button
+        [style.color]="setting.sellButtonsFontColor"
+        [style.background]="setting.sellButtonsBackgroundColor"
+        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL Sell</button>
+      <button
+        [style.color]="setting.cancelButtonFontColor"
+        [style.background]="setting.cancelButtonBackgroundColor"
+        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL All</button>
+      <button [style.color]="setting.buyButtonsFontColor"
+              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL Buy</button>
     </div>
     <div class="bottom-btns">
-      <button (click)="emit(FormActions.ClosePositions)" [class.d-none]="!setting.closePositionButton" nz-button>CLOSE POSITION</button>
-      <button (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.showFlattenButton" class="flatten" nz-button>FLATTEN</button>
+      <button (click)="emit(FormActions.ClosePositions)" [class.d-none]="!setting.formSettings.closePositionButton" nz-button>CLOSE
+        POSITION
+      </button>
+      <button
+        [style.color]="setting.flatButtonFontColor"
+        [style.background]="setting.flatButtonsBackgroundColor"
+        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten" nz-button>
+        FLATTEN
+      </button>
     </div>
   </form>
 </cdk-virtual-scroll-viewport>

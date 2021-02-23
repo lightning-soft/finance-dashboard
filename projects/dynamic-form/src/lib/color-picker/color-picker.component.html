@@ -1,6 +1,7 @@
 <span
   [formlyAttributes]="field"
   class="color-wrapper"
+  [cpWidth]="'200px'"
   [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
   (colorPickerChange)="updateValue($event)" [colorPicker]="formControl?.value"
   [class.disabled]="formControl.disabled"

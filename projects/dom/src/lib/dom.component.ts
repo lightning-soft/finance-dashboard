@@ -346,7 +346,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _settings: DomSettings = new DomSettings();
 
   get domFormSettings() {
-    return this._settings.orderArea.formSettings;
+    return this._settings.orderArea;
   }
 
   private _customTickSize;

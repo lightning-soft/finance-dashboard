@@ -21,8 +21,8 @@
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
               [prevItem]="domForm.prevItem"
-              [showInstrumentChange]="domFormSettings.showInstrumentChange"
-              [showOHLVInfo]="domFormSettings.showOHLVInfo"
+              [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
               class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">

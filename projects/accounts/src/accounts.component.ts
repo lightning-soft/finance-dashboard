@@ -210,6 +210,17 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   connect() {
+    if (this._accountsManager.getActiveConnection()) {
+      this._accountsManager.disconnect(this._accountsManager.getActiveConnection())
+        .pipe(this.showItemLoader(this.selectedItem))
+        .toPromise()
+        .catch(err => this._notifier.showError(err))
+        .then(() => this._connect());
+    } else
+      this._connect();
+  }
+
+  _connect() {
     this._accountsManager.connect(this.getValue())
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(

@@ -42,14 +42,24 @@ export enum OcoStep {
 }
 
 export interface DomFormSettings {
-  showInstrumentChange: boolean;
-  closePositionButton: boolean;
-  showOHLVInfo: boolean;
-  showFlattenButton: boolean;
-  showPLInfo: boolean;
-  showIcebergButton: boolean;
-  roundPL: boolean;
-  includeRealizedPL: boolean;
+  buyButtonsBackgroundColor: string;
+  flatButtonsBackgroundColor: string;
+  buyButtonsFontColor: string;
+  flatButtonFontColor: string;
+  sellButtonsBackgroundColor: string;
+  cancelButtonBackgroundColor: string;
+  sellButtonsFontColor: string;
+  cancelButtonFontColor: string;
+  formSettings: {
+    showInstrumentChange: boolean;
+    closePositionButton: boolean;
+    showOHLVInfo: boolean;
+    showFlattenButton: boolean;
+    showPLInfo: boolean;
+    showIcebergButton: boolean;
+    roundPL: boolean;
+    includeRealizedPL: boolean;
+  };
 }
 
 @Component({
@@ -72,13 +82,13 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set ocoStep(value) {
     this._ocoStep = value;
     if (value === OcoStep.Fist) {
-      this.form.patchValue({type: OrderType.Limit});
+      this.form.patchValue({ type: OrderType.Limit });
       this.typeButtons = this._typeButtons.map(item => {
         const disabled = ![OrderType.Limit, 'OCO'].includes(item.value);
         return { ...item, disabled };
       });
     } else if (value === OcoStep.Second) {
-      this.form.patchValue({type: OrderType.StopMarket});
+      this.form.patchValue({ type: OrderType.StopMarket });
       this.typeButtons = this._typeButtons.map(item => {
         const disabled = ![OrderType.StopMarket, OrderType.StopLimit, 'OCO'].includes(item.value);
         return { ...item, disabled };
@@ -108,14 +118,24 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   _settings: DomFormSettings = {
-    showInstrumentChange: true,
-    closePositionButton: true,
-    showOHLVInfo: true,
-    showFlattenButton: true,
-    showPLInfo: true,
-    showIcebergButton: true,
-    roundPL: false,
-    includeRealizedPL: false,
+    buyButtonsBackgroundColor: '#2A8AD2',
+    flatButtonsBackgroundColor: '#383A40',
+    buyButtonsFontColor: '#F2F2F2',
+    flatButtonFontColor: '#fff',
+    sellButtonsBackgroundColor: '#DC322F',
+    cancelButtonBackgroundColor: '#51535A',
+    sellButtonsFontColor: '#F2F2F2',
+    cancelButtonFontColor: '#fff',
+    formSettings: {
+      showInstrumentChange: true,
+      closePositionButton: true,
+      showOHLVInfo: true,
+      showFlattenButton: true,
+      showPLInfo: true,
+      showIcebergButton: true,
+      roundPL: false,
+      includeRealizedPL: false,
+    }
   };
 
   @Output()
@@ -127,7 +147,7 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   @Input() set domSettings(value) {
-    Object.assign(this._settings, value);
+    this._settings = value;
   }
 
   @Input() set instrument(value: IInstrument) {
@@ -143,7 +163,7 @@ export class DomFormComponent extends BaseOrderForm {
 
 
   get isIceEnabled() {
-    return this.formValue.type === OrderType.Limit && this.setting.showIcebergButton;
+    return this.formValue.type === OrderType.Limit && this.setting.formSettings.showIcebergButton;
   }
 
   get isTypeStopLimit() {
@@ -161,7 +181,7 @@ export class DomFormComponent extends BaseOrderForm {
   ];
   _typeButtons: ITypeButton[] = [
     { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },{
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true }, {
 
       label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
         this.emit(FormActions.CreateMarketOrder);
@@ -173,7 +193,8 @@ export class DomFormComponent extends BaseOrderForm {
         this.emit(FormActions.CreateOcoOrder);
       }, contextMenu: () => {
         this.emit(FormActions.CancelOcoOrder);
-      },black: true },
+      }, black: true
+    },
     { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
@@ -287,7 +308,7 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   getPl() {
-    const precision = this.setting.roundPL ? 0 : 5;
+    const precision = this.setting.formSettings.roundPL ? 0 : 5;
     if (this.dailyInfo)
       return ((+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open))
         .toFixed(precision);
