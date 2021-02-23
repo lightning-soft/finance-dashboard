@@ -211,8 +211,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   connect() {
     if (this._accountsManager.getActiveConnection()) {
-      this._accountsManager.disconnect(this._accountsManager.getActiveConnection())
-        .pipe(this.showItemLoader(this.selectedItem))
+      this._disconnect(this._accountsManager.getActiveConnection())
         .toPromise()
         .catch(err => this._notifier.showError(err))
         .then(() => this._connect());
@@ -232,14 +231,18 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   disconnect(item: IConnection) {
-    this._accountsManager.disconnect(item)
-      .pipe(this.showItemLoader(item), untilDestroyed(this))
+    this._disconnect(item)
       .subscribe(
         () => {
           this.selectedItem = { ...item, connected: false };
         },
         err => this._notifier.showError(err),
       );
+  }
+
+  _disconnect(item: IConnection) {
+    return this._accountsManager.disconnect(item)
+      .pipe(this.showItemLoader(item), untilDestroyed(this));
   }
 
   delete(event: MouseEvent, item: IConnection) {
