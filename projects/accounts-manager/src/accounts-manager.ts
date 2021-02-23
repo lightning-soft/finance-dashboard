@@ -28,7 +28,16 @@ export class AccountsManager {
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
     this._connectionsRepository.getItems()
       .pipe(untilDestroyed(this))
-      .subscribe(res => this.connections.next(res.data));
+      .subscribe(res => {
+        const connections: IConnection[] = res.data.map(item => {
+          if (item.connected && !item.connectOnStartUp) {
+            item.connected = false;
+            delete item.connectionData;
+          }
+          return item;
+        });
+        this.connections.next(connections);
+      });
 
     return this.connections.pipe(
       take(2), // first default value
