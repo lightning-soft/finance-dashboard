@@ -36,6 +36,20 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.ant-message-loading {
+  color: white;
+  font-size: 0.7rem;
+  line-height: 1rem;
+}
+
+.ant-message {
+  top: 40px !important;
+  padding-right: 163px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
 .color-picker.open {
   background: $inputBackground;
   border: 1px solid $lighter;

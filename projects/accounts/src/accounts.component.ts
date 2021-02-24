@@ -70,8 +70,15 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       .subscribe(
         res => {
           this.brokers = res.data;
-          if (this.brokers.length && !this.selectedItem)
+          if (this.selectedItem) {
+            this.expandBrokers();
+            return;
+          }
+          if (this.builder.items.length >= maxAccountsPerConnection) {
+            this.selectItem(this.builder.items[0]);
+          } else if (this.brokers.length)
             this.openCreateForm(null, this.brokers[0]);
+
           this.expandBrokers();
         },
         err => this._notifier.showError(err)
@@ -84,7 +91,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         if (items) {
           this.builder.replaceItems(items);
           this.expandBrokers();
-          this._updateSelectedItem();
         }
       });
 
@@ -222,7 +228,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
           }
         }),
         untilDestroyed(this),
-      );
+      ).toPromise();
   }
 
   disconnect(item: IConnection) {

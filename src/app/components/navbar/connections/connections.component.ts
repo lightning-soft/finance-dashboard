@@ -75,6 +75,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       minimizable: false,
       maximizable: false,
       single: true,
+      removeIfExists: true,
       x: 'center',
       y: 'center',
     });
