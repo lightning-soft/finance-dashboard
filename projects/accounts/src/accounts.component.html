@@ -33,11 +33,11 @@
                 (click)="selectItem(item)"
               >
                 <ng-container *ngIf="!item.rename">
-                  <div [title]="item.name" class="position-relative pl-2">
+                  <div [title]="item.name" class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
                   'text-success': item.connected,
                   'text-danger': item.error
-                }" *ngIf="item.connected || item.error"></span>
+                }"></span>
                     <span class="connection-name">{{ item.name }}</span>
                   </div>
                   <div>
@@ -125,17 +125,21 @@
             </label> -->
 
             <label class="custom-checkbox mb-1">
-              <input type="checkbox" formControlName="aggregatedQuotes">
+              <input
+                type="checkbox" formControlName="aggregatedQuotes">
               <span>Aggregated Quotes</span>
             </label>
 
             <label class="custom-checkbox mb-1">
-              <input type="checkbox" formControlName="connectOnStartUp">
+              <input
+                type="checkbox" formControlName="connectOnStartUp">
               <span>Connect on start up</span>
             </label>
             <button
               nz-button
               nzType="primary"
+              tabindex="1"
+              (keydown.enter)="handleSubmit()"
               nzBlock
               class="ant-btn connect-button ant-btn-primary text-uppercase mt-3"
             >Connect

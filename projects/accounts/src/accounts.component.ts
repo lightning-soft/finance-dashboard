@@ -6,7 +6,7 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize, take } from 'rxjs/operators';
+import { finalize, take, tap } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
 import { AcccountFormComponent } from './acccount-form/acccount-form.component';
 
@@ -70,6 +70,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       .subscribe(
         res => {
           this.brokers = res.data;
+          if (this.brokers.length && !this.selectedItem)
+            this.openCreateForm(null, this.brokers[0]);
           this.expandBrokers();
         },
         err => this._notifier.showError(err)
@@ -138,7 +140,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   openCreateForm(event: MouseEvent, broker: IBroker) {
-    event.stopPropagation();
+    event?.stopPropagation();
     if (this.canAddAccount(broker))
       this.selectItem({ broker: broker.name } as IConnection);
   }
@@ -178,7 +180,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...data, broker: this.selectedBroker.name, ...userData };
+    return { ...this.selectedItem, ...data, broker: this.selectedBroker.name, ...userData };
   }
 
   create() {
@@ -210,23 +212,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   connect() {
-    if (this._accountsManager.getActiveConnection()) {
-      this._disconnect(this._accountsManager.getActiveConnection())
-        .toPromise()
-        .catch(err => this._notifier.showError(err))
-        .then(() => this._connect());
-    } else
-      this._connect();
-  }
-
-  _connect() {
-    this._accountsManager.connect(this.getValue())
-      .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
-      .subscribe(
-        (item: IConnection) => {
-          this.selectedItem = item;
-        },
-        err => this._notifier.showError(err),
+    return this._accountsManager.connect(this.getValue())
+      .pipe(this.showItemLoader(this.selectedItem),
+        tap((item: any) => {
+          if (!item.error)
+            this.selectedItem = item;
+          else {
+            this._notifier.showError('Failed to connect');
+          }
+        }),
+        untilDestroyed(this),
       );
   }
 

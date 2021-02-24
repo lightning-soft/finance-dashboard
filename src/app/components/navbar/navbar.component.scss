@@ -40,12 +40,36 @@
   }
 
   .create-frame {
-    border-right: 1px solid $lightBackground;
-    border-left: 1px solid $lightBackground;
+
     color: $textColor60;
     display: flex;
+    position: relative;
     justify-content: center;
+    height: 100%;
     align-items: center;
+    padding-left: 1px;
+    padding-right: 1px;
+
+    app-drag-drawer {
+      height: 100%;
+    }
+
+    &:before, &:after {
+      content: '';
+      height: calc(100% - 8px);
+      top: 4px;
+      width: 0.5px;
+      position: absolute;
+      background: $lightBackground;
+    }
+
+    &:before {
+      left: 0;
+    }
+
+    &:after {
+      right: 0;
+    }
   }
 
   .search {
