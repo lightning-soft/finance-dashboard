@@ -74,7 +74,8 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
     window.history.replaceState({}, document.title, '/');
     return authService.initialize(code);
   } else {
-    await authService.refreshToken().toPromise();
+    await authService.refreshToken().toPromise()
+      .catch(err => location.replace(generateLoginLink(config.identity)));
 
     if (!authService.isAuthorized)
       location.replace(generateLoginLink(config.identity));
