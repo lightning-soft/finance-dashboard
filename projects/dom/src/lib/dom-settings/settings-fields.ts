@@ -872,11 +872,11 @@ export const volumeFields: IFieldConfig[] = [
     // fieldGroupClassName: '',
     fieldGroup: [
       getColor('Background Color'),
-      getColor({ key: 'controlColor', label: 'Point of Control Color' }),
+      getColor({ key: 'pointOfControlHistogramColor', label: 'Point of Control Color' }),
       getFontColor(),
-      getColor({ key: 'areaColor', label: 'Value Area Color' }),
+      getColor({ key: 'valueAreaHistogramColor', label: 'Value Area Color' }),
       getColor('Highlight Background Color'),
-      getColor('VWAP Color'),
+      getColor({ key: 'VWAPHistogramColor', label: 'VWAP Color', }),
       getHistogramColor(),
       new FieldConfig({
         className: 'w-100 ',

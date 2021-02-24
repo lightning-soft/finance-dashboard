@@ -78,8 +78,8 @@ export class RealTradingModule {
         },
         {
           provide: TradeDataFeed,
-          // useClass: RealTradeDataFeed,
-          useClass: FakeTradeDatafeed,
+          useClass: RealTradeDataFeed,
+          // useClass: FakeTradeDatafeed,
         },
         {
           provide: OrdersRepository,

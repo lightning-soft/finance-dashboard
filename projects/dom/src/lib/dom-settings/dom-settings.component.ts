@@ -12,7 +12,7 @@ export const DomSettingsSelector = 'dom-settings';
 
 interface IDomSettingsState {
   settings?: any;
-  componentInstanceId: number,
+  componentInstanceId?: number,
 }
 
 @UntilDestroy()
@@ -75,7 +75,8 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   }
 
   private _handleChange(value: any) {
-    this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
+    // this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
+    this.broadcastData(DomSettingsSelector, this.settings);
   }
 
 
@@ -93,7 +94,10 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   }
 
   saveState() {
-    return { settings: this.settings, componentInstanceId: this.componentInstanceId };
+    return {
+      settings: this.settings,
+      // componentInstanceId: this.componentInstanceId
+    };
   }
 
   loadState(state: IDomSettingsState) {

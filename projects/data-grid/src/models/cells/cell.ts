@@ -85,6 +85,9 @@ export abstract class Cell implements ICell {
     if (status == this.status)
       return;
 
+      if(this.status == 'VWAP')
+      console.log('Change vwap')
+
     this._prevStatus = this.status;
     this.status = status;
     this.drawed = false;

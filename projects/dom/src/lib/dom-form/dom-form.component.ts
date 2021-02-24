@@ -252,6 +252,9 @@ export class DomFormComponent extends BaseOrderForm {
 
   private _loadHistory() {
     const instrument = this.instrument;
+    if (!instrument)
+      return;
+
     return this._historyRepository.getItems({
       id: instrument.id,
       Exchange: instrument.exchange,
