@@ -1130,8 +1130,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // console.log('start _handleQuote', item);
 
     // const isBegin = false;
-    // const needClear = trade  .volume == 0;
-    const needClear = false;
+    const needClear = trade.volume == 0;
+    // const needClear = false;
 
     if (trade.updateType === UpdateType.Undefined || needClear) {
       // const depth = this._settings.general?.marketDepth;
