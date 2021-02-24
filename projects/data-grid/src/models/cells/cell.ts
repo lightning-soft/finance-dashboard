@@ -85,9 +85,6 @@ export abstract class Cell implements ICell {
     if (status == this.status)
       return;
 
-      if(this.status == 'VWAP')
-      console.log('Change vwap')
-
     this._prevStatus = this.status;
     this.status = status;
     this.drawed = false;
@@ -103,7 +100,8 @@ export abstract class Cell implements ICell {
   }
 
   hightlight() {
-    // this.changeStatus(CellStatus.Highlight);
+    console.log('this.hightlightOnChang1e ', this.constructor.name);
+    this.changeStatus(CellStatus.Highlight);
   }
 
   clear() {

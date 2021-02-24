@@ -237,6 +237,15 @@ export class DomItem implements IBaseItem {
   private _bid = 0;
   private _ask = 0;
 
+  get isBidSideVisible() {
+    return (this.bid.visible || this.bidDelta.visible);
+  }
+
+  get isAskSideVisible() {
+    return (this.ask.visible || this.askDelta.visible);
+  }
+
+
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.index = index;
     this.price = new PriceCell({
@@ -244,15 +253,15 @@ export class DomItem implements IBaseItem {
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new HistogramCell({ settings: settings.bid });
-    this.ask = new HistogramCell({ settings: settings.ask });
-    this.currentAsk = new LevelCell({ settings: settings.currentAsk });
-    this.currentBid = new LevelCell({ settings: settings.currentBid });
+    this.bid = new HistogramCell({ settings: settings.bid, hightlightOnChange: false });
+    this.ask = new HistogramCell({ settings: settings.ask, hightlightOnChange: false });
+    this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
+    this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
-    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta });
-    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta });
+    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, hightlightOnChange: false });
+    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
     this._id.updateValue(index);
@@ -326,7 +335,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
-      // this.currentAsk.clear();
+      this.askDelta.hightlight();
     }
 
     if (this.ask.updateValue(data.volume)) {
@@ -349,6 +358,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentBid.changeBest(QuoteSide.Bid);
+      this.bidDelta.hightlight();
       // this.currentAsk.clear();
     }
 
@@ -367,12 +377,24 @@ export class DomItem implements IBaseItem {
     return this._getBidValues();
   }
 
+  private _updatePiceStatus() {
+    if (!isNaN(this.volume._value) && this.volume._value > 0) {
+      this.price.changeStatus('tradedPrice')
+    }
+
+    if (this.ltq._value > 0)
+      this.price.hightlight();
+    else
+      this.price.dehightlight();
+  }
+
   private _changeLtq(volume: number, side: string) {
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(side);
 
       this.volume.updateValue(volume);
-      this.price.isTraded = this.volume._value != null;
+      this._updatePiceStatus();
+
       this.setPrice(this.price._value);
 
       return true;
@@ -398,12 +420,19 @@ export class DomItem implements IBaseItem {
     this.clearAskDelta();
   }
 
+  clearDelta() {
+    this.clearAskDelta();
+    this.clearBidDelta();
+  }
+
   clearCurrentBidBest() {
     this.currentBid.changeBest();
+    this.bidDelta.dehightlight();
   }
 
   clearCurrentAskBest() {
     this.currentAsk.changeBest();
+    this.askDelta.dehightlight();
   }
 
   refresh() {
@@ -428,7 +457,7 @@ export class DomItem implements IBaseItem {
       res.bidDelta = this.bidDelta._value;
     }
 
-    return (this.bid.visible || this.bidDelta.visible) ? res : wasOut;
+    return this.isBidSideVisible ? res : wasOut;
   }
 
   setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
@@ -449,7 +478,7 @@ export class DomItem implements IBaseItem {
       res.askDelta = this.askDelta._value;
     }
 
-    return (this.ask.visible || this.askDelta.visible) ? res : wasOut;
+    return this.isAskSideVisible ? res : wasOut;
   }
 
   handleOrder(order: IOrder) {
@@ -499,6 +528,10 @@ export class DomItem implements IBaseItem {
     if (key === 'all')
       return Object.keys(this).forEach(i => this.dehighlight(i));
 
+    // console.log(key);
+    if (key == 'ltq')
+      this._updatePiceStatus();
+
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
     }
@@ -507,6 +540,7 @@ export class DomItem implements IBaseItem {
   setVolume(volume: number) {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
+    this._updatePiceStatus();
     return { volume: this.volume._value };
   }
 

@@ -770,11 +770,12 @@ export const priceFields: IFieldConfig[] = [
     label: 'Price',
     fieldGroup: [
       getHightlightColor(),
-      getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
-      getColor('Last Traded Price Font Color'),
-      getColor({ label: 'Price Font Color', key: 'color' }),
+      getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
+      getColor({ label: 'Last Traded Price Font Color', key: 'highlightColor' }),
       getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),
-      getColor({ label: 'Non Traded Price Font Color', key: 'nonTradedPriceColor' }),
+      getColor({ label: 'Non Traded Price Font Color', key: 'color' }),
+      getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
+      getColor({ label: 'Price Font Color', key: 'color' }),
       wrapWithClass(getTextAlign(), 'mt-2'),
     ]
   }),
@@ -827,7 +828,9 @@ function getDepthConfig(label: string) {
     label: `${label} Depth`,
     key: label.toLowerCase(),
     fieldGroup: [
-      ...histogramFields,
+      getColor('Background Color'),
+      getFontColor(),
+      getHistogramColor('Highlight Color'),
       getColor('Total Font Color'),
       {
         ...getCheckboxes([

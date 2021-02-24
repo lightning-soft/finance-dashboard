@@ -32,6 +32,7 @@ interface INumberConfig extends ICellConfig {
   component?: string;
   formatter?: IFormatter;
   ignoreZero?: boolean;
+  hightlightOnChange?: boolean;
 }
 
 export class NumberCell extends Cell {
@@ -41,6 +42,7 @@ export class NumberCell extends Cell {
   formatter: IFormatter;
   ignoreZero: boolean;
   time: number;
+  hightlightOnChange = true;
 
   _value: number;
 
@@ -53,6 +55,7 @@ export class NumberCell extends Cell {
       this.component = config.component;
       this.formatter = config.formatter;
       this.ignoreZero = config.ignoreZero ?? true;
+      this.hightlightOnChange = config.hightlightOnChange != false;
     } else if (config != null)
       this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
@@ -91,7 +94,7 @@ export class NumberCell extends Cell {
 
   hightlight() {
     const settings: any = this.settings;
-    if (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize)
+    if (!this.hightlightOnChange || (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize))
       return;
 
     super.hightlight();

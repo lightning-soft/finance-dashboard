@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { FormlyField } from '@ngx-formly/core';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
@@ -21,7 +20,6 @@ import {
   IOrder,
   IPosition,
   IQuote,
-  L2,
   Level1DataFeed,
   OrderBooksRepository,
   OrdersFeed,
@@ -667,70 +665,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    // const { symbol, exchange } = this._instrument;
-    // this._orderBooksRepository.getItems({ symbol, exchange })
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe(
-    //     res => {
-    //       this._clear();
+    const { symbol, exchange } = this._instrument;
+    this._orderBooksRepository.getItems({ symbol, exchange })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          this._clear();
 
-    //       const { asks, bids } = res.data[0];
+          const { asks, bids } = res.data[0];
 
-    //       bids.sort((a, b) => a.price - b.price);
-    //       asks.sort((a, b) => b.price - a.price);
+          bids.sort((a, b) => a.price - b.price);
+          asks.sort((a, b) => b.price - a.price);
 
-    //       if (!asks.length && !bids.length)
-    //         return;
+          if (asks.length || bids.length) {
+            let index = 0;
+            let price = this._normalizePrice(asks[asks.length - 1].price);
+            const tickSize = this._tickSize;
+            // const maxPrice = asks[0].price;
+            // const maxRows = ROWS * 2;
 
-    //       let index = 0;
-    //       let price = this._normalizePrice(asks[asks.length - 1].price);
-    //       const tickSize = this._tickSize;
-    //       const maxPrice = asks[0].price;
-    //       const maxRows = ROWS * 2;
+            // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+            //   this.items.unshift(this._getItem(price));
+            //   price = this._normalizePrice(price + tickSize);
+            //   index++;
+            // }
 
-    //       while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-    //         this.items.unshift(this._getItem(price));
-    //         price = this._normalizePrice(price + tickSize);
-    //         index++;
-    //       }
+            index = 0;
+            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-    //       index = 0;
-    //       price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            this.fillData(price)
 
-    //       this.fillData(price)
+            // while (index < maxRows && (price >= minPrice || index < ROWS)) {
+            //   this.items.push(this._getItem(price));
+            //   price = this._normalizePrice(price - tickSize);
+            //   index++;
+            // }
 
-    //       // while (index < maxRows && (price >= minPrice || index < ROWS)) {
-    //       //   this.items.push(this._getItem(price));
-    //       //   price = this._normalizePrice(price - tickSize);
-    //       //   index++;
-    //       // }
+            const instrument = this.instrument;
+            asks.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Ask
+            } as IQuote));
+            bids.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Bid
+            } as IQuote));
 
-    //       const instrument = this.instrument;
-    //       asks.forEach((info) => this._handleQuote({
-    //         instrument,
-    //         price: info.price,
-    //         timestamp: 0,
-    //         volume: info.volume,
-    //         side: QuoteSide.Ask
-    //       } as IQuote));
-    //       bids.forEach((info) => this._handleQuote({
-    //         instrument,
-    //         price: info.price,
-    //         timestamp: 0,
-    //         volume: info.volume,
-    //         side: QuoteSide.Bid
-    //       } as IQuote));
+            for (const i of this.items) {
+              i.clearDelta();
+              i.dehighlight(Columns.All);
+            }
+          }
 
-    //       for (const i of this.items) {
-    //         i.clearDelta();
-    //         i.dehighlight(Columns.All);
-    //       }
-
-    this._loadOrders();
-    this._loadVolumeHistory();
-    // },
-    //   error => this.notifier.showError(error)
-    // );
+          this._loadOrders();
+          this._loadVolumeHistory();
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrders() {
@@ -896,7 +893,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -989,11 +986,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         break;
 
       valueAreaSum += (volume1?._value || 0);
-      if (valueAreaSum <= valueAreaNum)
+      if (valueArea && valueAreaSum <= valueAreaNum)
         volume1?.changeStatus('valueArea');
 
       valueAreaSum += (volume2?._value || 0);
-      if (valueAreaSum <= valueAreaNum)
+      if (valueArea && valueAreaSum <= valueAreaNum)
         volume2?.changeStatus('valueArea');
 
       if (VWAP) {
@@ -1012,7 +1009,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (ltq && this._lastChangesItem?.ltq) {
-      this._lastChangesItem.ltq.volume.changeStatus('lastTrading');
+      this._lastChangesItem.ltq.volume.hightlight();
     }
 
     if (items[pointOfControlIndex]) {
@@ -1137,116 +1134,103 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const needClear = false;
 
     if (trade.updateType === UpdateType.Undefined || needClear) {
-      const depth = this._settings.general?.marketDepth;
-      const marketDepth = depth?.marketDepth ?? 10000;
-      const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
+      // const depth = this._settings.general?.marketDepth;
+      // const marketDepth = depth?.marketDepth ?? 10000;
+      // const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
       let items = this.items;
 
       let index;
-      let changes;
+      // let changes;
       let price = trade.price;
       const isBid = trade.side === QuoteSide.Bid;
 
       if (isBid || (needClear && !isBid)) {
-        this._max.ask = 0;
         if (this._bestAskPrice != price || needClear) {
+          // this._max.ask = 0;
+          // this._max.askDelta = 0;
+          // console.log('clear ask', trade.volume);
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
             if (!needClear)
               item.clearAskDelta();
 
-            if (item.lastPrice == price)
-              index = i;
-            else
+            if (item.lastPrice != price)
               item.clearCurrentBidBest();
 
-            if (item.lastPrice >= price) {
-              changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
+            // if (item.lastPrice >= price) {
+            //   changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
 
-              // if (changes === true)
-              //   break;
+            //   if (changes === true)
+            //     break;
 
-              this._handleMaxChange(changes, item);
-            } else {
-              item.setAskVisibility(true, true);
-            }
+            //   this._handleMaxChange(changes, item);
+            // } else {
+            //   item.setAskVisibility(true, true);
+            // }
           }
 
           this._bestAskPrice = price;
         }
       } else if (!isBid || (needClear && isBid)) {
         if (this._bestBidPrice != price || needClear) {
-          this._max.bid = 0;
+          // this._max.bid = 0;
+          // this._max.bidDelta = 0;
+          // console.log('clear bid', trade.volume)
+
           for (let i = 0; i < items.length; i++) {
             item = items[i];
             if (!needClear)
               item.clearBidDelta();
 
-            if (item.lastPrice == price)
-              index = i;
-            else
+            if (item.lastPrice != price)
               item.clearCurrentAskBest();
 
-            if (item.lastPrice <= price) {
-              changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
+            // if (item.lastPrice <= price) {
+            //   changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
 
-              // if (changes === true)
-              //   break;
+            //   if (changes === true)
+            //     break;
 
-              this._handleMaxChange(changes, item);
-            } else {
-              item.setBidVisibility(true, true);
-            }
+            //   this._handleMaxChange(changes, item);
+            // } else {
+            //   item.setBidVisibility(true, true);
+            // }
           }
 
           this._bestBidPrice = price;
         }
       }
     }
-
+    this._calculateDepth();
+    this._calcBidAskHist();
     this.detectChanges();
     // console.log('end _handleQuote');
   }
 
   _calcBidAskHist() {
+    const max = this._max;
 
-    // let i = 0;
-    // const valueAreaNum = sum * 0.7;
-    // let ended = false;
-    // let valueAreaSum = 0;
-    // let volume1: HistogramCell;
-    // let volume2: HistogramCell;
+    // console.log(
+    //   max.ask,
+    //   max.askDelta,
+    //   max.bid,
+    //   max.bidDelta,
+    // )
+    for (const i of this.items) {
+      if (this._bestAskPrice <= i.lastPrice || !i.isAskSideVisible)
+        continue;
 
+      i.ask.calcHist(max.ask);
+      i.askDelta.calcHist(max.askDelta);
+    }
 
-    // while (!ended) {
-    //   volume1 = items[pointOfControlIndex + i]?.volume;
-    //   volume2 = items[pointOfControlIndex - i]?.volume;
-    //   if (!volume1 && !volume2)
-    //     break;
+    for (const i of this.items) {
+      if (this._bestBidPrice >= i.lastPrice || !i.isBidSideVisible)
+        continue;
 
-    //   valueAreaSum += volume1._value || 0;
-    //   if (valueArea && valueAreaSum <= valueAreaNum)
-    //     volume1.changeStatus('valueArea');
-
-    //   valueAreaSum += volume2._value || 0;
-    //   if (valueArea && valueAreaSum <= valueAreaNum)
-    //     volume2.changeStatus('valueArea');
-
-    //   if (VWAP) {
-    //     if (vwap == items[pointOfControlIndex + i].lastPrice) {
-    //       items[pointOfControlIndex + i].changeStatus('vwap');
-    //     } else if (vwap == items[pointOfControlIndex - i].lastPrice) {
-    //       items[pointOfControlIndex - i].changeStatus('vwap');
-    //     }
-    //   }
-
-    //   volume1.calcHist(sum);
-    //   volume2.calcHist(sum);
-
-    //   i++;
-    //   ended = sum == valueAreaSum;
-    // }
-
+      i.bid.calcHist(max.bid);
+      i.bidDelta.calcHist(max.bidDelta);
+    }
   }
 
   _calculateDepth() {
@@ -1287,6 +1271,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._handleMaxChange(changes, item);
       }
     }
+
+    this._calcBidAskHist();
   }
 
   private _handleMaxChange(changes: any, item: DomItem) {
