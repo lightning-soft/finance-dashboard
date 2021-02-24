@@ -1,4 +1,4 @@
-image: registry.gitlab.com/docker.hub/teracy/angular-cli
+image: registry.gitlab.com/docker.hub/teracy/angular-cli:1.7.4
 
 stages:
     - install
