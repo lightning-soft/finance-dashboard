@@ -20,6 +20,7 @@ export class HistogramCell extends NumberCell {
 
   constructor(config) {
     super({
+      ...config,
       strategy: AddClassStrategy.NONE,
       component: 'histogram',
     });

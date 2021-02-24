@@ -29,7 +29,7 @@ export class DomSettings {
     commonView: {
       autoCenterTicks: 10,
       ticksPerPrice: 0.25,
-      onTop: false,
+      onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
       centerLine: true,
@@ -52,7 +52,7 @@ export class DomSettings {
       scrollWheelSensitivity: DefaultScrollSensetive,
       momentumIntervalMs: 500,
       printOutlines: false,
-      momentumTails: false,
+      momentumTails: true,
     },
   };
   hotkeys: any = {
@@ -146,25 +146,23 @@ export class DomSettings {
     },
   };
   price: any = {
-    // backgroundColor,
     color: 'rgba(208, 208, 210, 1)',
-    // highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
-    // lastTradedPriceColor: 'rgba(0, 0, 0, 1)',
-    // nonTradedPriceBackColor: 'rgba(131, 148, 150, 1)',
-    // nonTradedPriceColor: 'rgba(0, 0, 0, 1)',
-    textAlign: TextAlign.Center,
+    backgroundColor: 'rgba(131, 148, 150, 1)',
+    highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
+    highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
+    textAlign: TextAlign.Center,
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
+    highlightHistogramColor: 'rgba(72, 149, 245, 1)',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
+    highlightHistogramColor: 'rgba(201, 59, 59, 1)',
     color: '#ffffff',
   };
   bid: any = {
@@ -239,18 +237,19 @@ export class DomSettings {
     highlightBackgroundColor: '#9D0A0A',
     textAlign: TextAlign.Center,
     backgroundColor: 'transparent',
+    lastTradingBackgroundColor: 'white',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
-    // areaColor: 'rgba(109, 112, 196, 1)',
+    valueAreaHistogramColor: 'rgba(109, 112, 196, 1)',
     color: 'white',
     histogramColor: 'rgba(73, 187, 169, 0.5)',
     histogramOrientation: HistogramOrientation.Right,
-    VWAP: false,
-    controlColor: 'rgba(211, 53, 130, 1)',
+    pointOfControlHistogramColor: 'rgba(211, 53, 130, 1)',
+    VWAPHistogramColor: 'rgba(203, 75, 22, 1)',
+    VWAP: true,
     histogramEnabled: true,
-    ltq: false,
-    poc: false,
-    vWAPColor: 'rgba(203, 75, 22, 1)',
-    valueArea: false
+    ltq: true,
+    poc: true,
+    valueArea: true,
   };
   order: any = {
     backgroundColor: 'rgba(0, 44, 55, 1)',
