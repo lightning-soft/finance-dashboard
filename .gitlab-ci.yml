@@ -62,7 +62,7 @@ build-web-ssr:
         # - npm run build:ssr
         - npm install --save-dev @angular-devkit/build-angular
         - npm run build:static
-        - cd dist/
+        - cd dist/browser/assets
         - ls -l
         - cd ../
     # after_script:
