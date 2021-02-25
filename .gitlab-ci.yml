@@ -1,4 +1,4 @@
-image: registry.git.avidi.tech/docker/teracy/angular-cli:6.2
+image: registry.git.avidi.tech/docker/teracy/angular-cli:latest
 
 stages:
     - install
