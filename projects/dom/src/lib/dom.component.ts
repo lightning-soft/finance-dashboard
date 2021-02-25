@@ -107,6 +107,8 @@ enum Columns {
   BidDelta = 'bidDelta',
   Orders = 'orders',
   Volume = 'volume',
+  TotalBid = 'totalBid',
+  TotalAsk = 'totalAsk',
   All = 'all',
 }
 
@@ -943,6 +945,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let sum = 0;
     let max = 0;
     let pointOfControlIndex;
+    let startTradedPriceIndex;
+    let endTradedPriceIndex;
     let item;
     let priceSum = 0;
     let items = this.items;
@@ -952,6 +956,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const value = item.volume._value;
       if (!value)
         continue;
+
+      if (startTradedPriceIndex == null)
+        startTradedPriceIndex = i;
+
+      endTradedPriceIndex = i;
 
       sum += value;
       priceSum += (value * item.lastPrice);
@@ -979,11 +988,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       volume1 = items[pointOfControlIndex + i]?.volume;
       volume2 = items[pointOfControlIndex - i]?.volume;
 
+      if (volume1 == volume2)
+        volume2 = null;
+
       volume1?.changeStatus('');
       volume2?.changeStatus('');
 
       if (!volume1 && !volume2)
         break;
+
+      if (pointOfControlIndex + i <= endTradedPriceIndex)
+        items[pointOfControlIndex + i].price.changeStatus('tradedPrice')
+
+      if (pointOfControlIndex - i >= startTradedPriceIndex)
+        items[pointOfControlIndex - i].price.changeStatus('tradedPrice')
 
       valueAreaSum += (volume1?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)
@@ -1291,7 +1309,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (Array.isArray(keys) && keys.length) {
       for (const i of this.items) {
-        for (const key of keys) {
+        for (const key of keys.filter(i => i == Columns.TotalAsk || i == Columns.TotalBid)) {
           if (hist[key] == null || i[key].component !== 'histogram')
             continue;
 

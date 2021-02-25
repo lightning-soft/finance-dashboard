@@ -378,10 +378,6 @@ export class DomItem implements IBaseItem {
   }
 
   private _updatePiceStatus() {
-    if (!isNaN(this.volume._value) && this.volume._value > 0) {
-      this.price.changeStatus('tradedPrice')
-    }
-
     if (this.ltq._value > 0)
       this.price.hightlight();
     else

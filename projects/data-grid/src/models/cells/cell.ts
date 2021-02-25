@@ -100,7 +100,6 @@ export abstract class Cell implements ICell {
   }
 
   hightlight() {
-    console.log('this.hightlightOnChang1e ', this.constructor.name);
     this.changeStatus(CellStatus.Highlight);
   }
 
