@@ -104,7 +104,7 @@ export class DomSettings {
     bid: true,
     // currentTradesAtAsk: true,
     // currentTradesAtBid: true,
-    lqt: true,
+    ltq: true,
     // mergeDelta: true,
     notes: true,
     orders: true,
