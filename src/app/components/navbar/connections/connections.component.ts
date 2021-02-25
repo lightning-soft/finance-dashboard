@@ -46,7 +46,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     });
     this._accountsManager.connections
       .pipe(
-        skip(1),
         filter(res => !!res),
         untilDestroyed(this),
       )
@@ -55,6 +54,8 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
           this.builder.replaceItems(value);
         }
       );
+  }
+  loadData(params?: any) {
   }
 
   protected _handleConnection(connection: IConnection) {
@@ -74,6 +75,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       minimizable: false,
       maximizable: false,
       single: true,
+      removeIfExists: true,
       x: 'center',
       y: 'center',
     });

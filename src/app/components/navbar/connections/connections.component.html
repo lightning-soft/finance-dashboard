@@ -5,6 +5,7 @@
   <div
     class="d-flex align-items-center   connection-item"
     (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
+    (click)="openAccounts(connection)"
     *ngFor="let connection of items"
   >
     <div class="indicator mr-2" [ngClass]="{
@@ -14,7 +15,6 @@
     <div
       [title]="connection.name"
       class="text-bold text-ellipsis connection-name"
-      (click)="openAccounts(connection)"
     >{{ connection.name }}</div>
   </div>
 </div>

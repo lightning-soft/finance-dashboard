@@ -174,18 +174,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
-  private _save(): void {
+  private async _save() {
  //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
     if (this.activeWorkspace) {
-      this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState());
+     await this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState());
     }
   }
 
   @HostListener('window:beforeunload')
-  beforeUnloadHandler() {
+  async beforeUnloadHandler() {
     if (this.settings.autoSave && !this.settings.autoSaveDelay)
-      this._save();
+     await this._save();
 
     for (const fn of this._subscriptions)
       fn();
