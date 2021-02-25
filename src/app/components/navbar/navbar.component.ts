@@ -50,8 +50,9 @@ export class NavbarComponent {
       width: 300,
       single: true,
       removeIfExists: true,
-   /*   maximizable: false,
-      minimizable: false,*/
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
     });
   }
 
@@ -62,6 +63,8 @@ export class NavbarComponent {
       },
       icon: 'icon-setting-gear',
       maximizable: false,
+      minimizable: false,
+      resizable: false,
       x: 'center',
       y: 'center',
       single: true,

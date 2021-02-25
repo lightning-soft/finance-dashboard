@@ -21,7 +21,8 @@
         [title]="passwordVisible ?'Show password' : 'Hide password'"
         class="cursor-pointer" nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
         (click)="passwordVisible = !passwordVisible"></i>
-      <i [title]="autoSave ? 'Turn off auto save password': 'Turn on auto save password'" [class.active]="autoSave"
+      <i
+        [title]="autoSave ? 'Turn off auto save password': 'Turn on auto save password'" [class.active]="autoSave"
          (click)="toggleAutoSave()"
          class="icon-save cursor-pointer"></i>
         </span>

@@ -74,8 +74,17 @@ export class AccountsManager {
   }
 
   connect(connection: IConnection) {
+    const oldConnection = this.getActiveConnection();
     return this._connectionsRepository.connect(connection)
       .pipe(
+        concatMap(item => {
+          if (oldConnection && !item.error)
+           return  this.disconnect(oldConnection)
+             .pipe(
+               map(conn => item)
+             );
+          return of(item);
+        }),
         concatMap(item => {
           return this._connectionsRepository.updateItem(item)
             .pipe(map(_ => item));
