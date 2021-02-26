@@ -93,7 +93,7 @@ class OrdersCell extends HistogramCell {
       return;
 
     ctx.save();
-    const padding = 2;
+    const padding = 3;
     const x = context.x + 1;
     const y = context.y + 1;
     const px = context.x + padding;
@@ -191,6 +191,9 @@ class LevelCell extends HistogramCell {
 
   // return if no levels more, performance improvments
   calculateLevel(): boolean {
+    if (!this._value)
+      return;
+
     const settings: any = this.settings;
 
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
@@ -397,10 +400,13 @@ export class DomItem implements IBaseItem {
   }
 
   private _updatePiceStatus() {
-    if (this.ltq._value > 0)
+    if (this.ltq._value > 0) {
       this.price.hightlight();
-    else
+      this.orders.hightlight();
+    } else {
       this.price.dehightlight();
+      this.orders.dehightlight();
+    }
   }
 
   private _changeLtq(volume: number, side: string) {
@@ -441,13 +447,19 @@ export class DomItem implements IBaseItem {
   }
 
   setCurrentBidBest() {
+    if (this.ltq._value)
+      return;
+
     this.currentBid.changeBest();
-    this.bidDelta.dehightlight();
+    this.bidDelta.hightlight();
   }
 
   setСurrentAskBest() {
+    if (this.ltq._value)
+      return;
+
     this.currentAsk.changeBest();
-    this.askDelta.dehightlight();
+    this.askDelta.hightlight();
   }
 
   refresh() {
