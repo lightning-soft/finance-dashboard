@@ -59,6 +59,16 @@ class OrdersCell extends HistogramCell {
     this.drawed = false;
   }
 
+  // changeStatus(status?: string) {
+  //   if (this.orderStyle == 'ask') {
+  //     super.changeStatus('sellOrder')
+  //   } else if (this.orderStyle == 'bid') {
+  //     super.changeStatus('buyOrder')
+  //   } else {
+  //     super.changeStatus(status);
+  //   }
+  // }
+
   removeOrder(order) {
     if (this.orders.map(item => item.id).includes(order.id)) {
       this.clearOrder();
@@ -95,17 +105,19 @@ class OrdersCell extends HistogramCell {
     const sequenceNumber = this._order.currentSequenceNumber;
     const isAsk = this.orderStyle === 'ask';
     const isOrderColumn = this._isOrderColumn;
+    const settings: any = this.settings || {};
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
+
     switch (this.orderStyle) {
       case 'ask':
-        ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
-        ctx.strokeStyle = '#C93B3B';
+        ctx.fillStyle = settings.sellOrderBackgroundColor ?? 'rgba(201, 59, 59, 0.5)';
+        ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
         break;
       case 'bid':
-        ctx.fillStyle = 'rgba(72,149,245,0.5)';
-        ctx.strokeStyle = '#4895f5';
+        ctx.fillStyle = settings.buyBackgroundColor ?? 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = settings.buyOrdersColumn ?? '#4895f5';
         break;
       case 'oco':
         ctx.fillStyle = 'rgba(190,60,177, 0.5)';
@@ -117,7 +129,7 @@ class OrdersCell extends HistogramCell {
 
     ctx.textBaseline = "middle";
     ctx.textAlign = isOrderColumn ? "end" : isAsk ? "start" : "end";
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = ctx.strokeStyle ?? 'white';
 
     ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
@@ -270,7 +282,7 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
+    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);

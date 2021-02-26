@@ -12,6 +12,7 @@ import {
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { environment } from 'environment';
 import { Id } from 'projects/communication';
 import { RealPositionsRepository } from 'real-trading';
 import {
@@ -383,7 +384,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.columns = [
       ...[
-        '_id',
         'orders',
         ['volume', 'volume', 'histogram'],
         'price',
@@ -409,6 +409,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         visible: true
       }
     ];
+
+    if(!environment.production) {
+      this.columns.unshift(convertToColumn('_id'));
+    }
   }
 
   ngOnInit(): void {
@@ -463,7 +467,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
-    const overlayOrders = settings.order.overlay;
+    const overlayOrders = settings.orders.overlay;
     this._tickSize = general.commonView.ticksPerPrice;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
