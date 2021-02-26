@@ -46,6 +46,9 @@ export interface ScxOrderBarEvents {
   ACCEPT_ORDER_CLICKED: string;
   CANCEL_ORDER_CLICKED: string;
   ORDER_PRICE_CHANGED: string;
+  ORDER_CREATED: string;
+  ORDER_UPDATED: string;
+  CREATE_ORDER_SETTINGS_CLICKED: string;
 }
 
 export interface IScxOrder {
@@ -64,7 +67,7 @@ export interface IOrderBarConfig {
   order: IScxOrder;
 }
 
-export interface OrderBar {
+declare class OrderBar {
   order: IScxOrder;
 
   new(config: IOrderBarConfig);

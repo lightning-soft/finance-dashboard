@@ -4,10 +4,12 @@ import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, Id, IPaginationResponse, RealtimeAction, Repository } from 'communication';
 import { Subscription } from 'rxjs';
 import { IChart } from '../models';
+import { NotifierService } from "notifier";
 
 export abstract class ChartObjects<T extends IBaseItem> {
   protected _instance: any;
   protected _repository: Repository<T>;
+  protected _notifier: NotifierService;
   protected _accountsManager: AccountsManager;
   protected _barsMap: any = {};
   protected _repositorySubscription: Subscription;
@@ -29,6 +31,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
   constructor(instance: any) {
     this._instance = instance;
     this._accountsManager = this._injector.get(AccountsManager);
+    this._notifier = this._injector.get(NotifierService);
   }
 
   init() {

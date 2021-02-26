@@ -1,0 +1,15 @@
+::ng-deep {
+  .chart-create-order .ant-modal-content .ant-modal-body {
+    padding: 25px;
+    width: 220px;
+    min-width: 220px;
+  }
+}
+
+nz-form-item {
+  margin-bottom: 5px;
+}
+
+nz-input-number {
+  width: 100%;
+}

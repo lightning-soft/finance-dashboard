@@ -10,7 +10,9 @@ $horizontal-padding: 8px;
   padding: 0 $horizontal-padding;
 
 }
-
+.navigation-button{
+  cursor: pointer;
+}
 .dropdown-connection-name, .connection-name {
   max-width: 170px;
   min-width: 60px;

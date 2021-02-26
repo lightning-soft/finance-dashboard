@@ -1,0 +1,45 @@
+<form nzLayout="vertical" [formGroup]="form" nz-form>
+  <nz-form-item>
+    <nz-form-label>Type</nz-form-label>
+    <nz-form-control>
+      <nz-select [nzOptionHeightPx]="22" formControlName="type">
+        <nz-option *ngFor="let item of orderTypes"
+                   [nzValue]="item.value"
+                   [nzLabel]="item.label"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Limit Price</nz-form-label>
+    <nz-form-control>
+      <nz-input-number nzMin="1" formControlName="limitPrice">
+      </nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Stop Price</nz-form-label>
+    <nz-form-control>
+      <nz-input-number nzMin="1" formControlName="stopPrice">
+      </nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Quantity</nz-form-label>
+    <nz-form-control>
+      <nz-input-number nzMin="1" formControlName="quantity">
+      </nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Type</nz-form-label>
+    <nz-form-control>
+      <nz-select [nzOptionHeightPx]="22" formControlName="duration">
+        <nz-option *ngFor="let item of orderDurations"
+                   [nzValue]="item"
+                   [nzLabel]="item"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <button nzType="primary" nz-button (click)="submit(OrderSide.Buy)">Buy</button>
+  <button nzType="primary" nz-button (click)="submit(OrderSide.Sell)">Sell</button>
+</form>
