@@ -9,14 +9,14 @@
       </nz-select>
     </nz-form-control>
   </nz-form-item>
-  <nz-form-item>
+  <nz-form-item *ngIf="isLimitEnabled">
     <nz-form-label>Limit Price</nz-form-label>
     <nz-form-control>
       <nz-input-number nzMin="1" formControlName="limitPrice">
       </nz-input-number>
     </nz-form-control>
   </nz-form-item>
-  <nz-form-item>
+  <nz-form-item *ngIf="isStopEnabled">
     <nz-form-label>Stop Price</nz-form-label>
     <nz-form-control>
       <nz-input-number nzMin="1" formControlName="stopPrice">
@@ -40,6 +40,8 @@
       </nz-select>
     </nz-form-control>
   </nz-form-item>
-  <button nzType="primary" nz-button (click)="submit(OrderSide.Buy)">Buy</button>
-  <button nzType="primary" nz-button (click)="submit(OrderSide.Sell)">Sell</button>
+  <div class="button-container">
+    <button nzType="primary" nz-button (click)="submit(OrderSide.Buy)">Buy</button>
+    <button nzType="primary" class="sell-button" nz-button (click)="submit(OrderSide.Sell)">Sell</button>
+  </div>
 </form>

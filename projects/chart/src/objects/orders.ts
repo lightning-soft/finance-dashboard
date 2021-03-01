@@ -31,24 +31,31 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart.on(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_CREATED, this._createOrder);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updateOrder);
-    this._chart.on(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
+    this._chart.on(StockChartX.OrderBarEvents.ORDER_SETTINGS_CLICKED, this._updateOrder);
     this._chart.on(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
     this.unsubscribeFn = this._dataFeed.on((order) => {
-      if (!this._barsMap[order.id]) {
-        const orderBar = new StockChartX.OrderBar({
-          order: this._map(order),
-        });
-        this._chart.mainPanel.addObjects(orderBar);
-        this._barsMap[order.id] = orderBar;
-      } else {
-        const  orderBar = this._barsMap[order.id];
-        orderBar.order = this._map(order);
-        orderBar.update(false);
+        this.handleOrder(order);
       }
-      if (!this._isValid(order)) {
-        this.delete(order.id);
-      }
-    });
+    );
+  }
+
+  handleOrder(order: IOrder) {
+
+    if (!this._barsMap[order.id]) {
+
+      const orderBar = new StockChartX.OrderBar({
+        order: this._map(order),
+      });
+      this._chart.mainPanel.addObjects(orderBar);
+      this._barsMap[order.id] = orderBar;
+    } else {
+      const orderBar = this._barsMap[order.id];
+      orderBar.order = this._map(order);
+      orderBar.update(false);
+    }
+    if (!this._isValid(order)) {
+      this.delete(order.id);
+    }
   }
 
   _openDialog = (event) => {
@@ -56,10 +63,11 @@ export class Orders extends ChartObjects<IOrder> {
     this._modal.create({
       nzContent: CreateOrderComponent,
       nzFooter: null,
-      nzWidth: 220,
+      nzWidth: 167,
       nzClassName: 'chart-create-order',
       nzComponentParams: {
-        price
+        stopPrice: price,
+        limitPrice: price
       }
     }).afterClose.subscribe((res) => {
       if (res)
@@ -68,19 +76,20 @@ export class Orders extends ChartObjects<IOrder> {
   }
   _updateOrder = (event) => {
     const target = event.target;
-
-    this._repository.updateItem(this.transformToIOrder(target.order, true))
-      .pipe(
-        untilDestroyed(this._instance)
-      )
-      .subscribe((item: any) => {
-        /*  target.order = this._map(item.result, target.value.price);
-          target.update();
-          this._barsMap[event.target.order.id] = event.target;*/
-        this._notifier.showSuccess('Order is updated');
-      }, err => {
-        this._notifier.showError('Fail to update order');
-      });
+    const order = event.value.order;
+    this._modal.create(
+      {
+        nzContent: CreateOrderComponent,
+        nzFooter: null,
+        nzWidth: 167,
+        nzClassName: 'chart-create-order',
+        nzComponentParams: {
+         ...order
+        }
+      }
+    ).afterClose.subscribe((res) => {
+      this._repository.updateItem({ ...res, ...this.requestParams }).toPromise();
+    });
   }
 
   _createOrder = (event) => {

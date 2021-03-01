@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormComponent } from "base-components";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormComponent } from 'base-components';
+import { FormControl, FormGroup } from '@angular/forms';
 import { OrderDurations, OrderTypes } from 'base-order-form';
-import { OrderDuration, OrderSide, OrderType } from "trading";
+import { OrderDuration, OrderSide, OrderType } from 'trading';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 
 @Component({
@@ -10,12 +10,26 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
   templateUrl: './create-order.component.html',
   styleUrls: ['./create-order.component.scss']
 })
-export class CreateOrderComponent extends FormComponent<any>{
+export class CreateOrderComponent extends FormComponent<any> {
 
   orderTypes = OrderTypes;
   orderDurations = OrderDurations;
-  price: number;
+  stopPrice: number;
+  limitPrice: number;
   OrderSide = OrderSide;
+  duration = OrderDuration.DAY;
+  type = OrderType.Market;
+  quantity = 1;
+
+  get isStopEnabled() {
+    const orderTypes = [OrderType.StopMarket, OrderType.StopLimit];
+    return orderTypes.includes(this.form.value.type);
+  }
+
+  get isLimitEnabled() {
+    const orderTypes = [OrderType.Limit, OrderType.StopLimit];
+    return orderTypes.includes(this.form.value.type);
+  }
 
   constructor(private nzModalRef: NzModalRef) {
     super();
@@ -23,11 +37,11 @@ export class CreateOrderComponent extends FormComponent<any>{
 
   protected createForm(): FormGroup {
     return new FormGroup({
-      type: new FormControl(OrderType.Market),
-      quantity: new FormControl(1),
-      duration: new FormControl(OrderDuration.DAY),
-      stopPrice: new FormControl(this.price),
-      limitPrice: new FormControl(this.price),
+      type: new FormControl(this.type),
+      quantity: new FormControl(this.quantity),
+      duration: new FormControl(this.duration),
+      stopPrice: new FormControl(this.stopPrice),
+      limitPrice: new FormControl(this.limitPrice),
     });
   }
 
