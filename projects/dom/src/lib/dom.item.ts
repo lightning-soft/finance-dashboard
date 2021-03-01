@@ -217,7 +217,8 @@ class LevelCell extends HistogramCell {
 
     if (best != null) {
       this.changeStatus(`inside`);
-      if ((this.settings as any).clearOnBest)
+
+      if (Date.now() >= (this.time + ((this.settings as any).clearTradersTimer || 0)))
         this.clear();
     } else if (this.status == `inside` || this.status == `tailInside`) {
       this.changeStatus('');
