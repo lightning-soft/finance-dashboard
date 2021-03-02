@@ -168,18 +168,7 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
-
   }
-
-  create(item: IOrder) {
-
-    //  this._chart.setNeedsUpdate();
-  }
-
-  update(item: IOrder) {
-    // this._update(item, order => ({ order }));
-  }
-
   protected _isValid(item: IOrder) {
     return ![OrderStatus.Canceled, OrderStatus.Rejected, OrderStatus.Filled].includes(item.status);
   }

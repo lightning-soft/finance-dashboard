@@ -34,25 +34,6 @@ export class Positions extends ChartObjects<IPosition> {
     );
   }
 
-  destroy() {
-    super.destroy();
-    this._chart?.off(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, this._closePosition);
-  }
-
-  create(item: IPosition) {
-    this._create(item, position => {
-      const positionBar = new StockChartX.PositionBar({ position });
-
-      positionBar.locked = true;
-
-      return positionBar;
-    });
-  }
-
-  update(item: IPosition) {
-    this._update(item, position => ({ position }));
-  }
-
   protected _isValid(item: IPosition) {
     return item.side !== Side.Closed;
   }

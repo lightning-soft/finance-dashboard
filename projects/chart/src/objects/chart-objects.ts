@@ -117,10 +117,6 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     });
   }
 
-  abstract create(item: T);
-
-  abstract update(item: T);
-
   delete(id: Id) {
     this._barsMap[id]?.remove();
     delete this._barsMap[id];
@@ -136,24 +132,6 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     this._chart.chartPanels[0].addObjects(bar);
 
     this._barsMap[item.id] = bar;
-  }
-
-  protected _update(item: T, fn: (item: any) => {}) {
-    const bar = this._barsMap[item.id];
-
-    if (!bar) {
-      this.create(item);
-      return;
-    }
-
-    if (!this._isValid(item)) {
-      this.delete(item.id);
-      return;
-    }
-
-    Object.assign(bar, fn(this._map(item)));
-
-    this._chart.setNeedsUpdate();
   }
 
   protected _isValid(item: T): boolean {
