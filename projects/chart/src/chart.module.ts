@@ -20,7 +20,7 @@ import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
-import { CreateOrderComponent } from './modals/create-order/create-order.component';
+import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 
 // const environment = { scxPath: '' };
@@ -75,7 +75,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
     ChartComponent,
     ToolbarComponent,
     WindowToolbarComponent,
-    CreateOrderComponent,
+    ModalOrderComponent,
   ],
   providers: [
   ],

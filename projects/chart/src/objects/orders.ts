@@ -3,8 +3,7 @@ import { IOrder, OrderDuration, OrdersFeed, OrdersRepository, OrderStatus, Order
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { CreateOrderComponent } from '../modals/create-order/create-order.component';
-// import { OrderBar } from '../models';
+import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
 
 declare const StockChartX: any;
 
@@ -14,7 +13,6 @@ export class Orders extends ChartObjects<IOrder> {
   protected _repository = this._injector.get(OrdersRepository);
   protected _modal: NzModalService;
   protected _dataFeed = this._injector.get(OrdersFeed);
-  unsubscribeFn: () => void;
 
   get requestParams() {
     return {
@@ -30,41 +28,28 @@ export class Orders extends ChartObjects<IOrder> {
 
     this._chart.on(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_CREATED, this._createOrder);
-    this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updateOrder);
+    this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_SETTINGS_CLICKED, this._updateOrder);
     this._chart.on(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
     this.unsubscribeFn = this._dataFeed.on((order) => {
-        this.handleOrder(order);
+        this.handle(order);
       }
     );
   }
 
-  handleOrder(order: IOrder) {
-
-    if (!this._barsMap[order.id]) {
-
-      const orderBar = new StockChartX.OrderBar({
-        order: this._map(order),
-      });
-      this._chart.mainPanel.addObjects(orderBar);
-      this._barsMap[order.id] = orderBar;
-    } else {
-      const orderBar = this._barsMap[order.id];
-      orderBar.order = this._map(order);
-      orderBar.update(false);
-    }
-    if (!this._isValid(order)) {
-      this.delete(order.id);
-    }
+  createBar(model) {
+    return new StockChartX.OrderBar({
+      order: this._map(model),
+    });
   }
 
   _openDialog = (event) => {
     const price = event.value.order.price;
     this._modal.create({
-      nzContent: CreateOrderComponent,
+      nzContent: ModalOrderComponent,
       nzFooter: null,
       nzWidth: 167,
-      nzClassName: 'chart-create-order',
+      nzClassName: 'chart-modal-order',
       nzComponentParams: {
         stopPrice: price,
         limitPrice: price
@@ -74,21 +59,31 @@ export class Orders extends ChartObjects<IOrder> {
         this._repository.createItem({ ...res, ...this.requestParams }).toPromise();
     });
   }
+
+  _updatePrice = ($event) => {
+    this._repository.updateItem(this.transformToIOrder($event.target.order, true)).toPromise();
+  }
+
   _updateOrder = (event) => {
     const target = event.target;
-    const order = event.value.order;
+    const order = this.transformToIOrder(target.order, true);
     this._modal.create(
       {
-        nzContent: CreateOrderComponent,
+        nzContent: ModalOrderComponent,
         nzFooter: null,
         nzWidth: 167,
-        nzClassName: 'chart-create-order',
+        nzClassName: 'chart-modal-order',
         nzComponentParams: {
-         ...order
+          isEdit: true,
+          ...order
         }
       }
     ).afterClose.subscribe((res) => {
-      this._repository.updateItem({ ...res, ...this.requestParams }).toPromise();
+      if (res)
+        this._repository.updateItem({
+          ...order,
+          ...res, ...this.requestParams
+        }).toPromise();
     });
   }
 
@@ -101,11 +96,10 @@ export class Orders extends ChartObjects<IOrder> {
       )
       .subscribe((item: any) => {
         target.order = this._map(item.result, order.price);
+        target.locked = true;
         target.update();
         this._barsMap[target.order.id] = target;
         this._notifier.showSuccess('Order is created');
-        // event.target.update();
-        // this._chart.setNeedsUpdate();
       }, error => {
         target.remove();
         this._notifier.showError('Fail to create order');
@@ -133,7 +127,7 @@ export class Orders extends ChartObjects<IOrder> {
       priceSpecs.limitPrice = order.price;
       priceSpecs.stopPrice = order.stopPrice;
     }
-    const duration = durationMap[order.timeInForce];
+    const duration = order.duration;
     return {
       quantity: order.quantity,
       orderId: order.orderId,
@@ -158,8 +152,6 @@ export class Orders extends ChartObjects<IOrder> {
         .pipe(untilDestroyed(this._instance))
         .subscribe(
           (item) => {
-            /* this.delete(order.id);
-             this._notifier.showSuccess('Order is cancelled');*/
           },
           err => {
             this._notifier.showError('Fail to create order');
@@ -173,17 +165,15 @@ export class Orders extends ChartObjects<IOrder> {
     super.destroy();
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_CREATED, this._createOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
-    this._chart?.off(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updateOrder);
+    this._chart?.off(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
-    if (this.unsubscribeFn)
-      this.unsubscribeFn();
 
   }
 
   create(item: IOrder) {
 
-    this._chart.setNeedsUpdate();
+    //  this._chart.setNeedsUpdate();
   }
 
   update(item: IOrder) {
@@ -206,17 +196,12 @@ export class Orders extends ChartObjects<IOrder> {
     else if (item.type === OrderType.StopLimit) {
       price = item.limitPrice;
     } else {
-      console.log(item);
       price = _price ? _price : item.averageFillPrice;
     }
-    const timeInForce = Object.keys(durationMap)
-      .find(key => durationMap[key] === item.duration);
-
 
     return {
       ...item,
       price,
-      timeInForce,
       action: uncapitalize(item.side),
       kind: kindMap[item.type] || uncapitalize(item.type),
       state: statusMap[item.status],
@@ -224,11 +209,6 @@ export class Orders extends ChartObjects<IOrder> {
   }
 }
 
-const durationMap = {
-  goodTillDate: OrderDuration.GTC,
-  day: OrderDuration.DAY,
-  goodTillCanceled: OrderDuration.GTC
-};
 const statusMap = {
   [OrderStatus.Canceled]: 'pendingCancel',
   [OrderStatus.Rejected]: 'pendingCancel',

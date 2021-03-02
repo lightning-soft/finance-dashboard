@@ -31,9 +31,9 @@
     </nz-form-control>
   </nz-form-item>
   <nz-form-item>
-    <nz-form-label>Type</nz-form-label>
+    <nz-form-label>Duration</nz-form-label>
     <nz-form-control>
-      <nz-select [nzOptionHeightPx]="22" formControlName="duration">
+      <nz-select  [nzOptionHeightPx]="22" formControlName="duration">
         <nz-option *ngFor="let item of orderDurations"
                    [nzValue]="item"
                    [nzLabel]="item"></nz-option>
@@ -41,7 +41,8 @@
     </nz-form-control>
   </nz-form-item>
   <div class="button-container">
-    <button nzType="primary" nz-button (click)="submit(OrderSide.Buy)">Buy</button>
-    <button nzType="primary" class="sell-button" nz-button (click)="submit(OrderSide.Sell)">Sell</button>
+    <button *ngIf="!isEdit" nzType="primary" nz-button (click)="submit(OrderSide.Buy)">Buy</button>
+    <button *ngIf="!isEdit" nzType="primary" class="sell-button" nz-button (click)="submit(OrderSide.Sell)">Sell</button>
+    <button *ngIf="isEdit" (click)="save()" nz-button nzType="primary">Save</button>
   </div>
 </form>

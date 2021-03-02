@@ -4,15 +4,18 @@ import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, Id, IPaginationResponse, RealtimeAction, Repository } from 'communication';
 import { Subscription } from 'rxjs';
 import { IChart } from '../models';
-import { NotifierService } from "notifier";
+import { NotifierService } from 'notifier';
+import { Feed, IInstrument } from 'trading';
 
-export abstract class ChartObjects<T extends IBaseItem> {
+export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrument }> {
   protected _instance: any;
   protected _repository: Repository<T>;
   protected _notifier: NotifierService;
   protected _accountsManager: AccountsManager;
   protected _barsMap: any = {};
   protected _repositorySubscription: Subscription;
+  protected _dataFeed: Feed<T>;
+  unsubscribeFn: () => void;
 
   protected get _chart(): IChart {
     return this._instance.chart;
@@ -25,7 +28,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
   protected get _params(): any {
     const { accountId, instrument } = this._instance;
 
-    return { accountId, instrument: instrument.id };
+    return { accountId, instrument };
   }
 
   constructor(instance: any) {
@@ -36,7 +39,32 @@ export abstract class ChartObjects<T extends IBaseItem> {
 
   init() {
     this._subscribeToConnections();
+    this.unsubscribeFn = this._dataFeed.on((model) => {
+      this.handle(model);
+    });
   }
+
+  handle(model: T){
+    if (model?.instrument?.symbol !== this._instance.instrument.symbol) {
+      return;
+    }
+    if (!this._barsMap[model.id]) {
+      const bar = this.createBar(model);
+      bar.chartPanel = this._chart.mainPanel;
+      bar.locked = true;
+      this._chart.mainPanel.addObjects(bar);
+      this._barsMap[model.id] = bar;
+    } else {
+      const orderBar = this._barsMap[model.id];
+      orderBar.order = this._map(model);
+      orderBar.locked = true;
+      orderBar.update(false);
+    }
+    if (!this._isValid(model)) {
+      this.delete(model.id);
+    }
+  }
+  abstract createBar(model);
 
   refresh() {
     this._deleteItems();
@@ -44,6 +72,8 @@ export abstract class ChartObjects<T extends IBaseItem> {
   }
 
   destroy() {
+    if (this.unsubscribeFn)
+      this.unsubscribeFn();
   }
 
   protected _subscribeToConnections() {
@@ -59,10 +89,7 @@ export abstract class ChartObjects<T extends IBaseItem> {
 
           if (repository?.forConnection) {
             this._repository = repository.forConnection(connection);
-
-            this._repositorySubscription = this._subscribeToRepository();
           }
-
           this._loadItems();
         } else {
           this._deleteItems();
@@ -70,41 +97,16 @@ export abstract class ChartObjects<T extends IBaseItem> {
       });
   }
 
-  protected _subscribeToRepository(): Subscription {
-    if (!this._repository) {
-      return;
-    }
-
-    return this._repository.actions
-      .pipe(untilDestroyed(this._instance))
-      .subscribe(({ action, items }) => {
-        items.forEach(item => {
-          switch (action) {
-            case RealtimeAction.Create:
-              this.create(item);
-              break;
-            case RealtimeAction.Update:
-              this.update(item);
-              break;
-            case RealtimeAction.Delete:
-              this.delete(item.id);
-              break;
-          }
-        });
-      });
-  }
-
   protected _loadItems() {
     if (!this._instance.accountId || !this._instance.instrument) {
       return;
     }
-    console.log(this._instance.instrument);
 
     this._repository.getItems(this._params)
       .pipe(untilDestroyed(this._instance))
       .subscribe((res: IPaginationResponse<T>) => {
         res.data.forEach(item => {
-          this.create(item);
+          this.handle(item);
         });
       });
   }

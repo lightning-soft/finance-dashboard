@@ -1,6 +1,7 @@
 import { StringHelper } from 'base-components';
-import { IPosition, PositionsRepository, Side } from 'trading';
+import { IPosition, PositionsFeed, PositionsRepository, Side } from 'trading';
 import { ChartObjects } from './chart-objects';
+import { RealPositionsRepository } from 'real-trading';
 
 declare const StockChartX: any;
 
@@ -8,17 +9,31 @@ const { uncapitalize } = StringHelper;
 
 export class Positions extends ChartObjects<IPosition> {
   protected _repository = this._injector.get(PositionsRepository);
+  protected _dataFeed = this._injector.get(PositionsFeed) as any;
 
   init() {
     super.init();
     this._chart.on(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, this._closePosition);
   }
-  _closePosition =  ({ value }) => {
+
+  handle(model: IPosition) {
+    const position = model.id ? model : RealPositionsRepository.transformPosition(model);
+    super.handle(position);
+  }
+
+  createBar(model) {
+    return new StockChartX.PositionBar({
+      position: this._map(model),
+    });
+  }
+
+  _closePosition = ({ value }) => {
     this._repository.deleteItem(value.position).subscribe(
       () => value.remove(),
       err => console.error(err),
     );
   }
+
   destroy() {
     super.destroy();
     this._chart?.off(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, this._closePosition);

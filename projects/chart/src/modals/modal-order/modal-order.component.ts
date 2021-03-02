@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormComponent } from 'base-components';
 import { FormControl, FormGroup } from '@angular/forms';
 import { OrderDurations, OrderTypes } from 'base-order-form';
@@ -7,10 +7,10 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'lib-create-order',
-  templateUrl: './create-order.component.html',
-  styleUrls: ['./create-order.component.scss']
+  templateUrl: './modal-order.component.html',
+  styleUrls: ['./modal-order.component.scss']
 })
-export class CreateOrderComponent extends FormComponent<any> {
+export class ModalOrderComponent extends FormComponent<any> {
 
   orderTypes = OrderTypes;
   orderDurations = OrderDurations;
@@ -20,6 +20,8 @@ export class CreateOrderComponent extends FormComponent<any> {
   duration = OrderDuration.DAY;
   type = OrderType.Market;
   quantity = 1;
+  isEdit = false;
+
 
   get isStopEnabled() {
     const orderTypes = [OrderType.StopMarket, OrderType.StopLimit];
@@ -33,13 +35,15 @@ export class CreateOrderComponent extends FormComponent<any> {
 
   constructor(private nzModalRef: NzModalRef) {
     super();
+    this.autoLoadData = {};
+    this.subscribeToConnections = false;
   }
 
   protected createForm(): FormGroup {
     return new FormGroup({
       type: new FormControl(this.type),
       quantity: new FormControl(this.quantity),
-      duration: new FormControl(this.duration),
+      duration: new FormControl(this.duration.toUpperCase()),
       stopPrice: new FormControl(this.stopPrice),
       limitPrice: new FormControl(this.limitPrice),
     });
@@ -48,5 +52,9 @@ export class CreateOrderComponent extends FormComponent<any> {
 
   submit(side: OrderSide) {
     this.nzModalRef.close({ ...this.formValue, side });
+  }
+
+  save() {
+    this.nzModalRef.close({ ...this.formValue });
   }
 }
