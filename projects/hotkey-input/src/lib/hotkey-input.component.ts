@@ -24,6 +24,9 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   onChange;
   prevBinding;
 
+  get keyboardListenerBinding() {
+    return this.keyboardListener.snapshot().toDTO();
+  }
 
   @HostListener('window:keyup', ['$event'])
   @HostListener('window:keydown', ['$event'])
@@ -45,9 +48,7 @@ export class HotkeyInputComponent implements ControlValueAccessor {
     });
 
     this.keyboardListener.onCanceled(() => {
-      this.updateHotkey(this.prevBinding, false);
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
+      this.cancel();
     });
 
     this.keyboardListener.onCleared(() => {
@@ -59,6 +60,12 @@ export class HotkeyInputComponent implements ControlValueAccessor {
 
   finish() {
     this.updateHotkey(this.keyboardListener.snapshot());
+    this.keyboardListener.clear();
+    this.isKeyboardRecording = false;
+  }
+
+  cancel() {
+    this.updateHotkey(this.prevBinding, false);
     this.keyboardListener.clear();
     this.isKeyboardRecording = false;
   }
@@ -92,8 +99,13 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   }
 
   saveHotkey() {
-    if (this.isKeyboardRecording) {
+    if (!this.isKeyboardRecording) {
+      return;
+    }
+    if (this.keyboardListenerBinding.parts.length) {
       this.finish();
+    } else {
+      this.cancel();
     }
   }
 }
