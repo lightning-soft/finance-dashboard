@@ -361,8 +361,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
   }
 
-  private _bestAskPrice: number;
   private _bestBidPrice: number;
+  private _bestAskPrice: number;
   componentInstanceId: number;
 
   constructor(
@@ -903,7 +903,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.Stimestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1163,7 +1163,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const isBid = trade.side === QuoteSide.Bid;
 
       if (isBid || (needClear && !isBid)) {
-        if (this._bestAskPrice != price || needClear) {
+        if (this._bestBidPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
             if (!needClear)
@@ -1174,12 +1174,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
 
           if (!needClear)
-            this._bestAskPrice = price;
+            this._bestBidPrice = price;
         }
       }
 
       if (!isBid || (needClear && isBid)) {
-        if (this._bestBidPrice != price || needClear) {
+        if (this._bestAskPrice != price || needClear) {
           for (let i = 0; i < items.length; i++) {
             item = items[i];
             if (!needClear)
@@ -1190,7 +1190,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
 
           if (!needClear)
-            this._bestBidPrice = price;
+            this._bestAskPrice = price;
         }
       }
     }
@@ -1203,7 +1203,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const max = this._max;
 
     for (const i of this.items) {
-      if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
+      if (this._bestBidPrice <= i.lastPrice && i.isAskSideVisible) {
         i.ask.calcHist(max.ask);
         i.askDelta.calcHist(max.askDelta);
         if (i.ask.hist > 1) {
@@ -1211,7 +1211,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
-      if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
+      if (this._bestAskPrice >= i.lastPrice && i.isBidSideVisible) {
         i.bid.calcHist(max.bid);
         i.bidDelta.calcHist(max.bidDelta);
       }
@@ -1235,11 +1235,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (let i = items.length - 1; i >= 0; i--) {
       item = items[i];
 
-      if (item.lastPrice == this._bestBidPrice)
+      if (item.lastPrice == this._bestAskPrice)
         index = i;
 
       changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
-      if (item.lastPrice >= this._bestBidPrice) {
+      if (item.lastPrice >= this._bestAskPrice) {
 
         if (changes != true)
           this._handleMaxChange(changes, item);
@@ -1251,11 +1251,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (let i = 0; i < items.length; i++) {
       item = items[i];
 
-      if (item.lastPrice == this._bestAskPrice)
+      if (item.lastPrice == this._bestBidPrice)
         index = i;
 
       // changes = item.setBidVisibility(false, false);
-      if (item.lastPrice <= this._bestAskPrice) {
+      if (item.lastPrice <= this._bestBidPrice) {
         changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
 
         if (changes != true)
@@ -1361,7 +1361,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.keysStack.handle(event);
-    console.log('this.keysStack', this.keysStack.hashCode());
+    // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));

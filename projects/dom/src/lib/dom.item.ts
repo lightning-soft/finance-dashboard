@@ -196,7 +196,7 @@ class LevelCell extends HistogramCell {
 
     const settings: any = this.settings;
 
-    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
+    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
       if (level <= Levels) {
         this.changeStatus(`level${level}`);
@@ -343,6 +343,7 @@ export class DomItem implements IBaseItem {
       }
     }
 
+    this.calculateLevel();
     return res;
   }
 
