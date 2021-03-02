@@ -903,7 +903,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.Stimestamp, trade.price, trade.volume);
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1147,7 +1147,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let item = this._getItem(trade.price);
 
-    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+
 
     if (!this.items.length)
       this.fillData(trade.price);
@@ -1166,8 +1167,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestBidPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
-            if (!needClear)
-              item.clearAskDelta();
+            if (!needClear || item.lastPrice != price)
+              item.clearBidDelta();
 
             if (item.lastPrice != price)
               item.setCurrentBidBest();
@@ -1182,8 +1183,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestAskPrice != price || needClear) {
           for (let i = 0; i < items.length; i++) {
             item = items[i];
-            if (!needClear)
-              item.clearBidDelta();
+            if (!needClear || item.lastPrice != price)
+              item.clearAskDelta();
 
             if (item.lastPrice != price)
               item.setСurrentAskBest();

@@ -176,7 +176,8 @@ class LevelCell extends HistogramCell {
   best: QuoteSide = null;
 
   update(value: number, timestamp: number, forceAdd: boolean) {
-    const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    // const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    const result = this.updateValue(forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
 
     if (result)
@@ -191,7 +192,7 @@ class LevelCell extends HistogramCell {
 
   // return if no levels more, performance improvments
   calculateLevel(): boolean {
-    if (!this._value)
+    if (!this._levelTime)
       return;
 
     const settings: any = this.settings;
@@ -200,8 +201,9 @@ class LevelCell extends HistogramCell {
     if (!isNaN(level)) {
       if (level <= Levels) {
         this.changeStatus(`level${level}`);
-      } else if (level == Levels + 1) {
+      } else if (level >= Levels + 1) {
         this.changeStatus('');
+        this._levelTime = null;
       }
       return true;
     }
