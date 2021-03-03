@@ -87,7 +87,7 @@ export class AuthService {
     this._idToken = data.id_token;
 
     this._tokenData = parseJwt(data.access_token);
-    this._expirationDate = Date.now() + (this._tokenData.expiresIn * 1000);
+    this._expirationDate = Date.now() + (data.expires_in * 1000);
 
     this.storage.setItem(idToken, this._idToken);
     this.storage.setItem(refreshTokenKey, this._refreshToken);

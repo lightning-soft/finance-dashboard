@@ -4,6 +4,8 @@ import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { Layout } from 'layout';
+import { Components } from 'src/app/modules';
 
 declare const StockChartX;
 
@@ -25,6 +27,7 @@ const periodicityMap = new Map([
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent {
+  @Input() link: any;
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
   showToolbar = true;
@@ -123,7 +126,7 @@ export class ToolbarComponent {
   ];
 
   @Input() chart: IChart;
-
+  @Input() layout: Layout;
   get instrument(): IInstrument {
     return this.chart?.instrument;
   }
@@ -237,26 +240,18 @@ export class ToolbarComponent {
   }
 
   openIndicatorDialog() {
-    const { chart } = this;
-
-    StockChartX.UI.ViewLoader.indicatorsDialog((dialog) => {
-      dialog.show({
-        chart,
-        done: (className: string) => {
-          const showSettingsDialog = StockChartX.UI.IndicatorsDialog.showSettingsBeforeAdding;
-
-          if (!chart)
-            return;
-
-          const indicator = StockChartX.Indicator.deserialize({ className, chart });
-
-          chart.addIndicators(indicator);
-          if (showSettingsDialog) {
-            indicator.showSettingsDialog();
-          }
-          chart.update();
-        }
-      });
+    this.layout.addComponent({
+      component: {
+        name: Components.Indicators,
+        state: {
+          link: this.link,
+          chart: this.chart,
+        },
+      },
+      width: 600,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
     });
   }
 

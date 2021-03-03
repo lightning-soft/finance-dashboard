@@ -96,9 +96,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
-        const item = items.find(item => item.connected);
-        if (!this.selectedItem)
+        const item = items.find(item => item.connected && item.connectOnStartUp);
+        if (!this.selectedItem) {
           this.selectItem(item);
+        }
+        this._updateSelectedItem();
       });
   }
 

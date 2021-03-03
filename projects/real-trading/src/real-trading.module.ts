@@ -13,6 +13,7 @@ import {
   SettingsRepository,
   OrderBooksRepository,
   VolumeHistoryRepository,
+  BarDataFeed,
 } from 'trading';
 import {
   RealAccountRepository,
@@ -24,7 +25,8 @@ import {
   RealLevel2DataFeed, RealSettingsRepository,
   RealOrderBooksRepository,
   RealTradeDataFeed,
-  RealVolumeHistoryRepository
+  RealVolumeHistoryRepository,
+  RealBarDataFeed
 } from './trading/repositories';
 
 
@@ -65,6 +67,10 @@ export class RealTradingModule {
         {
           provide: VolumeHistoryRepository,
           useClass: RealVolumeHistoryRepository,
+        },
+        {
+          provide: BarDataFeed,
+          useClass: RealBarDataFeed,
         },
         {
           provide: Level1DataFeed,

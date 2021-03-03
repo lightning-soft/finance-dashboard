@@ -22,7 +22,11 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   @Input() value: KeyBinding;
   @Output() valueChange = new EventEmitter<KeyBinding>();
   onChange;
+  prevBinding;
 
+  get keyboardListenerBinding() {
+    return this.keyboardListener.snapshot().toDTO();
+  }
 
   @HostListener('window:keyup', ['$event'])
   @HostListener('window:keydown', ['$event'])
@@ -38,15 +42,13 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   changeHotkey($event: MouseEvent) {
     $event.preventDefault();
     this.isKeyboardRecording = true;
-    const prevBinding = this.value;
+    this.prevBinding = this.value;
     this.keyboardListener.onFinised(() => {
       this.finish();
     });
 
     this.keyboardListener.onCanceled(() => {
-      this.updateHotkey(prevBinding);
-      this.keyboardListener.clear();
-      this.isKeyboardRecording = false;
+      this.cancel();
     });
 
     this.keyboardListener.onCleared(() => {
@@ -57,7 +59,13 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   }
 
   finish() {
-    this.updateHotkey(this.keyboardListener.snapshot());
+    this.updateHotkey(this.value);
+    this.keyboardListener.clear();
+    this.isKeyboardRecording = false;
+  }
+
+  cancel() {
+    this.updateHotkey(this.prevBinding, false);
     this.keyboardListener.clear();
     this.isKeyboardRecording = false;
   }
@@ -90,4 +98,10 @@ export class HotkeyInputComponent implements ControlValueAccessor {
       this.value = KeyBinding.fromDTO(obj);
   }
 
+  saveHotkey() {
+    if (!this.isKeyboardRecording) {
+      return;
+    }
+    this.finish();
+  }
 }

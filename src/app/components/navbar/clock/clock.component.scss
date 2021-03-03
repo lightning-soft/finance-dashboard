@@ -9,11 +9,18 @@
   background: $light;
   cursor: pointer;
   transition: background 0.3s;
+
   &:hover {
     background: $inputBackground;
   }
 }
 
+.clock-container {
+  transition: all 0.3s;
+  :hover {
+    color: white;
+  }
+}
 
 .clock {
   padding: 12px 16px;
