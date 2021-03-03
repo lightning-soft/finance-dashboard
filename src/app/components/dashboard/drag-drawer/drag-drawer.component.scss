@@ -27,9 +27,16 @@ button {
 
 .add-container {
   transition: all 0.3s;
+
   &:hover {
     background: $inputBackground;
 
+    .icon-add {
+      color: white;
+    }
+  }
+
+  &.opened {
     .icon-add {
       color: $primary;
     }

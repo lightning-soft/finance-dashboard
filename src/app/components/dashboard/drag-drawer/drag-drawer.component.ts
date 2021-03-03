@@ -11,6 +11,7 @@ import { Components } from '../../../modules';
 })
 export class DragDrawerComponent {
   @Input() layout: LayoutComponent;
+  opened = false;
 
   items = [
     {

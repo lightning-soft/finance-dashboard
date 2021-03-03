@@ -126,6 +126,8 @@
 
         &:hover {
           background: $inputBackground;
+          color: white;
+         // font-weight: 600;
         }
 
         & > .icon-ellipse {
