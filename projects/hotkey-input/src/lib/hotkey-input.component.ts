@@ -59,7 +59,7 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   }
 
   finish() {
-    this.updateHotkey(this.keyboardListener.snapshot());
+    this.updateHotkey(this.value);
     this.keyboardListener.clear();
     this.isKeyboardRecording = false;
   }
@@ -102,10 +102,6 @@ export class HotkeyInputComponent implements ControlValueAccessor {
     if (!this.isKeyboardRecording) {
       return;
     }
-    if (this.keyboardListenerBinding.parts.length) {
-      this.finish();
-    } else {
-      this.cancel();
-    }
+    this.finish();
   }
 }
