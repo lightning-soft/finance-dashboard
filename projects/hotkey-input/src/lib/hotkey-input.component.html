@@ -1,4 +1,6 @@
 <div
   [class.recording]="isKeyboardRecording"
+  [tabIndex]="1"
+  (focusout)="saveHotkey()"
   [title]="!isKeyboardRecording ? 'Click to record hotkey': ''"
   class="hotkey-input" (click)="changeHotkey($event)" >{{isKeyboardRecording ? 'Recording hotkey': ''}} {{getKeyStringTitle()}}</div>

@@ -59,6 +59,16 @@ class OrdersCell extends HistogramCell {
     this.drawed = false;
   }
 
+  // changeStatus(status?: string) {
+  //   if (this.orderStyle == 'ask') {
+  //     super.changeStatus('sellOrder')
+  //   } else if (this.orderStyle == 'bid') {
+  //     super.changeStatus('buyOrder')
+  //   } else {
+  //     super.changeStatus(status);
+  //   }
+  // }
+
   removeOrder(order) {
     if (this.orders.map(item => item.id).includes(order.id)) {
       this.clearOrder();
@@ -83,7 +93,7 @@ class OrdersCell extends HistogramCell {
       return;
 
     ctx.save();
-    const padding = 2;
+    const padding = 3;
     const x = context.x + 1;
     const y = context.y + 1;
     const px = context.x + padding;
@@ -95,17 +105,19 @@ class OrdersCell extends HistogramCell {
     const sequenceNumber = this._order.currentSequenceNumber;
     const isAsk = this.orderStyle === 'ask';
     const isOrderColumn = this._isOrderColumn;
+    const settings: any = this.settings || {};
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
+
     switch (this.orderStyle) {
       case 'ask':
-        ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
-        ctx.strokeStyle = '#C93B3B';
+        ctx.fillStyle = settings.sellOrderBackgroundColor ?? 'rgba(201, 59, 59, 0.5)';
+        ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
         break;
       case 'bid':
-        ctx.fillStyle = 'rgba(72,149,245,0.5)';
-        ctx.strokeStyle = '#4895f5';
+        ctx.fillStyle = settings.buyBackgroundColor ?? 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = settings.buyOrdersColumn ?? '#4895f5';
         break;
       case 'oco':
         ctx.fillStyle = 'rgba(190,60,177, 0.5)';
@@ -117,7 +129,7 @@ class OrdersCell extends HistogramCell {
 
     ctx.textBaseline = "middle";
     ctx.textAlign = isOrderColumn ? "end" : isAsk ? "start" : "end";
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = ctx.strokeStyle ?? 'white';
 
     ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
@@ -179,13 +191,22 @@ class LevelCell extends HistogramCell {
 
   // return if no levels more, performance improvments
   calculateLevel(): boolean {
+    if (!this._value)
+      return;
+
     const settings: any = this.settings;
 
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
-    if (!isNaN(level) && level <= Levels)
-      this.changeStatus(`level${level}`);
+    if (!isNaN(level)) {
+      if (level <= Levels) {
+        this.changeStatus(`level${level}`);
+      } else if (level == Levels + 1) {
+        this.changeStatus('');
+      }
+      return true;
+    }
 
-    return level < Levels;
+    return false;
   }
 
   changeBest(best?: QuoteSide) {
@@ -196,7 +217,9 @@ class LevelCell extends HistogramCell {
 
     if (best != null) {
       this.changeStatus(`inside`);
-      this.clear();
+
+      if (Date.now() >= (this.time + ((this.settings as any).clearTradersTimer || 0)))
+        this.clear();
     } else if (this.status == `inside` || this.status == `tailInside`) {
       this.changeStatus('');
     }
@@ -253,17 +276,17 @@ export class DomItem implements IBaseItem {
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new HistogramCell({ settings: settings.bid, hightlightOnChange: false });
-    this.ask = new HistogramCell({ settings: settings.ask, hightlightOnChange: false });
+    this.bid = new HistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
+    this.ask = new HistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
-    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, hightlightOnChange: false });
-    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, hightlightOnChange: false });
+    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
+    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
+    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
@@ -378,14 +401,13 @@ export class DomItem implements IBaseItem {
   }
 
   private _updatePiceStatus() {
-    if (!isNaN(this.volume._value) && this.volume._value > 0) {
-      this.price.changeStatus('tradedPrice')
-    }
-
-    if (this.ltq._value > 0)
+    if (this.ltq._value > 0) {
       this.price.hightlight();
-    else
+      this.orders.hightlight();
+    } else {
       this.price.dehightlight();
+      this.orders.dehightlight();
+    }
   }
 
   private _changeLtq(volume: number, side: string) {
@@ -425,14 +447,20 @@ export class DomItem implements IBaseItem {
     this.clearBidDelta();
   }
 
-  clearCurrentBidBest() {
+  setCurrentBidBest() {
+    if (this.ltq._value)
+      return;
+
     this.currentBid.changeBest();
-    this.bidDelta.dehightlight();
+    this.bidDelta.hightlight();
   }
 
-  clearCurrentAskBest() {
+  setСurrentAskBest() {
+    if (this.ltq._value)
+      return;
+
     this.currentAsk.changeBest();
-    this.askDelta.dehightlight();
+    this.askDelta.hightlight();
   }
 
   refresh() {
@@ -447,7 +475,6 @@ export class DomItem implements IBaseItem {
   }
 
   private _getBidValues() {
-    const wasOut = !this.bidDelta.visible && !this.bid.visible;
     const res: any = {};
 
     if (this.bid.visible) {
@@ -457,7 +484,7 @@ export class DomItem implements IBaseItem {
       res.bidDelta = this.bidDelta._value;
     }
 
-    return this.isBidSideVisible ? res : wasOut;
+    return this.isBidSideVisible ? res : true;
   }
 
   setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
@@ -468,7 +495,6 @@ export class DomItem implements IBaseItem {
   }
 
   private _getAskValues() {
-    const wasOut = !this.askDelta.visible && !this.ask.visible;
     const res: any = {};
 
     if (this.ask.visible) {
@@ -478,7 +504,7 @@ export class DomItem implements IBaseItem {
       res.askDelta = this.askDelta._value;
     }
 
-    return this.isAskSideVisible ? res : wasOut;
+    return this.isAskSideVisible ? res : true;
   }
 
   handleOrder(order: IOrder) {

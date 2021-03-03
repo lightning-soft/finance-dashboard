@@ -1,4 +1,4 @@
-image: registry.gitlab.com/docker.hub/teracy/angular-cli
+image: registry.git.avidi.tech/docker/teracy/angular-cli:latest
 
 stages:
     - install
@@ -62,6 +62,9 @@ build-web-ssr:
         # - npm run build:ssr
         - npm install --save-dev @angular-devkit/build-angular
         - npm run build:static
+        - cd dist/browser/assets
+        - ls -l
+        - cd ../
     # after_script:
     #     - npm run test:ssr
 # .deploy:

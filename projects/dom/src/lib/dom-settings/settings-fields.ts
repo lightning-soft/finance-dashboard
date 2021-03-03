@@ -369,158 +369,7 @@ export const hotkeyFields: IFieldConfig[] = [
     }
   ),
 ];
-/*export const hotkeyFields: FormlyFieldConfig[] = [
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Auto Center' },
-    key: 'autoCenter',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Auto Center All Windows' },
-    key: 'autoCenterWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Buy Market' },
-    key: 'buyMarket',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Sell Market' },
-    key: 'sellMarket',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Hit Bid' },
-    key: 'hitBid',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Join Bid' },
-    key: 'joinBid',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Lift Offer' },
-    key: 'liftOffer',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'OCO' },
-    key: 'oco',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Flatten' },
-    key: 'flatten',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Cancel All Orders' },
-    key: 'cancelAllOrders',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity 1 Preset' },
-    key: 'quantity1',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity 2 Preset' },
-    key: 'quantity2',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity 3 Preset' },
-    key: 'quantity3',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity 4 Preset' },
-    key: 'quantity4',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity 5 Preset' },
-    key: 'quantity5',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Quantity to Position Size' },
-    key: 'quantityToPos',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Set All Stops to Price' },
-    key: 'stopsToPrice',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Alerts' },
-    key: 'clearAlerts',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Alerts All Window' },
-    key: 'clearAlertsWindow',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear All Totals' },
-    key: 'clearTotals',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades All Windows' },
-    key: 'clearCurrentTradesWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Down' },
-    key: 'clearCurrentTradesDown',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Down All Windows' },
-    key: 'clearCurrentTradesDownWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Up' },
-    key: 'clearCurrentTradesUp',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Current Trades Up All Windows' },
-    key: 'clearCurrentTradesUpWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Down' },
-    key: 'clearTotalTradesDown',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Down All Windows' },
-    key: 'clearTotalTradesDownWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Up' },
-    key: 'clearTotalTradesUp',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Total Trades Up All Windows' },
-    key: 'clearTotalTradesUpWindows',
-  },
-  {
-    type: FieldType.Input,
-    templateOptions: { label: 'Clear Volume Profile' },
-    key: 'clearVolume',
-  },
-];*/
+
 export const generalFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: '',
@@ -906,17 +755,17 @@ export const volumeFields: IFieldConfig[] = [
 export const orderColumnFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Trade Column',
-    key: 'order',
+    key: 'orders',
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
         fieldGroup: [
           getColor('Background Color'),
           getColor('Highlight Color'),
-          getColor('Buy Order Background'),
-          getColor('Sell Order Background'),
-          getColor('Buy Order Foreground'),
-          getColor('Sell Order Foreground'),
+          getColor({ label: 'Buy Order Background', key: 'buyOrderBackgroundColor' }),
+          getColor({ label: 'Sell Order Background', key: 'sellOrderBackgroundColor' }),
+          getColor({ label: 'Buy Order Foreground', key: 'buyOrderColor' }),
+          getColor({ label: 'Sell Order Foreground', key: 'sellOrderColor' }),
         ],
       }),
       new FieldConfig({
@@ -933,12 +782,12 @@ export const orderColumnFields: IFieldConfig[] = [
       new FieldConfig({
         className: 'mb-0',
         fieldGroup: [
-          getColor('In Profit Background'),
-          getColor('In Profit Foreground'),
-          getColor('Loss Background'),
-          getColor('Loss Foreground'),
-          getColor('Break-even Background'),
-          getColor('Break-even Foreground'),
+          getColor({ label: 'In Profit Background', key: 'inProfitBackgroundColor' }),
+          getColor({ label: 'In Profit Foreground', key: 'inProfitColor' }),
+          getColor({ label: 'Loss Background', key: 'lossBackgroundColor' }),
+          getColor({ label: 'Loss Foreground', key: 'lossColor' }),
+          getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
+          getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
           {
             ...getCheckboxes([
               { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
@@ -1047,7 +896,7 @@ export enum SettingTab {
   TotalAsk = 'totalAsk',
   TotalBid = 'totalBid',
   Volume = 'volume',
-  OrderColumn = 'order',
+  Orders = 'orders',
   CurrentAtBid = 'currentAtBid',
   Note = 'note',
   CurrentAtAsk = 'currentAtAsk',
@@ -1070,7 +919,7 @@ export const SettingsConfig = {
   [SettingTab.TotalAsk]: getTotalFields('Total At Ask', 'totalAsk'),
   [SettingTab.TotalBid]: getTotalFields('Total At Bid', 'totalBid'),
   [SettingTab.Volume]: volumeFields,
-  [SettingTab.OrderColumn]: orderColumnFields,
+  [SettingTab.Orders]: orderColumnFields,
   [SettingTab.CurrentAtBid]: getCurrentFields('Bid'),
   [SettingTab.CurrentAtAsk]: getCurrentFields('Ask'),
   [SettingTab.Note]: noteColumnFields,
