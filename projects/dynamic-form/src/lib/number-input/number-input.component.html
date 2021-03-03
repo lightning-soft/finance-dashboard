@@ -1,2 +1,2 @@
-<input [(ngModel)]="value" [formlyAttributes]="field"  nz-input type="number">
-<span *ngIf="field.templateOptions?.label" class="number-label">{{field.templateOptions?.label}}</span>
+<input [formControl]="formControl"  [formlyAttributes]="field" nz-input type="number">
+<span class="number-label">{{field.templateOptions?.label}}</span>

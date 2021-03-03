@@ -7,7 +7,6 @@ export * from './history.repository';
 export * from './instruments.repository';
 export * from './orders.repository';
 export * from './positions.repository';
-export * from './bar.data-feed';
 export * from './level1.data-feed';
 export * from './level2.data-feed';
 export * from './orders.feed';
