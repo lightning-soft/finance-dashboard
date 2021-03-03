@@ -3,7 +3,7 @@ export interface Validator {
   validator: any;
   message: string;
 }
-
+/*
 export interface FieldConfig {
   label?: string;
   name?: string;
@@ -13,7 +13,7 @@ export interface FieldConfig {
   type: string;
   value?: any;
   validations?: Validator[];
-}
+}*/
 
 export enum FieldType {
   Input = 'input',
@@ -25,6 +25,7 @@ export enum FieldType {
   TextAlign = 'textAlign',
   Switch = 'switch',
   Hotkey = 'hotkey',
+  ColorSelect = 'colorSelect'
 }
 
 export enum InputType {

@@ -76,6 +76,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
 
   private _handleChange(value: any) {
     // this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
+    console.log(this.settings);
     this.broadcastData(DomSettingsSelector, this.settings);
   }
 

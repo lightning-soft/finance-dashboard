@@ -1,0 +1,20 @@
+<window-header [window]="this">
+        <span class="d-flex ml-auto align-items-center">
+      <nz-switch class="d-flex" nzSize="small" [(ngModel)]="showTooltips"></nz-switch>
+      <span class="show-hover-info">Show info on hover</span>
+        </span>
+</window-header>
+<div class="indicator-container">
+  <cdk-virtual-scroll-viewport itemSize="">
+    <div class="indicator-inner-container">
+      <div nz-tooltip [nzTooltipTitle]="showTooltips && getTitle(item)"
+           nzPlacement="rightTop"
+           [nzTooltipOverlayClassName]="'indicator-tooltip'"
+           (click)="addIndicator(item)" class="chart-indicator"
+           *ngFor="let item of chartIndicators">
+        <span class="indicator-name">{{item}}</span>
+        <i class="icon-add"></i>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+</div>

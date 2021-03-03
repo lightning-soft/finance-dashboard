@@ -27,7 +27,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> {
     return super.getItems(params).pipe(
       map((res: any) => {
         const data = res.result.map(item => ({
-          date: moment.utc(item.timestamp * 1000).toDate(),
+          date: moment.utc(item.timestamp).toDate(),
           open: item.openPrice,
           close: item.closePrice,
           high: item.highPrice,
