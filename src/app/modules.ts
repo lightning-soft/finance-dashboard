@@ -15,6 +15,7 @@ export const Modules = {
 
 export const Components = {
   Chart: 'chart',
+  Indicators: 'indicators',
   Watchlist: 'watchlist',
   Positions: 'positions',
   Orders: 'orders',
@@ -25,6 +26,7 @@ export const Components = {
   Dom: 'dom',
   DomSettings: 'dom-settings',
   NotificationList: 'notification-list',
+  IndicatorList: 'indicatorList'
 };
 
 export const modulesStore: IModules[] = [
@@ -32,6 +34,8 @@ export const modulesStore: IModules[] = [
     module: Modules.Chart,
     components: [
       Components.Chart,
+      Components.Indicators,
+      Components.IndicatorList,
     ]
   },
   {
