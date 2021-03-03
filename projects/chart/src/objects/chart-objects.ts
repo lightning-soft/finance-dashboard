@@ -45,13 +45,14 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   }
 
   handle(model: T){
-    if (model?.instrument?.symbol !== this._instance.instrument.symbol) {
+    const instrument =  this._instance?.instrument;
+    if (instrument == null || model?.instrument?.symbol !== instrument?.symbol) {
       return;
     }
     if (!this._barsMap[model.id]) {
       const bar = this.createBar(model);
       bar.chartPanel = this._chart.mainPanel;
-      bar.locked = true;
+      // bar.locked = true;
       this._chart.mainPanel.addObjects(bar);
       this._barsMap[model.id] = bar;
     } else {
