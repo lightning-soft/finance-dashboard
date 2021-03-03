@@ -14,6 +14,7 @@ class OrdersCell extends HistogramCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid' | 'oco';
+  pl: any;
 
   get canCancelOrder() {
     return (!this._order || (this.settings as any).overlayOrders == false)
@@ -72,6 +73,14 @@ class OrdersCell extends HistogramCell {
 
     const type = this._order.type.replace(/[^A-Z]/g, "");
     this._text = `${this._order.quantity}${type}`;
+  }
+
+  setPL(pl) {
+    this.pl = pl;
+  }
+
+  clearPL() {
+    this.pl = null;
   }
 
   draw(context) {
@@ -550,5 +559,13 @@ export class DomItem implements IBaseItem {
     const bid = this.currentBid.calculateLevel();
 
     return ask || bid;
+  }
+
+  clearPL() {
+    this.orders.clearPL();
+  }
+
+  setPL(pl: number) {
+    this.orders.setPL(pl);
   }
 }

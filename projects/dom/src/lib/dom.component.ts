@@ -552,6 +552,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (pos.instrument.symbol == this.instrument.symbol) {
       this._applyPositionSetting(oldPosition, newPosition);
     }
+  }
+
+  _applyPositionSetting(oldPosition: IPosition, newPosition: IPosition) {
+    const {
+      closeOutstandingOrders,
+    } = this._settings.general;
+    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
+    if (isNewPosition) {
+      // #TODO test all windows
+      this.applySettingsOnNewPosition();
+      this._fillPL(newPosition);
+    } else {
+      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
+        && newPosition.side === Side.Closed) {
+        this.deleteOutstandingOrders();
+      }
+      this._removePL();
+    }
     if (oldPosition) {
       const index = this.positions.findIndex(item => item.id === newPosition.id);
       this.positions[index] = newPosition;
@@ -560,25 +578,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _applyPositionSetting(oldPosition, newPosition) {
-    const {
-      closeOutstandingOrders,
-    } = this._settings.general;
-    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
-    if (isNewPosition) {
-      // #TODO test all windows
-      this.applySettingsOnNewPosition();
-    } else {
-      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
-        && newPosition.side === Side.Closed) {
-        this.deleteOutstandingOrders();
-      }
+  private _removePL() {
+    for (const i of this.items) {
+      i.clearPL();
     }
-    if (oldPosition) {
-      const index = this.positions.findIndex(item => item.id === newPosition.id);
-      this.positions[index] = newPosition;
-    } else {
-      this.positions.push(newPosition);
+  }
+
+  private _fillPL(position: IPosition) {
+    console.log(position.price);
+
+    for (const i of this.items) {
+      i.setPL();
     }
   }
 
@@ -785,7 +795,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _loadPositions() {
     this._positionsRepository.getItems({ accountId: this._accountId })
       .pipe(untilDestroyed(this))
-      .subscribe(items => this.positions = items.data);
+      .subscribe(items => {
+        this.positions = items.data;
+        const i = this.instrument;
+        this._fillPL(this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange));
+      });
   }
 
   broadcastHotkeyCommand(commandName: string) {
