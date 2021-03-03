@@ -16,7 +16,6 @@ import { Orders, Positions } from './objects';
 import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
-import { Components } from 'src/app/modules';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -45,7 +44,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   chart: IChart;
-  link: any;
 
   private _accountId: Id;
 
@@ -115,7 +113,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     return {
-      link: this.link,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState()
@@ -174,8 +171,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         }
       });
 
-    this.broadcastData(this.link, chart);
-
     let charts = [];
 
     if (!environment.production) {
@@ -228,7 +223,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         id: 'ESH1',
         symbol: 'ESH1',
         exchange: 'CME',
-        tickSize: 0.25,
+        tickSize: 0.01,
         company: this._getInstrumentCompany(),
       },
       theme: getScxTheme(this._themesHandler.theme),
@@ -299,8 +294,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadState(state?: any) {
-    this.link = state?.link ?? Math.random();
-
     this.loadedState.next(state);
   }
 
@@ -317,11 +310,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     this.chart = null;
-  }
-
-  onWindowClose() {
-    this.layout.removeComponent(Components.Indicators);
-    this.layout.removeComponent(Components.IndicatorList);
   }
 }
 

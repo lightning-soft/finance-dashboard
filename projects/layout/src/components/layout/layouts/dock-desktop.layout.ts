@@ -27,11 +27,6 @@ export class DockDesktopLayout extends Layout {
       .some(item => item.name === options.component.name);
   }
 
-  removeComponent(componentName) {
-    const window = this._windowManagerService.windows.getValue()
-      .find(item => item.options.componentState().name === componentName);
-    window?.close();
-  }
 
   addComponent(componentNameOrConfig: ComponentOptions | any) {
     let componentName: string;

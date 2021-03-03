@@ -1,5 +1,5 @@
 import { AddClassStrategy, ICellSettings, NumberCell } from 'data-grid';
-import { HistogramOrientation } from 'dynamic-form';
+import { HistogramOrientation } from '../dom-settings/settings-fields';
 
 export const histogramComponent = 'histogram-component';
 
