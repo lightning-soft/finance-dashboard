@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OrderSide } from 'trading';
-import { IBar, IChart, IDetails } from '../models';
+import { IBar, IChart } from '../models';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
 export type IDateFormat = (request: IRequest) => string;
 
@@ -160,7 +159,7 @@ export abstract class Datafeed implements IDatafeed {
     if (quote.date.getTime() < currentBarStartTimestamp || quote.price === 0)
       return;
 
-    if (!quote.side && (new Date(quote.date) >= nextBarStartDate || lastBar === null)) {
+    if (new Date(quote.date) >= nextBarStartDate || lastBar === null) {
       // If there were no historical data and timestamp is in range of current time frame
       if (lastBar === null && quote.date < nextBarStartDate)
         nextBarStartTimestamp = currentBarStartTimestamp;
@@ -176,19 +175,7 @@ export abstract class Datafeed implements IDatafeed {
         low: quote.price,
         close: quote.price,
         volume: quote.volume,
-        date: new Date(nextBarStartTimestamp),
-        details: [{
-          bidInfo: {
-            volume: 0,
-            price: 0
-          },
-          askInfo: {
-            volume: 0,
-            price: 0
-          },
-          volume: 0,
-          price: quote.price
-        }]
+        date: new Date(nextBarStartTimestamp)
       };
 
       if (!instrument)
@@ -198,21 +185,18 @@ export abstract class Datafeed implements IDatafeed {
 
       chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
     } else {
-      if (!quote.side) {
-        lastBar.close = quote.price;
-        lastBar.volume += quote.volume;
+      // Update current bar
+      lastBar.close = quote.price;
+      // Temporary workaround
+      lastBar.volume = (<number>lastBar.volume) + quote.volume / 1000;
 
-        if (lastBar.high < quote.price)
-          lastBar.high = quote.price;
+      if (lastBar.high < quote.price)
+        lastBar.high = quote.price;
 
-        if (lastBar.low > quote.price)
-          lastBar.low = quote.price;
+      if (lastBar.low > quote.price)
+        lastBar.low = quote.price;
 
-        this._updateLastBar(lastBar, chart, instrument);
-      } else {
-        this._updateLastBarDetails(quote, chart, instrument);
-      }
-
+      this._updateLastBar(lastBar, chart, instrument);
       chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
     }
   }
@@ -227,64 +211,6 @@ export abstract class Datafeed implements IDatafeed {
     barDataSeries.close.updateLast(bar.close);
     barDataSeries.volume.updateLast(bar.volume);
     barDataSeries.date.updateLast(bar.date);
-
-    chart.setNeedsUpdate();
-  }
-
-  private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
-    const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
-    const barDataSeries = chart.dataManager.barDataSeries(symbol);
-    const detailsDataSerie = barDataSeries.details;
-    const price = barDataSeries.close.lastValue;
-
-    const item: IDetails = {
-      bidInfo: {
-        volume: 0
-      },
-      askInfo: {
-        volume: 0
-      },
-      volume: quote.volume,
-      price
-    };
-
-    switch (quote.side) {
-      case OrderSide.Buy:
-        item.bidInfo.volume = quote.volume;
-        item.bidInfo.price = quote.price;
-        break;
-      case OrderSide.Sell:
-        item.askInfo.volume = quote.volume;
-        item.askInfo.price = quote.price;
-        break;
-    }
-
-    let details = detailsDataSerie.lastValue as IDetails[];
-
-    if (!Array.isArray(details) || !details.length) {
-      details = [item];
-    } else {
-      const index = details.findIndex(i => i.price === price);
-
-      if (index === -1) {
-        details.push(item);
-      } else {
-        const _item = details[index];
-
-        switch (quote.side) {
-          case OrderSide.Buy:
-            _item.bidInfo.volume += item.bidInfo.volume;
-            break;
-          case OrderSide.Sell:
-            _item.askInfo.volume += item.askInfo.volume;
-            break;
-        }
-
-        _item.volume += item.volume;
-      }
-    }
-
-    detailsDataSerie.updateLast(details);
 
     chart.setNeedsUpdate();
   }

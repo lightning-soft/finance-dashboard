@@ -7,20 +7,6 @@ export enum ScxOrderAction {
   SELL = 'sell'
 }
 
-export interface ISideDetails {
-  [key: string]: any;
-  volume: number;
-  price?: number;
-}
-
-export interface IDetails {
-  [key: string]: any;
-  bidInfo: ISideDetails;
-  askInfo: ISideDetails;
-  volume: number;
-  price: number;
-}
-
 export interface IBar {
   close: number;
   high: number;
@@ -28,7 +14,6 @@ export interface IBar {
   open: number;
   date: Date;
   volume: number;
-  details?: IDetails[];
  /* isFalling: boolean;
   isRaising: boolean;
   range: number;
