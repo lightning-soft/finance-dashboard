@@ -1,5 +1,5 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
+import { AddClassStrategy, Cell, CellStatus, DataCell, IFormatter, NumberCell } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
@@ -361,7 +361,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
-      this.askDelta.hightlight();
+      this.askDelta.changeStatus(CellStatus.Highlight);
     }
 
     if (this.ask.updateValue(data.volume)) {
@@ -384,8 +384,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentBid.changeBest(QuoteSide.Bid);
-      this.bidDelta.hightlight();
-      // this.currentAsk.clear();
+      this.bidDelta.changeStatus(CellStatus.Highlight);
     }
 
     if (this.bid.updateValue(data.volume)) {
@@ -450,20 +449,20 @@ export class DomItem implements IBaseItem {
     this.clearBidDelta();
   }
 
-  setCurrentBidBest() {
-    if (this.ltq._value)
-      return;
+  clearCurrentBidBest() {
+    // if (this.ltq._value)
+    //   return;
 
     this.currentBid.changeBest();
-    this.bidDelta.hightlight();
+    // this.bidDelta.changeStatus('');
   }
 
-  setСurrentAskBest() {
-    if (this.ltq._value)
-      return;
+  clearСurrentAskBest() {
+    // if (this.ltq._value)
+    //   return;
 
     this.currentAsk.changeBest();
-    this.askDelta.hightlight();
+    // this.askDelta.changeStatus('');
   }
 
   refresh() {
@@ -475,6 +474,11 @@ export class DomItem implements IBaseItem {
     this.bid.visible = isBidOut !== true;
 
     return this._getBidValues();
+  }
+
+  changeBestStatus() {
+    this.askDelta.changeStatus(this.currentAsk.best == QuoteSide.Ask ? CellStatus.Highlight : '');
+    this.bidDelta.changeStatus(this.currentBid.best == QuoteSide.Bid ? CellStatus.Highlight : '');
   }
 
   private _getBidValues() {

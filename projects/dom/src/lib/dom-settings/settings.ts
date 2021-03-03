@@ -155,14 +155,14 @@ export class DomSettings {
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightHistogramColor: 'rgba(72, 149, 245, 1)',
+    highlightBackgroundColor: 'rgba(72,149,245,0,3)',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightHistogramColor: 'rgba(201, 59, 59, 1)',
+    highlightBackgroundColor: 'rgba(201, 59, 59, 0.2)',
     color: '#ffffff',
   };
   bid: any = {

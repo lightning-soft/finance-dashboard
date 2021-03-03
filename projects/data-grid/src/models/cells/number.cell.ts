@@ -77,7 +77,10 @@ export class NumberCell extends Cell {
 
     this._setValue(value);
     this.time = time ?? Date.now();
-    this.hightlight();
+
+    if (this.hightlightOnChange)
+      this.hightlight();
+
     return true;
   }
 
@@ -95,7 +98,7 @@ export class NumberCell extends Cell {
 
   hightlight() {
     const settings: any = this.settings;
-    if (!this.hightlightOnChange || (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize))
+    if (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize)
       return;
 
     super.hightlight();

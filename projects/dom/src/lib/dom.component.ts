@@ -10,9 +10,9 @@ import {
   IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
+import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { environment } from 'environment';
 import { Id } from 'projects/communication';
 import { RealPositionsRepository } from 'real-trading';
 import {
@@ -1171,7 +1171,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
               item.clearBidDelta();
 
             if (item.lastPrice != price)
-              item.setCurrentBidBest();
+              item.clearCurrentBidBest();
           }
 
           if (!needClear)
@@ -1187,7 +1187,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
               item.clearAskDelta();
 
             if (item.lastPrice != price)
-              item.setСurrentAskBest();
+              item.clearСurrentAskBest();
           }
 
           if (!needClear)
@@ -1207,15 +1207,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (this._bestBidPrice <= i.lastPrice && i.isAskSideVisible) {
         i.ask.calcHist(max.ask);
         i.askDelta.calcHist(max.askDelta);
-        if (i.ask.hist > 1) {
-          console.log(i.lastPrice, i.ask.hist, max.ask);
-        }
+
+        // if (i.ask.hist > 1) {
+        //   console.log(i.lastPrice, i.ask.hist, max.ask);
+        // }
       }
+
 
       if (this._bestAskPrice >= i.lastPrice && i.isBidSideVisible) {
         i.bid.calcHist(max.bid);
         i.bidDelta.calcHist(max.bidDelta);
       }
+
+      i.changeBestStatus();
     }
   }
 
