@@ -4,6 +4,7 @@ import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateTy
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
+import {ProfitClass} from "../../../data-grid/src/models/cells";
 
 const Levels = 9;
 
@@ -25,6 +26,7 @@ class OrdersCell extends HistogramCell {
   constructor(config) {
     super(config);
     this._isOrderColumn = config.isOrderColumn === true;
+    this.strategy = config.strategy ?? AddClassStrategy.NONE;
   }
 
   addOcoOrder(ocoOrder) {
@@ -77,6 +79,8 @@ class OrdersCell extends HistogramCell {
 
   setPL(pl) {
     this.pl = pl;
+    this.updateValue(pl);
+    this.changeStatus(this.class === ProfitClass.DOWN ? 'loss' : 'inProfit');
   }
 
   clearPL() {
@@ -235,6 +239,7 @@ export class DomItem implements IBaseItem {
   _id: Cell = new NumberCell();
   price: PriceCell;
   orders: OrdersCell;
+  profitLoss: NumberCell;
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -279,7 +284,7 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
+    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order, strategy: AddClassStrategy.RELATIVE_ZERO });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);

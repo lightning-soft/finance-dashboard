@@ -585,10 +585,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL(position: IPosition) {
-    console.log(position.price);
-
     for (const i of this.items) {
-      i.setPL();
+    i.setPL(-4);
     }
   }
 

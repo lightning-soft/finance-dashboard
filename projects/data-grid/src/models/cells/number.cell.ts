@@ -46,7 +46,7 @@ export class NumberCell extends Cell {
 
   _value: number;
 
-  private strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
+  protected strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
 
   constructor(config?: INumberConfig) {
     super(config);
