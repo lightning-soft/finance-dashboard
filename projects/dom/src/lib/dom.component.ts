@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
-import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { convertToColumn, LoadingComponent } from 'base-components';
-import { RealtimeActionData } from 'communication';
+import {AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {untilDestroyed} from '@ngneat/until-destroy';
+import {AccountsManager} from 'accounts-manager';
+import {convertToColumn, LoadingComponent} from 'base-components';
+import {RealtimeActionData} from 'communication';
 import {
   CellClickDataGridHandler,
   ContextMenuClickDataGridHandler,
@@ -10,10 +10,10 @@ import {
   IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
-import { KeyBinding, KeyboardListener } from 'keyboard';
-import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { Id } from 'projects/communication';
-import { RealPositionsRepository } from 'real-trading';
+import {KeyBinding, KeyboardListener} from 'keyboard';
+import {ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent} from 'layout';
+import {Id} from 'projects/communication';
+import {RealPositionsRepository} from 'real-trading';
 import {
   IConnection,
   IInstrument,
@@ -33,11 +33,11 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
-import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
-import { DomSettingsSelector } from './dom-settings/dom-settings.component';
-import { DomSettings } from './dom-settings/settings';
-import { DomItem } from './dom.item';
-import { HistogramCell } from './histogram/histogram.cell';
+import {DomFormComponent, FormActions, OcoStep} from './dom-form/dom-form.component';
+import {DomSettingsSelector} from './dom-settings/dom-settings.component';
+import {DomSettings} from './dom-settings/settings';
+import {DomItem} from './dom.item';
+import {HistogramCell} from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -142,8 +142,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
-    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
+    buyMarket: () => this._createOrder(OrderSide.Buy, null, {type: OrderType.Market}),
+    sellMarket: () => this._createOrder(OrderSide.Sell, null, {type: OrderType.Market}),
     hitBid: () => {
       this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
@@ -287,10 +287,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
-  @ViewChild(DataGrid, { static: true })
+  @ViewChild(DataGrid, {static: true})
   dataGrid: DataGrid;
 
-  @ViewChild(DataGrid, { read: ElementRef })
+  @ViewChild(DataGrid, {read: ElementRef})
   dataGridElement: ElementRef;
 
   isFormOpen = true;
@@ -585,8 +585,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL(position: IPosition) {
+    const contractSize = position.instrument.contractSize || this._tickSize;
     for (const i of this.items) {
-    i.setPL(-4);
+      const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
+      const pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
+      i.setPL(Number(pl).toFixed(2));
     }
   }
 
@@ -659,8 +662,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange })
+    const {symbol, exchange} = this._instrument;
+    this._volumeHistoryRepository.getItems({symbol, exchange})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -679,14 +682,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange })
+    const {symbol, exchange} = this._instrument;
+    this._orderBooksRepository.getItems({symbol, exchange})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
           this._clear();
 
-          const { asks, bids } = res.data[0];
+          const {asks, bids} = res.data[0];
 
           bids.sort((a, b) => a.price - b.price);
           asks.sort((a, b) => b.price - a.price);
@@ -748,7 +751,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
-    this._ordersRepository.getItems({ id: this._accountId })
+    this._ordersRepository.getItems({id: this._accountId})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -791,7 +794,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
-    this._positionsRepository.getItems({ accountId: this._accountId })
+    this._positionsRepository.getItems({accountId: this._accountId})
       .pipe(untilDestroyed(this))
       .subscribe(items => {
         this.positions = items.data;
@@ -1329,7 +1332,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   transformLabel(label: string) {
     const replacer = '*';
-    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settings.general;
     if (hideAccountName) {
 
       if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
@@ -1431,7 +1434,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
+        state: {settings: this._settings, componentInstanceId: this.componentInstanceId},
       },
       closeBtn: true,
       single: true,
@@ -1452,9 +1455,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const form = this._domForm.getDto();
-    const { exchange, symbol } = this.instrument;
+    const {exchange, symbol} = this.instrument;
     // #TODO need test
-    const priceSpecs = this._getPriceSpecs({ ...form, side }, price);
+    const priceSpecs = this._getPriceSpecs({...form, side}, price);
     this._ordersRepository.createItem({
       ...form,
       ...priceSpecs,
@@ -1482,17 +1485,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _addOcoOrder(side, item: DomItem) {
     if (!this.buyOcoOrder && side === OrderSide.Buy) {
       item.createOcoOrder(side, this._domForm.getDto());
-      const order = { ...this._domForm.getDto(), side };
+      const order = {...this._domForm.getDto(), side};
       const specs = this._getPriceSpecs(order, +item.price.value);
 
-      this.buyOcoOrder = { ...order, ...specs };
+      this.buyOcoOrder = {...order, ...specs};
       this._createOcoOrder();
     }
     if (!this.sellOcoOrder && side === OrderSide.Sell) {
       item.createOcoOrder(side, this._domForm.getDto());
-      const order = { ...this._domForm.getDto(), side };
+      const order = {...this._domForm.getDto(), side};
       const specs = this._getPriceSpecs(order, +item.price.value);
-      this.sellOcoOrder = { ...order, ...specs };
+      this.sellOcoOrder = {...order, ...specs};
       this._createOcoOrder();
     }
   }
@@ -1576,7 +1579,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _createMarketOrder() {
     const data = this._domForm.getDto();
-    const { exchange, symbol } = this.instrument;
+    const {exchange, symbol} = this.instrument;
     // #TODO investigate what side of order should be added.
     this._ordersRepository.createItem({
       ...data,
@@ -1588,8 +1591,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-        this.notifier.showError(err);
-      });
+      this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {

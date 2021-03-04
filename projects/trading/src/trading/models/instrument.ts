@@ -5,6 +5,7 @@ export interface IInstrument extends IBaseItem {
   description?: string;
   exchange: string;
   tickSize: number;
+  contractSize?: number;
   increment?: number; // get one only
   precision?: number; // get one only
 }

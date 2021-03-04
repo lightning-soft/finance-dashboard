@@ -15,7 +15,7 @@ class OrdersCell extends HistogramCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid' | 'oco';
-  pl: any;
+  pl: number;
 
   get canCancelOrder() {
     return (!this._order || (this.settings as any).overlayOrders == false)
