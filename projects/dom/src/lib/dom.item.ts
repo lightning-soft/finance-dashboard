@@ -15,7 +15,7 @@ class OrdersCell extends HistogramCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid' | 'oco';
-  pl: number;
+  pl: any;
 
   get canCancelOrder() {
     return (!this._order || (this.settings as any).overlayOrders == false)
@@ -284,7 +284,12 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order, strategy: AddClassStrategy.RELATIVE_ZERO });
+    this.orders = new OrdersCell({
+      isOrderColumn: true,
+      settings: settings.order,
+      strategy: AddClassStrategy.RELATIVE_ZERO,
+      ignoreZero: false,
+    });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
@@ -398,7 +403,7 @@ export class DomItem implements IBaseItem {
     return this._getBidValues();
   }
 
-  private _updatePiceStatus() {
+  private _updatePriceStatus() {
     if (this.ltq._value > 0)
       this.price.hightlight();
     else
@@ -410,7 +415,7 @@ export class DomItem implements IBaseItem {
       this.ltq.changeStatus(side);
 
       this.volume.updateValue(volume);
-      this._updatePiceStatus();
+      this._updatePriceStatus();
 
       this.setPrice(this.price._value);
 
@@ -545,7 +550,7 @@ export class DomItem implements IBaseItem {
 
     // console.log(key);
     if (key == 'ltq')
-      this._updatePiceStatus();
+      this._updatePriceStatus();
 
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
@@ -555,7 +560,7 @@ export class DomItem implements IBaseItem {
   setVolume(volume: number) {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
-    this._updatePiceStatus();
+    this._updatePriceStatus();
     return { volume: this.volume._value };
   }
 

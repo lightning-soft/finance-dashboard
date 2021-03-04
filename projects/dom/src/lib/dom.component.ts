@@ -585,11 +585,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL(position: IPosition) {
-    const contractSize = position.instrument.contractSize || this._tickSize;
+    const contractSize = position.instrument.contractSize;
     for (const i of this.items) {
       const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
       const pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
-      i.setPL(Number(pl).toFixed(2));
+      i.setPL(Number(pl.toFixed(this.instrument.precision ?? 2)));
     }
   }
 
