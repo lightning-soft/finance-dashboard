@@ -2,7 +2,7 @@ import { Component, Injector, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { BaseOrderForm, OrderTypes, QuantityInputComponent, OrderDurations } from 'base-order-form';
+import { BaseOrderForm, orderTypes, QuantityInputComponent, orderDurations } from 'base-order-form';
 import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
@@ -30,8 +30,8 @@ export interface OrderFormComponent extends ILayoutNode {
 @UntilDestroy()
 @LayoutNode()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
-  OrderDurations = OrderDurations;
-  OrderTypes = OrderTypes;
+  orderDurations = orderDurations;
+  orderTypes = orderTypes;
   step = 1;
   OrderSide = OrderSide;
   editIceAmount: boolean;

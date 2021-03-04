@@ -27,7 +27,7 @@ export class Positions extends ChartObjects<IPosition> {
     });
   }
 
-  _closePosition = ({ value }) => {
+ private _closePosition = ({ value }) => {
     this._repository.deleteItem(value.position).subscribe(
       () => value.remove(),
       err => console.error(err),

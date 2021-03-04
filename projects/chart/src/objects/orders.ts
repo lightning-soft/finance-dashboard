@@ -3,7 +3,7 @@ import { IOrder, OrderDuration, OrdersFeed, OrdersRepository, OrderStatus, Order
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
+import { ModalOrderComponent } from '../modals/modal-order/modal-order.component';
 
 declare const StockChartX: any;
 
@@ -43,7 +43,7 @@ export class Orders extends ChartObjects<IOrder> {
     });
   }
 
-  _openDialog = (event) => {
+  private _openDialog = (event) => {
     const price = event.value.order.price;
     this._modal.create({
       nzContent: ModalOrderComponent,
@@ -60,13 +60,13 @@ export class Orders extends ChartObjects<IOrder> {
     });
   }
 
-  _updatePrice = ($event) => {
-    this._repository.updateItem(this.transformToIOrder($event.target.order, true)).toPromise();
+  private _updatePrice = ($event) => {
+    this._repository.updateItem(this._mapToIOrder($event.target.order, true)).toPromise();
   }
 
-  _updateOrder = (event) => {
+  private _updateOrder = (event) => {
     const target = event.target;
-    const order = this.transformToIOrder(target.order, true);
+    const order = this._mapToIOrder(target.order, true);
     this._modal.create(
       {
         nzContent: ModalOrderComponent,
@@ -87,10 +87,10 @@ export class Orders extends ChartObjects<IOrder> {
     });
   }
 
-  _createOrder = (event) => {
+  private _createOrder = (event) => {
     const order = event.target.order;
     const target = event.target;
-    this._repository.createItem(this.transformToIOrder(order))
+    this._repository.createItem(this._mapToIOrder(order))
       .pipe(
         untilDestroyed(this._instance)
       )
@@ -106,7 +106,7 @@ export class Orders extends ChartObjects<IOrder> {
       });
   }
 
-  transformToIOrder(order, update = false) {
+ private _mapToIOrder(order, update = false) {
     const priceSpecs: any = {};
     const typeMap = {
       stop: OrderType.StopMarket,
@@ -139,7 +139,7 @@ export class Orders extends ChartObjects<IOrder> {
     };
   }
 
-  _cancelOrder = ({ value }) => {
+  private _cancelOrder = ({ value }) => {
     const order = value.order;
     if (!order) {
       return;
@@ -169,6 +169,7 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
   }
+
   protected _isValid(item: IOrder) {
     return ![OrderStatus.Canceled, OrderStatus.Rejected, OrderStatus.Filled].includes(item.status);
   }
@@ -178,14 +179,19 @@ export class Orders extends ChartObjects<IOrder> {
       [OrderType.StopMarket]: 'stop',
     };
     let price;
-    if (item.type === OrderType.Limit)
-      price = item.limitPrice;
-    else if (item.type === OrderType.StopMarket)
-      price = item.stopPrice;
-    else if (item.type === OrderType.StopLimit) {
-      price = item.limitPrice;
-    } else {
-      price = _price ? _price : item.averageFillPrice;
+    switch (item.type) {
+      case OrderType.Limit:
+        price = item.limitPrice;
+        break;
+      case OrderType.StopMarket:
+        price = item.stopPrice;
+        break;
+      case OrderType.StopLimit:
+        price = item.limitPrice;
+        break;
+      default:
+        price = _price ? _price : item.averageFillPrice;
+
     }
 
     return {

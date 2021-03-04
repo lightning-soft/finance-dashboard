@@ -1,19 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormComponent } from 'base-components';
 import { FormControl, FormGroup } from '@angular/forms';
-import { OrderDurations, OrderTypes } from 'base-order-form';
+import { orderDurations, orderTypes } from 'base-order-form';
 import { OrderDuration, OrderSide, OrderType } from 'trading';
 import { NzModalRef } from 'ng-zorro-antd/modal';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'lib-create-order',
   templateUrl: './modal-order.component.html',
   styleUrls: ['./modal-order.component.scss']
 })
-export class ModalOrderComponent extends FormComponent<any> {
+export class ModalOrderComponent extends FormComponent<any> implements OnInit {
 
-  orderTypes = OrderTypes;
-  orderDurations = OrderDurations;
+  orderTypes = orderTypes;
+  orderDurations = orderDurations;
   stopPrice: number;
   limitPrice: number;
   OrderSide = OrderSide;
@@ -23,20 +25,33 @@ export class ModalOrderComponent extends FormComponent<any> {
   isEdit = false;
 
 
-  get isStopEnabled() {
-    const orderTypes = [OrderType.StopMarket, OrderType.StopLimit];
-    return orderTypes.includes(this.form.value.type);
-  }
+  isStopEnabled: boolean;
 
-  get isLimitEnabled() {
-    const orderTypes = [OrderType.Limit, OrderType.StopLimit];
-    return orderTypes.includes(this.form.value.type);
-  }
+  isLimitEnabled: boolean;
 
   constructor(private nzModalRef: NzModalRef) {
     super();
     this.autoLoadData = {};
     this.subscribeToConnections = false;
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this._updatePriceVisibility();
+    this.form.valueChanges
+      .pipe(
+        debounceTime(10),
+        untilDestroyed(this))
+      .subscribe((res) => {
+        this._updatePriceVisibility();
+      });
+  }
+
+  private _updatePriceVisibility() {
+    const allowedStopTypes = [OrderType.StopMarket, OrderType.StopLimit];
+    this.isStopEnabled = allowedStopTypes.includes(this.form.value.type);
+    const allowedLimitTypes = [OrderType.Limit, OrderType.StopLimit];
+    this.isLimitEnabled = allowedLimitTypes.includes(this.form.value.type);
   }
 
   protected createForm(): FormGroup {

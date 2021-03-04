@@ -2,7 +2,7 @@ import { FormComponent } from 'base-components';
 import { IOrder, OrderType } from 'trading';
 import { IPosition, PositionsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { OrderDuration } from "projects/trading";
+import { OrderDuration } from 'trading';
 
 export abstract class BaseOrderForm extends FormComponent<IOrder> {
   protected positionsRepository: PositionsRepository;
@@ -80,8 +80,8 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     return value;
   }
 }
-export const OrderDurations = Object.values(OrderDuration);
-export const OrderTypes = [
+export const orderDurations = Object.values(OrderDuration);
+export const orderTypes = [
   { label: 'MKT', value: OrderType.Market },
   { label: 'LMT', value: OrderType.Limit },
   { label: 'STP LMT', value: OrderType.StopLimit },
