@@ -463,7 +463,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
-    const overlayOrders = settings.order.overlay;
+    const overlayOrders = settings.orders.overlay;
     this._tickSize = general.commonView.ticksPerPrice;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
@@ -585,11 +585,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL(position: IPosition) {
-    const contractSize = position.instrument.contractSize;
+    const contractSize = this._instrument?.contractSize;
     for (const i of this.items) {
       const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
       const pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
-      i.setPL(Number(pl.toFixed(this.instrument.precision ?? 2)));
+      i.setPL(pl,this._instrument?.precision ?? 2);
     }
   }
 
@@ -1419,10 +1419,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
+        contractSize: 50,
         symbol: 'ESH1',
       };
     // for debug purposes
-
 
     if (!state?.instrument)
       return;

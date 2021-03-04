@@ -251,7 +251,7 @@ export class DomSettings {
     poc: true,
     valueArea: true,
   };
-  order: any = {
+  orders: any = {
     backgroundColor: 'rgba(0, 44, 55, 1)',
     textAlign: TextAlign.Center,
     'break-evenBackground': 'rgba(0, 44, 55, 1)',

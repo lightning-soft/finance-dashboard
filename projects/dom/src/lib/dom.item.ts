@@ -5,6 +5,7 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
 import {ProfitClass} from "../../../data-grid/src/models/cells";
+import {RoundFormatter} from "../../../data-grid/src/models/formatters";
 
 const Levels = 9;
 
@@ -286,7 +287,7 @@ export class DomItem implements IBaseItem {
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({
       isOrderColumn: true,
-      settings: settings.order,
+      settings: settings.orders,
       strategy: AddClassStrategy.RELATIVE_ZERO,
       ignoreZero: false,
     });
@@ -575,7 +576,8 @@ export class DomItem implements IBaseItem {
     this.orders.clearPL();
   }
 
-  setPL(pl: number) {
+  setPL(pl: number, precision: number) {
+    this.orders.formatter = new RoundFormatter(precision);
     this.orders.setPL(pl);
   }
 }
