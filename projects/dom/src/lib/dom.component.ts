@@ -39,6 +39,7 @@ import {DomSettingsSelector} from './dom-settings/dom-settings.component';
 import {DomSettings} from './dom-settings/settings';
 import {DomItem} from './dom.item';
 import {HistogramCell} from './histogram/histogram.cell';
+import {SettingTab} from "./dom-settings/settings-fields";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -589,10 +590,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL(position: IPosition) {
+    const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
     for (const i of this.items) {
       const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
-      const pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
+      let pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
+      if (includePnl) {
+        pl += position.realized;
+      }
       i.setPL(pl);
     }
   }
