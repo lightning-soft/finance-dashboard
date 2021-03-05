@@ -11,13 +11,17 @@ export class Positions extends ChartObjects<IPosition> {
 
   init() {
     super.init();
-
-    this._chart.on(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, ({ value }) => {
-      this._repository.deleteItem(value.position).subscribe(
-        () => value.remove(),
-        err => console.error(err),
-      );
-    });
+    this._chart.on(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, this._closePosition);
+  }
+  _closePosition =  ({ value }) => {
+    this._repository.deleteItem(value.position).subscribe(
+      () => value.remove(),
+      err => console.error(err),
+    );
+  }
+  destroy() {
+    super.destroy();
+    this._chart?.off(StockChartX.PositionBarEvents.CLOSE_POSITION_CLICKED, this._closePosition);
   }
 
   create(item: IPosition) {

@@ -2,7 +2,10 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { QuantityPositions } from 'dom';
 
-export type AddQuantityMode = 'addToCurrent' | 'rewrite';
+export enum AddQuantityMode {
+  AddToCurrent,
+  Rewrite,
+}
 
 @Component({
   selector: 'quantity-input',
@@ -22,7 +25,7 @@ export class QuantityInputComponent implements ControlValueAccessor {
   onChange;
   currentValue: number;
   currentItem: any;
-  @Input() addMode: AddQuantityMode = 'addToCurrent';
+  @Input() addMode: AddQuantityMode = AddQuantityMode.Rewrite;
 
   registerOnChange(fn: any): void {
     this.onChange = fn;
@@ -63,11 +66,12 @@ export class QuantityInputComponent implements ControlValueAccessor {
   }
 
   setValue(item: any) {
-    if (this.addMode === 'addToCurrent') {
+    if (this.addMode === AddQuantityMode.AddToCurrent) {
       this.currentValue += item.value;
-    } else if (this.addMode === 'rewrite') {
+    } else if (this.addMode === AddQuantityMode.Rewrite) {
       this.currentValue = item.value;
     }
+
     this.onChange(this.currentValue);
   }
 }

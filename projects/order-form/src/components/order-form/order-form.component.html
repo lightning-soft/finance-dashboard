@@ -25,7 +25,7 @@
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
     <div class="grid gap-4">
-      <nz-select formControlName="type" [nzOptionHeightPx]="20">
+      <nz-select (ngModelChange)="updateIceQuantityState()" formControlName="type" [nzOptionHeightPx]="20">
         <nz-option *ngFor="let item of OrderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
@@ -33,23 +33,16 @@
         <nz-option *ngFor="let item of OrderDurations" [nzValue]="item" [nzLabel]="item">
         </nz-option>
       </nz-select>
-      <button (click)="toggleIce()" class="dark-button {{isIce ? 'ice-active': ''}}" nz-button>ICE</button>
+      <button [disabled]="!isIceEnabled" (click)="toggleIce()" class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE</button>
 
-      <button
-        [class.d-none]="editIceAmount"
-        (contextmenu)="$event.preventDefault(); editIceAmount = true" class="grey-button w-100"
-        nz-button>{{iceAmount}}</button>
       <nz-input-number
-        [class.d-none]="!editIceAmount"
         class="order-number-input w-100"
-        (keyup.enter)="$event.preventDefault();editIceAmount = false"
-        formControlName="iceAmount"
-        (focusout)="$event.stopPropagation();editIceAmount = false"
+        formControlName="iceQuantity"
       >
       </nz-input-number>
     </div>
-    <sl-units formControlName="stopLoss"></sl-units>
-    <tp-units formControlName="takeProfit"></tp-units>
+    <sl-units overlayClass="order-form-overlay" formControlName="stopLoss"></sl-units>
+    <tp-units overlayClass="order-form-overlay" formControlName="takeProfit"></tp-units>
     <div [class.d-none]="!isStopLimit" class="lmt-title">LMT</div>
     <nz-input-number
       [class.d-none]="!isStopLimit"

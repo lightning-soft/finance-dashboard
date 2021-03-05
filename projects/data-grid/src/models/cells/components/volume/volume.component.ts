@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { NumberCell } from '../../number.cell';
 
 export const volumeComponentSelector = 'volume-component';
 

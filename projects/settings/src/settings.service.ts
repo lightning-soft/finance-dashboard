@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
+import { Workspace } from 'workspace-manager';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -27,6 +29,7 @@ const defaultSettings = {
   language: 'English',
   hotkeys: defaultHotkeyEntries,
   tradingEnabled: true,
+  workspaces: [],
 };
 
 @Injectable()
@@ -38,6 +41,7 @@ export class SettingsService {
   constructor(
     public themeHandler: ThemesHandler,
     private _settingStore: SettingsStore,
+    private messageService: NzMessageService
   ) {
     this._init();
   }
@@ -64,15 +68,23 @@ export class SettingsService {
   }
 
   updateTradingLock(tradingEnabled: boolean) {
-    this._updateState({tradingEnabled});
+    this._updateState({ tradingEnabled });
   }
 
   saveState(): void {
-    this._settingStore.setItem(this.settings.value).toPromise();
+    const { messageId } = this.messageService.loading('Saving', { nzDuration: 1000 });
+    this._settingStore.setItem(this.settings.value).toPromise()
+      .finally(() => {
+       // this.messageService.remove(messageId);
+      });
   }
 
   saveKeyBinding(hotkeys: HotkeyEntire[]) {
-     this._updateState({ hotkeys });
+    this._updateState({ hotkeys });
+  }
+
+  saveWorkspaces(workspaces: Workspace[]) {
+    this._updateState({ workspaces });
   }
 
   private _updateState(settings: object, saveInStorage = true): void {

@@ -1,4 +1,4 @@
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -6,8 +6,9 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize, take } from 'rxjs/operators';
+import { finalize, take, tap } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
+import { AcccountFormComponent } from './acccount-form/acccount-form.component';
 
 export interface AccountsComponent extends ILayoutNode {
 }
@@ -34,6 +35,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   brokers: IBroker[];
   selectedBroker: IBroker;
   splitConnections = false;
+  @ViewChild('userData') userData: AcccountFormComponent;
+  isSubmitted = false;
 
   constructor(
     protected _accountsManager: AccountsManager,
@@ -62,12 +65,20 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   ngOnInit() {
     this.builder.setParams({ groupBy: ['broker'] });
-
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
           this.brokers = res.data;
+          if (this.selectedItem) {
+            this.expandBrokers();
+            return;
+          }
+          if (this.builder.items.length >= maxAccountsPerConnection) {
+            this.selectItem(this.builder.items[0]);
+          } else if (this.brokers.length)
+            this.openCreateForm(null, this.brokers[0]);
+
           this.expandBrokers();
         },
         err => this._notifier.showError(err)
@@ -80,15 +91,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         if (items) {
           this.builder.replaceItems(items);
           this.expandBrokers();
-          this._updateSelectedItem();
         }
       });
 
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
       .subscribe((items) => {
-        const item = items.find(item => item.connected);
-        if (!this.selectedItem)
+        const item = items.find(item => item.connected && item.connectOnStartUp);
+        if (!this.selectedItem) {
           this.selectItem(item);
+        }
+        this._updateSelectedItem();
       });
   }
 
@@ -136,15 +148,15 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   openCreateForm(event: MouseEvent, broker: IBroker) {
-    event.stopPropagation();
-
-    this.selectItem({ broker: broker.name } as IConnection);
+    event?.stopPropagation();
+    if (this.canAddAccount(broker))
+      this.selectItem({ broker: broker.name } as IConnection);
   }
 
   selectItem(item: IConnection) {
     this.selectedItem = item;
     this.expandBrokers();
-
+    this.isSubmitted = false;
     this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
@@ -162,6 +174,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   handleSubmit() {
+    this.isSubmitted = true;
+    if (!this.userData.isValid) {
+      return this;
+    }
     if (!this.selectedItem.id) {
       this.create();
     } else {
@@ -172,7 +188,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...data, broker: this.selectedBroker.name, ...userData };
+    return { ...this.selectedItem, ...data, broker: this.selectedBroker.name, ...userData };
   }
 
   create() {
@@ -180,8 +196,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
       .subscribe(
         (item: IConnection) => {
+          this.expandBrokers();
           this.selectItem(item);
-          this.connect();
+          if (!this._accountsManager.getActiveConnection())
+            this.connect();
         },
         err => this._notifier.showError(err),
       );
@@ -194,9 +212,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         untilDestroyed(this)
       ).subscribe(
       (response: any) => {
-        const index = this.builder.items.findIndex(item => item.id === response.id);
-        this.builder.updateItem(response, index);
-        this.builder.updateGroupItems();
       },
       err => {
         this._notifier.showError(err);
@@ -205,25 +220,32 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   connect() {
-    this._accountsManager.connect(this.getValue())
-      .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
-      .subscribe(
-        (item: IConnection) => {
-          this.selectedItem = item;
-        },
-        err => this._notifier.showError(err),
-      );
+    return this._accountsManager.connect(this.getValue())
+      .pipe(this.showItemLoader(this.selectedItem),
+        tap((item: any) => {
+          if (!item.error)
+            this.selectedItem = item;
+          else {
+            this._notifier.showError('Failed to connect');
+          }
+        }),
+        untilDestroyed(this),
+      ).toPromise();
   }
 
   disconnect(item: IConnection) {
-    this._accountsManager.disconnect(item)
-      .pipe(this.showItemLoader(item), untilDestroyed(this))
+    this._disconnect(item)
       .subscribe(
         () => {
           this.selectedItem = { ...item, connected: false };
         },
         err => this._notifier.showError(err),
       );
+  }
+
+  _disconnect(item: IConnection) {
+    return this._accountsManager.disconnect(item)
+      .pipe(this.showItemLoader(item), untilDestroyed(this));
   }
 
   delete(event: MouseEvent, item: IConnection) {

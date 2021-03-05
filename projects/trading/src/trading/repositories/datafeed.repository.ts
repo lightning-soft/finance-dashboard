@@ -1,9 +1,9 @@
 import { Id } from "communication";
 import { IInstrument } from "../models";
+import { OnTradeFn } from "./feed";
 
 type UnsubscribeFn = () => void;
 type SubscribeFn = (quote: any) => void;
-type SubscribeAllFn = (quotes: any[]) => void;
 
 class Subscription {
     executable = false;
@@ -16,7 +16,7 @@ class Subscription {
     }
 }
 
-export abstract class DatafeedRepository {
+export abstract class DatafeedRepository<T> {
     protected _subscribers = new Map<Id, Subscription[]>();
     protected _quoteSubscribers = [];
 
@@ -50,7 +50,7 @@ export abstract class DatafeedRepository {
       console.log('unsubscribe', instrument);
     }
 
-    on(fn: SubscribeAllFn): UnsubscribeFn {
+    on(fn: OnTradeFn<T>): UnsubscribeFn {
         this._quoteSubscribers.push(fn);
 
         return () => this._quoteSubscribers.filter(i => i != fn);

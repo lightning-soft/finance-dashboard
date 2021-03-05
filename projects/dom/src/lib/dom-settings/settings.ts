@@ -7,7 +7,7 @@ import { HistogramOrientation } from './settings-fields';
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
-const DefaultClearInterval = 4000;
+const DefaultClearInterval = 2500;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -23,23 +23,23 @@ export class DomSettings {
 
   general: any = {
     allWindows: false,
-    autoCenter: false,
-    centerLine: true,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
     commonView: {
-      autoCenterTicks: 10, ticksPerPrice: 0.25,
+      autoCenterTicks: 10,
+      ticksPerPrice: 0.25,
       onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
-      centerLine: false,
+      centerLine: true,
       useCustomTickSize: true,
     },
     marketDepth: {
-      bidAskDeltaDepth: 9, marketDepth: 9,
+      bidAskDeltaDepth: 9,
+      marketDepth: 9,
       showDepthHistory: false,
-      bidAskDeltaFilter: 8
+      bidAskDeltaFilter: 0
     },
     digitsToHide: 4,
     hideAccountName: true,
@@ -47,14 +47,13 @@ export class DomSettings {
     hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,
-      updateInterval: 8,
+      updateInterval: 100,
       orderQuantityStep: 7,
       scrollWheelSensitivity: DefaultScrollSensetive,
-      momentumIntervalMs: 8,
+      momentumIntervalMs: 500,
       printOutlines: false,
-      momentumTails: false,
+      momentumTails: true,
     },
-    recenter: true,
   };
   hotkeys: any = {
     quantity1: getKeyBindings([KeyCode.KEY_Q, KeyCode.KEY_1]),
@@ -105,7 +104,7 @@ export class DomSettings {
     bid: true,
     // currentTradesAtAsk: true,
     // currentTradesAtBid: true,
-    lqt: true,
+    ltq: true,
     // mergeDelta: true,
     notes: true,
     orders: true,
@@ -147,25 +146,23 @@ export class DomSettings {
     },
   };
   price: any = {
-    // backgroundColor,
     color: 'rgba(208, 208, 210, 1)',
-    // highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
-    // lastTradedPriceColor: 'rgba(0, 0, 0, 1)',
-    // nonTradedPriceBackColor: 'rgba(131, 148, 150, 1)',
-    // nonTradedPriceColor: 'rgba(0, 0, 0, 1)',
-    textAlign: TextAlign.Center,
+    backgroundColor: 'rgba(131, 148, 150, 1)',
+    highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
+    highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
+    textAlign: TextAlign.Center,
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
+    highlightHistogramColor: 'rgba(72, 149, 245, 1)',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
+    highlightHistogramColor: 'rgba(201, 59, 59, 1)',
     color: '#ffffff',
   };
   bid: any = {
@@ -240,35 +237,36 @@ export class DomSettings {
     highlightBackgroundColor: '#9D0A0A',
     textAlign: TextAlign.Center,
     backgroundColor: 'transparent',
+    lastTradingBackgroundColor: 'white',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
-    // areaColor: 'rgba(109, 112, 196, 1)',
+    valueAreaHistogramColor: 'rgba(109, 112, 196, 1)',
     color: 'white',
     histogramColor: 'rgba(73, 187, 169, 0.5)',
     histogramOrientation: HistogramOrientation.Right,
-    VWAP: false,
-    controlColor: 'rgba(211, 53, 130, 1)',
+    pointOfControlHistogramColor: 'rgba(211, 53, 130, 1)',
+    VWAPHistogramColor: 'rgba(203, 75, 22, 1)',
+    VWAP: true,
     histogramEnabled: true,
-    ltq: false,
-    poc: false,
-    vWAPColor: 'rgba(203, 75, 22, 1)',
-    valueArea: false
+    ltq: true,
+    poc: true,
+    valueArea: true,
   };
-  order: any = {
+  orders: any = {
     backgroundColor: 'rgba(0, 44, 55, 1)',
     textAlign: TextAlign.Center,
     'break-evenBackground': 'rgba(0, 44, 55, 1)',
     'break-evenForeground': 'rgba(255, 255, 255, 1)',
-    buyOrderBackground: 'rgba(22, 140, 213, 1)',
-    buyOrderForeground: 'rgba(242, 242, 242, 1)',
-    buyOrdersColumn: 'rgba(0, 44, 55, 1)',
+    buyOrderBackgroundColor: 'rgba(22, 140, 213, 1)',
+    buyOrderColor: 'rgba(242, 242, 242, 1)',
+    // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
     highlightColor: 'rgba(29, 73, 127, 1)',
-    inProfitBackground: 'rgba(0, 44, 55, 1)',
-    inProfitForeground: 'rgba(72, 149, 245, 1)',
-    lossBackground: 'rgba(0, 44, 55, 1)',
-    lossForeground: 'rgba(201, 59, 59, 1)',
-    sellOrderBackground: 'rgba(201, 59, 59, 1)',
-    sellOrderForeground: 'rgba(255, 255, 255, 1)',
-    sellOrdersColumn: 'rgba(72, 149, 245, 1)',
+    inProfitBackgroundColor: 'rgba(0, 44, 55, 1)',
+    inProfitColor: 'rgba(72, 149, 245, 1)',
+    lossBackgroundColor: 'rgba(0, 44, 55, 1)',
+    lossColor: 'rgba(201, 59, 59, 1)',
+    sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
+    sellOrderColor: 'rgba(255, 255, 255, 1)',
+    // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
     snowPnl: false,
     split: false,
     includePnl: false,
@@ -281,19 +279,17 @@ export class DomSettings {
     backgroundColor: 'transparent',
     highlightBackgroundColor: 'rgba(201, 59, 59, 0.4)',
     histogramEnabled: false,
-    insideBidBackgroundColor: 'rgba(0, 0, 0, 1)',
-    tailInsideAskFore: 'rgba(255, 255, 255, 1)',
-    tailInsideBidFore: false,
-    tailsBackgroundColors: {
-      level1: 'rgba(128, 64, 64, 1)',
-      level2: 'rgba(112, 61, 63, 1)',
-      level3: 'rgba(96, 59, 62, 1)',
-      level4: 'rgba(80, 56, 60, 1)',
-      level5: 'rgba(64, 54, 59, 1)',
-      level6: 'rgba(48, 51, 58, 1)',
-      level7: 'rgba(32, 48, 57, 1)',
-      level8: 'rgba(16, 46, 55, 1)',
-    },
+    insideBackgroundColor: 'rgba(0, 0, 0, 1)',
+    tailInsideColor: 'rgba(255, 255, 255, 1)',
+    tailInsideBold: false,
+    level1BackgroundColor: 'rgba(128, 64, 64, 1)',
+    level2BackgroundColor: 'rgba(112, 61, 63, 1)',
+    level3BackgroundColor: 'rgba(96, 59, 62, 1)',
+    level4BackgroundColor: 'rgba(80, 56, 60, 1)',
+    level5BackgroundColor: 'rgba(64, 54, 59, 1)',
+    level6BackgroundColor: 'rgba(48, 51, 58, 1)',
+    level7BackgroundColor: 'rgba(32, 48, 57, 1)',
+    level8BackgroundColor: 'rgba(16, 46, 55, 1)',
     textAlign: TextAlign.Center,
   };
   note: any = {
@@ -312,20 +308,18 @@ export class DomSettings {
     backgroundColor: 'transparent',
     // backgroundColor: 'rgba(1, 43, 54, 1)'
     histogramEnabled: false,
-    insideAskBackgroundColor: 'rgba(0, 0, 0, 1)',
+    insideBackgroundColor: 'rgba(0, 0, 0, 1)',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
-    tailInsideAskFore: 'rgba(255, 255, 255, 1)',
-    tailInsideBidFore: false,
-    tailsBackgroundColors: {
-      level1: 'rgba(4, 63, 128, 1)',
-      level2: 'rgba(3, 60, 119, 1)',
-      level3: 'rgba(3, 59, 110, 1)',
-      level4: 'rgba(2, 56, 100, 1)',
-      level5: 'rgba(2, 54, 91, 1)',
-      level6: 'rgba(2, 51, 82, 1)',
-      level7: 'rgba(1, 48, 73, 1)',
-      level8: 'rgba(1, 46, 63, 1)',
-    },
+    tailInsideColor: 'rgba(255, 255, 255, 1)',
+    tailInsideBold: false,
+    level1BackgroundColor: 'rgba(4, 63, 128, 1)',
+    level2BackgroundColor: 'rgba(3, 60, 119, 1)',
+    level3BackgroundColor: 'rgba(3, 59, 110, 1)',
+    level4BackgroundColor: 'rgba(2, 56, 100, 1)',
+    level5BackgroundColor: 'rgba(2, 54, 91, 1)',
+    level6BackgroundColor: 'rgba(2, 51, 82, 1)',
+    level7BackgroundColor: 'rgba(1, 48, 73, 1)',
+    level8BackgroundColor: 'rgba(1, 46, 63, 1)',
     textAlign: TextAlign.Center,
   };
 

@@ -20,14 +20,15 @@ export class HistogramCell extends NumberCell {
 
   constructor(config) {
     super({
+      ...config,
       strategy: AddClassStrategy.NONE,
       component: 'histogram',
     });
     this.settings = config.settings;
   }
 
-  updateValue(value: number) {
-    const r = super.updateValue(value);
+  updateValue(value: number, time?: number) {
+    const r = super.updateValue(value, time);
     if (this._histValue != null)
       this.calcHist(this._histValue);
 
@@ -35,8 +36,16 @@ export class HistogramCell extends NumberCell {
   }
 
   calcHist(value: number) {
-    this.hist = this._value / value;
+    this.hist = this.visible ? this._value / value : 0;
+    // if (this.hist > 1)
+    //   console.log('Invalid hist', this);
+      
     this._histValue = value;
+  }
+
+  _visibilityChange() {
+    super._visibilityChange();
+    this.calcHist(this._histValue);
   }
 
   clear() {

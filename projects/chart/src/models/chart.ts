@@ -1019,4 +1019,6 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   loadDateRange(kind: string, fromDate: Date, endDate: Date);
 
   on(event: string, fn: (e: any) => void): void;
+
+  off(event: string, fn: (e: any) => void): void;
 }

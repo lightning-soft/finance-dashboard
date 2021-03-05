@@ -20,6 +20,7 @@ export class WebSocketService {
   private _websocket: WebSocket;
 
   public connection$ = new BehaviorSubject<boolean>(false);
+  sucessfulyConnected: boolean;
 
   get connected(): boolean {
     return this.connection$.value;
@@ -27,7 +28,16 @@ export class WebSocketService {
 
   private _listeners: IWSListener[] = [];
 
-  constructor(private _config: CommunicationConfig) { }
+  constructor(private _config: CommunicationConfig) {
+    this.on((data) => { // TODO: Improve this DRY
+      const { type, result } = data;
+
+      if (type == 'Message' && result.value == 'Api-key accepted!') {
+        this.sucessfulyConnected = true;
+        return;
+      }
+    })
+   }
 
   connect(onOpen?: () => void) {
     if (this.connection$.value) {
@@ -48,6 +58,7 @@ export class WebSocketService {
 
     this._websocket.onclose = (event: Event) => {
       this.connection$.next(false);
+      this.sucessfulyConnected = false;
     };
 
     this._websocket.onerror = (event: Event) => {

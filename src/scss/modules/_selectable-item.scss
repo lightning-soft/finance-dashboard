@@ -8,11 +8,7 @@
   user-select: none;
   transition: background-color 0.4s;
 
-  &:hover {
-    background: $light;
-  }
-
-  &-active {
+  &-active, &:hover {
     background: lighten($light, 5%) !important;
   }
 

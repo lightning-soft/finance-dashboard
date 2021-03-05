@@ -8,6 +8,7 @@ import { Storage } from 'storage';
 
 export type Token = string;
 const refreshTokenKey = 'refresh_token';
+const idToken = 'id_token';
 
 export type UserIdentityInfo = {
   name: string;
@@ -34,6 +35,7 @@ export class AuthService {
   private _token: string;
   private _tokenData: any;
   private _refreshToken: string;
+  private _idToken: string;
   private _expirationDate: number;
 
   userInfo: UserIdentityInfo;
@@ -82,10 +84,12 @@ export class AuthService {
   private _handleTokenResponse(data): Observable<any> {
     this._token = data.access_token;
     this._refreshToken = data.refresh_token;
+    this._idToken = data.id_token;
 
     this._tokenData = parseJwt(data.access_token);
-    this._expirationDate = Date.now() + (this._tokenData.expiresIn * 1000);
+    this._expirationDate = Date.now() + (data.expires_in * 1000);
 
+    this.storage.setItem(idToken, this._idToken);
     this.storage.setItem(refreshTokenKey, this._refreshToken);
 
     return this._loadUserDataIfNeed();
@@ -93,7 +97,8 @@ export class AuthService {
 
   public logOut(): Observable<any> {
     const { url } = this._appConfig.identity;
-
+    this.storage.setItem(refreshTokenKey, '');
+    this.storage.setItem(idToken, '');
     return this._http.get(`${url}account/logout`, {})
       .pipe(tap(res => this._unauthorize()));
   }
@@ -108,7 +113,9 @@ export class AuthService {
 
   public logOutWithRedirect() {
     const { url } = this._appConfig.identity;
-    window.location.href = `${url}account/logout`;
+    this.storage.setItem(refreshTokenKey, '');
+    this.storage.setItem(idToken, '');
+    window.location.href = `${url}connect/endsession?id_token_hint=${this._idToken}`;
   }
 
   public async initialize(code: Token): Promise<UserIdentityInfo> {

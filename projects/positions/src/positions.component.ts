@@ -119,7 +119,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
-
     this._columns = headers.map(convertToColumn);
 
     this.setTabIcon('icon-widget-positions');

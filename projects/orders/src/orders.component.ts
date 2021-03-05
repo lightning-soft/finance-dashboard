@@ -42,6 +42,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
+  orderWorkingStatuses = ['Pending', 'New', 'PartialFilled'];
 
   orderStatus = allStatuses;
   orderType = allTypes;
@@ -53,9 +54,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     if (!items)
       return [];
 
-    return items.filter(item => this.orderType === allTypes
-      || item.order.type === this.orderType
-    ).filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus);
+      return this.orderStatus === 'Working' ?
+        items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
+        items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
   }
 
   private _accountId;
@@ -113,15 +114,35 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
       unwrap: (item: OrderItem) => item.order,
-       addNewItems: 'start',
+        addNewItems: 'start',
     });
 
-    this.columns = headers.map(convertToColumn);
+    this.columns = headers.map((nameOrArr: any) => {
+      nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
+      const [name, title, style] = nameOrArr;
+    
+      return {
+        name,
+        title: title.toUpperCase(),
+        style: {
+          ...style,
+          buyColor: 'rgba(72, 149, 245, 1)',
+          sellColor: 'rgba(220, 50, 47, 1)',
+          textOverflow: true,
+          textAlign: 'left',
+        },
+        visible: true
+      };
+    });
     const column = this.columns.find(i => i.name == 'description');
     column.style = { ...column.style, textOverflow: true };
 
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
+  }
+
+  changeTab(status: string) {
+    this.orderStatus = status;
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {

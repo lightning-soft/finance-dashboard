@@ -21,6 +21,8 @@ export interface IOrder extends IBaseItem {
   type: OrderType;
   exchange: string;
   symbol: string;
+  ocoOrder?: IOrder;
+  iceQuantity?: number;
   price?: number;
   accountId?: string,
   limitPrice?: number;
@@ -34,7 +36,7 @@ export enum OrderSide {
 }
 
 export enum OrderDuration {
-  GTD = 'GTD',
+///  GTD = 'GTD',
   GTC = 'GTC',
   FOK = 'FOK',
   IOC = 'IOC',

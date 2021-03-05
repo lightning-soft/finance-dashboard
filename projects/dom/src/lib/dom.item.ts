@@ -1,22 +1,43 @@
 import { IBaseItem, Id } from 'communication';
 import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
-import { IInfo, IOrder, L2, OrderSide, OrderStatus, TradePrint } from 'trading';
-import { IQuote, QuoteSide } from 'trading';
+import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
 
+const Levels = 9;
+
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
+  ocoOrder: IOrder;
   private _order: IOrder;
   private _text: string;
 
-  orderStyle: 'ask' | 'bid';
+  orderStyle: 'ask' | 'bid' | 'oco';
+
+  get canCancelOrder() {
+    return (!this._order || (this.settings as any).overlayOrders == false)
+  }
+
   private _isOrderColumn = false;
 
   constructor(config) {
     super(config);
-    this._isOrderColumn = config.isOrderColumn == true;
+    this._isOrderColumn = config.isOrderColumn === true;
+  }
+
+  addOcoOrder(ocoOrder) {
+    this.ocoOrder = ocoOrder;
+    this._order = ocoOrder;
+    this.orderStyle = 'oco';
+    this._changeText();
+    this.drawed = false;
+  }
+
+  clearOcoOrder() {
+    if (this.ocoOrder)
+      this.clearOrder();
+    this.ocoOrder = null;
   }
 
   addOrder(order: IOrder) {
@@ -38,6 +59,23 @@ class OrdersCell extends HistogramCell {
     this.drawed = false;
   }
 
+  // changeStatus(status?: string) {
+  //   if (this.orderStyle == 'ask') {
+  //     super.changeStatus('sellOrder')
+  //   } else if (this.orderStyle == 'bid') {
+  //     super.changeStatus('buyOrder')
+  //   } else {
+  //     super.changeStatus(status);
+  //   }
+  // }
+
+  removeOrder(order) {
+    if (this.orders.map(item => item.id).includes(order.id)) {
+      this.clearOrder();
+      this.orders = this.orders.filter(item => item.id !== order.id);
+    }
+  }
+
   _changeText() {
     if (!this._order)
       return;
@@ -47,7 +85,7 @@ class OrdersCell extends HistogramCell {
   }
 
   draw(context) {
-    if (!this._order)
+    if (!this._order || (this.settings as any).overlayOrders == false)
       return;
 
     const ctx = context?.ctx;
@@ -55,7 +93,7 @@ class OrdersCell extends HistogramCell {
       return;
 
     ctx.save();
-    const padding = 2;
+    const padding = 3;
     const x = context.x + 1;
     const y = context.y + 1;
     const px = context.x + padding;
@@ -65,24 +103,33 @@ class OrdersCell extends HistogramCell {
     const pwidth = context.width - padding * 2;
     const pheight = context.height - padding * 2;
     const sequenceNumber = this._order.currentSequenceNumber;
-    const isAsk = this.orderStyle == 'ask';
+    const isAsk = this.orderStyle === 'ask';
     const isOrderColumn = this._isOrderColumn;
+    const settings: any = this.settings || {};
 
     ctx.beginPath();
     ctx.rect(x, y, width, height);
-    if (isAsk) {
-      ctx.fillStyle = 'rgba(201, 59, 59, 0.5)';
-      ctx.strokeStyle = '#C93B3B';
-    } else {
-      ctx.fillStyle = 'rgba(72, 149, 245, 0.5)';
-      ctx.strokeStyle = '#4895F5';
+
+    switch (this.orderStyle) {
+      case 'ask':
+        ctx.fillStyle = settings.sellOrderBackgroundColor ?? 'rgba(201, 59, 59, 0.5)';
+        ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
+        break;
+      case 'bid':
+        ctx.fillStyle = settings.buyBackgroundColor ?? 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = settings.buyOrdersColumn ?? '#4895f5';
+        break;
+      case 'oco':
+        ctx.fillStyle = 'rgba(190,60,177, 0.5)';
+        ctx.strokeStyle = '#be3cb1';
+        break;
     }
     ctx.fill();
     ctx.stroke();
 
     ctx.textBaseline = "middle";
     ctx.textAlign = isOrderColumn ? "end" : isAsk ? "start" : "end";
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = ctx.strokeStyle ?? 'white';
 
     ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
@@ -124,21 +171,69 @@ class LtqCell extends HistogramCell {
   }
 }
 
-class TotalTimeCell extends HistogramCell {
-  updateValue(value: number) {
-    if (Date.now() > this.time + ((this.settings as any).clearInterval || 0))
-      return super.updateValue((this._value || 0) + value);
-    else
-      return super.updateValue(value);
+class LevelCell extends HistogramCell {
+  private _levelTime: number;
+  best: QuoteSide = null;
+
+  update(value: number, timestamp: number, forceAdd: boolean) {
+    const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+      ? (this._value || 0) + value : value, timestamp);
+
+    if (result)
+      this._levelTime = Date.now();
+
+    if (this.best != null) {
+      this.changeStatus('tailInside');
+    }
+
+    return result;
+  }
+
+  // return if no levels more, performance improvments
+  calculateLevel(): boolean {
+    if (!this._value)
+      return;
+
+    const settings: any = this.settings;
+
+    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
+    if (!isNaN(level)) {
+      if (level <= Levels) {
+        this.changeStatus(`level${level}`);
+      } else if (level == Levels + 1) {
+        this.changeStatus('');
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  changeBest(best?: QuoteSide) {
+    if (best == this.best)
+      return;
+
+    this.best = best;
+
+    if (best != null) {
+      this.changeStatus(`inside`);
+
+      if (Date.now() >= (this.time + ((this.settings as any).clearTradersTimer || 0)))
+        this.clear();
+    } else if (this.status == `inside` || this.status == `tailInside`) {
+      this.changeStatus('');
+    }
   }
 }
 
 export class DomItem implements IBaseItem {
   id: Id;
+  index: number;
 
   isCenter = false;
-  private _isOut: boolean;
-  private _level: number;
+
+  isBelowCenter = false;
+  isAboveCenter = false;
 
   get lastPrice(): number {
     return this.price._value;
@@ -150,8 +245,8 @@ export class DomItem implements IBaseItem {
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
-  currentAsk: HistogramCell;
-  currentBid: HistogramCell;
+  currentAsk: LevelCell;
+  currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
   tradeColumn: Cell = new DataCell();
@@ -165,35 +260,50 @@ export class DomItem implements IBaseItem {
   private _bid = 0;
   private _ask = 0;
 
+  get isBidSideVisible() {
+    return (this.bid.visible || this.bidDelta.visible);
+  }
+
+  get isAskSideVisible() {
+    return (this.ask.visible || this.askDelta.visible);
+  }
+
+
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
-    this.id = index;
+    this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new HistogramCell({ settings: settings.bid });
-    this.ask = new HistogramCell({ settings: settings.ask });
-    this.currentAsk = new TotalTimeCell({ settings: settings.currentAsk });
-    this.currentBid = new TotalTimeCell({ settings: settings.currentBid });
+    this.bid = new HistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
+    this.ask = new HistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
+    this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
+    this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
-    this.volume = new HistogramCell({ settings: settings.volume });
-    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.askDelta, ignoreZero: false });
-    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, settings: settings.bidDelta, ignoreZero: false });
+    this.volume = new TotalCell({ settings: settings.volume });
+    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
+    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.order });
+    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
     this._id.updateValue(index);
+    this.setAskVisibility(true, true);
+    this.setBidVisibility(true, true);
   }
 
-  clearDelta() {
+  clearAskDelta() {
     this.askDelta.clear();
+    this._ask = this.ask._value;
+  }
+
+  clearBidDelta() {
     this.bidDelta.clear();
-    this._ask = this.ask._value || 0;
-    this._bid = this.bid._value || 0;
+    this._bid = this.bid._value;
   }
 
   clearLTQ() {
+    this.ltq.changeStatus('');
     this.ltq.clear();
   }
 
@@ -202,83 +312,111 @@ export class DomItem implements IBaseItem {
   }
 
   handleTrade(trade: TradePrint) {
+    if (this.ltq.time === trade.timestamp)
+      return;
+
     const res: any = {};
 
+    const forceAdd = this.ltq._value > 0;
+
     if (trade.side == OrderSide.Sell) {
-      if (this.currentBid.updateValue(trade.volume))
+      if (this.currentBid.update(trade.volume, trade.timestamp, forceAdd))
         res.currentBid = this.currentBid._value;
 
       if (this.totalBid.updateValue(trade.volume))
         res.totalBid = this.totalBid._value;
 
-      if (this._changeLtq(trade.volume, 'bid')) {
+      if (this._changeLtq(trade.volume, 'buy')) {
         res.ltq = this.ltq._value;
         res.volume = this.volume._value;
       }
     } else {
-      if (this.currentAsk.updateValue(trade.volume))
+      if (this.currentAsk.update(trade.volume, trade.timestamp, forceAdd))
         res.currentAsk = this.currentAsk._value;
 
       if (this.totalAsk.updateValue(trade.volume))
         res.totalAsk = this.totalAsk._value;
 
-      if (this._changeLtq(trade.volume, 'ask')) {
+      if (this._changeLtq(trade.volume, 'sell')) {
         res.ltq = this.ltq._value;
         res.volume = this.volume._value;
       }
     }
 
-    // console.log(trade.price, trade.side, this.currentAsk._value, this.currentAsk.drawed, this.currentBid._value, this.currentBid.drawed);
-
-    return this._isOut ? null : res;
+    return res;
   }
 
   handleQuote(data: IQuote) {
-    // console.log(data.price, data.side, data.volume);
-
-    if (data.side == QuoteSide.Ask)
-      return this._handleAsk({ volume: data.volume } as any);
+    if (data.side === QuoteSide.Ask)
+      return this._handleAsk(data);
     else
-      return this._handleBid({ volume: data.volume } as any);
+      return this._handleBid(data);
   }
 
-  private _handleAsk(data: IInfo) {
+  private _handleAsk(data: IQuote) {
     const res: any = {};
+
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentAsk.changeBest(QuoteSide.Ask);
+      this.askDelta.hightlight();
+    }
 
     if (this.ask.updateValue(data.volume)) {
       res.ask = this.ask._value;
 
       if (this._ask == null)
         this._ask = this.ask._value;
+      else
+        this.askDelta.updateValue(this.ask._value - this._ask);
 
-      if (this.askDelta.updateValue(this.ask._value - this._ask))
-        res.askDelta = this.askDelta.value;
+      res.askDelta = this.askDelta.value;
     }
 
-    return this._isOut ? null : res;
+    this.clearBid();
+    return this._getAskValues();
   }
 
-  private _handleBid(data: IInfo) {
+  private _handleBid(data: IQuote) {
     const res: any = {};
+
+    if (data.updateType == UpdateType.Undefined) {
+      this.currentBid.changeBest(QuoteSide.Bid);
+      this.bidDelta.hightlight();
+      // this.currentAsk.clear();
+    }
 
     if (this.bid.updateValue(data.volume)) {
       res.bid = this.bid._value;
 
       if (this._bid == null)
         this._bid = this.bid._value;
+      else
+        this.bidDelta.updateValue(this.bid._value - this._bid);
 
-      if (this.bidDelta.updateValue(this.bid._value - this._bid))
-        res.bidDelta = this.bidDelta._value;
+      res.bidDelta = this.bidDelta._value;
     }
 
-    return this._isOut ? null : res;
+    this.clearAsk();
+    return this._getBidValues();
+  }
+
+  private _updatePiceStatus() {
+    if (this.ltq._value > 0) {
+      this.price.hightlight();
+      this.orders.hightlight();
+    } else {
+      this.price.dehightlight();
+      this.orders.dehightlight();
+    }
   }
 
   private _changeLtq(volume: number, side: string) {
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(side);
-      this.volume.updateValue(this.totalBid._value || 0 + this.totalAsk._value || 0);
-      this.price.isTraded = this.volume._value != null;
+
+      this.volume.updateValue(volume);
+      this._updatePiceStatus();
+
       this.setPrice(this.price._value);
 
       return true;
@@ -287,63 +425,86 @@ export class DomItem implements IBaseItem {
     return false;
   }
 
+  removeOrder(order: IOrder) {
+    this.orders.removeOrder(order);
+    this.askDelta.removeOrder(order);
+    this.bidDelta.removeOrder(order);
+    this.notes.clear();
+  }
+
   clearBid() {
     this.bid.clear();
-    this.bid.visible = false;
-    this.bidDelta.clear();
-    this.bidDelta.visible = false;
+    this.clearBidDelta();
   }
 
   clearAsk() {
-    console.log(this.lastPrice)
     this.ask.clear();
-    this.ask.visible = false;
-    this.askDelta.clear();
-    this.askDelta.visible = false;
+    this.clearAskDelta();
   }
 
-  handleL2(l2: L2) {
+  clearDelta() {
+    this.clearAskDelta();
+    this.clearBidDelta();
+  }
+
+  setCurrentBidBest() {
+    if (this.ltq._value)
+      return;
+
+    this.currentBid.changeBest();
+    this.bidDelta.hightlight();
+  }
+
+  setСurrentAskBest() {
+    if (this.ltq._value)
+      return;
+
+    this.currentAsk.changeBest();
+    this.askDelta.hightlight();
+  }
+
+  refresh() {
+    return Object.keys(this).forEach(key => this[key]?.refresh && this[key].refresh());
+  }
+
+  setBidVisibility(isBidOut: boolean, isBidDeltaOut: boolean) {
+    this.bidDelta.visible = isBidDeltaOut !== true;
+    this.bid.visible = isBidOut !== true;
+
+    return this._getBidValues();
+  }
+
+  private _getBidValues() {
     const res: any = {};
-    // if (l2.side == OrderSide.Buy) {
-    //   if (this.currentBid.updateValue(l2.size))
-    //     res.currentBid = this.currentBid._value;
 
-    //   if (this.totalBid.updateValue(l2.size))
-    //     res.totalBid = this.totalBid._value;
+    if (this.bid.visible) {
+      res.bid = this.bid._value;
+    }
+    if (this.bidDelta.visible) {
+      res.bidDelta = this.bidDelta._value;
+    }
 
-
-    //   if (this._changeLtq(l2.size, 'bid')) {
-    //     res.ltq = this.ltq._value;
-    //     res.volume = this.volume._value;
-    //   }
-    // } else if (l2.side == OrderSide.Sell) {
-    //   if (this.currentAsk.updateValue(l2.size))
-    //     res.currentAsk = this.currentAsk._value;
-
-    //   if (this.totalAsk.updateValue(l2.size))
-    //     res.totalAsk = this.totalAsk._value;
-
-    //   if (this._changeLtq(l2.size, 'ask')) {
-    //     res.ltq = this.ltq._value;
-    //     res.volume = this.volume._value;
-    //   }
-    // }
-
-    return res;
+    return this.isBidSideVisible ? res : true;
   }
 
-  setOffset(offset: number, isOut: boolean) {
-    const wasOut = this._isOut == true;
-    this._isOut = isOut == true;
-    this._level = offset;
+  setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
+    this.askDelta.visible = isAskDeltaOut !== true;
+    this.ask.visible = isAskOut !== true;
 
-    const visible = !isOut;
-    this.askDelta.visible = visible;
-    this.bidDelta.visible = visible;
-    this.ask.visible = visible;
-    this.bid.visible = visible;
+    return this._getAskValues();
+  }
 
-    return isOut && wasOut;
+  private _getAskValues() {
+    const res: any = {};
+
+    if (this.ask.visible) {
+      res.ask = this.ask._value;
+    }
+    if (this.askDelta.visible) {
+      res.askDelta = this.askDelta._value;
+    }
+
+    return this.isAskSideVisible ? res : true;
   }
 
   handleOrder(order: IOrder) {
@@ -351,6 +512,7 @@ export class DomItem implements IBaseItem {
       case OrderStatus.Filled:
       case OrderStatus.Canceled:
       case OrderStatus.Rejected:
+        this.notes.updateValue('');
         this.orders.clearOrder();
         this.askDelta.clearOrder();
         this.bidDelta.clearOrder();
@@ -359,25 +521,59 @@ export class DomItem implements IBaseItem {
         this.orders.addOrder(order);
         this.notes.updateValue(order.description);
 
-        if (order.side == OrderSide.Sell) {
-          this.askDelta.addOrder(order);
+        if (order.side === OrderSide.Sell) {
           this.askDelta.orderStyle = 'ask';
           this.orders.orderStyle = 'ask';
+          this.askDelta.addOrder(order);
         } else {
-          this.bidDelta.addOrder(order);
           this.bidDelta.orderStyle = 'bid';
           this.orders.orderStyle = 'bid';
+          this.bidDelta.addOrder(order);
         }
         break;
     }
   }
 
+  createOcoOrder(side: OrderSide, _order: IOrder) {
+    const order = { ..._order, side };
+    this.orders.addOcoOrder(order);
+    if (side === OrderSide.Buy) {
+      this.bidDelta.addOcoOrder(order);
+    } else
+      this.askDelta.addOcoOrder(order);
+
+  }
+
+  clearOcoOrder() {
+    this.orders.clearOcoOrder();
+    this.bidDelta.clearOcoOrder();
+    this.askDelta.clearOcoOrder();
+  }
+
   dehighlight(key: string) {
-    if (key == 'all')
+    if (key === 'all')
       return Object.keys(this).forEach(i => this.dehighlight(i));
+
+    // console.log(key);
+    if (key == 'ltq')
+      this._updatePiceStatus();
 
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
     }
+  }
+
+  setVolume(volume: number) {
+    this.volume.updateValue(volume);
+    this.volume.dehightlight();
+    this._updatePiceStatus();
+    return { volume: this.volume._value };
+  }
+
+  calculateLevel(): boolean {
+    const ask = this.currentAsk.calculateLevel();
+    const bid = this.currentBid.calculateLevel();
+
+    return ask || bid;
   }
 }

@@ -149,7 +149,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
 
   ngOnInit() {
     super.ngOnInit();
-
+    this.updateIceQuantityState();
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -175,7 +175,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     this.positionsRepository.deleteMany({
       accountId: this.accountId,
       ...this._instrument,
-    }).subscribe(
+    }).pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(
       () => this.notifier.showSuccess(null),
       (error) => this.notifier.showError(error),
     );
@@ -192,7 +195,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
         ticks: 10,
         unit: 'ticks'
       },
-      iceAmount: [10],
+      iceQuantity: [10],
       isIce: [false],
       takeProfit: {
         takeProfit: false,

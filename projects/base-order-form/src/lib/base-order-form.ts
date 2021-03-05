@@ -1,5 +1,5 @@
 import { FormComponent } from 'base-components';
-import { IOrder } from 'trading';
+import { IOrder, OrderType } from 'trading';
 import { IPosition, PositionsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 
@@ -11,11 +11,11 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
   isPositionsNegative: boolean;
 
   get positionSum() {
-    if (!this.instrument){
+    if (!this.instrument) {
       return '-';
     }
     const posSum = this.positions.filter(item => item.instrument.symbol === this.instrument.symbol)
-      .reduce((total: number, item ) => {
+      .reduce((total: number, item) => {
         return (item.buyVolume - item.sellVolume) + (total || 0);
       }, null);
     this.isPositionsNegative = posSum < 0;
@@ -31,8 +31,12 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     return this.formValue['isIce'];
   }
 
+  get isIceEnabled() {
+    return this.formValue.type === OrderType.Limit;
+  }
+
   get iceAmount() {
-    return this.formValue['iceAmount'];
+    return this.formValue['iceQuantity'];
   }
 
   toggleIce() {
@@ -40,12 +44,25 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     this.form.patchValue({
       isIce: !isIce
     });
+    this.updateIceQuantityState();
+  }
+
+  updateIceQuantityState(){
+    if (!this.isIceEnabled || !this.isIce) {
+      this.form.controls.iceQuantity.disable();
+    }
+    else {
+      this.form.controls.iceQuantity.enable();
+    }
   }
 
   getDto() {
 
     const value = { ...this.form.value };
     const quantity = value.quantity;
+    if (!this.isIceEnabled || !this.isIce) {
+      delete value.iceQuantity;
+    }
     if (value.stopLoss?.stopLoss) {
       const { ticks } = value.stopLoss;
       value.stopLoss = { quantity, ticks };

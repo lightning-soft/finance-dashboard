@@ -15,6 +15,7 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
 import { Orders, Positions } from './objects';
 import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -63,6 +64,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   set instrument(value) {
     this.chart.instrument = value;
+    if (value) {
+      value.company = this._getInstrumentCompany();
+    }
     this.refresh();
     this._orders.refresh();
     this._positions.refresh();
@@ -82,7 +86,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     protected datafeed: Datafeed,
-    protected _loadingService: LoadingService
+    protected _loadingService: LoadingService,
+    protected _accountsManager: AccountsManager
   ) {
     this.setTabIcon('icon-widget-chart');
 
@@ -114,6 +119,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     };
   }
 
+  private _instrumentChangeHandler = (event) => {
+    this._setUnavaliableIfNeed();
+    this.instrument = event.value;
+
+    this.broadcastLinkData({
+      instrument: {
+        id: event.value.symbol,
+      },
+    });
+  }
   loadChart() {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
@@ -128,16 +143,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.init();
     this._positions.init();
 
-    chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, (event) => {
-      this._setUnavaliableIfNeed();
-      this.instrument = event.value;
-
-      this.broadcastLinkData({
-        instrument: {
-          id: event.value.symbol,
-        },
-      });
-    });
+    chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
 
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
@@ -218,6 +224,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         symbol: 'ESH1',
         exchange: 'CME',
         tickSize: 0.01,
+        company: this._getInstrumentCompany(),
       },
       theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
@@ -280,6 +287,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.update(data);
   }
 
+  private _getInstrumentCompany() {
+    const connection = this._accountsManager.getActiveConnection();
+
+    return (connection && connection.name) ?? '';
+  }
+
   loadState(state?: any) {
     this.loadedState.next(state);
   }
@@ -289,7 +302,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
+    this._positions.destroy();
+    this._orders.destroy();
     if (this.chart) {
+      this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.destroy();
     }
 

@@ -21,6 +21,14 @@
       background-color: $tabBackground;
       position: relative;
       cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid transparent;
+
+      &:hover {
+        border: 1px solid #4895F5;
+
+        color: white;
+      }
 
       & i {
         line-height: 28px;

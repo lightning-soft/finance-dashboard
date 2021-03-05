@@ -8,7 +8,7 @@
   <div (click)="openOrderForm()" class="add-container">
     <i class="icon-add"></i>
   </div>
-  <nz-select class="ml-1 regular"
+  <!-- <nz-select class="ml-1 regular"
              [nzOptionHeightPx]="22"
              (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" >
     <nz-option *ngFor="let item of orderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
@@ -18,7 +18,7 @@
     class="ml-1 regular" (ngModelChange)="updateTitle()" [(ngModel)]="orderStatus" nzDropdownClassName="order-dropdown-list">
     <nz-option *ngFor="let item of orderStatuses" [nzLabel]="item" [nzValue]="item"></nz-option>
 
-  </nz-select>
+  </nz-select> -->
 
 </window-header>
 <div class="wrapper">
@@ -34,10 +34,15 @@
       <i class="icon-arrow-dropdown"></i>
     </div> -->
   </div>
-  <nz-tabset>
-    <nz-tab nzTitle="Working orders">
+  <nz-tabset [nzSelectedIndex]="2">
+    <nz-tab nzTitle="Working" (nzClick)="changeTab('Working')">
       <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
-
+    </nz-tab>
+    <nz-tab nzTitle="Filled" (nzClick)="changeTab('Filled')">
+      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+    </nz-tab>
+    <nz-tab nzTitle="All" (nzClick)="changeTab('Show All')">
+      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
 <!--    <nz-tab nzTitle="History">
       Content of Tab Pane 2

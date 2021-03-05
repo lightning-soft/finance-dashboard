@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormlyForm } from '@ngx-formly/core';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { CssApplier } from '../css.applier';
 import { SettingsConfig, SettingTab } from './settings-fields';
 import { debounceTime } from 'rxjs/operators';
 
@@ -11,6 +10,10 @@ export interface DomSettingsComponent extends ILayoutNode {
 
 export const DomSettingsSelector = 'dom-settings';
 
+interface IDomSettingsState {
+  settings?: any;
+  componentInstanceId?: number,
+}
 
 @UntilDestroy()
 @Component({
@@ -20,7 +23,7 @@ export const DomSettingsSelector = 'dom-settings';
   providers: []
 })
 @LayoutNode()
-export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit {
+export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, AfterViewInit {
   list = [
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
@@ -40,7 +43,7 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
         { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
         { tab: SettingTab.TotalBid, label: 'Total At Bid' },
         { tab: SettingTab.Volume, label: 'Volume Profile' },
-        { tab: SettingTab.OrderColumn, label: 'Order' },
+        { tab: SettingTab.Orders, label: 'Order' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
         { tab: SettingTab.Note, label: 'Notes' },
@@ -52,18 +55,17 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   form: FormlyForm;
 
   settings: any;
+  componentInstanceId: number;
 
   selectedConfig: any;
   currentTab: SettingTab;
 
-  constructor(private _applier: CssApplier) {
-    this.setTabTitle('Dom settings');
+  constructor() {
+    this.setTabTitle('DOM settings');
     this.setTabIcon('icon-setting-gear');
   }
 
   ngAfterViewInit() {
-    this._applyCss();
-
     this.form.form.valueChanges
       .pipe(
         debounceTime(10),
@@ -73,26 +75,10 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   private _handleChange(value: any) {
+    // this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
     this.broadcastData(DomSettingsSelector, this.settings);
-    console.log(this.settings);
-    this._applyCss();
   }
 
-  private _applyCss() {
-    let cssData = {};
-    for (let configKey in SettingsConfig) {
-      const configs = SettingsConfig[configKey];
-      cssData = {
-        ...cssData,
-        ...configs.filter(item => item?.getCss).map(c => c?.getCss(this.settings))
-          .reduce((current, total) => {
-            total = { ...total, current };
-            return total;
-          }, {})
-      };
-    }
-    this._applier.apply('lib-dom', cssData, 'dom-settings');
-  }
 
 
   select(item) {
@@ -108,13 +94,16 @@ export class DomSettingsComponent implements IStateProvider<any>, AfterViewInit 
   }
 
   saveState() {
-    return this.settings;
+    return {
+      settings: this.settings,
+      // componentInstanceId: this.componentInstanceId
+    };
   }
 
-  loadState(state: any) {
-    this.settings = deepClone(state) ?? {};
+  loadState(state: IDomSettingsState) {
+    this.settings = deepClone(state.settings) ?? {};
+    this.componentInstanceId = state.componentInstanceId;
     this.select(this.list[0]);
-    this._applyCss();
   }
 }
 

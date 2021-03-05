@@ -4,12 +4,37 @@
   display: block;
   height: 100%;
 
+  .add-connection {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .add-disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+
+    &:hover, &:focus, &:focus-within {
+      color: inherit !important;
+    }
+  }
+
   .rename {
     border-radius: 2px;
+    margin-left: 5px;
+    font-size: 1rem;
+    line-height: 1;
+    height: 23px;
+  }
+
+  .prefix {
+    margin-right: 6px;
   }
 
   .connection-name {
-    width: 124px;
+    width: 108px;
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -17,6 +42,23 @@
   }
 
   ::ng-deep {
+    nz-collapse-panel {
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        background: $light2;
+        z-index: 11;
+        height: calc(100% - 29px - 15px);
+        top: 29px;
+        background: #51535A;
+        left: 16px;
+      }
+    }
+
+
     .ant-form label {
       font-size: 0.75rem;
     }
@@ -43,8 +85,8 @@
 
     .ant-collapse-extra {
       position: absolute;
-      right: 10px;
-      top: 6px;
+      right: 6px;
+      top: 7px;
       font-size: 10px;
       opacity: 0;
       transition: all 0.3s;
@@ -104,6 +146,7 @@
   font-size: 0.7rem;
   height: 22px;
   font-weight: 600;
+  line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -144,6 +187,17 @@ small {
 
 .selectable-item {
   outline: none;
+  justify-content: flex-end;
+  position: relative;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    width: 7px;
+    height: 1px;
+    background: $light2;
+  }
 }
 
 .renaming.selectable-item:hover {
@@ -168,7 +222,9 @@ small {
   font-weight: normal;
   color: #D0D0D2;
 }
-
+form{
+  outline: none;
+}
 .split-form {
   width: 100%;
 

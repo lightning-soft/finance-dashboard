@@ -1,16 +1,15 @@
 <button nz-button nz-popover
         nzPopoverTrigger="click"
-        nzPopoverOverlayClassName="tick-overlay"
+        nzPopoverOverlayClassName="tick-overlay {{overlayClass}}"
         [nzPopoverContent]="slTicksContent"
-        class="sl-tick tick-btn">SL: {{form.getRawValue().ticks}} {{form.value.unit}}
+        [class.turned-off]="!form.value.stopLoss"
+        class="sl-tick tick-btn">{{form.value.stopLoss ? getTitle(): 'SL: OFF'}}
 </button>
 <ng-template #slTicksContent>
   <form [formGroup]="form">
     <div class="d-flex align-items-center">
       <span class="checkbox-title">Stop Loss</span>
-      <label class="checkbox-right"
-             (nzCheckedChange)="onValueChange($event)"
-             formControlName="stopLoss" nz-checkbox></label>
+      <nz-switch nzSize="small" (ngModelChange)="onValueChange($event)" class="checkbox-right" formControlName="stopLoss"></nz-switch>
     </div>
     <div class="divider"></div>
     <div class="d-flex stp-buttons">

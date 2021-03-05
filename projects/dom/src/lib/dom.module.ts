@@ -22,7 +22,6 @@ import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.compo
 import { DomSettingsComponent, DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
-import { CssApplier } from './css.applier';
 import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
 import { AccountSelectModule } from 'account-select';
 import { BaseOrderFormModule } from 'base-order-form';
@@ -35,9 +34,6 @@ import { BaseOrderFormModule } from 'base-order-form';
     HistogramComponent,
     TypeButtonsComponent,
     DailyInfoComponent,
-  ],
-  providers: [
-    CssApplier,
   ],
     imports: [
         DataGridModule,

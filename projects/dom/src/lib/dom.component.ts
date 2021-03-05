@@ -7,21 +7,34 @@ import {
   CellClickDataGridHandler,
   ContextMenuClickDataGridHandler,
   DataGrid,
-  IFormatter,
+  IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { environment } from 'environment';
+import { Id } from 'projects/communication';
 import { RealPositionsRepository } from 'real-trading';
 import {
   IConnection,
   IInstrument,
-  IOrder, IPosition, IQuote,
-  L2,
-  Level1DataFeed, Level2DataFeed, OrderBooksRepository, OrdersFeed, OrderSide,
-  OrdersRepository, OrderStatus, OrderType, PositionsFeed, PositionsRepository, PositionStatus, QuoteSide, TradeDataFeed, TradePrint
+  IOrder,
+  IPosition,
+  IQuote,
+  Level1DataFeed,
+  OrderBooksRepository,
+  OrdersFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderStatus,
+  OrderType,
+  PositionsFeed,
+  PositionsRepository,
+  QuoteSide,
+  Side, TradeDataFeed,
+  TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
-import { DomFormComponent, FormActions } from './dom-form/dom-form.component';
+import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { DomItem } from './dom.item';
@@ -33,6 +46,8 @@ export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 export class DomItemMax {
   ask: number;
   bid: number;
+  askDelta: number;
+  bidDelta: number;
   volume: number;
   totalAsk: number;
   totalBid: number;
@@ -65,6 +80,8 @@ export class DomItemMax {
     this.totalBid = null;
     this.currentAsk = null;
     this.currentBid = null;
+    this.askDelta = null;
+    this.bidDelta = null;
   }
 }
 
@@ -74,6 +91,7 @@ const DOM_HOTKEYS = 'domHotkeys';
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
+  componentInstanceId: number,
 }
 
 const directionsHints = {
@@ -84,11 +102,15 @@ const directionsHints = {
 const topDirectionIndex = 1;
 
 enum Columns {
+  LTQ = 'ltq',
   Bid = 'bid',
   Ask = 'ask',
   AskDelta = 'askDelta',
   BidDelta = 'bidDelta',
   Orders = 'orders',
+  Volume = 'volume',
+  TotalBid = 'totalBid',
+  TotalAsk = 'totalAsk',
   All = 'all',
 }
 
@@ -100,6 +122,8 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
+const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
+
 @Component({
   selector: 'lib-dom',
   templateUrl: './dom.component.html',
@@ -110,28 +134,31 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   columns = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
-
+  buyOcoOrder: IOrder;
+  sellOcoOrder: IOrder;
+  ocoStep = OcoStep.None;
   private currentCell;
   positions: IPosition[] = [];
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy),
-    sellMarket: () => this._createOrder(OrderSide.Sell),
+    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
+    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
     hitBid: () => {
-      this._createOrderByCurrent(OrderSide.Sell, 'currentBid');
+      this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
     joinBid: () => {
-      this._createOrderByCurrent(OrderSide.Buy, 'currentBid');
+      this._createOrderByCurrent(OrderSide.Buy, this._bestBidPrice);
     },
     liftOffer: () => {
-      this._createOrderByCurrent(OrderSide.Buy, 'currentAsk');
+      this._createOrderByCurrent(OrderSide.Buy, this._bestAskPrice);
     },
     joinAsk: () => {
-      this._createOrderByCurrent(OrderSide.Sell, 'currentAsk');
+      this._createOrderByCurrent(OrderSide.Sell, this._bestAskPrice);
     },
     oco: () => {
+      this.handleFormAction(FormActions.CreateOcoOrder);
     },
     flatten: () => this.handleFormAction(FormActions.Flatten),
     cancelAllOrders: () => this.handleFormAction(FormActions.CloseOrders),
@@ -213,6 +240,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   @ViewChild(DomFormComponent)
   private _domForm: DomFormComponent;
+  draggingOrders: IOrder[] = [];
+  draggingDomItemId: Id;
 
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
@@ -220,14 +249,37 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         column, handler: (item) => this._createOrderByClick(column, item),
       })
     )),
-    ...[Columns.AskDelta, Columns.BidDelta, Columns.Orders].map(column => (
+    ...OrderColumns.map(column => (
       new ContextMenuClickDataGridHandler<DomItem>({
         column, handler: (item) => this._cancelOrderByClick(column, item),
       })
     )),
+    ...OrderColumns.map(column =>
+      new MouseDownDataGridHandler<DomItem>({
+        column, handler: (item) => {
+          const orders = item.orders.orders;
+          if (orders.length) {
+            this.draggingDomItemId = item.index;
+            this.draggingOrders = orders;
+          }
+        },
+      })),
+    ...OrderColumns.map(column => new MouseUpDataGridHandler<DomItem>({
+      column, handler: (item) => {
+        if (this.draggingDomItemId && this.draggingDomItemId !== item.index) {
+          this._setPriceForOrders(this.draggingOrders, +item.price.value);
+        }
+        this.draggingDomItemId = null;
+        this.draggingOrders = [];
+      }
+    }))
   ];
 
   private _accountId: string;
+  private _updatedAt: number;
+  private _levelsInterval: number;
+  private _clearInterval: () => void;
+  private _upadateInterval: number;
 
   get accountId() {
     return this._accountId;
@@ -259,7 +311,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
-
+    this._unsubscribeFromInstrument();
     this._instrument = value;
     this._onInstrumentChange();
   }
@@ -284,7 +336,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _map = new Map<number, DomItem>();
 
   private get _lastPrice(): number {
-    return this._lastChangesItem.ltq?.price?._value;
+    return this._lastChangesItem.ltq?.lastPrice;
   }
 
   private _lastTrade: TradePrint;
@@ -296,13 +348,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _settings: DomSettings = new DomSettings();
 
   get domFormSettings() {
-    return this._settings.orderArea.formSettings;
+    return this._settings.orderArea;
+  }
+
+  private _customTickSize;
+
+  private set _tickSize(value: number) {
+    this._customTickSize = value;
   }
 
   private get _tickSize() {
-    return this.instrument.tickSize ?? 0.01;
-    // return 0.01;
+    return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
   }
+
+  private _bestAskPrice: number;
+  private _bestBidPrice: number;
+  componentInstanceId: number;
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -313,16 +374,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
-    private _levelTwoDatafeed: Level2DataFeed,
+    private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector
   ) {
     super();
+    this.componentInstanceId = Date.now();
     this.setTabIcon('icon-widget-dom');
     (window as any).dom = this;
 
     this.columns = [
       ...[
-        // '_id',
         'orders',
         ['volume', 'volume', 'histogram'],
         'price',
@@ -348,6 +409,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         visible: true
       }
     ];
+
+    if (!environment.production) {
+      this.columns.unshift(convertToColumn('_id'));
+    }
   }
 
   ngOnInit(): void {
@@ -359,21 +424,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
+        this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
 
         if (connection)
           this._onInstrumentChange();
       });
-    this._positionsFeed.on((pos) => {
-      this.handlePosition(pos);
-    });
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
       this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._levelTwoDatafeed.on((item: L2) => this._handleL2(item)),
       this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
+      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
+      this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
     this.addLinkObserver({
       link: DOM_HOTKEYS,
@@ -381,55 +444,105 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
     this.addLinkObserver({
       link: DomSettingsSelector,
-      handleLinkData: (settings: DomSettings) => {
-        const common = settings.common;
-        if (common) {
-          for (const column of this.columns) {
-            column.visible = common[column.name] != false;
-          }
-        }
-        this.dataGrid.applyStyles({
-          font: `${common.fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`,
-          gridBorderColor: common.generalColors.gridLineColor,
-          scrollSensetive: settings.general.intervals.scrollWheelSensitivity,
-        });
-        this._settings.merge(settings);
-        this.detectChanges(true);
-      }
+      handleLinkData: this._linkSettings,
     });
   }
 
+  private _linkSettings = (settings: DomSettings) => {
+    const common = settings.common;
+    if (common) {
+      for (const column of this.columns) {
+        column.visible = common[column.name] != false;
+      }
+    }
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    const general = settings?.general;
+    this.dataGrid.applyStyles({
+      font: getFont(common.fontWeight),
+      gridBorderColor: common.generalColors.gridLineColor,
+      scrollSensetive: general.intervals.scrollWheelSensitivity,
+    });
+
+    // this.setZIndex(general.commonView.onTop ? 500 : null);
+
+    const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
+    const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
+    const overlayOrders = settings.orders.overlay;
+    this._tickSize = general.commonView.ticksPerPrice;
+    const levelInterval = general.intervals.momentumIntervalMs;
+    const momentumTails = general.intervals.momentumTails;
+
+    settings.currentAsk.clearTradersTimer = clearTradersTimer;
+    settings.currentBid.clearTradersTimer = clearTradersTimer;
+    settings.currentAsk.levelInterval = levelInterval;
+    settings.currentBid.levelInterval = levelInterval;
+    settings.currentBid.tailInsideFont = getFont(settings.currentBid.tailInsideBold ? 200 : 700);
+    settings.currentAsk.tailInsideFont = getFont(settings.currentAsk.tailInsideBold ? 200 : 700);
+    settings.currentBid.clearOnBest = momentumTails;
+    settings.currentAsk.clearOnBest = momentumTails;
+
+    settings.bidDelta.minToVisible = minToVisible;
+    settings.askDelta.minToVisible = minToVisible;
+    settings.bidDelta.overlayOrders = overlayOrders;
+    settings.askDelta.overlayOrders = overlayOrders;
+
+    this._levelsInterval = levelInterval;
+    this._levelsInterval = levelInterval;
+    this._upadateInterval = general.intervals.updateInterval;
+
+    this._settings.merge(settings);
+
+    this._calculateDepth();
+    this._updateVolumeColumn();
+    this._applyOffset(this._lastPrice);
+    this.items.forEach(i => i.refresh());
+    this.detectChanges(true);
+  }
+
   allStopsToPrice() {
-    /*    const row = this.currentCell.row;
-        if (row) {
-          const _orders = row.orders.orders;
-          const price = row.price.value;
-          const orders = _orders.filter(item => [OrderType.StopLimit, OrderType.StopMarket]).map(item => {
-            return {...item, stopPrice: price, limitPrice: price};
-          });
-          orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-        }*/
+    this._setPriceForAllOrders(OrderType.StopMarket);
   }
 
   allLimitToPrice() {
-    /*  const row = this.currentCell.row;
-      if (row) {
-        const _orders = row.orders.orders;
-        const price = row.price.value;
-        const orders = _orders.filter(item => [OrderType.Limit, OrderType.StopLimit]).map(item => {
-          return {...item, stopPrice: price, limitPrice: price};
-        });
-        orders.map(item => this._ordersRepository.updateItem(item).toPromise());
-      }*/
+    this._setPriceForAllOrders(OrderType.Limit);
   }
 
-  _createOrderByCurrent(side: OrderSide, from) {
+  _setPriceForAllOrders(type: OrderType) {
     const row = this.currentCell.row;
     if (row) {
-      const price = row[from].value;
-      if (price !== '')
-        this._createOrder(side, +price);
+      // #TODO investigate what side should be if row is in center
+      const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
+      const orders = this.items.reduce((total, item) => {
+        return total.concat(item.orders.orders.filter(order => {
+          return order.type === type && order.side === side;
+        }));
+      }, []);
+      const price = +row.price.value;
+      this._setPriceForOrders(orders, price);
     }
+  }
+
+  _setPriceForOrders(orders, price) {
+    orders.map(item => {
+      const priceTypes = this._getPriceSpecs(item, price);
+
+      return {
+        quantity: item.quantity,
+        type: item.type,
+        ...priceTypes,
+        duration: item.duration,
+        orderId: item.id,
+        accountId: item.account.id,
+        symbol: item.instrument.symbol,
+        exchange: item.instrument.exchange,
+      };
+    }).map(item => this._ordersRepository.updateItem(item).toPromise());
+  }
+
+  // #TODO need test
+  private _createOrderByCurrent(side: OrderSide, price: number) {
+    if (price)
+      this._createOrder(side, +price);
   }
 
   handleHotkey(key) {
@@ -437,24 +550,39 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handlePosition(pos) {
-    if (pos.instrument.symbol !== this.instrument.symbol)
-      return;
     const newPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
+
+    if (pos.instrument.symbol == this.instrument.symbol) {
+      this._applyPositionSetting(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
+    }
+  }
+
+  _applyPositionSetting(oldPosition, newPosition) {
     const {
       closeOutstandingOrders,
     } = this._settings.general;
     const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
     if (isNewPosition) {
-      this.positions.push(newPosition);
+      // #TODO test all windows
       this.applySettingsOnNewPosition();
     } else {
-      if (closeOutstandingOrders && oldPosition?.status === PositionStatus.Open
-        && newPosition.status === PositionStatus.Close) {
+      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
+        && newPosition.side === Side.Closed) {
         this.deleteOutstandingOrders();
       }
-      if (oldPosition)
-        Object.assign(oldPosition, newPosition);
+    }
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
     }
   }
 
@@ -502,16 +630,45 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
     if (action.items)
       this._handleOrders(action.items);
+
+    this.detectChanges();
   }
 
   _onInstrumentChange() {
     const instrument = this.instrument;
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
     this._levelOneDatafeed.subscribe(instrument);
-    this._levelTwoDatafeed.subscribe(instrument);
     this._tradeDatafeed.subscribe(instrument);
 
-    this._loadOrderBook();
+    this._loadData();
+  }
+
+  _unsubscribeFromInstrument() {
+    const instrument = this.instrument;
+    if (instrument) {
+      this._levelOneDatafeed.unsubscribe(instrument);
+      this._tradeDatafeed.unsubscribe(instrument);
+    }
+  }
+
+  protected _loadVolumeHistory() {
+    if (!this._accountId || !this._instrument)
+      return;
+
+    const { symbol, exchange } = this._instrument;
+    this._volumeHistoryRepository.getItems({ symbol, exchange })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          for (const vol of res.data) {
+            const item = this._getItem(vol.price);
+            item.setVolume(vol.volume);
+          }
+
+          this._updateVolumeColumn();
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrderBook() {
@@ -519,96 +676,97 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange }).subscribe(
-      res => {
-        console.log(res);
-        this._clear();
+    this._orderBooksRepository.getItems({ symbol, exchange })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          this._clear();
 
-        const { asks, bids } = res.data[0];
+          const { asks, bids } = res.data[0];
 
-        bids.sort((a, b) => a.price - b.price);
-        asks.sort((a, b) => b.price - a.price);
+          bids.sort((a, b) => a.price - b.price);
+          asks.sort((a, b) => b.price - a.price);
 
-        if (!asks.length && !bids.length)
-          return;
+          if (asks.length || bids.length) {
+            let index = 0;
+            let price = this._normalizePrice(asks[asks.length - 1].price);
+            const tickSize = this._tickSize;
+            // const maxPrice = asks[0].price;
+            // const maxRows = ROWS * 2;
 
-        let index = 0;
-        let price = this._normalizePrice(asks[asks.length - 1].price);
-        const tickSize = this._tickSize;
-        const minPrice = bids[0].price;
-        const maxPrice = asks[0].price;
-        const maxRows = ROWS * 2;
+            // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+            //   this.items.unshift(this._getItem(price));
+            //   price = this._normalizePrice(price + tickSize);
+            //   index++;
+            // }
 
-        while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-          this.items.unshift(this._getItem(price));
-          price = this._normalizePrice(price + tickSize);
-          index++;
-        }
+            index = 0;
+            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-        index = 0;
-        price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            this.fillData(price)
 
-        while (index < maxRows && (price >= minPrice || index < ROWS)) {
-          this.items.push(this._getItem(price));
-          price = this._normalizePrice(price - tickSize);
-          index++;
-        }
+            // while (index < maxRows && (price >= minPrice || index < ROWS)) {
+            //   this.items.push(this._getItem(price));
+            //   price = this._normalizePrice(price - tickSize);
+            //   index++;
+            // }
 
-        const instrument = this.instrument;
-        asks.forEach((info) => this._handleQuote({
-          instrument,
-          price: info.price,
-          timestamp: 0,
-          volume: info.volume,
-          side: QuoteSide.Ask
-        } as IQuote));
-        bids.forEach((info) => this._handleQuote({
-          instrument,
-          price: info.price,
-          timestamp: 0,
-          volume: info.volume,
-          side: QuoteSide.Bid
-        } as IQuote));
+            const instrument = this.instrument;
+            asks.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Ask
+            } as IQuote));
+            bids.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Bid
+            } as IQuote));
 
-        for (const i of this.items) {
-          i.clearDelta();
-          i.dehighlight(Columns.All);
-        }
+            for (const i of this.items) {
+              i.clearDelta();
+              i.dehighlight(Columns.All);
+            }
+          }
 
-        this.centralize();
-        this._loadOrders();
-      },
-      error => this.notifier.showError(error)
-    );
+          this._loadOrders();
+          this._loadVolumeHistory();
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrders() {
     if (!this._accountId)
       return;
 
-    this._ordersRepository.getItems({ id: this._accountId }).subscribe(
-      res => {
-        const orders = res.data;
-        if (!Array.isArray(orders))
-          return;
+    this._ordersRepository.getItems({ id: this._accountId })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          const orders = res.data;
+          if (!Array.isArray(orders))
+            return;
 
-        console.log(orders);
-        this._handleOrders(orders);
-      },
-      error => this.notifier.showError(error),
-    );
+          console.log(orders);
+          this._handleOrders(orders);
+        },
+        error => this.notifier.showError(error),
+      );
   }
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
-
+      this.items.forEach(item => item.removeOrder(order));
       const item = this._getItem(order.limitPrice || order.stopPrice);
-
       if (!item)
         continue;
-
       item.handleOrder(order);
     }
 
@@ -617,12 +775,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleAccountChange(account: string) {
     this._accountId = account;
-    this._loadOrderBook();
-    this.loadPositions();
-
+    this._loadData();
   }
 
-  loadPositions() {
+  protected _loadData() {
+    if (!this._accountId || !this._instrument)
+      return;
+
+    this._loadPositions();
+    this._loadOrderBook();
+  }
+
+  protected _loadPositions() {
     this._positionsRepository.getItems({ accountId: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(items => this.positions = items.data);
@@ -664,35 +828,45 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   centralize() {
-    this._handleResize();
-    requestAnimationFrame(() => {
-      const grid = this.dataGrid;
-      const visibleRows = grid.getVisibleRows();
-      let index = ROWS / 2;
+    // this._handleResize();
+    // requestAnimationFrame(() => {
+    const grid = this.dataGrid;
+    const visibleRows = grid.getVisibleRows();
+    let index = ROWS / 2;
 
-      if (this._lastPrice) {
-        for (let i = 0; i < this.items.length; i++) {
-          const item = this.items[i];
+    if (this._lastPrice) {
+      for (let i = 0; i < this.items.length; i++) {
+        const item = this.items[i];
+        item.isCenter = item.lastPrice === this._lastPrice;
 
-          item.isCenter = item.lastPrice == this._lastPrice;
-          if (item.isCenter)
-            index = i;
-        }
+        if (item.isCenter)
+          index = i;
+
+        item.isAboveCenter = i < index;
+        item.isBelowCenter = i > index;
       }
+    }
 
-      grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
-    });
+    grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this.detectChanges();
+    // });
   }
 
   detectChanges(force = false) {
+    if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
+      return;
+
     this.dataGrid.detectChanges(force);
+    this._updatedAt = Date.now();
   }
 
-  private _getItem(price: number): DomItem {
+  private _getItem(price: number, index?: number): DomItem {
     let item = this._map.get(price);
     if (!item) {
-      item = new DomItem(price, this._settings, this._priceFormatter);
+      if (index == null)
+        console.warn('Omit index', index);
+
+      item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
     }
@@ -727,81 +901,395 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
+    let needCentralize = false;
 
-    if (prevltqItem?.lastPrice != trade.price) {
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    const _item = this._getItem(trade.price);
+
+    if (prevltqItem?.lastPrice !== trade.price) {
       if (prevltqItem)
         prevltqItem.clearLTQ();
-      const price = trade.price;
-      // const
 
-      const offset = this._settings.general?.marketDepth?.bidAskDeltaDepth ?? 10000;
-      const index = this.items.findIndex(i => i.lastPrice == price);
+      const settings = this._settings.general.commonView;
+      if (settings.autoCenter && settings.autoCenterTicks) {
+        const offset = settings.autoCenterTicks;
+        const index = _item.index;
+        let i = 0;
 
-      if (index != -1) {
-        const items = this.items;
-        let up = index;
-        let down = index;
-
-        while (--up >= 0) {
-          items[up].clearDelta();
-          items[up].clearBid();
-
-          if (items[up].setOffset(index - up, index - up > offset))
+        while (i < offset) {
+          if (this.items[index + i]?.isCenter || this.items[index - i]?.isCenter)
             break;
+
+          i++;
         }
 
-        while (++down < items.length) {
-          items[down].clearDelta();
-          items[down].clearAsk();
-
-          if (items[down].setOffset(down - index, down - index > offset))
-            break;
-        }
+        if (i == offset)
+          needCentralize = true;
       }
     }
 
-    const _item = this._getItem(trade.price);
+    if (!this.items.length)
+      this.fillData(trade.price);
+
     this._handleMaxChange(_item.handleTrade(trade), _item);
 
-    if (!prevltqItem)
+    if (!prevltqItem || needCentralize)
       this.centralize();
+
     this._lastTrade = trade;
+    this._calculateLevels();
+    this._updateVolumeColumn();
     this.detectChanges();
   }
+
+  private _updateVolumeColumn() {
+    const settings: any = this._settings.volume;
+
+    const VWAP = settings.VWAP;
+    const ltq = settings.ltq;
+    const poc = settings.poc;
+    const valueArea = settings.valueArea;
+
+    let sum = 0;
+    let max = 0;
+    let pointOfControlIndex;
+    let startTradedPriceIndex;
+    let endTradedPriceIndex;
+    let item;
+    let priceSum = 0;
+    let items = this.items;
+
+    for (let i = 0; i < items.length; i++) {
+      item = items[i];
+      const value = item.volume._value;
+      if (!value)
+        continue;
+
+      if (startTradedPriceIndex == null)
+        startTradedPriceIndex = i;
+
+      endTradedPriceIndex = i;
+
+      sum += value;
+      priceSum += (value * item.lastPrice);
+
+      if (value > max) {
+        max = value;
+        pointOfControlIndex = i;
+      }
+    }
+
+    if (sum == 0)
+      return;
+
+    const vwap = this._normalizePrice(priceSum / sum);
+
+    let i = 0;
+    const valueAreaNum = sum * 0.7;
+    let ended = false;
+    let valueAreaSum = 0;
+    let volume1: HistogramCell;
+    let volume2: HistogramCell;
+    const maxVolume = items[pointOfControlIndex]?.volume?._value || 0;
+
+    while (!ended) {
+      volume1 = items[pointOfControlIndex + i]?.volume;
+      volume2 = items[pointOfControlIndex - i]?.volume;
+
+      if (volume1 == volume2)
+        volume2 = null;
+
+      volume1?.changeStatus('');
+      volume2?.changeStatus('');
+
+      if (!volume1 && !volume2)
+        break;
+
+      if (pointOfControlIndex + i <= endTradedPriceIndex)
+        items[pointOfControlIndex + i].price.changeStatus('tradedPrice')
+
+      if (pointOfControlIndex - i >= startTradedPriceIndex)
+        items[pointOfControlIndex - i].price.changeStatus('tradedPrice')
+
+      valueAreaSum += (volume1?._value || 0);
+      if (valueArea && valueAreaSum <= valueAreaNum)
+        volume1?.changeStatus('valueArea');
+
+      valueAreaSum += (volume2?._value || 0);
+      if (valueArea && valueAreaSum <= valueAreaNum)
+        volume2?.changeStatus('valueArea');
+
+      if (VWAP) {
+        if (volume1 && vwap == items[pointOfControlIndex + i]?.lastPrice) {
+          volume1.changeStatus('VWAP');
+        } else if (volume2 && vwap == items[pointOfControlIndex - i].lastPrice) {
+          volume2.changeStatus('VWAP');
+        }
+      }
+
+      volume1?.calcHist(maxVolume);
+      volume2?.calcHist(maxVolume);
+
+      i++;
+      ended = sum == valueAreaSum;
+    }
+
+    if (ltq && this._lastChangesItem?.ltq) {
+      this._lastChangesItem.ltq.volume.hightlight();
+    }
+
+    if (items[pointOfControlIndex]) {
+      this._max.volume = items[pointOfControlIndex].volume._value || 0;
+
+      if (poc)
+        items[pointOfControlIndex].volume.changeStatus('pointOfControl');
+      // console.log(pointOfControlIndex);
+    }
+
+  }
+
+  private _calculateLevels() {
+    if (this._clearInterval || !this._settings.general?.intervals?.momentumTails)
+      return;
+
+    const _interval = setInterval(() => {
+      this.detectChanges();
+
+      let needStop = true;
+
+      for (const item of this.items) {
+        if (item.calculateLevel())
+          needStop = false;
+      }
+
+      if (needStop && this._clearInterval)
+        this._clearInterval();
+
+    }, this._levelsInterval);
+
+    this._clearInterval = () => {
+      clearInterval(_interval)
+      this._clearInterval = null;
+    };
+  }
+
+  fillData(lastPrice: number) {
+    if (isNaN(lastPrice) || lastPrice == null)
+      return;
+
+    this.items = [];
+    this._map.clear();
+    this._max.clear()
+    const data = this.items;
+    const tickSize = this._tickSize;
+
+    let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+    let index = -1;
+
+    while (index++ < ROWS) {
+      price = this._normalizePrice(price += tickSize);
+      data.unshift(this._getItem(price, ROWS - index));
+    }
+
+    requestAnimationFrame(() => this.centralize());
+  }
+
+  private _applyOffset(centerPrice: number) {
+    // const index = this.items.findIndex(i => i.lastPrice === centerPrice);
+
+    // if (index === -1)
+    //   return;
+
+    // const depth = this._settings.general?.marketDepth;
+    // const marketDepth = depth?.marketDepth ?? 10000;
+    // const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
+    // const items = this.items;
+
+    // let changes;
+    // let up = index;
+    // let down = index - 1;
+
+    // this._max.bid = null;
+    // this._max.ask = null;
+    // this._max.bidDelta = null;
+    // this._max.askDelta = null;
+    // let item;
+
+    // while (--up >= 0) {
+    //   item = items[up];
+    //   item.clearDelta();
+    //   item.clearBid();
+
+    //   changes = item.setAskVisibility(index - marketDepth > up, index - marketDeltaDepth > up);
+
+    //   if (changes === true)
+    //     break;
+
+    //   this._handleMaxChange(changes, item);
+    // }
+
+    // while (++down < items.length) {
+    //   item = items[down];
+    //   item.clearDelta();
+    //   item.clearAsk();
+    //   changes = item.setBidVisibility(down - index > marketDepth, down - index > marketDeltaDepth);
+
+    //   if (changes === true)
+    //     break;
+
+    //   this._handleMaxChange(changes, item);
+    // }
+  }
+
 
   protected _handleQuote(trade: IQuote) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
-    const item = this._getItem(trade.price);
-    this._handleMaxChange(item.handleQuote(trade), item);
+    let item = this._getItem(trade.price);
 
+    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+
+    if (!this.items.length)
+      this.fillData(trade.price);
+
+    item.handleQuote(trade);
+    const needClear = trade.volume == 0;
+    // const needClear = false;
+
+    if (trade.updateType === UpdateType.Undefined || needClear) {
+      let items = this.items;
+
+      let price = trade.price;
+      const isBid = trade.side === QuoteSide.Bid;
+
+      if (isBid || (needClear && !isBid)) {
+        if (this._bestAskPrice != price || needClear) {
+          for (let i = items.length - 1; i >= 0; i--) {
+            item = items[i];
+            if (!needClear)
+              item.clearAskDelta();
+
+            if (item.lastPrice != price)
+              item.setCurrentBidBest();
+          }
+
+          if (!needClear)
+            this._bestAskPrice = price;
+        }
+      }
+
+      if (!isBid || (needClear && isBid)) {
+        if (this._bestBidPrice != price || needClear) {
+          for (let i = 0; i < items.length; i++) {
+            item = items[i];
+            if (!needClear)
+              item.clearBidDelta();
+
+            if (item.lastPrice != price)
+              item.setСurrentAskBest();
+          }
+
+          if (!needClear)
+            this._bestBidPrice = price;
+        }
+      }
+    }
+
+    this._calculateDepth();
     this.detectChanges();
   }
 
-  protected _handleL2(l2: L2) {
-    if (l2.instrument?.symbol !== this.instrument?.symbol) return;
+  _calcBidAskHist() {
+    const max = this._max;
 
-    const item = this._getItem(l2.price);
-    this._handleMaxChange(item.handleL2(l2), item);
-    this.detectChanges();
+    for (const i of this.items) {
+      if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
+        i.ask.calcHist(max.ask);
+        i.askDelta.calcHist(max.askDelta);
+        if (i.ask.hist > 1) {
+          console.log(i.lastPrice, i.ask.hist, max.ask);
+        }
+      }
+
+      if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
+        i.bid.calcHist(max.bid);
+        i.bidDelta.calcHist(max.bidDelta);
+      }
+    }
+  }
+
+  _calculateDepth() {
+    const depth = this._settings.general?.marketDepth;
+    const marketDepth = depth?.marketDepth ?? 10000;
+    const marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
+    const items = this.items;
+
+    let item;
+    let index;
+    let changes;
+    this._max.ask = 0;
+    this._max.askDelta = 0;
+    this._max.bid = 0;
+    this._max.bidDelta = 0;
+
+    for (let i = items.length - 1; i >= 0; i--) {
+      item = items[i];
+
+      if (item.lastPrice == this._bestBidPrice)
+        index = i;
+
+      changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
+      if (item.lastPrice >= this._bestBidPrice) {
+
+        if (changes != true)
+          this._handleMaxChange(changes, item);
+      } else {
+        item.setAskVisibility(true, true);
+      }
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      item = items[i];
+
+      if (item.lastPrice == this._bestAskPrice)
+        index = i;
+
+      // changes = item.setBidVisibility(false, false);
+      if (item.lastPrice <= this._bestAskPrice) {
+        changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
+
+        if (changes != true)
+          this._handleMaxChange(changes, item);
+      } else {
+        item.setBidVisibility(true, true);
+      }
+    }
+
+    this._calcBidAskHist();
   }
 
   private _handleMaxChange(changes: any, item: DomItem) {
     const hist = this._max.handleChanges(changes);
-    const keys = hist && Object.keys(hist);
+    let keys = hist && Object.keys(hist);
 
     for (const key in changes) {
-      const prevItem = this._lastChangesItem[key];
-      if (prevItem)
-        prevItem.dehighlight(key);
+      if (key != Columns.TotalAsk && key != Columns.TotalBid && key != Columns.LTQ)
+        continue;
 
-      this._lastChangesItem[key] = item;
+      if (changes.hasOwnProperty(key)) {
+        const prevItem = this._lastChangesItem[key];
+        if (prevItem)
+          prevItem.dehighlight(key);
+
+        this._lastChangesItem[key] = item;
+      }
     }
 
     if (Array.isArray(keys) && keys.length) {
+      keys = keys.filter(i => i == Columns.TotalAsk || i == Columns.TotalBid);
       for (const i of this.items) {
         for (const key of keys) {
-          if (hist[key] == null || i[key].component != 'histogram')
+          if (hist[key] == null || i[key].component !== 'histogram')
             continue;
 
           (i[key] as HistogramCell).calcHist(hist[key]);
@@ -811,7 +1299,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   afterDraw = (e, grid) => {
-    if (!this._settings.general.centerLine)
+    if (!this._settings.general?.commonView?.centerLine)
       return;
 
     grid.forEachRow((row, y) => {
@@ -896,6 +1384,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   saveState?(): IDomState {
     return {
       instrument: this.instrument,
+      componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson()
     };
   }
@@ -903,6 +1392,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._settings.columns = this.columns;
+    this._linkSettings(this._settings);
+    if (state?.componentInstanceId)
+      this.componentInstanceId = state.componentInstanceId;
     // this.openSettings(true);
 
     // for debug purposes
@@ -931,7 +1423,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: this._settings,
+        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
       },
       closeBtn: true,
       single: true,
@@ -942,10 +1434,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  private _createOrder(side: OrderSide, price?: number) {
+  private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
     if (this.isTradingLocked)
       return;
-
 
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');
@@ -954,34 +1445,88 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
-
-    if (price) {
-      form.stopPrice = price;
-      form.limitPrice = price;
-    }
-
+    // #TODO need test
+    const priceSpecs = this._getPriceSpecs({ ...form, side }, price);
     this._ordersRepository.createItem({
       ...form,
+      ...priceSpecs,
+      ...orderConfig,
       exchange,
       side,
       symbol,
       accountId: this._accountId,
-    }).subscribe(
-      (res) => console.log('Order successfully created'),
-      (err) => this.notifier.showError(err)
-    );
+    }).pipe(untilDestroyed(this))
+      .subscribe(
+        (res) => console.log('Order successfully created'),
+        (err) => this.notifier.showError(err)
+      );
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
-    this._createOrder(column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy, item.price._value);
+    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
+    if (this.ocoStep === OcoStep.None) {
+      this._createOrder(side, item.price._value);
+    } else {
+      this._addOcoOrder(side, item);
+    }
+  }
+
+  private _addOcoOrder(side, item: DomItem) {
+    if (!this.buyOcoOrder && side === OrderSide.Buy) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = this._getPriceSpecs(order, +item.price.value);
+
+      this.buyOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+    if (!this.sellOcoOrder && side === OrderSide.Sell) {
+      item.createOcoOrder(side, this._domForm.getDto());
+      const order = { ...this._domForm.getDto(), side };
+      const specs = this._getPriceSpecs(order, +item.price.value);
+      this.sellOcoOrder = { ...order, ...specs };
+      this._createOcoOrder();
+    }
+  }
+
+  _getPriceSpecs(item: IOrder & { amount: number }, price) {
+    const priceSpecs: any = {};
+    if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+      priceSpecs.limitPrice = price;
+    }
+    if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+      priceSpecs.stopPrice = price;
+    }
+    if (item.type === OrderType.StopLimit) {
+      const offset = this._tickSize * item.amount;
+      priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
+    }
+    return priceSpecs;
+  }
+
+  private _createOcoOrder() {
+    this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
+    if (this.buyOcoOrder && this.sellOcoOrder) {
+      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+      this._ordersRepository.createItem(this.buyOcoOrder)
+        .pipe(untilDestroyed(this))
+        .subscribe(() => {
+          this._clearOcoOrders();
+        });
+    }
   }
 
   private _cancelOrderByClick(column: string, item: DomItem) {
+    if (!item[column]?.canCancelOrder)
+      return;
+
     if (item.orders?.orders?.length)
-      this._ordersRepository.deleteMany(item.orders.orders).subscribe(
-        () => console.log('delete order'),
-        (error) => this.notifier.showError(error),
-      );
+      this._ordersRepository.deleteMany(item.orders.orders)
+        .pipe(untilDestroyed(this))
+        .subscribe(
+          () => console.log('delete order'),
+          (error) => this.notifier.showError(error),
+        );
   }
 
   handleFormAction(action: FormActions) {
@@ -998,6 +1543,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._closeOrders(FormActions.CloseOrders);
         this._closePositions();
         break;
+      case FormActions.CreateOcoOrder:
+        if (this.ocoStep === OcoStep.None)
+          this.ocoStep = OcoStep.Fist;
+        break;
+      case FormActions.CancelOcoOrder:
+        this._clearOcoOrders();
+        break;
       case FormActions.CreateMarketOrder:
         this._createMarketOrder();
         break;
@@ -1005,6 +1557,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         console.error('Undefined action');
     }
+  }
+
+  _clearOcoOrders() {
+    this.ocoStep = OcoStep.None;
+    this.sellOcoOrder = null;
+    this.buyOcoOrder = null;
+    this.items.forEach(item => item.clearOcoOrder());
   }
 
   _createMarketOrder() {
@@ -1029,10 +1588,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._positionsRepository.deleteMany({
       accountId: this._accountId,
       ...this._instrument,
-    }).subscribe(
-      () => console.log('_closePositions'),
-      (error) => this.notifier.showError(error),
-    );
+    }).pipe(untilDestroyed(this))
+      .subscribe(
+        () => console.log('_closePositions'),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   private _closeOrders(action: FormActions) {
@@ -1043,10 +1603,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     else if (action === FormActions.CloseBuyOrders)
       orders = orders.filter(i => i.side === OrderSide.Buy);
 
-    this._ordersRepository.deleteMany(orders).subscribe(
-      () => console.log('delete many'),
-      (error) => this.notifier.showError(error),
-    );
+    this._ordersRepository.deleteMany(orders)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        () => console.log('delete many'),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   private _normalizePrice(price) {
@@ -1060,13 +1622,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngOnDestroy() {
     super.ngOnDestroy();
+    if (this._clearInterval)
+      this._clearInterval();
+
     const instrument = this.instrument;
     if (!instrument)
       return;
-
-    this._levelOneDatafeed.unsubscribe(instrument);
-    this._levelTwoDatafeed.unsubscribe(instrument);
-    this._tradeDatafeed.unsubscribe(instrument);
+    this._unsubscribeFromInstrument();
   }
 
   onCurrentCellChanged($event: any) {

@@ -58,6 +58,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
+  private _styles: GridStyles;
 
   get items(): T[] {
     if (!this._grid)
@@ -161,6 +162,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         overflowY: 'hidden',
         overflowX: 'hidden',
         scrollSensetive: DefaultScrollSensetive,
+        ...this._styles,
       },
       data: [],
     });
@@ -185,6 +187,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('currentCellChanged', this._currentCellChanged);
     grid.addEventListener('click', this._handleClick);
     grid.addEventListener('contextmenu', this._handleContextmenu);
+    grid.addEventListener('mousedown', this._handleMouseDown);
+    grid.addEventListener('mouseup', this._handleMouseUp);
+
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
@@ -192,6 +197,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
+    this._styles = styles;
+
+    if (!grid)
+      return;
 
     grid.style = { ...styles }
 
@@ -229,6 +238,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   createComponentModal($event): void {
     $event.preventDefault();
     this.nzContextMenuService.create($event, this.contextMenuComponent);
+  }
+
+  _handleMouseUp = (e) => {
+    this._triggerHandler(Events.MouseUp, { ...e, column: e.cell?.column, row: e.cell?.row });
+  }
+
+  private _handleMouseDown = (e) => {
+    this._triggerHandler(Events.MouseDown, { ...e, column: e.cell?.column, row: e.cell?.row });
   }
 
   private _handleContextmenu = (e) => {
@@ -313,6 +330,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('currentCellChanged', this._currentCellChanged);
       grid.removeEventListener('click', this._handleClick);
       grid.removeEventListener('contextmenu', this._handleContextmenu);
+      grid.removeEventListener('mousedown', this._handleMouseDown);
+      grid.removeEventListener('mouseup', this._handleMouseUp);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();

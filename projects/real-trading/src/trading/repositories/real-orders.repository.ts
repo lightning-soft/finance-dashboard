@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, Injector, Optional } from '@angular/core';
 import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communication';
 import { Observable, of, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
 import { IOrder, OrderStatus } from 'trading';
 import { BaseRepository } from './base-repository';
@@ -65,6 +65,11 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
         } as any
       }
     );
+  }
+  updateItem(item: IOrder, query?: any): Observable<IOrder> {
+    const { id, ...dto } = item;
+    return this._http.put<IOrder>(this._getRESTURL(id), dto, { ...this._httpOptions, params: query })
+      .pipe(tap(this._onUpdate));
   }
 
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<any> {

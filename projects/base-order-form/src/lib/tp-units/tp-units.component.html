@@ -1,16 +1,16 @@
 <button nz-button
         nz-popover
         nzPopoverTrigger="click"
-        nzPopoverOverlayClassName="tick-overlay"
+        [class.turned-off]="!form.value.takeProfit"
+        nzPopoverOverlayClassName="tick-overlay {{overlayClass}}"
         [nzPopoverContent]="tpTicksContent"
-        class="tp-tick tick-btn">TP: {{form.getRawValue().ticks}} {{form.value.unit}}
+        class="tp-tick tick-btn">{{form.value.takeProfit ? getTitle(): 'TP: OFF'}}
 </button>
 <ng-template #tpTicksContent>
   <form [formGroup]="form">
     <div class="d-flex align-items-center">
-      <span class="checkbox-title">Take Profit</span> <label
-      (nzCheckedChange)="onValueChange($event)"
-      formControlName="takeProfit" class="checkbox-right" nz-checkbox></label>
+      <span class="checkbox-title">Take Profit</span>
+      <nz-switch nzSize="small" (ngModelChange)="onValueChange($event)" class="checkbox-right" formControlName="takeProfit"></nz-switch>
     </div>
     <div class="divider"></div>
 

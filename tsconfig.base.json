@@ -147,6 +147,9 @@
       ],
       "base-order-form": [
         "projects/base-order-form/index",
+      ],
+      "environment": [
+        "src/environments/environment",
       ]
     }
   }

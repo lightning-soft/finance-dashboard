@@ -1,22 +1,44 @@
 import { Injectable } from '@angular/core';
 import { WebSocketService } from 'communication';
 import { Subject } from 'rxjs';
-import { Notification, NotificationStatus } from './notification';
+import { Notification, NotificationStatus, NotificationType } from './notification';
 import { NotificationId } from './type';
 import { reducer } from './handlers';
+import { NotifierService } from 'notifier';
 
 
 @Injectable()
-export class NotificationService {
+export class NotificationService extends NotifierService {
 
   private _notifications: Notification[] = [];
 
   public notifications: Subject<Notification[]> = new Subject();
 
   constructor(
-    private _webSocketService: WebSocketService
+    private _webSocketService: WebSocketService,
   ) {
+    super();
     this._webSocketService.on(this._handleStream.bind(this));
+  }
+
+  showError(message: any, defaultMessage?: string) {
+    const { _message, _title } = this._prepareErrorMessage(message, defaultMessage);
+    const notification = new Notification({
+      body: _message, title: _title,
+      icon: 'icon-notifcation-error',
+      type: NotificationType.MESSAGE
+    });
+    this.addNotification(notification);
+  }
+
+  showSuccess(message: string) {
+    const notification = new Notification({ body: message, title: 'Success' });
+    this.addNotification(notification);
+  }
+
+  addNotification(notification) {
+    this._notifications.push(notification);
+    this.notifications.next(this.getNotification());
   }
 
   public acceptNotification(notificationId: NotificationId): void {

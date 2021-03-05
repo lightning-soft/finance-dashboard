@@ -12,6 +12,7 @@ export interface IContainer {
   maximazable: boolean;
   minimazable: boolean;
   options: any;
+  z: number;
 
   setTitle(title: string);
 
@@ -60,6 +61,8 @@ export interface ILayoutNode {
   maximizable?();
 
   minimizable?();
+
+  setZIndex?(index: number);
 
 }
 
@@ -225,6 +228,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   maximize() {
     this.layoutContainer.maximize();
+  }
+
+  setZIndex(index: number) {
+    this.layoutContainer.z = index;
   }
 
   _removeItself() {

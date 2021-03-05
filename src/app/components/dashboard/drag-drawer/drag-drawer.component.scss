@@ -3,6 +3,7 @@
 button {
   padding: 1px 12px;
   margin: 0;
+  height: 100%;
   background-color: $tabFrameColor;
   position: relative;
 
@@ -25,7 +26,17 @@ button {
 }
 
 .add-container {
+  transition: all 0.3s;
+
   &:hover {
+    background: $inputBackground;
+
+    .icon-add {
+      color: white;
+    }
+  }
+
+  &.opened {
     .icon-add {
       color: $primary;
     }

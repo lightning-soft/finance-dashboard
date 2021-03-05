@@ -32,6 +32,7 @@ interface INumberConfig extends ICellConfig {
   component?: string;
   formatter?: IFormatter;
   ignoreZero?: boolean;
+  hightlightOnChange?: boolean;
 }
 
 export class NumberCell extends Cell {
@@ -41,6 +42,7 @@ export class NumberCell extends Cell {
   formatter: IFormatter;
   ignoreZero: boolean;
   time: number;
+  hightlightOnChange = true;
 
   _value: number;
 
@@ -53,6 +55,7 @@ export class NumberCell extends Cell {
       this.component = config.component;
       this.formatter = config.formatter;
       this.ignoreZero = config.ignoreZero ?? true;
+      this.hightlightOnChange = config.hightlightOnChange != false;
     } else if (config != null)
       this.strategy = config ?? AddClassStrategy.RELATIVE_PREV_VALUE;
   }
@@ -72,24 +75,39 @@ export class NumberCell extends Cell {
         this.class = '';
     }
 
-    if (this.ignoreZero && value == 0 || !this.visible)
-      this.value = ''
-    else
-      this.value = this.formatter ? this.formatter.format(value) : value.toString();
-
-    this.drawed = false;
-    this._value = value;
+    this._setValue(value);
     this.time = time ?? Date.now();
     this.hightlight();
     return true;
   }
 
+  _setValue(value) {
+    const settings: any = this.settings;
+
+    if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && Math.abs(value) < settings.minToVisible))
+      this.value = '';
+    else
+      this.value = this.formatter ? this.formatter.format(value) : (value?.toString() ?? '');
+
+    this.drawed = false;
+    this._value = value;
+  }
+
   hightlight() {
     const settings: any = this.settings;
-    if (settings.highlightLarge == true && settings.largeSize != null && this._value < settings.largeSize)
+    if (!this.hightlightOnChange || (settings.highlightLarge === true && settings.largeSize != null && this._value < settings.largeSize))
       return;
 
     super.hightlight();
+  }
+
+  _visibilityChange() {
+    this.refresh();
+    this.drawed = false;
+  }
+
+  refresh() {
+    this._setValue(this._value);
   }
 
   clear() {

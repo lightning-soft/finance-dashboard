@@ -1,0 +1,20 @@
+@import "~src/scss/variables";
+
+small {
+  font-size: 0.65rem;
+  color: $text-60;
+}
+
+:host ::ng-deep {
+  .ant-input.custom-form-control {
+    background: #101114;
+    border: 1px solid transparent;
+    font-size: 0.8rem;
+    font-weight: 400;
+    height: 24px;
+
+    &:focus {
+      border: 1px solid $primary;
+    }
+  }
+}

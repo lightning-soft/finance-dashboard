@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { WebSocketService } from 'communication';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, take, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { HttpErrorInterceptor } from './interceptor';
 
@@ -16,7 +16,8 @@ export class AccountsManager {
     protected _connectionsRepository: ConnectionsRepository,
     private _webSocketService: WebSocketService,
     private _interceptor: HttpErrorInterceptor
-  ) { }
+  ) {
+  }
 
   getActiveConnection() {
     return this.connections.value.find(i => i.connected);
@@ -25,11 +26,22 @@ export class AccountsManager {
   async init() {
     this._webSocketService.on(this._handleStream.bind(this));
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
-    this._updateConnections();
+    this._connectionsRepository.getItems()
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        const connections: IConnection[] = res.data.map(item => {
+          if (item.connected && !item.connectOnStartUp) {
+            item.connected = false;
+            delete item.connectionData;
+          }
+          return item;
+        });
+        this.connections.next(connections);
+      });
 
     return this.connections.pipe(
       take(2), // first default value
-    ).toPromise()
+    ).toPromise();
   }
 
   private _handleStream(msg: any): void {
@@ -46,33 +58,47 @@ export class AccountsManager {
 
     if (connection) {
       this._connectionsRepository.updateItem({ ...connection, connected: false })
-        .pipe(tap(() => this._updateConnections()))
+        .pipe(tap(() => this.onUpdated({ ...connection, connected: false })))
         .subscribe();
     }
   }
 
   createConnection(connection: IConnection) {
     return this._connectionsRepository.createItem(connection)
-      .pipe(tap(() => this._updateConnections()));
+      .pipe(tap((conn) => this.onCreated(conn)));
   }
 
   rename(name, connection: IConnection) {
     return this._connectionsRepository.updateItem({ ...connection, name })
-      .pipe(tap(() => this._updateConnections()));
+      .pipe(tap(() => this.onUpdated({ ...connection, name })));
   }
 
   connect(connection: IConnection) {
+    const oldConnection = this.getActiveConnection();
     return this._connectionsRepository.connect(connection)
-      .pipe(tap(() => this._updateConnections()));
+      .pipe(
+        concatMap(item => {
+          if (oldConnection && !item.error)
+           return  this.disconnect(oldConnection)
+             .pipe(
+               map(conn => item)
+             );
+          return of(item);
+        }),
+        concatMap(item => {
+          return this._connectionsRepository.updateItem(item)
+            .pipe(map(_ => item));
+        }),
+        tap((conn) => this.onUpdated(conn)));
   }
 
   disconnect(connection: IConnection) {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        tap(() => this._updateConnections()),
+        tap(() => this.onUpdated({ ...connection, connected: false })),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
-            this._updateConnections();
+            this.onUpdated(connection);
             return of(null);
           } else
             return throwError(err);
@@ -85,20 +111,35 @@ export class AccountsManager {
 
     return this._connectionsRepository.deleteItem(id)
       .pipe(
-        tap(() => this._updateConnections()),
+        tap(() => this.onDeleted({ id } as IConnection)),
       );
   }
 
   toggleFavourite(connection: IConnection) {
     return this._connectionsRepository.updateItem({ ...connection, favourite: !connection.favourite })
       .pipe(
-        tap(() => this._updateConnections()),
+        tap(() => this.onUpdated({ ...connection, favourite: !connection.favourite })),
       );
   }
 
-  protected _updateConnections() {
-    this._connectionsRepository.getItems()
-      .pipe(untilDestroyed(this))
-      .subscribe(res => this.connections.next(res.data));
+  protected onCreated(connection: IConnection) {
+    const connections = this.connections.value;
+    if (!connection.name) {
+      connection.name = `${connection.server}(${connection.gateway})`;
+    }
+    connections.push(connection);
+    this.connections.next(connections);
+  }
+
+  protected onDeleted(connection: IConnection) {
+    const connections = this.connections.value;
+    this.connections.next(connections.filter(item => item.id !== connection.id));
+  }
+
+  protected onUpdated(connection: IConnection) {
+    const connections = this.connections.value;
+    const index = connections.findIndex(item => item.id === connection.id);
+    connections[index] = connection;
+    this.connections.next(connections);
   }
 }
