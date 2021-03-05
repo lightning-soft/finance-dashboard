@@ -5,7 +5,7 @@ export const handlers = {
   DEFAULT: (msg) => { },
 
   [MessageTypes.CONNECT]: (msg) => {
-    const icon = `icon-datafeed-${msg?.result?.value.toLowerCase()}`
+    const icon = `icon-datafeed-${msg?.result?.value?.toLowerCase()}`
 
     return new Notification({
       title: msg.result.value,

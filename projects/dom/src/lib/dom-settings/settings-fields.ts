@@ -771,7 +771,7 @@ export const orderColumnFields: IFieldConfig[] = [
       new FieldConfig({
         fieldGroup: [
           {
-            ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
+            ...getCheckboxes([{ key: 'showPnl', label: 'Show PnL in Column' },
             { key: 'includePnl', label: 'Include Closed PnL' }]),
             fieldGroupClassName: '',
             className: 'pl-1',
