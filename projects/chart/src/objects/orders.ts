@@ -92,7 +92,6 @@ export class Orders extends ChartObjects<IOrder> {
       )
       .subscribe((item: any) => {
         target.order = this._map(item.result, order.price);
-        target.locked = true;
         target.update();
         this._barsMap[target.order.id] = target;
         this._notifier.showSuccess('Order is created');
