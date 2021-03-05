@@ -15,7 +15,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   protected _barsMap: any = {};
   protected _repositorySubscription: Subscription;
   protected _dataFeed: Feed<T>;
-  unsubscribeFn: () => void;
+  private unsubscribeFn: () => void;
 
   protected get _chart(): IChart {
     return this._instance.chart;
@@ -44,8 +44,8 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     });
   }
 
-  handle(model: T){
-    const instrument =  this._instance?.instrument;
+  handle(model: T) {
+    const instrument = this._instance?.instrument;
     if (instrument == null || model?.instrument?.symbol !== instrument?.symbol) {
       return;
     }
@@ -65,6 +65,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
       this.delete(model.id);
     }
   }
+
   abstract createBar(model);
 
   refresh() {

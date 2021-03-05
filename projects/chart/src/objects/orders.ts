@@ -31,10 +31,6 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_SETTINGS_CLICKED, this._updateOrder);
     this._chart.on(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
-    this.unsubscribeFn = this._dataFeed.on((order) => {
-        this.handle(order);
-      }
-    );
   }
 
   createBar(model) {
