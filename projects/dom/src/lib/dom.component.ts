@@ -387,6 +387,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         'orders',
         ['volume', 'volume', 'histogram'],
         'price',
+        // ['bidDeltaV', 'delta'],
         ['bidDelta', 'delta'],
         ['bid', 'bid', 'histogram'],
         'ltq',
@@ -399,15 +400,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         // 'tradeColumn',
         // 'askDepth',
       ].map(convertToColumn),
-      {
-        name: 'notes',
-        style: {
-          textOverflow: true,
-          textAlign: 'left',
-        },
-        title: 'NOTES',
-        visible: true
-      }
+      // {
+      //   name: 'notes',
+      //   style: {
+      //     textOverflow: true,
+      //     textAlign: 'left',
+      //   },
+      //   title: 'NOTES',
+      //   visible: true
+      // }
     ];
 
     if (!environment.production) {
@@ -841,9 +842,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         if (item.isCenter)
           index = i;
-
-        item.isAboveCenter = i < index;
-        item.isBelowCenter = i > index;
       }
     }
 
@@ -903,7 +901,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1149,7 +1147,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
 
-
     if (!this.items.length)
       this.fillData(trade.price);
 
@@ -1157,7 +1154,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const needClear = trade.volume == 0;
     // const needClear = false;
 
-    if (trade.updateType === UpdateType.Undefined || needClear) {
+    if (trade.updateType === UpdateType.Undefined) {
       let items = this.items;
 
       let price = trade.price;
@@ -1167,7 +1164,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestBidPrice != price || needClear) {
           for (let i = items.length - 1; i >= 0; i--) {
             item = items[i];
-            if (!needClear || item.lastPrice != price)
+            if ((needClear && item.lastPrice != price) || item.lastPrice != price)
               item.clearBidDelta();
 
             if (item.lastPrice != price)
@@ -1183,7 +1180,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (this._bestAskPrice != price || needClear) {
           for (let i = 0; i < items.length; i++) {
             item = items[i];
-            if (!needClear || item.lastPrice != price)
+            if ((needClear && item.lastPrice != price) || item.lastPrice != price)
               item.clearAskDelta();
 
             if (item.lastPrice != price)
@@ -1204,19 +1201,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const max = this._max;
 
     for (const i of this.items) {
-      if (this._bestBidPrice <= i.lastPrice && i.isAskSideVisible) {
+      if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
         i.ask.calcHist(max.ask);
         i.askDelta.calcHist(max.askDelta);
-
-        // if (i.ask.hist > 1) {
-        //   console.log(i.lastPrice, i.ask.hist, max.ask);
-        // }
+        i.side = QuoteSide.Ask;
       }
 
-
-      if (this._bestAskPrice >= i.lastPrice && i.isBidSideVisible) {
+      if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
         i.bid.calcHist(max.bid);
         i.bidDelta.calcHist(max.bidDelta);
+        i.side = QuoteSide.Bid;
       }
 
       i.changeBestStatus();

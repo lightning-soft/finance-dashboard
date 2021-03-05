@@ -170,6 +170,43 @@ class LtqCell extends HistogramCell {
       return super.updateValue(value);
   }
 }
+class CompositeCell extends Cell {
+  name: string;
+  value: string;
+
+  get drawed(): boolean {
+    return this._getItem().drawed
+  }
+
+  set drawed(value: boolean) {
+    // this._drawed = value;
+  }
+
+  get status(): string {
+    return this._getItem().status;
+  }
+
+  set status(value: string) {
+
+  }
+
+  get visible(): boolean {
+    return this._getItem().visible;
+  }
+
+  constructor(private _getItem: () => Cell) {
+    super();
+  }
+
+  updateValue(...args: any[]) {
+    throw new Error('Method not implemented.');
+  }
+
+  toString(): string {
+    return this._getItem().toString();
+  }
+
+}
 
 class LevelCell extends HistogramCell {
   private _levelTime: number;
@@ -234,12 +271,16 @@ export class DomItem implements IBaseItem {
 
   isCenter = false;
 
-  isBelowCenter = false;
-  isAboveCenter = false;
+  side: QuoteSide;
 
   get lastPrice(): number {
     return this.price._value;
   }
+
+  bidDeltaV: CompositeCell;
+  // get bidDeltaV() {
+  //   return this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta;
+  // }
 
   _id: Cell = new NumberCell();
   price: PriceCell;
@@ -270,7 +311,6 @@ export class DomItem implements IBaseItem {
     return (this.ask.visible || this.askDelta.visible);
   }
 
-
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.index = index;
     this.price = new PriceCell({
@@ -289,6 +329,7 @@ export class DomItem implements IBaseItem {
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
+    this.bidDeltaV = new CompositeCell(() => this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta);
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
@@ -350,6 +391,8 @@ export class DomItem implements IBaseItem {
   }
 
   handleQuote(data: IQuote) {
+    if (data.volume == 0 && data.updateType == UpdateType.Undefined)
+      console.log('zeroooooooooooooooooooooooo', data.volume);
     if (data.side === QuoteSide.Ask)
       return this._handleAsk(data);
     else
