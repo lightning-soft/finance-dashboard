@@ -397,10 +397,10 @@ export const generalFields: IFieldConfig[] = [
         label: 'Common View',
         fieldGroup: [
           getCheckboxes([
-            {
-              label: 'Always on Top',
-              key: 'onTop',
-            },
+            // {
+            //   label: 'Always on Top',
+            //   key: 'onTop',
+            // },
             {
               label: 'Center Line',
               key: 'centerLine'

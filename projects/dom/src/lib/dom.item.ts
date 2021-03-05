@@ -1,5 +1,5 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
+import { AddClassStrategy, Cell, CellStatus, DataCell, IFormatter, NumberCell } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
@@ -170,13 +170,51 @@ class LtqCell extends HistogramCell {
       return super.updateValue(value);
   }
 }
+class CompositeCell extends Cell {
+  name: string;
+  value: string;
+
+  get drawed(): boolean {
+    return this._getItem().drawed
+  }
+
+  set drawed(value: boolean) {
+    // this._drawed = value;
+  }
+
+  get status(): string {
+    return this._getItem().status;
+  }
+
+  set status(value: string) {
+
+  }
+
+  get visible(): boolean {
+    return this._getItem().visible;
+  }
+
+  constructor(private _getItem: () => Cell) {
+    super();
+  }
+
+  updateValue(...args: any[]) {
+    throw new Error('Method not implemented.');
+  }
+
+  toString(): string {
+    return this._getItem().toString();
+  }
+
+}
 
 class LevelCell extends HistogramCell {
   private _levelTime: number;
   best: QuoteSide = null;
 
   update(value: number, timestamp: number, forceAdd: boolean) {
-    const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    // const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    const result = this.updateValue(forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
 
     if (result)
@@ -191,17 +229,18 @@ class LevelCell extends HistogramCell {
 
   // return if no levels more, performance improvments
   calculateLevel(): boolean {
-    if (!this._value)
+    if (!this._levelTime)
       return;
 
     const settings: any = this.settings;
 
-    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval);
+    const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
       if (level <= Levels) {
         this.changeStatus(`level${level}`);
-      } else if (level == Levels + 1) {
+      } else if (level >= Levels + 1) {
         this.changeStatus('');
+        this._levelTime = null;
       }
       return true;
     }
@@ -232,12 +271,16 @@ export class DomItem implements IBaseItem {
 
   isCenter = false;
 
-  isBelowCenter = false;
-  isAboveCenter = false;
+  side: QuoteSide;
 
   get lastPrice(): number {
     return this.price._value;
   }
+
+  bidDeltaV: CompositeCell;
+  // get bidDeltaV() {
+  //   return this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta;
+  // }
 
   _id: Cell = new NumberCell();
   price: PriceCell;
@@ -268,7 +311,6 @@ export class DomItem implements IBaseItem {
     return (this.ask.visible || this.askDelta.visible);
   }
 
-
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
     this.index = index;
     this.price = new PriceCell({
@@ -287,6 +329,7 @@ export class DomItem implements IBaseItem {
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
     this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
+    this.bidDeltaV = new CompositeCell(() => this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta);
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
@@ -343,10 +386,13 @@ export class DomItem implements IBaseItem {
       }
     }
 
+    this.calculateLevel();
     return res;
   }
 
   handleQuote(data: IQuote) {
+    if (data.volume == 0 && data.updateType == UpdateType.Undefined)
+      console.log('zeroooooooooooooooooooooooo', data.volume);
     if (data.side === QuoteSide.Ask)
       return this._handleAsk(data);
     else
@@ -358,7 +404,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
-      this.askDelta.hightlight();
+      this.askDelta.changeStatus(CellStatus.Highlight);
     }
 
     if (this.ask.updateValue(data.volume)) {
@@ -381,8 +427,7 @@ export class DomItem implements IBaseItem {
 
     if (data.updateType == UpdateType.Undefined) {
       this.currentBid.changeBest(QuoteSide.Bid);
-      this.bidDelta.hightlight();
-      // this.currentAsk.clear();
+      this.bidDelta.changeStatus(CellStatus.Highlight);
     }
 
     if (this.bid.updateValue(data.volume)) {
@@ -447,20 +492,20 @@ export class DomItem implements IBaseItem {
     this.clearBidDelta();
   }
 
-  setCurrentBidBest() {
-    if (this.ltq._value)
-      return;
+  clearCurrentBidBest() {
+    // if (this.ltq._value)
+    //   return;
 
     this.currentBid.changeBest();
-    this.bidDelta.hightlight();
+    // this.bidDelta.changeStatus('');
   }
 
-  setСurrentAskBest() {
-    if (this.ltq._value)
-      return;
+  clearСurrentAskBest() {
+    // if (this.ltq._value)
+    //   return;
 
     this.currentAsk.changeBest();
-    this.askDelta.hightlight();
+    // this.askDelta.changeStatus('');
   }
 
   refresh() {
@@ -472,6 +517,11 @@ export class DomItem implements IBaseItem {
     this.bid.visible = isBidOut !== true;
 
     return this._getBidValues();
+  }
+
+  changeBestStatus() {
+    this.askDelta.changeStatus(this.currentAsk.best == QuoteSide.Ask ? CellStatus.Highlight : '');
+    this.bidDelta.changeStatus(this.currentBid.best == QuoteSide.Bid ? CellStatus.Highlight : '');
   }
 
   private _getBidValues() {
