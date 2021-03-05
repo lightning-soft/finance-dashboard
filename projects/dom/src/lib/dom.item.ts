@@ -1,5 +1,5 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell } from 'data-grid';
+import { AddClassStrategy, Cell, DataCell, IFormatter, NumberCell, ProfitClass } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
@@ -24,6 +24,7 @@ class OrdersCell extends HistogramCell {
   constructor(config) {
     super(config);
     this._isOrderColumn = config.isOrderColumn === true;
+    this.strategy = config.strategy ?? AddClassStrategy.NONE;
   }
 
   addOcoOrder(ocoOrder) {
@@ -82,6 +83,15 @@ class OrdersCell extends HistogramCell {
 
     const type = this._order.type.replace(/[^A-Z]/g, "");
     this._text = `${this._order.quantity}${type}`;
+  }
+
+  setPL(pl: number) {
+    this.updateValue(pl);
+    this.changeStatus(this.class === ProfitClass.DOWN ? 'loss' : 'inProfit');
+  }
+
+  clearPL() {
+    this.updateValue(null);
   }
 
   draw(context) {
@@ -286,7 +296,13 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.orders = new OrdersCell({ isOrderColumn: true, settings: settings.orders });
+    this.orders = new OrdersCell({
+      isOrderColumn: true,
+      settings: settings.orders,
+      strategy: AddClassStrategy.RELATIVE_ZERO,
+      ignoreZero: false,
+      formatter: _priceFormatter
+    });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
@@ -400,7 +416,7 @@ export class DomItem implements IBaseItem {
     return this._getBidValues();
   }
 
-  private _updatePiceStatus() {
+  private _updatePriceStatus() {
     if (this.ltq._value > 0) {
       this.price.hightlight();
       this.orders.hightlight();
@@ -415,7 +431,7 @@ export class DomItem implements IBaseItem {
       this.ltq.changeStatus(side);
 
       this.volume.updateValue(volume);
-      this._updatePiceStatus();
+      this._updatePriceStatus();
 
       this.setPrice(this.price._value);
 
@@ -556,7 +572,7 @@ export class DomItem implements IBaseItem {
 
     // console.log(key);
     if (key == 'ltq')
-      this._updatePiceStatus();
+      this._updatePriceStatus();
 
     if (this[key] && this[key].dehightlight) {
       this[key].dehightlight();
@@ -566,7 +582,7 @@ export class DomItem implements IBaseItem {
   setVolume(volume: number) {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
-    this._updatePiceStatus();
+    this._updatePriceStatus();
     return { volume: this.volume._value };
   }
 
@@ -575,5 +591,13 @@ export class DomItem implements IBaseItem {
     const bid = this.currentBid.calculateLevel();
 
     return ask || bid;
+  }
+
+  clearPL() {
+    this.orders.clearPL();
+  }
+
+  setPL(pl: number) {
+    this.orders.setPL(pl);
   }
 }
