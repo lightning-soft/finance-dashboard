@@ -53,6 +53,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Input()
   handlers: DataGridHandler[] = [];
+  @Input() showContextMenuSettings = true;
 
   @Input() columns = [];
   @Input() afterDraw = (e, grid) => null;
@@ -109,7 +110,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
     private nzContextMenuService: NzContextMenuService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     // this.activeColumns = this.columns.filter((column: Column) => column.visible);
@@ -249,10 +251,13 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _handleContextmenu = (e) => {
-    if (e?.e)
+    if (e?.e) {
       e.e.preventDefault();
-
+    }
     this._triggerHandler(Events.ContextMenu, e);
+    if (e?.e && this.showContextMenuSettings) {
+      this.createComponentModal(e.e);
+    }
   }
 
   private _handleClick = (e) => {

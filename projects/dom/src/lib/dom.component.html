@@ -65,6 +65,7 @@
   </div>
   <div class="grid-wrapper">
     <data-grid #grid [columns]="columns"
+               [showContextMenuSettings]="false"
                (currentCellChanged)="onCurrentCellChanged($event)"
                detach="true" [afterDraw]="afterDraw" [handlers]="handlers">
     </data-grid>
