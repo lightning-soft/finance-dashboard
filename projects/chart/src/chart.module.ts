@@ -40,6 +40,9 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
         }, {
           src: `./assets/StockChartX/scripts/StockChartX.External.min.js`
         },
+        {
+          src: './assets/StockChartX/scripts/html2canvas.min.js'
+        },
       ],
       styles: [
         {

@@ -155,14 +155,14 @@ export class DomSettings {
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightHistogramColor: 'rgba(72, 149, 245, 1)',
+    highlightBackgroundColor: 'rgba(72,149,245,0,3)',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightHistogramColor: 'rgba(201, 59, 59, 1)',
+    highlightBackgroundColor: 'rgba(201, 59, 59, 0.2)',
     color: '#ffffff',
   };
   bid: any = {
@@ -256,18 +256,18 @@ export class DomSettings {
     textAlign: TextAlign.Center,
     'break-evenBackground': 'rgba(0, 44, 55, 1)',
     'break-evenForeground': 'rgba(255, 255, 255, 1)',
-    buyOrderBackground: 'rgba(22, 140, 213, 1)',
-    buyOrderForeground: 'rgba(242, 242, 242, 1)',
-    buyOrdersColumn: 'rgba(0, 44, 55, 1)',
+    buyOrderBackgroundColor: 'rgba(22, 140, 213, 1)',
+    buyOrderColor: 'rgba(242, 242, 242, 1)',
+    // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
     highlightColor: 'rgba(29, 73, 127, 1)',
     inProfitBackgroundColor: 'rgba(0, 44, 55, 1)',
     inProfitColor: 'rgba(72, 149, 245, 1)',
     lossBackgroundColor: 'rgba(0, 44, 55, 1)',
     lossColor: 'rgba(201, 59, 59, 1)',
-    sellOrderBackground: 'rgba(201, 59, 59, 1)',
-    sellOrderForeground: 'rgba(255, 255, 255, 1)',
-    sellOrdersColumn: 'rgba(72, 149, 245, 1)',
-    snowPnl: false,
+    sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
+    sellOrderColor: 'rgba(255, 255, 255, 1)',
+    // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
+    showPnl: false,
     split: false,
     includePnl: false,
     overlay: false,
