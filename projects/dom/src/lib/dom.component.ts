@@ -1024,10 +1024,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         break;
 
       if (pointOfControlIndex + i <= endTradedPriceIndex)
-        items[pointOfControlIndex + i].price.changeStatus('tradedPrice')
+        items[pointOfControlIndex + i].changePriceStatus('tradedPrice')
 
       if (pointOfControlIndex - i >= startTradedPriceIndex)
-        items[pointOfControlIndex - i].price.changeStatus('tradedPrice')
+        items[pointOfControlIndex - i].changePriceStatus('tradedPrice')
 
       valueAreaSum += (volume1?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)

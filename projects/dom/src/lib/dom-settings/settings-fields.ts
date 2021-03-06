@@ -618,13 +618,12 @@ export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Price',
     fieldGroup: [
-      getHightlightColor(),
       getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
       getColor({ label: 'Last Traded Price Font Color', key: 'highlightColor' }),
       getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),
       getColor({ label: 'Non Traded Price Font Color', key: 'color' }),
       getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
-      getColor({ label: 'Price Font Color', key: 'color' }),
+      getColor({ label: 'Traded Price Font Color', key: 'tradedPriceColor' }),
       wrapWithClass(getTextAlign(), 'mt-2'),
     ]
   }),

@@ -92,6 +92,7 @@ export abstract class Cell implements ICell {
 
   revertStatus() {
     this.status = this._prevStatus;
+    this.drawed = false;
   }
 
   dehightlight() {

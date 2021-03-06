@@ -366,10 +366,12 @@ export class DomItem implements IBaseItem {
   clearLTQ() {
     this.ltq.changeStatus('');
     this.ltq.clear();
+    this._updatePriceStatus();
   }
 
   setPrice(price) {
     this.price.updateValue(price);
+    this.price.dehightlight();
   }
 
   handleTrade(trade: TradePrint) {
@@ -463,7 +465,15 @@ export class DomItem implements IBaseItem {
     return this._getBidValues();
   }
 
+  changePriceStatus(status: string) {
+    if (this.price.status == CellStatus.Highlight)
+      return;
+
+    this.price.changeStatus(status);
+  }
+
   private _updatePriceStatus() {
+    console.log('_updatePriceStatus', this.index)
     if (this.ltq._value > 0) {
       this.price.hightlight();
       this.orders.hightlight();
@@ -479,8 +489,6 @@ export class DomItem implements IBaseItem {
 
       this.volume.updateValue(volume);
       this._updatePriceStatus();
-
-      this.setPrice(this.price._value);
 
       return true;
     }
@@ -634,7 +642,6 @@ export class DomItem implements IBaseItem {
   setVolume(volume: number) {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
-    this._updatePriceStatus();
     return { volume: this.volume._value };
   }
 
