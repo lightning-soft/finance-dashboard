@@ -15,9 +15,7 @@ import {
   StaticProvider,
 } from '@angular/core';
 import { LoadChildrenCallback, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { IModules } from './models';
-import { Layout } from '../../layout/src/components/layout/layouts/layout';
 
 export abstract class LayoutNodeProvider {
   component: Type<any>;

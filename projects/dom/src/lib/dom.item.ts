@@ -228,7 +228,7 @@ class LevelCell extends HistogramCell {
     const result = this.updateValue(forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
 
-    if (result)
+    if (result && (this.settings as any).momentumTails)
       this._levelTime = Date.now();
 
     if (this.best != null) {

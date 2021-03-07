@@ -52,7 +52,7 @@ export class FakeTradeDatafeed extends DatafeedRepository<TradePrint> implements
 
             // this._triggerQuotes(quotes);
             // console.timeEnd('q');
-        }, 100);
+        }, 300);
     }
 
     protected _subscribe(instruemntId: Id) {
