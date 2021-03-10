@@ -1,0 +1,604 @@
+@import "~src/scss/variables";
+
+:host {
+  background: $light;
+
+
+  ::ng-deep {
+    .inner-value-area {
+      grid-template-columns: 1fr 4fr;
+      grid-column-gap: 4px;
+    }
+
+    .span-three-rows {
+      grid-column: 1 / span 3;
+    }
+
+    .vaOpacityNumber {
+      number-input {
+        input {
+          width: 41%;
+        }
+
+        .number-label {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          line-height: 1.3rem;
+          white-space: nowrap;
+          width: 57%;
+          display: inline-block;
+          margin-right: 4px;
+        }
+      }
+    }
+
+    .line-style-row {
+      grid-template-columns: 3fr 1fr 3fr;
+      grid-column-gap: 4px;
+    }
+
+    .stroke-color {
+      width: 20px;
+
+      color-picker .color-wrapper {
+        padding-left: 4px;
+      }
+    }
+
+    .minimize-select {
+      .ant-form-item-control-input {
+        min-height: 1px;
+      }
+
+      .ant-form-item-label > label {
+        height: 20px;
+      }
+    }
+
+    .profile-color {
+    }
+
+    .single-label {
+      nz-form-control {
+        display: none;
+      }
+
+      .ant-form-item-label label {
+        height: auto;
+      }
+    }
+
+    .label-text-end nz-form-item .ant-form-item-label {
+      text-align: end;
+    }
+
+    .block {
+      display: block;
+    }
+
+    nz-select {
+      min-width: 50px;
+    }
+
+    .checkbox-right {
+      .ant-form-item-control-input-content {
+        justify-content: flex-end;
+        display: flex;
+      }
+    }
+
+    .full-number-input {
+      .ant-input {
+        width: 100%;
+      }
+    }
+
+    .smooth-price, {
+      number-input {
+        flex-direction: row;
+
+        .ant-input {
+          width: 100%;
+        }
+
+        .number-label {
+          margin-left: 6px;
+          width: auto;
+        }
+      }
+    }
+
+    .profile-period {
+      .ant-form-item {
+        flex-direction: row;
+      }
+
+      .period-items {
+        > * {
+          &:not(:first-child) {
+            margin-left: 4px;
+          }
+        }
+      }
+
+      number-input input {
+        width: 100%;
+      }
+
+      nz-form-label, nz-form-control {
+        width: 50%;
+      }
+    }
+
+    .profile-alignment {
+      .icon-align-center {
+        display: none;
+      }
+    }
+
+    .right-switch {
+      margin-left: auto;
+      height: 32px;
+
+      switch nz-switch, switch .switch-label {
+        width: auto;
+      }
+    }
+
+    switch {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+
+      .switch-label {
+        font-weight: 600;
+        font-size: 0.75rem;
+        line-height: 1.1rem;
+      }
+
+      nz-switch, .switch-label {
+        width: 50%;
+        margin-left: 0;
+      }
+
+      nz-switch {
+        margin-left: 10px;
+      }
+    }
+
+    .hide-border-bottom {
+      nz-form-item .ant-form-item-label {
+        margin-bottom: 0;
+        border-bottom: none;
+      }
+    }
+
+    .number-full-width {
+      input {
+        width: 100%;
+      }
+    }
+
+    nz-form-item .ant-form-item-label {
+      text-align: start;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #383A40;
+
+      label {
+        margin-bottom: 0;
+      }
+    }
+
+    .ant-input {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      background: $light;
+      height: 20px;
+      border: 1px solid transparent;
+    }
+
+    .ant-form-item-label > label, .template-label {
+      font-size: 0.85rem;
+      line-height: 1.2rem;
+    }
+
+    .template-label {
+      font-weight: 600;
+    }
+
+    .split-select {
+      nz-form-label, nz-form-control {
+        width: 50%;
+        height: 20px;
+      }
+    }
+
+    .split-input {
+      nz-form-label, {
+        width: 50%;
+      }
+
+      nz-form-control {
+        margin-left: 5px;
+        width: 47%;
+      }
+
+      number-input .ant-input {
+        margin-left: 6px;
+        width: 49%;
+      }
+
+    }
+
+    color-picker {
+      .color-label {
+        font-size: 0.8rem;
+        line-height: 1.1rem;
+      }
+
+      .color-wrapper {
+        padding: 0;
+        padding-left: 6px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .color-input {
+        height: 12px;
+        width: 12px;
+      }
+    }
+
+    .calculate-profiles {
+      .ant-input {
+        width: 40%;
+        margin-left: 4px;
+      }
+
+      .number-label {
+        width: 70%;
+      }
+    }
+
+    .outsideVa {
+      input {
+        width: 53%;
+      }
+    }
+
+    number-input {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+
+      .number-label {
+        margin-left: 0;
+        font-weight: 600;
+        font-size: 0.8rem;
+        // line-height: 1.1rem;
+        width: 50%;
+        display: flex;
+        align-items: center;
+      }
+
+      input {
+        height: 20px;
+        width: 50%;
+      }
+    }
+
+    .ant-checkbox-wrapper, .regular-label .ant-form-item-label label {
+      font-size: 0.8rem;
+      line-height: 1.1rem;
+      color: $text-80;
+      font-weight: 400;
+    }
+
+    .ant-checkbox-wrapper {
+      display: flex;
+      align-items: center;
+
+      .ant-checkbox {
+        top: 0;
+      }
+    }
+
+    .regular-label {
+      .ant-form-item-label {
+        label {
+          font-weight: 600;
+        }
+      }
+    }
+
+    .label-400 {
+      .ant-form-item-label {
+        label {
+          font-weight: 400;
+        }
+      }
+    }
+
+    .summary-color {
+      padding-top: 3px;
+    }
+
+    .inline-fields {
+      nz-form-item {
+        flex-direction: row;
+      }
+    }
+
+
+    nz-form-item {
+      flex-direction: column;
+      margin-bottom: 7px;
+    }
+
+
+    nz-form-item {
+
+
+      .ant-form-item-label {
+        text-align: left;
+
+        label {
+          &:after {
+            content: unset;
+          }
+        }
+      }
+    }
+
+    .wm-draggable.title {
+      margin-left: 13px;
+      font-weight: 600;
+      font-size: 1.15rem;
+      line-height: 150%;
+      color: #FFFFFF;
+    }
+
+    .cdk-virtual-scroll-content-wrapper {
+      height: 100%;
+      contain: unset;
+      padding-right: 2px;
+      padding-left: 2px;
+    }
+
+    .d-grid {
+      display: grid;
+    }
+
+    .two-rows, .three-rows {
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 10px;
+      grid-row-gap: 6px;
+    }
+
+    .three-rows {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+
+    nz-select-top-control {
+      border: none !important;
+      background: $light !important;
+      height: 20px !important;
+      padding-left: 5px !important;
+      padding-right: 5px !important;
+    }
+
+    nz-select-item {
+      font-size: 0.7rem !important;
+      line-height: 20px !important;
+    }
+
+    .ant-select-arrow {
+      font-size: 8px;
+      top: 63%;
+      right: 6px;
+    }
+
+    formly-field-nz-select {
+      height: 20px;
+      line-height: 16px;
+      display: block;
+    }
+
+    .select {
+      .ant-form-item-label {
+        text-align: left;
+        margin: 0;
+        border: none;
+
+        > label {
+          font-weight: 600;
+          font-size: 0.8rem;
+          line-height: 1.1rem;
+          color: #D0D0D2;
+          margin-bottom: 0;
+        }
+      }
+
+      nz-form-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 10px;
+        grid-row-gap: 6px;
+
+      }
+    }
+
+    .background-outline {
+      grid-row: 1 / span 2;
+      grid-column: 2/ 2;
+    }
+
+    .full-width {
+      grid-column: 1 / span 2;
+    }
+
+    .profile-settings {
+      .extend-naked-poc {
+        grid-column: 1 / span 2;
+      }
+    }
+
+    .bordered {
+      border: 1px solid $lighter;
+      padding: 8px;
+      position: relative;
+
+      & > formly-wrapper-nz-form-field > nz-form-item > nz-form-label {
+        position: absolute;
+        top: -18px;
+        left: 27px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-bottom: none;
+        margin-bottom: 0;
+        background: $inputBackground;
+      }
+    }
+
+    .profile-settings-extended {
+      .extend-naked-poc {
+        grid-column: unset;
+      }
+    }
+
+    .hide-account {
+      grid-column: 2;
+      grid-row: 4;
+    }
+  }
+}
+
+
+.layout {
+  display: flex;
+  padding-left: 6px;
+  padding-right: 6px;
+  height: 100%;
+}
+
+.form-layout {
+  width: 100%;
+}
+
+cdk-virtual-scroll-viewport {
+  height: calc(100% - 25px);
+  background: $secondary;
+  margin-top: 3px;
+  margin-left: 6px;
+}
+
+
+formly-form {
+  display: block;
+  min-height: 100%;
+  padding: 12px 7px 6px;
+}
+
+.menu {
+  min-width: 200px;
+  height: 100%;
+
+}
+
+.menu-list {
+  background: $inputBackground;
+  margin-top: 3px;
+  height: calc(100% - 25px);
+
+}
+
+.menu-title {
+  font-weight: 600;
+  font-size: 0.7rem;
+  line-height: 160%;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.add-button {
+  background-color: #101114;
+  padding: 2px 18px;
+  border-radius: 2px;
+  font-weight: 600;
+  border: 0.5px solid #4895F5;
+  font-size: 0.7rem;
+  line-height: 1;
+  height: 18px;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 10px;
+  height: 22px;
+}
+
+ul {
+  list-style: none;
+  margin-bottom: 0;
+  padding-left: 4px;
+  height: 100%;
+  padding-top: 5px;
+  padding-right: 4px;
+}
+
+li {
+  font-size: 1rem;
+  line-height: 1.3rem;
+  padding-left: 4px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+
+  &:not(:first-child) {
+    margin-top: 5px;
+  }
+
+  &.selected {
+    border-radius: 2px;
+    background: $light;
+    color: white;
+    font-weight: 600;
+  }
+
+  &:hover {
+    .icon-minus {
+      opacity: 1;
+    }
+  }
+}
+
+.icon-visible {
+  font-size: 10px;
+  line-height: 1;
+  margin-right: 4px;
+  color: $light2;
+}
+
+.icon-minus {
+  font-size: 8px;
+  line-height: 1;
+  height: 18px;
+  width: 18px;
+  color: $red;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: all 0.3s;
+  margin-right: 6px;
+}
