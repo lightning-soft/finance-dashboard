@@ -13,6 +13,8 @@ export type ComponentOptions = {
   width?: number;
   height?: number;
   type?: string;
+  minWidth?: number;
+  minHeight?: number;
   icon?: string;
   minimizable?: boolean;
   maximizable?: boolean;
