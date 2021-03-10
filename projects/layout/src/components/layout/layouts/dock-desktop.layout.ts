@@ -71,18 +71,30 @@ export class DockDesktopLayout extends Layout {
 
           instance.componentRef = componentRef; // To remove
           instance.layout = this;
-
-          const windowOptions: Options = {
+          const configData = {
             width: 500,
             height: 500,
+            minWidth: 320,
+            minHeight: 150,
+            ...config
+          };
+          if (configData.minHeight > configData.height) {
+            configData.height = configData.minHeight;
+          }
+          if (configData.minWidth > configData.width) {
+            configData.width = configData.minWidth;
+          }
+          const windowOptions: Options = {
             // type: this.getComponentTitle(componentName),
             type: componentName,
             minimizable: true,
+            minHeight: config.minHeight,
+            minWidth: config.minWidth,
             maximizable: true,
             keepInside: {
               top: true,
             },
-            ...config,
+            ...configData,
             componentState: () => ({
               state: instance.saveState && instance.saveState(),
               name: componentName,
