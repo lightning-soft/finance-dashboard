@@ -5,13 +5,25 @@ import { AccountSelectModule } from 'account-select';
 import { InstrumentSelectModule } from 'instrument-select';
 import { LazyAssetsModule } from 'lazy-assets';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzAutocompleteModule, NzButtonModule, NzDropDownModule, NzIconModule, NzInputModule, NzSelectModule } from 'ng-zorro-antd';
+import {
+  NzAutocompleteModule,
+  NzButtonModule,
+  NzDropDownModule,
+  NzIconModule,
+  NzInputModule,
+  NzSelectModule,
+  NzSwitchModule, NzToolTipModule
+} from 'ng-zorro-antd';
 import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
+import { IndicatorsComponent } from './indicators/indicators.component';
+import { DynamicFormModule } from "dynamic-form";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { IndicatorListComponent } from './indicators/indicator-list/indicator-list.component';
 
 // const environment = { scxPath: '' };
 
@@ -56,6 +68,10 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
         }
       ]
     }),
+    DynamicFormModule,
+    ScrollingModule,
+    NzSwitchModule,
+    NzToolTipModule,
   ],
   exports: [
     ChartComponent
@@ -64,6 +80,8 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
     ChartComponent,
     ToolbarComponent,
     WindowToolbarComponent,
+    IndicatorsComponent,
+    IndicatorListComponent,
   ],
   providers: [
   ],
@@ -71,7 +89,9 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      chart: ChartComponent
+      chart: ChartComponent,
+      indicators: IndicatorsComponent,
+      indicatorList: IndicatorListComponent,
     };
   }
 }

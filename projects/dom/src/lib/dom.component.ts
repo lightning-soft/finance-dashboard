@@ -921,7 +921,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {

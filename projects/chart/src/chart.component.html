@@ -1,4 +1,4 @@
-<window-header marginClass="" className="widget" [window]="this">
+<window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
   <account-select
     class="mr-2"
     (accountChange)="handleAccountChange($event)"
@@ -12,7 +12,7 @@
 </window-header>
 <div class="component-container">
   <div class="chart-container">
-    <app-toolbar [chart]="chart"></app-toolbar>
+    <app-toolbar [layout]="layout" [chart]="chart" [link]="link"></app-toolbar>
     <div class="chart" #chartContainer></div>
     <div *ngIf="enableOrderForm"
     (click)="showOrderForm = !showOrderForm"

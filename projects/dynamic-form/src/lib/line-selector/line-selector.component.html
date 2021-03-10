@@ -1,0 +1,24 @@
+  <nz-select  [nzCustomTemplate]="valueTemplate"
+              [ngModel]="lineStyle"
+              (ngModelChange)="updateLineStyle($event)"
+             [nzOptionHeightPx]="22" [nzDropdownRender]="renderTemplate">
+    <nz-option *ngFor="let item of lineOptions"
+               [nzCustomContent]="true"
+               [nzLabel]="item" [nzValue]="item">
+      <div [ngStyle]="{'border-top-width': width + 'px'}" class="{{item}} line-option"></div>
+    </nz-option>
+  </nz-select>
+  <ng-template #renderTemplate>
+    <nz-divider></nz-divider>
+    <div class="d-flex justify-content-center align-items-center px-2">
+      <nz-input-number
+        (ngModelChange)="updateWidth($event)"
+
+        [ngModel]="width" [nzMin]="1" [nzMax]="10"></nz-input-number>
+    </div>
+  </ng-template>
+  <ng-template #valueTemplate let-item>
+    <div class="d-flex value-holder align-items-center">
+      <div [ngStyle]="{'border-top-width': width + 'px'}" class="{{item.nzValue}} line-option"></div>
+    </div>
+  </ng-template>

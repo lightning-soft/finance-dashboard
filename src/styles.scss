@@ -186,6 +186,14 @@ small {
   border-radius: 0;
 }
 
+/*.ant-switch, nz-switch, .ant-click-animating-node {
+  transition: color 0.3s, background-color 0.3s;
+
+  &:after {
+    transition: color 0.3s, background-color 0.3s, transform 0.3s;
+  }
+}*/
+
 .ant-switch-checked {
   background: rgba($primary, 0.2);
 
