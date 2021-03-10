@@ -469,7 +469,7 @@ export const footprintConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes:
-          [{ key: 'pocOnBiggest', label: 'Show POC Only On Biggest...' }]
+          [{ key: 'showPocOnlyOnBiggestBar', label: 'Show POC Only On Biggest...' }]
       }),
       getNumber({
         label: 'POC Outline Width',
