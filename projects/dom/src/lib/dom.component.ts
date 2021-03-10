@@ -1221,18 +1221,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _calcBidAskHist() {
     const max = this._max;
+    let askSum = 0;
+    let bidSum = 0;
 
     for (const i of this.items) {
       if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
         i.ask.calcHist(max.ask);
         i.askDelta.calcHist(max.askDelta);
         i.side = QuoteSide.Ask;
+        askSum += i.ask._value ?? 0;
+      } else if (!i.ask.visible && askSum >= 0) {
+        i.ask.updateValue(askSum);
+        i.ask.changeStatus('sum');
       }
 
       if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
         i.bid.calcHist(max.bid);
         i.bidDelta.calcHist(max.bidDelta);
         i.side = QuoteSide.Bid;
+        bidSum += i.bid._value ?? 0;
+      } else if (!i.bid.visible && bidSum >= 0) {
+        i.bid.updateValue(bidSum);
+        i.bid.changeStatus('sum');
       }
 
       i.changeBestStatus();
