@@ -34,7 +34,7 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
-import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
+import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from "./dom-settings/settings-fields";
@@ -354,11 +354,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _customTickSize;
 
-  private set _tickSize(value: number) {
+  set tickSize(value: number) {
     this._customTickSize = value;
   }
 
-  private get _tickSize() {
+  get tickSize() {
     return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
   }
 
@@ -470,7 +470,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
     const overlayOrders = settings.orders.overlay;
-    this._tickSize = general.commonView.ticksPerPrice;
+    this.tickSize = general.commonView.ticksPerPrice;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
 
@@ -593,12 +593,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _fillPL(position: IPosition) {
     const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
+
     for (const i of this.items) {
-      const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
-      let pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
-      if (includePnl) {
-        pl += position.realized;
-      }
+      const pl = calculatePL(position, i.price.value, this.tickSize, contractSize, includePnl);
       i.setPL(pl);
     }
   }
@@ -707,7 +704,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           if (asks.length || bids.length) {
             let index = 0;
             let price = this._normalizePrice(asks[asks.length - 1].price);
-            const tickSize = this._tickSize;
+            const tickSize = this.tickSize;
             // const maxPrice = asks[0].price;
             // const maxRows = ROWS * 2;
 
@@ -1099,7 +1096,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._map.clear();
     this._max.clear()
     const data = this.items;
-    const tickSize = this._tickSize;
+    const tickSize = this.tickSize;
 
     let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
     let index = -1;
@@ -1517,7 +1514,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       priceSpecs.stopPrice = price;
     }
     if (item.type === OrderType.StopLimit) {
-      const offset = this._tickSize * item.amount;
+      const offset = this.tickSize * item.amount;
       priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
     }
     return priceSpecs;
@@ -1631,7 +1628,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _normalizePrice(price) {
-    const tickSize = this._tickSize;
+    const tickSize = this.tickSize;
     return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
 
@@ -1663,3 +1660,4 @@ export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
 }
+
