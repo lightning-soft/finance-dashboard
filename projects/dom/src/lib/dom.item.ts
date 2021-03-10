@@ -276,6 +276,26 @@ class LevelCell extends HistogramCell {
   }
 }
 
+export const SumStatus = 'sum'; 
+
+class SumHistogramCell extends HistogramCell {
+  changeStatus(status: string) {
+    super.changeStatus(status);
+    if (status == SumStatus) {
+      this.visible = true;
+      this.hist = null;
+    }
+  }
+
+  calcHist(value: number) {
+    if (status == SumStatus) {
+      this.hist = 0;
+    } else {
+      super.calcHist(value);
+    }
+  }
+}
+
 export class DomItem implements IBaseItem {
   id: Id;
   index: number;
@@ -330,8 +350,8 @@ export class DomItem implements IBaseItem {
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new HistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
-    this.ask = new HistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
+    this.bid = new SumHistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
+    this.ask = new SumHistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });

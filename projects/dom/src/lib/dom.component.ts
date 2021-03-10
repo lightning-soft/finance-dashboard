@@ -38,7 +38,7 @@ import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.comp
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from "./dom-settings/settings-fields";
-import { DomItem } from './dom.item';
+import { DomItem, SumStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -1223,29 +1223,46 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const max = this._max;
     let askSum = 0;
     let bidSum = 0;
+    let askSumItem;
+    let bidSumItem;
 
     for (const i of this.items) {
-      if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
-        i.ask.calcHist(max.ask);
-        i.askDelta.calcHist(max.askDelta);
-        i.side = QuoteSide.Ask;
-        askSum += i.ask._value ?? 0;
-      } else if (!i.ask.visible && askSum >= 0) {
-        i.ask.updateValue(askSum);
-        i.ask.changeStatus('sum');
-      }
+      if (this._bestAskPrice <= i.lastPrice) {
+        if (i.isAskSideVisible) {
+          i.ask.calcHist(max.ask);
+          i.askDelta.calcHist(max.askDelta);
+          i.side = QuoteSide.Ask;
+          askSum += i.ask._value ?? 0;
+        }
 
-      if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
-        i.bid.calcHist(max.bid);
-        i.bidDelta.calcHist(max.bidDelta);
-        i.side = QuoteSide.Bid;
-        bidSum += i.bid._value ?? 0;
-      } else if (!i.bid.visible && bidSum >= 0) {
-        i.bid.updateValue(bidSum);
-        i.bid.changeStatus('sum');
+        if (i.ask.visible && !askSumItem) {
+          askSumItem = this.items[i.index - 1];
+        }
+      }
+      if (this._bestBidPrice >= i.lastPrice) {
+        if (i.isBidSideVisible) {
+          i.bid.calcHist(max.bid);
+          i.bidDelta.calcHist(max.bidDelta);
+          i.side = QuoteSide.Bid;
+          bidSum += i.bid._value ?? 0;
+        }
+
+        if (!i.bid.visible && !bidSumItem) {і
+          bidSumItem = i;
+        }
       }
 
       i.changeBestStatus();
+    }
+
+    if (bidSumItem) {
+      bidSumItem.bid.updateValue(bidSum);
+      bidSumItem.bid.changeStatus(SumStatus);
+    }
+
+    if (askSumItem) {
+      askSumItem.ask.updateValue(askSum);
+      askSumItem.ask.changeStatus(SumStatus);
     }
   }
 
