@@ -1247,7 +1247,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           bidSum += i.bid._value ?? 0;
         }
 
-        if (!i.bid.visible && !bidSumItem) {і
+        if (!i.bid.visible && !bidSumItem) {
           bidSumItem = i;
         }
       }

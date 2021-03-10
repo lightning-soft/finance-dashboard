@@ -37,6 +37,7 @@ export enum CellStatus {
 }
 
 export abstract class Cell implements ICell {
+  protected _statusesForMerge;
   name: string = '';
   value = '';
   class = '';
@@ -82,6 +83,11 @@ export abstract class Cell implements ICell {
   abstract updateValue(...args: any[]);
 
   changeStatus(status: string) {
+    if (this._statusesForMerge != null)
+      if (this._statusesForMerge.some(i => i == status) && this._statusesForMerge.some(i => i == this.status)) {
+        status = [this.status, status].sort().join('');
+      }
+
     if (status == this.status)
       return;
 
