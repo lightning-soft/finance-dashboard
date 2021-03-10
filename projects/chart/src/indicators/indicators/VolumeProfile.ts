@@ -21,9 +21,13 @@ export class VolumeProfile extends Indicator {
       profile.vaInsideOpacity = profile.vaInsideOpacity * 100;
       profile.vaOutsideOpacity = profile.vaOutsideOpacity * 100;
 
-      [lines.current, lines.prev].forEach(item => {
-        item.poc = this._mapGetLine(item.poc);
-        item.va = this._mapGetLine(item.va);
+      Object.values(lines).forEach((item: any) => {
+        Object.values(item).forEach((line: any) => {
+          Object.assign(
+            line,
+            this._mapGetLine(line.strokeTheme)
+          );
+        })
       });
     });
 
@@ -59,9 +63,11 @@ export class VolumeProfile extends Indicator {
     });
 
     [settings.lines.rth, settings.lines.eth].forEach(lines => {
-      [lines.current, lines.prev].forEach(item => {
-        item.poc = this._mapSetLine(item.poc);
-        item.va = this._mapSetLine(item.va);
+      Object.values(lines).forEach((item: any) => {
+        Object.values(item).forEach((line: any) => {
+          line.strokeTheme = this._mapSetLine(line);
+          delete line.strokeColor;
+        });
       });
     });
 

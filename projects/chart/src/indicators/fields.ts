@@ -175,23 +175,9 @@ function getValueArea(key, _config = {}) {
         fieldGroup: [
           getInnerValueArea('Current', 'current'),
           getInnerValueArea('Previous', 'prev'),
+          getInnerValueArea('Dev', 'dev'),
         ]
       },
-      getCheckboxes({
-        checkboxes: [
-          { label: 'Dev VPOC', key: 'devPocEnabled', config: {} },
-        ],
-        extraConfig: {
-          className: 'full-width ',
-          fieldGroupClassName: 'checkbox-right'
-        }
-      }),
-      getCheckboxes({
-        checkboxes: [
-
-          { label: 'Dev VA', key: 'devVaEnabled' },
-        ]
-      })
     ],
     ...config
   };
@@ -212,6 +198,11 @@ function getInnerValueArea(label, key) {
         key: 'poc',
         fieldGroupClassName: 'd-grid inner-value-area',
         fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'enabled', label: '' },
+            ]
+          }),
           wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' }),
         ]
@@ -220,6 +211,11 @@ function getInnerValueArea(label, key) {
         key: 'va',
         fieldGroupClassName: 'd-grid inner-value-area',
         fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'enabled', label: '' },
+            ]
+          }),
           wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' })]
       }
