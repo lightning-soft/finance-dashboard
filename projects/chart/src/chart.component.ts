@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostBinding,
+  Injector,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -17,6 +25,7 @@ import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
+import { NzContextMenuService, NzDropdownMenuComponent } from "ng-zorro-antd";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -47,6 +56,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chart: IChart;
   link: any;
 
+  showOHLC = false;
+  showChanges = false;
   private _accountId: Id;
 
   get accountId(): Id {
@@ -74,19 +85,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._positions.refresh();
   }
 
-  private loadedState = new BehaviorSubject<IScxComponentState>(null);
+  private loadedState = new BehaviorSubject<IScxComponentState &
+    { showOHLC: boolean, showChanges: boolean}>(null);
 
   enableOrderForm = false;
   showOrderForm = true;
 
   private _orders: Orders;
   private _positions: Positions;
+  @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
+    private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager
@@ -115,11 +129,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     return {
+      showOHLC: this.showOHLC,
+      showChanges: this.showChanges,
       link: this.link,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState()
     };
+  }
+
+  contextMenu($event: MouseEvent) {
   }
 
   private _instrumentChangeHandler = (event) => {
@@ -132,11 +151,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       },
     });
   }
+
   loadChart() {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
-
+    this.showChanges = state?.showChanges;
+    this.showOHLC = state?.showOHLC;
     this._setUnavaliableIfNeed();
 
     if (!chart) {
@@ -147,7 +168,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._positions.init();
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
-
+    chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
       .subscribe(value => chart.theme = getScxTheme(value));
@@ -186,6 +207,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       charts = (window as any).charts;
       charts.push(chart);
     }
+  }
+
+  private _handleContextMenu = (e) => {
+    const event = e.value.event.evt.originalEvent;
+    this.nzContextMenuService.create(event, this.menu);
   }
 
   private _setUnavaliableIfNeed() {
@@ -313,6 +339,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.destroy();
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
+      this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.destroy();
     }
 

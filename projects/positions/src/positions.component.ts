@@ -1,7 +1,7 @@
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
@@ -37,12 +37,16 @@ enum GroupByItem {
 })
 @LayoutNode()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
-  builder = new ViewGroupItemsBuilder();
+  builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
 
   private _columns: Column[] = [];
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
   menuVisible = false;
+  open: number;
+  realized: number;
+  @ViewChild('grid') dataGrid: DataGrid;
+
   get columns() {
     const closeColumn: Column = {
       name: 'close',
@@ -52,18 +56,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
   }
 
-  protected _levelOneDataFeedHandler = (quote: IQuote) => this.items.map(i => i.updateUnrealized(quote));
+  protected _levelOneDataFeedHandler = (quote: IQuote) => {
+    this.items.map(i => i.updateUnrealized(quote));
+    this.dataGrid?.detectChanges();
+    this.updatePl();
+  }
 
-  get positions(): IPosition[] {
+  private get positions(): IPosition[] {
     return this.items.filter(item => item.position).map(item => item.position);
-  }
-
-  get open() {
-    return this.positions.reduce((total, current) => total + current.unrealized, 0);
-  }
-
-  get realized() {
-    return this.positions.reduce((total, current) => total + current.realized, 0);
   }
 
   private _status: PositionStatus = PositionStatus.Open;
@@ -134,6 +134,22 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
+  }
+
+  protected _handleCreateItems(items: IPosition[]) {
+    super._handleCreateItems(items);
+    this.updatePl();
+  }
+
+  protected _handleUpdateItems(items: IPosition[]) {
+    super._handleUpdateItems(items);
+    this.updatePl();
+  }
+
+  private updatePl() {
+    this.open = this.builder.items.filter(item => item.position)
+      .reduce((total, current) => total + (+current.unrealized.value), 0);
+    this.realized = this.positions.reduce((total, current) => total + (current.realized * current.price), 0);
   }
 
   _transformDataFeedItem(item) {
@@ -215,5 +231,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     if (state && state.columns)
       this._columns = state.columns;
+  }
+
+  isEmpty(number: number) {
+    return number === 0;
   }
 }
