@@ -33,7 +33,7 @@ export class PositionItem {
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
 
-    const fields = ['price', 'size',  'instrumentName', 'unrealized', 'realized', 'total', 'side'];
+    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -43,6 +43,8 @@ export class PositionItem {
   }
 
   public updateUnrealized(trade: IQuote) {
+    if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
+      return;
     const currentPrice = +this.price.value;
     const { volume, price } = trade;
 

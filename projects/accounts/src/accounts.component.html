@@ -35,8 +35,8 @@
                 <ng-container *ngIf="!item.rename">
                   <div [title]="item.name" class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
-                  'text-success': item.connected,
-                  'text-danger': item.error
+                  'success': item.connected,
+                  'error': item.error
                 }"></span>
                     <span class="connection-name">{{ item.name }}</span>
                   </div>
@@ -154,7 +154,7 @@
                   </td>
                   <td>
                <span class="d-flex">
-                <span class="indicator indicator-table text-success mr-2"></span>
+                <span class="indicator indicator-table success mr-2"></span>
                 Connected
               </span>
                   </td>
