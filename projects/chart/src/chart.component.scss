@@ -22,13 +22,62 @@ app-window-toolbar {
     }
   }
 }
-
+.chart-menu-dropdown{
+  min-width: 110px;
+}
 :host ::ng-deep {
+  .hide-oclc {
+    .scxSymbolTitle {
+      :nth-child(n+3):nth-child(-n+10) {
+        display: none !important;
+      }
+
+    }
+  }
+
+  :nth-child(n+3):nth-child(-n+10) {
+    color: white !important;
+  }
+
+  :nth-child(11) {
+    display: inline-flex !important;
+    align-items: center;
+
+    i {
+      font-size: 12px;
+      margin-right: 4px;
+
+      &.icon-arrow-down-general {
+        color: $red;
+      }
+
+      &.icon-arrow-up-general {
+        color: $success;
+      }
+    }
+  }
+
+  .hide-changes {
+    :nth-child(11) {
+      display: none !important;
+    }
+  }
+
+  .scxSymbolTitle {
+    :nth-child(2) {
+      display: none !important;
+    }
+
+  }
+
+  .scxPanelTitleCaption {
+    display: none !important;
+  }
+
   .custom-form-control {
     background: transparent;
     width: auto;
   }
-
 
 
   nz-select-placeholder, nz-select-item {

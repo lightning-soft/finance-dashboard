@@ -48,9 +48,6 @@
           </ul>
         </li>
         <li class="divider toolbar"></li>
-        <li title="Make Snapshot" nz-menu-item (click)="makeSnapshot()">
-          <i class="icon-tool-camera"></i>
-        </li>
         <li [title]="chart?.showDrawings? 'Hide Drawings': 'Show Drawings'" nz-menu-item (click)="visible()">
           <i
             [ngStyle]="{color: chart?.showDrawings? '#0c6ce4': null}"

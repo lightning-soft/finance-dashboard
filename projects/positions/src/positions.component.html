@@ -18,19 +18,20 @@
 <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total p/l</span>
-  <div class="bottom-data">{{open + realized}}</div>
+  <div [class.empty]="isEmpty(open + realized)" [class.negative]="(open + realized )< 0"
+       class="bottom-data">{{open + realized}}</div>
   <span class="bottom-title">Open</span>
-  <div class="bottom-data empty">{{open}}</div>
+  <div  [class.empty]="isEmpty(open)" [class.negative]="open < 0" class="bottom-data">{{open}}</div>
   <span class="bottom-title">Realized</span>
-  <div class="bottom-data">{{realized}}</div>
-<!--  <nz-select
-    class="select"
-    [nzOptionHeightPx]="22"
-               class="select">
-    <nz-option nzLabel="USD" nzValue="USD"></nz-option>
-    <nz-option nzLabel="EUR" nzValue="EUR"></nz-option>
+  <div [class.empty]="isEmpty(realized)" [class.negative]="realized < 0" class="bottom-data">{{realized}}</div>
+  <!--  <nz-select
+      class="select"
+      [nzOptionHeightPx]="22"
+                 class="select">
+      <nz-option nzLabel="USD" nzValue="USD"></nz-option>
+      <nz-option nzLabel="EUR" nzValue="EUR"></nz-option>
 
-  </nz-select>-->
+    </nz-select>-->
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="position-menu">

@@ -9,7 +9,7 @@
 
 
   ::ng-deep data-grid {
-    height: calc(100% - 45px);
+    height: calc(100% - 43px);
   }
 }
 
@@ -73,6 +73,10 @@
   &.empty {
     background: $inputBackground
   }
+
+  &.negative {
+    background: $red;
+  }
 }
 
 .group-container {
@@ -129,6 +133,7 @@
     }
   }
 }
+
 .select.ant-select {
   height: 20px;
   width: 80px;
@@ -136,6 +141,7 @@
   background: transparent;
   margin-left: 8px;
 }
+
 .ant-select {
   width: 140px;
 }
