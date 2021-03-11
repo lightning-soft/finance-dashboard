@@ -192,7 +192,10 @@ function getInnerValueArea(label, key) {
       getCheckboxes({
         checkboxes: [
           { key: 'enabled', label },
-        ]
+        ],
+        extraConfig: {
+          className: 'hideCheckboxInput',
+        },
       }),
       {
         key: 'poc',
