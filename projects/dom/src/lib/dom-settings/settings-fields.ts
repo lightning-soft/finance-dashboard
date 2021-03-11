@@ -1,231 +1,9 @@
-import { FormlyFieldConfig, FormlyTemplateOptions } from '@ngx-formly/core';
-import * as merge from 'deepmerge';
-import { FieldType } from 'dynamic-form';
+import {
+  FieldType, getCheckboxes, getTextAlign, wrapWithClass, getSwitch, generateKeyFromLabel, getHistogramOrientation,
+  getColor, getHistogramColor, IFieldConfig, FieldConfig, getHotkey, getNumber
+} from 'dynamic-form';
+import { wrapWithConfig } from 'projects/dynamic-form';
 
-type EjectCssFn = (value: any) => any;
-
-interface IFieldConfig extends FormlyFieldConfig {
-  label?: string;
-  getCss?: EjectCssFn;
-  fieldGroup?: IFieldConfig[];
-}
-
-class FieldConfig implements IFieldConfig {
-  key?: string;
-  fieldGroup?: IFieldConfig[];
-  templateOptions?: FormlyTemplateOptions;
-
-  constructor(config: IFieldConfig) {
-    Object.assign(this, {
-      wrappers: ['form-field'],
-      fieldGroupClassName: 'd-flex flex-wrap two-rows',
-      templateOptions: {
-        label: config.label,
-        ...config.templateOptions,
-      },
-      ...config,
-    });
-    if (config.key != null) {
-      this.key = config.key as string;
-    } else if (this.templateOptions.label) {
-      this.key = generateKeyFromLabel(this.templateOptions.label);
-    }
-  }
-
-  getCss(value: any): any {
-    if (this.key && value) {
-      return {
-        [` .${this.key}`]: this.fieldGroup
-          .map(i => i.getCss && i.getCss(value[this.key]))
-          .filter(Boolean)
-          .reduce((acc, k) => merge(acc, k), {}),
-      };
-    }
-  }
-}
-
-function generateKeyFromLabel(label) {
-  return lowerFirstLetter((label as string).replace(/ /g, ''));
-}
-
-function getHotkey(config: any | string) {
-  let label;
-  let key;
-  if (typeof config === 'string') {
-    label = config;
-    key = generateKeyFromLabel(config);
-  } else {
-    label = config.label;
-    key = config.key;
-  }
-  return {
-    templateOptions: {
-      label
-    },
-    className: 'mt-3 d-block',
-    type: FieldType.Hotkey,
-    key,
-  };
-}
-
-function getHistogramColor(label = 'Histogram Color', key = 'histogramColor') {
-  const histogramBackgroundColor = 'rgba(72,149,245,0.3)';
-  return {
-    key,
-    name: key,
-    type: FieldType.Color,
-    default: histogramBackgroundColor,
-    templateOptions: { label },
-    getCss: (value) => ({ ' .histogram': { background: (value && value[key]) ?? histogramBackgroundColor } }),
-  };
-}
-
-function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
-  const _label = typeof label === 'string' ? label : label.label;
-
-  if (!label)
-    throw new Error();
-
-  let key = label.key;
-
-  if (!key)
-    key = lowerFirstLetter(_label.replace(/ /g, ''));
-
-  if (!cssAttrOrFn)
-    cssAttrOrFn = label.attr;
-
-  if (!cssAttrOrFn)
-    cssAttrOrFn = label.getCss;
-
-  if (!cssAttrOrFn)
-    cssAttrOrFn = _label.replace(/ /g, '-').toLowerCase();
-
-  return {
-    key,
-    name: key,
-    type: FieldType.Color,
-    templateOptions: { label: _label },
-    getCss: typeof cssAttrOrFn == 'function'
-      ? (value) => (cssAttrOrFn as Function)((value && value[key]))
-      : (value) => ({ [cssAttrOrFn as string]: (value && value[key]) }),
-  };
-}
-
-function lowerFirstLetter(text: string): string {
-  return text.charAt(0).toLowerCase() + text.slice(1);
-}
-
-function getRadio(key: string, options: { label: string, value: string }[] | string[]) {
-  const _options = (options as Array<any>).map(item => {
-    if (typeof item === 'string') {
-      return { label: item, value: item };
-    }
-    return item;
-  });
-  return {
-    key,
-    type: FieldType.Radio,
-    templateOptions: { options: _options }
-  };
-}
-
-export enum HistogramOrientation {
-  Left = 'left',
-  Right = 'right'
-}
-
-function wrapFullWidth(configField) {
-  return wrapWithClass(configField, 'w-100');
-}
-
-function wrapWithClass(configField, className) {
-  return { ...configField, className };
-
-}
-
-function getHistogramOrientation(key: string = 'histogramOrientation', label: string = 'Histogram Orientation'): IFieldConfig {
-  return {
-    key,
-    type: FieldType.Radio,
-    className: 'no-underline plain-label',
-    templateOptions: {
-      label,
-      options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }]
-    },
-    getCss: (value) => {
-      if (value && value[key] === HistogramOrientation.Right)
-        return {
-          ' .histogram': {
-            right: 0,
-            left: 'unset',
-          }
-        };
-    }
-  };
-}
-
-function getTextAlign(key: string = 'textAlign', label = 'Text align') {
-  return {
-    key,
-    type: FieldType.TextAlign,
-    className: 'd-flex align-items-center',
-    templateOptions: {
-      label
-    },
-    getCss: (value) => ({ 'text-align': (((value && value[key]) ?? 'left') + ' !important') })
-  };
-}
-
-function getSwitch(key, label, config = {}) {
-  return {
-    ...config,
-    key,
-    type: FieldType.Switch,
-    templateOptions: {
-      label
-    },
-  };
-}
-
-function getCheckboxes(checkboxes: { key: string, label: string, config?: any }[], label?: string,
-  additionalFields: FormlyFieldConfig[] = [], config = {}) {
-  return {
-    wrappers: ['form-field'],
-    templateOptions: {
-      label
-    },
-    fieldGroupClassName: 'd-flex two-rows flex-wrap',
-    fieldGroup: [...checkboxes.map(item => {
-      const checkboxConfig = item.config || {};
-      return {
-        key: item.key,
-        fieldGroupClassName: 'checkbox-wrapper',
-        type: FieldType.Checkbox,
-        templateOptions: {
-          label: item.label,
-          defaultValue: false,
-        },
-        ...checkboxConfig
-      };
-    }), ...additionalFields],
-    ...config,
-  };
-}
-
-function getNumber(key: string, label: string, important = true, unit = 'px') {
-  const suffix = important ? '!important' : '';
-  return {
-    key,
-    type: FieldType.Number,
-    templateOptions: {
-      label
-    },
-    getCss: (value) => {
-      if (value && value[key])
-        return { [key]: (value[key] + unit + suffix) };
-    }
-  };
-}
 
 function getHightlightColor() {
   return getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } }));
@@ -255,8 +33,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-          { label: 'Monospace', value: 'monospace' },
-          { label: 'Sans Serif', value: 'sans-serif' }],
+            { label: 'Monospace', value: 'monospace' },
+            { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -304,24 +82,27 @@ export const commonFields: IFieldConfig[] = [
         ]
       }),
       {
-        ...getCheckboxes([
-          { label: 'Notes', key: 'notes' },
-          { label: 'Bid Delta', key: 'bidDelta' },
-          { label: 'Total At Bid', key: 'totalBid' },
-          { label: 'Ask Delta', key: 'askDelta' },
-          { label: 'Total At Ask', key: 'totalAsk' },
-          // { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
-          { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
-          { label: 'Volume Profile', key: 'volume' },
-          { label: 'Orders', key: 'orders' },
-          // { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
-          { label: 'Bid Depth', key: 'bid' },
-          // { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },
-          { label: 'Ask Depth', key: 'ask' },
-          { label: 'Price', key: 'price' },
-          { label: 'Сurrent Ask', key: 'currentAsk' },
-          { label: 'Сurrent Bid', key: 'currentBid' },
-        ], 'Columns View', [], { className: 'w-100' }), className: 'w-100'
+        ...getCheckboxes(
+          {
+            checkboxes: [
+              { key: 'notes', label: 'Notes' },
+              { label: 'Bid Delta', key: 'bidDelta' },
+              { label: 'Total At Bid', key: 'totalBid' },
+              { label: 'Ask Delta', key: 'askDelta' },
+              { label: 'Total At Ask', key: 'totalAsk' },
+              // { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
+              { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
+              { label: 'Volume Profile', key: 'volume' },
+              { label: 'Orders', key: 'orders' },
+              // { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
+              { label: 'Bid Depth', key: 'bid' },
+              // { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },
+              { label: 'Ask Depth', key: 'ask' },
+              { label: 'Price', key: 'price' },
+              { label: 'Сurrent Ask', key: 'currentAsk' },
+              { label: 'Сurrent Bid', key: 'currentBid' },
+            ], label: 'Columns View', extraConfig: { className: 'w-100' }
+          }), className: 'w-100'
       }
     ]
   }),
@@ -375,59 +156,68 @@ export const generalFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     key: 'general',
     fieldGroup: [
-      getCheckboxes([
-        { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
-        { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
-        { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
-        { label: 'Re-Center On New Position', key: 'recenter' },
-        { label: 'All Windows', key: 'allWindows' },
-      ],
-        'Reset settings'),
-      getCheckboxes([
-        { label: 'Hide Account Name', key: 'hideAccountName' },
-        { label: 'Hide From Left', key: 'hideFromLeft' },
-        { label: 'Hide From Right', key: 'hideFromRight' },
+      getCheckboxes({
+        checkboxes: [
+          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          { label: 'Re-Center On New Position', key: 'recenter' },
+          { label: 'All Windows', key: 'allWindows' },
+        ],
+        label: 'Reset settings'
+      }),
+      getCheckboxes({
+        checkboxes: [
+          { label: 'Hide Account Name', key: 'hideAccountName' },
+          { label: 'Hide From Left', key: 'hideFromLeft' },
+          { label: 'Hide From Right', key: 'hideFromRight' },
 
-      ], 'Account Name', [{
-        templateOptions: { label: 'Account Digits To Hide', min: 0 },
-        key: 'digitsToHide',
-        type: FieldType.Number,
-      }]),
+        ], label: 'Account Name', additionalFields: [{
+          templateOptions: {   min: 0, label: 'Account Digits To Hide' },
+          key: 'digitsToHide',
+          type: FieldType.Number,
+        }]
+      }),
       new FieldConfig({
         label: 'Common View',
         fieldGroup: [
-          getCheckboxes([
-            {
-              label: 'Always on Top',
-              key: 'onTop',
-            },
-            {
-              label: 'Center Line',
-              key: 'centerLine'
-            },
-            {
-              label: 'Reset on new Session',
-              key: 'resetOnNewSession'
-            },
-            {
-              label: 'Auto Center',
-              key: 'autoCenter',
-            },
-          ], null, [], { className: 'w-100' }),
+          getCheckboxes({
+            checkboxes: [
+              // {
+              //   label: 'Always on Top',
+              //   key: 'onTop',
+              // },
+              {
+                label: 'Center Line',
+                key: 'centerLine'
+              },
+              {
+                label: 'Reset on new Session',
+                key: 'resetOnNewSession'
+              },
+              {
+                label: 'Auto Center',
+                key: 'autoCenter',
+              },
+            ], extraConfig: { className: 'w-100' }
+          }),
           {
             templateOptions: { label: 'Auto Center Ticks' },
             key: 'autoCenterTicks',
             className: 'ml-0 mr-0',
             type: FieldType.Number,
           },
-          getCheckboxes([{
-            label: 'Use Custom Tick Size',
-            key: 'useCustomTickSize',
-            config: { className: 'm-0' }
-          }], null, [], {
-            className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
-            fieldGroupClassName: '',
-            wrappers: [],
+          getCheckboxes({
+            checkboxes: [{
+              label: 'Use Custom Tick Size',
+              key: 'useCustomTickSize',
+              config: { className: 'm-0' }
+            }],
+            extraConfig: {
+              fieldGroupClassName: '',
+              className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
+              wrappers: [],
+            },
           }),
           {
             templateOptions: {
@@ -522,7 +312,6 @@ export const generalFields: IFieldConfig[] = [
       })
     ]
   }),
-
 ];
 
 export const ltqFields: IFieldConfig[] = [
@@ -532,24 +321,26 @@ export const ltqFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-        fieldGroup: [
-          getFontColor(),
-          getColor('Sell Background Color'),
-          getColor('Background Color'),
-          getColor({ label: 'Highlight Color', key: 'highlightColor' }),
-          //  getHistogramColor(),
-          getColor('Buy Background Color'),
-        ]
-      },
+          fieldGroup: [
+            getFontColor(),
+            getColor('Sell Background Color'),
+            getColor('Background Color'),
+            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+            //  getHistogramColor(),
+            getColor('Buy Background Color'),
+          ]
+        },
       ),
       {
         fieldGroupClassName: 'd-flex flex-wrap two-rows',
         fieldGroup: [
-          getCheckboxes([{
-            key: 'accumulateTrades',
-            label: 'Accumulate Trades at Price',
-            config: { className: 'w-100' }
-          }]),
+          getCheckboxes({
+            checkboxes: [{
+              key: 'accumulateTrades',
+              label: 'Accumulate Trades at Price',
+              config: { className: 'w-100' }
+            }]
+          }),
           wrapWithClass(getTextAlign(), 'd-flex align-items-center m-0 mb-1'),
         ]
       }],
@@ -595,17 +386,25 @@ export const orderAreaFields: IFieldConfig[] = [
         key: 'formSettings',
         className: 'w-100 ml-1',
         fieldGroup: [
-          getCheckboxes([
-            { key: 'showInstrumentChange', label: 'Show Instrument Change' },
-            { key: 'closePositionButton', label: 'Show Close Position Button' },
-            { key: 'showOHLVInfo', label: 'Show OHLV Info' },
-            { key: 'showFlattenButton', label: 'Show Flatten Button' },
-            { key: 'showIcebergButton', label: 'Show Iceberg Button', config: { className: 'w-100 iceberg-checkbox' } },
-          ]),
-          wrapWithClass(getCheckboxes([
-            { key: 'showPLInfo', label: 'Show PL Info' },
-            { key: 'roundPL', label: 'Round PL to whole numbers' },
-          ]), 'm-0'),
+          getCheckboxes({
+            checkboxes: [
+              { key: 'showInstrumentChange', label: 'Show Instrument Change' },
+              { key: 'closePositionButton', label: 'Show Close Position Button' },
+              { key: 'showOHLVInfo', label: 'Show OHLV Info' },
+              { key: 'showFlattenButton', label: 'Show Flatten Button' },
+              {
+                key: 'showIcebergButton',
+                label: 'Show Iceberg Button',
+                config: { className: 'w-100 iceberg-checkbox' }
+              },
+            ]
+          }),
+          wrapWithClass(getCheckboxes({
+            checkboxes: [
+              { key: 'showPLInfo', label: 'Show PL Info' },
+              { key: 'roundPL', label: 'Round PL to whole numbers' },
+            ]
+          }), 'm-0'),
           wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized Pl',
             { hideExpression: '!model.showPLInfo' }
           ), 'ml-4'),
@@ -651,16 +450,16 @@ function getDeltaFields(label: string) {
 //       ...histogramFields,
 //       getColor('Total Font Color'),
 //       {
-//         ...getCheckboxes([
+//         ...getCheckboxes({checkboxes: [
 //           { key: 'histogramEnabled', label: `${label} Histogram` },
 //           { key: 'highlightLarge', label: `Highlight Large ${label}s Only` }
-//         ]),
+//         ]}),
 //         className: 'w-100',
 //       },
 //       getHistogramOrientation(),
 //       wrapWithClass(getTextAlign(), 'mt-2'),
 //       {
-//         ...getNumber('largeSize', 'Large Bid Size'), className: 'w-100',
+//         ...getNumber({ key: 'largeSize', label: 'Large Bid Size' }), className: 'w-100',
 //       },
 
 //     ]
@@ -682,13 +481,17 @@ function getDepthConfig(label: string) {
       getHistogramColor('Highlight Color'),
       getColor('Total Font Color'),
       {
-        ...getCheckboxes([
-          { key: 'histogramEnabled', label: `${label} Depth Histogram` },
-          { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]),
+        ...getCheckboxes({
+          checkboxes: [
+            { key: 'histogramEnabled', label: `${label} Depth Histogram` },
+            { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]
+        }),
         className: 'w-100',
       },
+    /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
+      getTextAlign(),*/
       getHistogramOrientation(),
-      getNumber('largeSize', `Large ${label} Size`),
+      getNumber({ key: 'largeSize', label: `Large ${label} Size` }),
       getTextAlign(),
     ]
   });
@@ -709,7 +512,7 @@ function getTotalFields(label: string, key: string) {
         getHightlightColor(),
         getFontColor(),
         getHistogramColor(),
-        getCheckboxes([{ key: 'histogramEnabled', label: label + ' Histogram' }]),
+        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }] }),
         getTextAlign(),
         getHistogramOrientation(),
       ]
@@ -742,11 +545,26 @@ export const volumeFields: IFieldConfig[] = [
           },
         ]
       }),
-      getCheckboxes([
-        { key: 'histogramEnabled', label: 'Volume Profile Histogram' },
-        { key: 'VWAP', label: 'VWAP' },
-        { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
-      ], null, [getTextAlign(),], { className: 'w-100 m-0' }),
+      getCheckboxes({
+        checkboxes: [
+          { key: 'histogramEnabled', label: 'Volume Profile Histogram' },
+          { key: 'VWAP', label: 'VWAP' },
+          { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
+        ], extraConfig: { className: 'w-100 m-0' }, additionalFields: [getTextAlign()]
+      }),
+
+
+      /*  getCheckboxes({
+          checkboxes: [
+            { key: 'enableHistogram', label: 'Volume Profile Histogram' },
+            { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
+            { key: 'poc', label: 'Point of Control' },
+            { label: 'Value Area', key: 'valueArea' },
+            { key: 'VWAP', label: 'VWAP' }
+          ], extraConfig: { className: 'w-100 m-0' }
+        }),
+        getTextAlign(),
+        getHistogramOrientation(),*/
     ],
   }),
 
@@ -771,8 +589,8 @@ export const orderColumnFields: IFieldConfig[] = [
       new FieldConfig({
         fieldGroup: [
           {
-            ...getCheckboxes([{ key: 'snowPnl', label: 'Show PnL in Column' },
-            { key: 'includePnl', label: 'Include Closed PnL' }]),
+            ...getCheckboxes({checkboxes: [{ key: 'showPnl', label: 'Show PnL in Column' },
+              { key: 'includePnl', label: 'Include Closed PnL' }]}),
             fieldGroupClassName: '',
             className: 'pl-1',
           },
@@ -789,10 +607,12 @@ export const orderColumnFields: IFieldConfig[] = [
           getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
           getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
           {
-            ...getCheckboxes([
-              { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
-              { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
-            ]),
+            ...getCheckboxes({
+              checkboxes: [
+                { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
+                { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
+              ]
+            }),
             fieldGroupClassName: '', className: 'w-100 m-0 pl-1'
           },
 
@@ -800,7 +620,7 @@ export const orderColumnFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-        disableExpression(getColor('Sell Orders Column'), '!model.split')]
+          disableExpression(getColor('Sell Orders Column'), '!model.split')]
       })
     ]
   }),
@@ -821,16 +641,15 @@ function getCurrentFields(suffix: string) {
       label: `Current At ${suffix}`,
       key: `current${suffix}`,
       fieldGroup: [
-        getCheckboxes([{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }]),
+        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }] }),
         getBackgroundColor(),
-        new FieldConfig({
+        wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
-          key: '',
           className: 'color-levels',
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
             .map(i => getColor({ label: `Level ${i}`, key: `level${i}BackgroundColor` })),
-        }),
+        }), {key: null}),
         new FieldConfig({
           fieldGroupClassName: 'current-level',
           className: 'current-level-item',
@@ -848,7 +667,12 @@ function getCurrentFields(suffix: string) {
             className: 'mt-0',
             fieldGroup: [
               getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
-              wrapWithClass(getCheckboxes([{ key: `tailInsideBold`, label: `Tail Inside ${suffix} Bold` }]),
+              wrapWithClass(getCheckboxes({
+                  checkboxes: [{
+                    key: `tailInsideBold`,
+                    label: `Tail Inside ${suffix} Bold`
+                  }]
+                }),
                 'd-block tail-checkbox'),
             ]
           }

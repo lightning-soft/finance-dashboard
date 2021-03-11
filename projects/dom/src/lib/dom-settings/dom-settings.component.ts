@@ -43,7 +43,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
         { tab: SettingTab.TotalAsk, label: 'Total At Ask' },
         { tab: SettingTab.TotalBid, label: 'Total At Bid' },
         { tab: SettingTab.Volume, label: 'Volume Profile' },
-        { tab: SettingTab.Orders, label: 'Order' },
+        { tab: SettingTab.Orders, label: 'Orders' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
         { tab: SettingTab.Note, label: 'Notes' },
@@ -76,6 +76,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
 
   private _handleChange(value: any) {
     // this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
+    console.log(this.settings);
     this.broadcastData(DomSettingsSelector, this.settings);
   }
 

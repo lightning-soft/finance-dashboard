@@ -1,0 +1,14 @@
+<nz-select [nzCustomTemplate]="valueTemplate" nzOptionHeightPx="22" [formlyAttributes]="field"
+           [formControl]="formControl">
+  <nz-option *ngFor="let item of field.templateOptions.options"
+             [nzValue]="item.value"
+             [nzCustomContent]="true"
+             [nzLabel]="item.label">
+    <i *ngIf="item.icon" class="{{item.icon}} option-icon"></i> {{item.label}}
+  </nz-option>
+</nz-select>
+<ng-template #valueTemplate let-item>
+  <div class="d-flex align-items-center">
+    <i *ngIf="getIcon(item.nzValue)" class="{{getIcon(item.nzValue)}} option-icon"></i> {{item.nzLabel}}
+  </div>
+</ng-template>

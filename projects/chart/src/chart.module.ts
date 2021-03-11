@@ -12,7 +12,8 @@ import {
   NzFormModule,
   NzIconModule,
   NzInputModule, NzInputNumberModule,
-  NzSelectModule
+  NzSelectModule,
+  NzSwitchModule, NzToolTipModule
 } from 'ng-zorro-antd';
 import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
@@ -22,6 +23,10 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { IndicatorsComponent } from './indicators/indicators.component';
+import { DynamicFormModule } from "dynamic-form";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { IndicatorListComponent } from './indicators/indicator-list/indicator-list.component';
 
 // const environment = { scxPath: '' };
 
@@ -51,6 +56,9 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
         }, {
           src: `./assets/StockChartX/scripts/StockChartX.External.min.js`
         },
+        {
+          src: './assets/StockChartX/scripts/html2canvas.min.js'
+        },
       ],
       styles: [
         {
@@ -67,6 +75,10 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
     NzFormModule,
     ReactiveFormsModule,
     NzInputNumberModule,
+    DynamicFormModule,
+    ScrollingModule,
+    NzSwitchModule,
+    NzToolTipModule,
   ],
   exports: [
     ChartComponent
@@ -76,6 +88,8 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
     ToolbarComponent,
     WindowToolbarComponent,
     ModalOrderComponent,
+    IndicatorsComponent,
+    IndicatorListComponent,
   ],
   providers: [
   ],
@@ -83,7 +97,9 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      chart: ChartComponent
+      chart: ChartComponent,
+      indicators: IndicatorsComponent,
+      indicatorList: IndicatorListComponent,
     };
   }
 }

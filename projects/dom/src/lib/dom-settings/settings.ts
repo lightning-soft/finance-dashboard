@@ -1,8 +1,7 @@
 import { Column, DefaultScrollSensetive } from 'data-grid';
 import * as merge from 'deepmerge';
-import { TextAlign } from 'dynamic-form';
+import { TextAlign, HistogramOrientation } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { HistogramOrientation } from './settings-fields';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
@@ -155,14 +154,14 @@ export class DomSettings {
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightHistogramColor: 'rgba(72, 149, 245, 1)',
+    highlightBackgroundColor: 'rgba(72,149,245,0,3)',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightHistogramColor: 'rgba(201, 59, 59, 1)',
+    highlightBackgroundColor: 'rgba(201, 59, 59, 0.2)',
     color: '#ffffff',
   };
   bid: any = {
@@ -267,7 +266,7 @@ export class DomSettings {
     sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
     sellOrderColor: 'rgba(255, 255, 255, 1)',
     // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
-    snowPnl: false,
+    showPnl: false,
     split: false,
     includePnl: false,
     overlay: false,

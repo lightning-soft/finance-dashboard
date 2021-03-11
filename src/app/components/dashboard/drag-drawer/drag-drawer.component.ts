@@ -11,6 +11,7 @@ import { Components } from '../../../modules';
 })
 export class DragDrawerComponent {
   @Input() layout: LayoutComponent;
+  opened = false;
 
   items = [
     {
@@ -33,6 +34,8 @@ export class DragDrawerComponent {
       name: 'Add orders',
       component:  Components.OrderForm,
       options: {
+        minHeight: 315,
+        minWidth: 369,
         height: 315,
         width: 369,
         maximizable: false,
@@ -50,13 +53,11 @@ export class DragDrawerComponent {
     {
       icon: 'icon-widget-dom',
       name: 'DOM',
-      component: Components.Dom
+      component: Components.Dom,
+      options: {
+        minWidth: 1200,
+      }
     },
-    // {
-    //   icon: 'icon-orders',
-    //   name: 'Order form',
-    //   component: Components.OrderForm
-    // },
     // {
     //   icon: 'icon-scripting',
     //   name: 'Scripting',

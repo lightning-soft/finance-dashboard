@@ -17,6 +17,7 @@ import {
   PositionsRepository
 } from 'trading';
 import { ITypeButton } from './type-buttons/type-buttons.component';
+import { Side } from "trading";
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -82,16 +83,16 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set ocoStep(value) {
     this._ocoStep = value;
     if (value === OcoStep.Fist) {
-      this.form.patchValue({ type: OrderType.Limit });
+      this.form.patchValue({type: OrderType.Limit});
       this.typeButtons = this._typeButtons.map(item => {
         const disabled = ![OrderType.Limit, 'OCO'].includes(item.value);
-        return { ...item, disabled };
+        return {...item, disabled};
       });
     } else if (value === OcoStep.Second) {
-      this.form.patchValue({ type: OrderType.StopMarket });
+      this.form.patchValue({type: OrderType.StopMarket});
       this.typeButtons = this._typeButtons.map(item => {
         const disabled = ![OrderType.StopMarket, OrderType.StopLimit, 'OCO'].includes(item.value);
-        return { ...item, disabled };
+        return {...item, disabled};
       });
     } else {
       this.typeButtons = this._typeButtons;
@@ -105,6 +106,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
   @Input() positions: IPosition[] = [];
+  @Input() tickSize: number;
   _accountId;
   get accountId() {
     return this._accountId;
@@ -113,7 +115,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set accountId(value) {
     if (this._accountId !== value) {
       this._accountId = value;
-      this.form.patchValue({ accountId: value });
+      this.form.patchValue({accountId: value});
     }
   }
 
@@ -153,7 +155,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() set instrument(value: IInstrument) {
     if (this.instrument$.getValue()?.id !== value.id) {
       this.instrument$.next(value);
-      this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
+      this.form?.patchValue({symbol: value.symbol, exchange: value.exchange});
     }
   }
 
@@ -175,13 +177,13 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   amountButtons = [
-    { value: 1 }, { value: 2, black: true },
-    { value: 10 }, { value: 50 },
-    { value: 100 }, { value: 5 }
+    {value: 1}, {value: 2, black: true},
+    {value: 10}, {value: 50},
+    {value: 100}, {value: 5}
   ];
   _typeButtons: ITypeButton[] = [
-    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true }, {
+    {label: 'LMT', black: true, value: OrderType.Limit, selectable: true},
+    {label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true}, {
 
       label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
         this.emit(FormActions.CreateMarketOrder);
@@ -195,7 +197,7 @@ export class DomFormComponent extends BaseOrderForm {
         this.emit(FormActions.CancelOcoOrder);
       }, black: true
     },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
+    {label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true},
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
 
@@ -209,11 +211,11 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   tifButtons: ITypeButton[] = [
-    { label: 'DAY', black: true, value: OrderDuration.DAY, selectable: true },
+    {label: 'DAY', black: true, value: OrderDuration.DAY, selectable: true},
     // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    { label: 'GTC', black: true, value: OrderDuration.GTC, selectable: true, },
-    { label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true },
-    { label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true },
+    {label: 'GTC', black: true, value: OrderDuration.GTC, selectable: true,},
+    {label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true},
+    {label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true},
   ];
   editAmount = false;
   editIceAmount = false;
@@ -274,7 +276,7 @@ export class DomFormComponent extends BaseOrderForm {
 
   positionsToQuantity() {
     if (typeof this.positionSum === 'number' && this.positionSum != 0) {
-      this.form.patchValue({ quantity: Math.abs(this.positionSum) });
+      this.form.patchValue({quantity: Math.abs(this.positionSum)});
     }
   }
 
@@ -310,11 +312,18 @@ export class DomFormComponent extends BaseOrderForm {
     this.quantitySelect.currentItem.value += value;
   }
 
-  getPl() {
-    const precision = this.setting.formSettings.roundPL ? 0 : 5;
-    if (this.dailyInfo)
-      return ((+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open))
+  getPl(): string {
+    const i = this.instrument;
+    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
+    const precision = this.setting.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const includeRealizedPl = this.setting.formSettings.includeRealizedPL;
+
+    if (this.dailyInfo) {
+      return calculatePL(position, this.dailyInfo.close, this.tickSize, i.contractSize, includeRealizedPl)
         .toFixed(precision);
+    }
+
+    return '';
   }
 
 
@@ -327,4 +336,12 @@ export class DomFormComponent extends BaseOrderForm {
   }
 }
 
+export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+  const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
+  let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
+  if (includePnl) {
+    pl += position.realized;
+  }
 
+  return pl;
+}
