@@ -6,11 +6,29 @@ import { FieldType } from '@ngx-formly/core';
   templateUrl: './color-select.component.html',
   styleUrls: ['./color-select.component.scss']
 })
-export class ColorSelectComponent extends FieldType {
+export class ColorSelectComponent extends FieldType implements OnInit {
+  currentItem;
+
+  ngOnInit() {
+    const item = this.formControl.value;
+    if (item) {
+      this.currentItem = getStringRepresentation(item);
+    }
+  }
+
+  compareItems(a, b) {
+    return getStringRepresentation(a) === getStringRepresentation(b);
+  }
+
   updateValue(item, $event: string) {
     item.value.color = $event;
     if (this.formControl.value.type === item.value.type) {
       this.formControl.patchValue(item.value);
     }
   }
+}
+
+function getStringRepresentation(item) {
+  if (item)
+    return typeof item === 'string' ? item : item.type;
 }
