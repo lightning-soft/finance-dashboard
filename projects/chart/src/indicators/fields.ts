@@ -242,8 +242,8 @@ export const footprintConfig: IFieldConfig[] = [
             label: 'Volume'
           },
           {
-            value: 'price',
-            label: 'Price'
+            value: 'tradesCount',
+            label: 'Ticks'
           }
         ],
         className: 'select full-width'
@@ -638,7 +638,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           label: 'Volume'
         },
           {
-            value: 'ticks',
+            value: 'tradesCount',
             label: 'Ticks'
           },
           {
