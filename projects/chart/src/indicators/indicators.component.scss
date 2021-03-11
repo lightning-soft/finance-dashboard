@@ -5,9 +5,15 @@
 
 
   ::ng-deep {
-    .hideCheckboxInput {
-      .ant-checkbox-wrapper .ant-checkbox {
-         display: none;
+    .hideLabel nz-form-label {
+      margin-bottom: 0 !important;
+      border-bottom: none !important;
+      margin-top: -3px;
+
+      label {
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding-bottom: 0;
       }
     }
 

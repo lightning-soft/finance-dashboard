@@ -190,12 +190,10 @@ function getInnerValueArea(label, key) {
     fieldGroupClassName: 'three-rows d-grid',
     fieldGroup: [
       getCheckboxes({
-        checkboxes: [
-          { key: 'enabled', label },
-        ],
+        label,
         extraConfig: {
-          className: 'hideCheckboxInput',
-        },
+          className: 'hideLabel'
+        }
       }),
       {
         key: 'poc',
