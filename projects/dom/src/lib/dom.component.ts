@@ -507,8 +507,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           ...tailInside,
         };
 
-        for (const key in styles) {
-          obj[`${status}${key}`] = styles[key];
+        for (const _key in styles) {
+          if (styles.hasOwnProperty(_key)) {
+            console.log('isStartFromUpperCase', _key, status, `${status}${_key}`);
+
+            obj[`${status}${_key}`] = styles[_key];
+          }
         }
       }
     }
@@ -1716,7 +1720,6 @@ export function sum(num1, num2, step = 1) {
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
 }
 
-
 function extractStyles(settings: any, status: string) {
   const obj = {};
 
@@ -1724,8 +1727,15 @@ function extractStyles(settings: any, status: string) {
     if (!key.includes(status))
       continue;
 
-    obj[key.replace(status, '')] = settings[key];
+    const newKey = key.replace(status, '');
+    if (isStartFromUpperCase(newKey)) {// for example BackgroundColor, Color
+      obj[newKey] = settings[key];
+    }
   }
 
   return obj;
+}
+
+function isStartFromUpperCase(key) {
+  return /[A-Z]/.test((key ?? '')[0]);
 }

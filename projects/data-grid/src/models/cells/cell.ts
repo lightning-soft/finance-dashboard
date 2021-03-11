@@ -92,7 +92,10 @@ export abstract class Cell implements ICell {
     if (prefix == this._statusPrefix)
       return;
 
+    const status = this.status.replace(this._statusPrefix, '');
     this._statusPrefix = prefix;
+
+    this.changeStatus(status);
     this.drawed = false;
   }
 
