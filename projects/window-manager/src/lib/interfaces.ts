@@ -16,10 +16,13 @@ export interface IWindow {
   id: number;
   x: number;
   y: number;
+  height: number;
+  width: number;
   active: boolean;
   bounds: Bounds;
   type: any;
   ignoreOffset: number;
+  globalOffset: {top: number, left: number}
   keepInside: boolean;
   maximized: boolean;
   minimized: boolean;
