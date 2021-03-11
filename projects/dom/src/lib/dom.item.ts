@@ -183,12 +183,12 @@ class LtqCell extends HistogramCell {
       return super.updateValue(value);
   }
 }
-class CompositeCell extends Cell {
+class DeltaCell extends Cell {
   name: string;
   value: string;
 
   get drawed(): boolean {
-    return this._getItem().drawed
+    return this._getCell().drawed;
   }
 
   set drawed(value: boolean) {
@@ -196,7 +196,8 @@ class CompositeCell extends Cell {
   }
 
   get status(): string {
-    return this._getItem().status;
+    const prefix = this._item.side === QuoteSide.Ask ? 'askDelta' : 'bidDelta';
+    return Cell.mergeStatuses(prefix, this._getCell().status);
   }
 
   set status(value: string) {
@@ -204,10 +205,10 @@ class CompositeCell extends Cell {
   }
 
   get visible(): boolean {
-    return this._getItem().visible;
+    return this._getCell().visible;
   }
 
-  constructor(private _getItem: () => Cell) {
+  constructor(private _item: DomItem) {
     super();
   }
 
@@ -216,7 +217,12 @@ class CompositeCell extends Cell {
   }
 
   toString(): string {
-    return this._getItem().toString();
+    return this._getCell().toString();
+  }
+
+  private _getCell(): OrdersCell {
+    const item = this._item;
+    return item.side === QuoteSide.Ask ? item.askDelta : item.bidDelta;
   }
 
 }
@@ -315,11 +321,6 @@ export class DomItem implements IBaseItem {
     return this.price._value;
   }
 
-  bidDeltaV: CompositeCell;
-  // get bidDeltaV() {
-  //   return this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta;
-  // }
-
   _id: Cell = new NumberCell();
   price: PriceCell;
   orders: OrdersCell;
@@ -338,6 +339,7 @@ export class DomItem implements IBaseItem {
   askDepth: Cell = new DataCell();
   bidDepth: Cell = new DataCell();
   notes: Cell = new DataCell();
+  delta: DeltaCell;
 
   private _bid = 0;
   private _ask = 0;
@@ -367,7 +369,7 @@ export class DomItem implements IBaseItem {
     this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
     this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.bidDeltaV = new CompositeCell(() => this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta);
+    this.delta = new DeltaCell(this);
     this.orders = new OrdersCell({
       isOrderColumn: true,
       settings: settings.orders,

@@ -17,7 +17,7 @@ export function convertToColumn(nameOrArr: any) {
       textOverflow: false,
       textAlign: 'left',
     },
-    title: title.toUpperCase(),
+    title: title?.toUpperCase() ?? '',
     visible: true
   };
 }

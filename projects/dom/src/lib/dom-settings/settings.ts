@@ -155,14 +155,14 @@ export class DomSettings {
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightBackgroundColor: 'rgba(72,149,245,0,3)',
+    highlightBackgroundColor: '#2b486e',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightBackgroundColor: 'rgba(201, 59, 59, 0.2)',
+    highlightBackgroundColor: '#682a2d',
     color: '#ffffff',
   };
   bid: any = {
@@ -191,30 +191,6 @@ export class DomSettings {
     // totalFontColor: 'rgba(255, 255, 0, 1)',
     clearInterval: DefaultClearInterval,
   };
-  // bidDepth: any = {
-  //   backgroundColor: 'rgba(201, 59, 59, 0.3)',
-  //   histogramColor: 'rgba(72, 149, 245, 0.2)',
-  //   highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
-  //   textAlign: TextAlign.Center,
-  //   histogramOrientation: HistogramOrientation.Left,
-  //   color: '#ffffff',
-  //   largeSize: 14,
-  //   highlightLarge: false,
-  //   histogramEnabled: true,
-  //   // totalFontColor: 'rgba(255, 255, 0, 1)',
-  // };
-  // askDepth: any = {
-  //   backgroundColor: 'rgba(72, 149, 245, 0.2)',
-  //   histogramColor: 'rgba(201, 59, 59, 0.2)',
-  //   highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-  //   textAlign: TextAlign.Center,
-  //   histogramOrientation: HistogramOrientation.Left,
-  //   color: '#ffffff',
-  //   largeSize: 14,
-  //   highlightLarge: false,
-  //   histogramEnabled: true,
-  //   // totalFontColor: 'rgba(255, 255, 0, 1)',
-  // };
   totalAsk: any = {
     histogramColor: 'rgba(72, 149, 245, 0.3)',
     textAlign: TextAlign.Right,
@@ -322,6 +298,8 @@ export class DomSettings {
     level8BackgroundColor: 'rgba(1, 46, 63, 1)',
     textAlign: TextAlign.Center,
   };
+
+  delta: {};
 
   static fromJson(json: any): DomSettings {
     const settings = new DomSettings();

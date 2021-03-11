@@ -391,7 +391,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         'orders',
         ['volume', 'volume', 'histogram'],
         'price',
-        // ['bidDeltaV', 'delta'],
+        ['delta', 'delta'],
         ['bidDelta', 'delta'],
         ['bid', 'bid', 'histogram'],
         'ltq',
@@ -509,13 +509,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         for (const _key in styles) {
           if (styles.hasOwnProperty(_key)) {
-            console.log('isStartFromUpperCase', _key, status, `${status}${_key}`);
-
-            obj[`${status}${_key}`] = styles[_key];
+            obj[Cell.mergeStatuses(status, _key)] = styles[_key];
           }
         }
       }
     }
+
+    const deltaStyles = {};
+    for (const key of [Columns.BidDelta, Columns.AskDelta]) {
+      const obj = settings[key];
+      if (!obj)
+        continue;
+
+      for (const _key in obj) {
+        if (obj.hasOwnProperty(_key)) {
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
+        }
+      }
+    }
+
+    settings.delta = deltaStyles;
 
     this._levelsInterval = levelInterval;
     this._levelsInterval = levelInterval;
@@ -1258,9 +1272,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (i.isAskSideVisible) {
           i.ask.calcHist(max.ask);
           i.askDelta.calcHist(max.askDelta);
-          i.side = QuoteSide.Ask;
           askSum += i.ask._value ?? 0;
         }
+        i.side = QuoteSide.Ask;
 
         if (i.ask.visible && !askSumItem) {
           askSumItem = this.items[i.index - 1];
@@ -1270,9 +1284,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (i.isBidSideVisible) {
           i.bid.calcHist(max.bid);
           i.bidDelta.calcHist(max.bidDelta);
-          i.side = QuoteSide.Bid;
           bidSum += i.bid._value ?? 0;
         }
+        i.side = QuoteSide.Bid;
 
         if (!i.bid.visible && !bidSumItem) {
           bidSumItem = i;
@@ -1738,4 +1752,8 @@ function extractStyles(settings: any, status: string) {
 
 function isStartFromUpperCase(key) {
   return /[A-Z]/.test((key ?? '')[0]);
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
