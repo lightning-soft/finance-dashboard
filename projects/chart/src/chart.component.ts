@@ -66,9 +66,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   set accountId(value: Id) {
     this._accountId = value;
-
-    this._orders.refresh();
-    this._positions.refresh();
+    this.refresh();
   }
 
   get instrument() {
@@ -81,8 +79,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       value.company = this._getInstrumentCompany();
     }
     this.refresh();
-    this._orders.refresh();
-    this._positions.refresh();
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState &
@@ -287,6 +283,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (chart.reload) {
       chart.reload();
     }
+    this._positions.refresh();
+    this._orders.refresh();
   }
 
   async getToolbarComponent() {

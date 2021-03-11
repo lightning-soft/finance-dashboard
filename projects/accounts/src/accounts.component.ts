@@ -114,8 +114,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   loadState(state: AccountsState) {
     const { selectedItem } = state;
-    if (selectedItem)
+    if (selectedItem) {
       this.selectItem(selectedItem);
+      this._updateSelectedItem();
+    }
   }
 
   private _updateSelectedItem() {
