@@ -37,6 +37,7 @@ export interface IQuote {
   volume: number;
   date: Date;
   instrument: IStockChartXInstrument;
+  tradesCount?: number;
   side?: OrderSide;
 }
 

@@ -180,13 +180,14 @@ export abstract class Datafeed implements IDatafeed {
         details: [{
           bidInfo: {
             volume: 0,
-            price: 0
+            tradesCount: 0
           },
           askInfo: {
             volume: 0,
-            price: 0
+            tradesCount: 0
           },
           volume: 0,
+          tradesCount: 0,
           price: quote.price
         }]
       };
@@ -209,7 +210,7 @@ export abstract class Datafeed implements IDatafeed {
           lastBar.low = quote.price;
 
         this._updateLastBar(lastBar, chart, instrument);
-      } else {
+      } else if (quote.tradesCount != null) {
         this._updateLastBarDetails(quote, chart, instrument);
       }
 
@@ -239,23 +240,26 @@ export abstract class Datafeed implements IDatafeed {
 
     const item: IDetails = {
       bidInfo: {
-        volume: 0
+        volume: 0,
+        tradesCount: 0
       },
       askInfo: {
-        volume: 0
+        volume: 0,
+        tradesCount: 0
       },
       volume: quote.volume,
+      tradesCount: quote.tradesCount,
       price
     };
 
     switch (quote.side) {
       case OrderSide.Buy:
         item.bidInfo.volume = quote.volume;
-        item.bidInfo.price = quote.price;
+        item.bidInfo.tradesCount = quote.tradesCount;
         break;
       case OrderSide.Sell:
         item.askInfo.volume = quote.volume;
-        item.askInfo.price = quote.price;
+        item.askInfo.tradesCount = quote.tradesCount;
         break;
     }
 
@@ -273,14 +277,17 @@ export abstract class Datafeed implements IDatafeed {
 
         switch (quote.side) {
           case OrderSide.Buy:
-            _item.bidInfo.volume += item.bidInfo.volume;
+            _item.bidInfo.volume = item.bidInfo.volume;
+            _item.bidInfo.tradesCount = item.bidInfo.tradesCount;
             break;
           case OrderSide.Sell:
-            _item.askInfo.volume += item.askInfo.volume;
+            _item.askInfo.volume = item.askInfo.volume;
+            _item.askInfo.tradesCount = item.askInfo.tradesCount;
             break;
         }
 
-        _item.volume += item.volume;
+        _item.volume = _item.bidInfo.volume + _item.askInfo.volume;
+        _item.tradesCount = _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
       }
     }
 

@@ -27,7 +27,7 @@ export class RithmicDatafeed extends Datafeed {
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _barDataFeed: BarDataFeed,
-   // private _levelOneDatafeedService: Level1DataFeed,
+    private _level1DataFeed: Level1DataFeed,
     private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
@@ -83,6 +83,7 @@ export class RithmicDatafeed extends Datafeed {
       BarSize: timeFrame.interval,
       BarCount: count,
       Skip: 0,
+      PriceHistory: true
     };
     this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
       (res) => {
@@ -128,6 +129,19 @@ export class RithmicDatafeed extends Datafeed {
         price: quote.closePrice,
         date: new Date(quote.timestamp),
         volume: quote.volume,
+      } as any;
+
+      this.processQuote(chart, _quote);
+    }));
+
+    this._unsubscribeFns.push(this._level1DataFeed.on((quote: IQuote) => {
+      const _quote: ChartQuote = {
+        instrument: quote.instrument,
+        price: quote.price,
+        date: new Date(quote.timestamp),
+        volume: quote.volume,
+        tradesCount: quote.orderCount,
+        side: quote.side,
       } as any;
 
       this.processQuote(chart, _quote);
