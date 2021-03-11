@@ -67,19 +67,19 @@ function getProfileConfig(key, _config = {}) {
         options: [
           {
             label: 'Profile Color',
-            value: { type: 'profileColor', value: 'black' },
+            value: { type: 'profileColor', value: '#a0a0a0' },
           },
           {
             label: 'Heat Map',
-            value: { type: 'heatMap', value: 'black' },
+            value: { type: 'heatMap', value: '#a0a0a0' },
           },
           {
             label: 'Custom Blend',
-            value: { type: 'customBlend', value: 'black' },
+            value: { type: 'customBlend', value: '#a0a0a0' },
           },
           {
             label: 'FP Shading',
-            value: { type: 'fpShading', value: 'black' },
+            value: { type: 'fpShading', value: '#a0a0a0' },
           }
         ]
       }),
