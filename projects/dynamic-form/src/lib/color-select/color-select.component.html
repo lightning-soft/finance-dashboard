@@ -1,5 +1,7 @@
 <nz-select nzOptionHeightPx="22"
            [nzCustomTemplate]="valueTemplate"
+           [(ngModel)]="currentItem"
+           [compareWith]="compareItems"
            [formlyAttributes]="field" [formControl]="formControl">
   <nz-option *ngFor="let item of field.templateOptions.options"
              [nzValue]="item.value"
