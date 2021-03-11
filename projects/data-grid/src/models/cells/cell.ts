@@ -37,7 +37,13 @@ export enum CellStatus {
 }
 
 export abstract class Cell implements ICell {
-  protected _statusesForMerge;
+  static mergeStatuses(prefix: string, status: string) {
+    return [prefix ?? '', status ?? ''].join('');
+  }
+
+  protected _statses: string[];
+  protected _statusPrefix: string;
+
   name: string = '';
   value = '';
   class = '';
@@ -82,11 +88,20 @@ export abstract class Cell implements ICell {
 
   abstract updateValue(...args: any[]);
 
+  setStatusPrefix(prefix: string) {
+    if (prefix == this._statusPrefix)
+      return;
+
+    this._statusPrefix = prefix;
+    this.drawed = false;
+  }
+
+  protected _getStatus(status) {
+    return Cell.mergeStatuses(this._statusPrefix, status);
+  }
+
   changeStatus(status: string) {
-    if (this._statusesForMerge != null)
-      if (this._statusesForMerge.some(i => i == status) && this._statusesForMerge.some(i => i == this.status)) {
-        status = [this.status, status].sort().join('');
-      }
+    status = this._getStatus(status);
 
     if (status == this.status)
       return;

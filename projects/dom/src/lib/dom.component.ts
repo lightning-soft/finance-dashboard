@@ -4,6 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
 import {
+  Cell,
   CellClickDataGridHandler,
   ContextMenuClickDataGridHandler,
   DataGrid,
@@ -38,7 +39,7 @@ import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.comp
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from "./dom-settings/settings-fields";
-import { DomItem, SumStatus } from './dom.item';
+import { DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -106,6 +107,8 @@ enum Columns {
   LTQ = 'ltq',
   Bid = 'bid',
   Ask = 'ask',
+  CurrentBid = 'currentBid',
+  CurrentAsk = 'currentAsk',
   AskDelta = 'askDelta',
   BidDelta = 'bidDelta',
   Orders = 'orders',
@@ -489,6 +492,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     settings.askDelta.minToVisible = minToVisible;
     settings.bidDelta.overlayOrders = overlayOrders;
     settings.askDelta.overlayOrders = overlayOrders;
+
+    for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
+      const obj = settings[key];
+      if (!obj)
+        continue;
+
+      const tailInside = extractStyles(obj, TailInside);
+
+      for (const level of LEVELS) {
+        const status = Cell.mergeStatuses(TailInside, level);
+        const styles = {
+          ...extractStyles(obj, level),
+          ...tailInside,
+        };
+
+        for (const key in styles) {
+          obj[`${status}${key}`] = styles[key];
+        }
+      }
+    }
 
     this._levelsInterval = levelInterval;
     this._levelsInterval = levelInterval;
@@ -923,7 +946,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1167,7 +1190,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let item = this._getItem(trade.price);
 
-    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
 
     if (!this.items.length)
       this.fillData(trade.price);
@@ -1691,4 +1714,18 @@ function diffSize(position: IPosition) {
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
+}
+
+
+function extractStyles(settings: any, status: string) {
+  const obj = {};
+
+  for (const key in settings) {
+    if (!key.includes(status))
+      continue;
+
+    obj[key.replace(status, '')] = settings[key];
+  }
+
+  return obj;
 }

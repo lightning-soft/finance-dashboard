@@ -5,7 +5,9 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
 
-const Levels = 9;
+const LevelsCount = 9;
+export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
+export const TailInside = 'tailInside';
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
@@ -220,6 +222,7 @@ class CompositeCell extends Cell {
 }
 
 class LevelCell extends HistogramCell {
+
   private _levelTime: number;
   best: QuoteSide = null;
 
@@ -231,11 +234,14 @@ class LevelCell extends HistogramCell {
     if (result && (this.settings as any).momentumTails)
       this._levelTime = Date.now();
 
-    if (this.best != null) {
-      this.changeStatus('tailInside');
-    }
+    this.setStatusPrefix(this.best != null ? TailInside : '');
 
     return result;
+  }
+
+  changeStatus(s) {
+    super.changeStatus(s);
+    console.log('changeStatus', s, this.status);
   }
 
   // return if no levels more, performance improvments
@@ -247,9 +253,9 @@ class LevelCell extends HistogramCell {
 
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
-      if (level <= Levels) {
+      if (level <= LevelsCount) {
         this.changeStatus(`level${level}`);
-      } else if (level >= Levels + 1) {
+      } else if (level >= LevelsCount + 1) {
         this.changeStatus('');
         this._levelTime = null;
       }
@@ -270,13 +276,14 @@ class LevelCell extends HistogramCell {
 
       if (Date.now() >= (this.time + ((this.settings as any).clearTradersTimer || 0)))
         this.clear();
-    } else if (this.status == `inside` || this.status == `tailInside`) {
+    } else if (this.status.includes(`inside`) || this.status.includes(TailInside)) {
       this.changeStatus('');
+      this.setStatusPrefix('');
     }
   }
 }
 
-export const SumStatus = 'sum'; 
+export const SumStatus = 'sum';
 
 class SumHistogramCell extends HistogramCell {
   changeStatus(status: string) {
