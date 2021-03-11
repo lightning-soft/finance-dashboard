@@ -318,7 +318,7 @@ export class DomFormComponent extends BaseOrderForm {
     const precision = this.setting.formSettings.roundPL ? 0 : (i?.precision ?? 2);
     const includeRealizedPl = this.setting.formSettings.includeRealizedPL;
 
-    if (this.dailyInfo) {
+    if (this.dailyInfo && position) {
       return calculatePL(position, this.dailyInfo.close, this.tickSize, i.contractSize, includeRealizedPl)
         .toFixed(precision);
     }
