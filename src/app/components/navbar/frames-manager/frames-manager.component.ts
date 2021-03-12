@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { EVENTS, IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
-import { IScxComponentState } from "chart";
 
 export type WindowTuple = [string, Set<IWindow>];
 
@@ -66,22 +65,10 @@ export class FramesManagerComponent {
   }
 
   getComponentStateName(window: IWindow, componentName: string): string {
-    const state = window.options.componentState().state;
-    const instrument = state?.instrument;
-
-    if (!instrument)
-      return this.getTitle(componentName);
-
-    let name = instrument.symbol;
-    if (instrument.description)
-      name += ` - ${instrument.description}`;
-
-    if (componentName === Components.Chart) {
-      const timeFrame = (state as IScxComponentState).timeFrame;
-      name += `, ${timeFrame.interval}${timeFrame.periodicity}`;
+    if (window.component?.getNavbarTitle) {
+      return window.component.getNavbarTitle();
     }
-
-    return name;
+    return this.getTitle(componentName);
   }
 
   getTitle(name: string): string {

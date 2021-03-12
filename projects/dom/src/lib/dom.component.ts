@@ -381,6 +381,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     super();
     this.componentInstanceId = Date.now();
     this.setTabIcon('icon-widget-dom');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+
     (window as any).dom = this;
 
     this.columns = [
@@ -1634,6 +1636,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleQuantitySelect(position: number): void {
     this._domForm.selectQuantityByPosition(position);
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
+    }
   }
 
   ngOnDestroy() {

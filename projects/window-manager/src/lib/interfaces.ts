@@ -1,6 +1,7 @@
 import { Executor } from 'global-handler';
 import { EVENTS } from './enums';
 import { Bounds, Options, saveData } from './types';
+import { ILayoutNode } from "layout";
 
 export interface IWindowManager {
   container: HTMLElement;
@@ -29,6 +30,7 @@ export interface IWindow {
   options: Options;
   wm: IWindowManager;
   _container: HTMLElement;
+  component: ILayoutNode;
 
   on(event: EVENTS, fn: Executor): void;
   setTitle(title: string);
