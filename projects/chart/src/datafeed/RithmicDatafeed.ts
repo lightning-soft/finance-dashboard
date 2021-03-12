@@ -8,6 +8,7 @@ import {
   Level1DataFeed,
   IQuote,
   TradeDataFeed, TradePrint,
+  BarDataFeed, Bar,
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
@@ -19,12 +20,13 @@ declare let StockChartX: any;
 export class RithmicDatafeed extends Datafeed {
   private _destroy = new Subject();
 
-  private _unsubscribeFn: VoidFunction;
+  private _unsubscribeFns: VoidFunction[] = [];
 
   constructor(
     private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
+    private _barDataFeed: BarDataFeed,
    // private _levelOneDatafeedService: Level1DataFeed,
     private _tradeDataFeed: TradeDataFeed,
   ) {
@@ -115,10 +117,23 @@ export class RithmicDatafeed extends Datafeed {
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);
+    this._barDataFeed.subscribe(instrument);
     this._tradeDataFeed.subscribe(instrument);
 
     this._unsubscribe();
-    this._unsubscribeFn = this._tradeDataFeed.on((quote: TradePrint) => {
+
+    this._unsubscribeFns.push(this._barDataFeed.on((quote: Bar) => {
+      const _quote: ChartQuote = {
+        instrument: quote.instrument,
+        price: quote.closePrice,
+        date: new Date(quote.timestamp),
+        volume: quote.volume,
+      } as any;
+
+      this.processQuote(chart, _quote);
+    }));
+
+    this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
       const _quote: ChartQuote = {
         // Ask: quote.volume;
         // AskSize: number;
@@ -128,10 +143,11 @@ export class RithmicDatafeed extends Datafeed {
         price: quote.price,
         date: new Date(quote.timestamp),
         volume: quote.volume,
+        side: quote.side,
       } as any;
 
       this.processQuote(chart, _quote);
-    });
+    }));
   }
 
   private _getInstrument(req: IRequest) {
@@ -139,10 +155,9 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   _unsubscribe() {
-    if (this._unsubscribeFn)
-      this._unsubscribeFn();
+    this._unsubscribeFns.forEach(fn => fn());
 
-    this._unsubscribeFn = null;
+    this._unsubscribeFns = [];
   }
 
   destroy() {

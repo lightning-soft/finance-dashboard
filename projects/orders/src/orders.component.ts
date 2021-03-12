@@ -54,9 +54,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     if (!items)
       return [];
 
-      return this.orderStatus === 'Working' ?
-        items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
-        items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
+    return this.orderStatus === 'Working' ?
+      items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
+      items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
   }
 
   private _accountId;
@@ -114,16 +114,16 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
       unwrap: (item: OrderItem) => item.order,
-        addNewItems: 'start',
+      addNewItems: 'start',
     });
 
     this.columns = headers.map((nameOrArr: any) => {
       nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
       const [name, title, style] = nameOrArr;
-    
+
       return {
         name,
-        title: title.toUpperCase(),
+        title: title?.toUpperCase() ?? '',
         style: {
           ...style,
           buyColor: 'rgba(72, 149, 245, 1)',
@@ -178,7 +178,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   openOrderForm() {
-    this.layout.addComponent(Components.OrderForm);
+    this.layout.addComponent({
+      component: { name: Components.OrderForm },
+      minHeight: 315,
+      minWidth: 369,
+      height: 315,
+      width: 369,
+      maximizable: false,
+    });
   }
 
   updateTitle() {

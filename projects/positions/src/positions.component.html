@@ -20,11 +20,12 @@
 <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total p/l</span>
-  <div class="bottom-data">{{open + realized}}</div>
+  <div [class.empty]="isEmpty(open + realized)" [class.negative]="(open + realized )< 0"
+       class="bottom-data">{{open + realized}}</div>
   <span class="bottom-title">Open</span>
-  <div class="bottom-data empty">{{open}}</div>
+  <div  [class.empty]="isEmpty(open)" [class.negative]="open < 0" class="bottom-data">{{open}}</div>
   <span class="bottom-title">Realized</span>
-  <div class="bottom-data">{{realized}}</div>
+  <div [class.empty]="isEmpty(realized)" [class.negative]="realized < 0" class="bottom-data">{{realized}}</div>
   <!--  <nz-select
       class="select"
       [nzOptionHeightPx]="22"

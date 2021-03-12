@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { EVENTS, IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
 
@@ -9,8 +9,9 @@ export type WindowTuple = [string, Set<IWindow>];
   templateUrl: './frames-manager.component.html',
   styleUrls: ['./frames-manager.component.scss']
 })
-export class FramesManagerComponent implements AfterViewInit {
+export class FramesManagerComponent {
 
+  public highlightedWindow: IWindow;
   public windowTuples: WindowTuple[] = [
     [Components.Chart, new Set()],
     [Components.Watchlist, new Set()],
@@ -30,19 +31,26 @@ export class FramesManagerComponent implements AfterViewInit {
 
   };
 
+  get windowAreaTopPosition(): number {
+    return this.highlightedWindow.y + this.highlightedWindow.globalOffset?.top;
+  }
+
+  get windowAreaLeftPosition(): number {
+    return this.highlightedWindow.x + this.highlightedWindow.globalOffset?.left;
+  }
+
   constructor(private windowManagerService: WindowManagerService) {
     this.windowManagerService.windows.subscribe(windows => {
       this.sortWindows(windows);
     });
   }
 
-  ngAfterViewInit(): void {
-  }
-
   public handleClick(window: IWindow): void {
     window.minimize();
-    if (!window.minimized)
+    if (!window.minimized) {
       window.focus();
+    }
+    this.hideWindowArea();
   }
 
   private sortWindows(windows: IWindow[]): void {
@@ -56,12 +64,28 @@ export class FramesManagerComponent implements AfterViewInit {
     }
   }
 
-  getTitle(name: string) {
+  getComponentStateName(window: IWindow, componentName: string): string {
+    if (window.component?.getNavbarTitle) {
+      return window.component.getNavbarTitle();
+    }
+    return this.getTitle(componentName);
+  }
+
+  getTitle(name: string): string {
     const componentTitle = componentTitles[name];
     if (componentTitle)
       return componentTitle;
     const title = name.replace(/-/g, ' ');
     return title[0].toUpperCase() + title.slice(1);
+  }
+
+  highlightWindowArea(window: IWindow): void {
+    if (window.minimized)
+      this.highlightedWindow = window;
+  }
+
+  hideWindowArea(): void {
+    this.highlightedWindow = null;
   }
 }
 

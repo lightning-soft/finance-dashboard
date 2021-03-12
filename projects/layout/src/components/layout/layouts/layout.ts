@@ -13,6 +13,8 @@ export type ComponentOptions = {
   width?: number;
   height?: number;
   type?: string;
+  minWidth?: number;
+  minHeight?: number;
   icon?: string;
   minimizable?: boolean;
   maximizable?: boolean;
@@ -34,6 +36,8 @@ export abstract class Layout implements IDropable {
     protected container: ElementRef
   ) {
   }
+
+  abstract removeComponent(componentName: string);
 
   abstract addComponent(componentOptions: ComponentOptions | string);
 

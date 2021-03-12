@@ -9,7 +9,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
   protected get suffix(): string {
     return 'Position';
   }
-  static transformPosition(item): IPosition{
+  static transformPosition(item): IPosition {
     const { averageFillPrice: price, volume: size, instrument } = item;
 
     return {

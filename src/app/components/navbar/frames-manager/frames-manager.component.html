@@ -28,10 +28,14 @@
             nz-menu-item
             *ngFor="let window of windowTuple[1]"
             class="windows-list__item"
-            [title]="getTitle(windowTuple[0])"
             (click)="handleClick(window)"
+            [class.minimized]="window.minimized"
+            (mouseover)="highlightWindowArea(window)"
+            (mouseleave)="hideWindowArea()"
+            (blur)="hideWindowArea()"
           >
-            <i class="{{iconsMap[ windowTuple[0] ]}}"></i>
+            <div class="title">{{getComponentStateName(window, windowTuple[0])}}</div>
+            <i class="icon-close-window" (click)="window.close()"></i>
           </li>
         </ul>
       </nz-dropdown-menu>
@@ -39,3 +43,11 @@
     </div>
   </ng-container>
 </div>
+
+<div class="highlight-area"
+     *ngIf="highlightedWindow"
+     [style.width.px]="highlightedWindow.width"
+     [style.height.px]="highlightedWindow.height"
+     [style.top.px]="windowAreaTopPosition"
+     [style.left.px]="windowAreaLeftPosition"
+></div>

@@ -32,6 +32,20 @@ html {
   font-size: $baseFontSize;
 }
 
+.col-resize {
+  cursor: col-resize;
+}
+
+.grab {
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.grabbing {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
@@ -92,7 +106,7 @@ body {
   }
 }
 
-.ant-btn, .ant-collapse, {
+.ant-btn, .ant-collapse {
   font-size: $baseFontSize;
 }
 
@@ -171,6 +185,14 @@ small {
 .ant-input {
   border-radius: 0;
 }
+
+/*.ant-switch, nz-switch, .ant-click-animating-node {
+  transition: color 0.3s, background-color 0.3s;
+
+  &:after {
+    transition: color 0.3s, background-color 0.3s, transform 0.3s;
+  }
+}*/
 
 .ant-switch-checked {
   background: rgba($primary, 0.2);

@@ -6,10 +6,10 @@
                 [trade]="trade"
                 [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
     <nz-input-group [class.d-none]="!setting.formSettings.showPLInfo" class="pl-input" [nzPrefix]="prefixTemplateUser">
-      <input disabled [value]="getPl()" nz-input type="number">
+      <input disabled [value]="getPl()" nz-input>
       <ng-template #prefixTemplateUser>PL</ng-template>
-
     </nz-input-group>
+
     <button title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"
     >{{positionSum}}</button>

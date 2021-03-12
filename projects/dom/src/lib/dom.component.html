@@ -60,6 +60,7 @@
       [positions]="positions"
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
+      [tickSize]="_tickSize"
       (actions)="handleFormAction($event)"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
   </div>

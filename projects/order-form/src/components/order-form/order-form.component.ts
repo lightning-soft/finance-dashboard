@@ -2,7 +2,7 @@ import { Component, Injector, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
+import { BaseOrderForm, orderTypes, QuantityInputComponent, orderDurations } from 'base-order-form';
 import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
@@ -30,14 +30,8 @@ export interface OrderFormComponent extends ILayoutNode {
 @UntilDestroy()
 @LayoutNode()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
-  OrderDurations = Object.values(OrderDuration);
-  OrderTypes = [
-    { label: 'MKT', value: OrderType.Market },
-    { label: 'LMT', value: OrderType.Limit },
-    { label: 'STP LMT', value: OrderType.StopLimit },
-    { label: 'STP MKT', value: OrderType.StopMarket },
-
-  ];
+  orderDurations = orderDurations;
+  orderTypes = orderTypes;
   step = 1;
   OrderSide = OrderSide;
   editIceAmount: boolean;
@@ -114,6 +108,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     this.autoLoadData = false;
 
     this.setTabIcon('icon-widget-create-orders');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
   }
 
   getDto(): any {
@@ -261,5 +256,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
     if (newPrice >= 0)
       this.price = newPrice;
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
+    }
   }
 }

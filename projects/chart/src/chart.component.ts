@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostBinding,
+  Injector,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -16,6 +24,8 @@ import { Orders, Positions } from './objects';
 import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
+import { Components } from 'src/app/modules';
+import { NzContextMenuService, NzDropdownMenuComponent } from "ng-zorro-antd";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -44,7 +54,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   chart: IChart;
+  link: any;
 
+  showOHLC = false;
+  showChanges = false;
   private _accountId: Id;
 
   get accountId(): Id {
@@ -53,9 +66,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   set accountId(value: Id) {
     this._accountId = value;
-
-    this._orders.refresh();
-    this._positions.refresh();
+    this.refresh();
   }
 
   get instrument() {
@@ -68,28 +79,30 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       value.company = this._getInstrumentCompany();
     }
     this.refresh();
-    this._orders.refresh();
-    this._positions.refresh();
   }
 
-  private loadedState = new BehaviorSubject<IScxComponentState>(null);
+  private loadedState = new BehaviorSubject<IScxComponentState &
+    { showOHLC: boolean, showChanges: boolean}>(null);
 
   enableOrderForm = false;
   showOrderForm = true;
 
   private _orders: Orders;
   private _positions: Positions;
+  @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
+    private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager
   ) {
     this.setTabIcon('icon-widget-chart');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
@@ -107,16 +120,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   saveState() {
     const { chart } = this;
-
     if (!chart) {
       return;
     }
 
     return {
+      showOHLC: this.showOHLC,
+      showChanges: this.showChanges,
+      link: this.link,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState()
     };
+  }
+
+  contextMenu($event: MouseEvent) {
   }
 
   private _instrumentChangeHandler = (event) => {
@@ -129,11 +147,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       },
     });
   }
+
   loadChart() {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
-
+    this.showChanges = state?.showChanges;
+    this.showOHLC = state?.showOHLC;
     this._setUnavaliableIfNeed();
 
     if (!chart) {
@@ -144,7 +164,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._positions.init();
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
-
+    chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
       .subscribe(value => chart.theme = getScxTheme(value));
@@ -171,6 +191,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         }
       });
 
+    this.broadcastData(this.link, chart);
+
     let charts = [];
 
     if (!environment.production) {
@@ -181,6 +203,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       charts = (window as any).charts;
       charts.push(chart);
     }
+  }
+
+  private _handleContextMenu = (e) => {
+    const event = e.value.event.evt.originalEvent;
+    this.nzContextMenuService.create(event, this.menu);
   }
 
   private _setUnavaliableIfNeed() {
@@ -223,7 +250,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         id: 'ESH1',
         symbol: 'ESH1',
         exchange: 'CME',
-        tickSize: 0.01,
+        tickSize: 0.25,
         company: this._getInstrumentCompany(),
       },
       theme: getScxTheme(this._themesHandler.theme),
@@ -236,7 +263,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart || !data) {
       return;
     }
-
     const { instrument } = data;
 
     if (instrument) {
@@ -256,6 +282,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (chart.reload) {
       chart.reload();
     }
+    this._positions.refresh();
+    this._orders.refresh();
   }
 
   async getToolbarComponent() {
@@ -293,7 +321,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return (connection && connection.name) ?? '';
   }
 
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.chart.timeFrame.interval}${this.chart.timeFrame.periodicity}`;
+    }
+  }
+
   loadState(state?: any) {
+    this.link = state?.link ?? Math.random();
+
     this.loadedState.next(state);
   }
 
@@ -306,10 +342,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.destroy();
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
+      this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.destroy();
     }
 
     this.chart = null;
+  }
+
+  onWindowClose() {
+    this.layout.removeComponent(Components.Indicators);
+    this.layout.removeComponent(Components.IndicatorList);
   }
 }
 

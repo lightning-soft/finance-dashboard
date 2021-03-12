@@ -35,8 +35,9 @@
                 <ng-container *ngIf="!item.rename">
                   <div [title]="item.name" class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
-                  'text-success': item.connected,
-                  'text-danger': item.error
+                  'success': item.connected,
+                  'error': item.error,
+                  'connecting': isLoading[item.id]
                 }"></span>
                     <span class="connection-name">{{ item.name }}</span>
                   </div>
@@ -74,9 +75,9 @@
   <div class="custom-panel">
     <div class="custom-panel-body">
       <cdk-virtual-scroll-viewport [itemSize]="">
-        <div class="h-100 p-2 bg-light rounded" *ngIf="selectedItem">
+        <div class="h-100 pl-1 pr-2 bg-light rounded" *ngIf="selectedItem">
           <img
-            class="img-responsive d-table mx-auto my-2"
+            class="img-responsive broken-logo d-table mx-auto my-2"
             src="assets/img/brokers/{{ selectedBroker.logo }}"
             [alt]="selectedBroker.title"
             *ngIf="selectedBroker?.logo"
@@ -124,7 +125,7 @@
                 [(ngModel)]="splitConnections" nzSize="small"></nz-switch>
             </label> -->
 
-            <label class="custom-checkbox mb-1">
+            <label class="custom-checkbox aggregated-quotes">
               <input
                 type="checkbox" formControlName="aggregatedQuotes">
               <span>Aggregated Quotes</span>
@@ -141,7 +142,7 @@
               tabindex="1"
               (keydown.enter)="handleSubmit()"
               nzBlock
-              class="ant-btn connect-button ant-btn-primary text-uppercase mt-3"
+              class="ant-btn connect-button ant-btn-primary text-uppercase mt-3 mb-4"
             >Connect
             </button>
           </form>
@@ -154,7 +155,7 @@
                   </td>
                   <td>
                <span class="d-flex">
-                <span class="indicator indicator-table text-success mr-2"></span>
+                <span class="indicator indicator-table success mr-2"></span>
                 Connected
               </span>
                   </td>

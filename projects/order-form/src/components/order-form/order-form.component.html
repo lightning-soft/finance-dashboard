@@ -26,11 +26,11 @@
     </div>
     <div class="grid gap-4">
       <nz-select (ngModelChange)="updateIceQuantityState()" formControlName="type" [nzOptionHeightPx]="20">
-        <nz-option *ngFor="let item of OrderTypes" [nzValue]="item.value" [nzLabel]="item.label">
+        <nz-option *ngFor="let item of orderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
       <nz-select formControlName="duration" [nzOptionHeightPx]="20">
-        <nz-option *ngFor="let item of OrderDurations" [nzValue]="item" [nzLabel]="item">
+        <nz-option *ngFor="let item of orderDurations" [nzValue]="item" [nzLabel]="item">
         </nz-option>
       </nz-select>
       <button [disabled]="!isIceEnabled" (click)="toggleIce()" class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE</button>

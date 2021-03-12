@@ -17,6 +17,7 @@ import {
   PositionsRepository
 } from 'trading';
 import { ITypeButton } from './type-buttons/type-buttons.component';
+import { Side } from "trading";
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -105,6 +106,7 @@ export class DomFormComponent extends BaseOrderForm {
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
   @Input() positions: IPosition[] = [];
+  @Input() tickSize: number;
   _accountId;
   get accountId() {
     return this._accountId;
@@ -310,21 +312,36 @@ export class DomFormComponent extends BaseOrderForm {
     this.quantitySelect.currentItem.value += value;
   }
 
-  getPl() {
-    const precision = this.setting.formSettings.roundPL ? 0 : 5;
-    if (this.dailyInfo)
-      return ((+this.form.value.quantity) * Math.abs(this.dailyInfo.close - this.dailyInfo.open))
+  getPl(): string {
+    const i = this.instrument;
+    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
+    const precision = this.setting.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const includeRealizedPl = this.setting.formSettings.includeRealizedPL;
+
+    if (this.dailyInfo && position) {
+      return calculatePL(position, this.dailyInfo.close, this.tickSize, i.contractSize, includeRealizedPl)
         .toFixed(precision);
+    }
+
+    return '';
   }
 
 
   emit(action: FormActions) {
     this.actions.emit(action);
   }
-
+s
   selectQuantityByPosition(position: QuantityPositions) {
     this.quantitySelect.selectByPosition(position);
   }
 }
 
+export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+  const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
+  let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
+  if (includePnl) {
+    pl += position.realized;
+  }
 
+  return pl;
+}

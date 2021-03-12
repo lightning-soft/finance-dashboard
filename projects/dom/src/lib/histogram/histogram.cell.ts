@@ -1,5 +1,5 @@
 import { AddClassStrategy, ICellSettings, NumberCell } from 'data-grid';
-import { HistogramOrientation } from '../dom-settings/settings-fields';
+import { HistogramOrientation } from 'dynamic-form';
 
 export const histogramComponent = 'histogram-component';
 
@@ -39,7 +39,7 @@ export class HistogramCell extends NumberCell {
     this.hist = this.visible ? this._value / value : 0;
     // if (this.hist > 1)
     //   console.log('Invalid hist', this);
-      
+
     this._histValue = value;
   }
 
