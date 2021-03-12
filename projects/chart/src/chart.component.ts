@@ -102,6 +102,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _accountsManager: AccountsManager
   ) {
     this.setTabIcon('icon-widget-chart');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
@@ -119,7 +120,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   saveState() {
     const { chart } = this;
-
     if (!chart) {
       return;
     }
@@ -263,7 +263,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart || !data) {
       return;
     }
-
     const { instrument } = data;
 
     if (instrument) {
@@ -320,6 +319,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const connection = this._accountsManager.getActiveConnection();
 
     return (connection && connection.name) ?? '';
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.chart.timeFrame.interval}${this.chart.timeFrame.periodicity}`;
+    }
   }
 
   loadState(state?: any) {

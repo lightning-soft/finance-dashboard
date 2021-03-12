@@ -108,6 +108,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     this.autoLoadData = false;
 
     this.setTabIcon('icon-widget-create-orders');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
   }
 
   getDto(): any {
@@ -255,5 +256,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
     if (newPrice >= 0)
       this.price = newPrice;
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
+    }
   }
 }
