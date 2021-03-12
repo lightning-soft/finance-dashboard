@@ -52,6 +52,7 @@ export class IndicatorListComponent implements OnInit {
   addIndicator(item: any) {
     const indicator = this.registeredIndicators[item];
     this.chart.addIndicators(new indicator);
+    this.close();
   }
 
   getTitle(item: any) {

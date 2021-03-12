@@ -115,6 +115,12 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
   private _handleAddIndicator = (event: any) => {
     this._addIndicator(event.value);
+    this._selectLastIndicator();
+  }
+
+  private _selectLastIndicator() {
+    const indicators = this.indicators;
+    this.selectIndicator(indicators[indicators.length - 1]);
   }
 
   private _handleRemoveIndicator = (event: any) => {
