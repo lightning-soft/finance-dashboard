@@ -138,8 +138,8 @@ class OrdersCell extends HistogramCell {
         ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
         break;
       case 'bid':
-        ctx.fillStyle = settings.buyBackgroundColor ?? 'rgba(72,149,245,0.5)';
-        ctx.strokeStyle = settings.buyOrdersColumn ?? '#4895f5';
+        ctx.fillStyle = settings.buyOrderBackgroundColor ?? 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = settings.buyOrderColor ?? '#4895f5';
         break;
       case 'oco':
         ctx.fillStyle = 'rgba(190,60,177, 0.5)';
@@ -423,7 +423,7 @@ export class DomItem implements IBaseItem {
     return (this.ask.visible || this.askDelta.visible);
   }
 
-  constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
@@ -473,6 +473,15 @@ export class DomItem implements IBaseItem {
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
+    if (state) {
+      for (const key in state) {
+        if (!this[key] || !this[key].updateValue)
+          continue;
+
+        this[key].updateValue(state[key]);
+      }
+    }
+    this.dehighlight('all');
   }
 
   clearAskDelta() {

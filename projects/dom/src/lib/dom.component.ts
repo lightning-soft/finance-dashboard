@@ -38,7 +38,7 @@ import {
 import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
-import { SettingTab } from "./dom-settings/settings-fields";
+import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 
@@ -289,6 +289,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _levelsInterval: number;
   private _clearInterval: () => void;
   private _upadateInterval: number;
+  private _customTickSizeApplyed: boolean;
 
   get accountId() {
     return this._accountId;
@@ -360,14 +361,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea;
   }
 
-  private _customTickSize;
-
-  private set _tickSize(value: number) {
-    this._customTickSize = value;
-  }
-
   private get _tickSize() {
-    return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
+    return this.instrument.tickSize ?? 0.25;
   }
 
   private _bestBidPrice: number;
@@ -461,14 +456,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _linkSettings = (settings: DomSettings) => {
+    settings.buyOrders = { ...settings.orders, backgroundColor: settings.orders.buyOrdersBackgroundColor };
+    settings.sellOrders = { ...settings.orders, backgroundColor: settings.orders.sellOrdersBackgroundColor };
+
     const common = settings.common;
+    const general = settings?.general;
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    common.orders = !settings.orders.split;
+    common.buyOrders = settings.orders.split;
+    common.sellOrders = settings.orders.split;
+
     if (common) {
       for (const column of this.columns) {
         column.visible = common[column.name] != false;
       }
     }
-    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
-    const general = settings?.general;
+
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
@@ -480,7 +483,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
     const overlayOrders = settings.orders.overlay;
-    this._tickSize = general.commonView.ticksPerPrice;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
 
@@ -495,12 +497,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     settings.currentBid.momentumTails = momentumTails;
     settings.currentAsk.momentumTails = momentumTails;
 
-    settings.bidDelta.minToVisible = minToVisible;
-    settings.askDelta.minToVisible = minToVisible;
-    settings.bidDelta.overlayOrders = overlayOrders;
-    settings.askDelta.overlayOrders = overlayOrders;
-    settings.buyOrders = settings.orders;
-    settings.sellOrders = settings.orders;
+    settings.askDelta = {
+      ...settings.askDelta,
+      sellOrderBackgroundColor: settings.orders.sellOrderBackgroundColor,
+      sellOrderColor: settings.orders.sellOrderColor,
+      overlayOrders,
+      minToVisible,
+    };
+    settings.bidDelta = {
+      ...settings.bidDelta,
+      buyOrderBackgroundColor: settings.orders.buyOrderBackgroundColor,
+      buyOrderColor: settings.orders.buyOrderColor,
+      overlayOrders,
+      minToVisible,
+    };
 
     for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
       const obj = settings[key];
@@ -545,6 +555,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
+    const useCustomTickSize = general?.commonFields?.useCustomTickSize;
+    if (useCustomTickSize != this._customTickSizeApplyed)
+      this.centralize();
 
     this._calculateDepth();
     this._updateVolumeColumn();
@@ -744,69 +757,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange })
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        res => {
-          this._clear();
+    // const { symbol, exchange } = this._instrument;
+    // this._orderBooksRepository.getItems({ symbol, exchange })
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(
+    //     res => {
+    //       this._clear();
 
-          const { asks, bids } = res.data[0];
+    //       const { asks, bids } = res.data[0];
 
-          bids.sort((a, b) => a.price - b.price);
-          asks.sort((a, b) => b.price - a.price);
+    //       bids.sort((a, b) => a.price - b.price);
+    //       asks.sort((a, b) => b.price - a.price);
 
-          if (asks.length || bids.length) {
-            let index = 0;
-            let price = this._normalizePrice(asks[asks.length - 1].price);
-            const tickSize = this._tickSize;
-            // const maxPrice = asks[0].price;
-            // const maxRows = ROWS * 2;
+    //       if (asks.length || bids.length) {
+    //         let index = 0;
+    //         let price = this._normalizePrice(asks[asks.length - 1].price);
+    //         const tickSize = this._tickSize;
+    //         // const maxPrice = asks[0].price;
+    //         // const maxRows = ROWS * 2;
 
-            // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-            //   this.items.unshift(this._getItem(price));
-            //   price = this._normalizePrice(price + tickSize);
-            //   index++;
-            // }
+    //         // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+    //         //   this.items.unshift(this._getItem(price));
+    //         //   price = this._normalizePrice(price + tickSize);
+    //         //   index++;
+    //         // }
 
-            index = 0;
-            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+    //         index = 0;
+    //         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-            this.fillData(price)
+    //         this.fillData(price)
 
-            // while (index < maxRows && (price >= minPrice || index < ROWS)) {
-            //   this.items.push(this._getItem(price));
-            //   price = this._normalizePrice(price - tickSize);
-            //   index++;
-            // }
+    //         // while (index < maxRows && (price >= minPrice || index < ROWS)) {
+    //         //   this.items.push(this._getItem(price));
+    //         //   price = this._normalizePrice(price - tickSize);
+    //         //   index++;
+    //         // }
 
-            const instrument = this.instrument;
-            asks.forEach((info) => this._handleQuote({
-              instrument,
-              price: info.price,
-              timestamp: 0,
-              volume: info.volume,
-              side: QuoteSide.Ask
-            } as IQuote));
-            bids.forEach((info) => this._handleQuote({
-              instrument,
-              price: info.price,
-              timestamp: 0,
-              volume: info.volume,
-              side: QuoteSide.Bid
-            } as IQuote));
+    //         const instrument = this.instrument;
+    //         asks.forEach((info) => this._handleQuote({
+    //           instrument,
+    //           price: info.price,
+    //           timestamp: 0,
+    //           volume: info.volume,
+    //           side: QuoteSide.Ask
+    //         } as IQuote));
+    //         bids.forEach((info) => this._handleQuote({
+    //           instrument,
+    //           price: info.price,
+    //           timestamp: 0,
+    //           volume: info.volume,
+    //           side: QuoteSide.Bid
+    //         } as IQuote));
 
-            for (const i of this.items) {
-              i.clearDelta();
-              i.dehighlight(Columns.All);
-            }
-          }
+    //         for (const i of this.items) {
+    //           i.clearDelta();
+    //           i.dehighlight(Columns.All);
+    //         }
+    //       }
 
-          this._loadOrders();
-          this._loadVolumeHistory();
-        },
-        error => this.notifier.showError(error)
-      );
+    this._loadOrders();
+    this._loadVolumeHistory();
+    //   },
+    //   error => this.notifier.showError(error)
+    // );
   }
 
   protected _loadOrders() {
@@ -906,13 +919,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
+    const lastPrice = this._lastPrice;
 
     const commonView = this._settings.general.commonView;
     if (commonView.useCustomTickSize) {
       centerIndex = ROWS / 2;
       let offset = 0;
       let snapshot = {};
-      const lastPrice = this._lastPrice;
       const tickSize = this._tickSize;
 
       for (const i of this.items) {
@@ -961,13 +974,39 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         offset++;
       }
+
+      this._customTickSizeApplyed = true;
     } else {
-      if (this._lastPrice) {
+      if (this._customTickSizeApplyed) {
+        let snapshot = {};
+
+        for (const i of this.items) {
+          snapshot = {
+            ...snapshot,
+            ...i.getSnapshot(),
+          };
+        }
+
+        if (isNaN(lastPrice) || lastPrice == null)
+          return;
+
+        const data = this.items;
+        const tickSize = this._tickSize;
+        let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+        let index = -1;
+
+        while (index++ < ROWS) {
+          price = this._normalizePrice(price += tickSize);
+          data.unshift(this._getItem(price, ROWS - index, snapshot[price]));
+        }
+      } else if (this._lastPrice) {
         for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
           item.isCenter = i === centerIndex;
         }
       }
+
+      this._customTickSizeApplyed = false;
     }
 
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
@@ -984,22 +1023,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._updatedAt = Date.now();
   }
 
-  private _getItem(price: number, index?: number): DomItem {
+  private _getItem(price: number, index?: number, state?: any): DomItem {
     let item = this._map.get(price);
     if (!item) {
       if (index == null)
         console.warn('Omit index', index);
 
-      // const commonView = this._settings.general.commonView;
-      // if (commonView.useCustomTiksSize) {
-      //   const i = this.items.find(i => i.isCenter);
-
-      //   item = new DomItem(index, this._settings, this._priceFormatter);
-      //   this._map.set(price, item);
-      // } else {
-      item = new DomItem(index, this._settings, this._priceFormatter);
+      item = new DomItem(index, this._settings, this._priceFormatter, state);
       this._map.set(price, item);
-      // }
       item.setPrice(price);
     }
 

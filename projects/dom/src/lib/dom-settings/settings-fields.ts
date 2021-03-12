@@ -310,7 +310,7 @@ export const commonFields: IFieldConfig[] = [
           { label: 'Total At Bid', key: 'totalBid' },
           { label: 'Ask Delta', key: 'askDelta' },
           { label: 'Total At Ask', key: 'totalAsk' },
-          // { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
+          { label: 'Merge Bid/Ask Delta', key: 'delta' },
           { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
           { label: 'Volume Profile', key: 'volume' },
           { label: 'Orders', key: 'orders' },
@@ -431,15 +431,15 @@ export const generalFields: IFieldConfig[] = [
           }),
           {
             templateOptions: {
-              min: 0,
-              step: 0.25,
-              label: 'Ticks per price'
+              min: 1,
+              step: 1,
+              label: 'Levels per ticks'
             },
             expressionProperties: {
               'templateOptions.disabled': '!model.useCustomTickSize',
             },
             className: 'ticks-per-price',
-            key: 'ticksPerPrice',
+            key: 'ticksMultiplier',
             type: FieldType.Number,
           },
         ]
@@ -465,14 +465,14 @@ export const generalFields: IFieldConfig[] = [
             key: 'bidAskDeltaDepth',
             type: FieldType.Number,
           },
-          {
-            key: 'showDepthHistory',
-            type: FieldType.Checkbox,
-            name: 'alwaysOnTop',
-            templateOptions: {
-              label: 'Show Depth History'
-            },
-          },
+          // {
+          //   key: 'showDepthHistory',
+          //   type: FieldType.Checkbox,
+          //   name: 'alwaysOnTop',
+          //   templateOptions: {
+          //     label: 'Show Depth History'
+          //   },
+          // },
         ]
       }),
       new FieldConfig({
@@ -785,8 +785,8 @@ export const orderColumnFields: IFieldConfig[] = [
           getColor({ label: 'In Profit Foreground', key: 'inProfitColor' }),
           getColor({ label: 'Loss Background', key: 'lossBackgroundColor' }),
           getColor({ label: 'Loss Foreground', key: 'lossColor' }),
-          getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
-          getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
+          // getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
+          // getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
           {
             ...getCheckboxes([
               { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
@@ -798,8 +798,9 @@ export const orderColumnFields: IFieldConfig[] = [
         ]
       }),
       new FieldConfig({
-        fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-        disableExpression(getColor('Sell Orders Column'), '!model.split')]
+        fieldGroup: [
+          disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
+          disableExpression(getColor({ label: 'Sell Orders Column', key: 'sellOrdersBackgroundColor' }), '!model.split')]
       })
     ]
   }),
