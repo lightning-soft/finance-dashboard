@@ -330,7 +330,7 @@ export class DomFormComponent extends BaseOrderForm {
   emit(action: FormActions) {
     this.actions.emit(action);
   }
-s
+
   selectQuantityByPosition(position: QuantityPositions) {
     this.quantitySelect.selectByPosition(position);
   }
