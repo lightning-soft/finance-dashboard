@@ -10,9 +10,11 @@ $horizontal-padding: 8px;
   padding: 0 $horizontal-padding;
 
 }
-.navigation-button{
+
+.navigation-button {
   cursor: pointer;
 }
+
 .dropdown-connection-name, .connection-name {
   max-width: 170px;
   min-width: 60px;
@@ -26,12 +28,18 @@ $horizontal-padding: 8px;
 
 .dropdown-connection-username {
   font-size: 0.8rem;
+  line-height: 1;
+  color: $text-60;
   transition: all 0.3s;
 }
 
 .dropdown-connection-item {
   color: white;
+
   &:hover {
+    .dropdown-connection-username {
+      color: white;
+    }
   }
 }
 
@@ -49,37 +57,18 @@ $horizontal-padding: 8px;
   width: 10px;
   display: flex;
   align-items: center;
-  background: rgba($text-40, 0.3);
   justify-content: center;
   border-radius: 50%;
+  margin-right: 4px;
   margin-top: auto;
   margin-bottom: auto;
 
-  &:before {
+  &:after {
     content: '';
-    background: $text-40;
     height: 5px;
     width: 5px;
     border-radius: 50%;
   }
-
-  &.indicator-connect {
-    background: rgba($success, 0.3);
-
-    &:before {
-      background: $success;
-    }
-  }
-
-  &.indicator-error {
-    background: rgba($red, 0.3);
-
-    &:before {
-      background: $red;
-    }
-  }
-
-
 }
 
 .custom-panel-fixed {

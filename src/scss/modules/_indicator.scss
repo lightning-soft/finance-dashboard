@@ -32,4 +32,12 @@
       background: $red;
     }
   }
+
+  &.connecting {
+    background: rgba($pendingColor, 0.3);
+
+    &:after {
+      background: $pendingColor;
+    }
+  }
 }
