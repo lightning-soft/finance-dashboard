@@ -21,7 +21,10 @@ class OrdersCell extends HistogramCell {
   pl: any;
 
   get canCancelOrder() {
-    return (!this._order || (this.settings as any).overlayOrders == false)
+    if (!this._order)
+      return false;
+
+    return this._isOrderColumn || (this.settings as any).overlayOrders == false;
   }
 
   private _isOrderColumn = false;
