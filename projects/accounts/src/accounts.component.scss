@@ -4,6 +4,15 @@
   display: block;
   height: 100%;
 
+  .broken-logo {
+    min-width: 128px;
+  }
+
+  .aggregated-quotes {
+    margin-top: 6px;
+    margin-bottom: 7px;
+  }
+
   .add-connection {
     width: 18px;
     height: 18px;
@@ -131,8 +140,15 @@
       padding-left: 12px !important;
     }
 
+    /*  .link .icon-close-window {
+        font-size: 16px !important;
+      }*/
+
     .wm-draggable {
       color: $text-muted;
+      font-weight: 600;
+      font-size: 1rem;
+      line-height: 1.3rem;
 
       .window-icon {
         background: transparent;
@@ -176,12 +192,13 @@ small {
   cursor: pointer;
   border-radius: 2px;
   padding-bottom: 4px;
-  color: white;
   font-size: 0.8rem;
   line-height: 1.2;
+  color: $text-80;
 
   &:hover {
-    background: $inputBackground
+    color: white;
+    background: $lighter;
   }
 }
 
@@ -222,9 +239,11 @@ small {
   font-weight: normal;
   color: #D0D0D2;
 }
-form{
+
+form {
   outline: none;
 }
+
 .split-form {
   width: 100%;
 

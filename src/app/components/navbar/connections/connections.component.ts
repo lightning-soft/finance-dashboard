@@ -18,6 +18,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
 
   @Input()
   layout: LayoutComponent;
+  isLoading: { [key: number]: boolean } = {};
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
@@ -55,11 +56,12 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
         }
       );
   }
+
   loadData(params?: any) {
   }
 
   protected _handleConnection(connection: IConnection) {
-   // super._handleConnection(connection);
+    // super._handleConnection(connection);
     this.activeConnection = connection;
   }
 
@@ -92,7 +94,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       this.openAccounts(this.contextMenuConnection);
       return;
     }
-
+    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -105,6 +107,9 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
           }
         },
         err => this._notifier.showError(err),
+        () => {
+          delete this.isLoading[this.contextMenuConnection.id];
+        },
       );
   }
 
