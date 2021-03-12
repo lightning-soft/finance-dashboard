@@ -217,6 +217,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   ngAfterViewInit(): void {
+    this._cd.detectChanges(); // update ViewChild decorator if detach attribute
+
     // this._handlers = this.initHandlers() || [];
     // for (const handler of this._handlers) {
     //   handler.events.forEach(e => this._subscribeOnEvents(e));
