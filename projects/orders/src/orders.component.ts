@@ -178,7 +178,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   openOrderForm() {
-    this.layout.addComponent(Components.OrderForm);
+    this.layout.addComponent({
+      component: { name: Components.OrderForm },
+      minHeight: 315,
+      minWidth: 369,
+      height: 315,
+      width: 369,
+      maximizable: false,
+    });
   }
 
   updateTitle() {

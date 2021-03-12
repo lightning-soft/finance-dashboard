@@ -31,8 +31,6 @@ export class WindowManagerService {
   public createWindow(options: Options): IWindow {
     const { x, y } = this.calculatePosition(options);
 
-    console.log(x, y);
-
     options.x = x;
     options.y = y;
 

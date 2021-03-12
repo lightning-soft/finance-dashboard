@@ -1,17 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AccountSelectModule } from 'account-select';
 import { InstrumentSelectModule } from 'instrument-select';
 import { LazyAssetsModule } from 'lazy-assets';
 import { ComponentStore, LazyModule } from 'lazy-modules';
-import { NzAutocompleteModule, NzButtonModule, NzDropDownModule, NzIconModule, NzInputModule, NzSelectModule } from 'ng-zorro-antd';
+import {
+  NzAutocompleteModule,
+  NzButtonModule,
+  NzDropDownModule,
+  NzFormModule,
+  NzIconModule,
+  NzInputModule, NzInputNumberModule,
+  NzSelectModule,
+  NzSwitchModule, NzToolTipModule
+} from 'ng-zorro-antd';
 import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
+import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { IndicatorsComponent } from './indicators/indicators.component';
+import { DynamicFormModule } from "dynamic-form";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { IndicatorListComponent } from './indicators/indicator-list/indicator-list.component';
 
 // const environment = { scxPath: '' };
 
@@ -26,6 +41,7 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
     NzButtonModule,
     NzIconModule,
     OrderFormModule,
+    NzModalModule,
     InstrumentSelectModule,
     WindowHeaderModule,
     AccountSelectModule,
@@ -56,6 +72,13 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
         }
       ]
     }),
+    NzFormModule,
+    ReactiveFormsModule,
+    NzInputNumberModule,
+    DynamicFormModule,
+    ScrollingModule,
+    NzSwitchModule,
+    NzToolTipModule,
   ],
   exports: [
     ChartComponent
@@ -64,6 +87,9 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
     ChartComponent,
     ToolbarComponent,
     WindowToolbarComponent,
+    ModalOrderComponent,
+    IndicatorsComponent,
+    IndicatorListComponent,
   ],
   providers: [
   ],
@@ -71,7 +97,9 @@ import { WindowToolbarComponent } from './window-toolbar/window-toolbar.componen
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      chart: ChartComponent
+      chart: ChartComponent,
+      indicators: IndicatorsComponent,
+      indicatorList: IndicatorListComponent,
     };
   }
 }

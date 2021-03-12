@@ -35,7 +35,7 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
-import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
+import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
@@ -361,7 +361,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea;
   }
 
-  private get _tickSize() {
+  get _tickSize() {
     return this.instrument.tickSize ?? 0.25;
   }
 
@@ -384,6 +384,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     super();
     this.componentInstanceId = Date.now();
     this.setTabIcon('icon-widget-dom');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+
     (window as any).dom = this;
 
     this.columns = [
@@ -658,12 +660,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _fillPL(position: IPosition) {
     const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
+
     for (const i of this.items) {
-      const priceDiff = position.side === Side.Long ? position.price - i.price.value : i.price.value - position.price;
-      let pl = position.size * (this._tickSize * contractSize * (priceDiff / this._tickSize));
-      if (includePnl) {
-        pl += position.realized;
-      }
+      const pl = calculatePL(position, i.price.value, this._tickSize, contractSize, includePnl);
       i.setPL(pl);
     }
   }
@@ -757,69 +756,69 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    // const { symbol, exchange } = this._instrument;
-    // this._orderBooksRepository.getItems({ symbol, exchange })
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe(
-    //     res => {
-    //       this._clear();
+    const {symbol, exchange} = this._instrument;
+    this._orderBooksRepository.getItems({symbol, exchange})
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          this._clear();
 
-    //       const { asks, bids } = res.data[0];
+          const {asks, bids} = res.data[0];
 
-    //       bids.sort((a, b) => a.price - b.price);
-    //       asks.sort((a, b) => b.price - a.price);
+          bids.sort((a, b) => a.price - b.price);
+          asks.sort((a, b) => b.price - a.price);
 
-    //       if (asks.length || bids.length) {
-    //         let index = 0;
-    //         let price = this._normalizePrice(asks[asks.length - 1].price);
-    //         const tickSize = this._tickSize;
-    //         // const maxPrice = asks[0].price;
-    //         // const maxRows = ROWS * 2;
+          if (asks.length || bids.length) {
+            let index = 0;
+            let price = this._normalizePrice(asks[asks.length - 1].price);
+            const tickSize = this._tickSize;
+            // const maxPrice = asks[0].price;
+            // const maxRows = ROWS * 2;
 
-    //         // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-    //         //   this.items.unshift(this._getItem(price));
-    //         //   price = this._normalizePrice(price + tickSize);
-    //         //   index++;
-    //         // }
+            // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+            //   this.items.unshift(this._getItem(price));
+            //   price = this._normalizePrice(price + tickSize);
+            //   index++;
+            // }
 
-    //         index = 0;
-    //         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            index = 0;
+            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-    //         this.fillData(price)
+            this.fillData(price)
 
-    //         // while (index < maxRows && (price >= minPrice || index < ROWS)) {
-    //         //   this.items.push(this._getItem(price));
-    //         //   price = this._normalizePrice(price - tickSize);
-    //         //   index++;
-    //         // }
+            // while (index < maxRows && (price >= minPrice || index < ROWS)) {
+            //   this.items.push(this._getItem(price));
+            //   price = this._normalizePrice(price - tickSize);
+            //   index++;
+            // }
 
-    //         const instrument = this.instrument;
-    //         asks.forEach((info) => this._handleQuote({
-    //           instrument,
-    //           price: info.price,
-    //           timestamp: 0,
-    //           volume: info.volume,
-    //           side: QuoteSide.Ask
-    //         } as IQuote));
-    //         bids.forEach((info) => this._handleQuote({
-    //           instrument,
-    //           price: info.price,
-    //           timestamp: 0,
-    //           volume: info.volume,
-    //           side: QuoteSide.Bid
-    //         } as IQuote));
+            const instrument = this.instrument;
+            asks.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Ask
+            } as IQuote));
+            bids.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Bid
+            } as IQuote));
 
-    //         for (const i of this.items) {
-    //           i.clearDelta();
-    //           i.dehighlight(Columns.All);
-    //         }
-    //       }
+            for (const i of this.items) {
+              i.clearDelta();
+              i.dehighlight(Columns.All);
+            }
+          }
 
-    this._loadOrders();
-    this._loadVolumeHistory();
-    //   },
-    //   error => this.notifier.showError(error)
-    // );
+          this._loadOrders();
+          this._loadVolumeHistory();
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrders() {
@@ -1809,6 +1808,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleQuantitySelect(position: number): void {
     this._domForm.selectQuantityByPosition(position);
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
+    }
   }
 
   ngOnDestroy() {

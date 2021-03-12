@@ -1,8 +1,7 @@
 import { Column, DefaultScrollSensetive } from 'data-grid';
 import * as merge from 'deepmerge';
-import { TextAlign } from 'dynamic-form';
+import { TextAlign, HistogramOrientation } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { HistogramOrientation } from './settings-fields';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();

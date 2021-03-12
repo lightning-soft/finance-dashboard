@@ -13,6 +13,7 @@ export interface IContainer {
   minimazable: boolean;
   options: any;
   z: number;
+  component: ILayoutNode;
 
   setTitle(title: string);
 
@@ -32,6 +33,8 @@ export interface IStateProvider<T = any> {
 export interface ILayoutNode {
   layout?: Layout;
 
+  getNavbarTitle?: () => string;
+
   setTabIcon?(icon: string);
 
   getTabIcon?(): string;
@@ -39,6 +42,8 @@ export interface ILayoutNode {
   getTabTitle?(): string;
 
   setTabTitle?(value: string);
+
+  setNavbarTitleGetter?(value: () => string): void;
 
   handleNodeEvent(name: LayoutNodeEvent, event: any);
 
@@ -80,6 +85,8 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _tabTitle: string;
 
+  getNavbarTitle: () => string;
+
   private _tabIcon: string;
 
   layoutContainer: IContainer;
@@ -104,6 +111,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   setLayoutContainer(value) {
     this.layoutContainer = value;
+    this.layoutContainer.component = this;
     this._subscribeContainerLayoutEvents(value);
     this._initContainerLayoutEvents(value);
     this.addLinkObserver(this);
@@ -192,6 +200,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     this._tabTitle = value;
     if (this.layoutContainer)
       this.layoutContainer.setTitle(value);
+  }
+
+  setNavbarTitleGetter(value: () => string) {
+    this.getNavbarTitle = value;
   }
 
   setTabIcon(icon: string) {

@@ -1,16 +1,46 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
 
+export enum AlertType {
+  Undefined = 'Undefined',
+  ConnectionOpened = 'ConnectionOpened',
+  ConnectionClosed = 'ConnectionClosed',
+  ConnectionBroken = 'ConnectionBroken',
+  LoginComplete = 'LoginComplete',
+  LoginFailed = 'LoginFailed',
+  ServiceError = 'ServiceError',
+  ForcedLogout = 'ForcedLogout',
+  QuietHeartbeat = 'QuietHeartbeat',
+  TradingDisabled = 'TradingDisabled',
+  TradingEnabled = 'TradingEnabled',
+  ShutdownSignal = 'ShutdownSignal',
+}
+
+const errorAlerts = [AlertType.ConnectionClosed, AlertType.LoginFailed,
+  AlertType.ServiceError,
+  AlertType.ForcedLogout,
+  AlertType.ShutdownSignal,
+  AlertType.ConnectionBroken];
 export const handlers = {
-  DEFAULT: (msg) => { },
+  DEFAULT: (msg) => {
+  },
 
   [MessageTypes.CONNECT]: (msg) => {
-    const icon = `icon-datafeed-${msg?.result?.value?.toLowerCase()}`
+    let icon;
+    if (errorAlerts.includes(msg?.result?.type))
+      icon = 'icon-notifcation-error';
+    else if (
+      [AlertType.ConnectionOpened, AlertType.LoginComplete].includes(msg?.result?.type)
+    ) {
+      icon = 'icon-notication-connected';
+    } else {
+      icon = 'icon-notication-default';
+    }
 
     return new Notification({
-      title: msg.result.value,
+      body: msg.result.message,
       type: msg.type,
-      body: msg.result.value,
+      title: 'Connection',
       timestamp: msg.result.timestamp,
       icon,
     });
@@ -21,7 +51,7 @@ export const handlers = {
       type: msg.type,
       body: msg.result.value,
       timestamp: msg.result.timestamp,
-      icon: 'icon-some-error',
+      icon: 'icon-notifcation-error',
     });
   },
 
@@ -33,7 +63,7 @@ export const handlers = {
       type: msg.type,
       title: `${msg.type} ${msg.result.status}`,
       body: `${msg.result.type} ${msg.result.side} ${msg.result.quantity} ${msg.result.instrument.symbol}`,
-      icon: 'icon-order-reject'
+      icon: 'icon-notifcation-error'
     });
   }
 };

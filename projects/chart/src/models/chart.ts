@@ -7,6 +7,20 @@ export enum ScxOrderAction {
   SELL = 'sell'
 }
 
+export interface ISideDetails {
+  [key: string]: any;
+  volume: number;
+  price?: number;
+}
+
+export interface IDetails {
+  [key: string]: any;
+  bidInfo: ISideDetails;
+  askInfo: ISideDetails;
+  volume: number;
+  price: number;
+}
+
 export interface IBar {
   close: number;
   high: number;
@@ -14,6 +28,7 @@ export interface IBar {
   open: number;
   date: Date;
   volume: number;
+  details?: IDetails[];
  /* isFalling: boolean;
   isRaising: boolean;
   range: number;
@@ -46,6 +61,9 @@ export interface ScxOrderBarEvents {
   ACCEPT_ORDER_CLICKED: string;
   CANCEL_ORDER_CLICKED: string;
   ORDER_PRICE_CHANGED: string;
+  ORDER_CREATED: string;
+  ORDER_UPDATED: string;
+  CREATE_ORDER_SETTINGS_CLICKED: string;
 }
 
 export interface IScxOrder {
@@ -64,7 +82,7 @@ export interface IOrderBarConfig {
   order: IScxOrder;
 }
 
-export interface OrderBar {
+declare class OrderBar {
   order: IScxOrder;
 
   new(config: IOrderBarConfig);

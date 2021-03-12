@@ -80,6 +80,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
             this.openCreateForm(null, this.brokers[0]);
 
           this.expandBrokers();
+          this._updateSelectedItem();
         },
         err => this._notifier.showError(err)
       );
@@ -91,6 +92,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         if (items) {
           this.builder.replaceItems(items);
           this.expandBrokers();
+          this._updateSelectedItem();
         }
       });
 
@@ -114,8 +116,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   loadState(state: AccountsState) {
     const { selectedItem } = state;
-    if (selectedItem)
+    if (selectedItem) {
       this.selectItem(selectedItem);
+      this._updateSelectedItem();
+    }
   }
 
   private _updateSelectedItem() {
@@ -254,7 +258,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Are you sure want to delete connection ${item.name}?`,
+      nzContent: `Do you want to delete ${item.name}?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,

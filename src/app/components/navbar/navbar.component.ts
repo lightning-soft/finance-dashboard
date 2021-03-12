@@ -48,6 +48,7 @@ export class NavbarComponent {
       y: 'top',
       height: 800,
       width: 300,
+      minWidth: 300,
       single: true,
       removeIfExists: true,
       maximizable: false,
