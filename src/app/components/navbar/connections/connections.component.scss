@@ -33,8 +33,13 @@ $horizontal-padding: 8px;
   transition: all 0.3s;
 }
 
+.transition {
+  transition: all 0.3s;
+}
+
 .dropdown-connection-item {
   color: white;
+  padding-bottom: 2px;
 
   &:hover {
     .dropdown-connection-username {
@@ -60,9 +65,7 @@ $horizontal-padding: 8px;
   justify-content: center;
   border-radius: 50%;
   margin-right: 4px;
-  margin-top: auto;
-  margin-bottom: auto;
-
+  margin-top: 5px;
   &:after {
     content: '';
     height: 5px;

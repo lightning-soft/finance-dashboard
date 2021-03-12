@@ -9,10 +9,19 @@ $cell-background: #1b1d22;
     flex-grow: 1;
   }
 
+  window-header {
+    margin-bottom: 2px;
+  }
+
   &.header-panel {
+    window-header {
+      margin-bottom: 0px;
+    }
+
     .window-header-button {
       display: flex;
     }
+
     .dom-layout {
       height: calc(100% - 47px);
     }
