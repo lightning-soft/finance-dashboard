@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OrderSide } from 'trading';
+import { QuoteSide } from 'trading';
 import { IBar, IChart, IDetails } from '../models';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
 export type IDateFormat = (request: IRequest) => string;
@@ -253,11 +253,11 @@ export abstract class Datafeed implements IDatafeed {
     };
 
     switch (quote.side) {
-      case OrderSide.Buy:
+      case QuoteSide.Bid:
         item.bidInfo.volume = quote.volume;
         item.bidInfo.tradesCount = quote.tradesCount;
         break;
-      case OrderSide.Sell:
+      case QuoteSide.Ask:
         item.askInfo.volume = quote.volume;
         item.askInfo.tradesCount = quote.tradesCount;
         break;
@@ -276,11 +276,11 @@ export abstract class Datafeed implements IDatafeed {
         const _item = details[index];
 
         switch (quote.side) {
-          case OrderSide.Buy:
+          case QuoteSide.Bid:
             _item.bidInfo.volume = item.bidInfo.volume;
             _item.bidInfo.tradesCount = item.bidInfo.tradesCount;
             break;
-          case OrderSide.Sell:
+          case QuoteSide.Ask:
             _item.askInfo.volume = item.askInfo.volume;
             _item.askInfo.tradesCount = item.askInfo.tradesCount;
             break;

@@ -1,5 +1,5 @@
 import { IBaseItem } from 'communication';
-import { OrderSide } from 'trading';
+import { QuoteSide } from 'trading';
 
 export interface IStockChartXInstrument extends IBaseItem {
   symbol: string;
@@ -38,7 +38,7 @@ export interface IQuote {
   date: Date;
   instrument: IStockChartXInstrument;
   tradesCount?: number;
-  side?: OrderSide;
+  side?: QuoteSide;
 }
 
 export interface IStockChartXBar {
