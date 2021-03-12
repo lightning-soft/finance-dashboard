@@ -398,7 +398,6 @@ export class DomItem implements IBaseItem {
   price: PriceCell;
   sellOrders: OrdersCell;
   buyOrders: OrdersCell;
-  profitLoss: NumberCell;
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -406,12 +405,9 @@ export class DomItem implements IBaseItem {
   currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
-  tradeColumn: Cell = new DataCell();
   volume: HistogramCell;
   askDelta: OrdersCell;
   bidDelta: OrdersCell;
-  askDepth: Cell = new DataCell();
-  bidDepth: Cell = new DataCell();
   notes: Cell = new DataCell();
   delta: DeltaCell;
   orders: AllOrdersCell;
@@ -622,6 +618,26 @@ export class DomItem implements IBaseItem {
     return false;
   }
 
+  getSnapshot() {
+    return {
+      [this.price._value]: {
+        price: this.price._value,
+        sellOrders: this.sellOrders._value,
+        buyOrders: this.buyOrders._value,
+        ltq: this.ltq._value,
+        bid: this.bid._value,
+        ask: this.ask._value,
+        currentAsk: this.currentAsk._value,
+        currentBid: this.currentBid._value,
+        totalAsk: this.totalAsk._value,
+        totalBid: this.totalBid._value,
+        volume: this.volume._value,
+        askDelta: this.askDelta._value,
+        bidDelta: this.bidDelta._value,
+      }
+    };
+  }
+
   removeOrder(order: IOrder) {
     this.orders.removeOrder(order);
     this.askDelta.removeOrder(order);
@@ -784,5 +800,20 @@ export class DomItem implements IBaseItem {
 
   setPL(pl: number) {
     this.orders.setPL(pl);
+  }
+}
+
+export class CustomDomItem extends DomItem {
+  private _values = {};
+
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: any) {
+    super(index, settings, _priceFormatter);
+    this._values = {};
+
+    this._values = snapshot;
+  }
+
+  getSnapshot() {
+    return this._values;
   }
 }

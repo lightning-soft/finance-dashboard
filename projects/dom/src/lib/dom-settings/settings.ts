@@ -29,6 +29,7 @@ export class DomSettings {
     commonView: {
       autoCenterTicks: 10,
       ticksPerPrice: 0.25,
+      ticksMultiplier: 2,
       onTop: true,
       resetOnNewSession: true,
       autoCenter: false,

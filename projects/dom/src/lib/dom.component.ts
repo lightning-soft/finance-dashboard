@@ -39,7 +39,7 @@ import { DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.comp
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from "./dom-settings/settings-fields";
-import { DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
+import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -905,21 +905,75 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // requestAnimationFrame(() => {
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
-    let index = ROWS / 2;
+    let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
 
-    if (this._lastPrice) {
-      for (let i = 0; i < this.items.length; i++) {
-        const item = this.items[i];
-        item.isCenter = item.lastPrice === this._lastPrice;
+    const commonView = this._settings.general.commonView;
+    if (commonView.useCustomTickSize) {
+      centerIndex = ROWS / 2;
+      let offset = 0;
+      let snapshot = {};
+      const lastPrice = this._lastPrice;
+      const tickSize = this._tickSize;
 
-        if (item.isCenter)
-          index = i;
+      for (const i of this.items) {
+        snapshot = {
+          ...snapshot,
+          ...i.getSnapshot(),
+        };
+      }
+      // const i = this.items.find(i => i.isCenter);
+      const multiplier = commonView.ticksMultiplier;
+      while (offset <= ROWS / 2) {
+        const upIndex = centerIndex - offset;
+        let customItemData = {};
+        let prices = [];
+        for (let m = 0; m < multiplier; m++) {
+          const price = this._normalizePrice(lastPrice + (offset * multiplier + m) * tickSize);
+          const data = snapshot[price] ?? {};
+
+          prices.push(price);
+          customItemData[price] = data;
+        }
+
+        const item = new CustomDomItem(upIndex, this._settings, this._priceFormatter, customItemData);
+        item.setPrice(prices[prices.length - 1]);
+        this.items[upIndex] = item;
+        prices.forEach(p => this._map.set(p, item));
+
+        const downIndex = centerIndex + offset;
+
+        if (upIndex !== downIndex) {
+          customItemData = {};
+          prices = [];
+          for (let m = 0; m < multiplier; m++) {
+            const price = this._normalizePrice(lastPrice - (offset * multiplier + m) * tickSize);
+            const data = snapshot[price] ?? {};
+
+            prices.push(price);
+            customItemData[data.price] = data;
+          }
+
+          const downItem = new CustomDomItem(downIndex, this._settings, this._priceFormatter, customItemData);
+          downItem.setPrice(prices[prices.length - 1]);
+          this.items[downIndex] = downItem;
+          prices.forEach(p => this._map.set(p, downItem));
+        }
+
+        offset++;
+      }
+    } else {
+      if (this._lastPrice) {
+        for (let i = 0; i < this.items.length; i++) {
+          const item = this.items[i];
+          item.isCenter = i === centerIndex;
+        }
       }
     }
 
-    grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
+    grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this.detectChanges();
     // });
+
   }
 
   detectChanges(force = false) {
@@ -936,8 +990,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (index == null)
         console.warn('Omit index', index);
 
+      // const commonView = this._settings.general.commonView;
+      // if (commonView.useCustomTiksSize) {
+      //   const i = this.items.find(i => i.isCenter);
+
+      //   item = new DomItem(index, this._settings, this._priceFormatter);
+      //   this._map.set(price, item);
+      // } else {
       item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
+      // }
       item.setPrice(price);
     }
 
