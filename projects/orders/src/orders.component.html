@@ -36,13 +36,13 @@
   </div>
   <nz-tabset [nzSelectedIndex]="2">
     <nz-tab nzTitle="Working" (nzClick)="changeTab('Working')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeTab('Filled')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeTab('Show All')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
 <!--    <nz-tab nzTitle="History">
       Content of Tab Pane 2

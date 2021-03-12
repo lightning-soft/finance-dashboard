@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
@@ -331,6 +331,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   visibleRows = 0;
+  @HostBinding('class.header-panel')
+  showHeaderPanel = true;
 
   get items() {
     return this.dataGrid.items ?? [];
@@ -464,16 +466,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const common = settings.common;
     const general = settings?.general;
     const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    const hiddenColumns: any = {};
     common.orders = !settings.orders.split;
+    hiddenColumns.orders = settings.orders.split;
     common.buyOrders = settings.orders.split;
+    hiddenColumns.buyOrders = !settings.orders.split;
     common.sellOrders = settings.orders.split;
-
+    hiddenColumns.sellOrders = !settings.orders.split;
     if (common) {
       for (const column of this.columns) {
         column.visible = common[column.name] != false;
+        if (column.name in hiddenColumns)
+          column.hidden = hiddenColumns[column.name] == true;
       }
     }
-
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
@@ -756,14 +762,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const {symbol, exchange} = this._instrument;
-    this._orderBooksRepository.getItems({symbol, exchange})
+    const { symbol, exchange } = this._instrument;
+    this._orderBooksRepository.getItems({ symbol, exchange })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
           this._clear();
 
-          const {asks, bids} = res.data[0];
+          const { asks, bids } = res.data[0];
 
           bids.sort((a, b) => a.price - b.price);
           asks.sort((a, b) => b.price - a.price);
@@ -1770,8 +1776,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-        this.notifier.showError(err);
-      });
+      this.notifier.showError(err);
+    });
   }
 
   private _closePositions() {

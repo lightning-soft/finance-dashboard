@@ -7,9 +7,22 @@ $selectMarginBottom: 15px;
   display: block;
   height: 100%;
   overflow: auto;
+
   width: 100%;
 
   ::ng-deep {
+    nz-tabs-nav {
+      display: none;
+    }
+
+    &.show-header {
+
+    }
+
+    .ant-tabs-top-content {
+      height: 100%;
+    }
+
     window-header {
       .title {
         text-overflow: ellipsis;
@@ -47,6 +60,12 @@ $selectMarginBottom: 15px;
     .wrapper {
       height: 100%;
       text-align: right;
+    }
+  }
+
+  &.show-header ::ng-deep {
+    nz-tabs-nav {
+      display: block;
     }
 
     .ant-tabs-top-content {

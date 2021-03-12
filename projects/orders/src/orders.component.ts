@@ -1,4 +1,4 @@
-import { Component, Injector } from '@angular/core';
+import { Component, HostBinding, Injector } from '@angular/core';
 import { convertToColumn, RealtimeGridComponent, ViewItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column } from 'data-grid';
@@ -101,6 +101,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       handler: (item) => this.deleteItem(item.order),
     }),
   ];
+  @HostBinding('class.show-header')
+  showHeaderPanel = true;
 
   constructor(
     protected _repository: OrdersRepository,

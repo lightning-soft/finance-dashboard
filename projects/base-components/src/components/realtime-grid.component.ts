@@ -18,7 +18,9 @@ export function convertToColumn(nameOrArr: any) {
       textAlign: 'left',
     },
     title: title?.toUpperCase() ?? '',
-    visible: true
+    visible: true,
+    // not shown in tableView
+    hidden: false,
   };
 }
 

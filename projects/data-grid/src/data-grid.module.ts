@@ -12,6 +12,7 @@ import { ResizableModule } from './components/resizable/resizable.module';
 import { IconComponent } from './models/cells/components/icon-conponent';
 import { PriceComponent } from './models/cells/components/price-component';
 import { NzCheckboxModule, NzDropDownModule, NzPopoverModule } from 'ng-zorro-antd';
+import { FormsModule } from "@angular/forms";
 
 const entryComponents = [
   DataGrid,
@@ -31,7 +32,8 @@ const entryComponents = [
         NzIconModule,
         NzCheckboxModule,
         NzPopoverModule,
-        NzDropDownModule
+        NzDropDownModule,
+        FormsModule
     ],
   declarations: [
     ItemViewBuilder,

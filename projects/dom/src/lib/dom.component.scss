@@ -9,6 +9,15 @@ $cell-background: #1b1d22;
     flex-grow: 1;
   }
 
+  &.header-panel {
+    .window-header-button {
+      display: flex;
+    }
+    .dom-layout {
+      height: calc(100% - 47px);
+    }
+  }
+
   ::ng-deep {
     account-select {
       .custom-form-control {
@@ -25,9 +34,11 @@ $cell-background: #1b1d22;
         }
       }
     }
+
     window-header {
       align-items: flex-start !important;
     }
+
     .window-content {
       margin-left: 0px !important;
       align-items: flex-start !important;
@@ -39,10 +50,10 @@ $cell-background: #1b1d22;
 .window-header-button {
   margin-left: 4px;
   width: 100%;
-  display: flex;
   align-items: center;
   padding-bottom: 3px;
   padding-top: 2px;
+  display: none;
 }
 
 daily-info {
@@ -222,7 +233,7 @@ dom-form {
 }
 
 .dom-layout {
-  height: calc(100% - 47px);
+  height: calc(100% - 22px);
   width: 100%;
 
   &.window-left {
