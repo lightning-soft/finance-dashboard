@@ -305,7 +305,7 @@ export const commonFields: IFieldConfig[] = [
       }),
       {
         ...getCheckboxes([
-          { label: 'Notes', key: 'notes' },
+          // { label: 'Notes', key: 'notes' },
           { label: 'Bid Delta', key: 'bidDelta' },
           { label: 'Total At Bid', key: 'totalBid' },
           { label: 'Ask Delta', key: 'askDelta' },

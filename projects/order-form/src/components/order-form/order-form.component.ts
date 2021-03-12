@@ -32,7 +32,7 @@ export interface OrderFormComponent extends ILayoutNode {
 export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
   OrderDurations = Object.values(OrderDuration);
   OrderTypes = [
-    { label: 'MKT', value: OrderType.Market },
+    // { label: 'MKT', value: OrderType.Market },
     { label: 'LMT', value: OrderType.Limit },
     { label: 'STP LMT', value: OrderType.StopLimit },
     { label: 'STP MKT', value: OrderType.StopMarket },
