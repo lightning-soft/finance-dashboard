@@ -389,6 +389,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.columns = [
       ...[
         'orders',
+        'buyOrders',
+        'sellOrders',
         ['volume', 'volume', 'histogram'],
         'price',
         ['delta', 'delta'],
