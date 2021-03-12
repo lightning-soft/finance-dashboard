@@ -192,7 +192,7 @@ function getInnerValueArea(label, key) {
       getCheckboxes({
         label,
         extraConfig: {
-          className: 'hideLabel'
+          className: 'hideLabel',
         }
       }),
       {
@@ -672,7 +672,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           }),
         ],
       },
-      getNumber({ label: 'Value Area, %', key: 'va', min: 0,  max: 100  }),
+      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
       {
         key: 'smoothed',
         fieldGroupClassName: 'd-flex align-items-center smooth-price',

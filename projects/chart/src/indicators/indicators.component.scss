@@ -5,15 +5,21 @@
 
 
   ::ng-deep {
-    .hideLabel nz-form-label {
-      margin-bottom: 0 !important;
-      border-bottom: none !important;
-      margin-top: -3px;
+    .hideLabel {
+      .ant-form-item-control-input {
+        display: none;
+      }
 
-      label {
-        font-size: 0.75rem;
-        font-weight: 400;
-        padding-bottom: 0;
+      nz-form-label {
+        margin-bottom: 0 !important;
+        border-bottom: none !important;
+        margin-top: -3px;
+
+        label {
+          font-size: 0.75rem;
+          font-weight: 400;
+          padding-bottom: 0;
+        }
       }
     }
 
