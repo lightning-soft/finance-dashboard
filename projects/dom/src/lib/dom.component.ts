@@ -109,9 +109,12 @@ enum Columns {
   Ask = 'ask',
   CurrentBid = 'currentBid',
   CurrentAsk = 'currentAsk',
+  Delta = 'delta',
   AskDelta = 'askDelta',
   BidDelta = 'bidDelta',
   Orders = 'orders',
+  SellOrders = 'sellOrders',
+  BuyOrders = 'buyOrders',
   Volume = 'volume',
   TotalBid = 'totalBid',
   TotalAsk = 'totalAsk',
@@ -126,7 +129,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
+const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -260,8 +263,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     )),
     ...OrderColumns.map(column =>
       new MouseDownDataGridHandler<DomItem>({
-        column, handler: (item) => {
+        column,
+        handler: (item) => {
           const orders = item.orders.orders;
+          console.log(item, orders);
           if (orders.length) {
             this.draggingDomItemId = item.index;
             this.draggingOrders = orders;
@@ -494,6 +499,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     settings.askDelta.minToVisible = minToVisible;
     settings.bidDelta.overlayOrders = overlayOrders;
     settings.askDelta.overlayOrders = overlayOrders;
+    settings.buyOrders = settings.orders;
+    settings.sellOrders = settings.orders;
 
     for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
       const obj = settings[key];
@@ -734,72 +741,72 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrderBook() {
-    // if (!this._accountId || !this._instrument)
-    //   return;
+    if (!this._accountId || !this._instrument)
+      return;
 
-    // const { symbol, exchange } = this._instrument;
-    // this._orderBooksRepository.getItems({ symbol, exchange })
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe(
-    //     res => {
-    //       this._clear();
+    const { symbol, exchange } = this._instrument;
+    this._orderBooksRepository.getItems({ symbol, exchange })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          this._clear();
 
-    //       const { asks, bids } = res.data[0];
+          const { asks, bids } = res.data[0];
 
-    //       bids.sort((a, b) => a.price - b.price);
-    //       asks.sort((a, b) => b.price - a.price);
+          bids.sort((a, b) => a.price - b.price);
+          asks.sort((a, b) => b.price - a.price);
 
-    //       if (asks.length || bids.length) {
-    //         let index = 0;
-    //         let price = this._normalizePrice(asks[asks.length - 1].price);
-    //         const tickSize = this._tickSize;
-    //         // const maxPrice = asks[0].price;
-    //         // const maxRows = ROWS * 2;
+          if (asks.length || bids.length) {
+            let index = 0;
+            let price = this._normalizePrice(asks[asks.length - 1].price);
+            const tickSize = this._tickSize;
+            // const maxPrice = asks[0].price;
+            // const maxRows = ROWS * 2;
 
-    //         // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
-    //         //   this.items.unshift(this._getItem(price));
-    //         //   price = this._normalizePrice(price + tickSize);
-    //         //   index++;
-    //         // }
+            // while (index < maxRows && (price <= maxPrice || index < ROWS)) {
+            //   this.items.unshift(this._getItem(price));
+            //   price = this._normalizePrice(price + tickSize);
+            //   index++;
+            // }
 
-    //         index = 0;
-    //         price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            index = 0;
+            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-    //         this.fillData(price)
+            this.fillData(price)
 
-    //         // while (index < maxRows && (price >= minPrice || index < ROWS)) {
-    //         //   this.items.push(this._getItem(price));
-    //         //   price = this._normalizePrice(price - tickSize);
-    //         //   index++;
-    //         // }
+            // while (index < maxRows && (price >= minPrice || index < ROWS)) {
+            //   this.items.push(this._getItem(price));
+            //   price = this._normalizePrice(price - tickSize);
+            //   index++;
+            // }
 
-    //         const instrument = this.instrument;
-    //         asks.forEach((info) => this._handleQuote({
-    //           instrument,
-    //           price: info.price,
-    //           timestamp: 0,
-    //           volume: info.volume,
-    //           side: QuoteSide.Ask
-    //         } as IQuote));
-    //         bids.forEach((info) => this._handleQuote({
-    //           instrument,
-    //           price: info.price,
-    //           timestamp: 0,
-    //           volume: info.volume,
-    //           side: QuoteSide.Bid
-    //         } as IQuote));
+            const instrument = this.instrument;
+            asks.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Ask
+            } as IQuote));
+            bids.forEach((info) => this._handleQuote({
+              instrument,
+              price: info.price,
+              timestamp: 0,
+              volume: info.volume,
+              side: QuoteSide.Bid
+            } as IQuote));
 
-    //         for (const i of this.items) {
-    //           i.clearDelta();
-    //           i.dehighlight(Columns.All);
-    //         }
-    //       }
+            for (const i of this.items) {
+              i.clearDelta();
+              i.dehighlight(Columns.All);
+            }
+          }
 
-    //       this._loadOrders();
-    //       this._loadVolumeHistory();
-    //     },
-    //     error => this.notifier.showError(error)
-    //   );
+          this._loadOrders();
+          this._loadVolumeHistory();
+        },
+        error => this.notifier.showError(error)
+      );
   }
 
   protected _loadOrders() {

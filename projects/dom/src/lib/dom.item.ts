@@ -237,6 +237,10 @@ class DeltaCell extends CompositeCell<OrdersCell> {
     const item = this._item;
     return item.side === QuoteSide.Ask ? item.askDelta : item.bidDelta;
   }
+
+  draw(context) {
+    return this._getCell().draw(context);
+  }
 }
 
 class AllOrdersCell extends CompositeCell<OrdersCell> {
@@ -284,6 +288,10 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   clearPL() {
     this._item.sellOrders.clearPL();
     this._item.buyOrders.clearPL();
+  }
+
+  draw(context) {
+    return this._item.sellOrders.draw(context) || this._item.buyOrders.draw(context);
   }
 
   protected _getCell(): OrdersCell {

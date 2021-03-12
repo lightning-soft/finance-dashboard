@@ -299,7 +299,10 @@ export class DomSettings {
     textAlign: TextAlign.Center,
   };
 
-  delta: {};
+  delta: any;
+  sellOrders: any;
+  buyOrders: any;
+
 
   static fromJson(json: any): DomSettings {
     const settings = new DomSettings();
