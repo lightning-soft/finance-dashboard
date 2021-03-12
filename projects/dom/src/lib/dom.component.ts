@@ -389,8 +389,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.columns = [
       ...[
         'orders',
-        'buyOrders',
-        'sellOrders',
+        ['buyOrders', 'buy Orders'],
+        ['sellOrders', 'sell Orders'],
         ['volume', 'volume', 'histogram'],
         'price',
         ['delta', 'delta'],
@@ -418,7 +418,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ];
 
     if (!environment.production) {
-      this.columns.unshift(convertToColumn('_id'));
+      // this.columns.unshift(convertToColumn('_id'));
     }
   }
 
