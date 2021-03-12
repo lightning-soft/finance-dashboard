@@ -57,7 +57,7 @@ function getProfileConfig(key, _config = {}) {
           { icon: 'icon-hollowgram', value: 'hollowgram', label: 'Hollowgram' },
           { icon: 'icon-solidgram', value: 'solidgram', label: 'Solidgram' },
           { icon: 'icon-filled-line', value: 'filledLine', label: 'Filled Line' },
-          { icon: 'icon-hollow-line', value: 'hollowline', label: 'Hollow Line' },
+          { icon: 'icon-hollow-line', value: 'hollowLine', label: 'Hollow Line' },
           { icon: 'icon-solid-block', value: 'solidBlock', label: 'Solid Block' }
         ],
       }),
