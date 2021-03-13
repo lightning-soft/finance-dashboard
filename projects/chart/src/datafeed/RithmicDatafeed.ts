@@ -101,17 +101,16 @@ export class RithmicDatafeed extends Datafeed {
 
     const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
       tap((res) => {
-        const data = res.data as any[];
         const { chart } = request;
         const { dataManager } = chart;
         const dates = dataManager.dateDataSeries.values as Date[];
         const detailsDataSeries = dataManager.getDataSeries('.details');
 
-        dates.forEach((date, i) => {
-          const bar = data.find(item => +item.date === +date);
+        res.data.forEach((item: any) => {
+          const index = dates.findIndex(date => +date === +item.date);
 
-          if (bar) {
-            detailsDataSeries.valueAtIndex(i, bar.details);
+          if (index > -1) {
+            detailsDataSeries.valueAtIndex(index, item.details);
           }
         });
 
