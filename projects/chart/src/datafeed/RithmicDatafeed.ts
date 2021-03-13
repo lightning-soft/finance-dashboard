@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { Observable, Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { concat, Observable, Subject, throwError } from 'rxjs';
+import { map, takeUntil, tap, catchError } from 'rxjs/operators';
 import {
   HistoryRepository,
   InstrumentsRepository,
@@ -78,22 +78,53 @@ export class RithmicDatafeed extends Datafeed {
     const { symbol, exchange } = instrument;
 
     const params = {
+      id: symbol,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: timeFrame.interval,
       BarCount: count,
       Skip: 0,
-      PriceHistory: true
     };
-    this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
-      (res) => {
+
+    const history$ = this._historyRepository.getItems(params).pipe(
+      tap((res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
           // this._webSocketService.connect(() => this.subscribeToRealtime(request)); // todo: test
         }
-      },
-      () => this.cancel(request),
+      }),
+      catchError((err) => {
+        this.cancel(request);
+        return throwError(err);
+      }),
     );
+
+    const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
+      tap((res) => {
+        const data = res.data as any[];
+        const { chart } = request;
+        const { dataManager } = chart;
+        const dates = dataManager.dateDataSeries.values as Date[];
+        const detailsDataSeries = dataManager.getDataSeries('.details');
+
+        dates.forEach((date, i) => {
+          const bar = data.find(item => +item.date === +date);
+
+          if (bar) {
+            detailsDataSeries.valueAtIndex(i, bar.details);
+          }
+        });
+
+        chart.setNeedsUpdate();
+      }),
+    );
+
+    concat(
+      history$,
+      historyDetails$,
+    ).subscribe({
+      error: (err) => console.error(err),
+    });
   }
 
   _convertPeriodicity(periodicity: string): string {

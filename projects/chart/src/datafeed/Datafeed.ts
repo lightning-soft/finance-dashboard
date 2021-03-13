@@ -235,7 +235,7 @@ export abstract class Datafeed implements IDatafeed {
   private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
-    const detailsDataSerie = barDataSeries.details;
+    const detailsDataSeries = barDataSeries.details;
     const price = barDataSeries.close.lastValue;
 
     const item: IDetails = {
@@ -263,7 +263,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
     }
 
-    let details = detailsDataSerie.lastValue as IDetails[];
+    let details = detailsDataSeries.lastValue as IDetails[];
 
     if (!Array.isArray(details) || !details.length) {
       details = [item];
@@ -291,7 +291,7 @@ export abstract class Datafeed implements IDatafeed {
       }
     }
 
-    detailsDataSerie.updateLast(details);
+    detailsDataSeries.updateLast(details);
 
     chart.setNeedsUpdate();
   }
