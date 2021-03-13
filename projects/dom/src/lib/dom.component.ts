@@ -756,14 +756,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const {symbol, exchange} = this._instrument;
-    this._orderBooksRepository.getItems({symbol, exchange})
+    const { symbol, exchange } = this._instrument;
+    this._orderBooksRepository.getItems({ symbol, exchange })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
           this._clear();
 
-          const {asks, bids} = res.data[0];
+          const { asks, bids } = res.data[0];
 
           bids.sort((a, b) => a.price - b.price);
           asks.sort((a, b) => b.price - a.price);
@@ -933,14 +933,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           ...i.getSnapshot(),
         };
       }
-      // const i = this.items.find(i => i.isCenter);
+      const decimals = lastPrice % 1;
+      const startPrice = lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
       const multiplier = commonView.ticksMultiplier;
+
       while (offset <= ROWS / 2) {
         const upIndex = centerIndex - offset;
         let customItemData = {};
         let prices = [];
         for (let m = 0; m < multiplier; m++) {
-          const price = this._normalizePrice(lastPrice + (offset * multiplier + m) * tickSize);
+          const price = this._normalizePrice(startPrice + (offset * multiplier + m) * tickSize);
           const data = snapshot[price] ?? {};
 
           prices.push(price);
@@ -948,7 +950,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const item = new CustomDomItem(upIndex, this._settings, this._priceFormatter, customItemData);
-        item.setPrice(prices[prices.length - 1]);
+        item.setPrice(prices[0]);
         this.items[upIndex] = item;
         prices.forEach(p => this._map.set(p, item));
 
@@ -958,7 +960,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData = {};
           prices = [];
           for (let m = 0; m < multiplier; m++) {
-            const price = this._normalizePrice(lastPrice - (offset * multiplier + m) * tickSize);
+            const price = this._normalizePrice(startPrice - (offset * multiplier + m) * tickSize);
             const data = snapshot[price] ?? {};
 
             prices.push(price);
@@ -966,7 +968,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
 
           const downItem = new CustomDomItem(downIndex, this._settings, this._priceFormatter, customItemData);
-          downItem.setPrice(prices[prices.length - 1]);
+          downItem.setPrice(prices[0]);
           this.items[downIndex] = downItem;
           prices.forEach(p => this._map.set(p, downItem));
         }
