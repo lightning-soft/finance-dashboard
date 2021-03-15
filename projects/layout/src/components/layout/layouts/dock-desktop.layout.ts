@@ -29,7 +29,7 @@ export class DockDesktopLayout extends Layout {
 
   removeComponent(componentName) {
     const window = this._windowManagerService.windows.getValue()
-      .find(item => item.options.componentState().name === componentName);
+        .find(item => item.options.componentState().name === componentName);
     window?.close();
   }
 
@@ -49,7 +49,7 @@ export class DockDesktopLayout extends Layout {
     }
     if (!this.canAddComponent(componentNameOrConfig)) {
       const window = this._windowManagerService.windows.getValue()
-        .find(item => item.options.componentState().name === componentName);
+      .find(item => item.options.componentState().name === componentName);
 
       if (componentNameOrConfig.removeIfExists) {
         window?.close();

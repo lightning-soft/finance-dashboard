@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { FormlyForm } from '@ngx-formly/core';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { SettingsConfig, SettingTab } from './settings-fields';
 import { debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -28,8 +29,9 @@ export interface IDomSettingsEvent {
   providers: []
 })
 @LayoutNode()
-export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, AfterViewInit {
+export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   link = DomSettingsSelector;
+  formValueChangesSubscription: Subscription;
   list = [
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
@@ -56,9 +58,9 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
       ]
     },
   ];
+  settingsConfig = deepClone(SettingsConfig);
 
-  @ViewChild('form')
-  form: FormlyForm;
+  form: FormGroup;
 
   settings: any;
   _linkKey: string;
@@ -71,19 +73,11 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
     this.setTabIcon('icon-setting-gear');
   }
 
-  ngAfterViewInit() {
-    this.form.form.valueChanges
-      .pipe(
-        debounceTime(10),
-        untilDestroyed(this)
-      )
-      .subscribe(v => this._handleChange(v));
-  }
 
   private _handleChange(value: any) {
     if (!this._linkKey)
       console.error('Invalid link key', this._linkKey);
-
+      this.settings = {...this.settings, ...value};
     this.broadcastData(this._linkKey, this.settings);
   }
 
@@ -94,7 +88,17 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
       return;
 
     this.currentTab = item.tab;
-    this.selectedConfig = SettingsConfig[item.tab];
+    this.selectedConfig = this.settingsConfig[item.tab];
+    
+    this.formValueChangesSubscription?.unsubscribe();
+    this.form = new FormGroup({});  
+    this.form.valueChanges
+      .pipe(
+        debounceTime(10),
+        untilDestroyed(this))
+      .subscribe((v) => {
+          this._handleChange(v);
+      });
   }
 
   shouldShowForm(tab: SettingTab) {
@@ -108,8 +112,9 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
     };
   }
 
-  loadState(state: IDomSettingsState) {
-    this.settings = deepClone(state.settings) ?? {};
+  loadState(_state: IDomSettingsState) {
+    const state = deepClone(_state);
+    this.settings = state.settings ?? {};
     this._linkKey = state.linkKey;
     this.select(this.list[0]);
   }
@@ -122,13 +127,5 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
 }
 
 function deepClone(state: any) {
-  if (Array.isArray(state))
-    return state.map(deepClone);
-
-  if (typeof state == 'object')
-    return {
-      ...state,
-    };
-
-  return state;
+  return JSON.parse(JSON.stringify(state));
 }
