@@ -12,7 +12,12 @@ export const DomSettingsSelector = 'dom-settings';
 
 interface IDomSettingsState {
   settings?: any;
-  componentInstanceId?: number,
+  linkKey?: string;
+}
+
+export interface IDomSettingsEvent {
+  action: 'close';
+  linkKey: string;
 }
 
 @UntilDestroy()
@@ -24,6 +29,7 @@ interface IDomSettingsState {
 })
 @LayoutNode()
 export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, AfterViewInit {
+  link = DomSettingsSelector;
   list = [
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
@@ -55,7 +61,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   form: FormlyForm;
 
   settings: any;
-  componentInstanceId: number;
+  _linkKey: string;
 
   selectedConfig: any;
   currentTab: SettingTab;
@@ -75,9 +81,10 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   }
 
   private _handleChange(value: any) {
-    // this.broadcastData(DomSettingsSelector + this.componentInstanceId, this.settings);
-    console.log(this.settings);
-    this.broadcastData(DomSettingsSelector, this.settings);
+    if (!this._linkKey)
+      console.error('Invalid link key', this._linkKey);
+
+    this.broadcastData(this._linkKey, this.settings);
   }
 
 
@@ -97,14 +104,20 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   saveState() {
     return {
       settings: this.settings,
-      // componentInstanceId: this.componentInstanceId
+      linkKey: this._linkKey,
     };
   }
 
   loadState(state: IDomSettingsState) {
     this.settings = deepClone(state.settings) ?? {};
-    this.componentInstanceId = state.componentInstanceId;
+    this._linkKey = state.linkKey;
     this.select(this.list[0]);
+  }
+
+  handleLinkData(data: IDomSettingsEvent) {
+    if (data.action === 'close' && this._linkKey == data.linkKey) {
+      this.close();
+    }
   }
 }
 

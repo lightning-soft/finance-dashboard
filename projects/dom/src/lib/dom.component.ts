@@ -36,7 +36,7 @@ import {
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
 import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
-import { DomSettingsSelector } from './dom-settings/dom-settings.component';
+import { DomSettingsSelector, IDomSettingsEvent } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
@@ -447,14 +447,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
+  }
+
+  private _observe() {
     this.addLinkObserver({
       link: DOM_HOTKEYS,
       handleLinkData: (key: string) => this.handleHotkey(key),
     });
     this.addLinkObserver({
-      link: DomSettingsSelector,
+      link: this._getSettingsKey(),
       handleLinkData: this._linkSettings,
     });
+  }
+
+  private _getSettingsKey() {
+    return `${this.componentInstanceId}.${DomSettingsSelector}`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -1243,7 +1250,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.items = [];
     this._map.clear();
-    this._max.clear()
+    this._max.clear();
     const data = this.items;
     const tickSize = this._tickSize;
 
@@ -1532,8 +1539,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return label;
   }
 
+  private _closeSettings() {
+    this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
+  }
+
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
     switch (name) {
+      case LayoutNodeEvent.Close:
+      case LayoutNodeEvent.Destroy:
+      case LayoutNodeEvent.Hide:
+        this._closeSettings();
+        break;
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Show:
       case LayoutNodeEvent.Open:
@@ -1587,7 +1603,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
-    // this.openSettings(true);
 
     // for debug purposes
     if (!state)
@@ -1605,6 +1620,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       };
     // for debug purposes
 
+    this._observe();
+
     if (!state?.instrument)
       return;
 
@@ -1612,16 +1629,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   openSettings(hidden = false) {
+    this._closeSettings();
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
+        state: { settings: this._settings, linkKey: this._getSettingsKey() },
       },
       closeBtn: true,
-      single: true,
+      single: false,
       width: 618,
       resizable: false,
-      removeIfExists: true,
+      removeIfExists: false,
       hidden,
     });
   }
