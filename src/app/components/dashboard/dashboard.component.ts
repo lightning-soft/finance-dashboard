@@ -18,6 +18,7 @@ export enum DashboardCommand {
 export const DashboardCommandToUIString = {
   [DashboardCommand.SavePage]: 'Save page'
 }
+
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
@@ -44,7 +45,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
     private _workspaceService: WorkspacesManager,
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this._websocketService.connect();
@@ -82,25 +84,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
-    this._workspaceService.workspaces
+    this._workspaceService.save
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
+          this._save();
+      });
+    this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
       )
-      .subscribe((workspaces: Workspace[]) => {
+      .subscribe(() => {
+        const workspaces = this._workspaceService.workspaces.value;
         const activeWorkspace = workspaces.find(w => w.isActive);
 
         if (!activeWorkspace)
           return;
 
-        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
-          this._save();
-
-        this.activeWorkspace = activeWorkspace;
-
-        this._workspaceService.getWorkspaceConfig(this.activeWorkspace.configId)
-          .subscribe(workspaceConfig => {
-            this.layout.loadState(workspaceConfig);
-          })
+        const config = this._workspaceService.getWorkspaceConfig();
+        this.layout.loadState(config);
 
       });
 
@@ -175,17 +177,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
- //   this._settingsService.saveState(); saveWorkspaces also saves settings
+    //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
-    if (this.activeWorkspace) {
-     await this._workspaceService.saveWorkspaces(this.activeWorkspace.id, this.layout.saveState());
+    if (this._workspaceService.getActiveWorkspace()) {
+      await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
     }
   }
 
   @HostListener('window:beforeunload')
   async beforeUnloadHandler() {
     if (this.settings.autoSave && !this.settings.autoSaveDelay)
-     await this._save();
+      await this._save();
 
     for (const fn of this._subscriptions)
       fn();

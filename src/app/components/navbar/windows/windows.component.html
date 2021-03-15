@@ -1,0 +1,33 @@
+<nz-radio-group (ngModelChange)="selectWindow($event)" [ngModel]="currentWindowId">
+  <nz-select
+    [nzDropdownRender]="renderTemplate"
+    nzDropdownClassName="window-dropdown-menu"
+    [nzOptionHeightPx]="27"
+    [ngModel]="currentWindowId"
+    nzPlaceHolder="Select a window">
+    <nz-option [nzLabel]="window.name" class="options" [nzValue]="window.id" *ngFor="let window of windows"
+               nzCustomContent>
+      <div (click)="selectWindow(window.id)" class="workspace">
+        <div class="title">
+          <label class="radio-btn" nz-radio [nzValue]="window.id">{{ window.name }}</label>
+        </div>
+        <div class="actions">
+          <button [title]="'Edit'" (click)="$event.stopPropagation();rename(window?.id)" class="icon-edit"></button>
+          <button [title]="'Delete'" (click)="$event.stopPropagation(); delete(window?.id)"
+                  class="icon-tool-delete"></button>
+          <button title="Duplicate" (click)="$event.stopPropagation(); duplicate(window?.id)"
+                  class="icon-duplicate"></button>
+          <button title="On StartUp" (click)="$event.stopPropagation(); loadOnStartUp(window?.id)"
+                  [class.icon-star]="window.isOnStartUp" class="icon-star-o"></button>
+        </div>
+      </div>
+    </nz-option>
+  </nz-select>
+  <ng-template #renderTemplate>
+    <div (click)="createWindow()" class="add-window">
+      <i class="icon-add"></i>Add Window
+    </div>
+    <nz-divider></nz-divider>
+    <button (click)="save()" class="create-btn">Save active window</button>
+  </ng-template>
+</nz-radio-group>

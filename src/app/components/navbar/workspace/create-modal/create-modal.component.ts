@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { Workspace, WorkspaceId } from 'workspace-manager';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { NzSelectModule } from 'ng-zorro-antd';
+import { blankBase, WorkspaceId } from 'workspace-manager';
+import { FormControl, FormGroup } from '@angular/forms';
+
 
 @Component({
   selector: 'create-modal-component',
@@ -11,21 +11,23 @@ import { NzSelectModule } from 'ng-zorro-antd';
 })
 export class CreateModalComponent implements OnInit {
 
-  workspaces: Workspace[];
+  options: { label: string, value: any }[];
 
   form: FormGroup;
 
-  base: WorkspaceId = 'blank';
+  base: WorkspaceId = blankBase;
+  name: string;
+  blankOption: string;
 
   constructor(private modal: NzModalRef) {
-    this.workspaces = modal.getConfig().nzComponentParams.workspaces;
+    this.options = modal.getConfig().nzComponentParams.options;
   }
 
   ngOnInit() {
     this.form = new FormGroup({
       base: new FormControl('blank'),
-      workspaceName: new FormControl()
-    })
+      name: new FormControl()
+    });
   }
 
   public handleCancel(): void {
