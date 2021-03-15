@@ -31,29 +31,4 @@ export class WorkspacesStore {
 
     return of(this.settingsService.saveWorkspaces(items.filter(i => i.id !== id)));
   }
-
-  setItemConfig(configId: any, data: any): Observable<void> {
-    const workspaces = this.settingsService.settings.value.workspaces;
-    const workspace = workspaces.find(item => item.configId === configId);
-    workspace.config = data;
-    return of(this.settingsService.saveWorkspaces(workspaces));
-  }
-
-  getItemConfig(configId: any): Observable<any[]> {
-    const workspaces = this.settingsService.settings.value.workspaces;
-    const workspace = workspaces.find(item => item.configId === configId);
-    if (workspace)
-      return of(workspace.config);
-    else
-      return of(null);
-  }
-
-  deleteItemConfig(configId: any): Observable<void> {
-    const workspaces = this.settingsService.settings.value.workspaces;
-    const workspace = workspaces.find(item => item.configId === configId);
-    if (workspace)
-      delete workspace.config;
-    return of(this.settingsService.saveWorkspaces(workspaces));
-  }
-
 }

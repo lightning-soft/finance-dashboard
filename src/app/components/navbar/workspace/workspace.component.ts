@@ -50,7 +50,7 @@ export class WorkspaceComponent implements OnInit {
       nzClassName: 'modal-dialog-workspace',
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
-        workspaceName: workspace.name
+        workspaceName: workspace.name,
       },
     });
 
@@ -118,7 +118,9 @@ export class WorkspaceComponent implements OnInit {
       nzContent: CreateModalComponent,
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
-        workspaces: [...this.workspaces],
+        name: 'Name new workspace',
+        blankOption: 'Blank workspace',
+        options: [...this.workspaces.map(item => ({value: item.id, label: item.name}))],
       },
     });
 
@@ -128,7 +130,7 @@ export class WorkspaceComponent implements OnInit {
 
       const base = result.base !== 'blank' ? result.base : null;
 
-      this._workspacesService.createWorkspace(result.workspaceName, base)
+      this._workspacesService.createWorkspace(result.name, base)
     });
   }
 

@@ -1,0 +1,65 @@
+@import "~src/scss/variables";
+
+.workspace {
+  position: relative;
+  border-radius: 2px;
+  padding: 6px;
+  width: 100%;
+
+  .title {
+    display: flex;
+    align-items: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 0.8rem;
+
+
+    .radio-btn {
+      font-size: 0.8rem;
+    }
+
+    i {
+      margin-right: 9px;
+      font-size: 12px;
+    }
+  }
+
+  &:hover {
+    background-color: $inputBackground;
+
+    .actions {
+      opacity: 1;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 29, 34, 1) 12%);
+    }
+  }
+
+  .actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    button {
+      background-color: transparent;
+      font-size: 0.8rem;
+      font-weight: 400;
+
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
+}
+
+.create-btn {
+  background-color: $darkBackground;
+  padding: 4px 18px;
+  border-radius: 2px;
+  border: 0.5px solid $primary;
+  margin: 12px 10px;
+  width: 186px;
+  font-size: 0.8rem;
+}

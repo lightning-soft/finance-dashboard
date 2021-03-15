@@ -13,7 +13,14 @@ import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
 import { LayoutModule } from 'layout';
 import { LoadingModule } from 'lazy-modules';
-import { NzCheckboxModule, NzFormModule, NzInputModule, NzRadioModule, NzToolTipModule } from 'ng-zorro-antd';
+import {
+  NzCheckboxModule,
+  NzDividerModule,
+  NzFormModule,
+  NzInputModule,
+  NzRadioModule,
+  NzToolTipModule
+} from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -38,7 +45,8 @@ import {
   NavbarComponent,
   NavbarControllerComponent,
   RenameModalComponent,
-  TradeLockComponent
+  TradeLockComponent,
+  WindowsComponent
 } from './components';
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
@@ -99,6 +107,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     AppComponent,
     AccountComponent,
     TradeLockComponent,
+    WindowsComponent,
     NavbarControllerComponent,
     ClockComponent,
     ConnectionsComponent,
@@ -108,96 +117,97 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     RenameModalComponent,
     ConfirmModalComponent,
   ],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        NzFormModule,
-        NzSelectModule,
-        NzRadioModule,
-        HttpClientModule,
-        CommunicationModule,
-        BrowserModule.withServerTransition({ appId: 'serverApp' }),
-        NzModalModule,
-        NzDropDownModule,
-        ScrollingModule,
-        BrowserAnimationsModule,
-        ContextMenuModule,
-        WorkspacesModule,
-        WindowManagerModule,
-        SettingsModule.forRoot(),
-        ConfigModule.configure({
-            path: environment.config || 'config/config.json',
-            configClass: AppConfig,
-        }),
-        AccountsManagerModule.forRoot(),
-        CommunicationModule.forRoot([
-            {
-                provide: CommunicationConfig,
-                useExisting: AppConfig,
-            }
-        ]),
-        FakeCommunicationModule.forRoot(),
-        RealTradingModule.forRoot(),
-        LayoutModule.forRoot(),
-        AuthModule.forRoot(),
-        NotificationModule.forRoot(),
-        LoadingModule.forRoot([
-            {
-                path: Modules.NotificationList,
-                loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
-            },
-            {
-                path: Modules.Accounts,
-                loadChildren: () => import('accounts').then(i => i.AccountsModule)
-            },
-            {
-                path: Modules.Chart,
-                loadChildren: () => import('chart').then(i => i.ChartModule)
-            },
-            {
-                path: Modules.Watchlist,
-                loadChildren: () => import('watchlist').then(i => i.WatchlistModule)
-            },
-            {
-                path: Modules.Positions,
-                loadChildren: () => import('positions').then(i => i.PositionsModule)
-            },
-            {
-                path: Modules.Orders,
-                loadChildren: () => import('orders').then(i => i.OrdersModule)
-            },
-            {
-                path: Modules.OrderForm,
-                loadChildren: () => import('order-form').then(i => i.OrderFormModule)
-            },
-            {
-                path: Modules.Settings,
-                loadChildren: () => import('settings').then(i => i.SettingsModule)
-            },
-            {
-                path: Modules.Scripting,
-                loadChildren: () => import('scripting').then(i => i.ScriptingModule)
-            },
-            {
-                path: Modules.Dom,
-                loadChildren: () => import('dom').then(i => i.DomModule)
-            },
-        ], modulesStore),
-        RouterModule.forRoot([
-            {
-                path: '',
-                component: DashboardComponent,
-            },
-            {
-                path: '**',
-                component: DashboardComponent,
-            }
-        ]),
-        NzDropDownModule,
-        NzToolTipModule,
-        NzCheckboxModule,
-        NzInputModule,
-    ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NzFormModule,
+    NzSelectModule,
+    NzRadioModule,
+    HttpClientModule,
+    CommunicationModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    NzModalModule,
+    NzDropDownModule,
+    ScrollingModule,
+    BrowserAnimationsModule,
+    ContextMenuModule,
+    WorkspacesModule,
+    WindowManagerModule,
+    SettingsModule.forRoot(),
+    ConfigModule.configure({
+      path: environment.config || 'config/config.json',
+      configClass: AppConfig,
+    }),
+    AccountsManagerModule.forRoot(),
+    CommunicationModule.forRoot([
+      {
+        provide: CommunicationConfig,
+        useExisting: AppConfig,
+      }
+    ]),
+    FakeCommunicationModule.forRoot(),
+    RealTradingModule.forRoot(),
+    LayoutModule.forRoot(),
+    AuthModule.forRoot(),
+    NotificationModule.forRoot(),
+    LoadingModule.forRoot([
+      {
+        path: Modules.NotificationList,
+        loadChildren: () => import('notification-list').then(i => i.NotificationListModule)
+      },
+      {
+        path: Modules.Accounts,
+        loadChildren: () => import('accounts').then(i => i.AccountsModule)
+      },
+      {
+        path: Modules.Chart,
+        loadChildren: () => import('chart').then(i => i.ChartModule)
+      },
+      {
+        path: Modules.Watchlist,
+        loadChildren: () => import('watchlist').then(i => i.WatchlistModule)
+      },
+      {
+        path: Modules.Positions,
+        loadChildren: () => import('positions').then(i => i.PositionsModule)
+      },
+      {
+        path: Modules.Orders,
+        loadChildren: () => import('orders').then(i => i.OrdersModule)
+      },
+      {
+        path: Modules.OrderForm,
+        loadChildren: () => import('order-form').then(i => i.OrderFormModule)
+      },
+      {
+        path: Modules.Settings,
+        loadChildren: () => import('settings').then(i => i.SettingsModule)
+      },
+      {
+        path: Modules.Scripting,
+        loadChildren: () => import('scripting').then(i => i.ScriptingModule)
+      },
+      {
+        path: Modules.Dom,
+        loadChildren: () => import('dom').then(i => i.DomModule)
+      },
+    ], modulesStore),
+    RouterModule.forRoot([
+      {
+        path: '',
+        component: DashboardComponent,
+      },
+      {
+        path: '**',
+        component: DashboardComponent,
+      }
+    ]),
+    NzDropDownModule,
+    NzToolTipModule,
+    NzCheckboxModule,
+    NzInputModule,
+    NzDividerModule,
+  ],
   providers: [
     ThemesHandler,
     {
