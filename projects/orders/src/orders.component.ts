@@ -7,6 +7,7 @@ import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
+import { finalize } from "rxjs/operators";
 
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
@@ -55,6 +56,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   orderWorkingStatuses = ['Pending', 'New', 'PartialFilled'];
+  cancelMenuOpened = false;
 
   orderStatus = allStatuses;
   orderType = allTypes;
@@ -222,5 +224,29 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     if (headerCheckboxCell.toggleSelect(event)) {
       this.items.forEach(item => item.updateSelect(headerCheckboxCell.checked));
     }
+  }
+
+  cancelAllOrders(): void {
+    const selectedOrders = this.items.map(i => i.order);
+    this.cancelOrders(selectedOrders);
+  }
+
+  cancelSelectedOrders(): void {
+    const selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
+    this.cancelOrders(selectedOrders);
+  }
+
+  cancelOrders(orders: IOrder[]): void {
+    const hide = this.showLoading();
+    this._repository.deleteMany(orders)
+      .pipe(finalize(hide))
+      .subscribe({
+          next: () => {
+            this._handleDeleteItems(orders);
+            this._showSuccessDelete();
+          },
+          error: (error) => this._handleDeleteError(error)
+        }
+      );
   }
 }
