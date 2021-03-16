@@ -825,6 +825,26 @@ export class CustomDomItem extends DomItem {
     this._values = snapshot;
   }
 
+  handleQuote(data: IQuote) {
+  //  super.handleQuote(data);
+    if (data.side === QuoteSide.Ask)
+    {
+     const ask = this._values[data.price]?.ask ?? 0;
+     data = {
+      ...data,
+      volume: data.volume - ask,
+      };
+    }
+    else {
+      const bid = this._values[data.price]?.bid ?? 0;
+      data = {
+       ...data,
+       volume: data.volume - bid,
+     };
+    }
+    super.handleQuote(data);
+  }
+  
   getSnapshot() {
     return this._values;
   }
