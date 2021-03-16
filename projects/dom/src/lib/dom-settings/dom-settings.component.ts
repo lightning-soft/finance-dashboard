@@ -97,6 +97,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
         debounceTime(10),
         untilDestroyed(this))
       .subscribe((v) => {
+          console.warn(v);
           this._handleChange(v);
       });
   }
@@ -126,6 +127,6 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   }
 }
 
-function deepClone(state: any) {
+function deepClone(state: any): any {
   return JSON.parse(JSON.stringify(state));
 }

@@ -225,9 +225,9 @@ export const generalFields: IFieldConfig[] = [
               step: 1,
               label: 'Levels per ticks'
             },
-            expressionProperties: {
+           /* expressionProperties: {
               'templateOptions.disabled': '!model.useCustomTickSize',
-            },
+            },*/
             className: 'ticks-per-price',
             key: 'ticksMultiplier',
             type: FieldType.Number,
