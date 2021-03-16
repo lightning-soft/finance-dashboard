@@ -1,5 +1,6 @@
-export interface IDataGridHandlerConfig<T> {
-  handler: (item: T) => void;
+export interface IDataGridHandlerConfig<T, E = Event> {
+  handler: (item: T, event: E) => void;
+  handleHeaderClick?: boolean;
 }
 export enum Events {
   Click = 'click',
@@ -23,17 +24,19 @@ const enum TableNodes {
 //   handleEvent(event: Event);
 // }
 
-export abstract class DataGridHandler<T = any> {
+export abstract class DataGridHandler<T = any, E = Event> {
   event: Events;
-  protected handler: (item: any) => void;
+  handleHeaderClick = false;
+  protected handler: (item: T, event: E) => void;
 
-  constructor(config: IDataGridHandlerConfig<T>) {
+  constructor(config: IDataGridHandlerConfig<T, E>) {
     this.handler = config.handler;
+    this.handleHeaderClick = config.handleHeaderClick ?? false;
   }
 
-  notify(item: any) {
-    if (item && typeof this.handler === 'function')
-      this.handler(item);
+  notify(item: T, event: E) {
+    if ((item || this.handleHeaderClick) && typeof this.handler === 'function')
+      this.handler(item, event);
   }
 }
 export interface DataClickHandlerConfig {
@@ -100,21 +103,22 @@ export interface CellClickData {
   row: string;
 }
 
-export interface CellClickDataGridHandlerConfig<T> extends IDataGridHandlerConfig<T> {
+export interface CellClickDataGridHandlerConfig<T, E = MouseEvent> extends IDataGridHandlerConfig<T, E> {
   column: string;
 }
 
-export class CellClickDataGridHandler<T> extends DataGridHandler<T> {
+export class CellClickDataGridHandler<T> extends DataGridHandler<T, MouseEvent> {
   event = Events.Click;
   column = '';
 
-  constructor(config: CellClickDataGridHandlerConfig<T>) {
+  constructor(config: CellClickDataGridHandlerConfig<T, MouseEvent>) {
     super(config);
 
     this.column = config.column;
     this.handler = config.handler;
   }
 }
+
 export class MouseUpDataGridHandler<T> extends CellClickDataGridHandler<T>{
   event = Events.MouseUp;
 

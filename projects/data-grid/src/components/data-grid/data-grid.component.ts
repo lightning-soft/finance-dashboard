@@ -16,6 +16,7 @@ import { ICell } from '../../models';
 import { ModalComponent } from '../modal/modal.component';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
+import {Column} from "../types";
 
 declare function canvasDatagrid(params: any);
 
@@ -54,7 +55,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input()
   handlers: DataGridHandler[] = [];
 
-  @Input() columns = [];
+  @Input() columns: Column[] = [];
   @Input() afterDraw = (e, grid) => null;
 
   private _items: T[] = [];
@@ -273,7 +274,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this._triggerHandler(Events.Click, e);
   }
 
-  private _triggerHandler(event, e) {
+  private _triggerHandler(event: Events, e) {
     const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
 
     if (!Array.isArray(_handlers))
@@ -285,8 +286,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
       const item = e.row;
 
-      if (item)
-        handler.notify(item);
+      if (item || handler.handleHeaderClick)
+        handler.notify(item, e.e);
     }
   }
 
