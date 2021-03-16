@@ -400,7 +400,7 @@ export const footprintConfig: IFieldConfig[] = [
           }
         }
       }),
-      getNumber({ label: 'Default bar width', min: 1, key: 'defaultBarWidth', className: 'split-input d-block mt-2' }),
+      getNumber({ label: 'Initial bar width', min: 1, key: 'initialBarWidth', className: 'split-input d-block mt-2' }),
       getNumber({
         label: 'Bar width text threshold',
         min: 1,
