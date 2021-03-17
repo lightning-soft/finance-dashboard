@@ -84,6 +84,7 @@ export class RithmicDatafeed extends Datafeed {
       BarSize: timeFrame.interval,
       BarCount: count,
       Skip: 0,
+      PriceHistory: true,
     };
 
     const history$ = this._historyRepository.getItems(params).pipe(
@@ -99,28 +100,28 @@ export class RithmicDatafeed extends Datafeed {
       }),
     );
 
-    const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
-      tap((res) => {
-        const { chart } = request;
-        const { dataManager } = chart;
-        const dates = dataManager.dateDataSeries.values as Date[];
-        const detailsDataSeries = dataManager.getDataSeries('.details');
+    // const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
+    //   tap((res) => {
+    //     const { chart } = request;
+    //     const { dataManager } = chart;
+    //     const dates = dataManager.dateDataSeries.values as Date[];
+    //     const detailsDataSeries = dataManager.getDataSeries('.details');
 
-        res.data.forEach((item: any) => {
-          const index = dates.findIndex(date => +date === +item.date);
+    //     res.data.forEach((item: any) => {
+    //       const index = dates.findIndex(date => +date === +item.date);
 
-          if (index > -1) {
-            detailsDataSeries.valueAtIndex(index, item.details);
-          }
-        });
+    //       if (index > -1) {
+    //         detailsDataSeries.valueAtIndex(index, item.details);
+    //       }
+    //     });
 
-        chart.setNeedsUpdate();
-      }),
-    );
+    //     chart.setNeedsUpdate();
+    //   }),
+    // );
 
     concat(
       history$,
-      historyDetails$,
+      // historyDetails$,
     ).subscribe({
       error: (err) => console.error(err),
     });
