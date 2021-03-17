@@ -32,8 +32,11 @@ export class PositionItem {
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
-
-    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
+    this.price.updateValue(+position.price.toFixed(4));
+    this.unrealized.updateValue(+position.unrealized.toFixed(4));
+    this.realized.updateValue(+position.unrealized.toFixed(4));
+    this.total.updateValue(+position.total.toFixed(4));
+    const fields = ['size', 'instrumentName', 'side'];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -46,8 +49,8 @@ export class PositionItem {
     if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
       return;
     const currentPrice = +this.price.value;
-    const { volume, price } = trade;
-
+    const  { volume } = trade;
+    const price = +trade.price.toFixed(4);
     switch (this.side.value) {
       case Side.Long:
         this.unrealized.updateValue(this._calculateLongUnrealized(currentPrice, volume, price));

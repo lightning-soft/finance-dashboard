@@ -22,7 +22,10 @@ export class DragDrawerComponent {
     {
       icon: 'icon-widget-positions',
       name: 'Positions',
-      component: Components.Positions
+      component: Components.Positions,
+      options: {
+        minWidth: 384,
+      }
     },
     {
       icon: 'icon-widget-orders',
