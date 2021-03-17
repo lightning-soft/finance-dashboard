@@ -85,6 +85,8 @@ export abstract class Datafeed implements IDatafeed {
       }
     }
 
+    chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, request);
+
     this._requests.delete(request.id);
 
     chart.hideWaitingBar();
