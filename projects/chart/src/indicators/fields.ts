@@ -355,7 +355,7 @@ export const footprintConfig: IFieldConfig[] = [
       getSelect({
         label: 'Text Style',
         key: 'textStyle',
-        className: 'select',
+        className: 'select d-block mb-1',
         options: [
           {
             label: 'No Text',
@@ -385,7 +385,7 @@ export const footprintConfig: IFieldConfig[] = [
         label: 'Margin In Px',
         min: 0,
         key: 'margin',
-        className: 'split-input d-block mt-1'
+        className: 'split-input'
       }), {
         hideExpression: (res) => {
           return !['bidDeltaAsk', 'bidTotalAsk'].includes(res?.textStyle);
