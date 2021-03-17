@@ -1,7 +1,7 @@
 import {
-  FieldConfig,
+  FieldConfig, FieldType,
   getCheckboxes,
-  getColor, getColorSelect,
+  getColor, getColorSelect, getDatePicker,
   getInput, getLineSelector,
   getNumber,
   getSelect, getSwitch, getTextAlign,
@@ -39,7 +39,7 @@ function getProfileConfig(key, _config = {}) {
     additionalElements: [],
   };
   Object.assign(config, _config);
-  const { additionalElements, ...extraConfig } = config;
+  const {additionalElements, ...extraConfig} = config;
   return {
     key,
     fieldGroupClassName: 'd-grid two-rows',
@@ -51,14 +51,14 @@ function getProfileConfig(key, _config = {}) {
         label: 'Profile Type',
         className: 'regular-label label-400 hide-border-bottom',
         options: [
-          { icon: 'icon-hollow-block', value: 'hollowBlocks', label: 'Hollow Blocks' },
-          { icon: 'icon-dots-indicator', value: 'dots', label: 'Dots' },
-          { icon: 'icon-lines-indicator', value: 'lines', label: 'Lines' },
-          { icon: 'icon-hollowgram', value: 'hollowgram', label: 'Hollowgram' },
-          { icon: 'icon-solidgram', value: 'solidgram', label: 'Solidgram' },
-          { icon: 'icon-filled-line', value: 'filledLine', label: 'Filled Line' },
-          { icon: 'icon-hollow-line', value: 'hollowLine', label: 'Hollow Line' },
-          { icon: 'icon-solid-block', value: 'solidBlock', label: 'Solid Block' }
+          {icon: 'icon-hollow-block', value: 'hollowBlocks', label: 'Hollow Blocks'},
+          {icon: 'icon-dots-indicator', value: 'dots', label: 'Dots'},
+          {icon: 'icon-lines-indicator', value: 'lines', label: 'Lines'},
+          {icon: 'icon-hollowgram', value: 'hollowgram', label: 'Hollowgram'},
+          {icon: 'icon-solidgram', value: 'solidgram', label: 'Solidgram'},
+          {icon: 'icon-filled-line', value: 'filledLine', label: 'Filled Line'},
+          {icon: 'icon-hollow-line', value: 'hollowLine', label: 'Hollow Line'},
+          {icon: 'icon-solid-block', value: 'solidBlock', label: 'Solid Block'}
         ],
       }),
       getColorSelect({
@@ -67,23 +67,23 @@ function getProfileConfig(key, _config = {}) {
         options: [
           {
             label: 'Profile Color',
-            value: { type: 'profileColor', value: '#a0a0a0' },
+            value: {type: 'profileColor', value: '#a0a0a0'},
           },
           {
             label: 'Heat Map',
-            value: { type: 'heatMap', value: '#a0a0a0' },
+            value: {type: 'heatMap', value: '#a0a0a0'},
           },
           {
             label: 'Custom Blend',
-            value: { type: 'customBlend', value: '#a0a0a0' },
+            value: {type: 'customBlend', value: '#a0a0a0'},
           },
           {
             label: 'FP Shading',
-            value: { type: 'fpShading', value: '#a0a0a0' },
+            value: {type: 'fpShading', value: '#a0a0a0'},
           }
         ]
       }),
-      getNumber({ label: 'Profile width, %', min: 1, key: 'width', className: 'split-input full-width' }),
+      getNumber({label: 'Profile width, %', min: 1, key: 'width', className: 'split-input full-width'}),
       getCheckboxes({
         checkboxes: [
           {
@@ -91,7 +91,7 @@ function getProfileConfig(key, _config = {}) {
             key: 'extendNakedPocs'
           },
         ],
-        extraConfig: { className: 'extend-naked-poc' }
+        extraConfig: {className: 'extend-naked-poc'}
       }),
       {
         key: 'extendNaked',
@@ -114,13 +114,13 @@ function getProfileConfig(key, _config = {}) {
             fieldGroup: [
               getSelect({
                 key: 'type', options: [
-                  { value: 'closes', label: 'Closes' },
-                  { value: 'highsLows', label: 'Hi&Lo' },
-                  { value: 'closesHighsLows', label: 'Cl,Hi,Lo' }
+                  {value: 'closes', label: 'Closes'},
+                  {value: 'highsLows', label: 'Hi&Lo'},
+                  {value: 'closesHighsLows', label: 'Cl,Hi,Lo'}
                 ]
               }),
-              wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
-              getLineSelector({ key: 'strokeTheme' })
+              wrapWithClass(getColor({key: 'strokeColor', label: ''}), 'stroke-color'),
+              getLineSelector({key: 'strokeTheme'})
             ],
           },
         ]
@@ -144,9 +144,9 @@ function getProfileConfig(key, _config = {}) {
 }
 
 function getValueArea(key, _config = {}) {
-  const defaultConfig = { extraGroupClass: '', };
+  const defaultConfig = {extraGroupClass: '',};
   Object.assign(defaultConfig, _config);
-  const { extraGroupClass, ...config } = defaultConfig;
+  const {extraGroupClass, ...config} = defaultConfig;
 
   return {
     key,
@@ -201,11 +201,11 @@ function getInnerValueArea(label, key) {
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
-              { key: 'enabled', label: '' },
+              {key: 'enabled', label: ''},
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
-          getLineSelector({ key: 'strokeTheme' }),
+          wrapWithClass(getColor({key: 'strokeColor', label: ''}), 'stroke-color'),
+          getLineSelector({key: 'strokeTheme'}),
         ]
       },
       {
@@ -214,11 +214,11 @@ function getInnerValueArea(label, key) {
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
-              { key: 'enabled', label: '' },
+              {key: 'enabled', label: ''},
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
-          getLineSelector({ key: 'strokeTheme' })]
+          wrapWithClass(getColor({key: 'strokeColor', label: ''}), 'stroke-color'),
+          getLineSelector({key: 'strokeTheme'})]
       }
     ]
   };
@@ -230,11 +230,11 @@ export const footprintConfig: IFieldConfig[] = [
     label: 'Main Properties',
     fieldGroupClassName: 'd-grid two-rows',
     fieldGroup: [
-      getColor({ key: 'fillColor', label: 'Background Color' }),
-      wrapWithClass(getColor({ key: 'strokeColor', label: 'Background Outline Color' }), 'background-outline'),
-      getColor({ key: 'barStrokeColor', label: 'Bar Outline Color' }),
-      getColor({ key: 'closeOpenColor', label: 'SideBar CL\t> OP' }),
-      getColor({ key: 'openCloseColor', label: 'SideBar OP\t> CL' }),
+      getColor({key: 'fillColor', label: 'Background Color'}),
+      wrapWithClass(getColor({key: 'strokeColor', label: 'Background Outline Color'}), 'background-outline'),
+      getColor({key: 'barStrokeColor', label: 'Bar Outline Color'}),
+      getColor({key: 'closeOpenColor', label: 'SideBar CL\t> OP'}),
+      getColor({key: 'openCloseColor', label: 'SideBar OP\t> CL'}),
       getSelect({
         key: 'mode', label: 'Mode', options: [
           {
@@ -278,8 +278,8 @@ export const footprintConfig: IFieldConfig[] = [
           }
         ]
       }),
-      getNumber({ key: 'fontSize', min: 1, className: 'number-full-width' }),
-      getColor({ key: 'fillColor', label: 'Text Color' }),
+      getNumber({key: 'fontSize', min: 1, className: 'number-full-width'}),
+      getColor({key: 'fillColor', label: 'Text Color'}),
     ]
   }),
   new FieldConfig({
@@ -299,35 +299,35 @@ export const footprintConfig: IFieldConfig[] = [
       }),
       getSelect({
         key: 'barStyle', options: [
-          { label: 'Volume Profile Bars', value: 'volumeProfileBars' },
-          { label: 'No Bars', value: 'noBars' },
-          { label: 'Delta Print Bars', value: 'deltaPrintBars' },
-          { label: 'Delta Shading Bars', value: 'deltaShadingBars' },
+          {label: 'Volume Profile Bars', value: 'volumeProfileBars'},
+          {label: 'No Bars', value: 'noBars'},
+          {label: 'Delta Print Bars', value: 'deltaPrintBars'},
+          {label: 'Delta Shading Bars', value: 'deltaShadingBars'},
         ]
       }),
-      wrapWithConfig(getColor({ key: 'sellShadeBarColor', label: 'Sell Shade Bar Color' }), {
+      wrapWithConfig(getColor({key: 'sellShadeBarColor', label: 'Sell Shade Bar Color'}), {
         hideExpression: '!["volumeProfileBars", "deltaShadingBars"].includes(model.barStyle)'
       }),
-      wrapWithConfig(getColor({ key: 'buyShadeBarColor', label: 'Buy Shade Bar Color' }), {
+      wrapWithConfig(getColor({key: 'buyShadeBarColor', label: 'Buy Shade Bar Color'}), {
         hideExpression: '!["volumeProfileBars", "deltaShadingBars"].includes(model.barStyle)'
       }),
-      wrapWithConfig(getColor({ key: 'barColor', label: 'Profile Bars Color' }), {
+      wrapWithConfig(getColor({key: 'barColor', label: 'Profile Bars Color'}), {
         hideExpression: 'model.barStyle !== "volumeProfileBars"',
       }),
-      wrapWithConfig(getColor({ key: 'barPocColor', label: 'Profile Bars V POC Color' }), {
+      wrapWithConfig(getColor({key: 'barPocColor', label: 'Profile Bars V POC Color'}), {
         hideExpression: 'model.barStyle !== "volumeProfileBars"'
       }),
 
-      wrapWithConfig(getColor({ key: 'sellVolumeBarColor', label: 'Sell Volume Bar Color' }), {
+      wrapWithConfig(getColor({key: 'sellVolumeBarColor', label: 'Sell Volume Bar Color'}), {
         hideExpression: 'model.barStyle !== "deltaPrintBars"'
       }),
-      wrapWithConfig(getColor({ key: 'sellPocBarColor', label: 'Sell VPOC Bar Color' }), {
+      wrapWithConfig(getColor({key: 'sellPocBarColor', label: 'Sell VPOC Bar Color'}), {
         hideExpression: 'model.barStyle !== "deltaPrintBars"'
       }),
-      wrapWithConfig(getColor({ key: 'buyVolumeBarColor', label: 'Buy Volume Bar Color' }), {
+      wrapWithConfig(getColor({key: 'buyVolumeBarColor', label: 'Buy Volume Bar Color'}), {
         hideExpression: 'model.barStyle !== "deltaPrintBars"'
       }),
-      wrapWithConfig(getColor({ key: 'buyPocBarColor', label: 'Buy VPOC Bar Color' }), {
+      wrapWithConfig(getColor({key: 'buyPocBarColor', label: 'Buy VPOC Bar Color'}), {
         hideExpression: 'model.barStyle !== "deltaPrintBars"'
       }),
       wrapWithConfig(getSelect({
@@ -335,9 +335,9 @@ export const footprintConfig: IFieldConfig[] = [
         key: 'barAlignment',
         className: 'select full-width',
         options: [
-          { value: 'left', label: 'Left' },
-          { value: 'middle', label: 'Middle' },
-          { value: 'right', label: 'Right' },
+          {value: 'left', label: 'Left'},
+          {value: 'middle', label: 'Middle'},
+          {value: 'right', label: 'Right'},
 
         ],
       }), {
@@ -376,7 +376,7 @@ export const footprintConfig: IFieldConfig[] = [
 
         ]
       }),
-      wrapWithConfig(getInput({ label: 'Separator', key: 'separator', className: 'split-input' }), {
+      wrapWithConfig(getInput({label: 'Separator', key: 'separator', className: 'split-input'}), {
         hideExpression: (res) => {
           return res?.textStyle !== 'bidAsk';
         }
@@ -393,14 +393,14 @@ export const footprintConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes: [
-          { label: 'Hide Sides', key: 'hideSides' }
+          {label: 'Hide Sides', key: 'hideSides'}
         ], extraConfig: {
           hideExpression: (res) => {
             return !['bidDeltaAsk', 'bidTotalAsk'].includes(res?.textStyle);
           }
         }
       }),
-      getNumber({ label: 'Initial bar width', min: 1, key: 'initialBarWidth', className: 'split-input d-block mt-2' }),
+      getNumber({label: 'Initial bar width', min: 1, key: 'initialBarWidth', className: 'split-input d-block mt-2'}),
       getNumber({
         label: 'Bar width text threshold',
         min: 1,
@@ -466,7 +466,7 @@ export const footprintConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes:
-          [{ key: 'showPocOnlyOnBiggestBar', label: 'Show POC Only On Biggest...' }]
+          [{key: 'showPocOnlyOnBiggestBar', label: 'Show POC Only On Biggest...'}]
       }),
       getNumber({
         label: 'POC Outline Width',
@@ -494,7 +494,7 @@ export const footprintConfig: IFieldConfig[] = [
           }
         ], className: 'select',
       }),
-      getNumber({ label: 'Value', key: 'value', min: 0, className: 'split-input d-block mt-2' })
+      getNumber({label: 'Value', key: 'value', min: 0, className: 'split-input d-block mt-2'})
     ]
   }),
   new FieldConfig({
@@ -511,10 +511,10 @@ export const footprintConfig: IFieldConfig[] = [
       new FieldConfig({
         fieldGroupClassName: 'd-grid two-rows mt-1',
         fieldGroup: [
-          getColor({ key: 'strongBidVolumeColor', label: 'Strong Bid Volume' }),
-          getColor({ key: 'strongAskVolumeColor', label: 'Strong Ask Volume' }),
-          getColor({ key: 'weakBidVolumeColor', label: 'Weak Bid Volume' }),
-          getColor({ key: 'weakAskVolumeColor', label: 'Weak Ask Volume' }),
+          getColor({key: 'strongBidVolumeColor', label: 'Strong Bid Volume'}),
+          getColor({key: 'strongAskVolumeColor', label: 'Strong Ask Volume'}),
+          getColor({key: 'weakBidVolumeColor', label: 'Weak Bid Volume'}),
+          getColor({key: 'weakAskVolumeColor', label: 'Weak Ask Volume'}),
         ]
       }),
       getCheckboxes({
@@ -542,9 +542,9 @@ export const footprintConfig: IFieldConfig[] = [
       new FieldConfig({
         fieldGroupClassName: 'd-grid two-rows mt-2',
         fieldGroup: [
-          getColor({ key: 'textColor', label: 'Font' }),
-          getColor({ key: 'fillColor', label: 'Background' }),
-          getColor({ key: 'currentBidAskColor', label: 'Current Bid/Ask Color' }),
+          getColor({key: 'textColor', label: 'Font'}),
+          getColor({key: 'fillColor', label: 'Background'}),
+          getColor({key: 'currentBidAskColor', label: 'Current Bid/Ask Color'}),
         ]
       })
     ]
@@ -552,6 +552,9 @@ export const footprintConfig: IFieldConfig[] = [
 ];
 
 export const volumeProfileConfig: IFieldConfig[] = [
+  new FieldConfig({
+    fieldGroup: []
+  }),
   new FieldConfig({
     key: 'general',
     label: 'General',
@@ -566,21 +569,29 @@ export const volumeProfileConfig: IFieldConfig[] = [
         className: 'w-100 full-width profile-period hide-border-bottom ',
         fieldGroupClassName: 'd-flex align-items-end period-items',
         fieldGroup: [
-          getSelect({
-            key: 'type',
-            options: [{
-              value: 'last',
-              label: 'Last'
-            },
-              {
-                value: 'every',
-                label: 'Every'
-              }
-            ]
-          }),
-          getNumber({
+          wrapWithConfig(
+            getSelect({
+              key: 'type',
+              options: [{
+                value: 'last',
+                label: 'Last'
+              },
+                {
+                  value: 'every',
+                  label: 'Every'
+                }
+              ]
+            }), {
+              hideExpression: 'model.unit === "toPresent"',
+            }),
+          wrapWithConfig(getNumber({
             key: 'value',
             min: 0,
+          }), {
+            hideExpression: 'model.unit === "toPresent"',
+          }),
+          wrapWithConfig(getDatePicker('date'), {
+            hideExpression: 'model.unit !== "toPresent"',
           }),
           getSelect({
             key: 'unit',
@@ -653,7 +664,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
-              { label: 'Hide', key: 'enabled' },
+              {label: 'Hide', key: 'enabled'},
             ]
           }),
           getSelect({
@@ -672,13 +683,13 @@ export const volumeProfileConfig: IFieldConfig[] = [
           }),
         ],
       },
-      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getNumber({label: 'Value Area, %', key: 'va', min: 0, max: 100}),
       {
         key: 'smoothed',
         fieldGroupClassName: 'd-flex align-items-center smooth-price',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
+            checkboxes: [{label: 'Smoothed..', key: 'enabled'}]
           }),
           getNumber({
             key: 'value',
@@ -687,7 +698,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           }),
         ],
       },
-      getNumber({ label: 'Ticks per Level', key: 'ticksPerLevel', min: 1, }),
+      getNumber({label: 'Ticks per Level', key: 'ticksPerLevel', min: 1,}),
       getNumber({
         key: 'calculateXProfiles',
         label: 'Calculate X profiles',
@@ -695,7 +706,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
         className: 'calculate-profiles'
       }),
       getTextAlign('align', 'Profile Alignment',
-        { className: 'profile-alignment' }),
+        {className: 'profile-alignment'}),
     ],
   }),
   new FieldConfig({
@@ -709,7 +720,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
-              { key: 'overlayEthOverRth', label: 'Overlay ETH over RTH' },
+              {key: 'overlayEthOverRth', label: 'Overlay ETH over RTH'},
             ],
             extraConfig: {
               hideExpression: (model) => {
@@ -720,7 +731,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           getSwitch(
             'splitProfile',
             'Split Profile',
-            { className: 'right-switch' },
+            {className: 'right-switch'},
           ),
         ],
       },
@@ -769,13 +780,13 @@ export const volumeProfileConfig: IFieldConfig[] = [
           return config.form._parent.value.profile.splitProfile;
         }
       }),
-      wrapWithConfig(getValueArea('rth', { label: 'RTH Session', extraGroupClass: '' }), {
+      wrapWithConfig(getValueArea('rth', {label: 'RTH Session', extraGroupClass: ''}), {
         className: 'bordered mt-4 block',
         hideExpression: (model, formState, config) => {
           return !config.form._parent.value.profile.splitProfile;
         }
       }),
-      wrapWithConfig(getValueArea('eth', { label: 'ETH Session', extraGroupClass: '' }), {
+      wrapWithConfig(getValueArea('eth', {label: 'ETH Session', extraGroupClass: ''}), {
         className: 'mt-4 block bordered',
         hideExpression: (model, formState, config) => {
           return !config.form._parent.value.profile.splitProfile;
@@ -814,8 +825,8 @@ export const volumeProfileConfig: IFieldConfig[] = [
                 key: 'fontFamily',
                 className: 'w-100 full-width',
                 options: [
-                  { label: 'Open Sans', value: 'Open Sans' },
-                  { label: 'Monospace', value: 'Monospace' }
+                  {label: 'Open Sans', value: 'Open Sans'},
+                  {label: 'Monospace', value: 'Monospace'}
                 ],
               }),
               getSelect({
@@ -836,10 +847,10 @@ export const volumeProfileConfig: IFieldConfig[] = [
                   },
                 ],
               }),
-              getNumber({ key: 'fontSize', min: 1, className: 'full-number-input align-self-end' }),
+              getNumber({key: 'fontSize', min: 1, className: 'full-number-input align-self-end'}),
             ],
           },
-          getColor({ key: 'fillColor', label: 'Summary Color' }),
+          getColor({key: 'fillColor', label: 'Summary Color'}),
         ],
         // fieldGroupClassName: 'full-width'
       }),
@@ -904,7 +915,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
         className: 'split-input  mt-1 d-block',
       }),
       getCheckboxes({
-        extraConfig: { fieldGroupClassName: 'd-grid two-rows', className: 'mt-1 d-block' },
+        extraConfig: {fieldGroupClassName: 'd-grid two-rows', className: 'mt-1 d-block'},
         checkboxes: [{
           key: 'invertDelta',
           label: 'Invert Delta',
@@ -956,7 +967,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
           },
         ],
       }),
-      getNumber({ label: 'Size', min: 1, key: 'size', className: 'split-input mt-1 d-block' }),
+      getNumber({label: 'Size', min: 1, key: 'size', className: 'split-input mt-1 d-block'}),
 
     ],
   }),
@@ -1011,8 +1022,8 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
       }),
       getSelect({
         label: 'Max bars look back', options: [
-          { value: '256', label: '256' },
-          { value: 'Infinite', label: 'Infinite' }
+          {value: '256', label: '256'},
+          {value: 'Infinite', label: 'Infinite'}
         ],
         className: 'select mt-1 d-block'
       }),

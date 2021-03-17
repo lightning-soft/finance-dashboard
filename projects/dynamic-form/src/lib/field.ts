@@ -27,6 +27,7 @@ export enum FieldType {
   Hotkey = 'hotkey',
   ColorSelect = 'colorSelect',
   LineSelector = 'lineSelector',
+  DatePicker = 'datePicker'
 }
 
 export enum InputType {

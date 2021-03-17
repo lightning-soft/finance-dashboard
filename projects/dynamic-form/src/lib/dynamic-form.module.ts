@@ -1,7 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NzDividerModule, NzInputModule, NzInputNumberModule, NzSelectModule, NzSwitchModule } from 'ng-zorro-antd';
+import {
+  NzDatePickerModule,
+  NzDividerModule,
+  NzInputModule,
+  NzInputNumberModule,
+  NzSelectModule,
+  NzSwitchModule
+} from 'ng-zorro-antd';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
@@ -15,10 +22,14 @@ import { HotkeyInputModule } from '../../../hotkey-input';
 import { SelectComponent } from './select/select.component';
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { LineSelectorComponent } from './line-selector/line-selector.component';
+import { DatepickerComponent } from './datepicker/datepicker.component';
 
 const formlyComponents = [
   {
     name: FieldType.Select, component: SelectComponent,
+  },
+  {
+    name: FieldType.DatePicker, component: DatepickerComponent,
   },
   {
     name: FieldType.Hotkey, component: HotkeyComponent,
@@ -45,7 +56,7 @@ const formlyComponents = [
 
 @NgModule({
   declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
-    SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent, LineSelectorComponent],
+    SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent, LineSelectorComponent, DatepickerComponent],
   imports: [
     CommonModule,
     ColorPickerModule,
@@ -61,6 +72,7 @@ const formlyComponents = [
     NzSelectModule,
     NzDividerModule,
     NzInputNumberModule,
+    NzDatePickerModule,
   ],
   exports: [FormlyModule]
 })

@@ -144,6 +144,12 @@ export function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn)
   };
 }
 
+export function getDatePicker(key){
+  return {
+    type: FieldType.DatePicker,
+    key,
+  };
+}
 export function lowerFirstLetter(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
