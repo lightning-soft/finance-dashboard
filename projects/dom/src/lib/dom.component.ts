@@ -4,6 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import { RealtimeActionData } from 'communication';
 import {
+  Cell,
   CellClickDataGridHandler,
   ContextMenuClickDataGridHandler,
   DataGrid,
@@ -37,8 +38,8 @@ import {
 import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
-import { SettingTab } from "./dom-settings/settings-fields";
-import { DomItem } from './dom.item';
+import { SettingTab } from './dom-settings/settings-fields';
+import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -106,9 +107,14 @@ enum Columns {
   LTQ = 'ltq',
   Bid = 'bid',
   Ask = 'ask',
+  CurrentBid = 'currentBid',
+  CurrentAsk = 'currentAsk',
+  Delta = 'delta',
   AskDelta = 'askDelta',
   BidDelta = 'bidDelta',
   Orders = 'orders',
+  SellOrders = 'sellOrders',
+  BuyOrders = 'buyOrders',
   Volume = 'volume',
   TotalBid = 'totalBid',
   TotalAsk = 'totalAsk',
@@ -123,7 +129,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders];
+const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -144,8 +150,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy, null, {type: OrderType.Market}),
-    sellMarket: () => this._createOrder(OrderSide.Sell, null, {type: OrderType.Market}),
+    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
+    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
     hitBid: () => {
       this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
@@ -257,8 +263,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     )),
     ...OrderColumns.map(column =>
       new MouseDownDataGridHandler<DomItem>({
-        column, handler: (item) => {
+        column,
+        handler: (item) => {
           const orders = item.orders.orders;
+          console.log(item, orders);
           if (orders.length) {
             this.draggingDomItemId = item.index;
             this.draggingOrders = orders;
@@ -281,6 +289,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _levelsInterval: number;
   private _clearInterval: () => void;
   private _upadateInterval: number;
+  private _customTickSizeApplyed: boolean;
 
   get accountId() {
     return this._accountId;
@@ -289,10 +298,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
-  @ViewChild(DataGrid, {static: true})
+  @ViewChild(DataGrid, { static: true })
   dataGrid: DataGrid;
 
-  @ViewChild(DataGrid, {read: ElementRef})
+  @ViewChild(DataGrid, { read: ElementRef })
   dataGridElement: ElementRef;
 
   isFormOpen = true;
@@ -352,14 +361,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._settings.orderArea;
   }
 
-  private _customTickSize;
-
-  set tickSize(value: number) {
-    this._customTickSize = value;
-  }
-
-  get tickSize() {
-    return this._customTickSize ?? this.instrument.tickSize ?? 0.25;
+  get _tickSize() {
+    return this.instrument.tickSize ?? 0.25;
   }
 
   private _bestBidPrice: number;
@@ -381,14 +384,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     super();
     this.componentInstanceId = Date.now();
     this.setTabIcon('icon-widget-dom');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+
     (window as any).dom = this;
 
     this.columns = [
       ...[
         'orders',
+        ['buyOrders', 'buy Orders'],
+        ['sellOrders', 'sell Orders'],
         ['volume', 'volume', 'histogram'],
         'price',
-        // ['bidDeltaV', 'delta'],
+        ['delta', 'delta'],
         ['bidDelta', 'delta'],
         ['bid', 'bid', 'histogram'],
         'ltq',
@@ -413,7 +420,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ];
 
     if (!environment.production) {
-      this.columns.unshift(convertToColumn('_id'));
+      // this.columns.unshift(convertToColumn('_id'));
     }
   }
 
@@ -451,14 +458,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _linkSettings = (settings: DomSettings) => {
+    settings.buyOrders = { ...settings.orders, backgroundColor: settings.orders.buyOrdersBackgroundColor };
+    settings.sellOrders = { ...settings.orders, backgroundColor: settings.orders.sellOrdersBackgroundColor };
+
     const common = settings.common;
+    const general = settings?.general;
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    common.orders = !settings.orders.split;
+    common.buyOrders = settings.orders.split;
+    common.sellOrders = settings.orders.split;
+
     if (common) {
       for (const column of this.columns) {
         column.visible = common[column.name] != false;
       }
     }
-    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
-    const general = settings?.general;
+
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
@@ -470,7 +485,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
     const overlayOrders = settings.orders.overlay;
-    this.tickSize = general.commonView.ticksPerPrice;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
 
@@ -482,17 +496,70 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     settings.currentAsk.tailInsideFont = getFont(settings.currentAsk.tailInsideBold ? 200 : 700);
     settings.currentBid.clearOnBest = momentumTails;
     settings.currentAsk.clearOnBest = momentumTails;
+    settings.currentBid.momentumTails = momentumTails;
+    settings.currentAsk.momentumTails = momentumTails;
 
-    settings.bidDelta.minToVisible = minToVisible;
-    settings.askDelta.minToVisible = minToVisible;
-    settings.bidDelta.overlayOrders = overlayOrders;
-    settings.askDelta.overlayOrders = overlayOrders;
+    settings.askDelta = {
+      ...settings.askDelta,
+      sellOrderBackgroundColor: settings.orders.sellOrderBackgroundColor,
+      sellOrderColor: settings.orders.sellOrderColor,
+      overlayOrders,
+      minToVisible,
+    };
+    settings.bidDelta = {
+      ...settings.bidDelta,
+      buyOrderBackgroundColor: settings.orders.buyOrderBackgroundColor,
+      buyOrderColor: settings.orders.buyOrderColor,
+      overlayOrders,
+      minToVisible,
+    };
+
+    for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
+      const obj = settings[key];
+      if (!obj)
+        continue;
+
+      const tailInside = extractStyles(obj, TailInside);
+
+      for (const level of LEVELS) {
+        const status = Cell.mergeStatuses(TailInside, level);
+        const styles = {
+          ...extractStyles(obj, level),
+          ...tailInside,
+        };
+
+        for (const _key in styles) {
+          if (styles.hasOwnProperty(_key)) {
+            obj[Cell.mergeStatuses(status, _key)] = styles[_key];
+          }
+        }
+      }
+    }
+
+    const deltaStyles = {};
+    for (const key of [Columns.BidDelta, Columns.AskDelta]) {
+      const obj = settings[key];
+      if (!obj)
+        continue;
+
+      for (const _key in obj) {
+        if (obj.hasOwnProperty(_key)) {
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
+        }
+      }
+    }
+
+    settings.delta = deltaStyles;
 
     this._levelsInterval = levelInterval;
     this._levelsInterval = levelInterval;
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
+    const useCustomTickSize = general?.commonFields?.useCustomTickSize;
+    if (useCustomTickSize != this._customTickSizeApplyed)
+      this.centralize();
 
     this._calculateDepth();
     this._updateVolumeColumn();
@@ -595,7 +662,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const contractSize = this._instrument?.contractSize;
 
     for (const i of this.items) {
-      const pl = calculatePL(position, i.price.value, this.tickSize, contractSize, includePnl);
+      const pl = calculatePL(position, i.price.value, this._tickSize, contractSize, includePnl);
       i.setPL(pl);
     }
   }
@@ -669,8 +736,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const {symbol, exchange} = this._instrument;
-    this._volumeHistoryRepository.getItems({symbol, exchange})
+    const { symbol, exchange } = this._instrument;
+    this._volumeHistoryRepository.getItems({ symbol, exchange })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -704,7 +771,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           if (asks.length || bids.length) {
             let index = 0;
             let price = this._normalizePrice(asks[asks.length - 1].price);
-            const tickSize = this.tickSize;
+            const tickSize = this._tickSize;
             // const maxPrice = asks[0].price;
             // const maxRows = ROWS * 2;
 
@@ -758,7 +825,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
-    this._ordersRepository.getItems({id: this._accountId})
+    this._ordersRepository.getItems({ id: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -801,7 +868,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
-    this._positionsRepository.getItems({accountId: this._accountId})
+    this._positionsRepository.getItems({ accountId: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(items => {
         this.positions = items.data;
@@ -850,21 +917,101 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // requestAnimationFrame(() => {
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
-    let index = ROWS / 2;
+    let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
+    const lastPrice = this._lastPrice;
 
-    if (this._lastPrice) {
-      for (let i = 0; i < this.items.length; i++) {
-        const item = this.items[i];
-        item.isCenter = item.lastPrice === this._lastPrice;
+    const commonView = this._settings.general.commonView;
+    if (commonView.useCustomTickSize) {
+      centerIndex = ROWS / 2;
+      let offset = 0;
+      let snapshot = {};
+      const tickSize = this._tickSize;
 
-        if (item.isCenter)
-          index = i;
+      for (const i of this.items) {
+        snapshot = {
+          ...snapshot,
+          ...i.getSnapshot(),
+        };
       }
+      // const i = this.items.find(i => i.isCenter);
+      const multiplier = commonView.ticksMultiplier;
+      while (offset <= ROWS / 2) {
+        const upIndex = centerIndex - offset;
+        let customItemData = {};
+        let prices = [];
+        for (let m = 0; m < multiplier; m++) {
+          const price = this._normalizePrice(lastPrice + (offset * multiplier + m) * tickSize);
+          const data = snapshot[price] ?? {};
+
+          prices.push(price);
+          customItemData[price] = data;
+        }
+
+        const item = new CustomDomItem(upIndex, this._settings, this._priceFormatter, customItemData);
+        item.setPrice(prices[prices.length - 1]);
+        this.items[upIndex] = item;
+        prices.forEach(p => this._map.set(p, item));
+
+        const downIndex = centerIndex + offset;
+
+        if (upIndex !== downIndex) {
+          customItemData = {};
+          prices = [];
+          for (let m = 0; m < multiplier; m++) {
+            const price = this._normalizePrice(lastPrice - (offset * multiplier + m) * tickSize);
+            const data = snapshot[price] ?? {};
+
+            prices.push(price);
+            customItemData[data.price] = data;
+          }
+
+          const downItem = new CustomDomItem(downIndex, this._settings, this._priceFormatter, customItemData);
+          downItem.setPrice(prices[prices.length - 1]);
+          this.items[downIndex] = downItem;
+          prices.forEach(p => this._map.set(p, downItem));
+        }
+
+        offset++;
+      }
+
+      this._customTickSizeApplyed = true;
+    } else {
+      if (this._customTickSizeApplyed) {
+        let snapshot = {};
+
+        for (const i of this.items) {
+          snapshot = {
+            ...snapshot,
+            ...i.getSnapshot(),
+          };
+        }
+
+        if (isNaN(lastPrice) || lastPrice == null)
+          return;
+
+        const data = this.items;
+        const tickSize = this._tickSize;
+        let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
+        let index = -1;
+
+        while (index++ < ROWS) {
+          price = this._normalizePrice(price += tickSize);
+          data.unshift(this._getItem(price, ROWS - index, snapshot[price]));
+        }
+      } else if (this._lastPrice) {
+        for (let i = 0; i < this.items.length; i++) {
+          const item = this.items[i];
+          item.isCenter = i === centerIndex;
+        }
+      }
+
+      this._customTickSizeApplyed = false;
     }
 
-    grid.scrollTop = index * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
+    grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this.detectChanges();
     // });
+
   }
 
   detectChanges(force = false) {
@@ -875,13 +1022,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._updatedAt = Date.now();
   }
 
-  private _getItem(price: number, index?: number): DomItem {
+  private _getItem(price: number, index?: number, state?: any): DomItem {
     let item = this._map.get(price);
     if (!item) {
       if (index == null)
         console.warn('Omit index', index);
 
-      item = new DomItem(index, this._settings, this._priceFormatter);
+      item = new DomItem(index, this._settings, this._priceFormatter, state);
       this._map.set(price, item);
       item.setPrice(price);
     }
@@ -1021,10 +1168,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         break;
 
       if (pointOfControlIndex + i <= endTradedPriceIndex)
-        items[pointOfControlIndex + i].price.changeStatus('tradedPrice')
+        items[pointOfControlIndex + i].changePriceStatus('tradedPrice')
 
       if (pointOfControlIndex - i >= startTradedPriceIndex)
-        items[pointOfControlIndex - i].price.changeStatus('tradedPrice')
+        items[pointOfControlIndex - i].changePriceStatus('tradedPrice')
 
       valueAreaSum += (volume1?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)
@@ -1096,7 +1243,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._map.clear();
     this._max.clear()
     const data = this.items;
-    const tickSize = this.tickSize;
+    const tickSize = this._tickSize;
 
     let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
     let index = -1;
@@ -1162,7 +1309,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let item = this._getItem(trade.price);
 
-    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
 
     if (!this.items.length)
       this.fillData(trade.price);
@@ -1216,21 +1363,48 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _calcBidAskHist() {
     const max = this._max;
+    let askSum = 0;
+    let bidSum = 0;
+    let askSumItem;
+    let bidSumItem;
 
     for (const i of this.items) {
-      if (this._bestAskPrice <= i.lastPrice && i.isAskSideVisible) {
-        i.ask.calcHist(max.ask);
-        i.askDelta.calcHist(max.askDelta);
+      if (this._bestAskPrice <= i.lastPrice) {
+        if (i.isAskSideVisible) {
+          i.ask.calcHist(max.ask);
+          i.askDelta.calcHist(max.askDelta);
+          askSum += i.ask._value ?? 0;
+        }
         i.side = QuoteSide.Ask;
-      }
 
-      if (this._bestBidPrice >= i.lastPrice && i.isBidSideVisible) {
-        i.bid.calcHist(max.bid);
-        i.bidDelta.calcHist(max.bidDelta);
+        if (i.ask.visible && !askSumItem) {
+          askSumItem = this.items[i.index - 1];
+        }
+      }
+      if (this._bestBidPrice >= i.lastPrice) {
+        if (i.isBidSideVisible) {
+          i.bid.calcHist(max.bid);
+          i.bidDelta.calcHist(max.bidDelta);
+          bidSum += i.bid._value ?? 0;
+        }
         i.side = QuoteSide.Bid;
+
+        if (!i.bid.visible && !bidSumItem) {
+          bidSumItem = i;
+        }
       }
 
       i.changeBestStatus();
+    }
+
+    if (bidSumItem) {
+      bidSumItem.bid.updateValue(bidSum);
+      bidSumItem.bid.changeStatus(SumStatus);
+    }
+
+    if (askSumItem) {
+      askSumItem.ask.updateValue(askSum);
+      askSumItem.ask.changeStatus(SumStatus);
     }
   }
 
@@ -1337,7 +1511,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   transformLabel(label: string) {
     const replacer = '*';
-    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settings.general;
+    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
     if (hideAccountName) {
 
       if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
@@ -1439,7 +1613,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: {settings: this._settings, componentInstanceId: this.componentInstanceId},
+        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
       },
       closeBtn: true,
       single: true,
@@ -1460,9 +1634,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const form = this._domForm.getDto();
-    const {exchange, symbol} = this.instrument;
+    const { exchange, symbol } = this.instrument;
     // #TODO need test
-    const priceSpecs = this._getPriceSpecs({...form, side}, price);
+    const priceSpecs = this._getPriceSpecs({ ...form, side }, price);
     this._ordersRepository.createItem({
       ...form,
       ...priceSpecs,
@@ -1490,17 +1664,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _addOcoOrder(side, item: DomItem) {
     if (!this.buyOcoOrder && side === OrderSide.Buy) {
       item.createOcoOrder(side, this._domForm.getDto());
-      const order = {...this._domForm.getDto(), side};
+      const order = { ...this._domForm.getDto(), side };
       const specs = this._getPriceSpecs(order, +item.price.value);
 
-      this.buyOcoOrder = {...order, ...specs};
+      this.buyOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
     if (!this.sellOcoOrder && side === OrderSide.Sell) {
       item.createOcoOrder(side, this._domForm.getDto());
-      const order = {...this._domForm.getDto(), side};
+      const order = { ...this._domForm.getDto(), side };
       const specs = this._getPriceSpecs(order, +item.price.value);
-      this.sellOcoOrder = {...order, ...specs};
+      this.sellOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
   }
@@ -1514,7 +1688,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       priceSpecs.stopPrice = price;
     }
     if (item.type === OrderType.StopLimit) {
-      const offset = this.tickSize * item.amount;
+      const offset = this._tickSize * item.amount;
       priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
     }
     return priceSpecs;
@@ -1584,7 +1758,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _createMarketOrder() {
     const data = this._domForm.getDto();
-    const {exchange, symbol} = this.instrument;
+    const { exchange, symbol } = this.instrument;
     // #TODO investigate what side of order should be added.
     this._ordersRepository.createItem({
       ...data,
@@ -1596,8 +1770,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .then(() => {
         this.notifier.showSuccess('Order Created');
       }).catch((err) => {
-      this.notifier.showError(err);
-    });
+        this.notifier.showError(err);
+      });
   }
 
   private _closePositions() {
@@ -1628,12 +1802,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _normalizePrice(price) {
-    const tickSize = this.tickSize;
+    const tickSize = this._tickSize;
     return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
   }
 
   private _handleQuantitySelect(position: number): void {
     this._domForm.selectQuantityByPosition(position);
+  }
+
+  private _getNavbarTitle(): string {
+    if (this.instrument) {
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
+    }
   }
 
   ngOnDestroy() {
@@ -1661,3 +1841,26 @@ export function sum(num1, num2, step = 1) {
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
 }
 
+function extractStyles(settings: any, status: string) {
+  const obj = {};
+
+  for (const key in settings) {
+    if (!key.includes(status))
+      continue;
+
+    const newKey = key.replace(status, '');
+    if (isStartFromUpperCase(newKey)) {// for example BackgroundColor, Color
+      obj[newKey] = settings[key];
+    }
+  }
+
+  return obj;
+}
+
+function isStartFromUpperCase(key) {
+  return /[A-Z]/.test((key ?? '')[0]);
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

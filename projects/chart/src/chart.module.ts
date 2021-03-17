@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AccountSelectModule } from 'account-select';
 import { InstrumentSelectModule } from 'instrument-select';
 import { LazyAssetsModule } from 'lazy-assets';
@@ -9,8 +9,9 @@ import {
   NzAutocompleteModule,
   NzButtonModule,
   NzDropDownModule,
+  NzFormModule,
   NzIconModule,
-  NzInputModule,
+  NzInputModule, NzInputNumberModule,
   NzSelectModule,
   NzSwitchModule, NzToolTipModule
 } from 'ng-zorro-antd';
@@ -20,6 +21,8 @@ import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
+import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IndicatorsComponent } from './indicators/indicators.component';
 import { DynamicFormModule } from "dynamic-form";
 import { ScrollingModule } from "@angular/cdk/scrolling";
@@ -38,6 +41,7 @@ import { IndicatorListComponent } from './indicators/indicator-list/indicator-li
     NzButtonModule,
     NzIconModule,
     OrderFormModule,
+    NzModalModule,
     InstrumentSelectModule,
     WindowHeaderModule,
     AccountSelectModule,
@@ -68,6 +72,9 @@ import { IndicatorListComponent } from './indicators/indicator-list/indicator-li
         }
       ]
     }),
+    NzFormModule,
+    ReactiveFormsModule,
+    NzInputNumberModule,
     DynamicFormModule,
     ScrollingModule,
     NzSwitchModule,
@@ -80,6 +87,7 @@ import { IndicatorListComponent } from './indicators/indicator-list/indicator-li
     ChartComponent,
     ToolbarComponent,
     WindowToolbarComponent,
+    ModalOrderComponent,
     IndicatorsComponent,
     IndicatorListComponent,
   ],

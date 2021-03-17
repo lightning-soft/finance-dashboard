@@ -61,7 +61,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
         .pipe(untilDestroyed(this))
         .subscribe(
           (_instrument: IInstrument) => {
-            Object.assign(instrument, _instrument, { _loaded: true })
+            Object.assign(instrument, _instrument, { _loaded: true, tickSize: _instrument.increment });
             this.instrumentChange.emit(instrument);
             hide();
           },

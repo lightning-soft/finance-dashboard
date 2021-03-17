@@ -37,6 +37,16 @@ export enum CellStatus {
 }
 
 export abstract class Cell implements ICell {
+  static mergeStatuses(prefix: string, status: string) {
+    return [prefix, status]
+      .filter(Boolean)
+      // .map((item, i) => i > 0 ? capitalizeFirstLetter(item) : item)
+      .join('');
+  }
+
+  protected _statses: string[];
+  protected _statusPrefix: string;
+
   name: string = '';
   value = '';
   class = '';
@@ -81,7 +91,24 @@ export abstract class Cell implements ICell {
 
   abstract updateValue(...args: any[]);
 
+  setStatusPrefix(prefix: string) {
+    if (prefix == this._statusPrefix)
+      return;
+
+    const status = this.status.replace(this._statusPrefix, '');
+    this._statusPrefix = prefix;
+
+    this.changeStatus(status);
+    this.drawed = false;
+  }
+
+  protected _getStatus(status) {
+    return Cell.mergeStatuses(this._statusPrefix, status);
+  }
+
   changeStatus(status: string) {
+    status = this._getStatus(status);
+
     if (status == this.status)
       return;
 
@@ -92,6 +119,7 @@ export abstract class Cell implements ICell {
 
   revertStatus() {
     this.status = this._prevStatus;
+    this.drawed = false;
   }
 
   dehightlight() {

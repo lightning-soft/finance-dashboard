@@ -3,6 +3,12 @@
     top: 200px;
   }
 
+  .ant-modal .ant-modal-content .ant-modal-body {
+    background: $light;
+    min-width: 1px;
+    padding: 16px;
+  }
+
   .ant-modal-content {
     // padding: 20px 24px;
     background: $light;
@@ -18,7 +24,8 @@
     margin: 0 !important;
     text-align: center;
     color: $white;
-    font-size: 1.2rem;
+    font-size: 0.85rem;
+    line-height: 1.3rem;
     font-weight: 600;
     letter-spacing: 1px;
   }
@@ -29,7 +36,17 @@
     white-space: nowrap;
 
     .ant-btn {
-      width: 120px;
+      width: 92px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      height: 22px;
+      line-height: 1;
+      color: white;
+
+      &:first-child {
+        background: $inputBackground;
+        border: 1px solid $primary;
+      }
 
       & + .ant-btn {
         margin-left: 12px;

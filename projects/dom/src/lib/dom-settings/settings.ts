@@ -27,12 +27,12 @@ export class DomSettings {
     closeOutstandingOrders: false,
     commonView: {
       autoCenterTicks: 10,
-      ticksPerPrice: 0.25,
+      ticksMultiplier: 2,
       onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
       centerLine: true,
-      useCustomTickSize: true,
+      useCustomTickSize: false,
     },
     marketDepth: {
       bidAskDeltaDepth: 9,
@@ -104,7 +104,7 @@ export class DomSettings {
     // currentTradesAtAsk: true,
     // currentTradesAtBid: true,
     ltq: true,
-    // mergeDelta: true,
+    delta: true,
     notes: true,
     orders: true,
     price: true,
@@ -154,14 +154,14 @@ export class DomSettings {
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightBackgroundColor: 'rgba(72,149,245,0,3)',
+    highlightBackgroundColor: '#2b486e',
     color: 'white',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     textAlign: TextAlign.Center,
-    highlightBackgroundColor: 'rgba(201, 59, 59, 0.2)',
+    highlightBackgroundColor: '#682a2d',
     color: '#ffffff',
   };
   bid: any = {
@@ -190,30 +190,6 @@ export class DomSettings {
     // totalFontColor: 'rgba(255, 255, 0, 1)',
     clearInterval: DefaultClearInterval,
   };
-  // bidDepth: any = {
-  //   backgroundColor: 'rgba(201, 59, 59, 0.3)',
-  //   histogramColor: 'rgba(72, 149, 245, 0.2)',
-  //   highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
-  //   textAlign: TextAlign.Center,
-  //   histogramOrientation: HistogramOrientation.Left,
-  //   color: '#ffffff',
-  //   largeSize: 14,
-  //   highlightLarge: false,
-  //   histogramEnabled: true,
-  //   // totalFontColor: 'rgba(255, 255, 0, 1)',
-  // };
-  // askDepth: any = {
-  //   backgroundColor: 'rgba(72, 149, 245, 0.2)',
-  //   histogramColor: 'rgba(201, 59, 59, 0.2)',
-  //   highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-  //   textAlign: TextAlign.Center,
-  //   histogramOrientation: HistogramOrientation.Left,
-  //   color: '#ffffff',
-  //   largeSize: 14,
-  //   highlightLarge: false,
-  //   histogramEnabled: true,
-  //   // totalFontColor: 'rgba(255, 255, 0, 1)',
-  // };
   totalAsk: any = {
     histogramColor: 'rgba(72, 149, 245, 0.3)',
     textAlign: TextAlign.Right,
@@ -253,8 +229,8 @@ export class DomSettings {
   orders: any = {
     backgroundColor: 'rgba(0, 44, 55, 1)',
     textAlign: TextAlign.Center,
-    'break-evenBackground': 'rgba(0, 44, 55, 1)',
-    'break-evenForeground': 'rgba(255, 255, 255, 1)',
+    // 'break-evenBackground': 'rgba(0, 44, 55, 1)',
+    // 'break-evenForeground': 'rgba(255, 255, 255, 1)',
     buyOrderBackgroundColor: 'rgba(22, 140, 213, 1)',
     buyOrderColor: 'rgba(242, 242, 242, 1)',
     // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
@@ -265,6 +241,8 @@ export class DomSettings {
     lossColor: 'rgba(201, 59, 59, 1)',
     sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
     sellOrderColor: 'rgba(255, 255, 255, 1)',
+    sellOrdersBackgroundColor: 'rgba(255, 255, 255, 0.5)',
+    buyOrdersBackgroundColor: 'rgba(22, 140, 213, 0.5)',
     // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
     showPnl: false,
     split: false,
@@ -321,6 +299,11 @@ export class DomSettings {
     level8BackgroundColor: 'rgba(1, 46, 63, 1)',
     textAlign: TextAlign.Center,
   };
+
+  delta: any;
+  sellOrders: any;
+  buyOrders: any;
+
 
   static fromJson(json: any): DomSettings {
     const settings = new DomSettings();

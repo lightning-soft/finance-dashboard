@@ -2,8 +2,7 @@
 @import "../themes/index";
 
 :host {
-  margin: 0 16px;
-  flex-grow: 1;
+  margin: 0 8px 0 16px;
   background-color: transparent !important;
 
   .frames-manager {
@@ -87,33 +86,52 @@
 }
 
 .windows-list {
+  min-width: 100px;
   position: absolute;
-  right: 0;
-  width: 40px;
-  padding: 4px 0 0 0;
+  left: -10px;
+  padding: 4px;
   border-radius: 2px;
   z-index: 41;
   transition: transform 0.3s ease-out;
-  background-color: $lightBackground !important;
-}
-
-.windows-list {
+  background-color: $tabFrameColor;
 
   &__item {
-    width: 32px;
-    height: 32px;
-    margin: 0 auto 4px;
-    padding: 0;
-    display: list-item;
-    font-size: 10px;
-    text-align: center;
-    line-height: 32px;
+    width: auto;
+    padding: 2px 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
     border-radius: 2px;
-    background-color: $tabFrameColor !important;
+
+    &.minimized {
+      .title {
+        color: $textColorSecondary;
+      }
+    }
 
     &:hover {
-      color: $titleColor !important;
-      background-color: $bodyBackground !important;
+      background-color: $lighter;
+    }
+
+    .title {
+      color: $titleColor;
+    }
+
+    .icon-close-window {
+      font-size: 8px;
+      margin-left: 10px;
+
+      &:hover {
+        color: $titleColor;
+      }
     }
   }
+}
+
+.highlight-area {
+  position: fixed;
+  z-index: 1000;
+  background: rgba(72, 149, 245, 0.1);
+  border: 1px solid $risingColor;
 }

@@ -5,7 +5,10 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
 
-const Levels = 9;
+const LevelsCount = 9;
+export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
+export const TailInside = 'tailInside';
+
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
@@ -14,9 +17,14 @@ class OrdersCell extends HistogramCell {
   private _text: string;
 
   orderStyle: 'ask' | 'bid' | 'oco';
+  side: QuoteSide;
+  pl: any;
 
   get canCancelOrder() {
-    return (!this._order || (this.settings as any).overlayOrders == false)
+    if (!this._order)
+      return false;
+
+    return this._isOrderColumn || (this.settings as any).overlayOrders == false;
   }
 
   private _isOrderColumn = false;
@@ -25,6 +33,8 @@ class OrdersCell extends HistogramCell {
     super(config);
     this._isOrderColumn = config.isOrderColumn === true;
     this.strategy = config.strategy ?? AddClassStrategy.NONE;
+    this.side = config.side;
+    this.orderStyle = config.side.toLowerCase();
   }
 
   addOcoOrder(ocoOrder) {
@@ -42,6 +52,11 @@ class OrdersCell extends HistogramCell {
   }
 
   addOrder(order: IOrder) {
+    if (!order
+      || this.side === QuoteSide.Ask && order.side !== OrderSide.Sell
+      || this.side === QuoteSide.Bid && order.side !== OrderSide.Buy)
+      return;
+
     const index = this.orders.findIndex(i => i.id === order.id);
 
     if (index !== -1)
@@ -126,8 +141,8 @@ class OrdersCell extends HistogramCell {
         ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
         break;
       case 'bid':
-        ctx.fillStyle = settings.buyBackgroundColor ?? 'rgba(72,149,245,0.5)';
-        ctx.strokeStyle = settings.buyOrdersColumn ?? '#4895f5';
+        ctx.fillStyle = settings.buyOrderBackgroundColor ?? 'rgba(72,149,245,0.5)';
+        ctx.strokeStyle = settings.buyOrderColor ?? '#4895f5';
         break;
       case 'oco':
         ctx.fillStyle = 'rgba(190,60,177, 0.5)';
@@ -180,12 +195,13 @@ class LtqCell extends HistogramCell {
       return super.updateValue(value);
   }
 }
-class CompositeCell extends Cell {
+
+abstract class CompositeCell<T extends Cell> extends Cell {
   name: string;
   value: string;
 
   get drawed(): boolean {
-    return this._getItem().drawed
+    return this._getCell().drawed;
   }
 
   set drawed(value: boolean) {
@@ -193,7 +209,8 @@ class CompositeCell extends Cell {
   }
 
   get status(): string {
-    return this._getItem().status;
+    const prefix = this._item.side === QuoteSide.Ask ? 'askDelta' : 'bidDelta';
+    return Cell.mergeStatuses(prefix, this._getCell().status);
   }
 
   set status(value: string) {
@@ -201,10 +218,10 @@ class CompositeCell extends Cell {
   }
 
   get visible(): boolean {
-    return this._getItem().visible;
+    return this._getCell().visible;
   }
 
-  constructor(private _getItem: () => Cell) {
+  constructor(protected _item: DomItem) {
     super();
   }
 
@@ -213,12 +230,81 @@ class CompositeCell extends Cell {
   }
 
   toString(): string {
-    return this._getItem().toString();
+    return this._getCell().toString();
   }
 
+  protected abstract _getCell(): T;
+}
+class DeltaCell extends CompositeCell<OrdersCell> {
+  protected _getCell(): OrdersCell {
+    const item = this._item;
+    return item.side === QuoteSide.Ask ? item.askDelta : item.bidDelta;
+  }
+
+  draw(context) {
+    return this._getCell().draw(context);
+  }
+}
+
+class AllOrdersCell extends CompositeCell<OrdersCell> {
+  get orders() {
+    return [
+      ...(this._item.sellOrders.orders ?? []),
+      ...(this._item.buyOrders.orders ?? []),
+    ];
+  }
+
+  get canCancelOrder() {
+    return this._item.sellOrders.canCancelOrder || this._item.buyOrders.canCancelOrder;
+  }
+
+  addOcoOrder(ocoOrder) {
+    this._item.sellOrders.addOrder(ocoOrder);
+    this._item.buyOrders.addOrder(ocoOrder);
+  }
+
+  clearOcoOrder() {
+    this._item.sellOrders.clearOcoOrder();
+    this._item.buyOrders.clearOcoOrder();
+  }
+
+  addOrder(order: IOrder) {
+    this._item.sellOrders.addOrder(order);
+    this._item.buyOrders.addOrder(order);
+  }
+
+  clearOrder() {
+    this._item.sellOrders.clearOrder();
+    this._item.buyOrders.clearOrder();
+  }
+
+  removeOrder(order) {
+    this._item.sellOrders.removeOrder(order);
+    this._item.buyOrders.removeOrder(order);
+  }
+
+  setPL(pl: number) {
+    this._item.sellOrders.setPL(pl);
+    this._item.buyOrders.setPL(pl);
+  }
+
+  clearPL() {
+    this._item.sellOrders.clearPL();
+    this._item.buyOrders.clearPL();
+  }
+
+  draw(context) {
+    return this._item.sellOrders.draw(context) || this._item.buyOrders.draw(context);
+  }
+
+  protected _getCell(): OrdersCell {
+    const item = this._item;
+    return item.sellOrders.orders.length ? item.sellOrders : item.buyOrders;
+  }
 }
 
 class LevelCell extends HistogramCell {
+
   private _levelTime: number;
   best: QuoteSide = null;
 
@@ -227,14 +313,17 @@ class LevelCell extends HistogramCell {
     const result = this.updateValue(forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0))
       ? (this._value || 0) + value : value, timestamp);
 
-    if (result)
+    if (result && (this.settings as any).momentumTails)
       this._levelTime = Date.now();
 
-    if (this.best != null) {
-      this.changeStatus('tailInside');
-    }
+    this.setStatusPrefix(this.best != null ? TailInside : '');
 
     return result;
+  }
+
+  changeStatus(s) {
+    super.changeStatus(s);
+    console.log('changeStatus', s, this.status);
   }
 
   // return if no levels more, performance improvments
@@ -246,9 +335,9 @@ class LevelCell extends HistogramCell {
 
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
-      if (level <= Levels) {
+      if (level <= LevelsCount) {
         this.changeStatus(`level${level}`);
-      } else if (level >= Levels + 1) {
+      } else if (level >= LevelsCount + 1) {
         this.changeStatus('');
         this._levelTime = null;
       }
@@ -269,8 +358,29 @@ class LevelCell extends HistogramCell {
 
       if (Date.now() >= (this.time + ((this.settings as any).clearTradersTimer || 0)))
         this.clear();
-    } else if (this.status == `inside` || this.status == `tailInside`) {
+    } else if (this.status.includes(`inside`) || this.status.includes(TailInside)) {
       this.changeStatus('');
+      this.setStatusPrefix('');
+    }
+  }
+}
+
+export const SumStatus = 'sum';
+
+class SumHistogramCell extends HistogramCell {
+  changeStatus(status: string) {
+    super.changeStatus(status);
+    if (status == SumStatus) {
+      this.visible = true;
+      this.hist = null;
+    }
+  }
+
+  calcHist(value: number) {
+    if (status == SumStatus) {
+      this.hist = 0;
+    } else {
+      super.calcHist(value);
     }
   }
 }
@@ -287,14 +397,10 @@ export class DomItem implements IBaseItem {
     return this.price._value;
   }
 
-  bidDeltaV: CompositeCell;
-  // get bidDeltaV() {
-  //   return this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta;
-  // }
-
   _id: Cell = new NumberCell();
   price: PriceCell;
-  orders: OrdersCell;
+  sellOrders: OrdersCell;
+  buyOrders: OrdersCell;
   ltq: LtqCell;
   bid: HistogramCell;
   ask: HistogramCell;
@@ -302,13 +408,12 @@ export class DomItem implements IBaseItem {
   currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
-  tradeColumn: Cell = new DataCell();
   volume: HistogramCell;
   askDelta: OrdersCell;
   bidDelta: OrdersCell;
-  askDepth: Cell = new DataCell();
-  bidDepth: Cell = new DataCell();
   notes: Cell = new DataCell();
+  delta: DeltaCell;
+  orders: AllOrdersCell;
 
   private _bid = 0;
   private _ask = 0;
@@ -321,34 +426,65 @@ export class DomItem implements IBaseItem {
     return (this.ask.visible || this.askDelta.visible);
   }
 
-  constructor(index, settings: DomSettings, _priceFormatter: IFormatter) {
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
       settings: settings.price
     });
-    this.bid = new HistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
-    this.ask = new HistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
+    this.bid = new SumHistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false });
+    this.ask = new SumHistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
     this.volume = new TotalCell({ settings: settings.volume });
-    this.askDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.askDelta, hightlightOnChange: false });
-    this.bidDelta = new OrdersCell({ strategy: AddClassStrategy.NONE, ignoreZero: false, settings: settings.bidDelta, hightlightOnChange: false });
+    this.askDelta = new OrdersCell({
+      strategy: AddClassStrategy.NONE,
+      ignoreZero: false,
+      settings: settings.askDelta,
+      hightlightOnChange: false,
+      side: QuoteSide.Ask,
+    });
+    this.bidDelta = new OrdersCell({
+      strategy: AddClassStrategy.NONE,
+      ignoreZero: false,
+      settings: settings.bidDelta,
+      hightlightOnChange: false,
+      side: QuoteSide.Bid,
+    });
     this.ltq = new LtqCell({ strategy: AddClassStrategy.NONE, settings: settings.ltq });
-    this.bidDeltaV = new CompositeCell(() => this.side == QuoteSide.Ask ? this.askDelta : this.bidDelta);
-    this.orders = new OrdersCell({
+    this.delta = new DeltaCell(this);
+    this.orders = new AllOrdersCell(this);
+    this.buyOrders = new OrdersCell({
       isOrderColumn: true,
       settings: settings.orders,
       strategy: AddClassStrategy.RELATIVE_ZERO,
       ignoreZero: false,
-      formatter: _priceFormatter
+      formatter: _priceFormatter,
+      side: QuoteSide.Bid,
+    });
+    this.sellOrders = new OrdersCell({
+      isOrderColumn: true,
+      settings: settings.orders,
+      strategy: AddClassStrategy.RELATIVE_ZERO,
+      ignoreZero: false,
+      formatter: _priceFormatter,
+      side: QuoteSide.Ask,
     });
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
+    if (state) {
+      for (const key in state) {
+        if (!this[key] || !this[key].updateValue)
+          continue;
+
+        this[key].updateValue(state[key]);
+      }
+    }
+    this.dehighlight('all');
   }
 
   clearAskDelta() {
@@ -364,10 +500,12 @@ export class DomItem implements IBaseItem {
   clearLTQ() {
     this.ltq.changeStatus('');
     this.ltq.clear();
+    this._updatePriceStatus();
   }
 
   setPrice(price) {
     this.price.updateValue(price);
+    this.price.dehightlight();
   }
 
   handleTrade(trade: TradePrint) {
@@ -461,7 +599,15 @@ export class DomItem implements IBaseItem {
     return this._getBidValues();
   }
 
+  changePriceStatus(status: string) {
+    if (this.price.status == CellStatus.Highlight)
+      return;
+
+    this.price.changeStatus(status);
+  }
+
   private _updatePriceStatus() {
+    console.log('_updatePriceStatus', this.index)
     if (this.ltq._value > 0) {
       this.price.hightlight();
       this.orders.hightlight();
@@ -478,12 +624,30 @@ export class DomItem implements IBaseItem {
       this.volume.updateValue(volume);
       this._updatePriceStatus();
 
-      this.setPrice(this.price._value);
-
       return true;
     }
 
     return false;
+  }
+
+  getSnapshot() {
+    return {
+      [this.price._value]: {
+        price: this.price._value,
+        sellOrders: this.sellOrders._value,
+        buyOrders: this.buyOrders._value,
+        ltq: this.ltq._value,
+        bid: this.bid._value,
+        ask: this.ask._value,
+        currentAsk: this.currentAsk._value,
+        currentBid: this.currentBid._value,
+        totalAsk: this.totalAsk._value,
+        totalBid: this.totalBid._value,
+        volume: this.volume._value,
+        askDelta: this.askDelta._value,
+        bidDelta: this.bidDelta._value,
+      }
+    };
   }
 
   removeOrder(order: IOrder) {
@@ -587,15 +751,15 @@ export class DomItem implements IBaseItem {
         this.orders.addOrder(order);
         this.notes.updateValue(order.description);
 
-        if (order.side === OrderSide.Sell) {
-          this.askDelta.orderStyle = 'ask';
-          this.orders.orderStyle = 'ask';
-          this.askDelta.addOrder(order);
-        } else {
-          this.bidDelta.orderStyle = 'bid';
-          this.orders.orderStyle = 'bid';
-          this.bidDelta.addOrder(order);
-        }
+        // if (order.side === OrderSide.Sell) {
+        // this.askDelta.orderStyle = 'ask';
+        // this.orders.orderStyle = 'ask';
+        this.askDelta.addOrder(order);
+        // } else {
+        // this.bidDelta.orderStyle = 'bid';
+        // this.orders.orderStyle = 'bid';
+        this.bidDelta.addOrder(order);
+        // }
         break;
     }
   }
@@ -632,7 +796,6 @@ export class DomItem implements IBaseItem {
   setVolume(volume: number) {
     this.volume.updateValue(volume);
     this.volume.dehightlight();
-    this._updatePriceStatus();
     return { volume: this.volume._value };
   }
 
@@ -649,5 +812,20 @@ export class DomItem implements IBaseItem {
 
   setPL(pl: number) {
     this.orders.setPL(pl);
+  }
+}
+
+export class CustomDomItem extends DomItem {
+  private _values = {};
+
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: any) {
+    super(index, settings, _priceFormatter);
+    this._values = {};
+
+    this._values = snapshot;
+  }
+
+  getSnapshot() {
+    return this._values;
   }
 }

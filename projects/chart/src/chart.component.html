@@ -11,18 +11,30 @@
   <app-window-toolbar class="wm-draggable"></app-window-toolbar>
 </window-header>
 <div class="component-container">
-  <div class="chart-container">
-    <app-toolbar [layout]="layout" [chart]="chart" [link]="link"></app-toolbar>
+  <div [class.hide-oclc]="!showOHLC"
+       [class.hide-changes]="!showChanges"
+       class="chart-container">
+    <app-toolbar  [layout]="layout"  [chart]="chart"></app-toolbar>
     <div class="chart" #chartContainer></div>
     <div *ngIf="enableOrderForm"
-    (click)="showOrderForm = !showOrderForm"
-    class="icon-container">
+         (click)="showOrderForm = !showOrderForm"
+         class="icon-container">
       <i [class.icon-arrow-left]="!showOrderForm"
          [class.icon-arrow-right]="showOrderForm"></i>
     </div>
   </div>
 
   <order-form *ngIf="enableOrderForm"
-    [class.disappearing]="!showOrderForm"
-    [instrument]="instrument"></order-form>
+              [class.disappearing]="!showOrderForm"
+              [instrument]="instrument"></order-form>
 </div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul class="chart-menu-dropdown" nz-menu>
+    <li (click)="showOHLC = !showOHLC" nz-menu-item>{{showOHLC ? 'Hide' : 'Show'}} OHLC</li>
+    <li (click)="showChanges = !showChanges" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
+  <!--  <li nz-menu-divider></li>
+    <li nz-menu-item>Reset PB</li>
+    <li nz-menu-divider></li>
+    <li nz-menu-item>Settings</li>-->
+  </ul>
+</nz-dropdown-menu>

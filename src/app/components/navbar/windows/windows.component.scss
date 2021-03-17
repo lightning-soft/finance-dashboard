@@ -1,0 +1,79 @@
+@import "../base-workspace";
+
+:host ::ng-deep {
+  nz-select {
+    width: 100px;
+    height: 28px;
+    background: $inputBackground;
+
+    nz-select-top-control {
+      background: $inputBackground !important;
+      height: 100% !important;
+      display: flex !important;
+      align-items: center;
+    }
+  }
+}
+
+.workspace {
+  padding: 0;
+}
+
+.ant-divider-horizontal {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.add-window {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  margin-left: 3px;
+  margin-right: 3px;
+  height: 23px;
+  cursor: pointer;
+  margin-top: 4px;
+  border-radius: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+  transition: all 0.3s;
+
+  i {
+    font-size: 10px;
+    margin-right: 4px;
+  }
+
+  &:hover {
+    background: $lighter;
+  }
+}
+
+::ng-deep {
+  .window-dropdown-menu {
+    min-width: 216px;
+
+    .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+      background: transparent;
+    }
+
+    nz-option-item {
+      &:hover {
+        background: $lighter !important;
+      }
+    }
+
+    cdk-virtual-scroll-viewport {
+      // min-height: 52px;
+    }
+  }
+}
+
+.workspace {
+  &:hover {
+    background-color: transparent;
+
+    .actions {
+      background: transparent;
+    }
+  }
+}

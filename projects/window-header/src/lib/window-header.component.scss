@@ -4,6 +4,10 @@
   display: flex;
   justify-content: space-between;
 
+  .title {
+    font-size: 0.85rem;
+  }
+
   ::ng-deep {
     nz-select-item, nz-select-placeholder {
       font-weight: 600;

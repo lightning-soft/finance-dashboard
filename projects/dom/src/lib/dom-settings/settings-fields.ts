@@ -33,8 +33,8 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [{ label: 'Open Sans', value: 'Open Sans' },
-            { label: 'Monospace', value: 'monospace' },
-            { label: 'Sans Serif', value: 'sans-serif' }],
+          { label: 'Monospace', value: 'monospace' },
+          { label: 'Sans Serif', value: 'sans-serif' }],
         },
         key: 'fontFamily',
         getCss: (value) => {
@@ -85,12 +85,12 @@ export const commonFields: IFieldConfig[] = [
         ...getCheckboxes(
           {
             checkboxes: [
-              { key: 'notes', label: 'Notes' },
+              // { key: 'notes', label: 'Notes' },
               { label: 'Bid Delta', key: 'bidDelta' },
               { label: 'Total At Bid', key: 'totalBid' },
               { label: 'Ask Delta', key: 'askDelta' },
               { label: 'Total At Ask', key: 'totalAsk' },
-              // { label: 'Merge Bid/Ask Delta', key: 'mergeDelta' },
+              { label: 'Merge Bid/Ask Delta', key: 'delta' },
               { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
               { label: 'Volume Profile', key: 'volume' },
               { label: 'Orders', key: 'orders' },
@@ -173,7 +173,7 @@ export const generalFields: IFieldConfig[] = [
           { label: 'Hide From Right', key: 'hideFromRight' },
 
         ], label: 'Account Name', additionalFields: [{
-          templateOptions: {   min: 0, label: 'Account Digits To Hide' },
+          templateOptions: { min: 0, label: 'Account Digits To Hide' },
           key: 'digitsToHide',
           type: FieldType.Number,
         }]
@@ -221,15 +221,15 @@ export const generalFields: IFieldConfig[] = [
           }),
           {
             templateOptions: {
-              min: 0,
-              step: 0.25,
-              label: 'Ticks per price'
+              min: 1,
+              step: 1,
+              label: 'Levels per ticks'
             },
             expressionProperties: {
               'templateOptions.disabled': '!model.useCustomTickSize',
             },
             className: 'ticks-per-price',
-            key: 'ticksPerPrice',
+            key: 'ticksMultiplier',
             type: FieldType.Number,
           },
         ]
@@ -255,14 +255,14 @@ export const generalFields: IFieldConfig[] = [
             key: 'bidAskDeltaDepth',
             type: FieldType.Number,
           },
-          {
-            key: 'showDepthHistory',
-            type: FieldType.Checkbox,
-            name: 'alwaysOnTop',
-            templateOptions: {
-              label: 'Show Depth History'
-            },
-          },
+          // {
+          //   key: 'showDepthHistory',
+          //   type: FieldType.Checkbox,
+          //   name: 'alwaysOnTop',
+          //   templateOptions: {
+          //     label: 'Show Depth History'
+          //   },
+          // },
         ]
       }),
       new FieldConfig({
@@ -321,15 +321,15 @@ export const ltqFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-          fieldGroup: [
-            getFontColor(),
-            getColor('Sell Background Color'),
-            getColor('Background Color'),
-            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
-            //  getHistogramColor(),
-            getColor('Buy Background Color'),
-          ]
-        },
+        fieldGroup: [
+          getFontColor(),
+          getColor('Sell Background Color'),
+          getColor('Background Color'),
+          getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+          //  getHistogramColor(),
+          getColor('Buy Background Color'),
+        ]
+      },
       ),
       {
         fieldGroupClassName: 'd-flex flex-wrap two-rows',
@@ -417,13 +417,12 @@ export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Price',
     fieldGroup: [
-      getHightlightColor(),
       getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
       getColor({ label: 'Last Traded Price Font Color', key: 'highlightColor' }),
       getColor({ label: 'Non Traded Price Back Color', key: 'backgroundColor' }),
       getColor({ label: 'Non Traded Price Font Color', key: 'color' }),
       getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
-      getColor({ label: 'Price Font Color', key: 'color' }),
+      getColor({ label: 'Traded Price Font Color', key: 'tradedPriceColor' }),
       wrapWithClass(getTextAlign(), 'mt-2'),
     ]
   }),
@@ -488,8 +487,8 @@ function getDepthConfig(label: string) {
         }),
         className: 'w-100',
       },
-    /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
-      getTextAlign(),*/
+      /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
+        getTextAlign(),*/
       getHistogramOrientation(),
       getNumber({ key: 'largeSize', label: `Large ${label} Size` }),
       getTextAlign(),
@@ -589,8 +588,10 @@ export const orderColumnFields: IFieldConfig[] = [
       new FieldConfig({
         fieldGroup: [
           {
-            ...getCheckboxes({checkboxes: [{ key: 'showPnl', label: 'Show PnL in Column' },
-              { key: 'includePnl', label: 'Include Closed PnL' }]}),
+            ...getCheckboxes({
+              checkboxes: [{ key: 'showPnl', label: 'Show PnL in Column' },
+              { key: 'includePnl', label: 'Include Closed PnL' }]
+            }),
             fieldGroupClassName: '',
             className: 'pl-1',
           },
@@ -604,8 +605,8 @@ export const orderColumnFields: IFieldConfig[] = [
           getColor({ label: 'In Profit Foreground', key: 'inProfitColor' }),
           getColor({ label: 'Loss Background', key: 'lossBackgroundColor' }),
           getColor({ label: 'Loss Foreground', key: 'lossColor' }),
-          getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
-          getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
+          // getColor({ label: 'Break-even Background', key: 'break-evenBackgroundColor' }),
+          // getColor({ label: 'Break-even Foreground', key: 'break-evenForegroundColor' }),
           {
             ...getCheckboxes({
               checkboxes: [
@@ -619,8 +620,9 @@ export const orderColumnFields: IFieldConfig[] = [
         ]
       }),
       new FieldConfig({
-        fieldGroup: [disableExpression(getColor('Buy Orders Column'), '!model.split'),
-          disableExpression(getColor('Sell Orders Column'), '!model.split')]
+        fieldGroup: [
+          disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
+          disableExpression(getColor({ label: 'Sell Orders Column', key: 'sellOrdersBackgroundColor' }), '!model.split')]
       })
     ]
   }),
@@ -649,7 +651,7 @@ function getCurrentFields(suffix: string) {
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
             .map(i => getColor({ label: `Level ${i}`, key: `level${i}BackgroundColor` })),
-        }), {key: null}),
+        }), { key: null }),
         new FieldConfig({
           fieldGroupClassName: 'current-level',
           className: 'current-level-item',
@@ -668,11 +670,11 @@ function getCurrentFields(suffix: string) {
             fieldGroup: [
               getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
               wrapWithClass(getCheckboxes({
-                  checkboxes: [{
-                    key: `tailInsideBold`,
-                    label: `Tail Inside ${suffix} Bold`
-                  }]
-                }),
+                checkboxes: [{
+                  key: `tailInsideBold`,
+                  label: `Tail Inside ${suffix} Bold`
+                }]
+              }),
                 'd-block tail-checkbox'),
             ]
           }

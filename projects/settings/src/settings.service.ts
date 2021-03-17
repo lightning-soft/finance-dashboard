@@ -75,7 +75,7 @@ export class SettingsService {
     const { messageId } = this.messageService.loading('Saving', { nzDuration: 1000 });
     this._settingStore.setItem(this.settings.value).toPromise()
       .finally(() => {
-       // this.messageService.remove(messageId);
+        // this.messageService.remove(messageId);
       });
   }
 
@@ -85,6 +85,10 @@ export class SettingsService {
 
   saveWorkspaces(workspaces: Workspace[]) {
     this._updateState({ workspaces });
+  }
+
+  save(settings: object) {
+    this._updateState(settings);
   }
 
   private _updateState(settings: object, saveInStorage = true): void {

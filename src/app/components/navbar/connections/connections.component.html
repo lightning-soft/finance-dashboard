@@ -9,8 +9,9 @@
     *ngFor="let connection of items"
   >
     <div class="indicator mr-2" [ngClass]="{
-      'text-success': connection.connected,
-      'text-danger': connection.error
+      'success': connection.connected,
+      'error': connection.error,
+      'connecting': isLoading[connection.id]
     }"></div>
     <div
       [title]="connection.name"
@@ -59,9 +60,10 @@
                 'text-success': connection.connected,
                 'text-danger': connection.error
               }"></div>-->
-            <div [class.indicator-connect]="connection.connected"
-                 [class.indicator-error]="connection.error"
-                 class="menu-indicator mr-1"></div>
+            <div [class.success]="connection.connected"
+                 [class.error]="connection.error"
+                 [class.connecting]="isLoading[connection.id]"
+                 class="indicator menu-indicator"></div>
             <div>
               <span [title]="connection.name" class="dropdown-connection-name text-ellipsis">{{ connection.name }}</span>
               <div class="dropdown-connection-username">{{ connection.username }}</div>
