@@ -10,7 +10,6 @@ export type WindowTuple = [string, Set<IWindow>];
   styleUrls: ['./frames-manager.component.scss']
 })
 export class FramesManagerComponent {
-
   public highlightedWindow: IWindow;
   public windowTuples: WindowTuple[] = [
     [Components.Chart, new Set()],
