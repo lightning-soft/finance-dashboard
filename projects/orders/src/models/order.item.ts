@@ -26,6 +26,10 @@ export class OrderItem implements IViewItem<IOrder> {
     return this.order.id;
   }
 
+  get isSelected(): boolean {
+    return this.checkbox.checked;
+  }
+
   constructor(order: IOrder) {
     this.update(order);
   }
