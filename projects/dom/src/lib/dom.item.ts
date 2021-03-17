@@ -321,11 +321,6 @@ class LevelCell extends HistogramCell {
     return result;
   }
 
-  changeStatus(s) {
-    super.changeStatus(s);
-    console.log('changeStatus', s, this.status);
-  }
-
   // return if no levels more, performance improvments
   calculateLevel(): boolean {
     if (!this._levelTime)
@@ -476,6 +471,7 @@ export class DomItem implements IBaseItem {
     this._id.updateValue(index);
     this.setAskVisibility(true, true);
     this.setBidVisibility(true, true);
+
     if (state) {
       for (const key in state) {
         if (!this[key] || !this[key].updateValue)
@@ -545,8 +541,6 @@ export class DomItem implements IBaseItem {
   }
 
   handleQuote(data: IQuote) {
-    // if (data.volume == 0 && data.updateType == UpdateType.Undefined)
-    //   console.log('zeroooooooooooooooooooooooo', data.volume);
     if (data.side === QuoteSide.Ask)
       return this._handleAsk(data);
     else
@@ -607,7 +601,6 @@ export class DomItem implements IBaseItem {
   }
 
   private _updatePriceStatus() {
-    console.log('_updatePriceStatus', this.index)
     if (this.ltq._value > 0) {
       this.price.hightlight();
       this.orders.hightlight();
@@ -632,8 +625,8 @@ export class DomItem implements IBaseItem {
 
   getSnapshot() {
     return {
-      [this.price._value]: {
-        price: this.price._value,
+      [this.lastPrice]: {
+        price: this.lastPrice,
         sellOrders: this.sellOrders._value,
         buyOrders: this.buyOrders._value,
         ltq: this.ltq._value,
@@ -784,7 +777,6 @@ export class DomItem implements IBaseItem {
     if (key === 'all')
       return Object.keys(this).forEach(i => this.dehighlight(i));
 
-    // console.log(key);
     if (key == 'ltq')
       this._updatePriceStatus();
 
@@ -822,10 +814,80 @@ export class CustomDomItem extends DomItem {
     super(index, settings, _priceFormatter);
     this._values = {};
 
-    this._values = snapshot;
+    for (const key in snapshot) {
+      if (snapshot.hasOwnProperty(key))
+        this._values[key] = new DomItem(index, settings, _priceFormatter, snapshot[key]);
+    }
+
+    for (const price in snapshot) {
+      if (snapshot.hasOwnProperty(price)) {
+        const data = snapshot[price];
+        const ltq = this.ltq._value + data.ltq ?? 0;
+        const bid = this.bid._value + data.bid ?? 0;
+        const ask = this.ask._value + data.ask ?? 0;
+        const currentAsk = this.currentAsk._value + data.currentAsk ?? 0;
+        const currentBid = this.currentBid._value + data.currentBid ?? 0;
+        const totalAsk = this.totalAsk._value + data.totalAsk ?? 0;
+        const totalBid = this.totalBid._value + data.totalBid ?? 0;
+        const volume = this.volume._value + data.volume ?? 0;
+
+        this.ltq.updateValue(isNaN(ltq) ? 0 : ltq);
+        this.bid.updateValue(isNaN(bid) ? 0 : bid);
+        this.ask.updateValue(isNaN(ask) ? 0 : ask);
+        this.currentAsk.updateValue(isNaN(currentAsk) ? 0 : currentAsk);
+        this.currentBid.updateValue(isNaN(currentBid) ? 0 : currentBid);
+        this.totalAsk.updateValue(isNaN(totalAsk) ? 0 : totalAsk);
+        this.totalBid.updateValue(isNaN(totalBid) ? 0 : totalBid);
+        this.volume.updateValue(isNaN(volume) ? 0 : volume);
+      }
+    }
+
+    this.dehighlight('all');
+  }
+
+  handleTrade(trade: TradePrint) {
+    const item: DomItem = this._values[trade.price];
+    if (item)
+      item.handleTrade(trade);
+
+    super.handleTrade(trade);
+  }
+
+  handleQuote(data: IQuote) {
+
+    const item: DomItem = this._values[data.price];
+    let mergedData;
+
+    if (!item)
+      return;
+
+    if (data.side === QuoteSide.Ask) {
+      const ask = item?.ask?._value ?? 0;
+      mergedData = {
+        ...data,
+        volume: data.volume - ask + this.ask._value ?? 0,
+      };
+    } else {
+      const bid = item?.bid._value ?? 0;
+      mergedData = {
+        ...data,
+        volume: data.volume - bid + this.bid._value ?? 0,
+      };
+    }
+
+    item.handleQuote(data);
+
+    super.handleQuote(mergedData);
   }
 
   getSnapshot() {
-    return this._values;
+    let res = {};
+
+    for (const key in this._values) {
+      if (this._values.hasOwnProperty(key))
+        res = { ...res, ...this._values[key].getSnapshot() };
+    }
+
+    return res;
   }
 }
