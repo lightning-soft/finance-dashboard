@@ -45,7 +45,8 @@ export class FakeLevel1Datafeed extends DatafeedRepository<IQuote> {
                         price,
                         side,
                         updateType,
-                    }
+                        orderCount: 10
+                    } as any;
                 };
 
                 // quotes.push(updates);

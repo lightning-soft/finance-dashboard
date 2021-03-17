@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 
 @Component({
@@ -7,10 +7,14 @@ import { FieldType } from '@ngx-formly/core';
   styleUrls: ['./color-select.component.scss']
 })
 export class ColorSelectComponent extends FieldType {
-  updateValue(item, $event: string) {
-    item.value.color = $event;
-    if (this.formControl.value.type === item.value.type) {
-      this.formControl.patchValue(item.value);
-    }
+  compareItems(a, b) {
+    return a?.type === b?.type;
+  }
+
+  updateValue($event: string) {
+    this.formControl.setValue({
+      type: this.formControl.value.type,
+      value: $event,
+    });
   }
 }
