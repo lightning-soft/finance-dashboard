@@ -420,7 +420,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ];
 
     if (!environment.production) {
-      // this.columns.unshift(convertToColumn('_id'));
+      this.columns.unshift(convertToColumn('_id'));
     }
   }
 
@@ -919,9 +919,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._handleResize();
   }
 
+  private _getSnapshot() {
+    let snapshot = {};
+
+    for (const i of this.items) {
+      snapshot = {
+        ...snapshot,
+        ...i.getSnapshot(),
+      };
+    }
+
+    return snapshot;
+  }
+
   centralize() {
-    // this._handleResize();
-    // requestAnimationFrame(() => {
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
@@ -929,20 +940,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const commonView = this._settings.general.commonView;
     if (commonView.useCustomTickSize) {
+      this._map.clear();
       centerIndex = ROWS / 2;
       let offset = 0;
-      let snapshot = {};
+      const snapshot = this._getSnapshot();
       const tickSize = this._tickSize;
-
-      for (const i of this.items) {
-        snapshot = {
-          ...snapshot,
-          ...i.getSnapshot(),
-        };
-      }
       const decimals = lastPrice % 1;
       const startPrice = lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
-      const multiplier = commonView.ticksMultiplier;
+      const multiplier = commonView.ticksMultiplier ?? 1;
 
       while (offset <= ROWS / 2) {
         const upIndex = centerIndex - offset;
@@ -986,14 +991,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._customTickSizeApplyed = true;
     } else {
       if (this._customTickSizeApplyed) {
-        let snapshot = {};
-
-        for (const i of this.items) {
-          snapshot = {
-            ...snapshot,
-            ...i.getSnapshot(),
-          };
-        }
+        this._map.clear();
+        const snapshot = this._getSnapshot();
 
         if (isNaN(lastPrice) || lastPrice == null)
           return;
@@ -1019,8 +1018,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this.detectChanges();
-    // });
-
   }
 
   detectChanges(force = false) {
