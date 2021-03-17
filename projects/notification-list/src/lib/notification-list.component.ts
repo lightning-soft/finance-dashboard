@@ -38,6 +38,10 @@ export class NotificationListComponent {
     this.visible = false;
   }
 
+  public acceptAllNotifications(){
+    this._notificationService.acceptAllNotification();
+  }
+
   public acceptNotification(id) {
     this._notificationService.acceptNotification(id);
   }

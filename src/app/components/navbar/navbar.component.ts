@@ -53,7 +53,7 @@ export class NavbarComponent {
       removeIfExists: true,
       maximizable: false,
       minimizable: false,
-      resizable: false,
+      resizable: true,
     });
   }
 

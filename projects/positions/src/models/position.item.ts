@@ -1,8 +1,10 @@
-import { Id } from 'base-components';
-import { DataCell, IconCell, NumberCell } from 'data-grid';
-import { IPosition, IQuote, Side } from 'trading';
+import {Id} from 'base-components';
+import {DataCell, IconCell, IFormatter, NumberCell, RoundFormatter} from 'data-grid';
+import {IPosition, IQuote, Side} from 'trading';
 
 export class PositionItem {
+  private _priceFormatter: IFormatter;
+
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
@@ -24,19 +26,20 @@ export class PositionItem {
     if (!position) {
       return;
     }
+    this._priceFormatter = new RoundFormatter(position.instrument?.precision ?? 2);
+    this.price.formatter = this._priceFormatter;
+    this.unrealized.formatter = this._priceFormatter;
+    this.realized.formatter =  this._priceFormatter;
+    this.total.formatter = this._priceFormatter;
     this.update(position);
   }
 
   update(position: IPosition) {
-    this.position = { ...this.position, ...position };
+    this.position = {...this.position, ...position};
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
-    this.price.updateValue(+position.price.toFixed(4));
-    this.unrealized.updateValue(+position.unrealized.toFixed(4));
-    this.realized.updateValue(+position.unrealized.toFixed(4));
-    this.total.updateValue(+position.total.toFixed(4));
-    const fields = ['size', 'instrumentName', 'side'];
+    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -49,8 +52,8 @@ export class PositionItem {
     if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
       return;
     const currentPrice = +this.price.value;
-    const  { volume } = trade;
-    const price = +trade.price.toFixed(4);
+    const { volume } = trade;
+    const price = trade.price;
     switch (this.side.value) {
       case Side.Long:
         this.unrealized.updateValue(this._calculateLongUnrealized(currentPrice, volume, price));

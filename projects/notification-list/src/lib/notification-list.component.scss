@@ -4,6 +4,37 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  ::ng-deep {
+    window-header {
+      padding-top: 2px;
+      padding-bottom: 2px;
+      .content {
+        max-width: calc(100% - 12px) !important;
+        margin-right: 0px !important;
+      }
+    }
+
+    .window-icon {
+      margin-right: 6px !important;
+    }
+
+    .clear-btn {
+      height: 20px;
+      background: $darkBackground;
+      font-size: 0.7rem;
+      line-height: 1;
+      font-weight: 600;
+      min-width: 56px;
+      border: none;
+      color: $text-80;
+      box-shadow: none;
+
+      &:after {
+        content: none;
+      }
+    }
+  }
 }
 
 
@@ -40,9 +71,34 @@ cdk-virtual-scroll-viewport {
 
   .icon {
     margin-right: 6px;
-    font-size: 20px;
+
+    [class^="icon-"], [class*=" icon-"] {
+      font-size: 14px;
+
+    }
   }
+
   .title {
     flex-grow: 1;
+    color: white;
+    font-size: 0.85rem;
   }
+}
+
+.notification {
+  .body {
+    font-size: 0.75rem;
+    color: $text-60;
+  }
+
+  .timestamp {
+    font-size: 0.85rem;
+  }
+}
+
+.no-notifications {
+  padding-top: 60px;
+  font-size: 0.75rem;
+  color: $text-60;
+  text-align: center;
 }
