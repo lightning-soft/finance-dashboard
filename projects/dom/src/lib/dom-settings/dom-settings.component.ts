@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { SettingsConfig, SettingTab } from './settings-fields';
-import { debounceTime } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { FormGroup } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators';
+import { SettingsConfig, SettingTab } from './settings-fields';
+import { clone } from 'underscore';
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -58,7 +59,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
       ]
     },
   ];
-  settingsConfig = deepClone(SettingsConfig);
+  settingsConfig = clone(SettingsConfig);
 
   form: FormGroup;
 
@@ -77,7 +78,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   private _handleChange(value: any) {
     if (!this._linkKey)
       console.error('Invalid link key', this._linkKey);
-      this.settings = {...this.settings, ...value};
+    this.settings = { ...this.settings, ...value };
     this.broadcastData(this._linkKey, this.settings);
   }
 
@@ -89,15 +90,15 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
 
     this.currentTab = item.tab;
     this.selectedConfig = this.settingsConfig[item.tab];
-    
+
     this.formValueChangesSubscription?.unsubscribe();
-    this.form = new FormGroup({});  
+    this.form = new FormGroup({});
     this.form.valueChanges
       .pipe(
         debounceTime(10),
         untilDestroyed(this))
       .subscribe((v) => {
-          this._handleChange(v);
+        this._handleChange(v);
       });
   }
 
@@ -113,7 +114,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   }
 
   loadState(_state: IDomSettingsState) {
-    const state = deepClone(_state);
+    const state = clone(_state);
     this.settings = state.settings ?? {};
     this._linkKey = state.linkKey;
     this.select(this.list[0]);
@@ -124,8 +125,4 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
       this.close();
     }
   }
-}
-
-function deepClone(state: any) {
-  return JSON.parse(JSON.stringify(state));
 }
