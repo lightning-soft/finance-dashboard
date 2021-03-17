@@ -179,7 +179,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
 
   handleSubmit() {
     this.isSubmitted = true;
-    if (!this.userData.isValid) {
+    if (!this.userData?.isValid) {
       return this;
     }
     if (!this.selectedItem.id) {
