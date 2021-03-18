@@ -70,6 +70,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _items: T[] = [];
   private _styles: GridStyles;
 
+  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
+
   get items(): T[] {
     if (!this._grid)
       return [];
@@ -358,10 +360,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   changeAlign(item: any) {
-    const alignOptions = Object.values(TextAlign);
-    const index = alignOptions.indexOf(item.style.textAlign) + 1;
-    item.style.textAlign = alignOptions[index % alignOptions.length];
-    this.detectChanges();
+    const index = this._alignOptions.indexOf(item.style.textAlign) + 1;
+    item.style.textAlign = this._alignOptions[index % this._alignOptions.length];
+    this.detectChanges(true);
   }
 
   toggleColumns() {
@@ -380,7 +381,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   changeColumnVisibility(item: any, value: boolean) {
     item.visible = value;
-    this.detectChanges();
+    this.detectChanges(true);
   }
 
   getShownColumns() {
