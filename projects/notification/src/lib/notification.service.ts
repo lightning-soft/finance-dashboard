@@ -22,7 +22,7 @@ export class NotificationService extends NotifierService {
   }
 
   showError(message: any, defaultMessage?: string) {
-    const { _message, _title } = this._prepareErrorMessage(message, defaultMessage);
+    const {_message, _title} = this._prepareErrorMessage(message, defaultMessage);
     const notification = new Notification({
       body: _message, title: _title,
       icon: 'notifcation-error',
@@ -32,7 +32,7 @@ export class NotificationService extends NotifierService {
   }
 
   showSuccess(message: string) {
-    const notification = new Notification({ body: message, icon: 'notication-success', title: 'Success' });
+    const notification = new Notification({body: message, icon: 'notication-success', title: 'Success'});
     this.addNotification(notification);
   }
 
@@ -47,7 +47,8 @@ export class NotificationService extends NotifierService {
 
     this.notifications.next(this.getNotification());
   }
-  public acceptAllNotification(){
+
+  public acceptAllNotification() {
     this._notifications.forEach(item => item.status = NotificationStatus.ACCEPTED);
     this.notifications.next(this.getNotification());
   }

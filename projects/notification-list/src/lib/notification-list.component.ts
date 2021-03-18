@@ -6,6 +6,7 @@ import {
   NotificationService,
   Notification
 } from 'notification';
+import * as moment from 'moment';
 
 interface NotificationGroup {
   notifications: Notification[];
@@ -41,7 +42,7 @@ export class NotificationListComponent {
   }
 
   private _handleNotifications(notifications: Notification[]) {
-    this.notificationsGroup = groupday(notifications);
+    this.notificationsGroup = groupNotifications(notifications);
     this.hasNotifications = !!notifications.length;
   }
 
@@ -58,7 +59,7 @@ export class NotificationListComponent {
   }
 }
 
-function groupday(notifications: Notification[]) {
+function groupNotifications(notifications: Notification[]) {
   const notificationMap = notifications.reduce((prev, current) => {
     const date = current.createAt;
     const yesterday = new Date();
@@ -69,10 +70,7 @@ function groupday(notifications: Notification[]) {
     } else if (isSameDay(date, yesterday)) {
       key = 'Yesterday';
     } else {
-      const month = new Intl.DateTimeFormat('en', {month: 'short'} ).format(date);
-      const year = date.getFullYear();
-      const day = date.getDate();
-      key = `${day} ${month}, ${year}`;
+      key = moment(date as any).format('DD MMMM, yyyy');
     }
     if (!Array.isArray(prev[key])) {
       prev[key] = [];
@@ -89,7 +87,5 @@ function isToday(date) {
 }
 
 function isSameDay(a, b) {
-  return a.getDate() === b.getDate() &&
-    a.getMonth() === b.getMonth() &&
-    a.getFullYear() === b.getFullYear();
+  return moment(a).isSame(b, 'day');
 }
