@@ -6,6 +6,7 @@ export interface IStockChartXInstrument extends IBaseItem {
   company: string;
   exchange: string;
   tickSize: number;
+  description?: string;
   digits?: number;
 }
 

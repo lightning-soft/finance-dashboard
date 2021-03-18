@@ -21,7 +21,6 @@
         <span class="window-count">{{windowTuple[1].size}}</span>
       </ng-container>
 
-
       <nz-dropdown-menu #menu="nzDropdownMenu">
         <ul nz-menu class="windows-list">
           <li
@@ -35,7 +34,7 @@
             (blur)="hideWindowArea()"
           >
             <div class="title">{{getComponentStateName(window, windowTuple[0])}}</div>
-            <i class="icon-close-window" (click)="window.close()"></i>
+            <i class="icon-close-window" (click)="closeWindow(window)"></i>
           </li>
         </ul>
       </nz-dropdown-menu>
