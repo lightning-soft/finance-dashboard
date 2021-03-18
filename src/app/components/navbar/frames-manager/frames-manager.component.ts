@@ -41,7 +41,7 @@ export class FramesManagerComponent {
 
   constructor(private windowManagerService: WindowManagerService) {
     this.windowManagerService.windows.subscribe(windows => {
-      this.sortWindows(windows);
+      this._setWindowTuples(windows);
     });
   }
 
@@ -53,13 +53,14 @@ export class FramesManagerComponent {
     this.hideWindowArea();
   }
 
-  private sortWindows(windows: IWindow[]): void {
+  private _setWindowTuples(windows: IWindow[]): void {
+    this.windowTuples.forEach(windowTuple => windowTuple[1].clear());
+
     for (const window of windows) {
       const windowTuple = this.windowTuples.find(([type]) => type === window.type);
 
       if (windowTuple) {
         windowTuple[1].add(window);
-        window.on(EVENTS.CLOSE, () => windowTuple[1].delete(window));
       }
     }
   }
@@ -86,6 +87,11 @@ export class FramesManagerComponent {
 
   hideWindowArea(): void {
     this.highlightedWindow = null;
+  }
+
+  closeWindow(window: IWindow): void {
+    window.close();
+    this.hideWindowArea();
   }
 }
 
