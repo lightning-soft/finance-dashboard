@@ -4,7 +4,6 @@ $border-width: 1px;
   display: flex;
   flex-direction: column;
   border: $border-width solid transparent;
-  z-index: 2 !important;
 
   & > header {
     display: none !important;
@@ -20,7 +19,7 @@ $border-width: 1px;
   &.moving {
     &::after {
       content: "";
-      z-index: 1000000000001 !important;
+      z-index: 1000000000001;
       // background-color: #773f1a46;
       position: fixed;
       top: -100vh;

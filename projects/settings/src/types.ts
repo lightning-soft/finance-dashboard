@@ -5,11 +5,6 @@ export interface ICommand {
   readonly name: string;
 }
 
-export enum NavbarPosition {
-  Top = 'Top',
-  Bottom = 'Bottom',
-}
-
 export type HotkeyEntire = [ICommand, KeyBinding];
 
 export type SettingsData = {
@@ -20,6 +15,4 @@ export type SettingsData = {
   hotkeys: HotkeyEntire[];
   tradingEnabled: boolean;
   workspaces: Workspace[];
-  navbarPosition: NavbarPosition;
-  isNavbarHidden: boolean;
 };

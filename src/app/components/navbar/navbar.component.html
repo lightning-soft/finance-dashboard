@@ -1,31 +1,4 @@
 <nav class="navigation-bar">
-  <button class="position-settings-button" nz-dropdown [nzDropdownMenu]="menu" [nzTrigger]="'click'">
-    <i class=" icon-settings-points"></i>
-  </button>
-
-  <nz-dropdown-menu #menu="nzDropdownMenu">
-    <ul nz-menu class="navbar-position-list">
-      <li nz-menu-item
-          *ngIf="currentNavbarPosition !== navbarPosition.Bottom"
-          (click)="changeNavbarPosition(navbarPosition.Bottom)">
-        <i class="icon-arrow-down-general"></i> Attach at the bottom
-      </li>
-      <li nz-menu-item
-          *ngIf="currentNavbarPosition !== navbarPosition.Top"
-          (click)="changeNavbarPosition(navbarPosition.Top)">
-        <i class="icon-arrow-up-general"></i> Attach at the top
-      </li>
-      <li nz-menu-item *ngIf="!isNavbarHidden"
-          (click)="changeNavbarVisibility(true)">
-        <i class="icon-hide"></i> Hide
-      </li>
-      <li nz-menu-item *ngIf="isNavbarHidden"
-          (click)="changeNavbarVisibility(false)">
-        <i class="icon-show"></i> Show
-      </li>
-    </ul>
-  </nz-dropdown-menu>
-
   <div class="navbar-manager">
     <!-- <app-navbar-controller></app-navbar-controller> -->
   </div>
@@ -38,7 +11,7 @@
   <!-- <div class="search">
     <button class="icon-search"></button>
   </div> -->
-  <!-- <div class="spacer">&nbsp;</div>-->
+ <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
   <windows [layout]="layout"></windows>
   <app-connections [layout]="layout"></app-connections>
