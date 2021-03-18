@@ -14,7 +14,7 @@
   <div [class.hide-oclc]="!showOHLC"
        [class.hide-changes]="!showChanges"
        class="chart-container">
-    <app-toolbar  [layout]="layout"  [chart]="chart"></app-toolbar>
+    <app-toolbar [layout]="layout" [chart]="chart" [link]="link"></app-toolbar>
     <div class="chart" #chartContainer></div>
     <div *ngIf="enableOrderForm"
          (click)="showOrderForm = !showOrderForm"

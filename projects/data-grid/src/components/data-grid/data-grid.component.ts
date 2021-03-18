@@ -18,6 +18,7 @@ import { Subject } from 'rxjs';
 import { ICell } from '../../models';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
+import { Column } from "../types";
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
 
@@ -62,7 +63,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showHeaderPanel = true;
   @Output() showHeaderPanelChange = new EventEmitter<boolean>();
 
-  @Input() columns = [];
+  @Input() columns: Column[] = [];
   @Input() afterDraw = (e, grid) => null;
   @Input() showSettingsInContextMenu = false;
 
@@ -224,7 +225,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   ngAfterViewInit(): void {
-    this._cd.detectChanges(); // update ViewChild decorator if detach attribute
+   // this._cd.detectChanges(); // update ViewChild decorator if detach attribute
 
     // this._handlers = this.initHandlers() || [];
     // for (const handler of this._handlers) {
@@ -278,7 +279,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this._triggerHandler(Events.Click, e);
   }
 
-  private _triggerHandler(event, e) {
+  private _triggerHandler(event: Events, e) {
     const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
 
     if (!Array.isArray(_handlers))
@@ -290,8 +291,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
       const item = e.row;
 
-      if (item)
-        handler.notify(item);
+      if (item || handler.handleHeaderClick)
+        handler.notify(item, e.e);
     }
   }
 

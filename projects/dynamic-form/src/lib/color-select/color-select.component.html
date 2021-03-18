@@ -1,5 +1,6 @@
 <nz-select nzOptionHeightPx="22"
            [nzCustomTemplate]="valueTemplate"
+           [compareWith]="compareItems"
            [formlyAttributes]="field" [formControl]="formControl">
   <nz-option *ngFor="let item of field.templateOptions.options"
              [nzValue]="item.value"
@@ -9,7 +10,7 @@
     (click)="$event.stopPropagation()"
     [cpWidth]="'200px'"
     [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-    (colorPickerChange)="updateValue(item, $event)" [colorPicker]="item.value.color"
+    (colorPickerChange)="updateValue($event)" [colorPicker]="item.value.value"
     class="icon-arrow-right"></i>
   </nz-option>
 </nz-select>
@@ -19,8 +20,8 @@
          (click)="$event.stopPropagation(); $event.preventDefault(); "
          [cpWidth]="'200px'"
          [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-         (colorPickerChange)="updateValue(item, $event)" [colorPicker]="item.nzValue.color"
-         [style.backgroundColor]="item.nzValue.color"></div>
+         (colorPickerChange)="updateValue($event)" [colorPicker]="item.nzValue.value"
+         [style.backgroundColor]="item.nzValue.value"></div>
     {{item.nzLabel}}
   </div>
 </ng-template>

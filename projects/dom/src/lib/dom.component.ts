@@ -36,7 +36,7 @@ import {
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
 import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
-import { DomSettingsSelector } from './dom-settings/dom-settings.component';
+import { DomSettingsSelector, IDomSettingsEvent } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
@@ -422,7 +422,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     ];
 
     if (!environment.production) {
-      // this.columns.unshift(convertToColumn('_id'));
+      this.columns.unshift(convertToColumn('_id'));
     }
   }
 
@@ -449,14 +449,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
+  }
+
+  private _observe() {
     this.addLinkObserver({
       link: DOM_HOTKEYS,
       handleLinkData: (key: string) => this.handleHotkey(key),
     });
     this.addLinkObserver({
-      link: DomSettingsSelector,
+      link: this._getSettingsKey(),
       handleLinkData: this._linkSettings,
     });
+  }
+
+  private _getSettingsKey() {
+    return `${this.componentInstanceId}.${DomSettingsSelector}`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -918,9 +925,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._handleResize();
   }
 
+  private _getSnapshot() {
+    let snapshot = {};
+
+    for (const i of this.items) {
+      snapshot = {
+        ...snapshot,
+        ...i.getSnapshot(),
+      };
+    }
+
+    return snapshot;
+  }
+
   centralize() {
-    // this._handleResize();
-    // requestAnimationFrame(() => {
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
@@ -928,25 +946,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const commonView = this._settings.general.commonView;
     if (commonView.useCustomTickSize) {
+      this._map.clear();
       centerIndex = ROWS / 2;
       let offset = 0;
-      let snapshot = {};
+      const snapshot = this._getSnapshot();
       const tickSize = this._tickSize;
+      const decimals = lastPrice % 1;
+      const startPrice = lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
+      const multiplier = commonView.ticksMultiplier ?? 1;
 
-      for (const i of this.items) {
-        snapshot = {
-          ...snapshot,
-          ...i.getSnapshot(),
-        };
-      }
-      // const i = this.items.find(i => i.isCenter);
-      const multiplier = commonView.ticksMultiplier;
       while (offset <= ROWS / 2) {
         const upIndex = centerIndex - offset;
         let customItemData = {};
         let prices = [];
         for (let m = 0; m < multiplier; m++) {
-          const price = this._normalizePrice(lastPrice + (offset * multiplier + m) * tickSize);
+          const price = this._normalizePrice(startPrice + (offset * multiplier + m) * tickSize);
           const data = snapshot[price] ?? {};
 
           prices.push(price);
@@ -954,7 +968,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
 
         const item = new CustomDomItem(upIndex, this._settings, this._priceFormatter, customItemData);
-        item.setPrice(prices[prices.length - 1]);
+        item.setPrice(prices[0]);
         this.items[upIndex] = item;
         prices.forEach(p => this._map.set(p, item));
 
@@ -964,7 +978,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData = {};
           prices = [];
           for (let m = 0; m < multiplier; m++) {
-            const price = this._normalizePrice(lastPrice - (offset * multiplier + m) * tickSize);
+            const price = this._normalizePrice(startPrice - (offset * multiplier + m) * tickSize);
             const data = snapshot[price] ?? {};
 
             prices.push(price);
@@ -972,7 +986,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
 
           const downItem = new CustomDomItem(downIndex, this._settings, this._priceFormatter, customItemData);
-          downItem.setPrice(prices[prices.length - 1]);
+          downItem.setPrice(prices[0]);
           this.items[downIndex] = downItem;
           prices.forEach(p => this._map.set(p, downItem));
         }
@@ -983,14 +997,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._customTickSizeApplyed = true;
     } else {
       if (this._customTickSizeApplyed) {
-        let snapshot = {};
-
-        for (const i of this.items) {
-          snapshot = {
-            ...snapshot,
-            ...i.getSnapshot(),
-          };
-        }
+        this._map.clear();
+        const snapshot = this._getSnapshot();
 
         if (isNaN(lastPrice) || lastPrice == null)
           return;
@@ -1016,8 +1024,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this.detectChanges();
-    // });
-
   }
 
   detectChanges(force = false) {
@@ -1247,7 +1253,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.items = [];
     this._map.clear();
-    this._max.clear()
+    this._max.clear();
     const data = this.items;
     const tickSize = this._tickSize;
 
@@ -1536,8 +1542,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return label;
   }
 
+  private _closeSettings() {
+    this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
+  }
+
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
     switch (name) {
+      case LayoutNodeEvent.Close:
+      case LayoutNodeEvent.Destroy:
+      case LayoutNodeEvent.Hide:
+        this._closeSettings();
+        break;
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Show:
       case LayoutNodeEvent.Open:
@@ -1591,7 +1606,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
-    // this.openSettings(true);
 
     // for debug purposes
     if (!state)
@@ -1609,6 +1623,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       };
     // for debug purposes
 
+    this._observe();
+
     if (!state?.instrument)
       return;
 
@@ -1616,16 +1632,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   openSettings(hidden = false) {
+    this._closeSettings();
     this.layout.addComponent({
       component: {
         name: DomSettingsSelector,
-        state: { settings: this._settings, componentInstanceId: this.componentInstanceId },
+        state: { settings: this._settings, linkKey: this._getSettingsKey() },
       },
       closeBtn: true,
-      single: true,
+      single: false,
       width: 618,
       resizable: false,
-      removeIfExists: true,
+      removeIfExists: false,
       hidden,
     });
   }

@@ -24,7 +24,7 @@
     </ul>
     <cdk-virtual-scroll-viewport class="{{currentTab}}" itemSize="">
       <formly-form
-        #form
+        [form]="form"
         [(model)]="settings"
         [fields]="selectedConfig"
       >

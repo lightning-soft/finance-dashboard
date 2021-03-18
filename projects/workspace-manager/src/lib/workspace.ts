@@ -1,20 +1,31 @@
-const DEFAULT_NAME = 'Workspace';
-const CONFIG_ID_PREFIX = 'w_#';
+import { ExcludeId } from 'communication';
+
+const DEFAULT_WORKSPACE_NAME = 'Workspace';
+const DEFAULT_WINDOW_NAME = 'Window';
+export const blankBase = 'blank';
 
 export class Workspace {
   id: number | string;
-  configId: number | string;
-
   name: string;
-
   isActive = false;
-  config: any;
+  windows: WorkspaceWindow[] = [];
 
   constructor(name: string) {
     this.id = Date.now();
+    this.name = name || DEFAULT_WORKSPACE_NAME;
+  }
+}
 
-    this.configId = CONFIG_ID_PREFIX + this.id;
+export class WorkspaceWindow {
+  id: number | string;
+  config: any;
+  name: string;
+  isSelected: boolean;
+  isOnStartUp: boolean;
 
-    this.name = name || DEFAULT_NAME;
+  constructor(windowConfig: ExcludeId<WorkspaceWindow> = {}) {
+    this.id = Date.now();
+    this.config = windowConfig.config || [];
+    this.name = windowConfig.name || DEFAULT_WINDOW_NAME;
   }
 }

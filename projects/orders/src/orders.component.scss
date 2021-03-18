@@ -71,6 +71,12 @@ $selectMarginBottom: 15px;
     .ant-tabs-top-content {
       height: calc(100% - 34px);
     }
+
+    .ant-tabs-extra-content {
+      line-height: 22px;
+      float: left !important;
+      padding-top: 4px;
+    }
   }
 
   .select-container {
@@ -134,4 +140,29 @@ nz-tabset {
       }
     }
   }
+}
+
+.cancel-button {
+  height: 20px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  background-color: $darkBackground;
+  color: $text-80;
+  font-size: 11px;
+  border-radius: 2px;
+
+  .arrow {
+    font-size: 6px;
+    margin-left: 15px;
+  }
+}
+
+.cancel-dropdown-list {
+  width: 100px;
+
+  li {
+    font-size: 11px;
+    line-height: 16px;
+}
 }

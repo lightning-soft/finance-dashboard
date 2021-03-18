@@ -34,7 +34,25 @@
       <i class="icon-arrow-dropdown"></i>
     </div> -->
   </div>
-  <nz-tabset [nzSelectedIndex]="2">
+
+  <ng-template #headerPanelTemplate>
+    <button nz-dropdown
+            [nzDropdownMenu]="menu"
+            [nzTrigger]="'click'"
+            (nzVisibleChange)="cancelMenuOpened = $event"
+            class="cancel-button">
+      Cancel
+      <i class="arrow" [ngClass]="{'icon-arrow-down': !cancelMenuOpened, 'icon-arrow-up': cancelMenuOpened}"></i>
+    </button>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu class="cancel-dropdown-list">
+        <li nz-menu-item (click)="cancelAllOrders()">All</li>
+        <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
+      </ul>
+    </nz-dropdown-menu>
+  </ng-template>
+
+  <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
     <nz-tab nzTitle="Working" (nzClick)="changeTab('Working')">
       <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>

@@ -1,5 +1,5 @@
 import { KeyBinding } from 'keyboard';
-import { Workspace } from 'workspace-manager';
+import { Workspace, WorkspaceWindow } from 'workspace-manager';
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;

@@ -2,8 +2,7 @@
 @import "../themes/index";
 
 :host {
-  margin: 0 16px;
-  flex-grow: 1;
+  margin: 0 8px 0 16px;
   background-color: transparent !important;
 
   .frames-manager {

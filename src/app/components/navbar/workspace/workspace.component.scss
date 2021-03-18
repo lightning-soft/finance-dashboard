@@ -1,5 +1,6 @@
 @import "../../../../scss/dark.theme";
 @import "../themes/index";
+@import "../base-workspace";
 
 .workspaces {
   background-color: $tabFrameColor;
@@ -12,16 +13,6 @@
   .ant-radio-group {
     width: 100%;
   }
-}
-
-.create-btn {
-  background-color: $bodyBackground;
-  padding: 4px 18px;
-  border-radius: 2px;
-  border: 0.5px solid $risingColor;
-  margin: 12px 10px;
-  width: 186px;
-  font-size: 0.8rem;
 }
 
 ::ng-deep {
@@ -65,56 +56,4 @@
   margin: 0;
   padding: 4px;
   width: 100%;
-}
-
-.workspace {
-  position: relative;
-  border-radius: 2px;
-  padding: 6px;
-
-  .title {
-    display: flex;
-    align-items: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    font-size: 0.8rem;
-
-
-    .radio-btn {
-      font-size: 0.8rem;
-    }
-
-    i {
-      margin-right: 9px;
-      font-size: 12px;
-    }
-  }
-
-  &:hover {
-    background-color: $tabBackground;
-
-    .actions {
-      opacity: 1;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 29, 34, 1) 12%);
-    }
-  }
-
-  .actions {
-    position: absolute;
-    right: 0;
-    top: 0;
-    opacity: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-
-    button {
-      background-color: transparent;
-      font-size: 0.8rem;
-
-      &:hover {
-        color: $risingColor;
-      }
-    }
-  }
 }

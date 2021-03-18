@@ -28,11 +28,11 @@ export class DomSettings {
     commonView: {
       autoCenterTicks: 10,
       ticksMultiplier: 2,
-      onTop: true,
+      useCustomTickSize: false,
+      // onTop: true,
       resetOnNewSession: true,
       autoCenter: false,
       centerLine: true,
-      useCustomTickSize: false,
     },
     marketDepth: {
       bidAskDeltaDepth: 9,

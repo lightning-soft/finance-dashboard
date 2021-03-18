@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IBaseItem, IPaginationResponse } from 'communication';
-import { IBar } from 'projects/chart/src/models/chart';
+import { IBar } from 'chart';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseRepository } from './base-repository';
@@ -33,6 +33,10 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> {
           high: item.highPrice,
           low: item.lowPrice,
           volume: item.volume,
+          details: item.details.map(i => ({
+            ...i,
+            tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
+          })),
         }));
 
         return { data } as IPaginationResponse<IHistoryItem>;

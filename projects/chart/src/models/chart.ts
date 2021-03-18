@@ -10,7 +10,7 @@ export enum ScxOrderAction {
 export interface ISideDetails {
   [key: string]: any;
   volume: number;
-  price?: number;
+  tradesCount: number;
 }
 
 export interface IDetails {
@@ -18,6 +18,7 @@ export interface IDetails {
   bidInfo: ISideDetails;
   askInfo: ISideDetails;
   volume: number;
+  tradesCount: number;
   price: number;
 }
 

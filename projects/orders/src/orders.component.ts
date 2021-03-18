@@ -1,14 +1,27 @@
 import { Component, HostBinding, Injector } from '@angular/core';
-import { convertToColumn, RealtimeGridComponent, ViewItemsBuilder } from 'base-components';
+import { RealtimeGridComponent, ViewItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column } from 'data-grid';
+import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
+import { finalize } from "rxjs/operators";
 
-const headers = [
+
+type HeaderItem = [string, string, IHeaderItemOptions?] | string;
+
+interface IHeaderItemOptions {
+  style?: any;
+  width?: number;
+  drawObject?: { draw(context): boolean }
+}
+
+const headerCheckboxCell = new CheckboxCell();
+
+const headers: (HeaderItem | string)[] = [
+  ['checkbox', ' ', { width: 30, drawObject: headerCheckboxCell }],
   ['averageFillPrice', 'Average Fill Price'],
   'description',
   'duration',
@@ -43,6 +56,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   orderWorkingStatuses = ['Pending', 'New', 'PartialFilled'];
+  cancelMenuOpened = false;
 
   orderStatus = allStatuses;
   orderType = allTypes;
@@ -100,6 +114,13 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       column: 'close',
       handler: (item) => this.deleteItem(item.order),
     }),
+    new CellClickDataGridHandler<OrderItem>({
+      column: 'checkbox',
+      handleHeaderClick: true,
+      handler: (item, event) => {
+        item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+      },
+    })
   ];
   @HostBinding('class.show-header')
   showHeaderPanel = true;
@@ -119,22 +140,29 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       addNewItems: 'start',
     });
 
-    this.columns = headers.map((nameOrArr: any) => {
+    this.columns = headers.map((nameOrArr: HeaderItem) => {
       nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
-      const [name, title, style] = nameOrArr;
+      const [name, title, options] = nameOrArr;
 
-      return {
+      const column: Column = {
         name,
-        title: title?.toUpperCase() ?? '',
+        title: title.toUpperCase(),
         style: {
-          ...style,
+          ...options?.style,
           buyColor: 'rgba(72, 149, 245, 1)',
           sellColor: 'rgba(220, 50, 47, 1)',
           textOverflow: true,
           textAlign: 'left',
         },
-        visible: true
+        visible: true,
+        width: options?.width
       };
+
+      if (options?.drawObject) {
+        column.draw = (context) => options.drawObject.draw(context)
+      }
+
+      return column;
     });
     const column = this.columns.find(i => i.name == 'description');
     column.style = { ...column.style, textOverflow: true };
@@ -192,5 +220,35 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   updateTitle() {
     setTimeout(() => this.setTabTitle(`Orders (${this.items.length})`));
+  }
+
+  handleHeaderCheckboxClick(event: MouseEvent): void {
+    if (headerCheckboxCell.toggleSelect(event)) {
+      this.items.forEach(item => item.updateSelect(headerCheckboxCell.checked));
+    }
+  }
+
+  cancelAllOrders(): void {
+    const selectedOrders = this.items.map(i => i.order);
+    this.cancelOrders(selectedOrders);
+  }
+
+  cancelSelectedOrders(): void {
+    const selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
+    this.cancelOrders(selectedOrders);
+  }
+
+  cancelOrders(orders: IOrder[]): void {
+    const hide = this.showLoading();
+    this._repository.deleteMany(orders)
+      .pipe(finalize(hide))
+      .subscribe({
+          next: () => {
+            this._handleDeleteItems(orders);
+            this._showSuccessDelete();
+          },
+          error: (error) => this._handleDeleteError(error)
+        }
+      );
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { Observable, Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { concat, Observable, Subject, throwError } from 'rxjs';
+import { map, takeUntil, tap, catchError } from 'rxjs/operators';
 import {
   HistoryRepository,
   InstrumentsRepository,
@@ -27,7 +27,7 @@ export class RithmicDatafeed extends Datafeed {
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _barDataFeed: BarDataFeed,
-   // private _levelOneDatafeedService: Level1DataFeed,
+    private _level1DataFeed: Level1DataFeed,
     private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
@@ -78,21 +78,53 @@ export class RithmicDatafeed extends Datafeed {
     const { symbol, exchange } = instrument;
 
     const params = {
+      id: symbol,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: timeFrame.interval,
       BarCount: count,
       Skip: 0,
+      PriceHistory: true,
     };
-    this._historyRepository.getItems({ id: symbol, ...params }).subscribe(
-      (res) => {
+
+    const history$ = this._historyRepository.getItems(params).pipe(
+      tap((res) => {
         if (this.isRequestAlive(request)) {
           this.onRequestCompleted(request, res.data);
           // this._webSocketService.connect(() => this.subscribeToRealtime(request)); // todo: test
         }
-      },
-      () => this.cancel(request),
+      }),
+      catchError((err) => {
+        this.cancel(request);
+        return throwError(err);
+      }),
     );
+
+    // const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
+    //   tap((res) => {
+    //     const { chart } = request;
+    //     const { dataManager } = chart;
+    //     const dates = dataManager.dateDataSeries.values as Date[];
+    //     const detailsDataSeries = dataManager.getDataSeries('.details');
+
+    //     res.data.forEach((item: any) => {
+    //       const index = dates.findIndex(date => +date === +item.date);
+
+    //       if (index > -1) {
+    //         detailsDataSeries.valueAtIndex(index, item.details);
+    //       }
+    //     });
+
+    //     chart.setNeedsUpdate();
+    //   }),
+    // );
+
+    concat(
+      history$,
+      // historyDetails$,
+    ).subscribe({
+      error: (err) => console.error(err),
+    });
   }
 
   _convertPeriodicity(periodicity: string): string {
@@ -128,6 +160,19 @@ export class RithmicDatafeed extends Datafeed {
         price: quote.closePrice,
         date: new Date(quote.timestamp),
         volume: quote.volume,
+      } as any;
+
+      this.processQuote(chart, _quote);
+    }));
+
+    this._unsubscribeFns.push(this._level1DataFeed.on((quote: IQuote) => {
+      const _quote: ChartQuote = {
+        instrument: quote.instrument,
+        price: quote.price,
+        date: new Date(quote.timestamp),
+        volume: quote.volume,
+        tradesCount: quote.orderCount,
+        side: quote.side,
       } as any;
 
       this.processQuote(chart, _quote);

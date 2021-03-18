@@ -135,9 +135,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   private updatePl() {
-    this.open = this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0);
-    this.realized = this.positions.reduce((total, current) => total + (current.realized * current.price), 0);
+    this.open = +this.builder.items.filter(item => item.position)
+      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
+    this.realized = +this.positions.reduce((total, current) => total + (current.realized * current.price), 0).toFixed(4);
   }
 
   _transformDataFeedItem(item) {

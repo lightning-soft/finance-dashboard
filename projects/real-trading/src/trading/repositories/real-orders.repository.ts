@@ -4,11 +4,11 @@ import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communi
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
-import { IOrder, OrderStatus } from 'trading';
+import { IOrder, OrdersRepository, OrderStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 
 @Injectable()
-export class RealOrdersRepository extends BaseRepository<IOrder> {
+export class RealOrdersRepository extends BaseRepository<IOrder> implements OrdersRepository {
   protected get suffix(): string {
     return 'Order';
   }
@@ -51,7 +51,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
     );
   }
 
-  deleteItem(item: IOrder | Id) {
+  deleteItem(item: IOrder | Id): Observable<any> {
     if (typeof item !== 'object')
       throw new Error('Invalid order');
 
@@ -66,6 +66,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> {
       }
     );
   }
+
   updateItem(item: IOrder, query?: any): Observable<IOrder> {
     const { id, ...dto } = item;
     return this._http.put<IOrder>(this._getRESTURL(id), dto, { ...this._httpOptions, params: query })
