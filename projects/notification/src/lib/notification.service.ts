@@ -25,14 +25,14 @@ export class NotificationService extends NotifierService {
     const { _message, _title } = this._prepareErrorMessage(message, defaultMessage);
     const notification = new Notification({
       body: _message, title: _title,
-      icon: 'icon-notifcation-error',
+      icon: 'notifcation-error',
       type: NotificationType.MESSAGE
     });
     this.addNotification(notification);
   }
 
   showSuccess(message: string) {
-    const notification = new Notification({ body: message, title: 'Success' });
+    const notification = new Notification({ body: message, icon: 'notication-success', title: 'Success' });
     this.addNotification(notification);
   }
 

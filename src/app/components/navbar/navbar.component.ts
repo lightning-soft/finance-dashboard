@@ -21,8 +21,9 @@ export class NavbarComponent {
     private themeHandler: ThemesHandler,
     private notificationService: NotificationService,
   ) {
+    this.isNewNotification =   !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
-      this.isNewNotification = n.length ? true : false;
+      this.isNewNotification = !!n.length;
     });
   }
 
@@ -66,6 +67,8 @@ export class NavbarComponent {
       maximizable: false,
       minimizable: false,
       resizable: false,
+      width: 618,
+      height: 474,
       x: 'center',
       y: 'center',
       single: true,

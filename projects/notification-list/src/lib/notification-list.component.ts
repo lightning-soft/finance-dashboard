@@ -1,13 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AuthService } from 'auth';
-import { ILayoutNode, LayoutNode } from 'layout';
+import {Component, OnInit} from '@angular/core';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {AuthService} from 'auth';
+import {ILayoutNode, LayoutNode} from 'layout';
 import {
   NotificationService,
   Notification
 } from 'notification';
 
-export interface NotificationListComponent extends ILayoutNode {}
+interface NotificationGroup {
+  notifications: Notification[];
+
+}
+
+export interface NotificationListComponent extends ILayoutNode {
+}
 
 @UntilDestroy()
 @Component({
@@ -18,31 +24,72 @@ export interface NotificationListComponent extends ILayoutNode {}
 @LayoutNode()
 export class NotificationListComponent {
 
-  notifications: Notification[] = [];
+  notificationsGroup: any = [];
   visible = false;
+  hasNotifications = false;
 
   constructor(
     private _notificationService: NotificationService,
     public auth: AuthService
   ) {
-    this.notifications = this._notificationService.getNotification();
+    this._handleNotifications(this._notificationService.getNotification());
     this._notificationService.notifications.subscribe(res => {
-      this.notifications = [...res];
+      this._handleNotifications(res);
     });
-
     this.setTabTitle('Notifications');
     this.setTabIcon('icon-notification');
+  }
+
+  private _handleNotifications(notifications: Notification[]) {
+    this.notificationsGroup = groupday(notifications);
+    this.hasNotifications = !!notifications.length;
   }
 
   closeList(): void {
     this.visible = false;
   }
 
-  public acceptAllNotifications(){
+  public acceptAllNotifications() {
     this._notificationService.acceptAllNotification();
   }
 
   public acceptNotification(id) {
     this._notificationService.acceptNotification(id);
   }
+}
+
+function groupday(notifications: Notification[]) {
+  const notificationMap = notifications.reduce((prev, current) => {
+    const date = current.createAt;
+    const yesterday = new Date();
+    yesterday.setTime(yesterday.getTime() - 1000 * 60 * 60 * 24);
+    let key;
+    if (isToday(date)) {
+      key = '';
+    } else if (isSameDay(date, yesterday)) {
+      key = 'Yesterday';
+    } else {
+      const month = new Intl.DateTimeFormat('en', {month: 'short'} ).format(date);
+      const year = date.getFullYear();
+      const day = date.getDate();
+      key = `${day} ${month}, ${year}`;
+    }
+    if (!Array.isArray(prev[key])) {
+      prev[key] = [];
+    }
+    prev[key].push(current);
+    return prev;
+  }, {});
+  return Object.keys(notificationMap).map(date => ({date, notifications: notificationMap[date]}));
+}
+
+function isToday(date) {
+  const today = new Date();
+  return isSameDay(today, date);
+}
+
+function isSameDay(a, b) {
+  return a.getDate() === b.getDate() &&
+    a.getMonth() === b.getMonth() &&
+    a.getFullYear() === b.getFullYear();
 }
