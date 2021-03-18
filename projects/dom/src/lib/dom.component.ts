@@ -442,8 +442,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
     this.onRemove(
-      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
+      // this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
+      // this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
@@ -938,6 +938,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
     const lastPrice = this._lastPrice;
 
+    if (!lastPrice)
+      return;
+
     const commonView = this._settings.general.commonView;
     if (commonView.useCustomTickSize) {
       this._map.clear();
@@ -1315,7 +1318,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let item = this._getItem(trade.price);
 
-    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
 
     if (!this.items.length)
       this.fillData(trade.price);

@@ -822,14 +822,14 @@ export class CustomDomItem extends DomItem {
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
-        const ltq = this.ltq._value + data.ltq ?? 0;
-        const bid = this.bid._value + data.bid ?? 0;
-        const ask = this.ask._value + data.ask ?? 0;
-        const currentAsk = this.currentAsk._value + data.currentAsk ?? 0;
-        const currentBid = this.currentBid._value + data.currentBid ?? 0;
-        const totalAsk = this.totalAsk._value + data.totalAsk ?? 0;
-        const totalBid = this.totalBid._value + data.totalBid ?? 0;
-        const volume = this.volume._value + data.volume ?? 0;
+        const ltq = (this.ltq._value ?? data.ltq == null ? 0 : null) + data.ltq;
+        const bid = (this.bid._value ?? data.bid == null ? 0 : null) + data.bid;
+        const ask = (this.ask._value ?? data.ask == null ? 0 : null) + data.ask;
+        const currentAsk = (this.currentAsk._value ?? data.currentAsk == null ? 0 : null) + data.currentAsk;
+        const currentBid = (this.currentBid._value ?? data.currentBid == null ? 0 : null) + data.currentBid;
+        const totalAsk = (this.totalAsk._value ?? data.totalAsk == null ? 0 : null) + data.totalAsk;
+        const totalBid = (this.totalBid._value ?? data.totalBid == null ? 0 : null) + data.totalBid;
+        const volume = (this.volume._value ?? data.volume == null ? 0 : null) + data.volume;
 
         this.ltq.updateValue(isNaN(ltq) ? 0 : ltq);
         this.bid.updateValue(isNaN(bid) ? 0 : bid);
