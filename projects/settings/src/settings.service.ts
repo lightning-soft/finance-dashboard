@@ -4,7 +4,7 @@ import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
 import { BehaviorSubject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
-import { HotkeyEntire, ICommand, NavbarPosition, SettingsData } from './types';
+import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
@@ -22,7 +22,7 @@ export const defaultHotkeyEntries: HotkeyEntire[] = [
   [createCommand('Cut'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_X)])],
 ];
 
-const defaultSettings: SettingsData = {
+const defaultSettings = {
   theme: Themes.Dark,
   autoSave: false,
   autoSaveDelay: null,
@@ -30,8 +30,6 @@ const defaultSettings: SettingsData = {
   hotkeys: defaultHotkeyEntries,
   tradingEnabled: true,
   workspaces: [],
-  isNavbarHidden: false,
-  navbarPosition: NavbarPosition.Top
 };
 
 @Injectable()
@@ -91,14 +89,6 @@ export class SettingsService {
 
   save(settings: object) {
     this._updateState(settings);
-  }
-
-  updateNavbarVisibility(isNavbarHidden: boolean): void {
-    this._updateState({ isNavbarHidden });
-  }
-
-  changeNavbarPosition(navbarPosition: NavbarPosition): void {
-    this._updateState({ navbarPosition });
   }
 
   private _updateState(settings: object, saveInStorage = true): void {

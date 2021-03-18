@@ -2,35 +2,8 @@
 @import "themes/index";
 
 :host {
-  height: 36px;
-  width: 100%;
-  display: block !important;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  background-color: transparent !important;
-
-  &.bottom {
-    top: unset;
-    bottom: 0;
-  }
-
-  &.hidden {
-    .navigation-bar {
-      margin-top: -36px;
-    }
-
-    &.bottom .navigation-bar {
-      margin-top: 36px;
-    }
-
-    &:hover {
-      .navigation-bar {
-        margin-top: 0;
-      }
-    }
-  }
+  height: auto;
+  display: block;
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -50,8 +23,7 @@
   top: 0;
   z-index: 1;
   width: 100%;
-  height: 100%;
-  transition: margin-top .2s ease;
+  max-height: 42px;
 
   .logo {
     display: flex;
@@ -233,35 +205,5 @@
     font-size: 5px;
     margin-top: 3px;
     margin-left: 12px;
-  }
-}
-
-.position-settings-button {
-  width: 10px;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  margin-left: 15px;
-  color: #999999;
-  background-color: transparent;
-
-  i {
-    font-size: 20px;
-  }
-}
-
-.navbar-position-list {
-  min-width: 160px;
-  background-color: $inputBackground;
-
-  li {
-    padding: 5px 10px;
-    font-size: 12px;
-    line-height: 16px;
-
-    i {
-      margin-right: 10px;
-      font-size: 12px;
-    }
   }
 }
