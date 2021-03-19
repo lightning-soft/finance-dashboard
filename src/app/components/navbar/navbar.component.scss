@@ -5,15 +5,16 @@
   height: 36px;
   width: 100%;
   display: block !important;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
   background-color: transparent !important;
+  visibility: hidden;
 
-  &.bottom {
-    top: unset;
-    bottom: 0;
+  &.Bottom {
+    order: 10;
+    visibility: visible;
+  }
+
+  &.Top {
+    visibility: visible;
   }
 
   &.hidden {
@@ -21,15 +22,10 @@
       margin-top: -36px;
     }
 
-    &.bottom .navigation-bar {
+    &.Bottom .navigation-bar {
       margin-top: 36px;
     }
 
-    &:hover {
-      .navigation-bar {
-        margin-top: 0;
-      }
-    }
   }
 }
 
@@ -51,7 +47,7 @@
   z-index: 1;
   width: 100%;
   height: 100%;
-  transition: margin-top .2s ease;
+  transition: margin-top .3s ease;
 
   .logo {
     display: flex;

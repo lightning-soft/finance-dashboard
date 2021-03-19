@@ -1,9 +1,12 @@
-import { Component, ElementRef, HostBinding, Input } from '@angular/core';
-import { LayoutComponent } from 'layout';
-import { NotificationService } from 'notification';
-import { Themes, ThemesHandler } from 'themes';
-import { NavbarPosition, SettingsService } from "settings";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import {Component, ElementRef, HostBinding, HostListener, Input} from '@angular/core';
+import {LayoutComponent} from 'layout';
+import {NotificationService} from 'notification';
+import {Themes, ThemesHandler} from 'themes';
+import {NavbarPosition, SettingsService} from "settings";
+import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
+import {fromEvent, merge} from "rxjs";
+import {debounceTime, map, tap} from "rxjs/operators";
+
 
 @UntilDestroy()
 @Component({
@@ -17,8 +20,10 @@ export class NavbarComponent {
   public isNewNotification: boolean;
   public readonly navbarPosition = NavbarPosition;
 
-  public currentNavbarPosition = NavbarPosition.Top;
   public isNavbarHidden = false;
+  private navbarActive = false;
+
+  @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -35,20 +40,30 @@ export class NavbarComponent {
     });
 
     this.settingsService.settings
-      .pipe(untilDestroyed(this))
+      .pipe(untilDestroyed(this), debounceTime(200))
       .subscribe(settings => {
-          this.currentNavbarPosition = settings.navbarPosition;
-          this.isNavbarHidden = settings.isNavbarHidden;
+        this.currentNavbarPosition = settings.navbarPosition;
+        this.isNavbarHidden = settings.isNavbarHidden;
       });
+
+    merge(
+      fromEvent(this.elementRef.nativeElement, 'mouseleave'),
+      fromEvent(this.elementRef.nativeElement, 'mouseover').pipe(tap(() => this.navbarActive = true)),
+      fromEvent(document, 'click'),
+    ).pipe(
+      map((event: MouseEvent) => event.type === 'mouseover' || this._isNavbarFocused()),
+      debounceTime(400),
+      untilDestroyed(this)
+    ).subscribe((active: boolean) => this.navbarActive = active);
   }
 
   @HostBinding('class.hidden') get hidden() {
-    return this.isNavbarHidden && !this._isNavbarFocused();
+    return this.isNavbarHidden && !this.navbarActive;
   }
 
-  @HostBinding('class.bottom') get positionClass() {
-    return this.currentNavbarPosition === NavbarPosition.Bottom;
-  }
+  // @HostBinding('class.bottom') get positionClass() {
+  //   return this.currentNavbarPosition === NavbarPosition.Bottom;
+  // }
 
   switchTheme() {
     this.themeHandler.toggleTheme();
