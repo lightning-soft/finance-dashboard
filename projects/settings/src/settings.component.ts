@@ -31,7 +31,6 @@ export class SettingsComponent implements OnInit {
 
   saveDelayValues = {
     fiveMin: SAVE_DALEY.FIVE_MIN,
-    autoSave: SAVE_DALEY.AUTO_SAVE,
     manualSave: SAVE_DALEY.MANUAL_SAVE,
   };
 
@@ -79,10 +78,6 @@ export class SettingsComponent implements OnInit {
     switch (delay) {
       case SAVE_DALEY.FIVE_MIN:
         this._settingsService.setAutoSave(SAVE_DALEY.FIVE_MIN);
-        break;
-
-      case SAVE_DALEY.AUTO_SAVE:
-        this._settingsService.setAutoSave();
         break;
 
       case SAVE_DALEY.MANUAL_SAVE:
