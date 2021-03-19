@@ -2,14 +2,16 @@
 exports.__esModule = true;
 const electron = require("electron");
 const app = electron.app;
+const dialog = electron.dialog;
 const url = require("url");
 const electron_log_1 = require("electron-log");
 const path = require("path");
 const {BrowserWindow} = electron;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
-
 let win;
+app.showExitPrompt = true
+
 // nativeTheme.on('updated', function theThemeHasChanged () {
 //   updateMyAppTheme(nativeTheme.shouldUseDarkColors)
 // })
@@ -25,10 +27,10 @@ function createWindow() {
     alwaysOnTop: false,
     title: "DeltaView by AMS",
     show: false,
-	movable: true,
-	webPreferences: {
-		webSecurity: false
-	}
+    movable: true,
+    webPreferences: {
+      webSecurity: false
+    }
     // webPreferences: {
     //   nodeIntegration: true,
     //   allowRunningInsecureContent: (serve) ? true : false,
@@ -58,11 +60,26 @@ function createWindow() {
     win.show();
   });
   // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store window
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null;
+  win.on('close', (e) => {
+    if (app.showExitPrompt) {
+      e.preventDefault() // Prevents the window from closing
+      dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Unsaved data will be lost. Are you sure you want to quit?'
+      }).then(({response}) => {
+          if (response === 0) { // Runs the following if 'Yes' is clicked
+            app.showExitPrompt = false;
+            win.close()
+            // Dereference the window object, usually you would store window
+            // in an array if your app supports multi windows, this is the time
+            // when you should delete the corresponding element.
+            win = null;
+          }
+        }
+      );
+    }
   });
 
   return win;
