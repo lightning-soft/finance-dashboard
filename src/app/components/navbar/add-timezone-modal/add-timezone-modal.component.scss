@@ -1,0 +1,71 @@
+@import "../base-timezones";
+
+::ng-deep {
+  .timezones-modal {
+    .ant-modal-body {
+      padding: 4px !important;
+      background-color: $light !important;
+    }
+  }
+}
+
+.clock {
+  &, li {
+    background-color: $inputBackground;
+  }
+}
+
+.title {
+  text-align: left;
+  color: $titleColor;
+  font-size: 14px;
+  padding-bottom: 10px;
+}
+
+.column {
+  width: 50%;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.timezones-column {
+  max-height: 350px;
+  background-color: $inputBackground;
+  margin-left: 4px;
+}
+
+.reset {
+  text-transform: none;
+  color: $risingColor;
+  cursor: pointer;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.move-buttons {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  .move-button {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    background-color: $tabFrameColor;
+    color: $risingColor;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 3px 0;
+  }
+}

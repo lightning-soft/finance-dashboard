@@ -2,26 +2,19 @@
   nz-dropdown
   nzTrigger="click"
   class="clock-container"
+  [nzDropdownMenu]="menu"
+  [nzClickHide]="false"
 >
-  <!-- [nzClickHide]="false"
-  [nzDropdownMenu]="menu"-->
   <div *ngIf="time; else block">{{ time | date: "HH:mm:ss" }}</div>
   <ng-template #block><span>--:--:--</span></ng-template>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="clock">
     <li
-      class="clock-local clock-item"
+      class="clock-item"
       nz-menu-item
     >
-      <div class="title">
-        <label nz-checkbox>Local</label>
-        <span class="icons-container">
-           <i title="Edit" data-name="Edit" class="icon-edit"></i>
-           <i title="Reset" data-name="Reset" class="icon-reset"></i>
-           <i title="Remove from current" data-name="Remove from current" class="icon-close-window"></i>
-        </span>
-      </div>
+      <div class="title"><label>Local</label></div>
       <div class="subtitle">Vilnius, Helsinki, Kyiv, Riga, Sofia, Tallinn</div>
     </li>
     <li
@@ -42,7 +35,7 @@
       nz-menu-item
       class="clock-modal"
     >
-      <button (click)="openModal">Add timezone</button>
+      <button (click)="addTimezone()">Add timezone</button>
     </li>
   </ul>
 </nz-dropdown-menu>

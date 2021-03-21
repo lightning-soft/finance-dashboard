@@ -51,6 +51,7 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+import {AddTimezoneModalComponent} from "./components/navbar/add-timezone-modal/add-timezone-modal.component";
 
 
 /**
@@ -110,6 +111,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     WindowsComponent,
     NavbarControllerComponent,
     ClockComponent,
+    AddTimezoneModalComponent,
     ConnectionsComponent,
     FramesManagerComponent,
     WorkspaceComponent,

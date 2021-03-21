@@ -1,0 +1,38 @@
+<div class="title">Timezones</div>
+
+<div class="d-flex">
+  <div class="column column-header">All</div>
+  <div class="column column-header">
+    <span>Current</span>
+    <span class="reset">Reset</span>
+  </div>
+</div>
+
+<div class="d-flex">
+  <div class="column timezones-column">
+    <ul nz-menu class="clock">
+      <li
+        nz-menu-item
+        #item="nzMenuItem"
+        class="clock-utc"
+      >
+        <div class="title">
+          <label>UTC+3:00</label>
+          <span class="icons-container">
+           <i title="Edit" data-name="Edit" class="icon-edit"></i>
+           <i title="Reset" data-name="Reset" class="icon-reset"></i>
+           <i title="Remove from current" data-name="Remove from current" class="icon-close-window"></i>
+        </span>
+        </div>
+        <div class="subtitle">Minsk</div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="column timezones-column"></div>
+</div>
+
+<div class="move-buttons">
+  <button class="move-button"><i class="icon-arrow-right-general"></i></button>
+  <button class="move-button"><i class="icon-arrow-left-general"></i></button>
+</div>
