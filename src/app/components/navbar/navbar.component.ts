@@ -1,11 +1,11 @@
-import {Component, ElementRef, HostBinding, HostListener, Input} from '@angular/core';
-import {LayoutComponent} from 'layout';
-import {NotificationService} from 'notification';
-import {Themes, ThemesHandler} from 'themes';
-import {NavbarPosition, SettingsService} from "settings";
-import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
-import {fromEvent, merge} from "rxjs";
-import {debounceTime, map, tap} from "rxjs/operators";
+import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';
+import { LayoutComponent } from 'layout';
+import { NotificationService } from 'notification';
+import { Themes, ThemesHandler } from 'themes';
+import { NavbarPosition, SettingsService } from "settings";
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { fromEvent, merge } from "rxjs";
+import { debounceTime, map, tap } from "rxjs/operators";
 
 
 @UntilDestroy()
