@@ -452,26 +452,36 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //   if (!this.items.length)
     //     this.fillData(100);
 
+    //   const volume = Math.random() > 0.5 ? 2 : 4;
     //   let price = this.items[this.items.length - 1].lastPrice;
     //   const high = this.items[0].lastPrice;
     //   const centerPrice = this._normalizePrice((price + high) / 2);
 
     //   while (price <= high) {
-    //     if (price !== centerPrice)
-    //       this._handleTrade({
+    //     if (price !== centerPrice) {
+    //       // this._handleTrade({
+    //       //   price,
+    //       //   instrument: this._instrument,
+    //       //   side: OrderSide.Sell,
+    //       //   timestamp: Date.now(),
+    //       //   volume: 1,
+    //       //   volumeBuy: 1,
+    //       //   volumeSell: 1,
+    //       // });
+
+    //       this._handleQuote({
     //         price,
     //         instrument: this._instrument,
-    //         side: OrderSide.Sell,
+    //         side: QuoteSide.Bid,
     //         timestamp: Date.now(),
-    //         volume: 1,
-    //         volumeBuy: 1,
-    //         volumeSell: 1,
+    //         volume,
+    //         orderCount: 1,
+    //         updateType: UpdateType.Solo,
     //       });
+    //     }
 
     //     price = this._normalizePrice(price + this._tickSize);
     //   }
-
-    //   console.log(price, centerPrice, high);
 
     //   this._handleTrade({
     //     price: centerPrice,
@@ -481,6 +491,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //     volume: 1,
     //     volumeBuy: 1,
     //     volumeSell: 1,
+    //   });
+
+    //   this._handleQuote({
+    //     price: centerPrice,
+    //     instrument: this._instrument,
+    //     side: QuoteSide.Bid,
+    //     timestamp: Date.now(),
+    //     volume,
+    //     orderCount: 1,
+    //     updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
     //   });
     // }, 1000);
   }
@@ -600,7 +620,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
-    const useCustomTickSize = general?.commonFields?.useCustomTickSize;
+    const useCustomTickSize = general?.commonView?.useCustomTickSize;
     if (useCustomTickSize != this._customTickSizeApplyed)
       this.centralize();
 
@@ -813,7 +833,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
           if (asks.length || bids.length) {
             let index = 0;
-            let price = this._normalizePrice(asks[asks.length - 1].price);
+            let price = this._normalizePrice(asks[asks.length - 1]?.price);
             const tickSize = this._tickSize;
             // const maxPrice = asks[0].price;
             // const maxRows = ROWS * 2;
@@ -825,9 +845,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             // }
 
             index = 0;
-            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
-            this.fillData(price)
+            this.fillData(price);
 
             // while (index < maxRows && (price >= minPrice || index < ROWS)) {
             //   this.items.push(this._getItem(price));
@@ -963,7 +983,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       for (const i of this.items) {
         map = {
           ...map,
-          ...i.getDomItems(),
+          ...(i.getDomItems ? i.getDomItems() : {}),
         };
       }
     }
@@ -1007,6 +1027,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
           prices.push(price);
           customItemData[price] = map[price] ?? new DomItem(null, this._settings, this._priceFormatter, customItemData);
+          const _item = customItemData[price];
+
+          if (_item.ask.status === SumStatus) {
+            _item.ask.updateValue(0);
+            _item.ask.changeStatus('');
+          }
+          if (_item.bid.status === SumStatus) {
+            _item.bid.updateValue(0);
+            _item.bid.changeStatus('');
+          }
+
+          _item.setAskVisibility(false, false);
+          _item.setBidVisibility(false, false);
           customItemData[price].setPrice(price);
         }
 
@@ -1350,7 +1383,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     let item = this._getItem(trade.price);
 
-    console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
+    // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
 
     if (!this.items.length)
       this.fillData(trade.price);
@@ -1360,9 +1393,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // const needClear = false;
 
     if (trade.updateType === UpdateType.Undefined) {
-      let items = this.items;
+      const items = this.items;
 
-      let price = trade.price;
+      const price = trade.price;
       const isBid = trade.side === QuoteSide.Bid;
 
       if (isBid || (needClear && !isBid)) {
@@ -1642,7 +1675,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1',
+        id: 'ESH1',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,

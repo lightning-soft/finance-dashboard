@@ -387,6 +387,7 @@ export class DomItem implements IBaseItem {
   isCenter = false;
 
   side: QuoteSide;
+  clearCross = true;
 
   get lastPrice(): number {
     return this.price._value;
@@ -563,7 +564,8 @@ export class DomItem implements IBaseItem {
       res.askDelta = this.askDelta.value;
     }
 
-    this.clearBid();
+    if (this.clearCross)
+      this.clearBid();
     return this._getAskValues();
   }
 
@@ -586,7 +588,8 @@ export class DomItem implements IBaseItem {
       res.bidDelta = this.bidDelta._value;
     }
 
-    this.clearAsk();
+    if (this.clearCross)
+      this.clearAsk();
     return this._getBidValues();
   }
 
@@ -787,6 +790,8 @@ export class DomItem implements IBaseItem {
 export class CustomDomItem extends DomItem {
   private _domItems = {};
 
+  clearCross = false;
+
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
@@ -794,23 +799,12 @@ export class CustomDomItem extends DomItem {
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
-        const ltq = (this.ltq._value ?? (data.ltq._value != null ? 0 : null)) + data.ltq._value;
-        const bid = (this.bid._value ?? (data.bid._value != null ? 0 : null)) + data.bid._value;
-        const ask = (this.ask._value ?? (data.ask._value != null ? 0 : null)) + data.ask._value;
-        const currentAsk = (this.currentAsk._value ?? (data.currentAsk._value != null ? 0 : null)) + data.currentAsk._value;
-        const currentBid = (this.currentBid._value ?? (data.currentBid._value != null ? 0 : null)) + data.currentBid._value;
-        const totalAsk = (this.totalAsk._value ?? (data.totalAsk._value != null ? 0 : null)) + data.totalAsk._value;
-        const totalBid = (this.totalBid._value ?? (data.totalBid._value != null ? 0 : null)) + data.totalBid._value;
-        const volume = (this.volume._value ?? (data.volume._value != null ? 0 : null)) + data.volume._value;
 
-        this.ltq.updateValue(isNaN(ltq) ? 0 : ltq);
-        this.bid.updateValue(isNaN(bid) ? 0 : bid);
-        this.ask.updateValue(isNaN(ask) ? 0 : ask);
-        this.currentAsk.updateValue(isNaN(currentAsk) ? 0 : currentAsk);
-        this.currentBid.updateValue(isNaN(currentBid) ? 0 : currentBid);
-        this.totalAsk.updateValue(isNaN(totalAsk) ? 0 : totalAsk);
-        this.totalBid.updateValue(isNaN(totalBid) ? 0 : totalBid);
-        this.volume.updateValue(isNaN(volume) ? 0 : volume);
+        this.bid.updateValue((this.bid._value ?? 0) + (data.bid._value ?? 0));
+        this.ask.updateValue((this.ask._value ?? 0) + (data.ask._value ?? 0));
+        this.totalAsk.updateValue(data.totalAsk._value);
+        this.totalBid.updateValue(data.totalBid._value);
+        this.volume.updateValue(data.volume._value);
       }
     }
 
@@ -833,18 +827,21 @@ export class CustomDomItem extends DomItem {
       return;
 
     if (data.side === QuoteSide.Ask) {
-      const ask = item?.ask?._value ?? 0;
+      const ask = item.ask.status === SumStatus ? 0 : item?.ask?._value ?? 0;
       mergedData = {
         ...data,
-        volume: data.volume - ask + this.ask._value ?? 0,
+        volume: data.volume - ask + (this.ask._value ?? 0),
       };
     } else {
-      const bid = item?.bid._value ?? 0;
+      const bid = item.ask.status === SumStatus ? 0 : item?.bid._value ?? 0;
       mergedData = {
         ...data,
-        volume: data.volume - bid + this.bid._value ?? 0,
+        volume: data.volume - bid + (this.bid._value ?? 0),
       };
     }
+    // if (this.bid._value == 8)
+    //   console.log('this.bid._value', this.bid._value);
+    // console.log(data.price, data.volume, ...Object.keys(this._domItems).map(i => this._domItems[i].bidDelta._value), ...Object.keys(this._domItems).map(i => this._domItems[i].bid._value));
 
     item.handleQuote(data);
 
