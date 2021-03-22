@@ -82,7 +82,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState &
-    { showOHLC: boolean, showChanges: boolean}>(null);
+    { showOHLC: boolean, showChanges: boolean }>(null);
 
   enableOrderForm = false;
   showOrderForm = true;
@@ -247,8 +247,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
       instrument: (state && state.instrument) ?? {
-        id: 'ESH1',
-        symbol: 'ESH1',
+        id: 'ESM1',
+        symbol: 'ESM1',
         exchange: 'CME',
         tickSize: 0.25,
         company: this._getInstrumentCompany(),
@@ -323,9 +323,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.chart.timeFrame.interval}${this.chart.timeFrame.periodicity}`;
+      const timeFrame = this.chart.timeFrame;
+      let name = this.instrument.symbol;
+      if (this.instrument.description) {
+        name += ` - ${this.instrument.description}`;
+      }
+      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
+
+      return name;
     }
   }
+
 
   loadState(state?: any) {
     this.link = state?.link ?? Math.random();
@@ -357,4 +365,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
 function getScxTheme(theme: Themes) {
   return theme === Themes.Light ? StockChartX.Theme.Light : StockChartX.Theme.Dark;
+}
+
+
+function transformPeriodicity(periodicity: string): string {
+  switch (periodicity) {
+    case '':
+      return 'm';
+    case 'h':
+      return periodicity;
+    default:
+      return periodicity.toUpperCase();
+  }
 }

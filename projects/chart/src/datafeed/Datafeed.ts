@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { QuoteSide } from 'trading';
+import { OrderSide } from 'trading';
 import { IBar, IChart, IDetails } from '../models';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
 export type IDateFormat = (request: IRequest) => string;
@@ -84,6 +84,8 @@ export abstract class Datafeed implements IDatafeed {
         chart.lastVisibleRecord = oldLastVisibleRecord + Math.abs(barsCount);
       }
     }
+
+    chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, request);
 
     this._requests.delete(request.id);
 
@@ -210,7 +212,7 @@ export abstract class Datafeed implements IDatafeed {
           lastBar.low = quote.price;
 
         this._updateLastBar(lastBar, chart, instrument);
-      } else if (quote.tradesCount != null) {
+      } else {
         this._updateLastBarDetails(quote, chart, instrument);
       }
 
@@ -237,6 +239,8 @@ export abstract class Datafeed implements IDatafeed {
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
     const price = barDataSeries.close.lastValue;
+    const { volume, tradesCount: _tradesCount } = quote;
+    const tradesCount = _tradesCount ?? volume;
 
     const item: IDetails = {
       bidInfo: {
@@ -247,19 +251,19 @@ export abstract class Datafeed implements IDatafeed {
         volume: 0,
         tradesCount: 0
       },
-      volume: quote.volume,
-      tradesCount: quote.tradesCount,
+      volume,
+      tradesCount,
       price
     };
 
     switch (quote.side) {
-      case QuoteSide.Bid:
-        item.bidInfo.volume = quote.volume;
-        item.bidInfo.tradesCount = quote.tradesCount;
+      case OrderSide.Sell:
+        item.bidInfo.volume = volume;
+        item.bidInfo.tradesCount = tradesCount;
         break;
-      case QuoteSide.Ask:
-        item.askInfo.volume = quote.volume;
-        item.askInfo.tradesCount = quote.tradesCount;
+      case OrderSide.Buy:
+        item.askInfo.volume = volume;
+        item.askInfo.tradesCount = tradesCount;
         break;
     }
 
@@ -276,18 +280,18 @@ export abstract class Datafeed implements IDatafeed {
         const _item = details[index];
 
         switch (quote.side) {
-          case QuoteSide.Bid:
-            _item.bidInfo.volume = item.bidInfo.volume;
-            _item.bidInfo.tradesCount = item.bidInfo.tradesCount;
+          case OrderSide.Sell:
+            _item.bidInfo.volume += item.bidInfo.volume;
+            _item.bidInfo.tradesCount += item.bidInfo.tradesCount;
             break;
-          case QuoteSide.Ask:
-            _item.askInfo.volume = item.askInfo.volume;
-            _item.askInfo.tradesCount = item.askInfo.tradesCount;
+          case OrderSide.Buy:
+            _item.askInfo.volume += item.askInfo.volume;
+            _item.askInfo.tradesCount += item.askInfo.tradesCount;
             break;
         }
 
-        _item.volume = _item.bidInfo.volume + _item.askInfo.volume;
-        _item.tradesCount = _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
+        _item.volume += _item.bidInfo.volume + _item.askInfo.volume;
+        _item.tradesCount += _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
       }
     }
 
