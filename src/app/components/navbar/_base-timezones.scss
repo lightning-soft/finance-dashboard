@@ -10,6 +10,12 @@
     padding: 0;
     height: auto;
     background-color: $tabFrameColor;
+    text-align: left;
+    color: $textColor;
+
+    &.ant-menu-item-selected {
+      background-color: $light3;
+    }
   }
 
   .icons-container {
@@ -30,7 +36,7 @@
     }
   }
 
-  .title {
+  .utc-time {
     line-height: 16px;
 
     label {
@@ -45,7 +51,7 @@
     white-space: normal;
     max-width: 100%;
     margin: 2px 0 10px 0;
-    font-size: 0.7rem;
+    font-size: 10px;
     line-height: 14px;
     color: $textColor;
   }

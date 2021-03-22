@@ -52,6 +52,7 @@ import { FramesManagerComponent } from './components/navbar/frames-manager/frame
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
 import {AddTimezoneModalComponent} from "./components/navbar/add-timezone-modal/add-timezone-modal.component";
+import { UtcPipe } from "./components/navbar/add-timezone-modal/utc.pipe";
 
 
 /**
@@ -112,6 +113,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NavbarControllerComponent,
     ClockComponent,
     AddTimezoneModalComponent,
+    UtcPipe,
     ConnectionsComponent,
     FramesManagerComponent,
     WorkspaceComponent,

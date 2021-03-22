@@ -14,22 +14,37 @@
       <li
         nz-menu-item
         #item="nzMenuItem"
+        *ngFor="let timezone of allTimezones"
         class="clock-utc"
       >
-        <div class="title">
-          <label>UTC+3:00</label>
+        <div class="utc-time">
+          <label>{{timezone.offset | utc}}</label>
+        </div>
+        <div class="subtitle">{{timezone.text}}</div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="column timezones-column">
+    <ul nz-menu class="clock">
+      <li
+        nz-menu-item
+        #item="nzMenuItem"
+        *ngFor="let timezone of currentTimezones"
+        class="clock-utc"
+      >
+        <div class="utc-time">
+          <label nz-checkbox>UTC{{timezone.offset | utc}}</label>
           <span class="icons-container">
            <i title="Edit" data-name="Edit" class="icon-edit"></i>
            <i title="Reset" data-name="Reset" class="icon-reset"></i>
            <i title="Remove from current" data-name="Remove from current" class="icon-close-window"></i>
         </span>
         </div>
-        <div class="subtitle">Minsk</div>
+        <div class="subtitle">{{timezone.text}}</div>
       </li>
     </ul>
   </div>
-
-  <div class="column timezones-column"></div>
 </div>
 
 <div class="move-buttons">
