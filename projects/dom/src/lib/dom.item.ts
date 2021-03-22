@@ -505,9 +505,6 @@ export class DomItem implements IBaseItem {
   }
 
   handleTrade(trade: TradePrint) {
-    if (this.ltq.time === trade.timestamp)
-      return;
-
     const res: any = {};
 
     const forceAdd = this.ltq._value > 0;
@@ -621,26 +618,6 @@ export class DomItem implements IBaseItem {
     }
 
     return false;
-  }
-
-  getSnapshot() {
-    return {
-      [this.lastPrice]: {
-        price: this.lastPrice,
-        sellOrders: this.sellOrders._value,
-        buyOrders: this.buyOrders._value,
-        ltq: this.ltq._value,
-        bid: this.bid._value,
-        ask: this.ask._value,
-        currentAsk: this.currentAsk._value,
-        currentBid: this.currentBid._value,
-        totalAsk: this.totalAsk._value,
-        totalBid: this.totalBid._value,
-        volume: this.volume._value,
-        askDelta: this.askDelta._value,
-        bidDelta: this.bidDelta._value,
-      }
-    };
   }
 
   removeOrder(order: IOrder) {
@@ -808,28 +785,23 @@ export class DomItem implements IBaseItem {
 }
 
 export class CustomDomItem extends DomItem {
-  private _values = {};
+  private _domItems = {};
 
-  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: any) {
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
-    this._values = {};
-
-    for (const key in snapshot) {
-      if (snapshot.hasOwnProperty(key))
-        this._values[key] = new DomItem(index, settings, _priceFormatter, snapshot[key]);
-    }
+    this._domItems = snapshot;
 
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
-        const ltq = (this.ltq._value ?? data.ltq == null ? 0 : null) + data.ltq;
-        const bid = (this.bid._value ?? data.bid == null ? 0 : null) + data.bid;
-        const ask = (this.ask._value ?? data.ask == null ? 0 : null) + data.ask;
-        const currentAsk = (this.currentAsk._value ?? data.currentAsk == null ? 0 : null) + data.currentAsk;
-        const currentBid = (this.currentBid._value ?? data.currentBid == null ? 0 : null) + data.currentBid;
-        const totalAsk = (this.totalAsk._value ?? data.totalAsk == null ? 0 : null) + data.totalAsk;
-        const totalBid = (this.totalBid._value ?? data.totalBid == null ? 0 : null) + data.totalBid;
-        const volume = (this.volume._value ?? data.volume == null ? 0 : null) + data.volume;
+        const ltq = (this.ltq._value ?? (data.ltq._value != null ? 0 : null)) + data.ltq._value;
+        const bid = (this.bid._value ?? (data.bid._value != null ? 0 : null)) + data.bid._value;
+        const ask = (this.ask._value ?? (data.ask._value != null ? 0 : null)) + data.ask._value;
+        const currentAsk = (this.currentAsk._value ?? (data.currentAsk._value != null ? 0 : null)) + data.currentAsk._value;
+        const currentBid = (this.currentBid._value ?? (data.currentBid._value != null ? 0 : null)) + data.currentBid._value;
+        const totalAsk = (this.totalAsk._value ?? (data.totalAsk._value != null ? 0 : null)) + data.totalAsk._value;
+        const totalBid = (this.totalBid._value ?? (data.totalBid._value != null ? 0 : null)) + data.totalBid._value;
+        const volume = (this.volume._value ?? (data.volume._value != null ? 0 : null)) + data.volume._value;
 
         this.ltq.updateValue(isNaN(ltq) ? 0 : ltq);
         this.bid.updateValue(isNaN(bid) ? 0 : bid);
@@ -846,16 +818,15 @@ export class CustomDomItem extends DomItem {
   }
 
   handleTrade(trade: TradePrint) {
-    const item: DomItem = this._values[trade.price];
+    const item: DomItem = this._domItems[trade.price];
     if (item)
       item.handleTrade(trade);
 
-    super.handleTrade(trade);
+    return super.handleTrade(trade);
   }
 
   handleQuote(data: IQuote) {
-
-    const item: DomItem = this._values[data.price];
+    const item: DomItem = this._domItems[data.price];
     let mergedData;
 
     if (!item)
@@ -877,17 +848,10 @@ export class CustomDomItem extends DomItem {
 
     item.handleQuote(data);
 
-    super.handleQuote(mergedData);
+    return super.handleQuote(mergedData);
   }
 
-  getSnapshot() {
-    let res = {};
-
-    for (const key in this._values) {
-      if (this._values.hasOwnProperty(key))
-        res = { ...res, ...this._values[key].getSnapshot() };
-    }
-
-    return res;
+  getDomItems() {
+    return this._domItems;
   }
 }
