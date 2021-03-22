@@ -2,18 +2,24 @@
 @import "../themes/index";
 
 :host {
-  margin: 0 8px 0 16px;
+  margin: 0 0 0 16px;
   background-color: transparent !important;
+  display: flex;
+  height: 100%;
+
+  &.has-windows {
+    margin-right: 16px;
+  }
 
   .frames-manager {
     display: flex;
+    align-items: center;
 
 
     & > .frame {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-right: 4px;
       border-radius: 2px;
       min-width: 28px;
       height: 28px;
@@ -22,6 +28,10 @@
       cursor: pointer;
       transition: all 0.3s;
       border: 1px solid transparent;
+
+      &:not(:last-child) {
+        margin-right: 4px;
+      }
 
       &:hover {
         border: 1px solid #4895F5;
@@ -67,6 +77,15 @@
       }
     }
   }
+}
+
+.vertical-divider {
+  width: 1px;
+  background: $light2;
+  height: calc(#{$navbarHeight} - 8px);
+  display: block;
+  margin-top: 4px;
+  margin-left: 16px;
 }
 
 .window-count {

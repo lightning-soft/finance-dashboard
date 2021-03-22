@@ -140,7 +140,7 @@ export class WindowsComponent implements OnInit {
   }
 
   save() {
-    this._workspacesService.saveWorkspaces(this._workspacesService.getActiveWorkspace().id, this.layout.saveState());
+    this._workspacesService.save.next();
   }
 
   loadOnStartUp(id) {

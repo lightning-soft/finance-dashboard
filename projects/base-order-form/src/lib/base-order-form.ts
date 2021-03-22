@@ -82,7 +82,7 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
 }
 export const orderDurations = Object.values(OrderDuration);
 export const orderTypes = [
-  // { label: 'MKT', value: OrderType.Market },
+   { label: 'MKT', value: OrderType.Market },
   { label: 'LMT', value: OrderType.Limit },
   { label: 'STP LMT', value: OrderType.StopLimit },
   { label: 'STP MKT', value: OrderType.StopMarket },
