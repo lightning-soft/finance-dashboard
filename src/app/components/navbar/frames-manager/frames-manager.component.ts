@@ -66,7 +66,7 @@ export class FramesManagerComponent {
         windowTuple[1].add(window);
       }
     }
-    this.hasAnyWindow = !!this.windowTuples.reduce((total, [name, widgets]) => total + widgets.size, 0);
+    this.hasAnyWindow = !!this.windowTuples.some(( [name, widgets]) => widgets.size);
   }
 
   getComponentStateName(window: IWindow, componentName: string): string {

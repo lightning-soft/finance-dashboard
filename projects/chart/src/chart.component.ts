@@ -25,7 +25,7 @@ import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
-import { NzContextMenuService, NzDropdownMenuComponent } from "ng-zorro-antd";
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;

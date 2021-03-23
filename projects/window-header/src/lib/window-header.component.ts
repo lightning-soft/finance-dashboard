@@ -1,5 +1,6 @@
 import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { ILayoutNode } from 'layout';
+import { WindowPopupManager } from '../../../layout/src/services/window-popup-manager';
 
 @Component({
   selector: 'window-header',
@@ -12,9 +13,19 @@ export class WindowHeaderComponent {
   @Input() marginClass = 'mx-3';
   @Output() close = new EventEmitter<boolean>();
 
+  constructor(private windowPopupManager: WindowPopupManager) {
+  }
+
   onClose() {
     this.close.emit(true);
     this.window.close();
   }
 
+  popup() {
+    this.windowPopupManager.openPopup(this.window);
+  }
+
+  isPopup() {
+   return  this.windowPopupManager.isPopup();
+  }
 }

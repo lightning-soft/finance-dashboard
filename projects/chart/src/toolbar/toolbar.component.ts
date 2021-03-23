@@ -76,7 +76,7 @@ export class ToolbarComponent {
     {
       icon: 'measure',
       name: 'Measure',
-      items: ['measure']
+      items: ['measures']
     },
     {
       icon: 'add-image',
@@ -251,6 +251,7 @@ export class ToolbarComponent {
       width: 600,
       resizable: false,
       maximizable: false,
+      shouldOpenInNewWindow: false,
       minimizable: false,
       single: true,
       removeIfExists: true,

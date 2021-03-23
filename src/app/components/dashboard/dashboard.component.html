@@ -1,3 +1,3 @@
-<app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
+<app-navbar *ngIf="layout && !isPopup()" [layout]="layout" #bar></app-navbar>
 <layout #layout></layout>
 <context-menu></context-menu>

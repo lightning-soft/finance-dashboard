@@ -66,6 +66,7 @@ export class NavbarComponent {
       maximizable: false,
       minimizable: false,
       resizable: false,
+      shouldOpenInNewWindow: false,
       x: 'center',
       y: 'center',
       single: true,

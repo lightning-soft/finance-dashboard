@@ -29,8 +29,12 @@ export class DockDesktopLayout extends Layout {
 
   removeComponent(componentName) {
     const window = this._windowManagerService.windows.getValue()
-        .find(item => item.options.componentState().name === componentName);
+      .find(item => item.options.componentState().name === componentName);
     window?.close();
+  }
+
+  getWidgets() {
+    return this._windowManagerService.windows.getValue();
   }
 
   addComponent(componentNameOrConfig: ComponentOptions | any) {
@@ -49,7 +53,7 @@ export class DockDesktopLayout extends Layout {
     }
     if (!this.canAddComponent(componentNameOrConfig)) {
       const window = this._windowManagerService.windows.getValue()
-      .find(item => item.options.componentState().name === componentName);
+        .find(item => item.options.componentState().name === componentName);
 
       if (componentNameOrConfig.removeIfExists) {
         window?.close();
@@ -78,6 +82,7 @@ export class DockDesktopLayout extends Layout {
           instance.layout = this;
           const configData = {
             width: 500,
+            shouldOpenInNewWindow: true,
             height: 500,
             minWidth: 320,
             minHeight: 150,
@@ -100,10 +105,10 @@ export class DockDesktopLayout extends Layout {
               top: true,
             },
             ...configData,
-            componentState: () => ({
+            componentState: () => ( {
               state: instance.saveState && instance.saveState(),
               name: componentName,
-            }),
+            } ),
           };
 
           const window = this._windowManagerService.createWindow(windowOptions);
@@ -118,7 +123,7 @@ export class DockDesktopLayout extends Layout {
             instance.loadState(componentState);
           }
 
-          const { _container } = window;
+          const {_container} = window;
 
           _container.appendChild(comp.location.nativeElement);
         } catch (e) {

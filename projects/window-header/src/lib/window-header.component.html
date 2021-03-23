@@ -9,6 +9,9 @@
 </div>
 
 <div>
+  <span *ngIf="!isPopup() && window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
+    <i class="icon-popup"></i>
+  </span>
   <span class="link" *ngIf="window.minimizable()"  (click)="window.minimize()">
     <i class="icon-minimize-window"></i>
   </span>

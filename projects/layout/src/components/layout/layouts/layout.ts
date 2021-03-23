@@ -2,6 +2,7 @@ import { ComponentFactoryResolver, ComponentRef, ElementRef, ViewContainerRef } 
 import { LoadingService } from 'lazy-modules';
 import { IDropable } from './dropable';
 import { LoaderComponent } from 'ui';
+import { IWindow } from 'window-manager';
 
 export type ComponentOptions = {
   component: {
@@ -17,6 +18,7 @@ export type ComponentOptions = {
   minHeight?: number;
   icon?: string;
   minimizable?: boolean;
+  shouldOpenInNewWindow?: boolean;
   maximizable?: boolean;
   hidden?: boolean;
   closeBtn?: boolean;
@@ -67,6 +69,8 @@ export abstract class Layout implements IDropable {
     const factory = this._factoryResolver.resolveComponentFactory(LoaderComponent);
     return factory.create(this.viewContainer.injector);
   }
+
+  abstract getWidgets(): IWindow[];
 
   abstract getState(): any;
 

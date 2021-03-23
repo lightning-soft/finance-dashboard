@@ -29,7 +29,7 @@
             (click)="stayInDragMode()">
 
           <i
-            [ngStyle]="{color: chart?.stayInDrawingMode? '#0c6ce4': null}"
+            [ngStyle]="{color: chart?.stayInDrawingMode? 'white': null}"
             class="icon-pen"></i>
         </li>
         <ng-container *ngFor="let drawingInstrument of drawingInstruments">
@@ -61,15 +61,18 @@
         <li class="divider toolbar"></li>
         <li [title]="chart?.showDrawings? 'Hide Drawings': 'Show Drawings'" nz-menu-item (click)="visible()">
           <i
-            [ngStyle]="{color: chart?.showDrawings? '#0c6ce4': null}"
-            class="icon-not-visible"></i>
+            [class.icon-visible]="chart?.showDrawings"
+            [class.icon-not-visible]="!chart?.showDrawings"></i>
         </li>
         <li title="Remove Drawing" nz-menu-item (click)="removeDrawing()">
           <i class="icon-delete"></i>
         </li>
         <li nz-menu-item class="empty-element"></li>
-        <li title="Pin" (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
-          <i [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
+        <li title="Pin"
+            (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
+          <i
+            [ngStyle]="{color: isDrawingsPinned ? 'white': null}"
+            [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
         </li>
       </ul>
     </nz-dropdown-menu>

@@ -3,11 +3,12 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 import { environment } from 'environment';
+import { ActivatedRoute } from '@angular/router';
 
 export enum DashboardCommand {
   SavePage = 'save_page',
@@ -47,6 +48,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
+    private _route: ActivatedRoute,
+    private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
   ) {
   }
@@ -71,7 +74,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     / For performance reason avoiding ng zone in some cases
     */
     const zone = this._zone;
-    Element.prototype.addEventListener = function( ...args ) {
+    Element.prototype.addEventListener = function (...args) {
       const _this = this;
 
       if (['wm-container'].some(i => this.classList.contains(i)) ||
@@ -79,7 +82,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       ) {
         const fn = args[1];
         if (typeof fn == 'function')
-          args[1] = ( ...params ) => zone.runOutsideAngular(() => fn.apply(_this, params));
+          args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
       }
 
       return addEventListener.apply(_this, args);
@@ -87,11 +90,39 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    if (this.isPopup())
+      this._loadPopupState();
+    else {
+      this._setupWorkspaces();
+    }
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass();
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
+  }
+
+  isPopup() {
+    return this._windowPopupManager.isPopup();
+  }
+
+  private _loadPopupState() {
+    const options = this._windowPopupManager.getOptions();
+    this.layout.loadEmptyState();
+    this.layout.addComponent(options);
+    this._windowPopupManager.deleteConfig();
+    setTimeout(() => {
+      const widgets = this.layout.getWidgets();
+      widgets[0].maximize();
+    }, 100);
+  }
+
+  private _setupWorkspaces() {
     this._workspaceService.save
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         this._save();
       });
+
     this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
@@ -107,11 +138,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.layout.loadState(config);
 
       });
-
-    this._themesHandler.themeChange$.subscribe(( theme ) => {
-      $('body').removeClass();
-      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
-    });
   }
 
   private _setupSettings(): void {
@@ -144,7 +170,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     ];
   }
 
-  private _handleEvent( event ) {
+  private _handleEvent(event) {
     if (isInput(event && event.srcElement))
       return;
 
@@ -152,9 +178,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this._handleKey(event);
   }
 
-  private _handleKey( event ) {
+  private _handleKey(event) {
     this.keysStack.handle(event);
-    const key = this.settings.hotkeys.find(( [_, binding] ) => binding.equals(this.keysStack));
+    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack));
     if (key) {
       this.handleCommand(key[0].name as DashboardCommand);
       event.preventDefault();
@@ -162,7 +188,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     console.log(this.keysStack.toUIString());
   }
 
-  private handleCommand( command: DashboardCommand ) {
+  private handleCommand(command: DashboardCommand) {
     switch (command) {
       case DashboardCommand.SavePage: {
         this._save();
@@ -192,7 +218,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   @HostListener('window:beforeunload', ['$event'])
-  async beforeUnloadHandler( e ) {
+  async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
     if (this.hasBeenSaved || !environment.production)

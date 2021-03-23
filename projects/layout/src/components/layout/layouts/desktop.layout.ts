@@ -25,8 +25,9 @@ export class DesktopLayout extends Layout {
   }
 
   // TODO implement
-  removeComponent(removeComponent: string){
+  removeComponent(removeComponent: string) {
   }
+
   addComponent(componentName: string) {
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {
     //   // edge don't support obfuscated code StockChartX
@@ -179,11 +180,16 @@ export class DesktopLayout extends Layout {
       // Initialize the layout.
       goldenLayout.init();
       this.goldenLayout = goldenLayout;
-      (window as any).goldenLayout = goldenLayout;
+      ( window as any ).goldenLayout = goldenLayout;
     } catch (e) {
       console.error(e);
       throw e;
     }
+  }
+
+  getWidgets() {
+    // implement
+    return [];
   }
 
   getState(): any {
@@ -201,8 +207,8 @@ export class DesktopLayout extends Layout {
     }
 
     for (const item of items) {
-      if (item.isComponent && (item as any).container.trigger) {
-        (item as any).container.trigger('extendState');
+      if (item.isComponent && ( item as any ).container.trigger) {
+        ( item as any ).container.trigger('extendState');
       }
 
       this.extendState(item.contentItems);
@@ -224,7 +230,7 @@ export class DesktopLayout extends Layout {
       return this._linkSelectMap.get(container);
     }
 
-    const { ref, domElement, destroy } = await this._creationsService
+    const {ref, domElement, destroy} = await this._creationsService
       .getDynamicComponent(LinkSelectComponent, [{
         provide: DynamicComponentConfig,
         useValue: {
@@ -267,7 +273,7 @@ export class DesktopLayout extends Layout {
       return;
     }
 
-    const tabDrag = $(`<span class="${DragTabClass}"></span>`);
+    const tabDrag = $(`<span class="${ DragTabClass }"></span>`);
     tabDrag.css({
       position: 'absolute',
       top: 0,
@@ -284,7 +290,7 @@ export class DesktopLayout extends Layout {
   private _overrideTabOnDragStart(tab: any) {
     const origin = tab._onDragStart;
     const dragListener = tab._dragListener;
-    const dragElement = $(tab.element).find(`.${DragTabClass}`);
+    const dragElement = $(tab.element).find(`.${ DragTabClass }`);
 
     dragListener.off('dragStart', origin, tab);
     const onDragStart = function (x, y) {
@@ -293,7 +299,7 @@ export class DesktopLayout extends Layout {
     };
 
     tab._onDragStart = onDragStart;
-    dragListener.on('dragStart', (tab as any)._onDragStart, tab);
+    dragListener.on('dragStart', ( tab as any )._onDragStart, tab);
     dragListener.on('dragStop', () => {
       dragElement.remove();
     }, null);

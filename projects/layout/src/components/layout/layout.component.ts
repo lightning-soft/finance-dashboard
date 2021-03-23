@@ -6,7 +6,6 @@ import {
   ElementRef,
   HostListener,
   NgZone,
-
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
@@ -22,6 +21,7 @@ import { IDropable } from './layouts/dropable';
 import { ComponentOptions, Layout } from './layouts/layout';
 
 export type ComponentInitCallback = (container: GoldenLayout.Container, componentState: any) => void;
+
 @UntilDestroy()
 @Component({
   selector: 'layout',
@@ -59,6 +59,10 @@ export class LayoutComponent implements IDropable, AfterViewInit {
 
   ngAfterViewInit() {
     this._windowManagerService.createWindowManager(this.container);
+  }
+
+  getWidgets() {
+    return this.layout.getWidgets();
   }
 
   addComponent(options: ComponentOptions | string) {
