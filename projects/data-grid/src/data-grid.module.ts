@@ -21,20 +21,20 @@ const entryComponents = [
 ];
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ScrollingModule,
-        ResizableModule,
-        NzTransferModule,
-        NzMenuModule,
-        NzButtonModule,
-        NzModalModule,
-        NzIconModule,
-        NzCheckboxModule,
-        NzPopoverModule,
-        NzDropDownModule,
-        FormsModule
-    ],
+  imports: [
+    CommonModule,
+    ScrollingModule,
+    ResizableModule,
+    NzTransferModule,
+    NzMenuModule,
+    NzButtonModule,
+    NzModalModule,
+    NzIconModule,
+    NzCheckboxModule,
+    NzPopoverModule,
+    NzDropDownModule,
+    FormsModule
+  ],
   declarations: [
     ItemViewBuilder,
     ...entryComponents,
