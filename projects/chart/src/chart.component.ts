@@ -74,6 +74,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   set instrument(value) {
+    if (this.chart.instrument.symbol === value.symbol
+      && this.chart.instrument.exchange === value.exchange)
+      return;
     this.chart.instrument = value;
     if (value) {
       value.company = this._getInstrumentCompany();
@@ -326,9 +329,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${this.instrument.description}`;
+        name += ` - ${ this.instrument.description }`;
       }
-      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
+      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
 
       return name;
     }
