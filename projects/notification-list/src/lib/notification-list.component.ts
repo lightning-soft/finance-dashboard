@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {AuthService} from 'auth';
-import {ILayoutNode, LayoutNode} from 'layout';
+import { Component, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AuthService } from 'auth';
+import { ILayoutNode, LayoutNode } from 'layout';
 import {
   NotificationService,
   Notification
@@ -78,7 +78,7 @@ function groupNotifications(notifications: Notification[]) {
     prev[key].push(current);
     return prev;
   }, {});
-  return Object.keys(notificationMap).map(date => ({date, notifications: notificationMap[date]}));
+  return Object.keys(notificationMap).map(date => ({ date, notifications: notificationMap[date] }));
 }
 
 function isToday(date) {

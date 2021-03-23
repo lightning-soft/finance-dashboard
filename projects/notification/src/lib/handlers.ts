@@ -1,5 +1,5 @@
-import {MessageTypes} from './enums';
-import {Notification} from './notification';
+import { MessageTypes } from './enums';
+import { Notification } from './notification';
 
 export enum AlertType {
   Undefined = 'Undefined',
