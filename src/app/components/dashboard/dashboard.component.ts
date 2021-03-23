@@ -26,7 +26,7 @@ export const DashboardCommandToUIString = {
 })
 @UntilDestroy()
 export class DashboardComponent implements AfterViewInit, OnInit {
-  @ViewChild(LayoutComponent) layout: LayoutComponent;
+  @ViewChild(LayoutComponent, { static: false }) layout: LayoutComponent;
 
   settings: SettingsData;
   keysStack: KeyboardListener = new KeyboardListener();
