@@ -1,6 +1,6 @@
-import {Id} from 'base-components';
-import {DataCell, IconCell, IFormatter, NumberCell, RoundFormatter} from 'data-grid';
-import {IPosition, IQuote, Side} from 'trading';
+import { Id } from 'base-components';
+import { DataCell, IconCell, IFormatter, NumberCell, RoundFormatter } from 'data-grid';
+import { IPosition, IQuote, Side } from 'trading';
 
 export class PositionItem {
   private _priceFormatter: IFormatter;
@@ -29,13 +29,13 @@ export class PositionItem {
     this._priceFormatter = new RoundFormatter(position.instrument?.precision ?? 2);
     this.price.formatter = this._priceFormatter;
     this.unrealized.formatter = this._priceFormatter;
-    this.realized.formatter =  this._priceFormatter;
+    this.realized.formatter = this._priceFormatter;
     this.total.formatter = this._priceFormatter;
     this.update(position);
   }
 
   update(position: IPosition) {
-    this.position = {...this.position, ...position};
+    this.position = { ...this.position, ...position };
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
