@@ -105,10 +105,10 @@ export class DockDesktopLayout extends Layout {
               top: true,
             },
             ...configData,
-            componentState: () => ( {
+            componentState: () => ({
               state: instance.saveState && instance.saveState(),
               name: componentName,
-            } ),
+            }),
           };
 
           const window = this._windowManagerService.createWindow(windowOptions);
@@ -123,7 +123,7 @@ export class DockDesktopLayout extends Layout {
             instance.loadState(componentState);
           }
 
-          const {_container} = window;
+          const { _container } = window;
 
           _container.appendChild(comp.location.nativeElement);
         } catch (e) {
