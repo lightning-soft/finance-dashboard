@@ -83,6 +83,10 @@
       <sl-units formControlName="stopLoss"></sl-units>
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
+    <div class="market-buttons">
+      <button class="buy-market" (click)="createBuyMarket()">BUY MKT</button>
+      <button class="sell-market"  (click)="createSellMarket()">SELL MKT</button>
+    </div>
     <div class="cxl">
       <button
         [style.color]="setting.sellButtonsFontColor"

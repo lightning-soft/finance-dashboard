@@ -150,8 +150,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
-    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
+    buyMarket: () => this._createBuyMarketOrder(),
+    sellMarket: () => this._createSellMarketOrder(),
     hitBid: () => {
       this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
@@ -298,10 +298,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
-  @ViewChild(DataGrid, { static: true })
+  @ViewChild(DataGrid, {static: true})
   dataGrid: DataGrid;
 
-  @ViewChild(DataGrid, { read: ElementRef })
+  @ViewChild(DataGrid, {read: ElementRef})
   dataGridElement: ElementRef;
 
   isFormOpen = true;
@@ -386,7 +386,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.setTabIcon('icon-widget-dom');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
-    (window as any).dom = this;
+    ( window as any ).dom = this;
 
     this.columns = [
       ...[
@@ -461,7 +461,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getSettingsKey() {
-    return `${this.componentInstanceId}.${DomSettingsSelector}`;
+    return `${ this.componentInstanceId }.${ DomSettingsSelector }`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -470,7 +470,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const common = settings.common;
     const general = settings?.general;
-    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    const getFont = (fontWeight) => `${ fontWeight || '' } ${ common.fontSize }px ${ common.fontFamily }`;
     common.orders = !settings.orders.split;
     common.buyOrders = settings.orders.split;
     common.sellOrders = settings.orders.split;
@@ -551,8 +551,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${key}${_key}`] = obj[_key];
-          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
+          deltaStyles[`${ key }${ _key }`] = obj[_key];
+          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
         }
       }
     }
@@ -638,7 +638,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const {
       closeOutstandingOrders,
     } = this._settings.general;
-    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
+    const isNewPosition = !oldPosition || ( diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
     if (isNewPosition) {
       // #TODO test all windows
       this.applySettingsOnNewPosition();
@@ -743,8 +743,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange })
+    const {symbol, exchange} = this._instrument;
+    this._volumeHistoryRepository.getItems({symbol, exchange})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -763,14 +763,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId || !this._instrument)
       return;
 
-    const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange })
+    const {symbol, exchange} = this._instrument;
+    this._orderBooksRepository.getItems({symbol, exchange})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
           this._clear();
 
-          const { asks, bids } = res.data[0];
+          const {asks, bids} = res.data[0];
 
           bids.sort((a, b) => a.price - b.price);
           asks.sort((a, b) => b.price - a.price);
@@ -791,7 +791,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             index = 0;
             price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
 
-            this.fillData(price)
+            this.fillData(price);
 
             // while (index < maxRows && (price >= minPrice || index < ROWS)) {
             //   this.items.push(this._getItem(price));
@@ -832,7 +832,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
-    this._ordersRepository.getItems({ id: this._accountId })
+    this._ordersRepository.getItems({id: this._accountId})
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -875,7 +875,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
-    this._positionsRepository.getItems({ accountId: this._accountId })
+    this._positionsRepository.getItems({accountId: this._accountId})
       .pipe(untilDestroyed(this))
       .subscribe(items => {
         this.positions = items.data;
@@ -946,7 +946,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const snapshot = this._getSnapshot();
       const tickSize = this._tickSize;
       const decimals = lastPrice % 1;
-      const startPrice = lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
+      const startPrice = lastPrice + ( decimals > 0.5 ? ( 1 - decimals ) : ( decimals - 1 ) );
       const multiplier = commonView.ticksMultiplier ?? 1;
 
       while (offset <= ROWS / 2) {
@@ -954,7 +954,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         let customItemData = {};
         let prices = [];
         for (let m = 0; m < multiplier; m++) {
-          const price = this._normalizePrice(startPrice + (offset * multiplier + m) * tickSize);
+          const price = this._normalizePrice(startPrice + ( offset * multiplier + m ) * tickSize);
           const data = snapshot[price] ?? {};
 
           prices.push(price);
@@ -972,7 +972,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData = {};
           prices = [];
           for (let m = 0; m < multiplier; m++) {
-            const price = this._normalizePrice(startPrice - (offset * multiplier + m) * tickSize);
+            const price = this._normalizePrice(startPrice - ( offset * multiplier + m ) * tickSize);
             const data = snapshot[price] ?? {};
 
             prices.push(price);
@@ -1236,7 +1236,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }, this._levelsInterval);
 
     this._clearInterval = () => {
-      clearInterval(_interval)
+      clearInterval(_interval);
       this._clearInterval = null;
     };
   }
@@ -1568,8 +1568,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.keysStack.handle(event);
     // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
+      .filter(([name, item]) => item)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
-      .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
+      .find(([name, binding]) => ( binding as KeyBinding ).equals(this.keysStack));
 
     if (keyBinding) {
       console.warn(keyBinding[0]);
@@ -1757,8 +1758,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case FormActions.CancelOcoOrder:
         this._clearOcoOrders();
         break;
-      case FormActions.CreateMarketOrder:
-        this._createMarketOrder();
+      case FormActions.CreateSellMarketOrder:
+        this._createSellMarketOrder();
+        break;
+      case FormActions.CreateBuyMarketOrder:
+        this._createBuyMarketOrder();
         break;
       default:
 
@@ -1773,22 +1777,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.items.forEach(item => item.clearOcoOrder());
   }
 
-  _createMarketOrder() {
-    const data = this._domForm.getDto();
-    const { exchange, symbol } = this.instrument;
-    // #TODO investigate what side of order should be added.
-    this._ordersRepository.createItem({
-      ...data,
-      accountId: this._accountId,
-      type: OrderType.Market,
-      side: OrderSide.Buy, exchange, symbol
-    })
-      .toPromise()
-      .then(() => {
-        this.notifier.showSuccess('Order Created');
-      }).catch((err) => {
-        this.notifier.showError(err);
-      });
+  _createBuyMarketOrder() {
+    this._createOrder(OrderSide.Buy, null, {type: OrderType.Market});
+  }
+
+  _createSellMarketOrder() {
+    this._createOrder(OrderSide.Sell, null, {type: OrderType.Market});
   }
 
   private _closePositions() {
@@ -1803,7 +1797,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _closeOrders(action: FormActions) {
-    let orders = this.items.reduce((acc, i) => ([...acc, ...i.orders.orders]), []);
+    let orders = this.items.reduce((acc, i) => ( [...acc, ...i.orders.orders] ), []);
 
     if (action === FormActions.CloseSellOrders)
       orders = orders.filter(i => i.side === OrderSide.Sell);
