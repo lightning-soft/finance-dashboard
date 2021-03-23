@@ -75,12 +75,12 @@ export class ToolbarComponent {
     },
     {
       icon: 'measure',
-      name: 'General-drawings',
+      name: 'Measure',
       items: ['measure']
     },
     {
       icon: 'add-image',
-      name: 'General-drawings',
+      name: 'Image',
       items: ['image']
     },
     {
