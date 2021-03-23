@@ -209,8 +209,7 @@ abstract class CompositeCell<T extends Cell> extends Cell {
   }
 
   get status(): string {
-    const prefix = this._item.side === QuoteSide.Ask ? 'askDelta' : 'bidDelta';
-    return Cell.mergeStatuses(prefix, this._getCell().status);
+    return this._getCell().status;
   }
 
   set status(value: string) {
@@ -243,6 +242,14 @@ class DeltaCell extends CompositeCell<OrdersCell> {
 
   draw(context) {
     return this._getCell().draw(context);
+  }
+
+  get status(): string {
+    const prefix = this._item.side === QuoteSide.Ask ? 'askDelta' : 'bidDelta';
+    return Cell.mergeStatuses(prefix, this._getCell().status);
+  }
+
+  set status(value: string) {
   }
 }
 
