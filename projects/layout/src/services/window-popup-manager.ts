@@ -27,13 +27,17 @@ export class WindowPopupManager {
       state = widget.saveState();
     options.component = { name, state };
     this._storage.setItem(popupStorageKey, JSON.stringify(options));
-    window.open(window.location.href + '?popup', '_blank', `location=no, height=${ height }, width=${ width }, scrollbars=no, status=no, toolbar=no, menubar=no, resizable=no`);
+    window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=no, status=no, toolbar=no, menubar=no, resizable=no`);
   }
 
-  getOptions() {
+  getConfig() {
     const stringState = this._storage.getItem(popupStorageKey);
-    if (stringState)
-      return JSON.parse(stringState);
+    try {
+      if (stringState)
+        return JSON.parse(stringState);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   deleteConfig() {

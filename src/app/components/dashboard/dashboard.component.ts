@@ -61,7 +61,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       const connection = this._accountsManager.getActiveConnection();
 
       if (connection)
-        this._websocketService.send({Id: connection.connectionData.apiKey});
+        this._websocketService.send({ Id: connection.connectionData.apiKey });
     });
 
     this._setupSettings();
@@ -106,7 +106,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _loadPopupState() {
-    const options = this._windowPopupManager.getOptions();
+    const options = this._windowPopupManager.getConfig();
+    if (!options)
+      return;
     this.layout.loadEmptyState();
     this.layout.addComponent(options);
     this._windowPopupManager.deleteConfig();
@@ -143,7 +145,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _setupSettings(): void {
     this._settingsService.settings
       .subscribe(s => {
-        this.settings = {...s};
+        this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
 
         if (s.autoSave && s.autoSaveDelay) {
