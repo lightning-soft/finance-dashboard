@@ -233,7 +233,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   shouldOpenInNewWindow(){
-    return this.layoutContainer.options.shouldOpenInNewWindow;
+    return this.layoutContainer.options.allowPopup;
   }
 
   close() {

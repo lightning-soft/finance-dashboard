@@ -251,7 +251,7 @@ export class ToolbarComponent {
       width: 600,
       resizable: false,
       maximizable: false,
-      shouldOpenInNewWindow: false,
+      allowPopup: false,
       minimizable: false,
       single: true,
       removeIfExists: true,

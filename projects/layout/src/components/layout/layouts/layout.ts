@@ -18,7 +18,7 @@ export type ComponentOptions = {
   minHeight?: number;
   icon?: string;
   minimizable?: boolean;
-  shouldOpenInNewWindow?: boolean;
+  allowPopup?: boolean;
   maximizable?: boolean;
   hidden?: boolean;
   closeBtn?: boolean;

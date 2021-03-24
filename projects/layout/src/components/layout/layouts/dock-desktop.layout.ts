@@ -82,7 +82,7 @@ export class DockDesktopLayout extends Layout {
           instance.layout = this;
           const configData = {
             width: 500,
-            shouldOpenInNewWindow: true,
+            allowPopup: true,
             height: 500,
             minWidth: 320,
             minHeight: 150,

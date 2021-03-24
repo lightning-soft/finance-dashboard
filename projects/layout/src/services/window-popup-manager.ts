@@ -45,8 +45,12 @@ export class WindowPopupManager {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
-    this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=yes, status=no, toolbar=no, menubar=no, resizable=yes`);
+    try {
+      this._storage.setItem(popupStorageKey, JSON.stringify(config));
+      window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=yes, status=no, toolbar=no, menubar=no, resizable=yes`);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   getConfig(): WindowPopupConfig {
