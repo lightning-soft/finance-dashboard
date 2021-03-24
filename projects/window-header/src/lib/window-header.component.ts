@@ -25,7 +25,7 @@ export class WindowHeaderComponent {
     this.windowPopupManager.openPopup(this.window);
   }
 
-  isPopup() {
-   return  this.windowPopupManager.isPopup();
+  hideInstruments() {
+   return  this.windowPopupManager.hideWindowHeaderInstruments;
   }
 }

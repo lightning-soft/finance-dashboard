@@ -109,12 +109,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const options = this._windowPopupManager.getConfig();
     if (!options)
       return;
-    this.layout.loadEmptyState();
-    this.layout.addComponent(options);
+    this.layout.loadState(options.layoutConfig);
+    this._windowPopupManager.hideWindowHeaderInstruments = options.hideWindowHeaderInstruments;
     this._windowPopupManager.deleteConfig();
     setTimeout(() => {
       const widgets = this.layout.getWidgets();
-      widgets[0].maximize();
+      if (widgets.length === 1)
+        widgets[0].maximize();
     }, 100);
   }
 

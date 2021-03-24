@@ -50,6 +50,7 @@ export class NavbarComponent {
       width: 300,
       minWidth: 300,
       single: true,
+      shouldOpenInNewWindow: false,
       removeIfExists: true,
       maximizable: false,
       minimizable: false,

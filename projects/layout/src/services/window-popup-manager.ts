@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Storage } from 'storage';
 import { ActivatedRoute } from '@angular/router';
+import { WorkspaceWindow } from 'workspace-manager';
 
 const popupStorageKey = 'widget-popup-state';
 
+export interface WindowPopupConfig {
+  layoutConfig: any;
+  hideWindowHeaderInstruments?: boolean;
+}
+
 @Injectable()
 export class WindowPopupManager {
+
+  hideWindowHeaderInstruments = false;
+
   constructor(private _storage: Storage,
               private _route: ActivatedRoute,
   ) {
@@ -26,11 +35,21 @@ export class WindowPopupManager {
     if (widget.saveState)
       state = widget.saveState();
     options.component = { name, state };
-    this._storage.setItem(popupStorageKey, JSON.stringify(options));
-    window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=no, status=no, toolbar=no, menubar=no, resizable=no`);
+    const config: WindowPopupConfig = { layoutConfig: [options], hideWindowHeaderInstruments: true };
+    this._storage.setItem(popupStorageKey, JSON.stringify(config));
+    window.open(window.location.href + '?popup', '_blank', `location=no, innerHeight=${height}, innerWidth=${width}, scrollbars=no, status=no, toolbar=no, menubar=no, resizable=no`);
   }
 
-  getConfig() {
+  openWindow(workspaceWindow: WorkspaceWindow) {
+    const layoutConfig = workspaceWindow.config;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
+    this._storage.setItem(popupStorageKey, JSON.stringify(config));
+    window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=yes, status=no, toolbar=no, menubar=no, resizable=yes`);
+  }
+
+  getConfig(): WindowPopupConfig {
     const stringState = this._storage.getItem(popupStorageKey);
     try {
       if (stringState)

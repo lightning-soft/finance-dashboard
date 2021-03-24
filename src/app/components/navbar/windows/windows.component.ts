@@ -4,7 +4,7 @@ import { NzModalService } from 'ng-zorro-antd';
 import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { RenameModalComponent } from '../workspace/rename-modal/rename-modal.component';
 import { ConfirmModalComponent } from '../workspace/confirm-modal/confirm-modal.component';
 import { SettingsService } from 'settings';
@@ -23,6 +23,7 @@ export class WindowsComponent implements OnInit {
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,
+              private _windowPopupManager: WindowPopupManager,
               private _workspacesService: WorkspacesManager,
   ) {
     this._workspacesService.workspaces
@@ -145,5 +146,9 @@ export class WindowsComponent implements OnInit {
 
   loadOnStartUp(id) {
     this._workspacesService.loadOnStartUp(id);
+  }
+
+  popupWindow(window: WorkspaceWindow) {
+    this._windowPopupManager.openWindow(window);
   }
 }

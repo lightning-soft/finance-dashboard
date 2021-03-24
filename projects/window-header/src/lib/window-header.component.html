@@ -8,8 +8,8 @@
   </div>
 </div>
 
-<div>
-  <span *ngIf="!isPopup() && window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
+<div *ngIf="!hideInstruments()">
+  <span *ngIf="window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
     <i class="icon-popup"></i>
   </span>
   <span class="link" *ngIf="window.minimizable()"  (click)="window.minimize()">
