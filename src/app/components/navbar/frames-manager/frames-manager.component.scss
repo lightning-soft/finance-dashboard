@@ -87,8 +87,7 @@
 
 .windows-list {
   min-width: 100px;
-  position: absolute;
-  left: -10px;
+  position: relative;
   padding: 4px;
   border-radius: 2px;
   z-index: 41;
@@ -135,4 +134,9 @@
   z-index: 1000;
   background: rgba(72, 149, 245, 0.1);
   border: 1px solid $risingColor;
+}
+
+.windows-list-trigger {
+  display: flex;
+  align-items: center;
 }
