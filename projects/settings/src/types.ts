@@ -1,5 +1,7 @@
 import { KeyBinding } from 'keyboard';
-import { Workspace, WorkspaceWindow } from 'workspace-manager';
+import { Workspace } from 'workspace-manager';
+import { ITimezone } from 'timezones-clock';
+
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;
@@ -15,4 +17,5 @@ export type SettingsData = {
   hotkeys: HotkeyEntire[];
   tradingEnabled: boolean;
   workspaces: Workspace[];
+  timezones: ITimezone[]
 };

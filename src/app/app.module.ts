@@ -33,10 +33,11 @@ import { environment } from 'src/environments/environment';
 import { ThemesHandler } from 'themes';
 import { WindowManagerModule } from 'window-manager';
 import { WorkspacesModule } from 'workspace-manager';
+import { TimezonesClockModule } from 'timezones-clock';
 import { AppConfig } from './app.config';
 import {
   AccountComponent,
-  AppComponent, ClockComponent,
+  AppComponent,
   ConfirmModalComponent,
   ConnectionsComponent,
   CreateModalComponent,
@@ -51,9 +52,6 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
-import {AddTimezoneModalComponent} from "./components/navbar/add-timezone-modal/add-timezone-modal.component";
-import { UtcPipe } from "./components/navbar/add-timezone-modal/utc.pipe";
-
 
 /**
  *  Move declaration to enother file
@@ -111,9 +109,6 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     TradeLockComponent,
     WindowsComponent,
     NavbarControllerComponent,
-    ClockComponent,
-    AddTimezoneModalComponent,
-    UtcPipe,
     ConnectionsComponent,
     FramesManagerComponent,
     WorkspaceComponent,
@@ -137,6 +132,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ContextMenuModule,
     WorkspacesModule,
     WindowManagerModule,
+    TimezonesClockModule,
     SettingsModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',

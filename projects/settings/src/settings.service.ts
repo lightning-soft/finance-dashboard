@@ -7,6 +7,7 @@ import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ITimezone } from 'timezones-clock';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -30,12 +31,12 @@ const defaultSettings = {
   hotkeys: defaultHotkeyEntries,
   tradingEnabled: true,
   workspaces: [],
+  timezones: []
 };
 
 @Injectable()
 @UntilDestroy()
 export class SettingsService {
-
   settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
 
   constructor(
@@ -89,6 +90,10 @@ export class SettingsService {
 
   save(settings: object) {
     this._updateState(settings);
+  }
+
+  saveTimezones(timezones: ITimezone[]): void {
+    this._updateState({ timezones });
   }
 
   private _updateState(settings: object, saveInStorage = true): void {

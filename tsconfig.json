@@ -8,6 +8,14 @@
         "dist/workspaces/workspaces",
         "dist/workspaces"
       ],
+      "timezones": [
+        "dist/timezones/timezones",
+        "dist/timezones"
+      ],
+      "timezones-clock": [
+        "dist/timezones-clock/timezones-clock",
+        "dist/timezones-clock"
+      ]
     }
   },
   "references": [
@@ -214,6 +222,12 @@
     },
     {
       "path": "./projects/workspace/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/timezones-clock/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/timezones-clock/tsconfig.spec.json"
     }
   ]
 }

@@ -1,0 +1,40 @@
+<div class="clock-container" *ngIf="enabledTimezone">
+  <span class="zone">{{enabledTimezone.name}}</span>
+  <span class="time" *ngIf="time; else emptyTime">
+    {{ time | date: "HH:mm:ss": (enabledTimezone.offset | utc) }}
+  </span>
+</div>
+
+<div
+  nz-dropdown
+  nzTrigger="click"
+  class="clock-container cursor-pointer"
+  [nzDropdownMenu]="menu"
+  [nzClickHide]="false"
+>
+  <span class="zone">Local</span>
+  <span class="time" *ngIf="time; else emptyTime">
+    {{ time | date: "HH:mm:ss" }}
+  </span>
+</div>
+
+<ng-template #emptyTime><span class="time">--:--:--</span></ng-template>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <div class="list custom-scroll">
+    <div class="local-item">
+      <div class="title"><label>Local</label></div>
+      <div class="subtitle">{{localTimezone?.text}}</div>
+    </div>
+
+    <timezone-item *ngFor="let timezone of timezones"
+                   [timezone]="timezone"
+                   (delete)="deleteTimezone(timezone)"
+                   (reset)="resetTimezone(timezone)"
+                   (rename)="updateTimezoneName(timezone, $event)"
+                   (toggleEnabled)="toggleTimezone(timezone, $event)"
+    ></timezone-item>
+
+    <button class="add-timezone-button" (click)="addTimezone()">Add timezone</button>
+  </div>
+</nz-dropdown-menu>

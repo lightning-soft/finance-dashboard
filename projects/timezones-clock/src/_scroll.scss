@@ -1,0 +1,22 @@
+@import "~src/scss/variables";
+
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: $light3 transparent;
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $light3;
+    mix-blend-mode: normal;
+    border-radius: 100px;
+  }
+}

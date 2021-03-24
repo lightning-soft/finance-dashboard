@@ -1784,6 +1784,46 @@
           }
         }
       }
+    },
+    "timezones-clock": {
+      "projectType": "library",
+      "root": "projects/timezones-clock",
+      "sourceRoot": "projects/timezones-clock/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/timezones-clock/tsconfig.lib.json",
+            "project": "projects/timezones-clock/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/timezones-clock/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/timezones-clock/src/test.ts",
+            "tsConfig": "projects/timezones-clock/tsconfig.spec.json",
+            "karmaConfig": "projects/timezones-clock/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/timezones-clock/tsconfig.lib.json",
+              "projects/timezones-clock/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "angular-starter",

@@ -1,4 +1,4 @@
-import {Pipe, PipeTransform} from "@angular/core";
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
   name: 'utc'
@@ -9,16 +9,15 @@ export class UtcPipe implements PipeTransform {
     let text = `UTC${offset >= 0 ? '+' : ''}${integer}`;
 
     const minutes = this.getMinutesFromOffset(offset);
-    if (minutes) {
-      text += `:${minutes}`;
-    }
+    text += `:${minutes ? minutes : '00'}`;
 
     return text;
   }
 
   private getMinutesFromOffset(offset: number): number {
-    const decimal = offset.toFixed(2).split('.')[1];
+    let decimal = offset.toFixed(2).split('.')[1];
     return +decimal * 60 / 100;
   }
+
 }
 

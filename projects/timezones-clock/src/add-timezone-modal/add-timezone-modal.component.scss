@@ -1,4 +1,6 @@
-@import "../base-timezones";
+@import "~src/scss/variables";
+@import "~src/scss/dark.theme";
+@import "../scroll";
 
 ::ng-deep {
   .timezones-modal {
@@ -9,35 +11,43 @@
   }
 }
 
-.clock {
-  padding: 5px;
 
-  &, li {
-    background-color: $inputBackground;
+timezone-item {
+  background-color: $inputBackground;
+
+  &.selected {
+    background-color: $light3;
   }
 
-  li {
-    padding: 4px;
+  &.disabled {
+    background-color: transparent;
+    opacity: 0.5;
   }
 }
 
 .title {
+  padding-left: 10px;
   text-align: left;
   color: $titleColor;
   font-size: 14px;
   padding-bottom: 10px;
 }
 
-.column {
-  width: 50%;
-}
-
-.column-header {
+.timezones-header {
   display: flex;
   align-items: center;
   font-size: 10px;
   text-transform: uppercase;
   text-align: left;
+  margin-bottom: 4px;
+
+  .column {
+    padding-left: 10px;
+  }
+}
+
+.column {
+  width: 50%;
 }
 
 .timezones-column {
@@ -45,6 +55,7 @@
   max-height: 350px;
   background-color: $inputBackground;
   margin-left: 4px;
+  padding: 5px;
 }
 
 .reset {
