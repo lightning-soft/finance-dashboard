@@ -6,16 +6,6 @@
   width: 100%;
   display: block !important;
   background-color: transparent !important;
-  visibility: hidden;
-
-  &.Bottom {
-    order: 10;
-    visibility: visible;
-  }
-
-  &.Top {
-    visibility: visible;
-  }
 
   &.hidden {
     .navigation-bar {
@@ -25,7 +15,6 @@
     &.Bottom .navigation-bar {
       margin-top: 36px;
     }
-
   }
 }
 

@@ -4,7 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
 import { LayoutComponent } from 'layout';
-import { SettingsData, SettingsService } from 'settings';
+import { NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 
