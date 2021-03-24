@@ -1,3 +1,15 @@
-<app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
-<layout #layout></layout>
+<ng-template [ngIf]="settings?.navbarPosition === 'Top'">
+  <ng-template [ngTemplateOutlet]="navbar"></ng-template>
+</ng-template>
+
+<layout #layout *ngIf="settings"></layout>
+
+<ng-template [ngIf]="settings?.navbarPosition === 'Bottom'">
+  <ng-template [ngTemplateOutlet]="navbar"></ng-template>
+</ng-template>
+
 <context-menu></context-menu>
+
+<ng-template #navbar>
+  <app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
+</ng-template>
