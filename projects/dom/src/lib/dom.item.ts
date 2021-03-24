@@ -379,7 +379,7 @@ class SumHistogramCell extends HistogramCell {
   }
 
   calcHist(value: number) {
-    if (status == SumStatus) {
+    if (this.status == SumStatus) {
       this.hist = 0;
     } else {
       super.calcHist(value);
@@ -418,8 +418,8 @@ export class DomItem implements IBaseItem {
   delta: DeltaCell;
   orders: AllOrdersCell;
 
-  private _bid = 0;
-  private _ask = 0;
+  protected _bid = 0;
+  protected _ask = 0;
 
   get isBidSideVisible() {
     return (this.bid.visible || this.bidDelta.visible);
@@ -668,6 +668,16 @@ export class DomItem implements IBaseItem {
     // this.askDelta.changeStatus('');
   }
 
+  setBidSum(value) {
+    this.bid.changeStatus(value == null ? '' : SumStatus);
+    this.bid.updateValue(value == null ? 0 : value);
+  }
+
+  setAskSum(value) {
+    this.ask.changeStatus(value == null ? '' : SumStatus);
+    this.ask.updateValue(value == null ? 0 : value);
+  }
+
   refresh() {
     return Object.keys(this).forEach(key => this[key]?.refresh && this[key].refresh());
   }
@@ -802,19 +812,7 @@ export class CustomDomItem extends DomItem {
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
-
-    for (const price in snapshot) {
-      if (snapshot.hasOwnProperty(price)) {
-        const data = snapshot[price];
-
-        this.bid.updateValue((this.bid._value ?? 0) + (data.bid._value ?? 0));
-        this.ask.updateValue((this.ask._value ?? 0) + (data.ask._value ?? 0));
-        this.totalAsk.updateValue(data.totalAsk._value);
-        this.totalBid.updateValue(data.totalBid._value);
-        this.volume.updateValue(data.volume._value);
-      }
-    }
-
+    this.calculateFromItems();
     this.dehighlight('all');
   }
 
@@ -853,6 +851,41 @@ export class CustomDomItem extends DomItem {
     item.handleQuote(data);
 
     return super.handleQuote(mergedData);
+  }
+
+  calculateFromItems() {
+    const snapshot = this._domItems;
+    this.bid.updateValue(0);
+    this.ask.updateValue(0);
+    this.totalAsk.updateValue(0);
+    this.totalBid.updateValue(0);
+    this.volume.updateValue(0);
+
+    for (const price in snapshot) {
+      if (snapshot.hasOwnProperty(price)) {
+        const data = snapshot[price];
+
+        this.bid.updateValue((this.bid._value ?? 0) + (data.bid._value ?? 0));
+        this.ask.updateValue((this.ask._value ?? 0) + (data.ask._value ?? 0));
+        this.totalAsk.updateValue(data.totalAsk._value);
+        this.totalBid.updateValue(data.totalBid._value);
+        this.volume.updateValue(data.volume._value);
+      }
+    }
+  }
+
+  setBidSum(value) {
+    this.setBidSum(value);
+    this._bid = 0;
+    if (value == null)
+      this.calculateFromItems();
+  }
+
+  setAskSum(value) {
+    super.setAskSum(value);
+    this._ask = 0;
+    if (value == null)
+      this.calculateFromItems();
   }
 
   getDomItems() {

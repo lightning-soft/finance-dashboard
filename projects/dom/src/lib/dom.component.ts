@@ -1030,12 +1030,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           const _item = customItemData[price];
 
           if (_item.ask.status === SumStatus) {
-            _item.ask.updateValue(0);
-            _item.ask.changeStatus('');
+            _item.setAskSum(null);
           }
           if (_item.bid.status === SumStatus) {
-            _item.bid.updateValue(0);
-            _item.bid.changeStatus('');
+            _item.setBidSum(null);
           }
 
           _item.setAskVisibility(false, false);
@@ -1472,13 +1470,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (bidSumItem) {
-      bidSumItem.bid.updateValue(bidSum);
-      bidSumItem.bid.changeStatus(SumStatus);
+      bidSumItem.setBidSum(bidSum);
     }
 
     if (askSumItem) {
-      askSumItem.ask.updateValue(askSum);
-      askSumItem.ask.changeStatus(SumStatus);
+      askSumItem.setAskSum();
     }
   }
 
