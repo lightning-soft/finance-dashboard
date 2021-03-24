@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';
+import { Component, ElementRef, HostBinding, Input } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NotificationService } from 'notification';
 import { Themes, ThemesHandler } from 'themes';
