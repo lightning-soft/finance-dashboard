@@ -93,7 +93,7 @@ const DOM_HOTKEYS = 'domHotkeys';
 interface IDomState {
   instrument: IInstrument;
   settings?: any;
-  componentInstanceId: number,
+  componentInstanceId: number;
 }
 
 const directionsHints = {
@@ -447,6 +447,62 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       this._positionsFeed.on((pos) => this.handlePosition(pos)),
     );
+
+    // setInterval(() => {
+    //   if (!this.items.length)
+    //     this.fillData(100);
+
+    //   const volume = Math.random() > 0.5 ? 2 : 4;
+    //   let price = this.items[this.items.length - 1].lastPrice;
+    //   const high = this.items[0].lastPrice;
+    //   const centerPrice = this._normalizePrice((price + high) / 2);
+
+    //   while (price <= high) {
+    //     if (price !== centerPrice) {
+    //       // this._handleTrade({
+    //       //   price,
+    //       //   instrument: this._instrument,
+    //       //   side: OrderSide.Sell,
+    //       //   timestamp: Date.now(),
+    //       //   volume: 1,
+    //       //   volumeBuy: 1,
+    //       //   volumeSell: 1,
+    //       // });
+
+    //       this._handleQuote({
+    //         price,
+    //         instrument: this._instrument,
+    //         side: QuoteSide.Bid,
+    //         timestamp: Date.now(),
+    //         volume,
+    //         orderCount: 1,
+    //         updateType: UpdateType.Solo,
+    //       });
+    //     }
+
+    //     price = this._normalizePrice(price + this._tickSize);
+    //   }
+
+    //   this._handleTrade({
+    //     price: centerPrice,
+    //     instrument: this._instrument,
+    //     side: OrderSide.Sell,
+    //     timestamp: Date.now(),
+    //     volume: 1,
+    //     volumeBuy: 1,
+    //     volumeSell: 1,
+    //   });
+
+    //   this._handleQuote({
+    //     price: centerPrice,
+    //     instrument: this._instrument,
+    //     side: QuoteSide.Bid,
+    //     timestamp: Date.now(),
+    //     volume,
+    //     orderCount: 1,
+    //     updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
+    //   });
+    // }, 1000);
   }
 
   private _observe() {
@@ -564,7 +620,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._upadateInterval = general.intervals.updateInterval;
 
     this._settings.merge(settings);
-    const useCustomTickSize = general?.commonFields?.useCustomTickSize;
+    const useCustomTickSize = general?.commonView?.useCustomTickSize;
     if (useCustomTickSize != this._customTickSizeApplyed)
       this.centralize();
 
@@ -777,7 +833,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
           if (asks.length || bids.length) {
             let index = 0;
-            let price = this._normalizePrice(asks[asks.length - 1].price);
+            let price = this._normalizePrice(asks[asks.length - 1]?.price);
             const tickSize = this._tickSize;
             // const maxPrice = asks[0].price;
             // const maxRows = ROWS * 2;
@@ -789,7 +845,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             // }
 
             index = 0;
-            price = this._normalizePrice(asks[asks.length - 1].price - tickSize);
+            price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
             this.fillData(price);
 
@@ -919,17 +975,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._handleResize();
   }
 
-  private _getSnapshot() {
-    let snapshot = {};
+  _getDomItemsMap() {
+    let map = {};
 
-    for (const i of this.items) {
-      snapshot = {
-        ...snapshot,
-        ...i.getSnapshot(),
-      };
+    if (this._customTickSizeApplyed) {
+
+      for (const i of this.items) {
+        map = {
+          ...map,
+          ...(i.getDomItems ? i.getDomItems() : {}),
+        };
+      }
+    }
+    else {
+      for (const [key, item] of this._map)
+        map[key] = item;
     }
 
-    return snapshot;
+    return map;
   }
 
   centralize() {
@@ -938,52 +1001,50 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
     const lastPrice = this._lastPrice;
 
+    if (!lastPrice)
+      return;
+
     const commonView = this._settings.general.commonView;
     if (commonView.useCustomTickSize) {
+      const map = this._getDomItemsMap();
       this._map.clear();
+      this.items = [];
       centerIndex = ROWS / 2;
       let offset = 0;
-      const snapshot = this._getSnapshot();
-      const tickSize = this._tickSize;
-      const decimals = lastPrice % 1;
-      const startPrice = lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
-      const multiplier = commonView.ticksMultiplier ?? 1;
 
-      while (offset <= ROWS / 2) {
-        const upIndex = centerIndex - offset;
-        let customItemData = {};
-        let prices = [];
+      const tickSize = this._tickSize;
+      const multiplier = commonView.ticksMultiplier ?? 1;
+      const _lastPrice = this._normalizePrice(lastPrice + (ROWS / 2 * tickSize * multiplier));
+      const decimals = _lastPrice % 1;
+      const startPrice = _lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
+
+      while (offset <= ROWS) {
+        const customItemData = {};
+        const prices = [];
+
         for (let m = 0; m < multiplier; m++) {
-          const price = this._normalizePrice(startPrice + (offset * multiplier + m) * tickSize);
-          const data = snapshot[price] ?? {};
+          const price = this._normalizePrice(startPrice - (offset * multiplier + m) * tickSize);
 
           prices.push(price);
-          customItemData[price] = data;
-        }
+          customItemData[price] = map[price] ?? new DomItem(null, this._settings, this._priceFormatter, customItemData);
+          const _item = customItemData[price];
 
-        const item = new CustomDomItem(upIndex, this._settings, this._priceFormatter, customItemData);
-        item.setPrice(prices[0]);
-        this.items[upIndex] = item;
-        prices.forEach(p => this._map.set(p, item));
-
-        const downIndex = centerIndex + offset;
-
-        if (upIndex !== downIndex) {
-          customItemData = {};
-          prices = [];
-          for (let m = 0; m < multiplier; m++) {
-            const price = this._normalizePrice(startPrice - (offset * multiplier + m) * tickSize);
-            const data = snapshot[price] ?? {};
-
-            prices.push(price);
-            customItemData[data.price] = data;
+          if (_item.ask.status === SumStatus) {
+            _item.setAskSum(null);
+          }
+          if (_item.bid.status === SumStatus) {
+            _item.setBidSum(null);
           }
 
-          const downItem = new CustomDomItem(downIndex, this._settings, this._priceFormatter, customItemData);
-          downItem.setPrice(prices[0]);
-          this.items[downIndex] = downItem;
-          prices.forEach(p => this._map.set(p, downItem));
+          _item.setAskVisibility(false, false);
+          _item.setBidVisibility(false, false);
+          customItemData[price].setPrice(price);
         }
+
+        const item = new CustomDomItem(offset, this._settings, this._priceFormatter, customItemData);
+        item.setPrice(prices[0]);
+        this.items[offset] = item;
+        prices.forEach(p => this._map.set(p, item));
 
         offset++;
       }
@@ -991,12 +1052,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._customTickSizeApplyed = true;
     } else {
       if (this._customTickSizeApplyed) {
+        const map = this._getDomItemsMap();
         this._map.clear();
-        const snapshot = this._getSnapshot();
+        this.items = [];
 
         if (isNaN(lastPrice) || lastPrice == null)
           return;
 
+        centerIndex = ROWS / 2;
         const data = this.items;
         const tickSize = this._tickSize;
         let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
@@ -1004,7 +1067,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         while (index++ < ROWS) {
           price = this._normalizePrice(price += tickSize);
-          data.unshift(this._getItem(price, ROWS - index, snapshot[price]));
+          const item = map[price];
+          item.index = index;
+          this._map.set(item.lastPrice, item);
+          data.unshift(item);
         }
       } else if (this._lastPrice) {
         for (let i = 0; i < this.items.length; i++) {
@@ -1028,13 +1094,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._updatedAt = Date.now();
   }
 
-  private _getItem(price: number, index?: number, state?: any): DomItem {
+  private _getItem(price: number, index?: number): DomItem {
     let item = this._map.get(price);
     if (!item) {
       if (index == null)
         console.warn('Omit index', index);
 
-      item = new DomItem(index, this._settings, this._priceFormatter, state);
+      item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
     }
@@ -1071,7 +1137,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const prevltqItem = changes.ltq;
     let needCentralize = false;
 
-    console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1325,9 +1391,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // const needClear = false;
 
     if (trade.updateType === UpdateType.Undefined) {
-      let items = this.items;
+      const items = this.items;
 
-      let price = trade.price;
+      const price = trade.price;
       const isBid = trade.side === QuoteSide.Bid;
 
       if (isBid || (needClear && !isBid)) {
@@ -1404,13 +1470,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (bidSumItem) {
-      bidSumItem.bid.updateValue(bidSum);
-      bidSumItem.bid.changeStatus(SumStatus);
+      bidSumItem.setBidSum(bidSum);
     }
 
     if (askSumItem) {
-      askSumItem.ask.updateValue(askSum);
-      askSumItem.ask.changeStatus(SumStatus);
+      askSumItem.setAskSum();
     }
   }
 
@@ -1608,7 +1672,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1',
+        id: 'ESH1',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,

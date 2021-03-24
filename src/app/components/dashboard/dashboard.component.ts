@@ -4,11 +4,10 @@ import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
-import { SettingsData, SettingsService } from 'settings';
+import { NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 import { environment } from 'environment';
-import { ActivatedRoute } from '@angular/router';
 
 export enum DashboardCommand {
   SavePage = 'save_page',
@@ -48,7 +47,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
-    private _route: ActivatedRoute,
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
   ) {
