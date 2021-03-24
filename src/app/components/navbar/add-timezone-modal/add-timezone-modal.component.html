@@ -13,8 +13,8 @@
     <ul nz-menu class="clock">
       <li
         nz-menu-item
-        #item="nzMenuItem"
         *ngFor="let timezone of allTimezones"
+        (dblclick)="addToCurrent(timezone)"
         class="clock-utc"
       >
         <div class="utc-time">
@@ -34,11 +34,20 @@
         class="clock-utc"
       >
         <div class="utc-time">
-          <label nz-checkbox>UTC{{timezone.offset | utc}}</label>
+          <label nz-checkbox *ngIf="!timezone.editing" (nzCheckedChange)="toggleCurrentTimezone(timezone, $event)">
+            {{timezone.name}}
+          </label>
+
+          <input *ngIf="timezone.editing"
+                 nz-input type="text"
+                 #inputElement
+                 (blur)="updateTimezoneName(timezone, inputElement.value)"
+                 [value]="timezone.name">
+
           <span class="icons-container">
-           <i title="Edit" data-name="Edit" class="icon-edit"></i>
+           <i (click)="timezone.editing = true" title="Edit" data-name="Edit" class="icon-edit"></i>
            <i title="Reset" data-name="Reset" class="icon-reset"></i>
-           <i title="Remove from current" data-name="Remove from current" class="icon-close-window"></i>
+           <i (click)="deleteFromCurrent(timezone)" title="Remove from current" data-name="Remove from current" class="icon-close-window"></i>
         </span>
         </div>
         <div class="subtitle">{{timezone.text}}</div>
