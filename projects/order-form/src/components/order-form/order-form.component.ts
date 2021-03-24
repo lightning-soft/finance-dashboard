@@ -129,12 +129,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
       this.instrument = state.instrument;
     else
       this.instrument = {
-        id: 'ESH1',
+        id: 'ESM1',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: 'ESH1',
+        symbol: 'ESM1',
       };
   }
 

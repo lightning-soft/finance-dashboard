@@ -247,8 +247,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
       instrument: (state && state.instrument) ?? {
-        id: 'ESH1',
-        symbol: 'ESH1',
+        id: 'ESM1',
+        symbol: 'ESM1',
         exchange: 'CME',
         tickSize: 0.25,
         company: this._getInstrumentCompany(),
