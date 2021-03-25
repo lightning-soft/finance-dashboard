@@ -7,6 +7,8 @@
 // }
 
 // @import "themes/index";
+@import "~src/scss/variables";
+
 :host {
   display: block;
   height: 100%;
@@ -22,9 +24,9 @@
 
     canvas {
       font-smooth: never;
-    /*  position: absolute;
-      top: 0;
-      height: 100%;*/
+      /*  position: absolute;
+        top: 0;
+        height: 100%;*/
       -webkit-font-smoothing: none;
     }
   }
@@ -125,4 +127,97 @@
   //     }
   //   }
   // }
+}
+
+::ng-deep {
+  .columns-items {
+    background: #24262C !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    border-radius: 2px !important;
+
+    &.column-main-menu {
+      animation: fadein 0.8s;
+    }
+
+
+    .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+      background: #1B1D22 !important;
+    }
+
+    .ant-menu-item {
+      color: $text-80;
+    }
+
+    .ant-dropdown-menu-submenu-title > span > .anticon:first-child {
+      font-size: 8px;
+    }
+
+    .align {
+      margin-left: auto;
+      border-radius: 2px;
+      margin-right: 4px;
+      background: $inputBackground;
+      height: 16px;
+      width: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      i {
+        font-size: 8px;
+      }
+    }
+
+    .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+      font-size: 0.8rem;
+      color: $text-80;
+      border-radius: 2px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 3px 0 3px 4px;
+
+      .ant-dropdown-menu-submenu-arrow {
+        right: 2px;
+      }
+    }
+
+    .menu-settings, .ant-dropdown-menu-submenu-title {
+      padding-left: 5px;
+    }
+
+    .ant-menu-item:hover, {
+      background: #1B1D22 !important;
+      border-radius: 2px;
+    }
+
+    .ant-dropdown-menu-item-divider, .ant-dropdown-menu-submenu-title-divider {
+      margin: 7px 5px 5px;
+      background-color: #51535A;
+    }
+
+    .ant-dropdown-menu-item:hover, .ant-dropdown-menu-submenu-title:hover {
+      color: white;
+
+      .ant-checkbox-wrapper {
+        color: white;
+      }
+    }
+
+    .ant-checkbox-wrapper {
+      color: $text-80;
+      font-size: 0.8rem;
+      font-weight: 400;
+    }
+  }
+}
+
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
