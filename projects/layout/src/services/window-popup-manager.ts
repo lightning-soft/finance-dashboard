@@ -70,12 +70,13 @@ export class WindowPopupManager {
   }
 
   getConfig(): WindowPopupConfig | undefined {
-    try {
-      const stringState = this._storage.getItem(popupStorageKey);
-      if (stringState)
+    const stringState = this._storage.getItem(popupStorageKey);
+    if (stringState) {
+      try {
         return JSON.parse(stringState);
-    } catch (e) {
-      console.error(e);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
