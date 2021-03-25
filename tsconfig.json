@@ -7,14 +7,6 @@
       "workspaces": [
         "dist/workspaces/workspaces",
         "dist/workspaces"
-      ],
-      "timezones": [
-        "dist/timezones/timezones",
-        "dist/timezones"
-      ],
-      "timezones-clock": [
-        "dist/timezones-clock/timezones-clock",
-        "dist/timezones-clock"
       ]
     }
   },
