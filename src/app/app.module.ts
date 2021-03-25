@@ -225,7 +225,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private i18n: NzI18nService, zone: NgZone) {
+  constructor(private i18n: NzI18nService, zone: NgZone, private _appConfig: AppConfig) {
 
     /*
     / For performance reason avoiding ng zone in some cases
@@ -238,6 +238,10 @@ export class AppModule {
 
     //   return addEventListener.apply(_this, args);
     // };
+  }
+
+  setConfig(config) {
+    this._appConfig.apply(config);
   }
 
   switchLanguage() {

@@ -337,6 +337,9 @@ export class DomFormComponent extends BaseOrderForm {
 }
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+  if (!position)
+    return null;
+
   const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
   let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
   if (includePnl) {
