@@ -75,12 +75,12 @@ export class ToolbarComponent {
     },
     {
       icon: 'measure',
-      name: 'General-drawings',
-      items: ['measure']
+      name: 'Measure',
+      items: ['measures']
     },
     {
       icon: 'add-image',
-      name: 'General-drawings',
+      name: 'Image',
       items: ['image']
     },
     {
@@ -251,6 +251,7 @@ export class ToolbarComponent {
       width: 600,
       resizable: false,
       maximizable: false,
+      allowPopup: false,
       minimizable: false,
       single: true,
       removeIfExists: true,

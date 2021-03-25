@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { concat, Observable, Subject, throwError } from 'rxjs';
+import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { map, takeUntil, tap, catchError } from 'rxjs/operators';
 import {
   HistoryRepository,
@@ -11,6 +11,7 @@ import {
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity } from './TimeFrame';
+import { IBar } from "../models";
 
 declare let StockChartX: any;
 
@@ -19,6 +20,7 @@ export class RithmicDatafeed extends Datafeed {
   private _destroy = new Subject();
 
   private _unsubscribeFns: VoidFunction[] = [];
+  requestSubscriptions = new Map<number, Subscription>();
 
   constructor(
     private _accountsManager: AccountsManager,
@@ -116,12 +118,26 @@ export class RithmicDatafeed extends Datafeed {
     //   }),
     // );
 
-    concat(
+    const subscription = concat(
       history$,
       // historyDetails$,
     ).subscribe({
       error: (err) => console.error(err),
     });
+    this.requestSubscriptions.set(request.id, subscription);
+  }
+
+  protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
+    super.onRequestCompleted(request, bars);
+    this.requestSubscriptions.delete(request.id);
+  }
+
+  cancel(request: IRequest) {
+    super.cancel(request);
+    const subscription = this.requestSubscriptions.get(request.id);
+    if (subscription && !subscription.closed)
+      subscription.unsubscribe();
+    this.requestSubscriptions.delete(request.id);
   }
 
   _convertPeriodicity(periodicity: string): string {
@@ -143,6 +159,7 @@ export class RithmicDatafeed extends Datafeed {
         throw new Error('Undefined periodicity ' + periodicity);
     }
   }
+
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);
@@ -185,7 +202,10 @@ export class RithmicDatafeed extends Datafeed {
 
   _unsubscribe() {
     this._unsubscribeFns.forEach(fn => fn());
-
+    this.requestSubscriptions.forEach(item => {
+      if (item && !item.closed)
+        item.unsubscribe();
+    });
     this._unsubscribeFns = [];
   }
 

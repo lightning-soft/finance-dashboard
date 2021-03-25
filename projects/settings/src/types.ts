@@ -1,6 +1,6 @@
 import { KeyBinding } from 'keyboard';
-import { Workspace, WorkspaceWindow } from 'workspace-manager';
-import { NavbarPosition } from "./settings.service";
+import { Workspace } from 'workspace-manager';
+import { NavbarPosition } from './settings.service';
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;

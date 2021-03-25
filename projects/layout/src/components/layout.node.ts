@@ -67,6 +67,8 @@ export interface ILayoutNode {
 
   minimizable?();
 
+  shouldOpenInNewWindow?();
+
   setZIndex?(index: number);
 
 }
@@ -228,6 +230,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   minimizable() {
     return this.layoutContainer.options.minimizable;
+  }
+
+  shouldOpenInNewWindow(){
+    return this.layoutContainer.options.allowPopup;
   }
 
   close() {

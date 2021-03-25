@@ -12,6 +12,7 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { LinkSelectComponent } from './components/link-select/link-select.component';
 import { ILayoutStore, LocalLayoutStore } from './store';
 import { WorkspacesModule } from 'workspace-manager';
+import { WindowPopupManager } from './services/window-popup-manager';
 
 
 
@@ -53,6 +54,7 @@ export class LayoutModule {
     return {
       ngModule: LayoutModule,
       providers: [
+        WindowPopupManager,
       ]
     };
   }

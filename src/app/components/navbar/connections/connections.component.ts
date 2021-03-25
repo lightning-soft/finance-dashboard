@@ -76,6 +76,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       width: 502,
       minimizable: false,
       maximizable: false,
+      allowPopup: false,
       single: true,
       removeIfExists: true,
       x: 'center',
