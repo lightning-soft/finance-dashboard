@@ -17,6 +17,10 @@ export class TradeHandler {
       });
   }
 
+  toggleTradingEnabled() {
+    this.tradingEnabled = !this.tradingEnabled;
+  }
+
   set tradingEnabled(value: boolean) {
     if (value !== this.tradingEnabled) {
       this.settingsService.updateTradingLock(value);

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { SettingsKeyboardListener } from 'keyboard';
+import { KeyBinding, SettingsKeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
-import { defaultHotkeyEntries, SettingsService } from './settings.service';
+import { defaultHotkeyEntries, HotkeyEvents, SettingsService } from './settings.service';
 import { SettingsData } from './types';
 
 export enum SAVE_DALEY {
@@ -35,6 +35,8 @@ export class SettingsComponent implements OnInit {
   };
 
   settings: SettingsData;
+  hotkeysEvents = Object.values(HotkeyEvents);
+  hotkeys: { name: string, binding: KeyBinding }[] = [];
 
   themes = [Themes.Dark, Themes.Light];
 
@@ -65,6 +67,7 @@ export class SettingsComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(s => {
         this.settings = { ...s };
+        this.updateHotkeys();
         if (s.autoSave && s.autoSaveDelay)
           this.autoSaveSetting = s.autoSaveDelay;
         else if (s.autoSave)
@@ -72,6 +75,14 @@ export class SettingsComponent implements OnInit {
         else
           this.autoSaveSetting = SAVE_DALEY.MANUAL_SAVE;
       });
+  }
+
+  updateHotkeys() {
+    this.hotkeys = this.hotkeysEvents.map((name: string) => {
+      const binding = this.settings.hotkeys[name] ? KeyBinding.fromDTO(this.settings.hotkeys[name])
+        : new KeyBinding([]);
+      return { name, binding};
+    });
   }
 
   switchAutoSave(delay: number): void {
@@ -97,8 +108,8 @@ export class SettingsComponent implements OnInit {
     return false;
   }
 
-  updateHotkey(item: any, index) {
-    this.settings.hotkeys[index][1] = item;
+  updateHotkey(item: any, key) {
+    this.settings.hotkeys[key] = item.toDTO();
     this._settingsService.saveKeyBinding(this.settings.hotkeys);
   }
 }

@@ -1,23 +1,15 @@
-import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, NgZone } from '@angular/core';
+import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
-import { KeyboardListener } from 'keyboard';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent } from 'layout';
-import { NavbarPosition, SettingsData, SettingsService } from 'settings';
+import { HotkeyEvents, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
-
-export enum DashboardCommand {
-  SavePage = 'save_page',
-  Copy = 'Copy',
-  Paste = 'Paste',
-  CUT = 'Cut',
-}
-
-export const DashboardCommandToUIString = {
-  [DashboardCommand.SavePage]: 'Save page'
-}
+import { Components } from '../../modules';
+import { widgetList } from './drag-drawer/drag-drawer.component';
+import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 
 @Component({
   selector: 'dashboard',
@@ -44,6 +36,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
+    private trade: TradeHandler,
     private _workspaceService: WorkspacesManager,
   ) {
   }
@@ -115,7 +108,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _setupSettings(): void {
     this._settingsService.settings
       .subscribe(s => {
-        this.settings = {...s};
+        this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
 
         if (s.autoSave && s.autoSaveDelay) {
@@ -134,7 +127,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this._subscriptions = [
       this._renderer.listen('document', 'keyup', this._handleEvent.bind(this)),
       this._renderer.listen('document', 'keydown', this._handleEvent.bind(this)),
-    ]
+    ];
   }
 
   private _handleEvent(event) {
@@ -147,32 +140,60 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private _handleKey(event) {
     this.keysStack.handle(event);
-    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack))
+    const hotkeys = Object.entries(this.settings.hotkeys);
+    const key: any = hotkeys.find(([_, bindingDTO]) => {
+      if (bindingDTO.parts.length)
+        return KeyBinding.fromDTO(bindingDTO).equals(this.keysStack);
+    });
     if (key) {
-      this.handleCommand(key[0].name as DashboardCommand)
       event.preventDefault();
+      this.handleCommand(key[0]);
     }
-    console.log(this.keysStack.toUIString())
   }
 
-  private handleCommand(command: DashboardCommand) {
+  private handleCommand(command: HotkeyEvents) {
     switch (command) {
-      case DashboardCommand.SavePage: {
+      case HotkeyEvents.SavePage: {
         this._save();
         break;
       }
-      /*     case DashboardCommand.CUT: {
-             console.log(command);
-             break;
-           }
-           case DashboardCommand.Copy: {
-             console.log(command);
-             break;
-           }
-           case DashboardCommand.Paste: {
-             console.log(command);
-             break;
-           }*/
+      case HotkeyEvents.OpenChart: {
+        this._addComponent(Components.Chart);
+        break;
+      }
+      case HotkeyEvents.OpenOrderTicket: {
+        this._addComponent(Components.OrderForm);
+        break;
+      }
+      case HotkeyEvents.CenterAllWindows: {
+        break;
+      }
+      case HotkeyEvents.OpenTradingDom: {
+        this._addComponent(Components.Dom);
+        break;
+      }
+      case HotkeyEvents.OpenConnections: {
+        //   this.layout.addComponent(Components.Accounts);
+        break;
+      }
+      case HotkeyEvents.LockTrading: {
+        this.trade.toggleTradingEnabled();
+        break;
+      }
+    }
+  }
+
+  private _addComponent(component: string) {
+    const widgetOptions = widgetList.find(item => item.component === component);
+    if (widgetOptions) {
+      this.layout.addComponent({
+        component: {
+          name: widgetOptions.component,
+        },
+        ...widgetOptions.options
+      });
+    } else {
+      console.error(`Component ${component} not found, make sure spelling is correct`);
     }
   }
 

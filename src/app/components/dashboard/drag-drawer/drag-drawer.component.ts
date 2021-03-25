@@ -3,17 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { Components } from '../../../modules';
 
-@UntilDestroy()
-@Component({
-  selector: 'app-drag-drawer',
-  templateUrl: './drag-drawer.component.html',
-  styleUrls: ['./drag-drawer.component.scss']
-})
-export class DragDrawerComponent {
-  @Input() layout: LayoutComponent;
-  opened = false;
-
-  items = [
+export const widgetList = [
     {
       icon: 'icon-widget-chart',
       name: 'Chart',
@@ -35,7 +25,7 @@ export class DragDrawerComponent {
     {
       icon: 'icon-widget-create-orders',
       name: 'Add orders',
-      component:  Components.OrderForm,
+      component: Components.OrderForm,
       options: {
         minHeight: 315,
         minWidth: 369,
@@ -67,6 +57,18 @@ export class DragDrawerComponent {
     //   component: Components.Scripting
     // }
   ];
+
+@UntilDestroy()
+@Component({
+  selector: 'app-drag-drawer',
+  templateUrl: './drag-drawer.component.html',
+  styleUrls: ['./drag-drawer.component.scss']
+})
+export class DragDrawerComponent {
+  @Input() layout: LayoutComponent;
+  opened = false;
+
+  items = widgetList;
 
   create(item) {
     this.layout.addComponent({
