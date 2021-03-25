@@ -1,4 +1,6 @@
-<window-header className="widget" [window]="this">
+<window-header
+  (contextmenu)="grid.createComponentModal($event)"
+  className="widget" [window]="this">
   <!--  <button
       class="wm-header-btn mr-2"
       (click)="grid.createComponentModal()"
