@@ -45,6 +45,14 @@ button {
   opacity: 1;
 }
 
+:host-context(app-navbar.Bottom) {
+  .lock-alert,
+  .unlock-alert {
+    bottom: unset;
+    top: -50px;
+  }
+}
+
 .lock-alert {
   background-color: $fallingColor;
 
