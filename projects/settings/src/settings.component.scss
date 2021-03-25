@@ -13,6 +13,14 @@
   }
 
   ::ng-deep {
+    window-header {
+      color: $text-60;
+
+      .title {
+        color: $text-60 !important;
+      }
+    }
+
     .ant-radio-wrapper {
       display: flex;
       align-items: center;
@@ -80,6 +88,11 @@
 
       li {
         font-size: 0.9rem;
+        color: $text-60;
+
+        &.active {
+          color: white;
+        }
       }
     }
 
@@ -105,12 +118,14 @@
     }
 
     .table {
-      margin-left: 4px;
+      margin-left: 16px;
+      margin-right: 16px;
     }
 
     .tab-content {
       padding: 0 16px;
       flex-grow: 1;
+      margin-top: 16px;
 
       li {
         display: flex;

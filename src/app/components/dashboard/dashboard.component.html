@@ -11,5 +11,5 @@
 <context-menu></context-menu>
 
 <ng-template #navbar>
-  <app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
+  <app-navbar *ngIf="layout && !isPopup()" [layout]="layout" #bar></app-navbar>
 </ng-template>

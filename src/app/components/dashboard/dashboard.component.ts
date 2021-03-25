@@ -3,10 +3,11 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
+import { environment } from 'environment';
 
 export enum DashboardCommand {
   SavePage = 'save_page',
@@ -17,7 +18,7 @@ export enum DashboardCommand {
 
 export const DashboardCommandToUIString = {
   [DashboardCommand.SavePage]: 'Save page'
-}
+};
 
 @Component({
   selector: 'dashboard',
@@ -26,7 +27,9 @@ export const DashboardCommandToUIString = {
 })
 @UntilDestroy()
 export class DashboardComponent implements AfterViewInit, OnInit {
-  @ViewChild(LayoutComponent) layout: LayoutComponent;
+  @ViewChild(LayoutComponent, { static: false }) layout: LayoutComponent;
+
+  hasBeenSaved: boolean;
 
   settings: SettingsData;
   keysStack: KeyboardListener = new KeyboardListener();
@@ -44,6 +47,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
+    private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
   ) {
   }
@@ -84,12 +88,42 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    if (this.isPopup())
+      this._loadPopupState();
+    else {
+      this._setupWorkspaces();
+    }
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass();
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
+  }
+
+  isPopup() {
+    return this._windowPopupManager.isPopup();
+  }
+
+  private _loadPopupState() {
+    const options = this._windowPopupManager.getConfig();
+    if (!options)
+      return;
+    this.layout.loadState(options.layoutConfig);
+    this._windowPopupManager.hideWindowHeaderInstruments = options.hideWindowHeaderInstruments;
+    this._windowPopupManager.deleteConfig();
+    setTimeout(() => {
+      const widgets = this.layout.getWidgets();
+      if (widgets.length === 1)
+        widgets[0].maximize();
+    }, 100);
+  }
+
+  private _setupWorkspaces() {
     this._workspaceService.save
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
-          this._save();
+        this._save();
       });
+
     this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
@@ -115,7 +149,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _setupSettings(): void {
     this._settingsService.settings
       .subscribe(s => {
-        this.settings = {...s};
+        this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
 
         $('body').removeClass('navbarTop navbarBottom');
@@ -133,11 +167,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       });
   }
 
+  @HostListener('click')
+  handleClick() {
+    this.hasBeenSaved = false;
+  }
+
   private _subscribeOnKeys() {
     this._subscriptions = [
       this._renderer.listen('document', 'keyup', this._handleEvent.bind(this)),
       this._renderer.listen('document', 'keydown', this._handleEvent.bind(this)),
-    ]
+    ];
   }
 
   private _handleEvent(event) {
@@ -150,12 +189,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private _handleKey(event) {
     this.keysStack.handle(event);
-    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack))
+    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack));
     if (key) {
-      this.handleCommand(key[0].name as DashboardCommand)
+      this.handleCommand(key[0].name as DashboardCommand);
       event.preventDefault();
     }
-    console.log(this.keysStack.toUIString())
+    console.log(this.keysStack.toUIString());
   }
 
   private handleCommand(command: DashboardCommand) {
@@ -180,10 +219,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-    //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
     if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
+      this.hasBeenSaved = true;
     }
   }
 
@@ -191,6 +230,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
+    if (this.hasBeenSaved || !environment.production)
+      return;
     e = e || window.event;
 
     // For IE and Firefox prior to version 4

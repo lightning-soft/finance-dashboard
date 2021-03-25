@@ -13,6 +13,7 @@ export enum NotificationType {
   DISCONNECTED = 'DISCONNECTED',
   ORDER_REJECTED = 'ORDER_REJECTED',
   ORDER_RESOLVED = 'ORDER_RESOLVED',
+  ERROR = 'ERROR',
 }
 
 export class Notification {
@@ -27,7 +28,7 @@ export class Notification {
 
   constructor(config: NotificationConfig) {
     this.type = config.type ?? NotificationType.MESSAGE;
-    this.icon = config.icon ?? 'icon-setting-gear';
+    this.icon = config.icon ?? 'notication-default';
     this.title = config.title ?? 'Message';
 
     this.body = config.body ?? '';

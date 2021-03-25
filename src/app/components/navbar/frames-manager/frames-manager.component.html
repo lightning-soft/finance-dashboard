@@ -45,7 +45,7 @@
     </div>
   </ng-container>
 </div>
-
+<div *ngIf="hasAnyWindow" class="vertical-divider"></div>
 <div class="highlight-area"
      *ngIf="highlightedWindow"
      [style.width.px]="highlightedWindow.width"

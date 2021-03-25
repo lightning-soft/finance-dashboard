@@ -11,7 +11,7 @@ import { CommunicationConfig, CommunicationModule } from 'communication';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
-import { LayoutModule } from 'layout';
+import { LayoutModule, WindowPopupManager } from 'layout';
 import { LoadingModule } from 'lazy-modules';
 import {
   NzCheckboxModule,
@@ -74,7 +74,7 @@ async function initAccounts(manager: AccountsManager) {
   return manager.init();
 }
 
-async function initIdentityAccount(authService: AuthService, config: AppConfig) {
+async function initIdentityAccount(authService: AuthService, config: AppConfig, windowPopupManager: WindowPopupManager) {
   const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get('code');
 
@@ -83,17 +83,23 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig) 
     return authService.initialize(code);
   } else {
     await authService.refreshToken().toPromise()
-      .catch(err => location.replace(generateLoginLink(config.identity)));
+      .catch(err => {
+        if (windowPopupManager.isPopup())
+          window.close();
+        else {
+          location.replace(generateLoginLink(config.identity))
+        }
+      });
 
     if (!authService.isAuthorized)
       location.replace(generateLoginLink(config.identity));
   }
 }
 
-export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService) {
+export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService, windowPopupManager: WindowPopupManager) {
   return async () => {
     await config.getConfig().pipe(first()).toPromise();
-    await initIdentityAccount(authService, config);
+    await initIdentityAccount(authService, config, windowPopupManager);
     await initAccounts(manager);
   };
 }
@@ -217,7 +223,8 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       deps: [
         AppConfig,
         AccountsManager,
-        AuthService
+        AuthService,
+        WindowPopupManager,
       ],
     },
     { provide: NZ_I18N, useValue: en_US }

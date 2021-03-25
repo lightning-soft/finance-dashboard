@@ -25,7 +25,7 @@ import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
-import { NzContextMenuService, NzDropdownMenuComponent } from "ng-zorro-antd";
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -74,6 +74,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   set instrument(value) {
+    if (this.chart.instrument.symbol === value.symbol
+      && this.chart.instrument.exchange === value.exchange)
+      return;
     this.chart.instrument = value;
     if (value) {
       value.company = this._getInstrumentCompany();

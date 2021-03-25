@@ -25,8 +25,9 @@ export class DesktopLayout extends Layout {
   }
 
   // TODO implement
-  removeComponent(removeComponent: string){
+  removeComponent(removeComponent: string) {
   }
+
   addComponent(componentName: string) {
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {
     //   // edge don't support obfuscated code StockChartX
@@ -184,6 +185,11 @@ export class DesktopLayout extends Layout {
       console.error(e);
       throw e;
     }
+  }
+
+  getWidgets() {
+    // implement
+    return [];
   }
 
   getState(): any {
