@@ -2,6 +2,7 @@
   nz-dropdown
   class="icon-union"
   nzTrigger="click"
+  [nzPlacement]="dropdownPlacement"
   [title]="'Workspaces'"
   (nzVisibleChange)="isMenuVisible = $event"
   [class.active]="isMenuVisible"

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { EVENTS, IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
+import { NzPlacementType } from "ng-zorro-antd";
 
 export type WindowTuple = [string, Set<IWindow>];
 
@@ -10,6 +11,7 @@ export type WindowTuple = [string, Set<IWindow>];
   styleUrls: ['./frames-manager.component.scss']
 })
 export class FramesManagerComponent {
+  @Input() dropdownPlacement: NzPlacementType;
 
   public highlightedWindow: IWindow;
   public windowTuples: WindowTuple[] = [
