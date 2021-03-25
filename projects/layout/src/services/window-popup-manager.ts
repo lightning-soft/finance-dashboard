@@ -69,7 +69,7 @@ export class WindowPopupManager {
     window.open(window.location.href + '?popup', '_blank', featuresArray.join(', '));
   }
 
-  getConfig(): WindowPopupConfig | undefined {
+  getConfig(): WindowPopupConfig {
     const stringState = this._storage.getItem(popupStorageKey);
     if (stringState) {
       try {
