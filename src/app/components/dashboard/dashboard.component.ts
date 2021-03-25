@@ -107,7 +107,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass('scxThemeLight').removeClass('scxThemeDark');
+      $('body').removeClass('scxThemeLight scxThemeDark');
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
   }
@@ -118,7 +118,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.settings = {...s};
         this.themeHandler.changeTheme(s.theme as Themes);
 
-        $('body').removeClass('navbarTop').removeClass('navbarBottom');
+        $('body').removeClass('navbarTop navbarBottom');
         $('body').addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
 
         if (s.autoSave && s.autoSaveDelay) {
