@@ -29,7 +29,7 @@
             (click)="stayInDragMode()">
 
           <i
-            [ngStyle]="{color: chart?.stayInDrawingMode? 'white': null}"
+            [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
         </li>
         <ng-container *ngFor="let drawingInstrument of drawingInstruments">
@@ -71,7 +71,7 @@
         <li title="Pin"
             (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
           <i
-            [ngStyle]="{color: isDrawingsPinned ? 'white': null}"
+            [ngStyle]="{color: isDrawingsPinned ? '#fff': null}"
             [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
         </li>
       </ul>
