@@ -7,6 +7,7 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { fromEvent, merge } from "rxjs";
 import { debounceTime, map, tap } from "rxjs/operators";
 import { NzPlacementType } from "ng-zorro-antd";
+import {WindowManagerService} from "window-manager";
 
 
 @UntilDestroy()
@@ -42,7 +43,8 @@ export class NavbarComponent {
     private themeHandler: ThemesHandler,
     private notificationService: NotificationService,
     private settingsService: SettingsService,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private windowManagerService: WindowManagerService,
   ) {
     this.isNewNotification =   !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
@@ -52,7 +54,10 @@ export class NavbarComponent {
     this.settingsService.settings
       .pipe(untilDestroyed(this), debounceTime(200))
       .subscribe(settings => {
-        this.currentNavbarPosition = settings.navbarPosition;
+        if (this.currentNavbarPosition !== settings.navbarPosition) {
+          this.currentNavbarPosition = settings.navbarPosition;
+          this.windowManagerService.updateGlobalOffset();
+        }
         this.isNavbarHidden = settings.isNavbarHidden;
       });
 

@@ -73,7 +73,10 @@ export class WindowManagerService {
       this.wm.windows[0].close();
 
     this.windows.next(this.wm.windows);
+  }
 
+  public updateGlobalOffset(): void {
+    this.wm.updateGlobalOffset();
   }
 
   private calculatePosition(options: Options): Cords {

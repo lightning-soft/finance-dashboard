@@ -11,6 +11,7 @@ export interface IWindowManager {
 
   createWindow(option: object): IWindow;
   save(): saveData;
+  updateGlobalOffset(): void;
 }
 
 export interface IWindow {
