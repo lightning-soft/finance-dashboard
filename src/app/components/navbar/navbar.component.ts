@@ -35,6 +35,7 @@ export class NavbarComponent {
     private settingsService: SettingsService,
     private elementRef: ElementRef
   ) {
+    this.isNewNotification =   !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
       this.isNewNotification = !!n.length;
     });
@@ -92,7 +93,7 @@ export class NavbarComponent {
       removeIfExists: true,
       maximizable: false,
       minimizable: false,
-      resizable: false,
+      resizable: true,
     });
   }
 
@@ -105,6 +106,8 @@ export class NavbarComponent {
       maximizable: false,
       minimizable: false,
       resizable: false,
+      width: 618,
+      height: 474,
       x: 'center',
       y: 'center',
       single: true,
