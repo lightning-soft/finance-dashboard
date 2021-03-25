@@ -16,13 +16,13 @@ function createCommand(name: string, uiSstring: string = name): ICommand {
 }
 
 export enum HotkeyEvents {
-  SavePage = 'Save All Settings',
-  CenterAllWindows = 'Center All Windows',
-  OpenOrderTicket = 'Open Order Ticket',
-  OpenTradingDom = 'Open Trading DOM',
-  OpenChart = 'Open New Chart',
-  OpenConnections = 'Open Connections Window',
-  LockTrading = 'Lock/Unlock Trading',
+  SavePage = 'saveAll',
+  CenterAllWindows = 'CenterAllWindows',
+  OpenOrderTicket = 'openOrderForm',
+  OpenTradingDom = 'openDOM',
+  OpenChart = 'openChart',
+  OpenConnections = 'openConnections',
+  LockTrading = 'lockTrading',
 }
 
 export const defaultHotkeyEntries = {

@@ -11,6 +11,15 @@ export enum SAVE_DALEY {
   AUTO_SAVE = 'AUTO_SAVE',
   MANUAL_SAVE = 'MANUAL_SAVE',
 }
+const hotkeyStringRepresentation = {
+  [HotkeyEvents.SavePage]: 'Save All Settings',
+  [HotkeyEvents.CenterAllWindows]: 'Center All Windows',
+  [HotkeyEvents.OpenOrderTicket]: 'Open Order Ticket',
+  [HotkeyEvents.OpenTradingDom]: 'Open Trading DOM',
+  [HotkeyEvents.OpenChart]: 'Open New Chart',
+  [HotkeyEvents.OpenConnections]: 'Open Connections Window',
+  [HotkeyEvents.LockTrading]: 'Lock/Unlock Trading',
+};
 
 export interface SettingsComponent extends ILayoutNode {
 }
@@ -36,7 +45,7 @@ export class SettingsComponent implements OnInit {
 
   settings: SettingsData;
   hotkeysEvents = Object.values(HotkeyEvents);
-  hotkeys: { name: string, binding: KeyBinding }[] = [];
+  hotkeys: { name: string, key: string, binding: KeyBinding }[] = [];
 
   themes = [Themes.Dark, Themes.Light];
 
@@ -78,10 +87,10 @@ export class SettingsComponent implements OnInit {
   }
 
   updateHotkeys() {
-    this.hotkeys = this.hotkeysEvents.map((name: string) => {
+    this.hotkeys = this.hotkeysEvents.map((key: string) => {
       const binding = this.settings.hotkeys[name] ? KeyBinding.fromDTO(this.settings.hotkeys[name])
         : new KeyBinding([]);
-      return { name, binding};
+      return { name: hotkeyStringRepresentation[key], key, binding};
     });
   }
 

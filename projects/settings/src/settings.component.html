@@ -44,7 +44,7 @@
     <tr *ngFor="let entry of hotkeys;let i = index ">
       <td class="hotkey-name">{{entry.name}}</td>
       <td class="hotkey-reader">
-        <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.name)" ></hotkey-input>
+        <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)" ></hotkey-input>
       </td>
     </tr>
     </tbody>

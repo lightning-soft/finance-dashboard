@@ -11,6 +11,7 @@ import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 
+
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
