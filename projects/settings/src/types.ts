@@ -1,6 +1,7 @@
 import { KeyBinding } from 'keyboard';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
+import { NavbarPosition } from "./settings.service";
 
 export interface ICommand {
   readonly UIString: string;
@@ -17,5 +18,7 @@ export type SettingsData = {
   hotkeys: HotkeyEntire[];
   tradingEnabled: boolean;
   workspaces: Workspace[];
-  timezones: ITimezone[]
+  navbarPosition: NavbarPosition;
+  isNavbarHidden: boolean;
+  timezones: ITimezone[];
 };

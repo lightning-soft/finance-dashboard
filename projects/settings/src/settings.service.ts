@@ -23,7 +23,12 @@ export const defaultHotkeyEntries: HotkeyEntire[] = [
   [createCommand('Cut'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_X)])],
 ];
 
-const defaultSettings = {
+export enum NavbarPosition {
+  Top = 'Top',
+  Bottom = 'Bottom'
+}
+
+const defaultSettings: SettingsData = {
   theme: Themes.Dark,
   autoSave: false,
   autoSaveDelay: null,
@@ -31,7 +36,9 @@ const defaultSettings = {
   hotkeys: defaultHotkeyEntries,
   tradingEnabled: true,
   workspaces: [],
-  timezones: []
+  timezones: [],
+  navbarPosition: NavbarPosition.Top,
+  isNavbarHidden: false,
 };
 
 @Injectable()
@@ -88,6 +95,14 @@ export class SettingsService {
     this._updateState({ workspaces });
   }
 
+  changeNavbarPosition(navbarPosition: NavbarPosition): void {
+    this._updateState({ navbarPosition });
+  }
+
+  updateNavbarVisibility(isNavbarHidden: boolean): void {
+    this._updateState({ isNavbarHidden });
+  }
+
   save(settings: object) {
     this._updateState(settings);
   }
@@ -96,7 +111,7 @@ export class SettingsService {
     this._updateState({ timezones });
   }
 
-  private _updateState(settings: object, saveInStorage = true): void {
+  private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
     this.settings.next({ ...this.settings.value, ...settings });
     if (saveInStorage)
       this.saveState();

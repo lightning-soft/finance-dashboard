@@ -4,7 +4,7 @@ import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyboardListener } from 'keyboard';
 import { LayoutComponent } from 'layout';
-import { SettingsData, SettingsService } from 'settings';
+import { NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 
@@ -115,7 +115,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _setupSettings(): void {
     this._settingsService.settings
       .subscribe(s => {
-        this.settings = { ...s };
+        this.settings = {...s};
         this.themeHandler.changeTheme(s.theme as Themes);
 
         if (s.autoSave && s.autoSaveDelay) {
@@ -184,13 +184,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
-  @HostListener('window:beforeunload')
-  async beforeUnloadHandler() {
-    if (this.settings.autoSave && !this.settings.autoSaveDelay)
-      await this._save();
-
+  @HostListener('window:beforeunload', ['$event'])
+  async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
+    e = e || window.event;
+
+    // For IE and Firefox prior to version 4
+    if (e) {
+      e.returnValue = true;
+    }
+    // For Safari
+    return true;
   }
 }
 
