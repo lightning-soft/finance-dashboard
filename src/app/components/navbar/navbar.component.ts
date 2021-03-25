@@ -6,6 +6,7 @@ import { NavbarPosition, SettingsService } from "settings";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { fromEvent, merge } from "rxjs";
 import { debounceTime, map, tap } from "rxjs/operators";
+import { NzPlacementType } from "ng-zorro-antd";
 
 
 @UntilDestroy()
@@ -27,6 +28,14 @@ export class NavbarComponent {
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
+  }
+
+  get dropdownPlacementRightSide(): NzPlacementType {
+    return this.currentNavbarPosition === NavbarPosition.Top ? 'bottomRight' : 'topRight';
+  }
+
+  get dropdownPlacementLeftSide(): NzPlacementType {
+    return this.currentNavbarPosition === NavbarPosition.Top ? 'bottomLeft' : 'topLeft';
   }
 
   constructor(
