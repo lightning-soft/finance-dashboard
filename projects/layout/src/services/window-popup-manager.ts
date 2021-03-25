@@ -65,17 +65,13 @@ export class WindowPopupManager {
     features.forEach((value, key) => {
       featuresArray.push(`${key}=${value}`);
     });
-    try {
-      this._storage.setItem(popupStorageKey, JSON.stringify(config));
-      window.open(window.location.href + '?popup', '_blank', featuresArray.join(', '));
-    } catch (e) {
-      console.error(e);
-    }
+    this._storage.setItem(popupStorageKey, JSON.stringify(config));
+    window.open(window.location.href + '?popup', '_blank', featuresArray.join(', '));
   }
 
-  getConfig(): WindowPopupConfig {
-    const stringState = this._storage.getItem(popupStorageKey);
+  getConfig(): WindowPopupConfig | undefined {
     try {
+      const stringState = this._storage.getItem(popupStorageKey);
       if (stringState)
         return JSON.parse(stringState);
     } catch (e) {
