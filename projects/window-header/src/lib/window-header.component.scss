@@ -1,3 +1,4 @@
+@import "~src/scss/variables";
 :host {
   z-index: 1;
   font-size: 0.9rem;
@@ -6,6 +7,22 @@
 
   .title {
     font-size: 0.85rem;
+  }
+
+  .popup-link {
+    position: relative;
+    padding-right: 8px;
+
+    &:after {
+      top: 0;
+      right: 0;
+      content: '';
+      height: calc(100% - 2px);
+      width: 1px;
+      margin-top: 1px;
+      background: $light2;
+      position: absolute;
+    }
   }
 
   ::ng-deep {
@@ -19,7 +36,7 @@
   }
 
   .content {
-    max-width: calc(100% - 60px);
+    max-width: calc(100% - 80px);
     overflow: hidden;
   }
 

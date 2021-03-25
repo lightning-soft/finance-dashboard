@@ -7,7 +7,7 @@ export type NotificationConfig = {
   body: string,
   type?: string,
   icon?: string,
-  timestamp?: string,
+  timestamp?: string | number,
 };
 
 export type NotificationData = {

@@ -135,7 +135,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
+    this._workspacesService.save.next();
     this._notificationService.showSuccess('Workspace was saved');
   }
 

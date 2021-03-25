@@ -1,5 +1,5 @@
-import { IKeyBindingDTO, KeyBinding } from 'keyboard';
-import { Workspace, WorkspaceWindow } from 'workspace-manager';
+import { IKeyBindingDTO } from 'keyboard';
+import { Workspace } from 'workspace-manager';
 import { NavbarPosition } from "./settings.service";
 export interface ICommand {
   readonly UIString: string;

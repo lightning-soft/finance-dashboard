@@ -150,8 +150,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
-    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
+    buyMarket: () => this._createBuyMarketOrder(),
+    sellMarket: () => this._createSellMarketOrder(),
     hitBid: () => {
       this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
@@ -1308,7 +1308,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }, this._levelsInterval);
 
     this._clearInterval = () => {
-      clearInterval(_interval)
+      clearInterval(_interval);
       this._clearInterval = null;
     };
   }
@@ -1638,6 +1638,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.keysStack.handle(event);
     // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
+      .filter(([name, item]) => item)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
 
@@ -1705,6 +1706,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       closeBtn: true,
       single: false,
       width: 618,
+      allowPopup: false,
       resizable: false,
       removeIfExists: false,
       hidden,
@@ -1827,8 +1829,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case FormActions.CancelOcoOrder:
         this._clearOcoOrders();
         break;
-      case FormActions.CreateMarketOrder:
-        this._createMarketOrder();
+      case FormActions.CreateSellMarketOrder:
+        this._createSellMarketOrder();
+        break;
+      case FormActions.CreateBuyMarketOrder:
+        this._createBuyMarketOrder();
         break;
       default:
 
@@ -1843,22 +1848,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.items.forEach(item => item.clearOcoOrder());
   }
 
-  _createMarketOrder() {
-    const data = this._domForm.getDto();
-    const { exchange, symbol } = this.instrument;
-    // #TODO investigate what side of order should be added.
-    this._ordersRepository.createItem({
-      ...data,
-      accountId: this._accountId,
-      type: OrderType.Market,
-      side: OrderSide.Buy, exchange, symbol
-    })
-      .toPromise()
-      .then(() => {
-        this.notifier.showSuccess('Order Created');
-      }).catch((err) => {
-      this.notifier.showError(err);
-    });
+  _createBuyMarketOrder() {
+    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market });
+  }
+
+  _createSellMarketOrder() {
+    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market });
   }
 
   private _closePositions() {

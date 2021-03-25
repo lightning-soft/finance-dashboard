@@ -3,13 +3,14 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { HotkeyEvents, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Workspace, WorkspacesManager } from 'workspace-manager';
 import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
+import { environment } from 'environment';
 
 
 @Component({
@@ -19,7 +20,9 @@ import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 })
 @UntilDestroy()
 export class DashboardComponent implements AfterViewInit, OnInit {
-  @ViewChild(LayoutComponent) layout: LayoutComponent;
+  @ViewChild(LayoutComponent, { static: false }) layout: LayoutComponent;
+
+  hasBeenSaved: boolean;
 
   settings: SettingsData;
   keysStack: KeyboardListener = new KeyboardListener();
@@ -38,6 +41,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
     private trade: TradeHandler,
+    private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
   ) {
   }
@@ -78,12 +82,42 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    if (this.isPopup())
+      this._loadPopupState();
+    else {
+      this._setupWorkspaces();
+    }
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass();
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
+  }
+
+  isPopup() {
+    return this._windowPopupManager.isPopup();
+  }
+
+  private _loadPopupState() {
+    const options = this._windowPopupManager.getConfig();
+    if (!options)
+      return;
+    this.layout.loadState(options.layoutConfig);
+    this._windowPopupManager.hideWindowHeaderInstruments = options.hideWindowHeaderInstruments;
+    this._windowPopupManager.deleteConfig();
+    setTimeout(() => {
+      const widgets = this.layout.getWidgets();
+      if (widgets.length === 1)
+        widgets[0].maximize();
+    }, 100);
+  }
+
+  private _setupWorkspaces() {
     this._workspaceService.save
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
-          this._save();
+        this._save();
       });
+
     this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
@@ -99,11 +133,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.layout.loadState(config);
 
       });
-
-    this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass();
-      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
-    });
   }
 
   private _setupSettings(): void {
@@ -122,6 +151,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           clearInterval(this._autoSaveIntervalId);
         }
       });
+  }
+
+  @HostListener('click')
+  handleClick() {
+    this.hasBeenSaved = false;
   }
 
   private _subscribeOnKeys() {
@@ -149,7 +183,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (key) {
       event.preventDefault();
       this.handleCommand(key[0]);
-    }
+    };
   }
 
   private handleCommand(command: HotkeyEvents) {
@@ -199,10 +233,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-    //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
     if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
+      this.hasBeenSaved = true;
     }
   }
 
@@ -210,6 +244,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
+    if (this.hasBeenSaved || !environment.production)
+      return;
     e = e || window.event;
 
     // For IE and Firefox prior to version 4
