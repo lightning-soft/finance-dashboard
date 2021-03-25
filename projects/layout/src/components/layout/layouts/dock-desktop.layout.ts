@@ -103,6 +103,7 @@ export class DockDesktopLayout extends Layout {
             maximizable: true,
             keepInside: {
               top: true,
+              left: true,
             },
             ...configData,
             componentState: () => ({
