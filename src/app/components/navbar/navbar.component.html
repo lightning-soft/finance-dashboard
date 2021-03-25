@@ -34,7 +34,7 @@
   <div class="create-frame">
     <app-drag-drawer *ngIf="layout" [layout]="layout"></app-drag-drawer>
   </div>
-  <app-frames-manager></app-frames-manager>
+  <app-frames-manager [dropdownPlacement]="dropdownPlacementLeftSide"></app-frames-manager>
   <!-- <div class="search">
     <button class="icon-search"></button>
   </div> -->
@@ -44,7 +44,7 @@
   <app-connections [layout]="layout"></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
-    <app-workspace [layout]="layout"></app-workspace>
+    <app-workspace [layout]="layout" [dropdownPlacement]="dropdownPlacementRightSide"></app-workspace>
     <button
       [title]="'Settings'"
       (click)="openSettings()" class="icon-setting-gear navbar-button"></button>

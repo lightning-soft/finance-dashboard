@@ -67,6 +67,13 @@ body {
   justify-content: flex-end;
 }
 
+body.navbarBottom {
+  .ant-message {
+    top: unset !important;
+    bottom: 40px !important;
+  }
+}
+
 
 .color-picker.open {
   background: $inputBackground;
