@@ -51,7 +51,7 @@ export class NotificationListComponent {
   }
 
   public acceptAllNotifications() {
-    this._notificationService.acceptAllNotification();
+    this._notificationService.acceptAllNotifications();
   }
 
   public acceptNotification(id) {

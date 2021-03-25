@@ -48,14 +48,14 @@ export class NotificationService extends NotifierService {
     this.notifications.next(this.getNotification());
   }
 
-  public acceptAllNotification() {
+  public acceptAllNotifications() {
     this._notifications.forEach(item => item.status = NotificationStatus.ACCEPTED);
     this.notifications.next(this.getNotification());
   }
 
   public getNotification(): Notification[] {
     const notifications = this._filterUnreaded(this._notifications);
-    return [...notifications];
+    return notifications;
   }
 
   private _filterUnreaded(notifications: Notification[]): Notification[] {
