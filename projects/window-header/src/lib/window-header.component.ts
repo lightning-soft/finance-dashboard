@@ -22,7 +22,7 @@ export class WindowHeaderComponent {
   }
 
   popup() {
-    this.windowPopupManager.openPopup(this.window);
+    this.windowPopupManager.openWidget(this.window);
   }
 
   hideInstruments() {

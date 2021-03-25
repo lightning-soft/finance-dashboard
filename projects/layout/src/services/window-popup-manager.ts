@@ -25,7 +25,7 @@ export class WindowPopupManager {
     return params && params.hasOwnProperty('popup');
   }
 
-  openPopup(widget) {
+  openWidget(widget) {
     const options = widget.layoutContainer.options;
     const name = widget.layoutContainer.type;
     options.x = 0;
@@ -35,19 +35,39 @@ export class WindowPopupManager {
     if (widget.saveState)
       state = widget.saveState();
     options.component = { name, state };
+    const widgetFeatures = new Map(commonFeatures);
+    widgetFeatures.set('scrollbars', 'no');
+    widgetFeatures.set('resizable', 'no');
+    widgetFeatures.set('innerHeight', `${height}`);
+    widgetFeatures.set('innerWidth', `${width}`);
+
     const config: WindowPopupConfig = { layoutConfig: [options], hideWindowHeaderInstruments: true };
-    this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    window.open(window.location.href + '?popup', '_blank', `location=no, innerHeight=${height}, innerWidth=${width}, scrollbars=no, status=no, toolbar=no, menubar=no, resizable=no`);
+    this._openPopup(config, widgetFeatures);
   }
 
   openWindow(workspaceWindow: WorkspaceWindow) {
     const layoutConfig = workspaceWindow.config;
     const width = window.innerWidth;
     const height = window.innerHeight;
+
+    const windowFeatures = new Map(commonFeatures);
+    windowFeatures.set('scrollbars', 'yes');
+    windowFeatures.set('resizable', 'yes');
+    windowFeatures.set('height', `${height}`);
+    windowFeatures.set('width', `${width}`);
+
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
+    this._openPopup(config, windowFeatures);
+  }
+
+  private _openPopup(config, features: Map<string, string>) {
+    const featuresArray = [];
+    features.forEach((value, key) => {
+      featuresArray.push(`${key}=${value}`);
+    });
     try {
       this._storage.setItem(popupStorageKey, JSON.stringify(config));
-      window.open(window.location.href + '?popup', '_blank', `location=no, height=${height}, width=${width}, scrollbars=yes, status=no, toolbar=no, menubar=no, resizable=yes`);
+      window.open(window.location.href + '?popup', '_blank', featuresArray.join(', '));
     } catch (e) {
       console.error(e);
     }
@@ -67,3 +87,12 @@ export class WindowPopupManager {
     this._storage.deleteItem(popupStorageKey);
   }
 }
+
+const commonFeatures = new Map([
+  ['location', 'no'],
+  ['status', 'no'],
+  ['toolbar', 'no'],
+  ['menubar', 'no']
+]);
+
+
