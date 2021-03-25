@@ -3,7 +3,10 @@ import { NzModalService } from "ng-zorro-antd";
 import { AddTimezoneModalComponent } from "../add-timezone-modal/add-timezone-modal.component";
 import { ActiveTimezonesService } from "../active-timezones.service";
 import { ITimezone, Timezone, TIMEZONES } from "../timezones";
+import { interval } from "rxjs";
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 
+@UntilDestroy()
 @Component({
   selector: 'app-clock',
   templateUrl: './clock.component.html',
@@ -17,9 +20,10 @@ export class ClockComponent implements OnInit {
 
   constructor(private modalService: NzModalService,
               private timezonesService: ActiveTimezonesService) {
-    setInterval(() => {
-      this.time = Date.now();
-    }, 1000);
+
+    interval(1000)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => this.time = Date.now())
   }
 
   ngOnInit(): void {
