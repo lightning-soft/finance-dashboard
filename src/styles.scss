@@ -50,6 +50,12 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.ant-checkbox-indeterminate {
+  .ant-checkbox-inner {
+    border: 1px solid rgba($primary, 0.4);
+  }
+}
+
 .ant-message-loading {
   color: white;
   font-size: 0.7rem;

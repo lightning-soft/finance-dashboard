@@ -1,6 +1,7 @@
 export type Column = {
   name: string;
   title?: string;
+  tableViewName?: string;
   visible: boolean;
   // represents should column be hidden in table settings
   hidden?: boolean;

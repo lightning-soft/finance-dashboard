@@ -9,7 +9,8 @@ import {
   ContextMenuClickDataGridHandler,
   DataGrid,
   IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
-  RoundFormatter
+  RoundFormatter,
+  Column
 } from 'data-grid';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -36,7 +37,7 @@ import {
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
 import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
-import { DomSettingsSelector, IDomSettingsEvent } from './dom-settings/dom-settings.component';
+import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
@@ -393,21 +394,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.columns = [
       ...[
-        'orders',
-        ['buyOrders', 'buy Orders'],
-        ['sellOrders', 'sell Orders'],
-        ['volume', 'volume', 'histogram'],
+       [ 'orders', 'orders', 'Orders'],
+        ['buyOrders', 'buy Orders', 'Buy Orders'],
+        ['sellOrders', 'sell Orders', 'Sell Orders'],
+        ['volume', 'volume', 'Volume', 'histogram'],
         'price',
-        ['delta', 'delta'],
-        ['bidDelta', 'delta'],
-        ['bid', 'bid', 'histogram'],
-        'ltq',
-        ['currentBid', 'c.bid', 'histogram'],
-        ['currentAsk', 'c.ask', 'histogram'],
-        ['ask', 'ask', 'histogram'],
-        ['askDelta', 'delta'],
-        ['totalBid', 't.bid', 'histogram'],
-        ['totalAsk', 't.ask', 'histogram'],
+        ['delta', 'delta', 'Delta'],
+        ['bidDelta', 'delta', 'Bid Delta'],
+        ['bid', 'bid', 'Bid', 'histogram'],
+        ['ltq', 'ltg', 'LTQ'],
+        ['currentBid', 'c.bid', 'C.Bid', 'histogram'],
+        ['currentAsk', 'c.ask', 'C.Ask', 'histogram'],
+        ['ask', 'ask', 'Ask', 'histogram'],
+        ['askDelta', 'delta', 'Ask Delta'],
+        ['totalBid', 't.bid', 'T.Bid', 'histogram'],
+        ['totalAsk', 't.ask', 'T.Ask', 'histogram'],
         // 'tradeColumn',
         // 'askDepth',
       ].map(convertToColumn),
@@ -531,12 +532,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const general = settings?.general;
     const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
     const hiddenColumns: any = {};
-    common.orders = !settings.orders.split;
+
+    const hasSplitOrdersChanged = this._settings.orders.split !== settings.orders.split;
+    common.orders = !settings.orders.split && (common.orders || hasSplitOrdersChanged);
     hiddenColumns.orders = settings.orders.split;
-    common.buyOrders = settings.orders.split;
+    common.buyOrders = settings.orders.split && (common.buyOrders || hasSplitOrdersChanged);
     hiddenColumns.buyOrders = !settings.orders.split;
-    common.sellOrders = settings.orders.split;
+    common.sellOrders = settings.orders.split && (common.sellOrders || hasSplitOrdersChanged);
     hiddenColumns.sellOrders = !settings.orders.split;
+
     if (common) {
       for (const column of this.columns) {
         column.visible = common[column.name] != false;
@@ -1919,6 +1923,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   onCurrentCellChanged($event: any) {
     this.currentCell = $event;
+  }
+
+  onColumnUpdate(column: Column) {
+    const hasCommonSettings = this._settings.common.hasOwnProperty(column.name);
+    if (hasCommonSettings) {
+      this._settings.common[column.name] = column.visible;
+    }
+    const hasSettings = this._settings.hasOwnProperty(column.name);
+    if (hasSettings) {
+      this._settings[column.name].textAlign = column.style.textAlign;
+    }
+    this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 }
 

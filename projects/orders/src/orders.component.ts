@@ -1,5 +1,5 @@
 import { Component, HostBinding, Injector } from '@angular/core';
-import { RealtimeGridComponent, ViewItemsBuilder } from 'base-components';
+import { RealtimeGridComponent, StringHelper, ViewItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -7,7 +7,7 @@ import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
-import { finalize } from "rxjs/operators";
+import { finalize } from 'rxjs/operators';
 
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
@@ -144,6 +144,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       const column: Column = {
         name,
         title: title.toUpperCase(),
+        tableViewName: StringHelper.capitalize(name),
         style: {
           ...options?.style,
           buyColor: 'rgba(72, 149, 245, 1)',
@@ -163,7 +164,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     });
     const column = this.columns.find(i => i.name == 'description');
     column.style = { ...column.style, textOverflow: true };
-
+    const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');
+    checkboxColumn.tableViewName = 'Checkbox';
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
   }
