@@ -133,6 +133,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.layout.loadState(config);
 
       });
+
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass('scxThemeLight scxThemeDark');
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
   }
 
   private _setupSettings(): void {
@@ -140,6 +145,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .subscribe(s => {
         this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
+
+        $('body').removeClass('navbarTop navbarBottom');
+        $('body').addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)
