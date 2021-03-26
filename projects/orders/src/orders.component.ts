@@ -18,26 +18,6 @@ interface IHeaderItemOptions {
   drawObject?: { draw(context): boolean }
 }
 
-const headerCheckboxCell = new CheckboxCell();
-
-const headers: (HeaderItem | string)[] = [
-  ['checkbox', ' ', { width: 30, drawObject: headerCheckboxCell }],
-  ['averageFillPrice', 'Average Fill Price'],
-  'description',
-  'duration',
-  ['filledQuantity', 'Filled Quantity'],
-  'quantity',
-  'side',
-  'status',
-  'type',
-  'exchange',
-  'symbol',
-  'fcmId',
-  'ibId',
-  'identifier',
-  'close',
-];
-
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
 
@@ -51,7 +31,24 @@ const allStatuses = 'Show All';
 })
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
-
+  headerCheckboxCell = new CheckboxCell();
+  readonly headers: (HeaderItem | string)[] = [
+    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell }],
+    ['averageFillPrice', 'Average Fill Price'],
+    'description',
+    'duration',
+    ['filledQuantity', 'Filled Quantity'],
+    'quantity',
+    'side',
+    'status',
+    'type',
+    'exchange',
+    'symbol',
+    'fcmId',
+    'ibId',
+    'identifier',
+    'close',
+  ];
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
@@ -140,7 +137,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       addNewItems: 'start',
     });
 
-    this.columns = headers.map((nameOrArr: HeaderItem) => {
+    this.columns = this.headers.map((nameOrArr: HeaderItem) => {
       nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
       const [name, title, options] = nameOrArr;
 
@@ -223,8 +220,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {
-    if (headerCheckboxCell.toggleSelect(event)) {
-      this.items.forEach(item => item.updateSelect(headerCheckboxCell.checked));
+    if (this.headerCheckboxCell.toggleSelect(event)) {
+      this.items.forEach(item => item.updateSelect(this.headerCheckboxCell.checked));
     }
   }
 
