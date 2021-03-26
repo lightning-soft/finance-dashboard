@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { EVENTS, IWindow, WindowManagerService } from 'window-manager';
+import { Component, HostBinding, Input } from '@angular/core';
+import {  IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
+import { NzPlacementType } from "ng-zorro-antd";
 
 export type WindowTuple = [string, Set<IWindow>];
 
@@ -10,6 +11,7 @@ export type WindowTuple = [string, Set<IWindow>];
   styleUrls: ['./frames-manager.component.scss']
 })
 export class FramesManagerComponent {
+  @Input() dropdownPlacement: NzPlacementType;
 
   public highlightedWindow: IWindow;
   public windowTuples: WindowTuple[] = [
@@ -20,6 +22,9 @@ export class FramesManagerComponent {
     [Components.Dom, new Set()],
     [Components.OrderForm, new Set()]
   ];
+
+  @HostBinding('class.has-windows')
+  hasAnyWindow = false;
 
   public iconsMap = {
     [Components.Chart]: 'icon-widget-chart',
@@ -63,6 +68,7 @@ export class FramesManagerComponent {
         windowTuple[1].add(window);
       }
     }
+    this.hasAnyWindow = !!this.windowTuples.some(( [name, widgets]) => widgets.size);
   }
 
   getComponentStateName(window: IWindow, componentName: string): string {

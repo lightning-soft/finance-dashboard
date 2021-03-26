@@ -7,6 +7,18 @@ import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { filter, skip } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
+export const accountsOptions = {
+  resizable: false,
+  height: 463,
+  width: 502,
+  minimizable: false,
+  maximizable: false,
+  allowPopup: false,
+  single: true,
+  removeIfExists: true,
+  x: 'center',
+  y: 'center',
+};
 
 @UntilDestroy()
 @Component({
@@ -71,15 +83,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
         name: 'accounts',
         state: { selectedItem }
       },
-      resizable: false,
-      height: 463,
-      width: 502,
-      minimizable: false,
-      maximizable: false,
-      single: true,
-      removeIfExists: true,
-      x: 'center',
-      y: 'center',
+      ...accountsOptions
     });
   }
 

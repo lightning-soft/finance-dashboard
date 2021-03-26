@@ -90,7 +90,9 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       width: 522,
       height: 570,
       single: true,
+      allowPopup: false,
       removeIfExists: true,
+      closableIfPopup: true,
       minimizable: false,
       maximizable: false,
     });

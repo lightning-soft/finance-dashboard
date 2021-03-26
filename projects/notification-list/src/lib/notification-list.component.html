@@ -1,20 +1,22 @@
-<window-header [window]="this"></window-header>
+<window-header [window]="this">
+  <button nz-button nzSize="small" (click)="acceptAllNotifications()" class="ml-auto clear-btn">Clear All</button>
+</window-header>
 <div class="list-container">
   <cdk-virtual-scroll-viewport [itemSize]="">
+    <div *ngFor="let group of notificationsGroup">
+      <div *ngIf="group.date.length" class="date">{{group.date}}</div>
     <div (click)="acceptNotification(notification.id)" class="notification {{notification.type}}"
-      *ngFor="let notification of notifications">
+      *ngFor="let notification of group.notifications">
       <div class="header">
         <div class="icon">
           <span class="{{notification.icon}}">
-            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span
-              class="path4"></span><span class="path5"></span>
           </span>
         </div>
         <div class="title">
           {{notification.title}}
         </div>
         <div class="timestamp">
-          {{notification.createAt | date: 'hh:mm:SS dd:MM:yy'}}
+          {{notification.createAt | date: 'hh:mm:SS'}}
         </div>
       </div>
 
@@ -22,6 +24,10 @@
         {{notification.body}}
       </div>
 
+    </div>
+    </div>
+    <div *ngIf="!hasNotifications" class="no-notifications">
+      No notification yet
     </div>
   </cdk-virtual-scroll-viewport>
 </div>

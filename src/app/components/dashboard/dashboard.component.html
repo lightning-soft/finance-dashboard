@@ -2,7 +2,7 @@
   <ng-template [ngTemplateOutlet]="navbar"></ng-template>
 </ng-template>
 
-<layout #layout *ngIf="settings"></layout>
+<layout></layout>
 
 <ng-template [ngIf]="settings?.navbarPosition === 'Bottom'">
   <ng-template [ngTemplateOutlet]="navbar"></ng-template>
@@ -11,5 +11,5 @@
 <context-menu></context-menu>
 
 <ng-template #navbar>
-  <app-navbar *ngIf="layout" [layout]="layout" #bar></app-navbar>
+  <app-navbar *ngIf="layout && !isPopup()" [layout]="layout" #bar></app-navbar>
 </ng-template>

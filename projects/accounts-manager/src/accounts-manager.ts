@@ -55,7 +55,6 @@ export class AccountsManager {
 
   private _deactivateConnection() {
     const connection = this.getActiveConnection();
-
     if (connection) {
       this._connectionsRepository.updateItem({ ...connection, connected: false })
         .pipe(tap(() => this.onUpdated({ ...connection, connected: false })))

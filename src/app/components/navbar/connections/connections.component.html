@@ -22,6 +22,7 @@
 <div
   nz-dropdown
   nzTrigger="click"
+  nzPlacement="bottomRight"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
   *ngIf="favourites.length > 2"
@@ -48,7 +49,7 @@
       <ul nz-menu>
         <li
           nz-menu-item
-          class="d-flex align-items-center"
+          class="d-flex transition align-items-center"
           *ngFor="let connection of items"
           (click)="openAccounts(connection)"
           (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"

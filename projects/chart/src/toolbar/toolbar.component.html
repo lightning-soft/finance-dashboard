@@ -1,5 +1,5 @@
 <div class="toolbar-container">
-  <div class="tool btn-group">
+  <div [class.tool-active]="isDrawingsVisible" class="tool btn-group">
     <nz-button-group
       nzOverlayClassName="toolbar-dropdown"
       nz-dropdown
@@ -29,36 +29,50 @@
             (click)="stayInDragMode()">
 
           <i
-            [ngStyle]="{color: chart?.stayInDrawingMode? '#0c6ce4': null}"
+            [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
         </li>
-        <li *ngFor="let drawingInstrument of drawingInstruments" nz-submenu
-            [title]="drawingInstrument.name"
-            [class.hide-arrow]="hasOneDrawing(drawingInstrument)"
-            (click)="hasOneDrawing(drawingInstrument) && addDrawing(drawingInstrument.items[0])"
-            [nzTitle]="iconTitle">
-          <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
-          <ul *ngIf="!hasOneDrawing(drawingInstrument)" class="toolbar-submenu">
-            <li *ngFor="let item of drawingInstrument.items" nz-menu-item
-                data-name="{{transformToUIName(item)}}"
-                (click)="addDrawing(item)">
-              <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
-              <span class="drawing-instrument-name">{{transformToUIName(item)}}</span>
+        <ng-container *ngFor="let drawingInstrument of drawingInstruments">
+          <li nz-submenu
+              *ngIf="!hasOneDrawing(drawingInstrument); else oneItemTemplate"
+              [title]="drawingInstrument.name"
+              [class.hide-arrow]="hasOneDrawing(drawingInstrument)"
+              (click)="hasOneDrawing(drawingInstrument) && addDrawing(drawingInstrument.items[0])"
+              [nzTitle]="iconTitle">
+            <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
+            <ul class="toolbar-submenu">
+              <li *ngFor="let item of drawingInstrument.items" nz-menu-item
+                  data-name="{{transformToUIName(item)}}"
+                  (click)="addDrawing(item)">
+                <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
+                <span class="drawing-instrument-name">{{transformToUIName(item)}}</span>
+              </li>
+            </ul>
+          </li>
+
+          <ng-template #oneItemTemplate>
+            <li nz-menu-item
+                [title]="drawingInstrument.name"
+                (click)="addDrawing(drawingInstrument.items[0])">
+              <i class="scx-icon icon-drawing-{{transformToClassName(drawingInstrument.items[0])}}"></i>
             </li>
-          </ul>
-        </li>
+          </ng-template>
+        </ng-container>
         <li class="divider toolbar"></li>
         <li [title]="chart?.showDrawings? 'Hide Drawings': 'Show Drawings'" nz-menu-item (click)="visible()">
           <i
-            [ngStyle]="{color: chart?.showDrawings? '#0c6ce4': null}"
-            class="icon-not-visible"></i>
+            [class.icon-visible]="chart?.showDrawings"
+            [class.icon-not-visible]="!chart?.showDrawings"></i>
         </li>
         <li title="Remove Drawing" nz-menu-item (click)="removeDrawing()">
           <i class="icon-delete"></i>
         </li>
         <li nz-menu-item class="empty-element"></li>
-        <li title="Pin" (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
-          <i [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
+        <li title="Pin"
+            (click)="isDrawingsPinned = !isDrawingsPinned" nz-menu-item>
+          <i
+            [ngStyle]="{color: isDrawingsPinned ? '#fff': null}"
+            [class.icon-unpin]="isDrawingsPinned" [class.icon-pin]="!isDrawingsPinned"></i>
         </li>
       </ul>
     </nz-dropdown-menu>
@@ -73,7 +87,7 @@
       ></instrument-select>
     </div>-->
 
-  <div title="Frame Interval" class="tool">
+  <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
     <nz-select
       #frame
       [nzShowArrow]="false"
@@ -97,7 +111,7 @@
     <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
   </div>
 
-  <div title="Bar Style" class="tool">
+  <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
     <nz-select
       #price
       [nzShowArrow]="false"
@@ -135,10 +149,11 @@
   </div>
 
 
-  <div title="Zoom" class="tool btn-group">
+  <div [class.tool-active]="zoomDropdownVisible"  title="Zoom" class="tool btn-group">
     <nz-button-group
       nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
+      [(nzVisible)]="zoomDropdownVisible"
       nz-dropdown [nzDropdownMenu]="menu1"
     >
       <button nz-button>
@@ -162,8 +177,7 @@
     </nz-dropdown-menu>
   </div>
 
-
-  <div title="Cursor type" class="tool">
+  <div [class.tool-active]="cross.nzOpen" title="Cursor type" class="tool">
     <nz-select
       #cross
       [nzShowArrow]="false"

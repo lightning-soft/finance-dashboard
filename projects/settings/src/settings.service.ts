@@ -13,15 +13,30 @@ function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
     name,
     UIString: uiSstring
-  }
+  };
 }
 
-export const defaultHotkeyEntries: HotkeyEntire[] = [
-  [createCommand('save_page', 'Save page'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)])],
-  [createCommand('Copy'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_C)])],
-  [createCommand('Paste'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_P)])],
-  [createCommand('Cut'), new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_X)])],
-];
+export enum HotkeyEvents {
+  SavePage = 'saveAll',
+ // CenterAllWindows = 'CenterAllWindows',
+  OpenOrderTicket = 'openOrderForm',
+  OpenTradingDom = 'openDOM',
+  OpenChart = 'openChart',
+  OpenConnections = 'openConnections',
+  LockTrading = 'lockTrading',
+}
+
+export const defaultHotkeyEntries = {
+  [HotkeyEvents.SavePage]: new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)]).toDTO(),
+//  [HotkeyEvents.CenterAllWindows]:
+//    new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.Space)]).toDTO(),
+  [HotkeyEvents.OpenOrderTicket]: new KeyBinding([]).toDTO(),
+  [HotkeyEvents.OpenTradingDom]: new KeyBinding([]).toDTO(),
+  [HotkeyEvents.OpenChart]: new KeyBinding([]).toDTO(),
+  [HotkeyEvents.OpenConnections]: new KeyBinding([]).toDTO(),
+  [HotkeyEvents.LockTrading]: new KeyBinding([]).toDTO(),
+};
+
 
 export enum NavbarPosition {
   Top = 'Top',
@@ -87,7 +102,7 @@ export class SettingsService {
       });
   }
 
-  saveKeyBinding(hotkeys: HotkeyEntire[]) {
+  saveKeyBinding(hotkeys: HotkeyEntire) {
     this._updateState({ hotkeys });
   }
 

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { LayoutComponent } from 'layout';
-import { NzModalService } from 'ng-zorro-antd';
+import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { Workspace, WorkspaceId, WorkspacesManager } from 'workspace-manager';
 import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
@@ -14,8 +14,8 @@ import { SettingsService } from 'settings';
   styleUrls: ['./workspace.component.scss']
 })
 export class WorkspaceComponent implements OnInit {
-
   @Input() layout: LayoutComponent;
+  @Input() dropdownPlacement: NzPlacementType;
 
   activeWorkspaceId: WorkspaceId;
 
@@ -135,7 +135,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
+    this._workspacesService.save.next();
     this._notificationService.showSuccess('Workspace was saved');
   }
 

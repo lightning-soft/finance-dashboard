@@ -1,23 +1,18 @@
-import { AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, NgZone } from '@angular/core';
+import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
-import { KeyboardListener } from 'keyboard';
-import { LayoutComponent } from 'layout';
-import { NavbarPosition, SettingsData, SettingsService } from 'settings';
+import { KeyBinding, KeyboardListener } from 'keyboard';
+import { LayoutComponent, WindowPopupManager } from 'layout';
+import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { Workspace, WorkspacesManager } from 'workspace-manager';
+import { WorkspacesManager } from 'workspace-manager';
+import { Components } from '../../modules';
+import { widgetList } from './drag-drawer/drag-drawer.component';
+import { TradeHandler } from '../navbar/trade-lock/trade-handle';
+import { environment } from 'environment';
+import { accountsOptions } from '../navbar/connections/connections.component';
 
-export enum DashboardCommand {
-  SavePage = 'save_page',
-  Copy = 'Copy',
-  Paste = 'Paste',
-  CUT = 'Cut',
-}
-
-export const DashboardCommandToUIString = {
-  [DashboardCommand.SavePage]: 'Save page'
-}
 
 @Component({
   selector: 'dashboard',
@@ -26,12 +21,12 @@ export const DashboardCommandToUIString = {
 })
 @UntilDestroy()
 export class DashboardComponent implements AfterViewInit, OnInit {
-  @ViewChild(LayoutComponent) layout: LayoutComponent;
+  @ViewChild(LayoutComponent, { static: false }) layout: LayoutComponent;
+
+  hasBeenSaved: boolean;
 
   settings: SettingsData;
   keysStack: KeyboardListener = new KeyboardListener();
-
-  activeWorkspace: Workspace;
 
   private _autoSaveIntervalId: number;
   private _subscriptions = [];
@@ -44,6 +39,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
+    private trade: TradeHandler,
+    private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
   ) {
   }
@@ -84,12 +81,41 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    if (this.isPopup())
+      this._loadPopupState();
+    else {
+      this._setupWorkspaces();
+    }
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass();
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
+  }
+
+  isPopup() {
+    return this._windowPopupManager.isPopup();
+  }
+
+  private _loadPopupState() {
+    const options = this._windowPopupManager.getConfig();
+    if (!options)
+      return;
+    const config = options.layoutConfig;
+    if (config.length === 1) {
+      config[0].styles = { height: '100%', width: '100%' };
+    }
+    this.layout.loadState(config);
+    this._windowPopupManager.hideWindowHeaderInstruments = options.hideWindowHeaderInstruments;
+    this._windowPopupManager.deleteConfig();
+  }
+
+  private _setupWorkspaces() {
     this._workspaceService.save
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        if (this.settings?.autoSave && !this.settings?.autoSaveDelay)
-          this._save();
+        this._save();
       });
+
     this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
@@ -107,7 +133,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass();
+      $('body').removeClass('scxThemeLight scxThemeDark');
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
   }
@@ -115,8 +141,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _setupSettings(): void {
     this._settingsService.settings
       .subscribe(s => {
-        this.settings = {...s};
+        this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
+
+        $('body').removeClass('navbarTop navbarBottom');
+        $('body').addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)
@@ -130,11 +159,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       });
   }
 
+  @HostListener('click')
+  handleClick() {
+    this.hasBeenSaved = false;
+  }
+
   private _subscribeOnKeys() {
     this._subscriptions = [
       this._renderer.listen('document', 'keyup', this._handleEvent.bind(this)),
       this._renderer.listen('document', 'keydown', this._handleEvent.bind(this)),
-    ]
+    ];
   }
 
   private _handleEvent(event) {
@@ -147,40 +181,71 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private _handleKey(event) {
     this.keysStack.handle(event);
-    const key = this.settings.hotkeys.find(([_, binding]) => binding.equals(this.keysStack))
+    const hotkeys = Object.entries(this.settings.hotkeys);
+    const key: any = hotkeys.find(([_, bindingDTO]) => {
+      if (bindingDTO.parts.length)
+        return KeyBinding.fromDTO(bindingDTO).equals(this.keysStack);
+    });
     if (key) {
-      this.handleCommand(key[0].name as DashboardCommand)
       event.preventDefault();
+      this.handleCommand(key[0]);
     }
-    console.log(this.keysStack.toUIString())
   }
 
-  private handleCommand(command: DashboardCommand) {
+  private handleCommand(command: HotkeyEvents) {
     switch (command) {
-      case DashboardCommand.SavePage: {
+      case HotkeyEvents.SavePage: {
         this._save();
         break;
       }
-      /*     case DashboardCommand.CUT: {
-             console.log(command);
-             break;
-           }
-           case DashboardCommand.Copy: {
-             console.log(command);
-             break;
-           }
-           case DashboardCommand.Paste: {
-             console.log(command);
-             break;
-           }*/
+      case HotkeyEvents.OpenChart: {
+        this._addComponent(Components.Chart);
+        break;
+      }
+      case HotkeyEvents.OpenOrderTicket: {
+        this._addComponent(Components.OrderForm);
+        break;
+      }
+   /*   case HotkeyEvents.CenterAllWindows: {
+        break;
+      }*/
+      case HotkeyEvents.OpenTradingDom: {
+        this._addComponent(Components.Dom);
+        break;
+      }
+      case HotkeyEvents.OpenConnections: {
+        this.layout.addComponent({
+          component: { name: Components.Accounts, state: {} },
+          ...accountsOptions
+        });
+        break;
+      }
+      case HotkeyEvents.LockTrading: {
+        this.trade.toggleTradingEnabled();
+        break;
+      }
+    }
+  }
+
+  private _addComponent(component: string) {
+    const widgetOptions = widgetList.find(item => item.component === component);
+    if (widgetOptions) {
+      this.layout.addComponent({
+        component: {
+          name: widgetOptions.component,
+        },
+        ...widgetOptions.options
+      });
+    } else {
+      console.error(`Component ${component} not found, make sure spelling is correct`);
     }
   }
 
   private async _save() {
-    //   this._settingsService.saveState(); saveWorkspaces also saves settings
 
     if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
+      this.hasBeenSaved = true;
     }
   }
 
@@ -188,6 +253,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
+    if (this.hasBeenSaved || !environment.production)
+      return;
     e = e || window.event;
 
     // For IE and Firefox prior to version 4

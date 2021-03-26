@@ -6,6 +6,8 @@ import { NavbarPosition, SettingsService } from "settings";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { fromEvent, merge } from "rxjs";
 import { debounceTime, map, tap } from "rxjs/operators";
+import { NzPlacementType } from "ng-zorro-antd";
+import {WindowManagerService} from "window-manager";
 
 
 @UntilDestroy()
@@ -29,12 +31,22 @@ export class NavbarComponent {
     return this.themeHandler.theme === Themes.Dark;
   }
 
+  get dropdownPlacementRightSide(): NzPlacementType {
+    return this.currentNavbarPosition === NavbarPosition.Top ? 'bottomRight' : 'topRight';
+  }
+
+  get dropdownPlacementLeftSide(): NzPlacementType {
+    return this.currentNavbarPosition === NavbarPosition.Top ? 'bottomLeft' : 'topLeft';
+  }
+
   constructor(
     private themeHandler: ThemesHandler,
     private notificationService: NotificationService,
     private settingsService: SettingsService,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private windowManagerService: WindowManagerService,
   ) {
+    this.isNewNotification =   !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
       this.isNewNotification = !!n.length;
     });
@@ -42,7 +54,10 @@ export class NavbarComponent {
     this.settingsService.settings
       .pipe(untilDestroyed(this), debounceTime(200))
       .subscribe(settings => {
-        this.currentNavbarPosition = settings.navbarPosition;
+        if (this.currentNavbarPosition !== settings.navbarPosition) {
+          this.currentNavbarPosition = settings.navbarPosition;
+          this.windowManagerService.updateGlobalOffset();
+        }
         this.isNavbarHidden = settings.isNavbarHidden;
       });
 
@@ -89,10 +104,11 @@ export class NavbarComponent {
       width: 300,
       minWidth: 300,
       single: true,
+      allowPopup: false,
       removeIfExists: true,
       maximizable: false,
       minimizable: false,
-      resizable: false,
+      resizable: true,
     });
   }
 
@@ -105,6 +121,9 @@ export class NavbarComponent {
       maximizable: false,
       minimizable: false,
       resizable: false,
+      width: 618,
+      height: 474,
+      allowPopup: false,
       x: 'center',
       y: 'center',
       single: true,

@@ -1,22 +1,26 @@
 import {
-  AfterViewInit, ChangeDetectorRef, Component,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
   ElementRef,
+  EventEmitter,
   HostBinding,
   Input,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
+  Output,
   ViewChild,
-  ViewContainerRef,
-  EventEmitter
+  ViewContainerRef
 } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { ICell } from '../../models';
-import { ModalComponent } from '../modal/modal.component';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
-import {Column} from "../types";
+import { Column } from "../types";
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
+import { TextAlign } from 'dynamic-form';
 
 declare function canvasDatagrid(params: any);
 
@@ -47,19 +51,26 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
 
-  @ViewChild(ModalComponent)
-  modalComponent: ModalComponent;
+  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
 
   @Output() currentCellChanged = new EventEmitter();
+  @Output() settingsClicked = new EventEmitter();
 
   @Input()
   handlers: DataGridHandler[] = [];
+  @Input() showContextMenuSettings = true;
+  @Input() showHeaderPanelInContextMenu = false;
+  @Input() showHeaderPanel = true;
+  @Output() showHeaderPanelChange = new EventEmitter<boolean>();
 
   @Input() columns: Column[] = [];
   @Input() afterDraw = (e, grid) => null;
+  @Input() showSettingsInContextMenu = false;
 
   private _items: T[] = [];
   private _styles: GridStyles;
+
+  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
 
   get items(): T[] {
     if (!this._grid)
@@ -109,6 +120,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private container: ElementRef,
+    private nzContextMenuService: NzContextMenuService,
   ) {
   }
 
@@ -178,7 +190,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.showColumnHeaders = true;
     grid.attributes.snapToRow = true;
     grid.attributes.columnHeaderClickBehavior = 'none'
-
     // grid.applyComponentStyle();
     // grid.addEventListener('beforerendercell', this.beforeRenderCell);
     // grid.addEventListener('rendercell', this.renderCell)
@@ -216,6 +227,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   ngAfterViewInit(): void {
+   // this._cd.detectChanges(); // update ViewChild decorator if detach attribute
+
     // this._handlers = this.initHandlers() || [];
     // for (const handler of this._handlers) {
     //   handler.events.forEach(e => this._subscribeOnEvents(e));
@@ -236,23 +249,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   //   ];
   // }
 
-  createComponentModal(): void {
-    const modal = this.modalService.create({
-      nzTitle: 'Columns',
-      nzContent: ModalComponent,
-      nzWrapClassName: 'modal-data-grid',
-      nzViewContainerRef: this.viewContainerRef,
-      nzComponentParams: {
-        columns: [...this.columns],
-      },
-    });
-
-    modal.afterClose.subscribe(result => {
-      if (result) {
-        // this.columns = [...result];
-        // this.activeColumns = this.columns.filter((column: Column) => column.visible);
-      }
-    });
+  createComponentModal($event): void {
+    $event.preventDefault();
+    this.nzContextMenuService.create($event, this.contextMenuComponent);
   }
 
   _handleMouseUp = (e) => {
@@ -264,10 +263,18 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _handleContextmenu = (e) => {
-    if (e?.e)
+    if (e?.e) {
       e.e.preventDefault();
-
+    }
     this._triggerHandler(Events.ContextMenu, e);
+    if (e?.e && this.showContextMenuSettings && !this.hasHandlers(Events.ContextMenu, e.column?.name)) {
+      this.createComponentModal(e.e);
+    }
+  }
+
+  private hasHandlers(eventType: Events, column: string) {
+    if (column)
+      return this.handlers.some(item => item.event === eventType && item['column'] === column);
   }
 
   private _handleClick = (e) => {
@@ -350,5 +357,34 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();
+  }
+
+  changeAlign(item: any) {
+    const index = this._alignOptions.indexOf(item.style.textAlign) + 1;
+    item.style.textAlign = this._alignOptions[index % this._alignOptions.length];
+    this.detectChanges(true);
+  }
+
+  toggleColumns() {
+    this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
+    this.detectChanges();
+  }
+
+  changeShowPanel($event: boolean) {
+    this.showHeaderPanel = $event;
+    this.showHeaderPanelChange.emit($event);
+  }
+
+  onSettingsClicked() {
+    this.settingsClicked.next();
+  }
+
+  changeColumnVisibility(item: any, value: boolean) {
+    item.visible = value;
+    this.detectChanges(true);
+  }
+
+  getShownColumns() {
+    return this.columns.filter(item => !item.hidden);
   }
 }

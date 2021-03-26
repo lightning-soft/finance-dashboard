@@ -16,10 +16,32 @@ $selectHeight: 22px;
         display: none;
       }
 
+      .market-buttons {
+        flex-direction: column;
+        width: auto;
+        align-self: center;
+        margin-top: 6px;
+        margin-left: 12px;
+
+        button {
+          width: 56px;
+          padding-left: 8px;
+          padding-right: 8px;
+
+          &:first-child {
+            margin-top: 0;
+          }
+
+          &:last-child {
+            margin-top: 3px;
+          }
+        }
+      }
+
       .ice-amount {
         margin-left: 0;
         grid-row-start: 2;
-        grid-column-start: 5;
+        grid-column-start: 3;
       }
 
       .ice-button {
@@ -33,7 +55,6 @@ $selectHeight: 22px;
 
       .ice-amount {
         margin-top: 0;
-        width: 55px;
       }
 
       .ticks {
@@ -123,6 +144,27 @@ $selectHeight: 22px;
          }*/
       .ice-button {
         width: 100%;
+      }
+
+      .market-buttons {
+        width: auto;
+        margin-top: 6px;
+        align-self: center;
+        margin-left: 12px;
+
+        button {
+          padding-left: 6px;
+          margin-top: 0;
+          width: 53px;
+          padding-right: 6px;
+
+          &:last-child {
+            margin-left: 3px;
+          }
+        }
+      }
+
+      .cxl {
       }
 
       .ice-button, .ice-amount {
@@ -248,6 +290,28 @@ quantity-input, {
   margin-top: 4px;
 }
 
+.market-buttons {
+  margin-top: 28px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  button {
+    width: 47%;
+    font-size: 0.6rem;
+  }
+}
+
+.buy-market, .buy-market:hover, .buy-market:focus, .buy-market:focus-within {
+  background: $primary;
+  border: none;
+}
+
+.sell-market, .sell-market:hover, .sell-market:focus, .sell-market:focus-within {
+  background: $red;
+  border: none;
+}
+
 .type-buttons {
   margin-top: 12px;
 }
@@ -268,7 +332,7 @@ quantity-input, {
 
 .ice-amount, .ice-button {
   width: 47%;
-  margin-left: 2px;
+  margin-left: 1px;
 
 
   button {
@@ -398,8 +462,8 @@ button.top-position-btn {
 
 :host {
   .ice-amount {
-    margin-top: 3px;
-    margin-left: 0;
+    margin-top: 1px;
+    margin-left: 3px;
 
     button {
       margin-top: 0;

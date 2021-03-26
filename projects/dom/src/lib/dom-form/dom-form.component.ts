@@ -33,7 +33,8 @@ export enum FormActions {
   CloseBuyOrders,
   CloseSellOrders,
   SelectQuantity,
-  CreateMarketOrder,
+  CreateBuyMarketOrder,
+  CreateSellMarketOrder,
   CreateOcoOrder,
   CancelOcoOrder
 }
@@ -183,13 +184,7 @@ export class DomFormComponent extends BaseOrderForm {
   ];
   _typeButtons: ITypeButton[] = [
     { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true }, {
-
-      label: 'MKT', black: true, value: OrderType.Market, onClick: () => {
-        this.emit(FormActions.CreateMarketOrder);
-      }, selectable: false
-
-    },
+    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },
     {
       label: 'OCO', value: 'OCO', className: 'oco', selectable: false, onClick: () => {
         this.emit(FormActions.CreateOcoOrder);
@@ -334,9 +329,20 @@ export class DomFormComponent extends BaseOrderForm {
   selectQuantityByPosition(position: QuantityPositions) {
     this.quantitySelect.selectByPosition(position);
   }
+
+  createBuyMarket() {
+    this.emit(FormActions.CreateBuyMarketOrder);
+  }
+
+  createSellMarket() {
+    this.emit(FormActions.CreateSellMarketOrder);
+  }
 }
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+  if (!position)
+    return null;
+
   const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
   let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
   if (includePnl) {

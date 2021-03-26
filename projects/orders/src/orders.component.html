@@ -1,4 +1,6 @@
-<window-header className="widget" [window]="this">
+<window-header
+  (contextmenu)="grid.createComponentModal($event)"
+  className="widget" [window]="this">
 
   <account-select
     (accountChange)="handleAccountChange($event)"
@@ -52,13 +54,13 @@
 
   <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
     <nz-tab nzTitle="Working" (nzClick)="changeTab('Working')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeTab('Filled')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeTab('Show All')">
-      <data-grid #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
 <!--    <nz-tab nzTitle="History">
       Content of Tab Pane 2

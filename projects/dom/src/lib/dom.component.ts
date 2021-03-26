@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
@@ -41,6 +41,7 @@ import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { IWindow } from 'window-manager';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -150,8 +151,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
     autoCenterAllWindows: () => this.broadcastHotkeyCommand('autoCenter'),
-    buyMarket: () => this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }),
-    sellMarket: () => this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }),
+    buyMarket: () => this._createBuyMarketOrder(),
+    sellMarket: () => this._createSellMarketOrder(),
     hitBid: () => {
       this._createOrderByCurrent(OrderSide.Sell, this._bestBidPrice);
     },
@@ -331,6 +332,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   visibleRows = 0;
+  @HostBinding('class.header-panel')
+  showHeaderPanel = true;
 
   get items() {
     return this.dataGrid.items ?? [];
@@ -527,16 +530,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const common = settings.common;
     const general = settings?.general;
     const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    const hiddenColumns: any = {};
     common.orders = !settings.orders.split;
+    hiddenColumns.orders = settings.orders.split;
     common.buyOrders = settings.orders.split;
+    hiddenColumns.buyOrders = !settings.orders.split;
     common.sellOrders = settings.orders.split;
-
+    hiddenColumns.sellOrders = !settings.orders.split;
     if (common) {
       for (const column of this.columns) {
         column.visible = common[column.name] != false;
+        if (column.name in hiddenColumns)
+          column.hidden = hiddenColumns[column.name] == true;
       }
     }
-
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
@@ -621,8 +628,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
-    if (useCustomTickSize != this._customTickSizeApplyed)
+    if (useCustomTickSize != this._customTickSizeApplyed) {
       this.centralize();
+      this._calculateDepth();
+    }
 
     this._calculateDepth();
     this._updateVolumeColumn();
@@ -986,8 +995,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           ...(i.getDomItems ? i.getDomItems() : {}),
         };
       }
-    }
-    else {
+    } else {
       for (const [key, item] of this._map)
         map[key] = item;
     }
@@ -1302,7 +1310,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }, this._levelsInterval);
 
     this._clearInterval = () => {
-      clearInterval(_interval)
+      clearInterval(_interval);
       this._clearInterval = null;
     };
   }
@@ -1632,6 +1640,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.keysStack.handle(event);
     // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
+      .filter(([name, item]) => item)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
       .find(([name, binding]) => (binding as KeyBinding).equals(this.keysStack));
 
@@ -1690,19 +1699,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   openSettings(hidden = false) {
-    this._closeSettings();
-    this.layout.addComponent({
-      component: {
-        name: DomSettingsSelector,
-        state: { settings: this._settings, linkKey: this._getSettingsKey() },
-      },
-      closeBtn: true,
-      single: false,
-      width: 618,
-      resizable: false,
-      removeIfExists: false,
-      hidden,
+    const settingsExists = this.layout.findComponent((item: IWindow) => {
+      return item.options.componentState()?.state.linkKey === this._getSettingsKey();
     });
+    if (settingsExists)
+      this._closeSettings();
+    else
+      this.layout.addComponent({
+        component: {
+          name: DomSettingsSelector,
+          state: { settings: this._settings, linkKey: this._getSettingsKey() },
+        },
+        closeBtn: true,
+        single: false,
+        width: 618,
+        allowPopup: false,
+        closableIfPopup: true,
+        resizable: false,
+        removeIfExists: false,
+        hidden,
+      });
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
@@ -1821,8 +1837,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case FormActions.CancelOcoOrder:
         this._clearOcoOrders();
         break;
-      case FormActions.CreateMarketOrder:
-        this._createMarketOrder();
+      case FormActions.CreateSellMarketOrder:
+        this._createSellMarketOrder();
+        break;
+      case FormActions.CreateBuyMarketOrder:
+        this._createBuyMarketOrder();
         break;
       default:
 
@@ -1837,22 +1856,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.items.forEach(item => item.clearOcoOrder());
   }
 
-  _createMarketOrder() {
-    const data = this._domForm.getDto();
-    const { exchange, symbol } = this.instrument;
-    // #TODO investigate what side of order should be added.
-    this._ordersRepository.createItem({
-      ...data,
-      accountId: this._accountId,
-      type: OrderType.Market,
-      side: OrderSide.Buy, exchange, symbol
-    })
-      .toPromise()
-      .then(() => {
-        this.notifier.showSuccess('Order Created');
-      }).catch((err) => {
-        this.notifier.showError(err);
-      });
+  _createBuyMarketOrder() {
+    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market });
+  }
+
+  _createSellMarketOrder() {
+    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market });
   }
 
   private _closePositions() {

@@ -1,7 +1,7 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
-import { Options, WindowManagerService } from 'window-manager';
+import { IWindow, Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentOptions, Layout } from './layout';
 
@@ -27,10 +27,19 @@ export class DockDesktopLayout extends Layout {
       .some(item => item.name === options.component.name);
   }
 
+  findComponent(callback: (item: IWindow) => boolean): IWindow {
+    return this._windowManagerService.windows.getValue()
+      .find(callback);
+  }
+
   removeComponent(componentName) {
     const window = this._windowManagerService.windows.getValue()
-        .find(item => item.options.componentState().name === componentName);
+      .find(item => item.options.componentState().name === componentName);
     window?.close();
+  }
+
+  getWidgets() {
+    return this._windowManagerService.windows.getValue();
   }
 
   addComponent(componentNameOrConfig: ComponentOptions | any) {
@@ -49,7 +58,7 @@ export class DockDesktopLayout extends Layout {
     }
     if (!this.canAddComponent(componentNameOrConfig)) {
       const window = this._windowManagerService.windows.getValue()
-      .find(item => item.options.componentState().name === componentName);
+        .find(item => item.options.componentState().name === componentName);
 
       if (componentNameOrConfig.removeIfExists) {
         window?.close();
@@ -78,6 +87,7 @@ export class DockDesktopLayout extends Layout {
           instance.layout = this;
           const configData = {
             width: 500,
+            allowPopup: true,
             height: 500,
             minWidth: 320,
             minHeight: 150,
@@ -98,6 +108,7 @@ export class DockDesktopLayout extends Layout {
             maximizable: true,
             keepInside: {
               top: true,
+              left: true,
             },
             ...configData,
             componentState: () => ({

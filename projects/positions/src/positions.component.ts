@@ -19,6 +19,7 @@ const headers = [
   'total',
   ['instrumentName', 'instrument'],
   'exchange',
+  'close'
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -45,15 +46,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   menuVisible = false;
   open: number;
   realized: number;
+  totalPl: number;
+
   @ViewChild('grid') dataGrid: DataGrid;
 
   get columns() {
-    const closeColumn: Column = {
-      name: 'close',
-      visible: true,
-    };
-
-    return this.status === PositionStatus.Open ? this._columns.concat(closeColumn) : this._columns;
+    return this._columns;
   }
 
   protected _levelOneDataFeedHandler = (quote: IQuote) => {
@@ -71,20 +69,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   get status() {
     return this._status;
   }
+
   get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
   }
 
-  handleGroupChange($event: any) {
-    if ($event === this.groupBy)
-      return;
-    this.groupBy = $event;
-    if ($event === GroupByItem.None)
-      this.builder.ungroupItems();
-    else
-      this.groupItems($event);
 
-  }
 
   set status(value: PositionStatus) {
     if (value === this.status) {
@@ -150,11 +140,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.open = +this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
     this.realized = +this.positions.reduce((total, current) => total + (current.realized * current.price), 0).toFixed(4);
+    this.totalPl = this.open + this.realized;
   }
 
   _transformDataFeedItem(item) {
     return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
   }
+
   // need for group by InstrumentName
   protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
     return this.repository.getItems(params)
@@ -165,8 +157,20 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
         return response;
       }));
   }
-  _addInstrumentName(item) {
+
+  private _addInstrumentName(item) {
     return { ...item, instrumentName: item.instrument.symbol };
+  }
+
+  handleGroupChange($event: any) {
+    if ($event === this.groupBy)
+      return;
+    this.groupBy = $event;
+    if ($event === GroupByItem.None)
+      this.builder.ungroupItems();
+    else
+      this.groupItems($event);
+
   }
 
   groupItems(groupBy) {
@@ -233,7 +237,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       this._columns = state.columns;
   }
 
-  isEmpty(number: number) {
+  isEmpty(number: number): boolean {
     return number === 0;
   }
 }

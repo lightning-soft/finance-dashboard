@@ -1,4 +1,6 @@
-<window-header className="widget" [window]="this">
+<window-header
+  (contextmenu)="grid.createComponentModal($event)"
+  className="widget" [window]="this">
   <!--  <button
       class="wm-header-btn mr-2"
       (click)="grid.createComponentModal()"
@@ -18,8 +20,8 @@
 <data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total p/l</span>
-  <div [class.empty]="isEmpty(open + realized)" [class.negative]="(open + realized )< 0"
-       class="bottom-data">{{open + realized}}</div>
+  <div [class.empty]="isEmpty(totalPl)" [class.negative]="(totalPl )< 0"
+       class="bottom-data">{{totalPl}}</div>
   <span class="bottom-title">Open</span>
   <div  [class.empty]="isEmpty(open)" [class.negative]="open < 0" class="bottom-data">{{open}}</div>
   <span class="bottom-title">Realized</span>
