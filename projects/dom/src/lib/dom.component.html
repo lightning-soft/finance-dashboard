@@ -70,6 +70,7 @@
                (settingsClicked)="openSettings()"
                [showHeaderPanelInContextMenu]="true"
                [(showHeaderPanel)]="showHeaderPanel"
+               (columnUpdate)="onColumnUpdate($event)"
                [showContextMenuSettings]="true"
                (currentCellChanged)="onCurrentCellChanged($event)"
               [afterDraw]="afterDraw" [handlers]="handlers">

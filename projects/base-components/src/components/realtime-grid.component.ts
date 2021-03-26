@@ -5,14 +5,18 @@ import { DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
 import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
+import { StringHelper } from '../helpers';
 
 export function convertToColumn(nameOrArr: any) {
   nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr]);
-  const [name, title, type] = nameOrArr;
-
+  let [name, title, tableViewName, type] = nameOrArr;
+  if (!tableViewName) {
+    tableViewName = StringHelper.capitalize(title);
+  }
   return {
     name,
     type,
+    tableViewName,
     style: {
       textOverflow: false,
       textAlign: 'left',

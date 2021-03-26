@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { ItemsBuilder, ItemsComponent } from 'base-components';
+import { ItemsBuilder, ItemsComponent, StringHelper } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
 import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
@@ -81,7 +81,7 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     super();
     this.autoLoadData = false;
 
-    this.columns = headers.map(header => ({ name: header, visible: true }));
+    this.columns = headers.map(name => ({ name, tableViewName: StringHelper.capitalize(name), visible: true }));
 
     this.setTabIcon('icon-widget-watchlist');
     this.setTabTitle('Watchlist');

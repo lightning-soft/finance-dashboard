@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { SettingsConfig, SettingTab } from './settings-fields';
 import { clone } from 'underscore';
+import { DomSettings } from './settings';
 
 export interface DomSettingsComponent extends ILayoutNode {
 }
@@ -21,6 +22,8 @@ export interface IDomSettingsEvent {
   action: 'close';
   linkKey: string;
 }
+
+export const receiveSettingsKey = 'receiveSettings_';
 
 @UntilDestroy()
 @Component({
@@ -83,7 +86,6 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   }
 
 
-
   select(item) {
     if (this.currentTab == item.tab)
       return;
@@ -118,6 +120,16 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
     this.settings = state.settings ?? {};
     this._linkKey = state.linkKey;
     this.select(this.list[0]);
+    this.addLinkObserver({
+      link: receiveSettingsKey + this._linkKey,
+      handleLinkData: (res: DomSettings) => {
+        try {
+          this.settings = res.toJson();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
   }
 
   handleLinkData(data: IDomSettingsEvent) {

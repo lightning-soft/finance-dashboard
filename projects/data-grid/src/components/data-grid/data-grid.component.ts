@@ -18,7 +18,7 @@ import { Subject } from 'rxjs';
 import { ICell } from '../../models';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
-import { Column } from "../types";
+import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
 
@@ -49,29 +49,6 @@ interface GridStyles {
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
 
-  @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
-
-  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
-
-  @Output() currentCellChanged = new EventEmitter();
-  @Output() settingsClicked = new EventEmitter();
-
-  @Input()
-  handlers: DataGridHandler[] = [];
-  @Input() showContextMenuSettings = true;
-  @Input() showHeaderPanelInContextMenu = false;
-  @Input() showHeaderPanel = true;
-  @Output() showHeaderPanelChange = new EventEmitter<boolean>();
-
-  @Input() columns: Column[] = [];
-  @Input() afterDraw = (e, grid) => null;
-  @Input() showSettingsInContextMenu = false;
-
-  private _items: T[] = [];
-  private _styles: GridStyles;
-
-  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
-
   get items(): T[] {
     if (!this._grid)
       return [];
@@ -85,23 +62,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     if (this._grid)
       this._grid.data = value;
   }
-
-  @Input() detach: boolean = false;
-
-  @HostBinding('attr.title')
-  title: string;
-
-  // private _subscribedEvents = [];
-
-  public isVisible = false;
-
-  public rowHeight = 19;
-
-  public list: TransferItem[] = [];
-
-  public onDestroy$ = new Subject();
-
-  _grid: any;
 
   get scrollHeight() {
     return this._grid.scrollHeight;
@@ -124,14 +84,56 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   ) {
   }
 
+  @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
+
+  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
+
+  @Output() currentCellChanged = new EventEmitter();
+  @Output() settingsClicked = new EventEmitter();
+
+  @Input()
+  handlers: DataGridHandler[] = [];
+  @Input() showContextMenuSettings = true;
+  @Input() showHeaderPanelInContextMenu = false;
+  @Input() showHeaderPanel = true;
+  @Output() showHeaderPanelChange = new EventEmitter<boolean>();
+
+  @Output() columnUpdate = new EventEmitter<Column>();
+
+  @Input() columns: Column[] = [];
+  @Input() showSettingsInContextMenu = false;
+
+  private _items: T[] = [];
+  private _styles: GridStyles;
+
+  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
+
+  @Input() detach = false;
+
+  @HostBinding('attr.title')
+  title: string;
+
+  // private _subscribedEvents = [];
+
+  public isVisible = false;
+
+  public rowHeight = 19;
+
+  public list: TransferItem[] = [];
+
+  public onDestroy$ = new Subject();
+
+  _grid: any;
+  @Input() afterDraw = (e, grid) => null;
+
   ngOnInit(): void {
     // this.activeColumns = this.columns.filter((column: Column) => column.visible);
     if (this.detach)
       this._cd.detach();
-    const cellBorderColor = "#24262C";
+    const cellBorderColor = '#24262C';
     const cellBackgroundColor = '#1B1D22';
     const cellColor = '#D0D0D2';
-    const font = "14px Open Sans";
+    const font = '14px Open Sans';
     // const horizontalAlignment = "center";
 
     for (let i = 0; i < this.columns.length; i++) {
@@ -147,7 +149,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         // font,
         textAlign: 'center',
         ...column.style,
-      }
+      };
 
       if (!column.width)
         column.width = 100;
@@ -189,7 +191,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.attributes.showRowHeaders = false;
     grid.attributes.showColumnHeaders = true;
     grid.attributes.snapToRow = true;
-    grid.attributes.columnHeaderClickBehavior = 'none'
+    grid.attributes.columnHeaderClickBehavior = 'none';
     // grid.applyComponentStyle();
     // grid.addEventListener('beforerendercell', this.beforeRenderCell);
     // grid.addEventListener('rendercell', this.renderCell)
@@ -214,7 +216,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     if (!grid)
       return;
 
-    grid.style = { ...styles }
+    grid.style = { ...styles };
 
     this.detectChanges(true);
   }
@@ -227,7 +229,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   ngAfterViewInit(): void {
-   // this._cd.detectChanges(); // update ViewChild decorator if detach attribute
+    // this._cd.detectChanges(); // update ViewChild decorator if detach attribute
 
     // this._handlers = this.initHandlers() || [];
     // for (const handler of this._handlers) {
@@ -359,12 +361,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.onDestroy$.complete();
   }
 
-  changeAlign(item: any) {
-    const index = this._alignOptions.indexOf(item.style.textAlign) + 1;
-    item.style.textAlign = this._alignOptions[index % this._alignOptions.length];
-    this.detectChanges(true);
-  }
-
   toggleColumns() {
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges();
@@ -381,10 +377,24 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   changeColumnVisibility(item: any, value: boolean) {
     item.visible = value;
+    this.columnUpdate.emit(item);
+    this.detectChanges(true);
+  }
+
+  changeAlign(item: any) {
+    const index = this._alignOptions.indexOf(item.style.textAlign) + 1;
+    item.style.textAlign = this._alignOptions[index % this._alignOptions.length];
+    this.columnUpdate.emit(item);
     this.detectChanges(true);
   }
 
   getShownColumns() {
     return this.columns.filter(item => !item.hidden);
+  }
+
+  getColumnName(item: Column) {
+    if (item.tableViewName)
+      return item.tableViewName;
+    return item.title ?? item.name;
   }
 }

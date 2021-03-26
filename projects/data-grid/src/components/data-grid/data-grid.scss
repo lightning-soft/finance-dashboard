@@ -140,6 +140,10 @@
       animation: fadein 0.8s;
     }
 
+    .ant-checkbox-inner {
+      width: 10px;
+      height: 10px;
+    }
 
     .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
       background: #1B1D22 !important;

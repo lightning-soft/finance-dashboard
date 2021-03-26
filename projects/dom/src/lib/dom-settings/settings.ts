@@ -107,6 +107,8 @@ export class DomSettings {
     delta: true,
     notes: true,
     orders: true,
+    buyOrders: true,
+    sellOrders: true,
     price: true,
     totalAsk: true,
     totalBid: true,

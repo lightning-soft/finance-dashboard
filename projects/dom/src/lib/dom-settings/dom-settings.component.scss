@@ -11,6 +11,28 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+  .d-grid {
+    display: grid !important;
+  }
+
+  .grid-two-rows {
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 4px;
+  }
+
+  .splitOrdersCheckbox {
+    display: none;
+  }
+
+  .split-orders {
+    .ordersCheckbox {
+      display: none;
+    }
+
+    .splitOrdersCheckbox {
+      display: block;
+    }
+  }
 
   .cdk-virtual-scroll-content-wrapper {
     contain: unset;

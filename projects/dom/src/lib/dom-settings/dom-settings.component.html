@@ -22,7 +22,7 @@
         </ul>
       </li>
     </ul>
-    <cdk-virtual-scroll-viewport class="{{currentTab}}" itemSize="">
+    <cdk-virtual-scroll-viewport [class.split-orders]="settings?.orders.split" class="{{currentTab}}" itemSize="">
       <formly-form
         [form]="form"
         [(model)]="settings"
