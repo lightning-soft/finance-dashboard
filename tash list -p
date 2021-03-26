@@ -1,0 +1,410 @@
+HEAD@{0}: reset: moving to HEAD
+HEAD@{1}: checkout: moving from navbar-position to timezone-modal
+origin/navbar-position@{0}: update by push
+navbar-position@{0}: commit: fix dropdown collapse direction with bottom navbar
+HEAD@{2}: commit: fix dropdown collapse direction with bottom navbar
+HEAD@{3}: checkout: moving from develop to navbar-position
+stash@{0}: WIP on develop: 2c207951 Merge branch 'navbar-position' into 'develop'
+HEAD@{4}: reset: moving to HEAD
+stash@{0}: WIP on develop: 2c207951 Merge branch 'navbar-position' into 'develop'
+develop@{0}: reset: moving to HEAD~1
+HEAD@{5}: reset: moving to HEAD~1
+develop@{1}: commit: fix dropdown collapse direction with bottom navbar
+HEAD@{6}: commit: fix dropdown collapse direction with bottom navbar
+develop@{2}: pull origin develop: Fast-forward
+origin/develop@{0}: pull origin develop: fast-forward
+HEAD@{7}: pull origin develop: Fast-forward
+HEAD@{8}: checkout: moving from navbar-position to develop
+HEAD@{9}: checkout: moving from timezone-modal to navbar-position
+HEAD@{10}: reset: moving to HEAD
+stash@{1}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+stash@{1}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+HEAD@{11}: checkout: moving from navbar-position to timezone-modal
+origin/navbar-position@{1}: update by push
+navbar-position@{1}: commit: extend settings service for navbar. fix typing
+HEAD@{12}: commit: extend settings service for navbar. fix typing
+HEAD@{13}: checkout: moving from timezone-modal to navbar-position
+HEAD@{14}: reset: moving to HEAD
+stash@{2}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+stash@{2}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+HEAD@{15}: checkout: moving from navbar-position to timezone-modal
+origin/navbar-position@{2}: update by push
+navbar-position@{2}: commit (merge): fix merge conflicts with develop
+HEAD@{16}: commit (merge): fix merge conflicts with develop
+navbar-position@{3}: commit: fix drag windows with bottom navbar position
+HEAD@{17}: commit: fix drag windows with bottom navbar position
+HEAD@{18}: checkout: moving from develop to navbar-position
+HEAD@{19}: checkout: moving from navbar-position to develop
+HEAD@{20}: reset: moving to HEAD
+HEAD@{21}: reset: moving to HEAD
+HEAD@{22}: reset: moving to HEAD
+HEAD@{23}: checkout: moving from timezone-modal to navbar-position
+HEAD@{24}: reset: moving to HEAD
+stash@{3}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+stash@{3}: WIP on timezone-modal: 102d56f6 add possibility to change current timezones
+timezone-modal@{0}: pull origin timezone-modal: Fast-forward
+HEAD@{25}: pull origin timezone-modal: Fast-forward
+origin/timezone-modal@{0}: pull origin timezone-modal: fast-forward
+origin/timezone-modal@{1}: update by push
+HEAD@{26}: checkout: moving from fix/windows-zindex to timezone-modal
+HEAD@{27}: reset: moving to HEAD
+fix/windows-zindex@{0}: branch: Created from HEAD
+HEAD@{28}: checkout: moving from develop to fix/windows-zindex
+develop@{3}: pull origin develop: Fast-forward
+origin/develop@{1}: pull origin develop: fast-forward
+HEAD@{29}: pull origin develop: Fast-forward
+HEAD@{30}: checkout: moving from timezone-modal to develop
+timezone-modal@{1}: commit: add timezones list
+HEAD@{31}: commit: add timezones list
+HEAD@{32}: checkout: moving from navbar-position to timezone-modal
+origin/navbar-position@{3}: update by push
+navbar-position@{4}: commit: fix imports code style
+HEAD@{33}: commit: fix imports code style
+navbar-position@{5}: pull origin navbar-position: Fast-forward
+HEAD@{34}: pull origin navbar-position: Fast-forward
+HEAD@{35}: reset: moving to HEAD
+origin/navbar-position@{4}: pull origin navbar-position: fast-forward
+HEAD@{36}: checkout: moving from timezone-modal to navbar-position
+stash@{4}: WIP on timezone-modal: d6789a50 timezones modal base implementation
+HEAD@{37}: reset: moving to HEAD
+stash@{4}: WIP on timezone-modal: d6789a50 timezones modal base implementation
+timezone-modal@{2}: pull origin timezone-modal: Fast-forward
+origin/timezone-modal@{2}: pull origin timezone-modal: storing head
+HEAD@{38}: pull origin timezone-modal: Fast-forward
+timezone-modal@{3}: branch: Created from HEAD
+HEAD@{39}: checkout: moving from develop to timezone-modal
+develop@{4}: pull origin develop: Fast-forward
+HEAD@{40}: pull origin develop: Fast-forward
+origin/develop@{2}: pull origin develop: fast-forward
+HEAD@{41}: checkout: moving from navbar-position to develop
+origin/navbar-position@{5}: update by push
+navbar-position@{6}: commit (amend): implement possibility to change navigation poisition
+HEAD@{42}: commit (amend): implement possibility to change navigation poisition
+navbar-position@{7}: commit (amend): implement possibility to change navigation poisition
+HEAD@{43}: commit (amend): implement possibility to change navigation poisition
+navbar-position@{8}: commit (amend): implement possibility to change navigation poisition
+HEAD@{44}: commit (amend): implement possibility to change navigation poisition
+navbar-position@{9}: commit (amend): implement possibility to change navigation poisition
+HEAD@{45}: commit (amend): implement possibility to change navigation poisition
+HEAD@{46}: checkout: moving from develop to navbar-position
+develop@{5}: pull origin develop: Fast-forward
+origin/develop@{3}: pull origin develop: fast-forward
+HEAD@{47}: pull origin develop: Fast-forward
+HEAD@{48}: checkout: moving from component-dropdown to develop
+origin/component-dropdown@{0}: update by push
+component-dropdown@{0}: commit: fix window area highlight handling
+HEAD@{49}: commit: fix window area highlight handling
+HEAD@{50}: checkout: moving from split_settings to component-dropdown
+origin/split_settings@{0}: update by push
+split_settings@{0}: commit: fill PL after change custom tick size
+HEAD@{51}: commit: fill PL after change custom tick size
+HEAD@{52}: reset: moving to HEAD
+stash@{5}: WIP on split_settings: e3c1f993 Merge branch 'split_settings' of ssh://git.avidi.tech:2222/ams-trading-group-platform/client into split_settings
+HEAD@{53}: reset: moving to HEAD
+stash@{5}: WIP on split_settings: e3c1f993 Merge branch 'split_settings' of ssh://git.avidi.tech:2222/ams-trading-group-platform/client into split_settings
+HEAD@{54}: checkout: moving from component-dropdown to split_settings
+origin/component-dropdown@{1}: update by push
+component-dropdown@{1}: commit: fix close window method
+HEAD@{55}: commit: fix close window method
+HEAD@{56}: checkout: moving from split_settings to component-dropdown
+HEAD@{57}: reset: moving to HEAD
+stash@{6}: WIP on split_settings: e3c1f993 Merge branch 'split_settings' of ssh://git.avidi.tech:2222/ams-trading-group-platform/client into split_settings
+stash@{6}: WIP on split_settings: e3c1f993 Merge branch 'split_settings' of ssh://git.avidi.tech:2222/ams-trading-group-platform/client into split_settings
+HEAD@{58}: reset: moving to HEAD
+HEAD@{59}: checkout: moving from develop to split_settings
+HEAD@{60}: checkout: moving from split_settings to develop
+split_settings@{1}: branch: Created from origin/split_settings
+HEAD@{61}: checkout: moving from develop to split_settings
+origin/aresize@{0}: fetch origin --recurse-submodules=no --progress --prune: fast-forward
+origin/dom-settings-per-dom@{0}: fetch origin --recurse-submodules=no --progress --prune: storing head
+origin/font-size-refactor@{0}: fetch origin --recurse-submodules=no --progress --prune: fast-forward
+origin/indicators-form@{0}: fetch origin --recurse-submodules=no --progress --prune: storing head
+origin/pl@{0}: fetch origin --recurse-submodules=no --progress --prune: fast-forward
+origin/split_settings@{1}: fetch origin --recurse-submodules=no --progress --prune: storing head
+HEAD@{62}: checkout: moving from navbar-position to develop
+navbar-position@{10}: commit: base view implementation
+HEAD@{63}: commit: base view implementation
+navbar-position@{11}: branch: Created from HEAD
+HEAD@{64}: checkout: moving from develop to navbar-position
+HEAD@{65}: checkout: moving from cancel-orders to develop
+origin/cancel-orders@{0}: update by push
+cancel-orders@{0}: commit (amend): implement cancel dropdown on orders component header
+HEAD@{66}: commit (amend): implement cancel dropdown on orders component header
+cancel-orders@{1}: commit: implement cancel dropdown on orders component header
+HEAD@{67}: commit: implement cancel dropdown on orders component header
+HEAD@{68}: reset: moving to HEAD
+cancel-orders@{2}: branch: Created from HEAD
+HEAD@{69}: checkout: moving from develop to cancel-orders
+HEAD@{70}: checkout: moving from cancel-orders-modal to develop
+cancel-orders-modal@{0}: commit (merge): fix merge conflicts
+HEAD@{71}: commit (merge): fix merge conflicts
+cancel-orders-modal@{1}: branch: Created from HEAD
+HEAD@{72}: checkout: moving from develop to cancel-orders-modal
+develop@{6}: pull origin develop: Fast-forward
+HEAD@{73}: pull origin develop: Fast-forward
+HEAD@{74}: checkout: moving from cancel-orders-modal to develop
+HEAD@{75}: reset: moving to HEAD
+origin/develop@{4}: pull origin develop: fast-forward
+HEAD@{76}: checkout: moving from checkbox-cell to cancel-orders-modal
+checkbox-cell@{0}: commit (amend): improvments of checkbox state handling
+HEAD@{77}: commit (amend): improvments of checkbox state handling
+checkbox-cell@{1}: commit: fix checkbox state handling
+HEAD@{78}: commit: fix checkbox state handling
+HEAD@{79}: checkout: moving from cancel-orders-modal to checkbox-cell
+HEAD@{80}: commit (merge): fix merge conflicts
+HEAD@{81}: checkout: moving from checkbox-cell to cancel-orders-modal
+checkbox-cell@{2}: commit: implement checkbox on header in orders grid
+HEAD@{82}: commit: implement checkbox on header in orders grid
+HEAD@{83}: checkout: moving from develop to checkbox-cell
+HEAD@{84}: checkout: moving from checkbox-cell to develop
+HEAD@{85}: reset: moving to HEAD
+stash@{7}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+stash@{7}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+HEAD@{86}: reset: moving to HEAD
+stash@{8}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+stash@{8}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+HEAD@{87}: reset: moving to HEAD
+stash@{9}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+stash@{9}: WIP on checkbox-cell: 0428e002 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+HEAD@{88}: checkout: moving from component-dropdown to checkbox-cell
+HEAD@{89}: checkout: moving from checkbox-cell to component-dropdown
+HEAD@{90}: reset: moving to HEAD
+checkbox-cell@{3}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{91}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{92}: checkout: moving from develop to checkbox-cell
+develop@{7}: pull origin develop: Fast-forward
+HEAD@{93}: pull origin develop: Fast-forward
+HEAD@{94}: reset: moving to HEAD
+HEAD@{95}: checkout: moving from checkbox-cell to develop
+HEAD@{96}: reset: moving to HEAD
+checkbox-cell@{4}: reset: moving to 381b6250c3ddd22e1e65c515ed6ce3b9d5a89d7b
+HEAD@{97}: reset: moving to 381b6250c3ddd22e1e65c515ed6ce3b9d5a89d7b
+checkbox-cell@{5}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{98}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{99}: reset: moving to HEAD
+HEAD@{100}: reset: moving to HEAD
+checkbox-cell@{6}: pull origin checkbox-cell: Merge made by the 'recursive' strategy.
+HEAD@{101}: pull origin checkbox-cell: Merge made by the 'recursive' strategy.
+HEAD@{102}: checkout: moving from component-dropdown to checkbox-cell
+origin/component-dropdown@{2}: update by push
+component-dropdown@{2}: commit (merge): merge conflicts with develop
+HEAD@{103}: commit (merge): merge conflicts with develop
+component-dropdown@{3}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{104}: pull origin develop: Merge made by the 'recursive' strategy.
+component-dropdown@{4}: commit: fix components dropdown
+HEAD@{105}: commit: fix components dropdown
+HEAD@{106}: reset: moving to HEAD
+component-dropdown@{5}: reset: moving to 6f8566deb78819327da5c368c116d13d433c070c
+HEAD@{107}: reset: moving to 6f8566deb78819327da5c368c116d13d433c070c
+HEAD@{108}: reset: moving to HEAD
+stash@{10}: WIP on component-dropdown: 516b2ec7 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into component-dropdown
+stash@{10}: WIP on component-dropdown: 516b2ec7 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into component-dropdown
+component-dropdown@{6}: pull origin develop: Merge made by the 'recursive' strategy.
+origin/develop@{5}: pull origin develop: fast-forward
+HEAD@{109}: pull origin develop: Merge made by the 'recursive' strategy.
+stash@{11}: WIP on component-dropdown: 49891898 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into component-dropdown
+HEAD@{110}: reset: moving to HEAD
+stash@{11}: WIP on component-dropdown: 49891898 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into component-dropdown
+HEAD@{111}: reset: moving to HEAD
+component-dropdown@{7}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{112}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{113}: checkout: moving from orders-test-header-draw to component-dropdown
+HEAD@{114}: reset: moving to HEAD
+origin/orders-test-header-draw@{0}: update by push
+orders-test-header-draw@{0}: commit: test draw on orders header
+HEAD@{115}: commit: test draw on orders header
+orders-test-header-draw@{1}: branch: Created from HEAD
+HEAD@{116}: checkout: moving from develop to orders-test-header-draw
+stash@{12}: WIP on develop: 6f8566de Remove s
+HEAD@{117}: reset: moving to HEAD
+stash@{12}: WIP on develop: 6f8566de Remove s
+develop@{8}: pull origin develop: Fast-forward
+HEAD@{118}: pull origin develop: Fast-forward
+origin/develop@{6}: pull origin develop: fast-forward
+HEAD@{119}: checkout: moving from checkbox-cell to develop
+HEAD@{120}: reset: moving to HEAD
+checkbox-cell@{7}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{121}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{122}: reset: moving to HEAD
+HEAD@{123}: checkout: moving from font-size-refactor to checkbox-cell
+origin/font-size-refactor@{1}: update by push
+font-size-refactor@{0}: commit (merge): fix merge conflicts with develop
+HEAD@{124}: commit (merge): fix merge conflicts with develop
+origin/develop@{7}: pull origin develop: fast-forward
+origin/font-size-refactor@{2}: update by push
+font-size-refactor@{1}: commit (amend): fix context menu in DOM data-grid
+HEAD@{125}: commit (amend): fix context menu in DOM data-grid
+font-size-refactor@{2}: commit: fix context menu in DOM data-grid
+HEAD@{126}: commit: fix context menu in DOM data-grid
+HEAD@{127}: reset: moving to HEAD
+HEAD@{128}: checkout: moving from checkbox-cell to font-size-refactor
+checkbox-cell@{8}: commit: move select handler of checkbox to order.item component
+HEAD@{129}: commit: move select handler of checkbox to order.item component
+checkbox-cell@{9}: pull origin develop: Merge made by the 'recursive' strategy.
+origin/develop@{8}: pull origin develop: fast-forward
+HEAD@{130}: pull origin develop: Merge made by the 'recursive' strategy.
+HEAD@{131}: checkout: moving from component-dropdown to checkbox-cell
+origin/component-dropdown@{3}: update by push
+component-dropdown@{8}: commit (merge): fix merge conflicts with develop
+HEAD@{132}: commit (merge): fix merge conflicts with develop
+HEAD@{133}: checkout: moving from develop to component-dropdown
+develop@{9}: pull origin develop: Fast-forward
+origin/develop@{9}: pull origin develop: fast-forward
+HEAD@{134}: pull origin develop: Fast-forward
+HEAD@{135}: checkout: moving from component-dropdown to develop
+origin/component-dropdown@{4}: update by push
+component-dropdown@{9}: commit: move navbar title generator function to component instances
+HEAD@{136}: commit: move navbar title generator function to component instances
+HEAD@{137}: reset: moving to HEAD
+HEAD@{138}: reset: moving to HEAD
+HEAD@{139}: checkout: moving from checkbox-cell to component-dropdown
+checkbox-cell@{10}: commit (amend): fix merge conflicts with develop. fix naming
+HEAD@{140}: commit (amend): fix merge conflicts with develop. fix naming
+checkbox-cell@{11}: commit (merge): fix merge conflicts with develop
+HEAD@{141}: commit (merge): fix merge conflicts with develop
+origin/develop@{10}: pull origin develop: fast-forward
+HEAD@{142}: checkout: moving from font-size-refactor to checkbox-cell
+HEAD@{143}: reset: moving to HEAD
+HEAD@{144}: reset: moving to HEAD
+font-size-refactor@{3}: pull origin font-size-refactor: Fast-forward
+origin/font-size-refactor@{3}: pull origin font-size-refactor: fast-forward
+HEAD@{145}: pull origin font-size-refactor: Fast-forward
+font-size-refactor@{4}: branch: Created from origin/font-size-refactor
+HEAD@{146}: checkout: moving from develop to font-size-refactor
+HEAD@{147}: checkout: moving from component-dropdown to develop
+origin/component-dropdown@{5}: update by push
+component-dropdown@{10}: commit (amend): fix naming
+HEAD@{148}: commit (amend): fix naming
+component-dropdown@{11}: commit: fix naming
+HEAD@{149}: commit: fix naming
+origin/component-dropdown@{6}: update by push
+component-dropdown@{12}: commit: improvments of components dropdown in navigation bar
+HEAD@{150}: commit: improvments of components dropdown in navigation bar
+component-dropdown@{13}: branch: Created from HEAD
+HEAD@{151}: checkout: moving from develop to component-dropdown
+stash@{13}: WIP on develop: 3b429e58 rebuild
+HEAD@{152}: reset: moving to HEAD
+stash@{13}: WIP on develop: 3b429e58 rebuild
+develop@{10}: pull origin develop: Fast-forward
+origin/develop@{11}: pull origin develop: fast-forward
+HEAD@{153}: pull origin develop: Fast-forward
+HEAD@{154}: checkout: moving from fix/pl-calculation to develop
+HEAD@{155}: reset: moving to HEAD
+stash@{14}: WIP on pl-calculation: c115c76b fix import
+stash@{14}: WIP on pl-calculation: c115c76b fix import
+fix/pl-calculation@{0}: commit: fix import
+HEAD@{156}: commit: fix import
+HEAD@{157}: reset: moving to HEAD
+fix/pl-calculation@{1}: commit (amend): fix imports code style
+HEAD@{158}: commit (amend): fix imports code style
+fix/pl-calculation@{2}: commit: fix imports code style
+HEAD@{159}: commit: fix imports code style
+HEAD@{160}: checkout: moving from checkbox-cell to fix/pl-calculation
+checkbox-cell@{12}: commit: checkbox cell updating state fixes
+HEAD@{161}: commit: checkbox cell updating state fixes
+checkbox-cell@{13}: commit: checkbox cell improvments
+HEAD@{162}: commit: checkbox cell improvments
+HEAD@{163}: checkout: moving from fix/pl-calculation to checkbox-cell
+fix/pl-calculation@{3}: commit (amend): fix pl calculation in OHLC panel
+HEAD@{164}: commit (amend): fix pl calculation in OHLC panel
+fix/pl-calculation@{4}: commit (amend): fix pl calculation in OHLC panel
+HEAD@{165}: commit (amend): fix pl calculation in OHLC panel
+fix/pl-calculation@{5}: commit (amend): fix pl calculation in OHLC panel
+HEAD@{166}: commit (amend): fix pl calculation in OHLC panel
+fix/pl-calculation@{6}: commit: fix pl calculation in OHLC panel
+HEAD@{167}: commit: fix pl calculation in OHLC panel
+stash@{15}: WIP on pl-calculation: e5085933 fix pl calculation
+HEAD@{168}: reset: moving to HEAD
+stash@{15}: WIP on pl-calculation: e5085933 fix pl calculation
+fix/pl-calculation@{7}: commit: fix pl calculation
+HEAD@{169}: commit: fix pl calculation
+fix/pl-calculation@{8}: branch: Created from HEAD
+HEAD@{170}: checkout: moving from develop to fix/pl-calculation
+develop@{11}: pull origin develop: Fast-forward
+HEAD@{171}: pull origin develop: Fast-forward
+HEAD@{172}: checkout: moving from fix/pl-calculation to develop
+HEAD@{173}: reset: moving to HEAD
+origin/develop@{12}: pull origin develop: fast-forward
+HEAD@{174}: commit: fix pl calculation
+HEAD@{175}: checkout: moving from develop to fix/pl-calculation
+HEAD@{176}: checkout: moving from fix/pl-calculation to develop
+HEAD@{177}: commit: fix pl calculation
+HEAD@{178}: checkout: moving from pl to fix/pl-calculation
+pl@{0}: pull origin pl: Fast-forward
+HEAD@{179}: pull origin pl: Fast-forward
+pl@{1}: branch: Created from HEAD
+HEAD@{180}: checkout: moving from develop to pl
+HEAD@{181}: checkout: moving from pl to develop
+HEAD@{182}: reset: moving to HEAD
+origin/pl@{1}: pull origin pl: forced-update
+HEAD@{183}: checkout: moving from checkbox-cell to pl
+stash@{16}: WIP on checkbox-cell: 2ee88376 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+HEAD@{184}: reset: moving to HEAD
+stash@{16}: WIP on checkbox-cell: 2ee88376 Merge branch 'develop' of https://git.avidi.tech/ams-trading-group-platform/client into checkbox-cell
+checkbox-cell@{14}: pull origin develop: Merge made by the 'recursive' strategy.
+origin/develop@{13}: pull origin develop: fast-forward
+HEAD@{185}: pull origin develop: Merge made by the 'recursive' strategy.
+checkbox-cell@{15}: commit: remove console.log
+HEAD@{186}: commit: remove console.log
+checkbox-cell@{16}: commit: move checkbox click handler to orders.component
+HEAD@{187}: commit: move checkbox click handler to orders.component
+HEAD@{188}: reset: moving to HEAD
+checkbox-cell@{17}: commit: fix checkbox column width. add event param to cell handlers
+HEAD@{189}: commit: fix checkbox column width. add event param to cell handlers
+checkbox-cell@{18}: pull origin checkbox-cell: Fast-forward
+HEAD@{190}: pull origin checkbox-cell: Fast-forward
+checkbox-cell@{19}: branch: Created from HEAD
+HEAD@{191}: checkout: moving from orders-fills to checkbox-cell
+orders-fills@{0}: commit: base checkbox cell implementation
+HEAD@{192}: commit: base checkbox cell implementation
+orders-fills@{1}: pull origin develop: Fast-forward
+origin/develop@{14}: pull origin develop: fast-forward
+HEAD@{193}: pull origin develop: Fast-forward
+orders-fills@{2}: branch: Created from HEAD
+HEAD@{194}: checkout: moving from develop to orders-fills
+develop@{12}: pull origin develop: Fast-forward
+HEAD@{195}: pull origin develop: Fast-forward
+HEAD@{196}: checkout: moving from pl to develop
+origin/pl@{2}: update by push
+HEAD@{197}: commit (merge): merge conflicts with develop
+origin/develop@{15}: pull origin develop: fast-forward
+origin/pl@{3}: update by push
+HEAD@{198}: commit: implement include closed pnl calucation
+origin/pl@{4}: update by push
+HEAD@{199}: commit: pl formatter initializing improvments
+HEAD@{200}: commit (merge): merge conflicts with develop
+origin/pl@{5}: update by push
+HEAD@{201}: commit (amend): fix settings field orders key
+HEAD@{202}: commit: fix settings field orders key
+origin/pl@{6}: update by push
+HEAD@{203}: commit: fix strategy color and display format or pl
+HEAD@{204}: reset: moving to HEAD
+HEAD@{205}: reset: moving to HEAD
+HEAD@{206}: reset: moving to HEAD
+origin/pl@{7}: update by push
+HEAD@{207}: commit: fix pl dispalying and calculation
+HEAD@{208}: reset: moving to HEAD
+HEAD@{209}: reset: moving to HEAD
+HEAD@{210}: reset: moving to HEAD
+origin/pl@{8}: update by push
+HEAD@{211}: commit: add calculation to pl value
+origin/pl@{9}: update by push
+HEAD@{212}: commit (amend): set pl status
+HEAD@{213}: commit: set pl status
+HEAD@{214}: reset: moving to HEAD~1
+HEAD@{215}: commit: set pl status
+HEAD@{216}: reset: moving to HEAD~1
+HEAD@{217}: commit: set pl status
+HEAD@{218}: checkout: moving from aresize to pl
+HEAD@{219}: reset: moving to HEAD
+origin/aresize@{1}: fetch origin --recurse-submodules=no --progress --prune: fast-forward
+origin/develop@{16}: fetch origin --recurse-submodules=no --progress --prune: fast-forward
+origin/revert-b0f8f678@{0}: fetch origin --recurse-submodules=no --progress --prune: storing head
+aresize@{0}: branch: Created from origin/aresize
+HEAD@{220}: checkout: moving from pl to aresize
+HEAD@{221}: reset: moving to HEAD
+HEAD@{222}: checkout: moving from develop to pl
+origin/pl@{10}: fetch: storing head
+develop@{13}: clone: from https://git.avidi.tech/ams-trading-group-platform/client
+origin/HEAD@{0}: clone: from https://git.avidi.tech/ams-trading-group-platform/client
+HEAD@{223}: clone: from https://git.avidi.tech/ams-trading-group-platform/client

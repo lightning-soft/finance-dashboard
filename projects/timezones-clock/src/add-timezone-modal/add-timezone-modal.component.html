@@ -1,0 +1,42 @@
+<div class="title">Timezones</div>
+
+<div class="timezones-header">
+  <div class="column">All</div>
+  <div class="column d-flex">
+    <span>Current</span>
+    <span class="reset" (click)="resetTimezones()">Reset</span>
+  </div>
+</div>
+
+<div class="d-flex">
+  <div class="column timezones-column custom-scroll">
+    <timezone-item *ngFor="let timezone of allTimezones"
+                   [timezone]="timezone"
+                   [editable]="false"
+                   [canToggle]="false"
+                   (dblclick)="addToCurrent(timezone)"
+                   [class.selected]="timezone.id === selectedTimezone?.id"
+                   [class.disabled]="isTimezoneDisabled(timezone)"
+                   (click)="handleTimezoneClick(timezone)"
+    ></timezone-item>
+  </div>
+
+  <div class="column timezones-column custom-scroll">
+      <timezone-item *ngFor="let timezone of currentTimezones"
+                     [timezone]="timezone"
+                     [class.selected]="timezone.id === selectedTimezone?.id"
+                     (delete)="deleteTimezone(timezone)"
+                     (reset)="resetTimezone(timezone)"
+                     (rename)="updateTimezoneName(timezone, $event)"
+                     (toggleEnabled)="toggleTimezone(timezone, $event)"
+                     (click)="selectedTimezone = timezone"
+      ></timezone-item>
+  </div>
+</div>
+
+<div class="move-buttons">
+  <button class="move-button" (click)="moveSelectedTimezoneToCurrent()"><i class="icon-arrow-right-general"></i>
+  </button>
+  <button class="move-button" (click)="deleteSelectedTimezoneFromCurrent()"><i class="icon-arrow-left-general"></i>
+  </button>
+</div>

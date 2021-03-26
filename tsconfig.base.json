@@ -146,10 +146,13 @@
         "projects/hotkey-input/index"
       ],
       "base-order-form": [
-        "projects/base-order-form/index",
+        "projects/base-order-form/index"
+      ],
+      "timezones-clock": [
+        "projects/timezones-clock/index"
       ],
       "environment": [
-        "src/environments/environment",
+        "src/environments/environment"
       ]
     }
   }

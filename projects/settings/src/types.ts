@@ -1,6 +1,8 @@
+import { ITimezone } from 'timezones-clock';
 import { IKeyBindingDTO } from 'keyboard';
 import { Workspace } from 'workspace-manager';
 import { NavbarPosition } from "./settings.service";
+
 export interface ICommand {
   readonly UIString: string;
   readonly name: string;
@@ -18,4 +20,5 @@ export type SettingsData = {
   workspaces: Workspace[];
   navbarPosition: NavbarPosition;
   isNavbarHidden: boolean;
+  timezones: ITimezone[];
 };

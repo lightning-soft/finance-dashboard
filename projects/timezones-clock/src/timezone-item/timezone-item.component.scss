@@ -1,0 +1,80 @@
+@import "~src/scss/variables";
+@import "~src/scss/dark.theme";
+// @import "../themes/index";
+
+
+:host {
+  display: block;
+  width: 100%;
+  height: auto;
+  background-color: $tabFrameColor;
+  text-align: left;
+  color: $textColor;
+  padding: 4px;
+  border-radius: 2px;
+
+  &:hover {
+    .icons-container {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.icons-container {
+  margin-left: auto;
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  transition: opacity .3s ease;
+
+  i {
+    font-size: 9px;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary;
+    }
+
+    &:not(:first-child) {
+      margin-left: 6px;
+    }
+  }
+}
+
+.utc-time {
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: 4px;
+
+  label {
+    margin-right: 7px;
+  }
+
+  .name {
+    font-size: 12px;
+    font-weight: 600;
+    color: $titleColor;
+
+    input {
+      width: 65px;
+      padding: 0 5px;
+      color: $titleColor;
+      font-size: 12px;
+    }
+  }
+}
+
+.subtitle {
+  white-space: normal;
+  max-width: 100%;
+  font-size: 11px;
+  line-height: 14px;
+  color: $textColor;
+}
+
+
+
