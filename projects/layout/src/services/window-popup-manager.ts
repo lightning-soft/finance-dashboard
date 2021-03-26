@@ -36,8 +36,8 @@ export class WindowPopupManager {
       state = widget.saveState();
     options.component = { name, state };
     const widgetFeatures = new Map(commonFeatures);
-    widgetFeatures.set('scrollbars', 'no');
-    widgetFeatures.set('resizable', 'no');
+    widgetFeatures.set('scrollbars', 'yes');
+    widgetFeatures.set('resizable', 'yes');
     widgetFeatures.set('innerHeight', `${height}`);
     widgetFeatures.set('innerWidth', `${width}`);
 

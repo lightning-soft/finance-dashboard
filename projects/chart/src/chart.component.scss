@@ -22,7 +22,8 @@ app-window-toolbar {
     }
   }
 }
-.chart-menu-dropdown{
+
+.chart-menu-dropdown {
   min-width: 110px;
 }
 :host ::ng-deep {
@@ -35,11 +36,11 @@ app-window-toolbar {
     }
   }
 
-  :nth-child(n+3):nth-child(-n+10) {
-    color: white !important;
+  .scxSymbolTitle :nth-child(n+3):nth-child(-n+10) {
+    color: #fff !important;
   }
 
-  :nth-child(11) {
+  .scxSymbolTitle :nth-child(11) {
     display: inline-flex !important;
     align-items: center;
 

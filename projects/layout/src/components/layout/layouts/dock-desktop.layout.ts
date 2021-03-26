@@ -1,7 +1,7 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
-import { Options, WindowManagerService } from 'window-manager';
+import { IWindow, Options, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentOptions, Layout } from './layout';
 
@@ -25,6 +25,11 @@ export class DockDesktopLayout extends Layout {
     return this._windowManagerService.windows.getValue()
       .map(item => item.options.componentState())
       .some(item => item.name === options.component.name);
+  }
+
+  findComponent(callback: (item: IWindow) => boolean): IWindow {
+    return this._windowManagerService.windows.getValue()
+      .find(callback);
   }
 
   removeComponent(componentName) {

@@ -41,6 +41,7 @@ import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { IWindow } from 'window-manager';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -994,8 +995,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           ...(i.getDomItems ? i.getDomItems() : {}),
         };
       }
-    }
-    else {
+    } else {
       for (const [key, item] of this._map)
         map[key] = item;
     }
@@ -1699,20 +1699,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   openSettings(hidden = false) {
-    this._closeSettings();
-    this.layout.addComponent({
-      component: {
-        name: DomSettingsSelector,
-        state: { settings: this._settings, linkKey: this._getSettingsKey() },
-      },
-      closeBtn: true,
-      single: false,
-      width: 618,
-      allowPopup: false,
-      resizable: false,
-      removeIfExists: false,
-      hidden,
+    const settingsExists = this.layout.findComponent((item: IWindow) => {
+      return item.options.componentState()?.state.linkKey === this._getSettingsKey();
     });
+    if (settingsExists)
+      this._closeSettings();
+    else
+      this.layout.addComponent({
+        component: {
+          name: DomSettingsSelector,
+          state: { settings: this._settings, linkKey: this._getSettingsKey() },
+        },
+        closeBtn: true,
+        single: false,
+        width: 618,
+        allowPopup: false,
+        closableIfPopup: true,
+        resizable: false,
+        removeIfExists: false,
+        hidden,
+      });
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {

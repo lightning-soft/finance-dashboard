@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ComponentStore } from 'lazy-modules';
-import { NzMessageServiceModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
+import { NzButtonModule, NzMessageServiceModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { SettingsStore } from './setting-store';
 import { SettingsComponent } from './settings.component';
@@ -18,6 +18,7 @@ import { HotkeyInputModule } from 'hotkey-input';
     NzRadioModule,
     NzMessageServiceModule,
     HotkeyInputModule,
+    NzButtonModule,
   ],
   exports: [
     SettingsComponent,

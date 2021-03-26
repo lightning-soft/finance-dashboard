@@ -1,5 +1,5 @@
 <div class="toolbar-container">
-  <div class="tool btn-group">
+  <div [class.tool-active]="isDrawingsVisible" class="tool btn-group">
     <nz-button-group
       nzOverlayClassName="toolbar-dropdown"
       nz-dropdown
@@ -87,7 +87,7 @@
       ></instrument-select>
     </div>-->
 
-  <div title="Frame Interval" class="tool">
+  <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
     <nz-select
       #frame
       [nzShowArrow]="false"
@@ -111,7 +111,7 @@
     <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
   </div>
 
-  <div title="Bar Style" class="tool">
+  <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
     <nz-select
       #price
       [nzShowArrow]="false"
@@ -149,10 +149,11 @@
   </div>
 
 
-  <div title="Zoom" class="tool btn-group">
+  <div [class.tool-active]="zoomDropdownVisible"  title="Zoom" class="tool btn-group">
     <nz-button-group
       nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
+      [(nzVisible)]="zoomDropdownVisible"
       nz-dropdown [nzDropdownMenu]="menu1"
     >
       <button nz-button>
@@ -176,8 +177,7 @@
     </nz-dropdown-menu>
   </div>
 
-
-  <div title="Cursor type" class="tool">
+  <div [class.tool-active]="cross.nzOpen" title="Cursor type" class="tool">
     <nz-select
       #cross
       [nzShowArrow]="false"
