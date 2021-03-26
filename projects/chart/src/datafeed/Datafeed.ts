@@ -290,8 +290,8 @@ export abstract class Datafeed implements IDatafeed {
             break;
         }
 
-        _item.volume += _item.bidInfo.volume + _item.askInfo.volume;
-        _item.tradesCount += _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
+        _item.volume = _item.bidInfo.volume + _item.askInfo.volume;
+        _item.tradesCount = _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
       }
     }
 
