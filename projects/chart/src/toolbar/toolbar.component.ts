@@ -34,6 +34,9 @@ export class ToolbarComponent {
   isDrawingsPinned = false;
   lastUsedDrawings = [];
 
+  zoomDropdownVisible = false;
+
+
   timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
     { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
@@ -252,6 +255,7 @@ export class ToolbarComponent {
       resizable: false,
       maximizable: false,
       allowPopup: false,
+      closableIfPopup: true,
       minimizable: false,
       single: true,
       removeIfExists: true,

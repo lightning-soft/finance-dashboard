@@ -40,11 +40,22 @@
     </li>
   </ul>
   <table class="tab-content table" *ngIf="activeTab === 'hotkeys'">
+    <thead>
+    <tr>
+      <th>Functions</th>
+      <th>
+        <div class="d-flex align-items-center justify-content-between">
+          Keys
+          <button class="clear-all" (click)="clearAll()" nz-button nzType="link">Clear All</button>
+        </div>
+      </th>
+    </tr>
+    </thead>
     <tbody>
     <tr *ngFor="let entry of hotkeys;let i = index ">
-      <td class="hotkey-name">{{entry.name}}</td>
+      <td class="hotkey-name"><span class="d-flex align-items-center h-100">{{entry.name}}</span></td>
       <td class="hotkey-reader">
-        <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)" ></hotkey-input>
+        <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)"></hotkey-input>
       </td>
     </tr>
     </tbody>

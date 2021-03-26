@@ -4,13 +4,14 @@ import { AccountsManager } from 'accounts-manager';
 import { WebSocketService } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
-import { HotkeyEvents, SettingsData, SettingsService } from 'settings';
+import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { Workspace, WorkspacesManager } from 'workspace-manager';
+import { WorkspacesManager } from 'workspace-manager';
 import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { environment } from 'environment';
+import { accountsOptions } from '../navbar/connections/connections.component';
 
 
 @Component({
@@ -26,8 +27,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   settings: SettingsData;
   keysStack: KeyboardListener = new KeyboardListener();
-
-  activeWorkspace: Workspace;
 
   private _autoSaveIntervalId: number;
   private _subscriptions = [];
@@ -101,14 +100,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const options = this._windowPopupManager.getConfig();
     if (!options)
       return;
-    this.layout.loadState(options.layoutConfig);
+    const config = options.layoutConfig;
+    if (config.length === 1) {
+      config[0].styles = { height: '100%', width: '100%' };
+    }
+    this.layout.loadState(config);
     this._windowPopupManager.hideWindowHeaderInstruments = options.hideWindowHeaderInstruments;
     this._windowPopupManager.deleteConfig();
-    setTimeout(() => {
-      const widgets = this.layout.getWidgets();
-      if (widgets.length === 1)
-        widgets[0].maximize();
-    }, 100);
   }
 
   private _setupWorkspaces() {
@@ -191,7 +189,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (key) {
       event.preventDefault();
       this.handleCommand(key[0]);
-    };
+    }
   }
 
   private handleCommand(command: HotkeyEvents) {
@@ -208,15 +206,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this._addComponent(Components.OrderForm);
         break;
       }
-      case HotkeyEvents.CenterAllWindows: {
+   /*   case HotkeyEvents.CenterAllWindows: {
         break;
-      }
+      }*/
       case HotkeyEvents.OpenTradingDom: {
         this._addComponent(Components.Dom);
         break;
       }
       case HotkeyEvents.OpenConnections: {
-        //   this.layout.addComponent(Components.Accounts);
+        this.layout.addComponent({
+          component: { name: Components.Accounts, state: {} },
+          ...accountsOptions
+        });
         break;
       }
       case HotkeyEvents.LockTrading: {

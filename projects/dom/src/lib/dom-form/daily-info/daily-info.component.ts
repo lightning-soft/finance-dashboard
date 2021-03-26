@@ -56,6 +56,10 @@ export class DailyInfoComponent {
     const date = new Date(trade.timestamp);
     return isSameDay(date, this.dailyInfo.date) && date > this.dailyInfo.date;
   }
+
+  getInfo(data: number | string) {
+    return data ?? '-';
+  }
 }
 
 function isSameDay(date, secondDate) {

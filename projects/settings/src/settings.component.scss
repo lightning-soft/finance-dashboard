@@ -18,6 +18,7 @@
 
       .title {
         color: $text-60 !important;
+        font-weight: 600;
       }
     }
 
@@ -50,6 +51,27 @@
 
   }
 
+  .clear-all {
+    font-size: 0.75rem;
+    padding: 0;
+    line-height: 1;
+    height: auto;
+    font-weight: 600;
+  }
+
+  .table > thead {
+    padding-bottom: 8px;
+  }
+
+  .table > thead > tr > th {
+    border-bottom: 0.5px solid $light2;
+    padding: 0;
+    padding-bottom: 6px;
+    color: $text-40;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
   ::ng-deep {
     table .hotkey-input {
       height: 20px;
@@ -60,12 +82,14 @@
   .hotkey-name {
     color: $text-muted;
     font-size: 0.8rem;
-    line-height: 2;
-    width: 35%;
+    line-height: 1;
+    height: 100%;
+    width: 50%;
+    font-weight: 600;
   }
 
   .hotkey-reader {
-    width: 65%;
+    width: 168px;
   }
 
   hotkey-input {
@@ -92,6 +116,7 @@
 
         &.active {
           color: white;
+          font-weight: 600;
         }
       }
     }
@@ -99,8 +124,8 @@
     .tabs {
       border-radius: 4px;
       background-color: #1B1D22;
-      width: 180px;
-      min-width: 180px;
+      width: 181px;
+      min-width: 181px;
       text-transform: capitalize;
       padding: 12px 8px;
 
@@ -118,8 +143,8 @@
     }
 
     .table {
-      margin-left: 16px;
-      margin-right: 16px;
+      margin-left: 15px;
+      margin-right: 13px;
     }
 
     .tab-content {

@@ -8,17 +8,17 @@
   </div>
 </div>
 
-<div *ngIf="!hideInstruments()">
-  <span *ngIf="window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
+<div>
+  <span *ngIf="window.shouldOpenInNewWindow() && !hideInstruments()" (click)="popup()" class="link popup-link">
     <i class="icon-popup"></i>
   </span>
-  <span class="link" *ngIf="window.minimizable()"  (click)="window.minimize()">
+  <span class="link" *ngIf="window.minimizable()  && !hideInstruments()"  (click)="window.minimize()">
     <i class="icon-minimize-window"></i>
   </span>
-  <span class="link" *ngIf="window.maximizable()" (click)="window.maximize()">
+  <span class="link" *ngIf="window.maximizable()  && !hideInstruments()" (click)="window.maximize()">
     <i [class]="window.isMaximized() ? 'icon-maximize-window' : 'icon-full-screen-window'"></i>
   </span>
-  <span class="link" (click)="onClose()">
+  <span class="link" *ngIf="(!hideInstruments() || window.closableIfPopup())" (click)="onClose()">
     <i class="icon-close-window"></i>
   </span>
 </div>

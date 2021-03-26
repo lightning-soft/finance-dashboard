@@ -1,7 +1,7 @@
-import {ComponentRef} from '@angular/core';
-import {ILinkNode, LinkDataObserver} from '../observers';
-import {LayoutNodeEvent} from './layout-node.event';
-import {Layout} from './layout/layouts/layout';
+import { ComponentRef } from '@angular/core';
+import { ILinkNode, LinkDataObserver } from '../observers';
+import { LayoutNodeEvent } from './layout-node.event';
+import { Layout } from './layout/layouts/layout';
 
 declare const $: any;
 
@@ -58,6 +58,8 @@ export interface ILayoutNode {
   minimize?();
 
   close?();
+
+  closableIfPopup?(): boolean;
 
   isMaximized?();
 
@@ -232,7 +234,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     return this.layoutContainer.options.minimizable;
   }
 
-  shouldOpenInNewWindow(){
+  closableIfPopup() {
+    return this.layoutContainer.options.closableIfPopup;
+  }
+
+  shouldOpenInNewWindow() {
     return this.layoutContainer.options.allowPopup;
   }
 

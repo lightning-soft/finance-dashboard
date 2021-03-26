@@ -17,7 +17,7 @@ function createCommand(name: string, uiSstring: string = name): ICommand {
 
 export enum HotkeyEvents {
   SavePage = 'saveAll',
-  CenterAllWindows = 'CenterAllWindows',
+ // CenterAllWindows = 'CenterAllWindows',
   OpenOrderTicket = 'openOrderForm',
   OpenTradingDom = 'openDOM',
   OpenChart = 'openChart',
@@ -27,8 +27,8 @@ export enum HotkeyEvents {
 
 export const defaultHotkeyEntries = {
   [HotkeyEvents.SavePage]: new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)]).toDTO(),
-  [HotkeyEvents.CenterAllWindows]:
-    new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.Space)]).toDTO(),
+//  [HotkeyEvents.CenterAllWindows]:
+//    new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.Space)]).toDTO(),
   [HotkeyEvents.OpenOrderTicket]: new KeyBinding([]).toDTO(),
   [HotkeyEvents.OpenTradingDom]: new KeyBinding([]).toDTO(),
   [HotkeyEvents.OpenChart]: new KeyBinding([]).toDTO(),

@@ -87,7 +87,7 @@
       padding-left: 8px;
       padding-right: 0;
 
-      &:hover i[class*=icon-]{
+      &:hover {
         color: #fff;
       }
     }
@@ -274,11 +274,7 @@
 }
 
 i[class*="icon-"] {
-  color: #D0D0D2;
-}
-
-i[class*="icon-"]:hover {
-  color: #0c6ce4;
+  color: $text-60;
 }
 
 .icon-arrow-down {
@@ -294,12 +290,49 @@ i[class*="icon-"]:hover {
   align-items: center;
 }
 
-.tool {
-  background-color: #24262C;
-  border-radius: 2px;
-  margin-right: 4px;
-  padding: 0;
-  position: relative;
-  height: 22px;
-  line-height: 22px;
+:host ::ng-deep {
+  .tool {
+    background-color: #24262C;
+    border-radius: 2px;
+    margin-right: 4px;
+    padding: 0;
+    position: relative;
+    height: 22px;
+    line-height: 22px;
+    transition: all 0.3s;
+
+    i[class*=icon-], .ant-select, span, nz-select-item {
+      transition: all 0.3s;
+    }
+
+    &:hover {
+      color: #fff;
+
+      .ant-select, span {
+        color: #fff;
+      }
+
+      i[class*=icon-] {
+        color: $text-60;
+      }
+
+      nz-select-item {
+        color: #fff;
+        opacity: 1 !important;
+      }
+    }
+
+    &.tool-active {
+      color: #fff;
+
+      i[class*=icon-], i[class*=icon-]:hover, .ant-select, span {
+        color: #fff;
+      }
+
+      nz-select-item {
+        color: #fff;
+        opacity: 1 !important;
+      }
+    }
+  }
 }

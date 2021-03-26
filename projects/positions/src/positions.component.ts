@@ -46,6 +46,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   menuVisible = false;
   open: number;
   realized: number;
+  totalPl: number;
+
   @ViewChild('grid') dataGrid: DataGrid;
 
   get columns() {
@@ -138,6 +140,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.open = +this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
     this.realized = +this.positions.reduce((total, current) => total + (current.realized * current.price), 0).toFixed(4);
+    this.totalPl = this.open + this.realized;
   }
 
   _transformDataFeedItem(item) {

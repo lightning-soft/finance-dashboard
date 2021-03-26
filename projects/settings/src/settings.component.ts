@@ -3,7 +3,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { KeyBinding, SettingsKeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Themes, ThemesHandler } from 'themes';
-import { defaultHotkeyEntries, HotkeyEvents, SettingsService } from './settings.service';
+import { HotkeyEvents, SettingsService } from './settings.service';
 import { SettingsData } from './types';
 
 export enum SAVE_DALEY {
@@ -11,9 +11,10 @@ export enum SAVE_DALEY {
   AUTO_SAVE = 'AUTO_SAVE',
   MANUAL_SAVE = 'MANUAL_SAVE',
 }
+
 const hotkeyStringRepresentation = {
   [HotkeyEvents.SavePage]: 'Save All Settings',
-  [HotkeyEvents.CenterAllWindows]: 'Center All Windows',
+  // [HotkeyEvents.CenterAllWindows]: 'Center All Windows',
   [HotkeyEvents.OpenOrderTicket]: 'Open Order Ticket',
   [HotkeyEvents.OpenTradingDom]: 'Open Trading DOM',
   [HotkeyEvents.OpenChart]: 'Open New Chart',
@@ -36,8 +37,6 @@ export class SettingsComponent implements OnInit {
   autoSaveSetting: number | string;
   isKeyboardRecording = false;
   keyboardListener = new SettingsKeyboardListener();
-  currentEntery = null;
-
   saveDelayValues = {
     fiveMin: SAVE_DALEY.FIVE_MIN,
     manualSave: SAVE_DALEY.MANUAL_SAVE,
@@ -76,7 +75,7 @@ export class SettingsComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(s => {
         this.settings = { ...s };
-        this.updateHotkeys();
+        this.getHotkeys();
         if (s.autoSave && s.autoSaveDelay)
           this.autoSaveSetting = s.autoSaveDelay;
         else if (s.autoSave)
@@ -86,11 +85,11 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  updateHotkeys() {
+  getHotkeys() {
     this.hotkeys = this.hotkeysEvents.map((key: string) => {
-      const binding = this.settings.hotkeys[name] ? KeyBinding.fromDTO(this.settings.hotkeys[name])
+      const binding = this.settings.hotkeys[key] ? KeyBinding.fromDTO(this.settings.hotkeys[key])
         : new KeyBinding([]);
-      return { name: hotkeyStringRepresentation[key], key, binding};
+      return { name: hotkeyStringRepresentation[key], key, binding };
     });
   }
 
@@ -119,6 +118,13 @@ export class SettingsComponent implements OnInit {
 
   updateHotkey(item: any, key) {
     this.settings.hotkeys[key] = item.toDTO();
+    this._settingsService.saveKeyBinding(this.settings.hotkeys);
+  }
+
+  clearAll() {
+    this.hotkeysEvents.forEach((key) => {
+      this.settings.hotkeys[key] = new KeyBinding([]).toDTO();
+    });
     this._settingsService.saveKeyBinding(this.settings.hotkeys);
   }
 }

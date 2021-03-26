@@ -17,6 +17,7 @@ export type ComponentOptions = {
   minWidth?: number;
   minHeight?: number;
   icon?: string;
+  closableIfPopup?: boolean;
   minimizable?: boolean;
   allowPopup?: boolean;
   maximizable?: boolean;
@@ -49,6 +50,10 @@ export abstract class Layout implements IDropable {
 
   hasChild(options: ComponentOptions): boolean {
     return false;
+  }
+
+  findComponent(callback: (item: IWindow) => boolean): IWindow {
+    return null;
   }
 
   createDragSource(element, component: string) {
