@@ -99,7 +99,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Output() showHeaderPanelChange = new EventEmitter<boolean>();
 
   @Output() columnUpdate = new EventEmitter<Column>();
-
   @Input() columns: Column[] = [];
   @Input() showSettingsInContextMenu = false;
 
@@ -116,6 +115,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   // private _subscribedEvents = [];
 
   public isVisible = false;
+  showColumnHeaders = true;
 
   public rowHeight = 19;
 
@@ -362,6 +362,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   toggleColumns() {
+    this.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges();
   }

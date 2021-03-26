@@ -253,7 +253,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   async beforeUnloadHandler(e) {
     for (const fn of this._subscriptions)
       fn();
-    if (this.hasBeenSaved || !environment.production)
+    if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
       return;
     e = e || window.event;
 
