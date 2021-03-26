@@ -5,6 +5,7 @@ import { LinkSelectComponent } from '../../link-select/link-select.component';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentInitCallback } from '../layout.component';
 import { Layout } from './layout';
+import { IWindow } from 'window-manager';
 
 const DragTabClass = 'drag-tab-class';
 
@@ -27,6 +28,12 @@ export class DesktopLayout extends Layout {
   // TODO implement
   removeComponent(removeComponent: string) {
   }
+
+  // #TODO implement
+  findComponent(callback: (item: IWindow) => boolean): IWindow {
+    throw new Error('Not implemented');
+  }
+
 
   addComponent(componentName: string) {
     // if (componentName === ViewsComponents.Chart && (Environment.browser === Browser.ie || Environment.browser === Browser.edge)) {

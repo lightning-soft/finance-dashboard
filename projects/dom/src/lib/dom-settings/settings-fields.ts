@@ -94,6 +94,8 @@ export const commonFields: IFieldConfig[] = [
               { label: 'Last Traded Quantity(LQT)', key: 'ltq' },
               { label: 'Volume Profile', key: 'volume' },
               { label: 'Orders', key: 'orders' },
+             // { label: 'Buy Orders', key: 'buyOrders' },
+             // { label: 'Sell Orders', key: 'sellOrders' },
               // { label: 'Current Trades At Bit', key: 'currentTradesAtBit' },
               { label: 'Bid Depth', key: 'bid' },
               // { label: 'Current Trades At Ask', key: 'currentTradesAtAsk' },

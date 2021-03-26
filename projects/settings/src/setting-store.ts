@@ -23,25 +23,13 @@ export class SettingsStore implements ISettingsStore {
     return this.settingsRepository.getItems()
       .pipe(
         map((item: any) => item.settings),
-        map(settings => {
+        tap(() => {
           this.hasSettings = true;
-    /*      const hotkeys = settings.hotkeys.map(item => {
-            item[1] = KeyBinding.fromDTO(item[1]);
-            return item;
-          });
-          settings.hotkeys = hotkeys;*/
-          return settings;
         })) as any;
   }
 
-  setItem(_settings: SettingsData): Observable<any> {
-    const settings = { ..._settings, /* hotkeys: [..._settings.hotkeys]*/ };
-  /*  settings.hotkeys = _settings.hotkeys.map(item => {
-        const result = [...item];
-        result[1] = item[1].toDTO() as any;
-        return result as any;
-      }
-    );*/
+  setItem(settingsData: SettingsData): Observable<any> {
+    const settings = { ...settingsData };
     if (this.hasSettings)
       return this.settingsRepository.updateItem({ settings });
     else {

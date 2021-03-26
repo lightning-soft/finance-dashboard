@@ -27,9 +27,9 @@ export class DockDesktopLayout extends Layout {
       .some(item => item.name === options.component.name);
   }
 
-  findComponent(finder): IWindow {
+  findComponent(callback: (item: IWindow) => boolean): IWindow {
     return this._windowManagerService.windows.getValue()
-      .find(finder);
+      .find(callback);
   }
 
   removeComponent(componentName) {

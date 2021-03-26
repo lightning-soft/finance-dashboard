@@ -52,9 +52,7 @@ export abstract class Layout implements IDropable {
     return false;
   }
 
-  findComponent(callback: (item: IWindow) => boolean): IWindow {
-    return null;
-  }
+  abstract findComponent(callback: (item: IWindow) => boolean): IWindow;
 
   createDragSource(element, component: string) {
   }
