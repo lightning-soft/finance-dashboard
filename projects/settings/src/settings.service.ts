@@ -69,8 +69,6 @@ export class SettingsService {
   }
 
   private _init(): void {
-    const settings = { settings: defaultSettings };
-    console.warn(JSON.stringify(settings));
     this._settingStore
       .getItem()
       .subscribe(
