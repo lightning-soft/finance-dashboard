@@ -627,8 +627,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
-    if (useCustomTickSize != this._customTickSizeApplyed)
+    if (useCustomTickSize != this._customTickSizeApplyed) {
       this.centralize();
+      this._calculateDepth();
+    }
 
     this._calculateDepth();
     this._updateVolumeColumn();

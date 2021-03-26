@@ -101,8 +101,19 @@ class OrdersCell extends HistogramCell {
   }
 
   setPL(pl: number) {
-    this.updateValue(pl);
-    this.changeStatus(this.class === ProfitClass.DOWN ? 'loss' : 'inProfit');
+    if (pl == null)
+      this.clear();
+    else
+      this.updateValue(pl);
+
+    let status = '';
+
+    if (this.class === ProfitClass.DOWN)
+      status = 'loss';
+    else if (this.class === ProfitClass.UP)
+      status = 'inProfit';
+
+    this.changeStatus(status);
   }
 
   clearPL() {
@@ -848,6 +859,9 @@ export class CustomDomItem extends DomItem {
     //   console.log('this.bid._value', this.bid._value);
     // console.log(data.price, data.volume, ...Object.keys(this._domItems).map(i => this._domItems[i].bidDelta._value), ...Object.keys(this._domItems).map(i => this._domItems[i].bid._value));
 
+    if (this.ask.status == 'sum')
+      console.log(data);
+
     item.handleQuote(data);
 
     return super.handleQuote(mergedData);
@@ -875,7 +889,7 @@ export class CustomDomItem extends DomItem {
   }
 
   setBidSum(value) {
-    this.setBidSum(value);
+    super.setBidSum(value);
     this._bid = 0;
     if (value == null)
       this.calculateFromItems();
