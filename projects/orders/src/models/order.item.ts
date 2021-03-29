@@ -1,8 +1,26 @@
 import { IViewItem } from 'base-components';
 import { Id } from 'communication';
-import { DataCell, IconCell, CheckboxCell } from 'data-grid';
+import { DataCell, IconCell, CheckboxCell, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
+
+const allFields: Partial<keyof OrderItem>[] =  [
+  'checkbox',
+  'averageFillPrice',
+  'description',
+  'duration',
+  'filledQuantity',
+  'quantity',
+  'side',
+  'status',
+  'type',
+  'exchange',
+  'symbol',
+  'fcmId',
+  'ibId',
+  'identifier',
+  'close',
+  ];
 
 export class OrderItem implements IViewItem<IOrder> {
   exchange = new DataCell();
@@ -51,7 +69,7 @@ export class OrderItem implements IViewItem<IOrder> {
         this[item].updateValue(order.account[item]);
       });
 
-    ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
+    [ 'averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
       .forEach((item) => {
         this[item].changeStatus(this['side'].value.toLowerCase());
       });
@@ -63,10 +81,20 @@ export class OrderItem implements IViewItem<IOrder> {
 
   toggleSelect(event: MouseEvent): void {
     this.checkbox.toggleSelect(event);
+    this._updateSelectedStatus();
   }
 
   updateSelect(selected: boolean): void {
     this.checkbox.updateValue(selected);
+    this._updateSelectedStatus();
+  }
+
+  private _updateSelectedStatus(): void {
+    if (this.isSelected) {
+      allFields.forEach(field => (this[field] as Cell).setStatusPrefix('selected'));
+    } else {
+      allFields.forEach(field => (this[field] as Cell).setStatusPrefix(''));
+    }
   }
 }
 
