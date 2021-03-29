@@ -18,7 +18,7 @@ function createCommand(name: string, uiSstring: string = name): ICommand {
 
 export enum HotkeyEvents {
   SavePage = 'saveAll',
- // CenterAllWindows = 'CenterAllWindows',
+  // CenterAllWindows = 'CenterAllWindows',
   OpenOrderTicket = 'openOrderForm',
   OpenTradingDom = 'openDOM',
   OpenChart = 'openChart',
@@ -52,6 +52,7 @@ const defaultSettings: SettingsData = {
   tradingEnabled: true,
   workspaces: [],
   timezones: [],
+  localTimezoneTitle: 'Local',
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
 };
@@ -124,6 +125,10 @@ export class SettingsService {
 
   saveTimezones(timezones: ITimezone[]): void {
     this._updateState({ timezones });
+  }
+
+  saveLocalTimezoneTitle(localTimezoneTitle: string): void {
+    this._updateState({ localTimezoneTitle });
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {

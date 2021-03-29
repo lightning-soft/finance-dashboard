@@ -2,15 +2,23 @@
 @import "~src/scss/dark.theme";
 @import "../scroll";
 
+:host ::ng-deep {
+  timezone-item {
+    .subtitle {
+      color: $text-60;
+    }
+  }
+}
+
 ::ng-deep {
   .timezones-modal {
     .ant-modal-body {
+      min-width: unset !important;
       padding: 4px !important;
       background-color: $light !important;
     }
   }
 }
-
 
 timezone-item {
   background-color: $inputBackground;

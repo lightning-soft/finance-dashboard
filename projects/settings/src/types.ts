@@ -21,4 +21,5 @@ export type SettingsData = {
   navbarPosition: NavbarPosition;
   isNavbarHidden: boolean;
   timezones: ITimezone[];
+  localTimezoneTitle: string;
 };

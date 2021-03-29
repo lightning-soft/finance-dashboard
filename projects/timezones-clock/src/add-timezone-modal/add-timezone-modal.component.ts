@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ITimezone, Timezone, TIMEZONES } from "../timezones";
 import { SettingsService } from "settings";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { ActiveTimezonesService } from "../active-timezones.service";
+import { TimezonesService } from "../timezones.service";
 
 @UntilDestroy()
 @Component({
@@ -15,7 +15,7 @@ export class AddTimezoneModalComponent {
   selectedTimezone: ITimezone;
   @Input() currentTimezones: ITimezone[] = [];
 
-  constructor(private _activeTimezonesService: ActiveTimezonesService,
+  constructor(private _activeTimezonesService: TimezonesService,
               private settingsService: SettingsService) {
 
     this.allTimezones = TIMEZONES.map(i => new Timezone(i));

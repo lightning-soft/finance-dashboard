@@ -12,7 +12,7 @@
   [nzDropdownMenu]="menu"
   [nzClickHide]="false"
 >
-  <span class="zone">Local</span>
+  <span class="zone">{{localTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">
     {{ time | date: "HH:mm:ss" }}
   </span>
@@ -21,14 +21,20 @@
 <ng-template #emptyTime><span class="time">--:--:--</span></ng-template>
 
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <div class="list custom-scroll">
-    <div class="local-item">
-      <div class="title"><label>Local</label></div>
-      <div class="subtitle">{{localTimezone?.text}}</div>
-    </div>
+  <div class="timezones-list custom-scroll">
+    <timezone-item [timezone]="localTimezone"
+                   [canToggle]="false"
+                   [canDelete]="false"
+                   (rename)="renameLocalTitle($event)"
+                   (reset)="resetLocalTitle()"
+                   [subtitleFontSize]="11"
+    ></timezone-item>
+
+    <div class="divider"></div>
 
     <timezone-item *ngFor="let timezone of timezones"
                    [timezone]="timezone"
+                   [subtitleFontSize]="timezone.enabled ? 11 : 10"
                    (delete)="deleteTimezone(timezone)"
                    (reset)="resetTimezone(timezone)"
                    (rename)="updateTimezoneName(timezone, $event)"
