@@ -36,20 +36,37 @@
   </div>
 
   <ng-template #headerPanelTemplate>
-    <button nz-dropdown
-            [nzDropdownMenu]="menu"
-            [nzTrigger]="'click'"
-            (nzVisibleChange)="cancelMenuOpened = $event"
-            class="cancel-button">
-      Cancel
-      <i class="arrow" [ngClass]="{'icon-arrow-down': !cancelMenuOpened, 'icon-arrow-up': cancelMenuOpened}"></i>
-    </button>
-    <nz-dropdown-menu #menu="nzDropdownMenu">
-      <ul nz-menu class="cancel-dropdown-list">
-        <li nz-menu-item (click)="cancelAllOrders()">All</li>
-        <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
-      </ul>
-    </nz-dropdown-menu>
+    <div class="d-flex align-items-center">
+      <button><i class="icon-group"></i></button>
+
+      <button nz-dropdown
+              [nzDropdownMenu]="menu"
+              [nzTrigger]="'click'"
+              (nzVisibleChange)="cancelMenuOpened = $event"
+              class="cancel-button">
+        Cancel
+        <i class="arrow" [ngClass]="{'icon-arrow-down': !cancelMenuOpened, 'icon-arrow-up': cancelMenuOpened}"></i>
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu class="cancel-dropdown-list">
+          <li nz-menu-item (click)="cancelAllOrders()">All</li>
+          <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
+        </ul>
+      </nz-dropdown-menu>
+
+      <button><i class="icon-duplicate"></i></button>
+      <button><i class="icon-add"></i></button>
+
+      <div class="submit-buttons">
+        <button><i class="icon-stop"></i></button>
+        <button><i class="icon-play"></i></button>
+      </div>
+
+      <div class="reprices-buttons">
+        <button title="Tick up"><i class="icon-arrow-up"></i></button>
+        <button title="Tick down"><i class="icon-arrow-down"></i></button>
+      </div>
+    </div>
   </ng-template>
 
   <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
