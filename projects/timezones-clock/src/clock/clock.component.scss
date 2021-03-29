@@ -10,28 +10,12 @@
   transition: background 0.3s;
 }
 
-.list {
+.timezones-list {
   max-width: 170px;
   max-height: 300px;
   overflow: auto;
-  padding: 12px 16px;
+  padding: 4px 4px 10px;
   background-color: $tabFrameColor;
-
-  .local-item {
-    padding-bottom: 10px;
-    margin-bottom: 6px;
-    border-bottom: 1px solid $lightBackground;
-  }
-
-    .title {
-      font-size: 12px;
-      color: $titleColor;
-    }
-
-    .subtitle {
-      font-size: 11px;
-      color: $text-80;
-    }
 }
 
 .clock-container {
@@ -54,7 +38,11 @@
   }
 
   .zone {
+    max-width: 130px;
     color: $text-60;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .time {
@@ -80,3 +68,6 @@
   cursor: pointer;
 }
 
+.divider {
+  margin: 5px;
+}

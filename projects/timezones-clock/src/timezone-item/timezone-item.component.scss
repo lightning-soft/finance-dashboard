@@ -19,6 +19,12 @@
       visibility: visible;
     }
   }
+
+  &.editable {
+    &:hover {
+      background-color: $light3;
+    }
+  }
 }
 
 .icons-container {
@@ -58,12 +64,17 @@
     font-size: 12px;
     font-weight: 600;
     color: $titleColor;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 7px;
 
     input {
-      width: 65px;
+      width: 100%;
       padding: 0 5px;
       color: $titleColor;
       font-size: 12px;
+      background-color: $light;
     }
   }
 }
@@ -71,10 +82,7 @@
 .subtitle {
   white-space: normal;
   max-width: 100%;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 14px;
   color: $textColor;
 }
-
-
-
