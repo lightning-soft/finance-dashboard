@@ -394,7 +394,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.columns = [
       ...[
-       [ 'orders', 'orders', 'Orders'],
+        ['orders', 'orders', 'Orders'],
         ['buyOrders', 'buy Orders', 'Buy Orders'],
         ['sellOrders', 'sell Orders', 'Sell Orders'],
         ['volume', 'volume', 'Volume', 'histogram'],
@@ -1457,6 +1457,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (i.isAskSideVisible) {
           i.ask.calcHist(max.ask);
           i.askDelta.calcHist(max.askDelta);
+
+          if (i.ask.status == SumStatus)
+            i.setAskSum(null);
+
           askSum += i.ask._value ?? 0;
         }
         i.side = QuoteSide.Ask;
@@ -1469,6 +1473,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (i.isBidSideVisible) {
           i.bid.calcHist(max.bid);
           i.bidDelta.calcHist(max.bidDelta);
+
+          if (i.bid.status == SumStatus)
+            i.setBidSum(null);
+
           bidSum += i.bid._value ?? 0;
         }
         i.side = QuoteSide.Bid;
@@ -1507,11 +1515,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (let i = items.length - 1; i >= 0; i--) {
       item = items[i];
 
-      if (item.lastPrice == this._bestAskPrice)
-        index = i;
-
-      changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
       if (item.lastPrice >= this._bestAskPrice) {
+        if (index == null)
+          index = i;
+
+        changes = item.setAskVisibility(index - marketDepth >= i, index - marketDeltaDepth >= i);
 
         if (changes != true)
           this._handleMaxChange(changes, item);
@@ -1520,14 +1528,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
+    index = null;
+
     for (let i = 0; i < items.length; i++) {
       item = items[i];
 
-      if (item.lastPrice == this._bestBidPrice)
-        index = i;
-
       // changes = item.setBidVisibility(false, false);
       if (item.lastPrice <= this._bestBidPrice) {
+        if (index == null)
+          index = i;
+
         changes = item.setBidVisibility(i - index >= marketDepth, i - index >= marketDeltaDepth);
 
         if (changes != true)
