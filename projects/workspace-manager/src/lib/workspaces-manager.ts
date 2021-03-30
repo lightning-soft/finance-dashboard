@@ -13,6 +13,7 @@ export class WorkspacesManager {
   public workspaces: BehaviorSubject<Workspace[]> = new BehaviorSubject([]);
   public reload = new Subject();
   public save = new Subject();
+  public workspaceInit = new BehaviorSubject<boolean>(false);
 
   constructor(private _workspacesStore: WorkspacesStore) {
     this._init();
@@ -44,6 +45,7 @@ export class WorkspacesManager {
     } else {
       this.createWorkspace(DEFAULT_NAME);
     }
+    this.workspaceInit.next(true);
   }
 
   public async createWorkspace(name: string, base?: WorkspaceId): Promise<void> {

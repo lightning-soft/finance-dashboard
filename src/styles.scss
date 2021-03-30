@@ -56,6 +56,22 @@ body {
   }
 }
 
+.ant-checkbox-checked .ant-checkbox-inner {
+  border: 1px solid rgba($primary, 0.4);
+  background: none;
+
+  &:after {
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background-color: $primary;
+    border: 0;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
 .ant-message-loading {
   color: white;
   font-size: 0.7rem;

@@ -16,6 +16,19 @@
       margin-top: 36px;
     }
   }
+
+  &.window-navbar {
+    windows, app-workspace, button.navbar-button.icon-setting-gear, app-account {
+      display: none;
+    }
+
+    .preferences {
+     //  margin-left: auto;
+      &:before, &:after {
+        content: none;
+      }
+    }
+  }
 }
 
 [class^="icon-"], [class*=" icon-"] {
