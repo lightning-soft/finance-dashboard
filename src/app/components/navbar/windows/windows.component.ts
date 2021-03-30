@@ -149,6 +149,6 @@ export class WindowsComponent implements OnInit {
   }
 
   popupWindow(window: WorkspaceWindow) {
-    this._windowPopupManager.openWindow(window);
+    this._windowPopupManager.openWindow(this.currentWorkspace, window);
   }
 }

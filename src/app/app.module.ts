@@ -86,15 +86,19 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig, 
       .catch(err => {
         if (windowPopupManager.isPopup())
           window.close();
-        else {
-          location.replace(generateLoginLink(config.identity))
-        }
+        else
+          location.replace(generateLoginLink(config.identity));
       });
 
-    if (!authService.isAuthorized)
-      location.replace(generateLoginLink(config.identity));
+    if (!authService.isAuthorized) {
+      if (windowPopupManager.isPopup())
+        window.close();
+      else
+        location.replace(generateLoginLink(config.identity));
+    }
   }
 }
+
 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService, windowPopupManager: WindowPopupManager) {
   return async () => {
