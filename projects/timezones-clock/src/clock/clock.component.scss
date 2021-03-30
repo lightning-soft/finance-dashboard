@@ -12,13 +12,14 @@
 
 .timezones-list {
   max-width: 170px;
-  max-height: 300px;
-  overflow: auto;
   padding: 4px 4px 10px;
   background-color: $tabFrameColor;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #15161D;
 }
 
 .clock-container {
+  height: 100%;
   display: flex;
   align-items: center;
   font-size: 14px;
