@@ -28,34 +28,33 @@ app-window-toolbar {
 }
 
 :host ::ng-deep {
-  .hide-oclc {
-    .scxSymbolTitle {
-      :nth-child(n+3):nth-child(-n+10) {
-        display: none !important;
-      }
-
-    }
+  .scxPanelTitleValue {
+    margin-left: 4px;
   }
 
-  .scxSymbolTitle:nth-child(3) {
-    margin-left: 0;
-  }
-
-  .scxSymbolTitle {
-    :nth-child(n+3):nth-child(-n+10) {
-      color: #fff !important;
-      font-size: 0.93rem;
-    }
-  }
-
-  .scxSymbolTitle :nth-child(10) {
+  .control-open, .control-high, .control-low, .control-close {
     margin-right: 5px;
   }
 
-  .scxSymbolTitle :nth-child(11) {
-    display: inline-flex !important;
-    align-items: center;
+  .hide-oclc {
+
+    .control-open, .control-high, .control-low, .control-close, .scxPanelTitleValue:not(.control) {
+      display: none;
+    }
+  }
+
+  .scxPanelTitle .scxSymbolTitle {
+    color: #fff !important;
     font-size: 0.93rem;
+  }
+
+  .control-close {
+    margin-right: 5px;
+  }
+
+  .scxSymbolTitle .control-change {
+    display: inline-flex;
+    align-items: center;
     margin-left: 0;
 
     i {
@@ -73,16 +72,9 @@ app-window-toolbar {
   }
 
   .hide-changes {
-    :nth-child(11) {
-      display: none !important;
+    .control-change {
+      display: none;
     }
-  }
-
-  .scxSymbolTitle {
-    :nth-child(2) {
-      display: none !important;
-    }
-
   }
 
   .scxPanelTitleCaption {
@@ -215,10 +207,6 @@ instrument-select {
       padding: 1px 5px 0 0;
       margin-left: 2px;
 
-      > div > * {
-        display: inline-block;
-      }
-
       .scxToggleIndicatorTitles {
         margin-top: 3px;
         margin-left: 4px;
@@ -227,6 +215,10 @@ instrument-select {
       .scxPanelTitleCaption {
         margin-left: 5px;
       }
+    }
+
+    .control-date {
+      display: none;
     }
   }
 
