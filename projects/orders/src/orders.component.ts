@@ -4,7 +4,7 @@ import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
-import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
@@ -32,6 +32,8 @@ const allStatuses = 'Show All';
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
   headerCheckboxCell = new CheckboxCell();
+
+  readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
     ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell }],
     ['averageFillPrice', 'Average Fill Price'],
@@ -56,7 +58,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   cancelMenuOpened = false;
 
   orderStatus = allStatuses;
-  orderType = allTypes;
+  allTypes = allTypes;
 
   builder = new ViewItemsBuilder<IOrder, OrderItem>();
 
@@ -68,6 +70,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     return this.orderStatus === 'Working' ?
       items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
       items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
+  }
+
+  get orders(): IOrder[] {
+    return this.items.map(i => i.order);
   }
 
   private _accountId;
@@ -233,8 +239,19 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   cancelAllOrders(): void {
-    const selectedOrders = this.items.map(i => i.order);
-    this.cancelOrders(selectedOrders);
+    this.cancelOrders(this.orders);
+  }
+
+  cancelBuyOrders(): void {
+    this.cancelOrders(this.orders.filter(i => i.side === OrderSide.Buy));
+  }
+
+  cancelSellOrders(): void {
+    this.cancelOrders(this.orders.filter(i => i.side === OrderSide.Sell));
+  }
+
+  cancelOrdersByType(orderType: OrderType): void {
+    this.cancelOrders(this.orders.filter(i => i.type === orderType));
   }
 
   cancelSelectedOrders(): void {
