@@ -49,14 +49,44 @@ export class ToolbarComponent {
     { interval: 1, periodicity: StockChartXPeriodicity.MINUTE }
   ] as ITimeFrame[];
 
-  iconCrosses = ['dot', 'none', 'markers', 'crossBars'];
 
-  priceStyles = ['heikinAshi', 'bar', 'candle',
+  priceStyles = ['heikinAshi', 'bar', 'coloredHLBar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
     'candleVolume', 'equiVolume', 'equiVolumeShadow',
     'line', 'mountain', 'pointAndFigure'];
 
+  priceStylesName = {
+    heikinAshi: 'Heikin Ashi',
+    bar: 'Bars',
+    coloredHLBar: 'Colored Bars',
+    candle: 'Candle',
+    hollowCandle: 'Hollow Candle',
+    renko: 'Renko',
+    lineBreak: 'Line Break',
+    kagi: 'Kagi',
+    candleVolume: 'Candle Volume',
+    equiVolume: 'Equi Volume',
+    equiVolumeShadow: 'Equi Volume Shadow',
+    line: 'Line',
+    mountain: 'Mountain',
+    pointAndFigure: 'Point And Figure'
+  };
+
   zoomOptions = ['dateRange', 'rect'];
+
+  zoomNames = {
+    dateRange: 'Zoom Date Range',
+    rect: 'Zoom Rect'
+  };
+
+  iconCrosses = ['dot', 'none', 'markers', 'crossBars'];
+
+  cursorNames = {
+    none: 'Arrow',
+    dot: 'Dot',
+    markers: 'Arrow with Markers',
+    crossBars: 'Crosshairs',
+  };
   shouldDrawingBeOpened = false;
 
   get isDrawingsVisible() {
@@ -130,6 +160,7 @@ export class ToolbarComponent {
 
   @Input() chart: IChart;
   @Input() layout: Layout;
+
   get instrument(): IInstrument {
     return this.chart?.instrument;
   }

@@ -78,6 +78,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       && this.chart.instrument.exchange === value.exchange)
       return;
     this.chart.instrument = value;
+    this.chart.incomePrecision = value.precision ?? 2;
     if (value) {
       value.company = this._getInstrumentCompany();
     }
@@ -246,6 +247,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
+      incomePrecision:  state?.instrument.precision ?? 2,
       stayInDrawingMode: false,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },

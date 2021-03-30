@@ -129,7 +129,7 @@
         (click)="changePriceStyle(option)"
       >
         <span class="scx-icon icon-{{option}}"></span>
-        {{option}}
+        {{priceStylesName[option]}}
       </nz-option>
     </nz-select>
     <i (click)="price.setOpenState(true)" class="icon-arrow-down"></i>
@@ -171,7 +171,7 @@
           (click)="zoom(option)"
         >
           <span class="scx-icon icon-zoom-{{option}}"></span>
-          {{option}}
+          {{zoomNames[option]}}
         </li>
       </ul>
     </nz-dropdown-menu>
@@ -194,7 +194,7 @@
         nzCustomContent
       >
         <span class="scx-icon icon-{{option}}"></span>
-        {{option}}
+        {{cursorNames[option]}}
       </nz-option>
     </nz-select>
     <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>
