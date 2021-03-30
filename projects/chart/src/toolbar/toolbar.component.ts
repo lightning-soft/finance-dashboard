@@ -55,7 +55,7 @@ export class ToolbarComponent {
     'candleVolume', 'equiVolume', 'equiVolumeShadow',
     'line', 'mountain', 'pointAndFigure'];
 
-  priceStylesName = {
+  priceStyleNames = {
     heikinAshi: 'Heikin Ashi',
     bar: 'Bars',
     coloredHLBar: 'Colored Bars',
