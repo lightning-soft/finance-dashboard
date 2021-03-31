@@ -142,37 +142,15 @@ nz-tabset {
   }
 }
 
-button {
-  height: 20px;
-  min-width: 20px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: $darkBackground;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  margin-right: 2px;
-  transition: border-color .2s ease;
-
-  &:hover {
-    border-color: $primary;
-  }
-
-  i {
-    font-size: 12px;
-  }
-
-  &[disabled] {
-    opacity: 0.5;
-  }
-}
-
 .cancel-button {
   height: 20px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  background-color: $darkBackground;
   color: $text-80;
   font-size: 11px;
-  padding: 0 4px;
+  border-radius: 2px;
 
   .arrow {
     font-size: 6px;
@@ -180,44 +158,11 @@ button {
   }
 }
 
-.cancel-dropdown-menu {
-  ul {
-    width: 100px;
+.cancel-dropdown-list {
+  width: 100px;
 
-    li {
-      font-size: 11px;
-      line-height: 16px;
-      padding: 3px 5px;
-
-      &.divider {
-        margin: 3px 5px;
-        padding: 0;
-      }
-    }
-  }
+  li {
+    font-size: 11px;
+    line-height: 16px;
 }
-
-.remove-order-button {
-  margin-left: 10px;
-}
-
-.submit-buttons {
-  display: flex;
-  margin: 0 10px;
-
-  i {
-    font-size: 8px;
-  }
-}
-
-.reprices-buttons {
-  display: flex;
-
-  .icon-arrow-down {
-    color: $red;
-  }
-
-  .icon-arrow-up {
-    color: $primary;
-  }
 }

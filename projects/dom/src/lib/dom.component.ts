@@ -1790,8 +1790,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _getPriceSpecs(item: IOrder & { amount: number }, price: number): Partial<Pick<IOrder, 'stopPrice' | 'limitPrice'>> {
-    const priceSpecs: Partial<Pick<IOrder, 'stopPrice' | 'limitPrice'>> = {};
+  _getPriceSpecs(item: IOrder & { amount: number }, price) {
+    const priceSpecs: any = {};
     if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
       priceSpecs.limitPrice = price;
     }

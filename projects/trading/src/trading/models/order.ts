@@ -4,7 +4,7 @@ import { IInstrument } from './instrument';
 export type OrderAccount = {
   fcmId: string;
   ibId: string;
-  id: string;
+  id: Id;
   name: string;
 };
 
@@ -24,7 +24,7 @@ export interface IOrder extends IBaseItem {
   ocoOrder?: IOrder;
   iceQuantity?: number;
   price?: number;
-  accountId?: string;
+  accountId?: string,
   limitPrice?: number;
   stopPrice?: number;
   currentSequenceNumber?: string;
