@@ -48,7 +48,7 @@ export class TimezonesService {
   }
 
   resetItem(timezone: ITimezone): void {
-    Timezone.setDefaultProperties(timezone);
+    Timezone.setDefaultName(timezone);
     this._save();
   }
 

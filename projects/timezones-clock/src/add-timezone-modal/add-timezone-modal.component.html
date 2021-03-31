@@ -22,6 +22,11 @@
   </div>
 
   <div class="column timezones-column custom-scroll">
+      <div class="max-size-error" *ngIf="showMaxSizeError" [@enterAnimation]>
+        <span>You can add no more than {{maxCurrentTimezonesSize}} timezones to the current list</span>
+        <i class="icon-close-window" (click)="showMaxSizeError = false"></i>
+      </div>
+
       <timezone-item *ngFor="let timezone of currentTimezones"
                      [timezone]="timezone"
                      [class.selected]="timezone.id === selectedTimezone?.id"
@@ -35,8 +40,8 @@
 </div>
 
 <div class="move-buttons">
-  <button class="move-button" (click)="moveSelectedTimezoneToCurrent()"><i class="icon-arrow-right-general"></i>
+  <button class="move-button" (click)="addToCurrent(this.selectedTimezone)"><i class="icon-arrow-right-general"></i>
   </button>
-  <button class="move-button" (click)="deleteSelectedTimezoneFromCurrent()"><i class="icon-arrow-left-general"></i>
+  <button class="move-button" (click)="deleteTimezone(this.selectedTimezone)"><i class="icon-arrow-left-general"></i>
   </button>
 </div>

@@ -11,6 +11,7 @@
   text-align: left;
   color: $textColor;
   padding: 4px;
+  margin: 3px 0;
   border-radius: 2px;
 
   &:hover {
@@ -20,10 +21,8 @@
     }
   }
 
-  &.editable {
-    &:hover {
-      background-color: $light3;
-    }
+  &:hover {
+    background-color: $light3;
   }
 }
 

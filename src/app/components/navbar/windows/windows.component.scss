@@ -66,6 +66,14 @@
       // min-height: 52px;
     }
   }
+
+  body.navbarTop .window-dropdown-menu {
+    margin-top: 4px;
+  }
+
+  body.navbarBottom .window-dropdown-menu {
+    margin-bottom: 4px;
+  }
 }
 
 .workspace {
