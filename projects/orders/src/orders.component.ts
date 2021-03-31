@@ -5,13 +5,12 @@ import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
-import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
 import { forkJoin, Observable } from "rxjs";
 
-
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
+type TabName = 'Working' | 'Filled' | 'All';
 
 interface IHeaderItemOptions {
   style?: any;
@@ -23,7 +22,6 @@ export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderPar
 }
 
 const allTypes = 'All';
-const allStatuses = 'Show All';
 const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.New, OrderStatus.PartialFilled];
 
 @Component({
@@ -34,6 +32,13 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
   headerCheckboxCell = new CheckboxCell();
+  columns: Column[];
+  orderTypes = ['All', ...Object.values(OrderType)];
+  orderStatuses = ['Show All', ...Object.values(OrderStatus)];
+  cancelMenuOpened = false;
+  activeTab: TabName = 'All';
+  allTypes = allTypes;
+  builder = new ViewItemsBuilder<IOrder, OrderItem>();
 
   readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
@@ -53,24 +58,20 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     'identifier',
     'close',
   ];
-  columns: Column[];
-  orderTypes = ['All', ...Object.values(OrderType)];
-  orderStatuses = ['Show All', ...Object.values(OrderStatus)];
-  cancelMenuOpened = false;
 
-  orderStatus = allStatuses;
-  allTypes = allTypes;
-
-  builder = new ViewItemsBuilder<IOrder, OrderItem>();
-
-  get items(): any[] {
+  get items(): OrderItem[] {
     const items = this.builder.items;
     if (!items)
       return [];
 
-    return this.orderStatus === 'Working' ?
-      items.filter(item => orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
-      items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
+    switch (this.activeTab) {
+      case 'All':
+        return items;
+      case 'Filled':
+        return items.filter(i => i.order.status === OrderStatus.Filled);
+      case 'Working':
+        return items.filter(i => orderWorkingStatuses.includes(i.order.status))
+    }
   }
 
   get orders(): IOrder[] {
@@ -91,10 +92,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   get accountId() {
     return this._accountId;
   }
-
-  _isList = false;
-
-  private _toolbarComponent: OrdersToolbarComponent;
 
   // private _status: OrderStatus = OrderStatus.Pending;
 
@@ -186,8 +183,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
-  changeTab(status: string) {
-    this.orderStatus = status;
+  changeActiveTab(tab: TabName): void {
+    this.activeTab = tab;
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
