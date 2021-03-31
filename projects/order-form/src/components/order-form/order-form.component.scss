@@ -49,7 +49,7 @@
 
 .main-grid {
   column-gap: 8px;
-  row-gap: 10px;
+  row-gap: 7px;
   grid-auto-rows: min-content;
 }
 
@@ -99,6 +99,11 @@
   }
 
   ::ng-deep {
+    nz-select-top-control {
+      padding-left: 5px !important;
+      padding-right: 5px !important;
+    }
+
     cdk-virtual-scroll-viewport, .cdk-virtual-scroll-content-wrapper {
       height: 100%;
     }
@@ -137,12 +142,22 @@
   background: $red;
 }
 
+.window-header-divider {
+  height: 12px;
+  width: 1px;
+  margin-right: 6px;
+  margin-left: 6px;
+  background: $light2;
+}
+
 .buy-info, .sell-info {
   font-size: 0.7rem;
   line-height: 1rem;
   padding: 3px 10px;
   display: flex;
   justify-content: space-between;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
 }
 
 .buy-info {
@@ -163,13 +178,27 @@
   cursor: not-allowed;
 }
 
+.form-divider {
+  width: 100%;
+  height: 1px;
+  background: $light;
+  grid-column: 1 / span 2;
+}
+
 :host {
   .count {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    height: 57px;
     background: rgba(36, 38, 44, 1);
+    border: 1px solid $light3;
+    border-radius: 2px;
+
+    .cursor-pointer {
+      line-height: 1;
+    }
 
     .icon-arrow-up, .icon-arrow-down {
       font-size: 7px;
@@ -200,6 +229,14 @@
     }
   }
 
+  .count-down {
+    line-height: 1.1;
+  }
+
+  nz-select {
+    color: #fff;
+  }
+
   ::ng-deep {
     .ant-input-number-disabled {
       background: transparent;
@@ -223,6 +260,7 @@
 :host {
   .order-form-wrapper {
     background: $inputBackground;
+    padding: 8px 8px 12px;
   }
 }
 

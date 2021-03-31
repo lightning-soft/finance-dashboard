@@ -3,6 +3,7 @@
     className=""
     (accountChange)="handleAccountChange($event)"
   ></account-select>
+  <div class="window-header-divider"></div>
   <instrument-select
     className=""
     [instrument]="instrument"
@@ -10,7 +11,7 @@
   ></instrument-select>
 </window-header>
 <cdk-virtual-scroll-viewport itemSize="">
-  <form class="h-100 p-2 order-form-wrapper main-grid grid" [formGroup]="form">
+  <form class="h-100 order-form-wrapper main-grid grid" [formGroup]="form">
     <div class="d-flex align-items-center">
       <span class="pos-title">Pos</span>
       <button class="position-button" [class.pos-negative]="isPositionsNegative">{{positionSum}}</button>
@@ -33,7 +34,9 @@
         <nz-option *ngFor="let item of orderDurations" [nzValue]="item" [nzLabel]="item">
         </nz-option>
       </nz-select>
-      <button [disabled]="!isIceEnabled" (click)="toggleIce()" class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE</button>
+      <button [disabled]="!isIceEnabled" (click)="toggleIce()"
+              class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE
+      </button>
 
       <nz-input-number
         class="order-number-input w-100"
@@ -41,8 +44,11 @@
       >
       </nz-input-number>
     </div>
+    <div class="form-divider"></div>
     <sl-units overlayClass="order-form-overlay" formControlName="stopLoss"></sl-units>
     <tp-units overlayClass="order-form-overlay" formControlName="takeProfit"></tp-units>
+    <div class="form-divider"></div>
+
     <div [class.d-none]="!isStopLimit" class="lmt-title">LMT</div>
     <nz-input-number
       [class.d-none]="!isStopLimit"
@@ -50,6 +56,8 @@
       nzMin="1"
       [ngModelOptions]="{standalone: true}"
       [(ngModel)]="limitPrice"></nz-input-number>
+    <div *ngIf="isStopLimit" class="form-divider"></div>
+
     <div class="count">
       <div (click)="incrementQuantity()" class="cursor-pointer">
         <i class="icon-arrow-up"></i>
@@ -57,7 +65,7 @@
       <nz-input-number
         [nzInputMode]="'numeric'"
         [nzMin]="1" formControlName="quantity" class="number"></nz-input-number>
-      <div (click)="decrementQuantity()" class="cursor-pointer">
+      <div (click)="decrementQuantity()" class="cursor-pointer count-down">
         <i class="icon-arrow-down"></i>
       </div>
     </div>
@@ -69,7 +77,7 @@
                        [nzMin]="0"
                        [nzDisabled]="shouldDisablePrice"
                        [(ngModel)]="price" class="number"></nz-input-number>
-      <div (click)="decreasePrice()" class="cursor-pointer">
+      <div (click)="decreasePrice()" class="cursor-pointer count-down">
         <i class="icon-arrow-down"></i>
       </div>
 
