@@ -8,6 +8,7 @@ export interface IStockChartXInstrument extends IBaseItem {
   tickSize: number;
   description?: string;
   digits?: number;
+  precision?: number;
 }
 
 export interface IStockChartXTimeFrame {

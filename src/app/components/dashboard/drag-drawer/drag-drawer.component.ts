@@ -27,10 +27,11 @@ export const widgetList = [
       name: 'Add orders',
       component: Components.OrderForm,
       options: {
-        minHeight: 315,
+        minHeight: 300,
         minWidth: 369,
-        height: 315,
+        height: 300,
         width: 369,
+        resizable: false,
         maximizable: false,
       }
     },

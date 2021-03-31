@@ -31,6 +31,8 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
+  layoutContainer?: any;
+
   layout?: Layout;
 
   getNavbarTitle?: () => string;

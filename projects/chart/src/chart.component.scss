@@ -26,23 +26,40 @@ app-window-toolbar {
 .chart-menu-dropdown {
   min-width: 110px;
 }
-:host ::ng-deep {
-  .hide-oclc {
-    .scxSymbolTitle {
-      :nth-child(n+3):nth-child(-n+10) {
-        display: none !important;
-      }
 
+:host ::ng-deep {
+
+  .scxPanelTitleValue {
+    margin-left: 0px;
+  }
+
+  .scxControl-open, .scxControl-high, .scxControl-low, .scxControl-close {
+    margin-right: 5px;
+  }
+
+  .scxControl-close {
+    margin-right: 5px;
+  }
+
+  .hide-oclc {
+
+    .scxControl-open, .scxControl-high, .scxControl-low, .scxControl-close, .scxPanelTitleValue:not(.scxControl) {
+      display: none;
     }
   }
 
-  .scxSymbolTitle :nth-child(n+3):nth-child(-n+10) {
+  .scxPanelTitle .scxSymbolTitle {
     color: #fff !important;
+    font-size: 0.93rem;
+    padding-left: 4px;
+    margin-bottom: 51px;
   }
 
-  .scxSymbolTitle :nth-child(11) {
-    display: inline-flex !important;
+
+  .scxSymbolTitle .scxControl-change {
+    display: inline-flex;
     align-items: center;
+    margin-left: 0;
 
     i {
       font-size: 12px;
@@ -59,16 +76,9 @@ app-window-toolbar {
   }
 
   .hide-changes {
-    :nth-child(11) {
-      display: none !important;
+    .scxControl-change {
+      display: none;
     }
-  }
-
-  .scxSymbolTitle {
-    :nth-child(2) {
-      display: none !important;
-    }
-
   }
 
   .scxPanelTitleCaption {
@@ -197,22 +207,30 @@ instrument-select {
     .scxPanelTitle {
       position: absolute;
       z-index: 20;
-      margin-top: 50px;
+      margin-top: 0px;
       padding: 1px 5px 0 0;
-      margin-left: 10px;
-
-      > div > * {
-        display: inline-block;
-      }
+      margin-left: 2px;
 
       .scxToggleIndicatorTitles {
-        margin-top: 3px;
-        margin-left: 4px;
+        margin-top: 56px;
+        margin-left: 3px;
+      }
+
+      .scxIndicatorTitle {
+        margin-left: 3px;
+
+        .scxPanelTitleCaption {
+          display: inline-block !important;
+        }
       }
 
       .scxPanelTitleCaption {
         margin-left: 5px;
       }
+    }
+
+    .scxControl-date {
+      display: none;
     }
   }
 

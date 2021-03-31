@@ -6,9 +6,24 @@
 
 :host {
   position: absolute;
-  top: 10px;
+  top: 27px;
   z-index: 21;
-  left: 4px;
+  left: 0px;
+  opacity: 0;
+  transition: opacity 0.4s;
+  padding: 5px;
+
+  &:focus-within, &:hover, &:focus, &.opened {
+    opacity: 1;
+  }
+
+  .icon-coloredHLBar {
+    font-family: 'icon' !important;
+  }
+
+  &.location-up {
+    top: 10px;
+  }
 
   ::ng-deep {
     .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector {
@@ -170,6 +185,10 @@
   }
 
   .toolbar-dropdown {
+    .icon-coloredHLBar {
+      font-family: 'icon' !important;
+    }
+
     .scx-icon {
       margin-right: 16px !important;
     }

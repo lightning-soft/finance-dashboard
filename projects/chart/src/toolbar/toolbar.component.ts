@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component, Input, NgZone, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostBinding, Input, NgZone, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropdownMenuComponent, NzSelectComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
 
@@ -30,11 +30,14 @@ export class ToolbarComponent {
   @Input() link: any;
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
+  zoomDropdownVisible = false;
+  crossOpen = false;
+  priceOpen = false;
+  frameOpen = false;
+
   showToolbar = true;
   isDrawingsPinned = false;
   lastUsedDrawings = [];
-
-  zoomDropdownVisible = false;
 
 
   timeFrameOptions = [
@@ -49,14 +52,44 @@ export class ToolbarComponent {
     { interval: 1, periodicity: StockChartXPeriodicity.MINUTE }
   ] as ITimeFrame[];
 
-  iconCrosses = ['dot', 'none', 'markers', 'crossBars'];
 
-  priceStyles = ['heikinAshi', 'bar', 'candle',
+  priceStyles = ['heikinAshi', 'bar', 'coloredHLBar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
     'candleVolume', 'equiVolume', 'equiVolumeShadow',
     'line', 'mountain', 'pointAndFigure'];
 
+  priceStyleNames = {
+    heikinAshi: 'Heikin Ashi',
+    bar: 'Bars',
+    coloredHLBar: 'Colored Bars',
+    candle: 'Candle',
+    hollowCandle: 'Hollow Candle',
+    renko: 'Renko',
+    lineBreak: 'Line Break',
+    kagi: 'Kagi',
+    candleVolume: 'Candle Volume',
+    equiVolume: 'Equi Volume',
+    equiVolumeShadow: 'Equi Volume Shadow',
+    line: 'Line',
+    mountain: 'Mountain',
+    pointAndFigure: 'Point And Figure'
+  };
+
   zoomOptions = ['dateRange', 'rect'];
+
+  zoomNames = {
+    dateRange: 'Zoom Date Range',
+    rect: 'Zoom Rect'
+  };
+
+  iconCrosses = ['dot', 'none', 'markers', 'crossBars'];
+
+  cursorNames = {
+    none: 'Arrow',
+    dot: 'Dot',
+    markers: 'Arrow with Markers',
+    crossBars: 'Crosshairs',
+  };
   shouldDrawingBeOpened = false;
 
   get isDrawingsVisible() {
@@ -130,6 +163,14 @@ export class ToolbarComponent {
 
   @Input() chart: IChart;
   @Input() layout: Layout;
+
+  @HostBinding('class.opened')
+  get isOpened() {
+    return this.priceOpen || this.crossOpen ||
+      this.isDrawingsVisible ||
+      this.frameOpen || this.zoomDropdownVisible;
+  }
+
   get instrument(): IInstrument {
     return this.chart?.instrument;
   }
