@@ -31,6 +31,7 @@ export function convertToColumn(nameOrArr: any) {
 export interface RealtimeGridComponent<T extends IBaseItem, P extends IPaginationParams = any> extends ILayoutNode {
 }
 
+
 @UntilDestroy()
 @Directive()
 export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationParams = any>
