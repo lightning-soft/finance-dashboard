@@ -73,9 +73,10 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       .pipe(tap(this._onUpdate));
   }
 
-  createItem(item: ExcludeId<IOrder>, options?: any): Observable<any> {
+  createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {
     if (this.tradeHandler.tradingEnabled)
-      return super.createItem(item, options);
+      return (super.createItem(item, options) as Observable<{ result: IOrder }>)
+        .pipe(map(res=> res.result));
     else {
       return throwError('You can\'t create order when trading is locked ');
     }

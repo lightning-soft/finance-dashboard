@@ -37,12 +37,12 @@ export class Timezone implements ITimezone {
     this.offset = timezone.offset;
     this.text = timezone.text;
     this.utc = timezone.utc;
-    Timezone.setDefaultProperties(this);
+    this.enabled = false;
+    Timezone.setDefaultName(this);
   }
 
-  static setDefaultProperties(timezone: ITimezone) {
+  static setDefaultName(timezone: ITimezone): void {
     timezone.name = utcPipe.transform(timezone.offset);
-    timezone.enabled = false;
   }
 }
 

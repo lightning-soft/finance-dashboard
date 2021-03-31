@@ -5,6 +5,22 @@
 
 
   ::ng-deep {
+    .tickPerPrice {
+      number-input {
+        flex-direction: row;
+        justify-content: normal;
+
+        .number-label {
+          font-weight: 400;
+        }
+
+        .ant-input {
+          width: 50px;
+          margin-right: 10px;
+        }
+      }
+    }
+
     .hideLabel {
       .ant-form-item-control-input {
         display: none;
