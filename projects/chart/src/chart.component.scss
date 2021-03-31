@@ -28,6 +28,7 @@ app-window-toolbar {
 }
 
 :host ::ng-deep {
+
   .scxPanelTitleValue {
     margin-left: 0px;
   }
@@ -51,6 +52,7 @@ app-window-toolbar {
     color: #fff !important;
     font-size: 0.93rem;
     padding-left: 4px;
+    margin-bottom: 51px;
   }
 
 
@@ -210,8 +212,16 @@ instrument-select {
       margin-left: 2px;
 
       .scxToggleIndicatorTitles {
-        margin-top: 3px;
-        margin-left: 4px;
+        margin-top: 56px;
+        margin-left: 3px;
+      }
+
+      .scxIndicatorTitle {
+        margin-left: 3px;
+
+        .scxPanelTitleCaption {
+          display: inline-block !important;
+        }
       }
 
       .scxPanelTitleCaption {
