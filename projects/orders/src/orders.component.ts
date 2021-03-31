@@ -8,6 +8,7 @@ import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderSta
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
+import { forkJoin, Observable } from "rxjs";
 
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
@@ -23,6 +24,7 @@ export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderPar
 
 const allTypes = 'All';
 const allStatuses = 'Show All';
+const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.New, OrderStatus.PartialFilled];
 
 @Component({
   selector: 'orders-list',
@@ -54,7 +56,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
-  orderWorkingStatuses = ['Pending', 'New', 'PartialFilled'];
   cancelMenuOpened = false;
 
   orderStatus = allStatuses;
@@ -68,12 +69,16 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       return [];
 
     return this.orderStatus === 'Working' ?
-      items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
+      items.filter(item => orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
       items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
   }
 
   get orders(): IOrder[] {
     return this.items.map(i => i.order);
+  }
+
+  get selectedOrders(): IOrder[] {
+    return this.items.filter(i => i.isSelected).map(i => i.order);
   }
 
   private _accountId;
@@ -238,6 +243,56 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     }
   }
 
+  repriceSelectedOrdersByTickSize(up: boolean): void {
+    const requests: Observable<IOrder>[] = [];
+
+    this.selectedOrders.forEach(order => {
+      if (orderWorkingStatuses.includes(order.status)) {
+        requests.push(this._repository.updateItem(this._getRepricedOrderByTickSize(order, up)));
+      }
+    });
+
+    if (requests.length) {
+      const hide = this.showLoading();
+      forkJoin(requests)
+        .pipe(finalize(hide))
+        .subscribe((orders) => {
+          this._handleUpdateItems(orders);
+        })
+    }
+  }
+
+  duplicateSelectedOrder(): void {
+    const order = this.selectedOrders[0];
+
+    if (order) {
+      order.accountId = order.account.id;
+      order.symbol = order.instrument.symbol;
+      order.exchange = order.instrument.exchange;
+
+      const hide = this.showLoading();
+      this._repository.createItem({ ...order })
+        .pipe(finalize(hide))
+        .subscribe((order) => {
+          this._handleCreateItems([order]);
+        });
+    }
+  }
+
+  private _getRepricedOrderByTickSize(order: IOrder, up: boolean): IOrder {
+    const updatedOrder = { ...order };
+    const tickSize = order.instrument.tickSize ?? 0.25;
+
+    if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
+      updatedOrder.limitPrice += up ? tickSize : -tickSize;
+    }
+    if ([OrderType.StopMarket, OrderType.StopLimit].includes(order.type)) {
+      updatedOrder.stopPrice += up ? tickSize : -tickSize;
+    }
+
+    return updatedOrder;
+  }
+
   cancelAllOrders(): void {
     this.cancelOrders(this.orders);
   }
@@ -255,8 +310,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   cancelSelectedOrders(): void {
-    const selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
-    this.cancelOrders(selectedOrders);
+    this.cancelOrders(this.selectedOrders);
   }
 
   cancelOrders(orders: IOrder[]): void {

@@ -162,6 +162,10 @@ button {
   i {
     font-size: 12px;
   }
+
+  &[disabled] {
+    opacity: 0.5;
+  }
 }
 
 .cancel-button {
@@ -198,7 +202,7 @@ button {
 }
 
 .submit-buttons {
-display: flex;
+  display: flex;
   margin: 0 10px;
 
   i {

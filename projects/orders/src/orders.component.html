@@ -37,7 +37,7 @@
 
   <ng-template #headerPanelTemplate>
     <div class="d-flex align-items-center">
-<!--      <button><i class="icon-group"></i></button>-->
+      <!--      <button><i class="icon-group"></i></button>-->
 
       <button nz-dropdown
               [nzDropdownMenu]="menu"
@@ -52,10 +52,10 @@
           <ul nz-menu>
             <li nz-menu-item (click)="cancelAllOrders()">All</li>
             <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
-            <li  class="divider"></li>
+            <li class="divider"></li>
             <li nz-menu-item (click)="cancelBuyOrders()">BUY Orders</li>
             <li nz-menu-item (click)="cancelSellOrders()">SELL Orders</li>
-            <li  class="divider"></li>
+            <li class="divider"></li>
             <li nz-menu-item (click)="cancelOrdersByType(orderType.Limit)">Limits</li>
             <li nz-menu-item (click)="cancelOrdersByType(orderType.StopLimit)">Stop Limits</li>
             <li nz-menu-item (click)="cancelOrdersByType(orderType.StopMarket)">Stop Markets</li>
@@ -63,18 +63,25 @@
         </div>
       </nz-dropdown-menu>
 
-<!--      <button><i class="icon-duplicate"></i></button>-->
-<!--      <button><i class="icon-add"></i></button>-->
+      <button title="Duplicate" (click)="duplicateSelectedOrder()" [disabled]="selectedOrders.length !== 1">
+        <i class="icon-duplicate"></i>
+      </button>
+      <!--      <button><i class="icon-add"></i></button>-->
 
-<!--      <div class="submit-buttons">-->
-<!--        <button><i class="icon-stop"></i></button>-->
-<!--        <button><i class="icon-play"></i></button>-->
-<!--      </div>-->
+      <!--      <div class="submit-buttons">-->
+      <!--        <button><i class="icon-stop"></i></button>-->
+      <!--        <button><i class="icon-play"></i></button>-->
+      <!--      </div>-->
 
-<!--      <div class="reprices-buttons">-->
-<!--        <button title="Tick up"><i class="icon-arrow-up"></i></button>-->
-<!--        <button title="Tick down"><i class="icon-arrow-down"></i></button>-->
-<!--      </div>-->
+      <div class="reprices-buttons">
+        <button title="Tick up" (click)="repriceSelectedOrdersByTickSize(true)" [disabled]="!selectedOrders.length">
+          <i class="icon-arrow-up"></i>
+        </button>
+
+        <button title="Tick down" (click)="repriceSelectedOrdersByTickSize(false)" [disabled]="!selectedOrders.length">
+          <i class="icon-arrow-down"></i>
+        </button>
+      </div>
     </div>
   </ng-template>
 
