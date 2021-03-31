@@ -1,7 +1,9 @@
-import { Cell } from './cell';
+import {Cell} from './cell';
 
 export class CheckboxCell extends Cell {
+  public horizontalAlign: 'left' | 'center' | 'right' = 'center';
   private readonly rectOffset = 2.2;
+  private readonly minWidthFromEdge = 4;
   private x: number;
   private y: number;
 
@@ -27,8 +29,8 @@ export class CheckboxCell extends Cell {
     if (!ctx)
       return;
 
-    this.x = context.x + context.width / 2 - (this._size / 2);
     this.y = context.y + context.height / 2 - (this._size / 2);
+    this._setHorizontalPosition(context);
 
     ctx.strokeStyle = '#51535A';
     ctx.strokeRect(this.x, this.y, this._size, this._size);
@@ -54,6 +56,20 @@ export class CheckboxCell extends Cell {
     }
 
     return false;
+  }
+
+  private _setHorizontalPosition(context): void {
+    switch (this.horizontalAlign) {
+      case 'center':
+        this.x = context.x + context.width / 2 - (this._size / 2);
+        break;
+      case 'left':
+        this.x = context.x + this.minWidthFromEdge;
+        break;
+      case 'right':
+        this.x = context.x + context.width - this._size - this.minWidthFromEdge;
+        break;
+    }
   }
 
   private _isClickedOnCheckbox(event: MouseEvent): boolean {
