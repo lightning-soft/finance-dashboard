@@ -8,7 +8,14 @@
   position: absolute;
   top: 27px;
   z-index: 21;
-  left: 4px;
+  left: 0px;
+  opacity: 0;
+  transition: opacity 0.4s;
+  padding: 5px;
+
+  &:focus-within, &:hover, &:focus, &.opened {
+    opacity: 1;
+  }
 
   .icon-coloredHLBar {
     font-family: 'icon' !important;

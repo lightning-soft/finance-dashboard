@@ -32,17 +32,17 @@ app-window-toolbar {
     margin-left: 0px;
   }
 
-  .sxcControl-open, .sxcControl-high, .sxcControl-low, .sxcControl-close {
+  .scxControl-open, .scxControl-high, .scxControl-low, .scxControl-close {
     margin-right: 5px;
   }
 
-  .sxcControl-close {
+  .scxControl-close {
     margin-right: 5px;
   }
 
   .hide-oclc {
 
-    .sxcControl-open, .sxcControl-high, .sxcControl-low, .sxcControl-close, .scxPanelTitleValue:not(.sxcControl) {
+    .scxControl-open, .scxControl-high, .scxControl-low, .scxControl-close, .scxPanelTitleValue:not(.scxControl) {
       display: none;
     }
   }
@@ -54,7 +54,7 @@ app-window-toolbar {
   }
 
 
-  .scxSymbolTitle .sxcControl-change {
+  .scxSymbolTitle .scxControl-change {
     display: inline-flex;
     align-items: center;
     margin-left: 0;
@@ -74,7 +74,7 @@ app-window-toolbar {
   }
 
   .hide-changes {
-    .sxcControl-change {
+    .scxControl-change {
       display: none;
     }
   }
@@ -219,7 +219,7 @@ instrument-select {
       }
     }
 
-    .sxcControl-date {
+    .scxControl-date {
       display: none;
     }
   }

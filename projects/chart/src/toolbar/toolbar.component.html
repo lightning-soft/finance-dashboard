@@ -90,6 +90,7 @@
   <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
     <nz-select
       #frame
+      [(nzOpen)]="frameOpen"
       [nzShowArrow]="false"
       [compareWith]="compareTimeFrame"
       [nzOptionHeightPx]="22"
@@ -114,6 +115,7 @@
   <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
     <nz-select
       #price
+      [(nzOpen)]="priceOpen"
       [nzShowArrow]="false"
       [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
@@ -181,6 +183,7 @@
     <nz-select
       #cross
       [nzShowArrow]="false"
+      [(nzOpen)]="crossOpen"
       [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"

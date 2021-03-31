@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component, Input, NgZone, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostBinding, Input, NgZone, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropdownMenuComponent, NzSelectComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
 
@@ -30,11 +30,14 @@ export class ToolbarComponent {
   @Input() link: any;
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
+  zoomDropdownVisible = false;
+  crossOpen = false;
+  priceOpen = false;
+  frameOpen = false;
+
   showToolbar = true;
   isDrawingsPinned = false;
   lastUsedDrawings = [];
-
-  zoomDropdownVisible = false;
 
 
   timeFrameOptions = [
@@ -160,6 +163,13 @@ export class ToolbarComponent {
 
   @Input() chart: IChart;
   @Input() layout: Layout;
+
+  @HostBinding('class.opened')
+  get isOpened() {
+    return this.priceOpen || this.crossOpen ||
+      this.isDrawingsVisible ||
+      this.frameOpen || this.zoomDropdownVisible;
+  }
 
   get instrument(): IInstrument {
     return this.chart?.instrument;
