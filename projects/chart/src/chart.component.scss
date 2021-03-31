@@ -29,16 +29,20 @@ app-window-toolbar {
 
 :host ::ng-deep {
   .scxPanelTitleValue {
-    margin-left: 4px;
+    margin-left: 0px;
   }
 
-  .control-open, .control-high, .control-low, .control-close {
+  .sxcControl-open, .sxcControl-high, .sxcControl-low, .sxcControl-close {
+    margin-right: 5px;
+  }
+
+  .sxcControl-close {
     margin-right: 5px;
   }
 
   .hide-oclc {
 
-    .control-open, .control-high, .control-low, .control-close, .scxPanelTitleValue:not(.control) {
+    .sxcControl-open, .sxcControl-high, .sxcControl-low, .sxcControl-close, .scxPanelTitleValue:not(.sxcControl) {
       display: none;
     }
   }
@@ -46,13 +50,11 @@ app-window-toolbar {
   .scxPanelTitle .scxSymbolTitle {
     color: #fff !important;
     font-size: 0.93rem;
+    padding-left: 4px;
   }
 
-  .control-close {
-    margin-right: 5px;
-  }
 
-  .scxSymbolTitle .control-change {
+  .scxSymbolTitle .sxcControl-change {
     display: inline-flex;
     align-items: center;
     margin-left: 0;
@@ -72,7 +74,7 @@ app-window-toolbar {
   }
 
   .hide-changes {
-    .control-change {
+    .sxcControl-change {
       display: none;
     }
   }
@@ -217,7 +219,7 @@ instrument-select {
       }
     }
 
-    .control-date {
+    .sxcControl-date {
       display: none;
     }
   }
