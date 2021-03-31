@@ -291,7 +291,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _levelsInterval: number;
   private _clearInterval: () => void;
   private _upadateInterval: number;
-  private _customTickSizeApplyed: boolean;
+  private _customTickSize: number;
 
   get accountId() {
     return this._accountId;
@@ -632,7 +632,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
-    if (useCustomTickSize != this._customTickSizeApplyed) {
+    if (useCustomTickSize != this._customTickSize) {
       this.centralize();
       this._calculateDepth();
     }
@@ -991,7 +991,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _getDomItemsMap() {
     let map = {};
 
-    if (this._customTickSizeApplyed) {
+    if (this._customTickSize) {
 
       for (const i of this.items) {
         map = {
@@ -1017,7 +1017,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const commonView = this._settings.general.commonView;
-    if (commonView.useCustomTickSize) {
+    const ticksMultiplier = commonView.useCustomTickSize ? commonView.ticksMultiplier : null;
+    if (ticksMultiplier != this._customTickSize) {
       const map = this._getDomItemsMap();
       this._map.clear();
       this.items = [];
@@ -1025,7 +1026,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let offset = 0;
 
       const tickSize = this._tickSize;
-      const multiplier = commonView.ticksMultiplier ?? 1;
+      const multiplier = ticksMultiplier ?? 1;
       const _lastPrice = this._normalizePrice(lastPrice + (ROWS / 2 * tickSize * multiplier));
       const decimals = _lastPrice % 1;
       const startPrice = _lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
@@ -1061,9 +1062,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         offset++;
       }
 
-      this._customTickSizeApplyed = true;
+      this._customTickSize = ticksMultiplier;
     } else {
-      if (this._customTickSizeApplyed) {
+      if (this._customTickSize) {
         const map = this._getDomItemsMap();
         this._map.clear();
         this.items = [];
@@ -1091,7 +1092,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
-      this._customTickSizeApplyed = false;
+      this._customTickSize = null;
     }
 
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
