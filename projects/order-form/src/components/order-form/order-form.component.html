@@ -1,18 +1,18 @@
 <window-header marginClass="" className="widget" [window]="this">
-  <account-select
-    className=""
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
-  <div class="window-header-divider"></div>
   <instrument-select
     className=""
     [instrument]="instrument"
     (instrumentChange)="instrument = $event"
   ></instrument-select>
+  <div class="window-header-divider"></div>
+  <account-select
+    className=""
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
 </window-header>
 <cdk-virtual-scroll-viewport itemSize="">
   <form class="h-100 order-form-wrapper main-grid grid" [formGroup]="form">
-    <div class="d-flex align-items-center">
+    <div class="position-container">
       <span class="pos-title">Pos</span>
       <button class="position-button" [class.pos-negative]="isPositionsNegative">{{positionSum}}</button>
     </div>
@@ -26,7 +26,7 @@
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
     <div class="grid gap-4">
-      <nz-select (ngModelChange)="updateIceQuantityState()" formControlName="type" [nzOptionHeightPx]="20">
+      <nz-select (ngModelChange)="onTypeUpdated()" formControlName="type" [nzOptionHeightPx]="20">
         <nz-option *ngFor="let item of orderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
@@ -84,7 +84,8 @@
     </div>
     <div class="trade-button">
       <div class="buy-info">
-        <span>{{askPrice != null ? askPrice : '--' }}</span> <span>{{askVolume != null ? askVolume : '--'}}</span>
+        <span>{{askVolume != null ? askVolume : '--'}}</span>
+        <span>{{askPrice != null ? askPrice : '--' }}</span>
       </div>
       <button
         (click)="submit(OrderSide.Buy)"

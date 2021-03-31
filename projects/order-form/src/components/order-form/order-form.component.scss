@@ -27,6 +27,7 @@
   border-radius: 2px;
   border: none;
   font-size: 0.8rem;
+  font-weight: 600;
   height: 24px;
   width: 100%;
 }
@@ -34,7 +35,7 @@
 .position-button, {
   background: $primary;
   border-radius: 2px;
-  width: 100%;
+  width: auto;
   font-size: 0.8rem;
   color: white;
   cursor: default;
@@ -43,8 +44,9 @@
 }
 
 .pos-title {
-  margin-right: 15px;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: center;
 }
 
 .main-grid {
@@ -176,6 +178,7 @@
 
 .cursor-not-allowed {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .form-divider {
@@ -183,6 +186,12 @@
   height: 1px;
   background: $light;
   grid-column: 1 / span 2;
+}
+
+.position-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
 }
 
 :host {

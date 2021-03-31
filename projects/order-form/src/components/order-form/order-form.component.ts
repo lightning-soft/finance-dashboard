@@ -138,13 +138,23 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
       };
   }
 
+  onTypeUpdated() {
+    super.onTypeUpdated();
+    if (this.isStopLimit) {
+      this.layoutContainer.height = 340;
+    }
+    else {
+      this.layoutContainer.height = 300;
+    }
+  }
+
   saveState(): OrderFormState {
     return { instrument: this.instrument };
   }
 
   ngOnInit() {
     super.ngOnInit();
-    this.updateIceQuantityState();
+    this.onTypeUpdated();
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -171,12 +181,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
       accountId: this.accountId,
       ...this._instrument,
     }).pipe(
-        untilDestroyed(this)
-      )
+      untilDestroyed(this)
+    )
       .subscribe(
-      () => this.notifier.showSuccess(null),
-      (error) => this.notifier.showError(error),
-    );
+        () => this.notifier.showSuccess(null),
+        (error) => this.notifier.showError(error),
+      );
   }
 
   createForm() {
