@@ -25,7 +25,7 @@ export class NavbarComponent {
   public isNavbarHidden = false;
   private navbarActive = false;
 
-  public currentNavbarPosition: NavbarPosition;
+  @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
