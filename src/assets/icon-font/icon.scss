@@ -1,10 +1,10 @@
 @font-face {font-family: "icon";
-  src: url('icon.eot?t=1617034034689'); /* IE9*/
-  src: url('icon.eot?t=1617034034689#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("icon.woff2?t=1617034034689") format("woff2"),
-  url("icon.woff?t=1617034034689") format("woff"),
-  url('icon.ttf?t=1617034034689') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('icon.svg?t=1617034034689#icon') format('svg'); /* iOS 4.1- */
+  src: url('icon.eot?t=1616515801663'); /* IE9*/
+  src: url('icon.eot?t=1616515801663#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url("icon.woff2?t=1616515801663") format("woff2"),
+  url("icon.woff?t=1616515801663") format("woff"),
+  url('icon.ttf?t=1616515801663') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('icon.svg?t=1616515801663#icon') format('svg'); /* iOS 4.1- */
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -98,81 +98,79 @@
 .icon-order-reject:before { content: "\ea51"; }
 .icon-pen:before { content: "\ea52"; }
 .icon-pin:before { content: "\ea53"; }
-.icon-play:before { content: "\ea54"; }
-.icon-popup:before { content: "\ea55"; }
-.icon-rename:before { content: "\ea56"; }
-.icon-replace:before { content: "\ea57"; }
-.icon-reset:before { content: "\ea58"; }
-.icon-resize:before { content: "\ea59"; }
-.icon-resize_vertical:before { content: "\ea5a"; }
-.icon-save-image:before { content: "\ea5b"; }
-.icon-save:before { content: "\ea5c"; }
-.icon-search:before { content: "\ea5d"; }
-.icon-set-header:before { content: "\ea5e"; }
-.icon-setting-gear:before { content: "\ea5f"; }
-.icon-settings-points:before { content: "\ea60"; }
-.icon-settings:before { content: "\ea61"; }
-.icon-shaded-line:before { content: "\ea62"; }
-.icon-show:before { content: "\ea63"; }
-.icon-signal:before { content: "\ea64"; }
-.icon-solid-block:before { content: "\ea65"; }
-.icon-solidgram:before { content: "\ea66"; }
-.icon-some-error:before { content: "\ea67"; }
-.icon-sort:before { content: "\ea68"; }
-.icon-star-o:before { content: "\ea69"; }
-.icon-star:before { content: "\ea6a"; }
-.icon-stocktwits:before { content: "\ea6b"; }
-.icon-stop:before { content: "\ea6c"; }
-.icon-text:before { content: "\ea6d"; }
-.icon-tool-1d:before { content: "\ea6e"; }
-.icon-tool-arrow:before { content: "\ea6f"; }
-.icon-tool-bars:before { content: "\ea70"; }
-.icon-tool-brush:before { content: "\ea71"; }
-.icon-tool-camera:before { content: "\ea72"; }
-.icon-tool-chart-market (1):before { content: "\ea73"; }
-.icon-tool-chart-market (2):before { content: "\ea74"; }
-.icon-tool-chart-market (3):before { content: "\ea75"; }
-.icon-tool-chart-market (4):before { content: "\ea76"; }
-.icon-tool-chart-market (5):before { content: "\ea77"; }
-.icon-tool-chart-market (6):before { content: "\ea78"; }
-.icon-tool-chart-market:before { content: "\ea79"; }
-.icon-tool-circle:before { content: "\ea7a"; }
-.icon-tool-delete:before { content: "\ea7b"; }
-.icon-tool-drawings:before { content: "\ea7c"; }
-.icon-tool-fibonacci-arcs:before { content: "\ea7d"; }
-.icon-tool-fibonacci:before { content: "\ea7e"; }
-.icon-tool-full-window:before { content: "\ea7f"; }
-.icon-tool-geometric:before { content: "\ea80"; }
-.icon-tool-indicators:before { content: "\ea81"; }
-.icon-tool-line:before { content: "\ea82"; }
-.icon-tool-measure:before { content: "\ea83"; }
-.icon-tool-not-visible:before { content: "\ea84"; }
-.icon-tool-pen:before { content: "\ea85"; }
-.icon-tool-share:before { content: "\ea86"; }
-.icon-tool-text:before { content: "\ea87"; }
-.icon-tool-tools:before { content: "\ea88"; }
-.icon-tool-trand-channel:before { content: "\ea89"; }
-.icon-tool-trend-channel-drawing:before { content: "\ea8a"; }
-.icon-tool-zoom-date-range:before { content: "\ea8b"; }
-.icon-tool-zoom-rect:before { content: "\ea8c"; }
-.icon-tool-zoom:before { content: "\ea8d"; }
-.icon-trend-channel-drawing:before { content: "\ea8e"; }
-.icon-twitter:before { content: "\ea8f"; }
-.icon-union:before { content: "\ea90"; }
-.icon-unlock:before { content: "\ea91"; }
-.icon-unpin:before { content: "\ea92"; }
-.icon-user-icon:before { content: "\ea93"; }
-.icon-visible:before { content: "\ea94"; }
-.icon-volume-shading:before { content: "\ea95"; }
-.icon-widget-chart:before { content: "\ea96"; }
-.icon-widget-create-orders:before { content: "\ea97"; }
-.icon-widget-dom:before { content: "\ea98"; }
-.icon-widget-market-watch:before { content: "\ea99"; }
-.icon-widget-orders:before { content: "\ea9a"; }
-.icon-widget-positions:before { content: "\ea9b"; }
-.icon-widget-watchlist:before { content: "\ea9c"; }
-.icon-window-left:before { content: "\ea9d"; }
-.icon-window-right:before { content: "\ea9e"; }
+.icon-popup:before { content: "\ea54"; }
+.icon-rename:before { content: "\ea55"; }
+.icon-replace:before { content: "\ea56"; }
+.icon-reset:before { content: "\ea57"; }
+.icon-resize:before { content: "\ea58"; }
+.icon-resize_vertical:before { content: "\ea59"; }
+.icon-save-image:before { content: "\ea5a"; }
+.icon-save:before { content: "\ea5b"; }
+.icon-search:before { content: "\ea5c"; }
+.icon-set-header:before { content: "\ea5d"; }
+.icon-setting-gear:before { content: "\ea5e"; }
+.icon-settings-points:before { content: "\ea5f"; }
+.icon-settings:before { content: "\ea60"; }
+.icon-shaded-line:before { content: "\ea61"; }
+.icon-show:before { content: "\ea62"; }
+.icon-signal:before { content: "\ea63"; }
+.icon-solid-block:before { content: "\ea64"; }
+.icon-solidgram:before { content: "\ea65"; }
+.icon-some-error:before { content: "\ea66"; }
+.icon-sort:before { content: "\ea67"; }
+.icon-star-o:before { content: "\ea68"; }
+.icon-star:before { content: "\ea69"; }
+.icon-stocktwits:before { content: "\ea6a"; }
+.icon-text:before { content: "\ea6b"; }
+.icon-tool-1d:before { content: "\ea6c"; }
+.icon-tool-arrow:before { content: "\ea6d"; }
+.icon-tool-bars:before { content: "\ea6e"; }
+.icon-tool-brush:before { content: "\ea6f"; }
+.icon-tool-camera:before { content: "\ea70"; }
+.icon-tool-chart-market (1):before { content: "\ea71"; }
+.icon-tool-chart-market (2):before { content: "\ea72"; }
+.icon-tool-chart-market (3):before { content: "\ea73"; }
+.icon-tool-chart-market (4):before { content: "\ea74"; }
+.icon-tool-chart-market (5):before { content: "\ea75"; }
+.icon-tool-chart-market (6):before { content: "\ea76"; }
+.icon-tool-chart-market:before { content: "\ea77"; }
+.icon-tool-circle:before { content: "\ea78"; }
+.icon-tool-delete:before { content: "\ea79"; }
+.icon-tool-drawings:before { content: "\ea7a"; }
+.icon-tool-fibonacci-arcs:before { content: "\ea7b"; }
+.icon-tool-fibonacci:before { content: "\ea7c"; }
+.icon-tool-full-window:before { content: "\ea7d"; }
+.icon-tool-geometric:before { content: "\ea7e"; }
+.icon-tool-indicators:before { content: "\ea7f"; }
+.icon-tool-line:before { content: "\ea80"; }
+.icon-tool-measure:before { content: "\ea81"; }
+.icon-tool-not-visible:before { content: "\ea82"; }
+.icon-tool-pen:before { content: "\ea83"; }
+.icon-tool-share:before { content: "\ea84"; }
+.icon-tool-text:before { content: "\ea85"; }
+.icon-tool-tools:before { content: "\ea86"; }
+.icon-tool-trand-channel:before { content: "\ea87"; }
+.icon-tool-trend-channel-drawing:before { content: "\ea88"; }
+.icon-tool-zoom-date-range:before { content: "\ea89"; }
+.icon-tool-zoom-rect:before { content: "\ea8a"; }
+.icon-tool-zoom:before { content: "\ea8b"; }
+.icon-trend-channel-drawing:before { content: "\ea8c"; }
+.icon-twitter:before { content: "\ea8d"; }
+.icon-union:before { content: "\ea8e"; }
+.icon-unlock:before { content: "\ea8f"; }
+.icon-unpin:before { content: "\ea90"; }
+.icon-user-icon:before { content: "\ea91"; }
+.icon-visible:before { content: "\ea92"; }
+.icon-volume-shading:before { content: "\ea93"; }
+.icon-widget-chart:before { content: "\ea94"; }
+.icon-widget-create-orders:before { content: "\ea95"; }
+.icon-widget-dom:before { content: "\ea96"; }
+.icon-widget-market-watch:before { content: "\ea97"; }
+.icon-widget-orders:before { content: "\ea98"; }
+.icon-widget-positions:before { content: "\ea99"; }
+.icon-widget-watchlist:before { content: "\ea9a"; }
+.icon-window-left:before { content: "\ea9b"; }
+.icon-window-right:before { content: "\ea9c"; }
 
 $icon-add-image: "\ea01";
 $icon-add-list: "\ea02";
@@ -257,79 +255,77 @@ $icon-notification: "\ea50";
 $icon-order-reject: "\ea51";
 $icon-pen: "\ea52";
 $icon-pin: "\ea53";
-$icon-play: "\ea54";
-$icon-popup: "\ea55";
-$icon-rename: "\ea56";
-$icon-replace: "\ea57";
-$icon-reset: "\ea58";
-$icon-resize: "\ea59";
-$icon-resize_vertical: "\ea5a";
-$icon-save-image: "\ea5b";
-$icon-save: "\ea5c";
-$icon-search: "\ea5d";
-$icon-set-header: "\ea5e";
-$icon-setting-gear: "\ea5f";
-$icon-settings-points: "\ea60";
-$icon-settings: "\ea61";
-$icon-shaded-line: "\ea62";
-$icon-show: "\ea63";
-$icon-signal: "\ea64";
-$icon-solid-block: "\ea65";
-$icon-solidgram: "\ea66";
-$icon-some-error: "\ea67";
-$icon-sort: "\ea68";
-$icon-star-o: "\ea69";
-$icon-star: "\ea6a";
-$icon-stocktwits: "\ea6b";
-$icon-stop: "\ea6c";
-$icon-text: "\ea6d";
-$icon-tool-1d: "\ea6e";
-$icon-tool-arrow: "\ea6f";
-$icon-tool-bars: "\ea70";
-$icon-tool-brush: "\ea71";
-$icon-tool-camera: "\ea72";
-$icon-tool-chart-market (1): "\ea73";
-$icon-tool-chart-market (2): "\ea74";
-$icon-tool-chart-market (3): "\ea75";
-$icon-tool-chart-market (4): "\ea76";
-$icon-tool-chart-market (5): "\ea77";
-$icon-tool-chart-market (6): "\ea78";
-$icon-tool-chart-market: "\ea79";
-$icon-tool-circle: "\ea7a";
-$icon-tool-delete: "\ea7b";
-$icon-tool-drawings: "\ea7c";
-$icon-tool-fibonacci-arcs: "\ea7d";
-$icon-tool-fibonacci: "\ea7e";
-$icon-tool-full-window: "\ea7f";
-$icon-tool-geometric: "\ea80";
-$icon-tool-indicators: "\ea81";
-$icon-tool-line: "\ea82";
-$icon-tool-measure: "\ea83";
-$icon-tool-not-visible: "\ea84";
-$icon-tool-pen: "\ea85";
-$icon-tool-share: "\ea86";
-$icon-tool-text: "\ea87";
-$icon-tool-tools: "\ea88";
-$icon-tool-trand-channel: "\ea89";
-$icon-tool-trend-channel-drawing: "\ea8a";
-$icon-tool-zoom-date-range: "\ea8b";
-$icon-tool-zoom-rect: "\ea8c";
-$icon-tool-zoom: "\ea8d";
-$icon-trend-channel-drawing: "\ea8e";
-$icon-twitter: "\ea8f";
-$icon-union: "\ea90";
-$icon-unlock: "\ea91";
-$icon-unpin: "\ea92";
-$icon-user-icon: "\ea93";
-$icon-visible: "\ea94";
-$icon-volume-shading: "\ea95";
-$icon-widget-chart: "\ea96";
-$icon-widget-create-orders: "\ea97";
-$icon-widget-dom: "\ea98";
-$icon-widget-market-watch: "\ea99";
-$icon-widget-orders: "\ea9a";
-$icon-widget-positions: "\ea9b";
-$icon-widget-watchlist: "\ea9c";
-$icon-window-left: "\ea9d";
-$icon-window-right: "\ea9e";
+$icon-popup: "\ea54";
+$icon-rename: "\ea55";
+$icon-replace: "\ea56";
+$icon-reset: "\ea57";
+$icon-resize: "\ea58";
+$icon-resize_vertical: "\ea59";
+$icon-save-image: "\ea5a";
+$icon-save: "\ea5b";
+$icon-search: "\ea5c";
+$icon-set-header: "\ea5d";
+$icon-setting-gear: "\ea5e";
+$icon-settings-points: "\ea5f";
+$icon-settings: "\ea60";
+$icon-shaded-line: "\ea61";
+$icon-show: "\ea62";
+$icon-signal: "\ea63";
+$icon-solid-block: "\ea64";
+$icon-solidgram: "\ea65";
+$icon-some-error: "\ea66";
+$icon-sort: "\ea67";
+$icon-star-o: "\ea68";
+$icon-star: "\ea69";
+$icon-stocktwits: "\ea6a";
+$icon-text: "\ea6b";
+$icon-tool-1d: "\ea6c";
+$icon-tool-arrow: "\ea6d";
+$icon-tool-bars: "\ea6e";
+$icon-tool-brush: "\ea6f";
+$icon-tool-camera: "\ea70";
+$icon-tool-chart-market (1): "\ea71";
+$icon-tool-chart-market (2): "\ea72";
+$icon-tool-chart-market (3): "\ea73";
+$icon-tool-chart-market (4): "\ea74";
+$icon-tool-chart-market (5): "\ea75";
+$icon-tool-chart-market (6): "\ea76";
+$icon-tool-chart-market: "\ea77";
+$icon-tool-circle: "\ea78";
+$icon-tool-delete: "\ea79";
+$icon-tool-drawings: "\ea7a";
+$icon-tool-fibonacci-arcs: "\ea7b";
+$icon-tool-fibonacci: "\ea7c";
+$icon-tool-full-window: "\ea7d";
+$icon-tool-geometric: "\ea7e";
+$icon-tool-indicators: "\ea7f";
+$icon-tool-line: "\ea80";
+$icon-tool-measure: "\ea81";
+$icon-tool-not-visible: "\ea82";
+$icon-tool-pen: "\ea83";
+$icon-tool-share: "\ea84";
+$icon-tool-text: "\ea85";
+$icon-tool-tools: "\ea86";
+$icon-tool-trand-channel: "\ea87";
+$icon-tool-trend-channel-drawing: "\ea88";
+$icon-tool-zoom-date-range: "\ea89";
+$icon-tool-zoom-rect: "\ea8a";
+$icon-tool-zoom: "\ea8b";
+$icon-trend-channel-drawing: "\ea8c";
+$icon-twitter: "\ea8d";
+$icon-union: "\ea8e";
+$icon-unlock: "\ea8f";
+$icon-unpin: "\ea90";
+$icon-user-icon: "\ea91";
+$icon-visible: "\ea92";
+$icon-volume-shading: "\ea93";
+$icon-widget-chart: "\ea94";
+$icon-widget-create-orders: "\ea95";
+$icon-widget-dom: "\ea96";
+$icon-widget-market-watch: "\ea97";
+$icon-widget-orders: "\ea98";
+$icon-widget-positions: "\ea99";
+$icon-widget-watchlist: "\ea9a";
+$icon-window-left: "\ea9b";
+$icon-window-right: "\ea9c";
 
