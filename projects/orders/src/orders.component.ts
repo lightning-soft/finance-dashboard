@@ -1,13 +1,13 @@
-import {Component, HostBinding, Injector} from '@angular/core';
-import {RealtimeGridComponent, StringHelper, ViewItemsBuilder} from 'base-components';
-import {Id, IPaginationResponse} from 'communication';
-import {CellClickDataGridHandler, CheckboxCell, Column} from 'data-grid';
-import {LayoutNode} from 'layout';
-import {Components} from 'src/app/modules';
-import {IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType} from 'trading';
-import {OrderItem} from './models/order.item';
-import {finalize} from 'rxjs/operators';
-import {forkJoin, Observable} from "rxjs";
+import { Component, HostBinding, Injector } from '@angular/core';
+import { RealtimeGridComponent, StringHelper, ViewItemsBuilder } from 'base-components';
+import { Id, IPaginationResponse } from 'communication';
+import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
+import { LayoutNode } from 'layout';
+import { Components } from 'src/app/modules';
+import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { OrderItem } from './models/order.item';
+import { finalize } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
 type TabName = 'Working' | 'Filled' | 'All';
@@ -42,7 +42,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
-    ['checkbox', ' ', {width: 30, drawObject: this.headerCheckboxCell, style: {textAlign: 'center'}}],
+    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell, style: { textAlign: 'center' } }],
     ['averageFillPrice', 'Average Fill Price'],
     'description',
     'duration',
@@ -86,7 +86,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   set accountId(accountId: Id) {
     this._accountId = accountId;
-    this.loadData({...this.params, accountId});
+    this.loadData({ ...this.params, accountId });
   }
 
   get accountId() {
@@ -176,7 +176,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       return column;
     });
     const column = this.columns.find(i => i.name == 'description');
-    column.style = {...column.style, textOverflow: true};
+    column.style = { ...column.style, textOverflow: true };
     const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');
     checkboxColumn.tableViewName = 'Checkbox';
     this.setTabIcon('icon-widget-orders');
@@ -209,7 +209,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return {columns: this.columns};
+    return { columns: this.columns };
   }
 
   loadState(state): void {
@@ -221,7 +221,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   openOrderForm() {
     this.layout.addComponent({
-      component: {name: Components.OrderForm},
+      component: { name: Components.OrderForm },
       minHeight: 315,
       minWidth: 369,
       height: 315,
@@ -268,7 +268,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order.exchange = order.instrument.exchange;
 
       const hide = this.showLoading();
-      this._repository.createItem({...order})
+      this._repository.createItem({ ...order })
         .pipe(finalize(hide))
         .subscribe((order) => {
           this._handleCreateItems([order]);
@@ -283,7 +283,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   private _getRepricedOrderByTickSize(order: IOrder, up: boolean): IOrder {
-    const updatedOrder = {...order};
+    const updatedOrder = { ...order };
     const tickSize = order.instrument.tickSize ?? 0.25;
 
     if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {

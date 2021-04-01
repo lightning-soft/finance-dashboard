@@ -1,8 +1,8 @@
-import {IViewItem} from 'base-components';
-import {Id} from 'communication';
-import {DataCell, IconCell, CheckboxCell, Cell} from 'data-grid';
-import {IOrder, OrderSide} from 'trading';
-import {PriceStatus} from 'trading-ui';
+import { IViewItem } from 'base-components';
+import { Id } from 'communication';
+import { DataCell, IconCell, CheckboxCell, Cell } from 'data-grid';
+import { IOrder, OrderSide } from 'trading';
+import { PriceStatus } from 'trading-ui';
 
 const allFields: Partial<keyof OrderItem>[] = [
   'checkbox',
@@ -53,7 +53,7 @@ export class OrderItem implements IViewItem<IOrder> {
   }
 
   update(order: IOrder) {
-    this.order = {...this.order, ...order};
+    this.order = { ...this.order, ...order };
     ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type']
       .forEach((item) => {
         this[item].updateValue(order[item]);

@@ -1,4 +1,4 @@
-import {Cell} from './cell';
+import { Cell } from './cell';
 
 export class CheckboxCell extends Cell {
   public horizontalAlign: 'left' | 'center' | 'right' = 'center';
