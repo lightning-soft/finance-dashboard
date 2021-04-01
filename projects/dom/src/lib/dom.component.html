@@ -1,6 +1,7 @@
 <window-header (contextmenu)="grid.createComponentModal($event)" [window]="this">
   <instrument-select class="ml-1" [(instrument)]="instrument"></instrument-select>
-  <account-select [labelTransformer]="transformLabel.bind(this)" class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
+  <account-select [labelTransformer]="transformLabel.bind(this)" class="ml-1"
+                  (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
 <div class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
@@ -19,11 +20,11 @@
     [title]="'Strategy'"
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
-              [prevItem]="domForm.prevItem"
-              [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
-              [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
+              [prevItem]="prevItem"
+              [showInstrumentChange]="domFormSettings?.formSettings.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings?.formSettings.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
-              class="header-daily-info" [dailyInfo]="domForm.dailyInfo" [trade]="trade"></daily-info>
+              class="header-daily-info" [dailyInfo]="dailyInfo" [trade]="trade"></daily-info>
   <span class="window-icon-container">
     <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
       <span [class.switch-item-active]="!isExtended" title="Slim" (click)="isExtended = false" class="slim switch-item">
@@ -50,7 +51,7 @@
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-    <dom-form
+    <side-form
       [instrument]="instrument"
       [accountId]="accountId"
       [ocoStep]="ocoStep"
@@ -60,9 +61,22 @@
       [positions]="positions"
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
-      [tickSize]="_tickSize"
       (actions)="handleFormAction($event)"
-      class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}"></dom-form>
+      class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}">
+
+      <ng-container headerContent>
+        <daily-info [instrument]="instrument"
+                    [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
+                    [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
+                    [trade]="trade"
+                    [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
+        <nz-input-group [class.d-none]="!domFormSettings.formSettings.showPLInfo" class="pl-input"
+                        [nzPrefix]="prefixTemplateUser">
+          <input disabled [value]="getPl()" nz-input>
+          <ng-template #prefixTemplateUser>PL</ng-template>
+        </nz-input-group>
+      </ng-container>
+    </side-form>
   </div>
   <div class="grid-wrapper">
     <data-grid #grid [columns]="columns"
@@ -73,7 +87,7 @@
                (columnUpdate)="onColumnUpdate($event)"
                [showContextMenuSettings]="true"
                (currentCellChanged)="onCurrentCellChanged($event)"
-              [afterDraw]="afterDraw" [handlers]="handlers">
+               [afterDraw]="afterDraw" [handlers]="handlers">
     </data-grid>
   </div>
 

@@ -1,8 +1,16 @@
-import { IViewItem } from 'base-components';
+import { IViewItem, StringHelper } from 'base-components';
 import { Id } from 'communication';
-import { DataCell, IconCell, CheckboxCell } from 'data-grid';
+import { DataCell, IconCell, CheckboxCell, Column } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
+
+export type HeaderItem = [string, string, IHeaderItemOptions?] | string;
+
+export interface IHeaderItemOptions {
+  style?: any;
+  width?: number;
+  drawObject?: { draw(context): boolean }
+}
 
 export class OrderItem implements IViewItem<IOrder> {
   exchange = new DataCell();
@@ -51,14 +59,17 @@ export class OrderItem implements IViewItem<IOrder> {
         this[item].updateValue(order.account[item]);
       });
 
+    this.changeStatus();
+    this.identifier.updateValue(order.id);
+
+    this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
+  }
+
+  changeStatus() {
     ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
       .forEach((item) => {
         this[item].changeStatus(this['side'].value.toLowerCase());
       });
-
-    this.identifier.updateValue(order.id);
-
-    this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
   }
 
   toggleSelect(event: MouseEvent): void {
@@ -71,3 +82,28 @@ export class OrderItem implements IViewItem<IOrder> {
 }
 
 
+export function transformHeaderColumn(nameOrArr: HeaderItem) {
+  nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
+  const [name, title, options] = nameOrArr;
+
+  const column: Column = {
+    name,
+    title: title.toUpperCase(),
+    tableViewName: StringHelper.capitalize(name),
+    style: {
+      ...options?.style,
+      buyColor: 'rgba(72, 149, 245, 1)',
+      sellColor: 'rgba(220, 50, 47, 1)',
+      textOverflow: true,
+      textAlign: 'left',
+    },
+    visible: true,
+    width: options?.width
+  };
+
+  if (options?.drawObject) {
+    column.draw = (context) => options.drawObject.draw(context)
+  }
+
+  return column;
+}

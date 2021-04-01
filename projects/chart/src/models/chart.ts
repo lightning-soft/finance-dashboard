@@ -65,6 +65,8 @@ export interface ScxOrderBarEvents {
   ORDER_CREATED: string;
   ORDER_UPDATED: string;
   CREATE_ORDER_SETTINGS_CLICKED: string;
+  BUY_AREA_CONTEXT_MENU_CLICKED: string;
+  SELL_AREA_CONTEXT_MENU_CLICKED: string;
 }
 
 export interface IScxOrder {

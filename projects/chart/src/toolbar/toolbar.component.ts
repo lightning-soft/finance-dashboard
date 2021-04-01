@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, HostBinding, Input, NgZone, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  Input,
+  NgZone,
+  Output,
+  ViewChild,
+  EventEmitter
+} from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
@@ -28,6 +37,8 @@ const periodicityMap = new Map([
 })
 export class ToolbarComponent {
   @Input() link: any;
+  @Input() enableOrderForm: boolean = false;
+  @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
   zoomDropdownVisible = false;
@@ -368,4 +379,8 @@ export class ToolbarComponent {
     return className;
   }
 
+  toggleForm() {
+    this.enableOrderForm = !this.enableOrderForm;
+    this.enableOrderFormChange.emit(this.enableOrderForm);
+  }
 }

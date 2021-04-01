@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  HostBinding, HostListener,
-  Injector,
-  OnDestroy,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -26,6 +18,9 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { IOrder, OrderSide, OrdersRepository, OrderType, PositionsRepository } from 'trading';
+import { NotifierService } from 'notifier';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -55,6 +50,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(ToolbarComponent) toolbar;
   chart: IChart;
   link: any;
+  directions = ['window-left', 'window-right'];
+  currentDirection = 'window-right';
+  isTradingLocked = false;
+  showChartForm = true;
+  enableOrderForm = false;
+
+  ocoStep = OcoStep.None;
+  buyOcoOrder: IOrder;
+  sellOcoOrder: IOrder;
+
+  @ViewChild(SideOrderFormComponent)
+  private _sideForm: SideOrderFormComponent;
 
   showOHLC = false;
   showChanges = false;
@@ -86,10 +93,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState &
-    { showOHLC: boolean, showChanges: boolean }>(null);
+    { showOHLC: boolean, showChanges: boolean, showChartForm: boolean, enableOrderForm: boolean }>(null);
 
-  enableOrderForm = false;
-  showOrderForm = true;
 
   private _orders: Orders;
   private _positions: Positions;
@@ -102,14 +107,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
+    private _ordersRepository: OrdersRepository,
+    private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
-    protected _accountsManager: AccountsManager
+    protected _accountsManager: AccountsManager,
+    protected _notifier: NotifierService,
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     this._orders = new Orders(this);
-    this._positions = new Positions(this);
+    // this._positions = new Positions(this);
+    this._accountsManager.connections
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        const connection = this._accountsManager.getActiveConnection();
+        this._ordersRepository = _ordersRepository.forConnection(connection);
+        this._positionsRepository = _positionsRepository.forConnection(connection);
+      });
   }
 
   protected loadFiles(): Promise<any> {
@@ -131,6 +146,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return {
       showOHLC: this.showOHLC,
       showChanges: this.showChanges,
+      showChartForm: this.showChartForm,
+      enableOrderForm: this.enableOrderForm,
       link: this.link,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
@@ -138,8 +155,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  contextMenu($event: MouseEvent) {
-  }
 
   private _instrumentChangeHandler = (event) => {
     this._setUnavaliableIfNeed();
@@ -158,6 +173,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const chart = this.chart = this._initChart(state);
     this.showChanges = state?.showChanges;
     this.showOHLC = state?.showOHLC;
+    this.enableOrderForm = state?.enableOrderForm;
+    this.showChartForm = state?.showChartForm;
+    this.checkIfTradingEnabled();
     this._setUnavaliableIfNeed();
 
     if (!chart) {
@@ -165,7 +183,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     this._orders.init();
-    this._positions.init();
+   // this._positions.init();
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -187,12 +205,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (value.timeFrame != null) {
           chart.timeFrame = value.timeFrame;
         }
-
         if (value.stockChartXState) {
           chart.loadState(value.stockChartXState);
         } else if (StockChartX.Indicator.registeredIndicators.VOL) {
           chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
         }
+        this.enableOrderForm = state?.enableOrderForm;
+        this.showChartForm = state?.showChartForm;
+        this.checkIfTradingEnabled();
       });
 
     this.broadcastData(this.link, chart);
@@ -207,6 +227,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       charts = (window as any).charts;
       charts.push(chart);
     }
+  }
+
+  getFormDTO() {
+    return this._sideForm.getDto();
   }
 
   private _handleContextMenu = (e) => {
@@ -247,7 +271,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
-      incomePrecision:  state?.instrument.precision ?? 2,
+      incomePrecision: state?.instrument.precision ?? 2,
       stayInDrawingMode: false,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
@@ -287,7 +311,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (chart.reload) {
       chart.reload();
     }
-    this._positions.refresh();
+    // this._positions.refresh();
     this._orders.refresh();
   }
 
@@ -351,7 +375,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
-    this._positions.destroy();
+    //this._positions.destroy();
     this._orders.destroy();
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
@@ -365,6 +389,134 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   onWindowClose() {
     this.layout.removeComponent(Components.Indicators);
     this.layout.removeComponent(Components.IndicatorList);
+  }
+
+  handleFormAction($event: FormActions) {
+    switch ($event) {
+      case FormActions.CreateOcoOrder:
+        if (this.ocoStep === OcoStep.None)
+          this.ocoStep = OcoStep.Fist;
+        break;
+      case FormActions.CancelOcoOrder:
+        this.clearOcoOrders();
+        break;
+      case FormActions.CloseOrders:
+        this.closeOrders();
+        break;
+      case FormActions.CloseBuyOrders:
+        this.closeOrders(OrderSide.Buy);
+        break;
+      case FormActions.CloseSellOrders:
+        this.closeOrders(OrderSide.Sell);
+        break;
+      case FormActions.CreateBuyMarketOrder:
+        this.createOrder({ side: OrderSide.Buy, type: OrderType.Market });
+        break;
+      case FormActions.CreateSellMarketOrder:
+        this.createOrder({ side: OrderSide.Sell, type: OrderType.Market });
+        break;
+      case FormActions.Flatten:
+        this._closePositions();
+        this.closeOrders();
+        break;
+      case FormActions.ClosePositions:
+        this._closePositions();
+        break;
+    }
+  }
+
+  clearOcoOrders() {
+    this.ocoStep = OcoStep.None;
+    this.sellOcoOrder = null;
+    this.buyOcoOrder = null;
+    this._orders.clearOcoOrders();
+  }
+
+  createOrder(config: Partial<IOrder>) {
+    if (this.isTradingLocked)
+      return;
+    const isOCO = this.ocoStep !== OcoStep.None;
+    const dto = { ...this.getFormDTO(), ...config };
+    const { exchange, symbol } = this.instrument;
+    const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
+    const order = {
+      ...dto,
+      ...priceSpecs,
+      exchange,
+      symbol,
+      accountId: this._accountId,
+    };
+    if (isOCO) {
+      order.isOco = true;
+      if (!this.sellOcoOrder && config.side === OrderSide.Sell) {
+        this.sellOcoOrder = order;
+        this._orders.createOcoOrder(order);
+        this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
+      }
+      if (!this.buyOcoOrder && config.side === OrderSide.Buy) {
+        this.buyOcoOrder = order;
+        this._orders.createOcoOrder(order);
+        this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
+      }
+      if (this.buyOcoOrder && this.sellOcoOrder) {
+        this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+        this._createOrder(this.buyOcoOrder);
+        this.clearOcoOrders();
+      }
+      return;
+    }
+    this._createOrder(order);
+  }
+
+  openOrderPanel() {
+    return this.layout.addComponent({
+      component: {
+        name: 'ordersPanel', state: {
+          orders: this._orders.getOrders(),
+        }
+      },
+      single: true,
+      height: 400,
+      width: 750,
+      resizable: true,
+      removeIfExists: true,
+    });
+  }
+
+  private _createOrder(order) {
+    this._ordersRepository.createItem(order).pipe(untilDestroyed(this))
+      .subscribe(
+        (res) => console.log('Order successfully created'),
+        (err) => this._notifier.showError(err)
+      );
+  }
+
+  private closeOrders(side?: OrderSide) {
+    const orders = this._orders.getOrders(side);
+    this._ordersRepository.deleteMany(orders)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+      }, (err) => this._notifier.showError(err));
+
+  }
+
+  private _closePositions() {
+    this._positionsRepository.deleteMany({
+      accountId: this._accountId as string,
+      ...this.instrument,
+    }).pipe(untilDestroyed(this))
+      .subscribe(
+        () => {
+        },
+        (error) => this._notifier.showError(error),
+      );
+  }
+
+  checkIfTradingEnabled() {
+    this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
+    this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
+   //  this.chart.mainPanel.positions.forEach(item => item.visible = this.enableOrderForm);
+    this.setNeedUpdate();
   }
 }
 

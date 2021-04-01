@@ -15,18 +15,19 @@ import {
   NzSelectModule,
   NzSwitchModule, NzToolTipModule
 } from 'ng-zorro-antd';
-import { OrderFormModule } from 'order-form';
 import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
-import { ModalOrderComponent } from 'projects/chart/src/modals/modal-order/modal-order.component';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IndicatorsComponent } from './indicators/indicators.component';
-import { DynamicFormModule } from "dynamic-form";
-import { ScrollingModule } from "@angular/cdk/scrolling";
+import { DynamicFormModule } from 'dynamic-form';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { IndicatorListComponent } from './indicators/indicator-list/indicator-list.component';
+import { BaseOrderFormModule } from 'base-order-form';
+import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
+import { DataGridModule } from 'data-grid';
 
 // const environment = { scxPath: '' };
 
@@ -40,9 +41,10 @@ import { IndicatorListComponent } from './indicators/indicator-list/indicator-li
     NzDropDownModule,
     NzButtonModule,
     NzIconModule,
-    OrderFormModule,
+    BaseOrderFormModule,
     NzModalModule,
     InstrumentSelectModule,
+    DataGridModule,
     WindowHeaderModule,
     AccountSelectModule,
     LazyAssetsModule.forConfig({
@@ -87,9 +89,9 @@ import { IndicatorListComponent } from './indicators/indicator-list/indicator-li
     ChartComponent,
     ToolbarComponent,
     WindowToolbarComponent,
-    ModalOrderComponent,
     IndicatorsComponent,
     IndicatorListComponent,
+    OrdersPanelComponent,
   ],
   providers: [
   ],
@@ -100,6 +102,7 @@ export class ChartModule implements LazyModule {
       chart: ChartComponent,
       indicators: IndicatorsComponent,
       indicatorList: IndicatorListComponent,
+      ordersPanel: OrdersPanelComponent,
     };
   }
 }

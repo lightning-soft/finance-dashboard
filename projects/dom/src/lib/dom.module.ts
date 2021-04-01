@@ -10,29 +10,24 @@ import {
     NzCheckboxModule, NzDropDownModule, NzInputModule, NzInputNumberModule,
     NzMenuModule,
     NzPopoverModule,
-
     NzSelectModule,
     NzToolTipModule
 } from 'ng-zorro-antd';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { StorageModule } from 'storage';
 import { WindowHeaderModule } from 'window-header';
-import { DomFormComponent } from './dom-form/dom-form.component';
-import { TypeButtonsComponent } from './dom-form/type-buttons/type-buttons.component';
 import { DomSettingsComponent, DomSettingsSelector } from './dom-settings/dom-settings.component';
 import { DomComponent } from './dom.component';
 import { HistogramComponent } from './histogram';
-import { DailyInfoComponent } from './dom-form/daily-info/daily-info.component';
 import { AccountSelectModule } from 'account-select';
 import { BaseOrderFormModule } from 'base-order-form';
+import { DailyInfoComponent } from './daily-info/daily-info.component';
 
 @NgModule({
   declarations: [
     DomComponent,
-    DomFormComponent,
     DomSettingsComponent,
     HistogramComponent,
-    TypeButtonsComponent,
     DailyInfoComponent,
   ],
     imports: [

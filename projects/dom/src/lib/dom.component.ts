@@ -16,8 +16,9 @@ import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { Id } from 'projects/communication';
-import { RealPositionsRepository } from 'real-trading';
+import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
+  HistoryRepository,
   IConnection,
   IInstrument,
   IOrder,
@@ -29,23 +30,30 @@ import {
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType,
+  OrderType, Periodicity,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
-import { calculatePL, DomFormComponent, FormActions, OcoStep } from './dom-form/dom-form.component';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { IWindow } from 'window-manager';
+import { FormActions, SideOrderFormComponent, OcoStep, getPriceSpecs } from 'base-order-form';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
+
+const historyParams = {
+  Periodicity: Periodicity.Hourly,
+  BarSize: 1,
+  Skip: 0,
+  BarCount: 10
+};
 
 export class DomItemMax {
   ask: number;
@@ -247,8 +255,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   };
 
-  @ViewChild(DomFormComponent)
-  private _domForm: DomFormComponent;
+  @ViewChild(SideOrderFormComponent)
+  private _domForm: SideOrderFormComponent;
   draggingOrders: IOrder[] = [];
   draggingDomItemId: Id;
 
@@ -373,6 +381,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _bestAskPrice: number;
   componentInstanceId: number;
 
+  dailyInfo: IHistoryItem;
+  prevItem: IHistoryItem;
+
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -383,7 +394,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _tradeDatafeed: TradeDataFeed,
     protected _accountsManager: AccountsManager,
     private _volumeHistoryRepository: VolumeHistoryRepository,
-    protected _injector: Injector
+    protected _injector: Injector,
+    private _historyRepository: HistoryRepository,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -438,7 +450,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
         this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
-
+        this._historyRepository = this._historyRepository.forConnection(connection);
         if (connection)
           this._onInstrumentChange();
       });
@@ -665,6 +677,42 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const price = +row.price.value;
       this._setPriceForOrders(orders, price);
     }
+  }
+
+  getPl(): string {
+    const i = this.instrument;
+    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
+    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+
+    if (this.dailyInfo && position) {
+      return calculatePL(position, this.dailyInfo.close, this._tickSize, i.contractSize, includeRealizedPl)
+        .toFixed(precision);
+    }
+
+    return '';
+  }
+
+  private _loadHistory() {
+    const instrument = this.instrument;
+    if (!instrument)
+      return;
+
+    return this._historyRepository.getItems({
+      id: instrument.id,
+      Exchange: instrument.exchange,
+      ...historyParams,
+    })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        res => {
+          const data = res.data;
+          const length = data.length;
+          this.dailyInfo = data[length - 1];
+          this.prevItem = data[length - 2];
+        },
+        err => this._notifier.showError(err)
+      );
   }
 
   _setPriceForOrders(orders, price) {
@@ -938,7 +986,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _loadData() {
     if (!this._accountId || !this._instrument)
       return;
-
+    this._loadHistory();
     this._loadPositions();
     this._loadOrderBook();
   }
@@ -1694,7 +1742,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESH1',
+        id: 'ESM1',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
@@ -1777,7 +1825,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       item.createOcoOrder(side, this._domForm.getDto());
       const order = { ...this._domForm.getDto(), side };
       const specs = this._getPriceSpecs(order, +item.price.value);
-
       this.buyOcoOrder = { ...order, ...specs };
       this._createOcoOrder();
     }
@@ -1791,18 +1838,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   _getPriceSpecs(item: IOrder & { amount: number }, price) {
-    const priceSpecs: any = {};
-    if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
-      priceSpecs.limitPrice = price;
-    }
-    if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
-      priceSpecs.stopPrice = price;
-    }
-    if (item.type === OrderType.StopLimit) {
-      const offset = this._tickSize * item.amount;
-      priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
-    }
-    return priceSpecs;
+    return  getPriceSpecs(item, price, this._tickSize);
   }
 
   private _createOcoOrder() {
@@ -1979,4 +2015,17 @@ function isStartFromUpperCase(key) {
 
 export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+  if (!position)
+    return null;
+
+  const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
+  let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
+  if (includePnl) {
+    pl += position.realized;
+  }
+
+  return pl;
 }

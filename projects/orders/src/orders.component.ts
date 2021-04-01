@@ -6,17 +6,8 @@ import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
-import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
-
-
-type HeaderItem = [string, string, IHeaderItemOptions?] | string;
-
-interface IHeaderItemOptions {
-  style?: any;
-  width?: number;
-  drawObject?: { draw(context): boolean }
-}
+import { HeaderItem, OrderItem, transformHeaderColumn } from 'base-order-form';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -137,31 +128,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       addNewItems: 'start',
     });
 
-    this.columns = this.headers.map((nameOrArr: HeaderItem) => {
-      nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
-      const [name, title, options] = nameOrArr;
-
-      const column: Column = {
-        name,
-        title: title.toUpperCase(),
-        tableViewName: StringHelper.capitalize(name),
-        style: {
-          ...options?.style,
-          buyColor: 'rgba(72, 149, 245, 1)',
-          sellColor: 'rgba(220, 50, 47, 1)',
-          textOverflow: true,
-          textAlign: 'left',
-        },
-        visible: true,
-        width: options?.width
-      };
-
-      if (options?.drawObject) {
-        column.draw = (context) => options.drawObject.draw(context)
-      }
-
-      return column;
-    });
+    this.columns = this.headers.map(transformHeaderColumn);
     const column = this.columns.find(i => i.name == 'description');
     column.style = { ...column.style, textOverflow: true };
     const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');

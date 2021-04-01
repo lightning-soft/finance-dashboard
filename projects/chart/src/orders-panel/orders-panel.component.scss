@@ -1,0 +1,32 @@
+@import "~src/scss/variables";
+
+.button-container {
+  background: $light;
+  display: flex;
+  padding-top: 2px;
+  width: 100%;
+  padding-bottom: 2px;
+
+  button {
+    font-size: 0.7rem;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    height: 20px;
+    min-width: 90px;
+    font-weight: 600;
+
+    &:not(:first-child) {
+      margin-left: 4px;
+    }
+  }
+
+  button.primary {
+    margin-left: auto;
+    background: $primary;
+  }
+
+  .dark-button {
+    background: $darkBackground;
+  }
+}

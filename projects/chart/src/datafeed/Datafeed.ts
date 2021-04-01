@@ -267,7 +267,9 @@ export abstract class Datafeed implements IDatafeed {
         break;
     }
 
-    let details = detailsDataSeries.lastValue as IDetails[];
+    let details = detailsDataSeries?.lastValue as IDetails[];
+    if (!details)
+      details = [];
 
     if (!Array.isArray(details) || !details.length) {
       details = [item];

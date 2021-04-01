@@ -51,6 +51,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     }
     if (!this._barsMap[model.id]) {
       const bar = this.createBar(model);
+      bar.visible = this._instance.enableOrderForm;
       bar.chartPanel = this._chart.mainPanel;
       this._chart.mainPanel.addObjects(bar);
       this._barsMap[model.id] = bar;

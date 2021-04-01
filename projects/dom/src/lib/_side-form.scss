@@ -1,0 +1,273 @@
+side-form.full-screen-window {
+  width: 100%;
+  margin-bottom: 8px;
+  min-height: 40px;
+
+  &.extended {
+    min-height: 60px;
+
+    .type-select {
+      display: none;
+    }
+
+    .market-buttons {
+      flex-direction: column;
+      width: auto;
+      align-self: center;
+      margin-top: 6px;
+      margin-left: 12px;
+
+      button {
+        width: 56px;
+        padding-left: 8px;
+        padding-right: 8px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-top: 3px;
+        }
+      }
+    }
+
+    .ice-amount {
+      margin-left: 0;
+      grid-row-start: 2;
+      grid-column-start: 3;
+    }
+
+    .ice-button {
+      width: 100%;
+      margin-left: 0;
+
+      button {
+        margin-top: 0;
+      }
+    }
+
+    .ice-amount {
+      margin-top: 0;
+    }
+
+    .ticks {
+      flex-direction: column;
+
+      tp-units {
+        margin-left: 0;
+        margin-top: 3px;
+      }
+    }
+
+    .top-position-btn {
+      min-width: 50px;
+      margin-left: 9px;
+      height: 52px;
+      align-self: flex-end;
+    }
+
+    .cxl {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      grid-gap: 3px;
+      grid-auto-flow: column;
+
+      .cxl-buy, .cxl-all, .cxl-sell {
+        margin-top: 0;
+        margin-left: 0;
+      }
+    }
+
+    .bottom-btns {
+      flex-direction: column;
+
+      .flatten {
+        margin-left: 0;
+      }
+    }
+
+    type-buttons {
+      display: block;
+    }
+
+
+    .type-buttons {
+      order: 0;
+
+      ::ng-deep .inner-buttons {
+        margin-left: 0;
+      }
+    }
+
+    form .amount {
+      display: flex;
+      margin-top: 0;
+      flex-direction: row;
+      grid-row-start: 2;
+      margin-left: 5px;
+      grid-column-start: 3;
+      grid-column-end: span 4;
+
+      nz-input-number {
+        width: 53px;
+      }
+
+      .amount-input {
+        margin-left: 29px;
+      }
+
+      > * {
+        width: auto;
+      }
+    }
+
+    .ice-amount {
+      nz-input-number {
+        width: 53px;
+      }
+    }
+
+
+  }
+
+  &.slim {
+    /*   .top-position-btn, .type-select {
+         align-self: center;
+         margin-top: 3px;
+       }*/
+    .ice-button {
+      width: 100%;
+    }
+
+    .market-buttons {
+      width: auto;
+      margin-top: 6px;
+      align-self: center;
+      margin-left: 12px;
+
+      button {
+        padding-left: 6px;
+        margin-top: 0;
+        width: 53px;
+        padding-right: 6px;
+
+        &:last-child {
+          margin-left: 3px;
+        }
+      }
+    }
+
+    .cxl {
+    }
+
+    .ice-button, .ice-amount {
+      margin-left: 4px;
+      margin-top: 0;
+
+      button {
+        margin-top: 0;
+      }
+    }
+  }
+
+  type-buttons, .ticks, .bottom-btns {
+    margin-top: 5px;
+  }
+
+  type-buttons {
+    display: none;
+  }
+
+  .type-select {
+    display: block;
+    order: 0 !important;
+  }
+
+  .tif-select {
+    order: 1 !important;
+    margin-left: 5px;
+  }
+
+  .tif-buttons, .ticks {
+    margin-left: 12px;
+  }
+
+
+  quantity-input {
+    margin-top: 3px;
+    margin-left: 3px;
+  }
+
+  .form-layout {
+    flex-direction: row;
+    align-items: baseline;
+    flex-wrap: wrap;
+    padding-bottom: 0;
+
+  }
+
+  form > * {
+    order: 1;
+  }
+
+  form .amount {
+    order: 0;
+    margin-left: 5px;
+
+    button {
+      margin-left: 3px;
+    }
+
+    nz-input-number {
+      max-width: 60px;
+    }
+  }
+
+  .tif {
+    margin-top: 0;
+    margin-left: 5px;
+    display: none;
+  }
+
+
+  .pl-input {
+    width: 80px;
+    margin-top: 0;
+    display: none;
+  }
+
+  .top-position-btn {
+    margin-top: 0;
+    height: 23px;
+    margin-left: 12px;
+  }
+
+  .ticks {
+    margin-top: 0;
+    display: flex;
+  }
+
+  .cxl, .bottom-btns {
+    margin-top: 5px;
+    margin-left: 5px;
+    display: flex;
+  }
+
+  .cxl {
+    margin-left: 12px;
+  }
+
+  .bottom-btns {
+    margin-bottom: 0px;
+  }
+
+  .cxl-all, .cxl-buy {
+    margin-left: 3px;
+  }
+
+  .flatten {
+    margin-left: 5px;
+  }
+
+}
