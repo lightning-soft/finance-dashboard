@@ -1,5 +1,5 @@
 import { Component, HostBinding, Injector } from '@angular/core';
-import { RealtimeGridComponent, StringHelper, ViewItemsBuilder } from 'base-components';
+import { RealtimeGridComponent, StringHelper } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -8,9 +8,9 @@ import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderSta
 import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
+import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
-type TabName = 'Working' | 'Filled' | 'All';
 
 interface IHeaderItemOptions {
   style?: any;
@@ -36,9 +36,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   cancelMenuOpened = false;
-  activeTab: TabName = 'All';
   allTypes = allTypes;
-  builder = new ViewItemsBuilder<IOrder, OrderItem>();
+  builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
+  selectedOrders: IOrder[] = [];
 
   readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
@@ -59,27 +59,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     'close',
   ];
 
-  get items(): OrderItem[] {
-    const items = this.builder.items;
-    if (!items)
-      return [];
-
-    switch (this.activeTab) {
-      case 'All':
-        return items;
-      case 'Filled':
-        return items.filter(i => i.order.status === OrderStatus.Filled);
-      case 'Working':
-        return items.filter(i => orderWorkingStatuses.includes(i.order.status))
-    }
-  }
-
   get orders(): IOrder[] {
     return this.items.map(i => i.order);
-  }
-
-  get selectedOrders(): IOrder[] {
-    return this.items.filter(i => i.isSelected).map(i => i.order);
   }
 
   private _accountId;
@@ -124,6 +105,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       handleHeaderClick: true,
       handler: (item, event) => {
         item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+        this.selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
       },
     })
   ];
@@ -170,7 +152,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       };
 
       if (options?.drawObject) {
-        column.draw = (context) => options.drawObject.draw(context)
+        column.draw = (context) => options.drawObject.draw(context);
       }
 
       return column;
@@ -183,8 +165,19 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
-  changeActiveTab(tab: TabName): void {
-    this.activeTab = tab;
+  changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
+    switch (tab) {
+      case 'All':
+        this.builder.setParams({ viewItemsFilter: null });
+        break;
+      case 'Filled':
+        this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
+        break;
+      case 'Working':
+        this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
+        break;
+    }
+    this.builder.refilterViewItems();
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
