@@ -5,9 +5,6 @@
   <account-select
     (accountChange)="handleAccountChange($event)"
   ></account-select>
-  <div (click)="openOrderForm()" class="add-container">
-    <i class="icon-add"></i>
-  </div>
   <!-- <nz-select class="ml-1 regular"
              [nzOptionHeightPx]="22"
              (ngModelChange)="updateTitle()" [(ngModel)]="allTypes" nzDropdownClassName="order-dropdown-list" >
@@ -66,7 +63,7 @@
       <button title="Duplicate" (click)="duplicateSelectedOrder()" [disabled]="selectedOrders.length !== 1">
         <i class="icon-duplicate"></i>
       </button>
-      <!--      <button><i class="icon-add"></i></button>-->
+      <button (click)="openOrderForm()"><i class="icon-add"></i></button>
 
       <!--      <div class="submit-buttons">-->
       <!--        <button><i class="icon-stop"></i></button>-->
@@ -87,15 +84,18 @@
 
   <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
     <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
                  [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab('Filled')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
                  [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeActiveTab('All')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
                  [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <!--    <nz-tab nzTitle="History">

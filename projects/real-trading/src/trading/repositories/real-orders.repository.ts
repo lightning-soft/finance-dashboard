@@ -14,9 +14,9 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   }
 
   constructor(@Inject(TradeHandler) public tradeHandler: TradeHandler,
-    @Inject(HttpClient) protected _http: HttpClient,
-    @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
-    @Optional() @Inject(Injector) protected _injector: Injector
+              @Inject(HttpClient) protected _http: HttpClient,
+              @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
+              @Optional() @Inject(Injector) protected _injector: Injector
   ) {
     super(_http, _communicationConfig, _injector);
   }
@@ -76,10 +76,9 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {
     if (this.tradeHandler.tradingEnabled)
       return (super.createItem(item, options) as Observable<{ result: IOrder }>)
-        .pipe(map(res=> res.result));
-    else {
-      return throwError('You can\'t create order when trading is locked ');
-    }
+        .pipe(map(res => res.result));
+
+    return throwError('You can\'t create order when trading is locked ');
   }
 
   deleteMany(orders: IOrder[]): Observable<any> {
