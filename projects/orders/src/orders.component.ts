@@ -255,6 +255,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         .pipe(finalize(hide))
         .subscribe((orders) => {
           this._handleUpdateItems(orders);
+        }, error => {
+          this.showError(error, 'Failed to update order');
         });
     }
   }
@@ -268,10 +270,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order.exchange = order.instrument.exchange;
 
       const hide = this.showLoading();
-      this._repository.createItem({ ...order })
+      this._repository.createItem(order)
         .pipe(finalize(hide))
-        .subscribe((order) => {
-          this._handleCreateItems([order]);
+        .subscribe((data) => {
+          this._handleCreateItems([data]);
+        }, error => {
+          this.showError(error, 'Failed to create order');
         });
     }
   }
