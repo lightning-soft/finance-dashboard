@@ -367,7 +367,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.detectChanges();
   }
 
-  fitColumnsWidth(): void {
+  setFitColumnsWidth(): void {
     this.columns.forEach(column => {
       this._grid.fitColumnToValues(column);
     });
