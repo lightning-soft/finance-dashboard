@@ -4,8 +4,20 @@ import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communi
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
-import { IOrder, OrdersRepository, OrderStatus } from 'trading';
+import { IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { BaseRepository } from './base-repository';
+
+interface IUpdateOrderRequestParams {
+  orderId: Id;
+  symbol: string;
+  exchange: string;
+  accountId: string;
+  duration: OrderDuration;
+  type: OrderType;
+  quantity: number;
+  limitPrice?: number;
+  stopPrice?: number;
+}
 
 @Injectable()
 export class RealOrdersRepository extends BaseRepository<IOrder> implements OrdersRepository {
@@ -68,8 +80,15 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   }
 
   updateItem(item: IOrder, query?: any): Observable<IOrder> {
-    const { id, ...dto } = item;
-    return this._http.put<IOrder>(this._getRESTURL(id), dto, { ...this._httpOptions, params: query })
+    const dto: IUpdateOrderRequestParams = {
+      ...item,
+      orderId: item.id,
+      accountId: item.account.id,
+      symbol: item.instrument.symbol,
+      exchange: item.instrument.exchange
+    };
+
+    return this._http.put<IOrder>(this._getRESTURL(), dto, { ...this._httpOptions, params: query })
       .pipe(tap(this._onUpdate));
   }
 
