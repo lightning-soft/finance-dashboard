@@ -46,7 +46,8 @@
 .pos-title {
   font-size: 0.85rem;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: 4px;
 }
 
 .main-grid {
@@ -70,6 +71,10 @@
   background: rgba(72, 149, 245, 0.5) !important;
 }
 
+.ice-button {
+  height: 24px;
+}
+
 .lmt-title {
   font-size: 0.8rem;
   display: flex;
@@ -90,17 +95,36 @@
 :host {
   .order-number-input {
     font-size: 0.7rem;
-    height: 20px;
+    height: 24px;
     width: 100%;
+    background: $darkBackground;
+    border: none;
+    color: #fff;
+
+    &.ant-input-number-disabled {
+      opacity: 0.5;
+    }
 
     ::ng-deep {
       input {
-        height: 20px;
+        height: 24px;
       }
     }
   }
 
   ::ng-deep {
+    nz-select {
+      height: 24px !important;
+
+      nz-select-top-control {
+        height: 24px !important;
+
+        nz-select-item {
+          line-height: 24px !important;
+        }
+      }
+    }
+
     nz-select-top-control {
       padding-left: 5px !important;
       padding-right: 5px !important;
@@ -113,7 +137,7 @@
 }
 
 .grey-button, .dark-button {
-  height: 20px;
+  height: 24px;
   background: $light3;
   border: 1px solid transparent;
   padding: 0;
@@ -179,6 +203,10 @@
 .cursor-not-allowed {
   cursor: not-allowed;
   opacity: 0.5;
+
+  .cursor-pointer {
+    cursor: not-allowed;
+  }
 }
 
 .form-divider {
@@ -253,13 +281,26 @@
 
     quantity-input {
       .inner-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-gap: 4px;
+        display: flex;
+        justify-content: space-between;
+        /*  grid-template-columns: 1fr 1fr 1fr;
+          grid-gap: 4px;*/
 
         & > * {
-          width: 100% !important;
+          width: 31% !important;
           margin: 0 !important;
+          margin-right: 4px !important;
+
+          &:nth-child(3) {
+            margin-right: 0 !important;
+          }
+
+          &:nth-child(4), &:nth-child(5) {
+            // margin-right: 0 !important;
+            width: 48% !important;
+            margin-top: 4px !important;
+            margin-right: 0px !important;
+          }
         }
       }
     }
