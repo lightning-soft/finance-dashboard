@@ -1,14 +1,14 @@
 import { Component, HostBinding, Injector } from '@angular/core';
-import { RealtimeGridComponent, StringHelper, ViewItemsBuilder } from 'base-components';
+import { RealtimeGridComponent, StringHelper } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
-import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
-import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
+import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
-
+import { forkJoin, Observable } from 'rxjs';
+import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
 type HeaderItem = [string, string, IHeaderItemOptions?] | string;
 
@@ -22,7 +22,7 @@ export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderPar
 }
 
 const allTypes = 'All';
-const allStatuses = 'Show All';
+const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.New, OrderStatus.PartialFilled];
 
 @Component({
   selector: 'orders-list',
@@ -32,8 +32,17 @@ const allStatuses = 'Show All';
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
   headerCheckboxCell = new CheckboxCell();
+  columns: Column[];
+  orderTypes = ['All', ...Object.values(OrderType)];
+  orderStatuses = ['Show All', ...Object.values(OrderStatus)];
+  cancelMenuOpened = false;
+  allTypes = allTypes;
+  builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
+  selectedOrders: IOrder[] = [];
+
+  readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
-    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell }],
+    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell, style: { textAlign: 'center' } }],
     ['averageFillPrice', 'Average Fill Price'],
     'description',
     'duration',
@@ -49,25 +58,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     'identifier',
     'close',
   ];
-  columns: Column[];
-  orderTypes = ['All', ...Object.values(OrderType)];
-  orderStatuses = ['Show All', ...Object.values(OrderStatus)];
-  orderWorkingStatuses = ['Pending', 'New', 'PartialFilled'];
-  cancelMenuOpened = false;
 
-  orderStatus = allStatuses;
-  orderType = allTypes;
-
-  builder = new ViewItemsBuilder<IOrder, OrderItem>();
-
-  get items(): any[] {
-    const items = this.builder.items;
-    if (!items)
-      return [];
-
-    return this.orderStatus === 'Working' ?
-      items.filter(item => this.orderWorkingStatuses.filter(status => item.order.status === status).length > 0) :
-      items.filter(item => this.orderStatus === allStatuses || item.order.status === this.orderStatus)
+  get orders(): IOrder[] {
+    return this.items.map(i => i.order);
   }
 
   private _accountId;
@@ -80,10 +73,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   get accountId() {
     return this._accountId;
   }
-
-  _isList = false;
-
-  private _toolbarComponent: OrdersToolbarComponent;
 
   // private _status: OrderStatus = OrderStatus.Pending;
 
@@ -116,6 +105,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       handleHeaderClick: true,
       handler: (item, event) => {
         item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+        this.selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
       },
     })
   ];
@@ -146,18 +136,23 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         title: title.toUpperCase(),
         tableViewName: StringHelper.capitalize(name),
         style: {
-          ...options?.style,
           buyColor: 'rgba(72, 149, 245, 1)',
           sellColor: 'rgba(220, 50, 47, 1)',
+          selectedbuyColor: 'rgba(72, 149, 245, 1)',
+          selectedsellColor: 'rgba(220, 50, 47, 1)',
+          selectedBackgroundColor: '#383A40',
+          selectedbuyBackgroundColor: '#383A40',
+          selectedsellBackgroundColor: '#383A40',
           textOverflow: true,
           textAlign: 'left',
+          ...options?.style,
         },
         visible: true,
         width: options?.width
       };
 
       if (options?.drawObject) {
-        column.draw = (context) => options.drawObject.draw(context)
+        column.draw = (context) => options.drawObject.draw(context);
       }
 
       return column;
@@ -170,8 +165,18 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
-  changeTab(status: string) {
-    this.orderStatus = status;
+  changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
+    switch (tab) {
+      case 'All':
+        this.builder.setParams({ viewItemsFilter: null });
+        break;
+      case 'Filled':
+        this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
+        break;
+      case 'Working':
+        this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
+        break;
+    }
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
@@ -227,14 +232,84 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     }
   }
 
+  repriceSelectedOrdersByTickSize(up: boolean): void {
+    const requests: Observable<IOrder>[] = [];
+
+    this.selectedOrders.forEach(order => {
+      if (orderWorkingStatuses.includes(order.status)) {
+        requests.push(this._repository.updateItem(this._getRepricedOrderByTickSize(order, up)));
+      }
+    });
+
+    if (requests.length) {
+      const hide = this.showLoading();
+      forkJoin(requests)
+        .pipe(finalize(hide))
+        .subscribe((orders) => {
+          this._handleUpdateItems(orders);
+        }, error => {
+          this.showError(error, 'Failed to update order');
+        });
+    }
+  }
+
+  duplicateSelectedOrder(): void {
+    const order = this.selectedOrders[0];
+
+    if (order) {
+      order.accountId = order.account.id;
+      order.symbol = order.instrument.symbol;
+      order.exchange = order.instrument.exchange;
+
+      const hide = this.showLoading();
+      this._repository.createItem(order)
+        .pipe(finalize(hide))
+        .subscribe((data) => {
+          this._handleCreateItems([data]);
+        }, error => {
+          this.showError(error, 'Failed to create order');
+        });
+    }
+  }
+
+  handleUpdateColumn(column: Column): void {
+    if (column.name === 'checkbox') {
+      this.items.forEach(i => i.changeCheckboxHorizontalAlign(column.style.textAlign));
+    }
+  }
+
+  private _getRepricedOrderByTickSize(order: IOrder, up: boolean): IOrder {
+    const updatedOrder = { ...order };
+    const tickSize = order.instrument.tickSize ?? 0.25;
+
+    if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
+      updatedOrder.limitPrice += up ? tickSize : -tickSize;
+    }
+    if ([OrderType.StopMarket, OrderType.StopLimit].includes(order.type)) {
+      updatedOrder.stopPrice += up ? tickSize : -tickSize;
+    }
+
+    return updatedOrder;
+  }
+
   cancelAllOrders(): void {
-    const selectedOrders = this.items.map(i => i.order);
-    this.cancelOrders(selectedOrders);
+    this.cancelOrders(this.orders);
+  }
+
+  cancelBuyOrders(): void {
+    this.cancelOrders(this.orders.filter(i => i.side === OrderSide.Buy));
+  }
+
+  cancelSellOrders(): void {
+    this.cancelOrders(this.orders.filter(i => i.side === OrderSide.Sell));
+  }
+
+  cancelOrdersByType(orderType: OrderType): void {
+    this.cancelOrders(this.orders.filter(i => i.type === orderType));
   }
 
   cancelSelectedOrders(): void {
-    const selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
-    this.cancelOrders(selectedOrders);
+    this.cancelOrders(this.selectedOrders);
   }
 
   cancelOrders(orders: IOrder[]): void {
