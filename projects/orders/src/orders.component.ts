@@ -177,7 +177,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
         break;
     }
-    this.builder.refilterViewItems();
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {

@@ -1,5 +1,5 @@
 import { IBaseItem } from 'communication';
-import { IItemsBuilder, IItemsBuilderParams, ItemsBuilder } from 'base-components';
+import { IItemsBuilder, IItemsBuilderParams, IViewItem, ViewItemsBuilder } from 'base-components';
 
 interface IViewFilterItemsBuilderParams<Item, ViewItem> extends IItemsBuilderParams<Item, ViewItem> {
   viewItemsFilter?: (viewItem: ViewItem) => boolean;
@@ -11,8 +11,8 @@ interface IViewFilterItemsBuilder<Item, ViewItem> extends IItemsBuilder<Item, Vi
   refilterViewItems(): void;
 }
 
-export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
-  extends ItemsBuilder<T, VM> implements IViewFilterItemsBuilder<T, VM> {
+export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IViewItem<T>>
+  extends ViewItemsBuilder<T, VM> implements IViewFilterItemsBuilder<T, VM> {
   private _filteredItems: VM[] = [];
 
   protected _params: IViewFilterItemsBuilderParams<T, VM> = {
@@ -23,12 +23,9 @@ export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IBaseItem = 
     return this._filteredItems;
   }
 
-  constructor(params?: IViewFilterItemsBuilderParams<T, VM>) {
-    super(params);
-  }
-
   setParams(params: IViewFilterItemsBuilderParams<T, VM>) {
     super.setParams(params);
+    this.refilterViewItems();
   }
 
   refilterViewItems(): void {
@@ -62,6 +59,7 @@ export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IBaseItem = 
   }
 
   handleDeleteItems(items: T[]) {
-    this.handleDeleteItems(items);
+    super.handleDeleteItems(items);
+    this.refilterViewItems();
   }
 }
