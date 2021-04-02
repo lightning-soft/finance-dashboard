@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { WebSocketService } from 'communication';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { HttpErrorInterceptor } from './interceptor';
@@ -91,10 +91,12 @@ export class AccountsManager {
         tap((conn) => this.onUpdated(conn)));
   }
 
-  disconnect(connection: IConnection) {
+  disconnect(connection: IConnection): Observable<void> {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        tap(() => this.onUpdated({ ...connection, connected: false })),
+        map(() => ({ ...connection, connected: false })),
+        tap((updatedConnection) => this.onUpdated(updatedConnection)),
+        concatMap((updatedConnection) => this._connectionsRepository.updateItem(updatedConnection)),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
             this.onUpdated(connection);
