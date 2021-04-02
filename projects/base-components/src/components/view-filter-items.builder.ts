@@ -48,16 +48,6 @@ export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IViewItem<T>
     this.refilterViewItems();
   }
 
-  updateItem(item: VM, index: number) {
-    super.updateItem(item, index);
-    this.refilterViewItems();
-  }
-
-  handleCreateItems(items: T[]) {
-    super.handleCreateItems(items);
-    this.refilterViewItems();
-  }
-
   handleDeleteItems(items: T[]) {
     super.handleDeleteItems(items);
     this.refilterViewItems();
