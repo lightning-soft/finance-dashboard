@@ -632,7 +632,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
-    if (useCustomTickSize != this._customTickSize) {
+    if ((useCustomTickSize && this._customTickSize != general?.commonView?.ticksMultiplier)
+      || (!useCustomTickSize && this._customTickSize != null)) {
       this.centralize();
       this._calculateDepth();
     }
@@ -997,6 +998,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         map = {
           ...map,
           ...(i.getDomItems ? i.getDomItems() : {}),
+          ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
         };
       }
     } else {

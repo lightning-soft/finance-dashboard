@@ -577,7 +577,7 @@ export class DomItem implements IBaseItem {
       if (this._ask == null)
         this._ask = this.ask._value;
       else
-        this.askDelta.updateValue(this.ask._value - this._ask);
+        this._calculateAskDelta();
 
       res.askDelta = this.askDelta.value;
     }
@@ -601,7 +601,7 @@ export class DomItem implements IBaseItem {
       if (this._bid == null)
         this._bid = this.bid._value;
       else
-        this.bidDelta.updateValue(this.bid._value - this._bid);
+        this._calculateBidDelta();
 
       res.bidDelta = this.bidDelta._value;
     }
@@ -609,6 +609,14 @@ export class DomItem implements IBaseItem {
     if (this.clearCross)
       this.clearAsk();
     return this._getBidValues();
+  }
+
+  protected _calculateAskDelta() {
+    return this.askDelta.updateValue(this.ask._value - this._ask);
+  }
+
+  protected _calculateBidDelta() {
+    return this.bidDelta.updateValue(this.bid._value - this._bid);
   }
 
   changePriceStatus(status: string) {
@@ -904,5 +912,40 @@ export class CustomDomItem extends DomItem {
 
   getDomItems() {
     return this._domItems;
+  }
+
+  protected _calculateAskDelta() {
+    const snapshot = this._domItems;
+    let sum = 0;
+
+    for (const price in snapshot) {
+      if (snapshot.hasOwnProperty(price)) {
+        const data = snapshot[price];
+
+        sum += data.askDelta._value ?? 0;
+      }
+    }
+
+    return this.askDelta.updateValue(sum);
+  }
+
+  protected _calculateBidDelta() {
+    const snapshot = this._domItems;
+    let sum = 0;
+    // console.log('data.bidDelta._value -----');
+
+    for (const price in snapshot) {
+      if (snapshot.hasOwnProperty(price)) {
+        const data = snapshot[price];
+
+        if (!data.bidDelta._value)
+          continue;
+
+        sum += data.bidDelta._value ?? 0;
+        // console.log('data.bidDelta._value', price, data.bidDelta._value);
+      }
+    }
+
+    return this.bidDelta.updateValue(sum);
   }
 }
