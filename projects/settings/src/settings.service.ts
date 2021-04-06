@@ -80,7 +80,7 @@ export class SettingsService {
         }),
       )
       .subscribe(
-        (s) => s && this._updateState(s, false),
+        (s: any) => s && this._updateState(s, false),
         (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
