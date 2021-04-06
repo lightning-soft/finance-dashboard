@@ -13,7 +13,7 @@
         </i>
       </ng-container>
 
-      <div nz-dropdown
+      <button nz-dropdown
            [nzDropdownMenu]="menu"
            nzOverlayClassName="windows-list-dropdown-menu"
            [nzPlacement]="dropdownPlacement"
@@ -23,7 +23,7 @@
         <i [class]="iconsMap[ windowTuple[0] ]"></i>
 
         <span class="window-count">{{windowTuple[1].size}}</span>
-      </div>
+      </button>
 
       <nz-dropdown-menu #menu="nzDropdownMenu">
         <ul nz-menu class="windows-list">

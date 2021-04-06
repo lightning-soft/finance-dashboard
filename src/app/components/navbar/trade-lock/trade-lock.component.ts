@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TradeHandler } from './trade-handle';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -25,6 +25,7 @@ const unlock = {
   templateUrl: './trade-lock.component.html',
   styleUrls: ['./trade-lock.component.scss']
 })
+
 @UntilDestroy()
 export class TradeLockComponent {
 
@@ -39,22 +40,21 @@ export class TradeLockComponent {
     this.unlocked = this.tradeHandler.tradingEnabled;
     this.tradeHandler.isTradingEnabled$
       .pipe(untilDestroyed(this))
-      .subscribe(value => this.unlocked = value);
+      .subscribe(enabled => {
+        this.unlocked = enabled;
+
+        if (this.timerId) {
+          clearTimeout(this.timerId);
+          this.timerId = null;
+        }
+
+        this.alert = this.unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
+
+        this.timerId = setTimeout(() => this.alert.visible = false, 1500);
+      });
   }
 
-  handleLock(): void {
-    if (this.timerId) {
-      clearTimeout(this.timerId);
-      this.timerId = null;
-    }
-
-    this.tradeHandler.tradingEnabled = !this.unlocked;
-
-    this.alert = this.unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
-
-    this.timerId = setTimeout(() => {
-      this.alert.visible = false;
-    }, 1500);
+  toggleTrading(): void {
+    this.tradeHandler.tradingEnabled = !this.tradeHandler.tradingEnabled;
   }
-
 }

@@ -2,13 +2,12 @@ import { Component, ElementRef, HostBinding, Input } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NotificationService } from 'notification';
 import { Themes, ThemesHandler } from 'themes';
-import { NavbarPosition, SettingsService } from "settings";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { fromEvent, merge } from "rxjs";
-import { debounceTime, map, tap } from "rxjs/operators";
-import { NzPlacementType } from "ng-zorro-antd";
-import {WindowManagerService} from "window-manager";
-
+import { NavbarPosition, SettingsService } from 'settings';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { fromEvent, merge } from 'rxjs';
+import { debounceTime, delay, map, tap } from 'rxjs/operators';
+import { NzPlacementType } from 'ng-zorro-antd';
+import { Bounds, WindowManagerService } from 'window-manager';
 
 @UntilDestroy()
 @Component({
@@ -46,39 +45,47 @@ export class NavbarComponent {
     private elementRef: ElementRef,
     private windowManagerService: WindowManagerService,
   ) {
-    this.isNewNotification =   !!this.notificationService.getNotification().length;
+    this.isNewNotification = !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
       this.isNewNotification = !!n.length;
     });
 
     this.settingsService.settings
-      .pipe(untilDestroyed(this), debounceTime(200))
+      .pipe(untilDestroyed(this))
       .subscribe(settings => {
-        if (this.currentNavbarPosition !== settings.navbarPosition) {
+        if (this.currentNavbarPosition !== settings.navbarPosition || this.isNavbarHidden !== settings.isNavbarHidden) {
           this.currentNavbarPosition = settings.navbarPosition;
-          this.windowManagerService.updateGlobalOffset();
+          this.isNavbarHidden = settings.isNavbarHidden;
+          this._updateWindowsBounds();
         }
-        this.isNavbarHidden = settings.isNavbarHidden;
       });
 
     merge(
       fromEvent(this.elementRef.nativeElement, 'mouseleave'),
-      fromEvent(this.elementRef.nativeElement, 'mouseover').pipe(tap(() => this.navbarActive = true)),
+      fromEvent(this.elementRef.nativeElement, 'mouseover').pipe(tap(() => {
+        this.navbarActive = true;
+        this._updateWindowsBounds();
+      })),
       fromEvent(document, 'click'),
     ).pipe(
-      map((event: MouseEvent) => event.type === 'mouseover' || this._isNavbarFocused()),
-      debounceTime(400),
+      map((event: MouseEvent) => {
+        return event.type === 'mouseover' || this._isHostContainsElement(document.activeElement) || (
+          event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement)
+        );
+      }),
+      debounceTime(500),
       untilDestroyed(this)
-    ).subscribe((active: boolean) => this.navbarActive = active);
+    ).subscribe((active: boolean) => {
+      if (this.navbarActive !== active) {
+        this.navbarActive = active;
+        this._updateWindowsBounds();
+      }
+    });
   }
 
   @HostBinding('class.hidden') get hidden() {
     return this.isNavbarHidden && !this.navbarActive;
   }
-
-  // @HostBinding('class.bottom') get positionClass() {
-  //   return this.currentNavbarPosition === NavbarPosition.Bottom;
-  // }
 
   switchTheme() {
     this.themeHandler.toggleTheme();
@@ -91,6 +98,17 @@ export class NavbarComponent {
       },
       maximizable: false,
     });
+  }
+
+  private _updateWindowsBounds(): void {
+    const bounds: Bounds = this.isNavbarHidden ? null : {
+      top: this.elementRef.nativeElement.offsetHeight,
+      left: 0,
+      bottom: this.windowManagerService.container.offsetHeight,
+      right: this.windowManagerService.container.offsetWidth
+    };
+
+    this.windowManagerService.setBounds(bounds);
   }
 
   openNotificationsList() {
@@ -139,8 +157,8 @@ export class NavbarComponent {
     this.settingsService.updateNavbarVisibility(hidden);
   }
 
-  private _isNavbarFocused(): boolean {
-    return this.elementRef.nativeElement.contains(document.activeElement);
+  private _isHostContainsElement(element: Element): boolean {
+    return this.elementRef.nativeElement.contains(element);
   }
 
   // openWorkspace() {

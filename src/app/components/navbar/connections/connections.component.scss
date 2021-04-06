@@ -120,3 +120,19 @@ $horizontal-padding: 8px;
 .text-active {
   color: $primary;
 }
+
+.icon-arrow-down {
+  transition: all .2s ease;
+
+  &.opened {
+    transform: rotateZ(180deg);
+  }
+}
+
+:host-context(body.navbarBottom) .icon-arrow-down {
+  transform: rotateZ(180deg);
+
+  &.opened {
+    transform: rotateZ(0);
+  }
+}

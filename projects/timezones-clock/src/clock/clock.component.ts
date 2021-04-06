@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { NzModalService } from "ng-zorro-antd";
+import { Component, Input, OnInit } from '@angular/core';
+import { NzModalService, NzPlacementType } from "ng-zorro-antd";
 import { AddTimezoneModalComponent } from "../add-timezone-modal/add-timezone-modal.component";
 import { TimezonesService } from "../timezones.service";
 import { ITimezone, Timezone, TIMEZONES } from "../timezones";
@@ -17,6 +17,8 @@ export class ClockComponent implements OnInit {
   timezones: ITimezone[] = [];
   localTimezone: ITimezone;
   enabledTimezone: ITimezone;
+
+  @Input() dropdownPlacement: NzPlacementType;
 
   constructor(private modalService: NzModalService,
               private timezonesService: TimezonesService) {

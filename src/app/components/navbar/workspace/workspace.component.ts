@@ -100,6 +100,7 @@ export class WorkspaceComponent implements OnInit {
         },
       });
       modal.afterClose.subscribe(async (res) => {
+        console.log(res);
         if (res) {
           await this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
           this.activeWorkspaceId = $event;
@@ -130,7 +131,7 @@ export class WorkspaceComponent implements OnInit {
 
       const base = result.base !== 'blank' ? result.base : null;
 
-      this._workspacesService.createWorkspace(result.name, base)
+      this._workspacesService.createWorkspace(result.name, base);
     });
   }
 

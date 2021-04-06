@@ -272,7 +272,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-
     if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
       this.hasBeenSaved = true;
