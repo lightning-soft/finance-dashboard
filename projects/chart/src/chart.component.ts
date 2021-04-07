@@ -21,6 +21,8 @@ import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IOrder, OrderSide, OrdersRepository, OrderType, PositionsRepository } from 'trading';
 import { NotifierService } from 'notifier';
+import { NzModalService } from "ng-zorro-antd/modal";
+import { ConfirmOrderComponent } from "./modals/confirm-order/confirm-order.component";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -55,6 +57,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   isTradingLocked = false;
   showChartForm = true;
   enableOrderForm = false;
+
+  showOrderConfirm = true;
 
   ocoStep = OcoStep.None;
   buyOcoOrder: IOrder;
@@ -93,7 +97,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState &
-    { showOHLC: boolean, showChanges: boolean, showChartForm: boolean, enableOrderForm: boolean }>(null);
+    {
+      showOHLC: boolean, showChanges: boolean, showChartForm: boolean,
+      showOrderConfirm: boolean, enableOrderForm: boolean
+    }>(null);
 
 
   private _orders: Orders;
@@ -112,12 +119,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager,
     protected _notifier: NotifierService,
+    private _modalService: NzModalService,
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     this._orders = new Orders(this);
-    // this._positions = new Positions(this);
+    this._positions = new Positions(this);
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -149,6 +157,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       showChartForm: this.showChartForm,
       enableOrderForm: this.enableOrderForm,
       link: this.link,
+      showOrderConfirm: this.showOrderConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState()
@@ -175,6 +184,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showOHLC = state?.showOHLC;
     this.enableOrderForm = state?.enableOrderForm;
     this.showChartForm = state?.showChartForm;
+    if (state.hasOwnProperty('showOrderConfirm'))
+      this.showOrderConfirm = state?.showOrderConfirm;
     this.checkIfTradingEnabled();
     this._setUnavaliableIfNeed();
 
@@ -183,7 +194,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     this._orders.init();
-   // this._positions.init();
+    this._positions.init();
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -311,7 +322,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (chart.reload) {
       chart.reload();
     }
-    // this._positions.refresh();
+    this._positions.refresh();
     this._orders.refresh();
   }
 
@@ -375,7 +386,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   destroy() {
-    //this._positions.destroy();
+    this._positions.destroy();
     this._orders.destroy();
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
@@ -389,6 +400,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   onWindowClose() {
     this.layout.removeComponent(Components.Indicators);
     this.layout.removeComponent(Components.IndicatorList);
+  }
+
+  getPositions() {
+    return this._positions.getPositions();
   }
 
   handleFormAction($event: FormActions) {
@@ -430,6 +445,29 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.sellOcoOrder = null;
     this.buyOcoOrder = null;
     this._orders.clearOcoOrders();
+  }
+
+  createOrderWithConfirm(config: Partial<IOrder>) {
+    if (this.showOrderConfirm) {
+      const dto = this._sideForm.getDto();
+      this._modalService.create({
+        nzClassName: 'confirm-order',
+        nzIconType: null,
+        nzContent: ConfirmOrderComponent,
+        nzFooter: null,
+        nzComponentParams: {
+          order: { ...dto, ...config },
+        }
+      }).afterClose.subscribe((res) => {
+        if (res) {
+          if (res.create)
+            this.createOrder(config);
+          this.showOrderConfirm = !res.dontShowAgain;
+        }
+      });
+    } else {
+      this.createOrder(config);
+    }
   }
 
   createOrder(config: Partial<IOrder>) {
@@ -515,7 +553,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   checkIfTradingEnabled() {
     this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
-   //  this.chart.mainPanel.positions.forEach(item => item.visible = this.enableOrderForm);
+    //  this.chart.mainPanel.positions.forEach(item => item.visible = this.enableOrderForm);
     this.setNeedUpdate();
   }
 }

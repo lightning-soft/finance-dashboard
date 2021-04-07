@@ -34,10 +34,10 @@ export class Orders extends ChartObjects<IOrder> {
   }
 
   _tradingSellAreaClicked = (event) => {
-    this._instance.createOrder({ side: OrderSide.Sell, price: event.value.price });
+    this._instance.createOrderWithConfirm({ side: OrderSide.Sell, price: event.value.price });
   }
   _tradingBuyAreaClicked = (event) => {
-    this._instance.createOrder({ side: OrderSide.Buy, price: event.value.price });
+    this._instance.createOrderWithConfirm({ side: OrderSide.Buy, price: event.value.price });
   }
 
   createOcoOrder(config) {

@@ -22,12 +22,18 @@ export class Positions extends ChartObjects<IPosition> {
   }
 
   createBar(model) {
-    return new StockChartX.PositionBar({
+    const bar = new StockChartX.PositionBar({
       position: this._map(model),
     });
+    bar.visible = false;
+    return bar;
   }
 
- private _closePosition = ({ value }) => {
+  getPositions() {
+    return Object.values(this._barsMap).map((item: any) => item.position);
+  }
+
+  private _closePosition = ({ value }) => {
     this._repository.deleteItem(value.position).subscribe(
       () => value.remove(),
       err => console.error(err),
@@ -40,6 +46,7 @@ export class Positions extends ChartObjects<IPosition> {
 
   protected _map(item: IPosition) {
     return {
+      ...item,
       id: item.id,
       quantity: item.size,
       price: item.price,

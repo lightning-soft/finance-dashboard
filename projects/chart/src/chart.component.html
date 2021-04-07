@@ -38,9 +38,19 @@
   <side-form
     [class.d-none]="!showChartForm || !enableOrderForm"
     [accountId]="accountId"
+    [positions]="getPositions()"
     [ocoStep]="ocoStep"
     (actions)="handleFormAction($event)"
-    [instrument]="instrument"></side-form>
+    [instrument]="instrument">
+<!--    <div class="form-header" headerContent>
+      <div>
+        A: &#45;&#45;
+      </div>
+      <div>
+        B: &#45;&#45;
+      </div>
+    </div>-->
+  </side-form>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul class="chart-menu-dropdown" nz-menu>
