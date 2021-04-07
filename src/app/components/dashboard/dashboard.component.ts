@@ -53,7 +53,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       const connection = this._accountsManager.getActiveConnection();
 
       if (connection)
-        this._websocketService.send({ Id: connection.connectionData.apiKey });
+        this._websocketService.send({ type: 'Id', value: connection.connectionData.apiKey });
     });
 
     this._setupSettings();
