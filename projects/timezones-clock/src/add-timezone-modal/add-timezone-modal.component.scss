@@ -7,6 +7,14 @@
     .subtitle {
       color: $text-60;
     }
+
+    .ant-checkbox-inner {
+      border-radius: 50%;
+
+      &:after {
+        border-radius: 50%;
+      }
+    }
   }
 }
 
@@ -76,6 +84,10 @@ timezone-item {
   cursor: pointer;
   margin-left: auto;
   font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .move-buttons {

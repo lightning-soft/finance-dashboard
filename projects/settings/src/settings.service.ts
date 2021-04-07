@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ITimezone } from 'timezones-clock';
+import { catchError } from 'rxjs/operators';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -73,8 +74,13 @@ export class SettingsService {
   private _init(): void {
     this._settingStore
       .getItem()
+      .pipe(
+        catchError(() => {
+          return of(defaultHotkeyEntries);
+        }),
+      )
       .subscribe(
-        (s) => s && this._updateState(s, false),
+        (s: any) => s && this._updateState(s, false),
         (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }

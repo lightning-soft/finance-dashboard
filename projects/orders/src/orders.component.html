@@ -5,12 +5,9 @@
   <account-select
     (accountChange)="handleAccountChange($event)"
   ></account-select>
-  <div (click)="openOrderForm()" class="add-container">
-    <i class="icon-add"></i>
-  </div>
   <!-- <nz-select class="ml-1 regular"
              [nzOptionHeightPx]="22"
-             (ngModelChange)="updateTitle()" [(ngModel)]="orderType" nzDropdownClassName="order-dropdown-list" >
+             (ngModelChange)="updateTitle()" [(ngModel)]="allTypes" nzDropdownClassName="order-dropdown-list" >
     <nz-option *ngFor="let item of orderTypes" [nzLabel]="item" [nzValue]="item"></nz-option>
   </nz-select>
   <nz-select
@@ -36,34 +33,73 @@
   </div>
 
   <ng-template #headerPanelTemplate>
-    <button nz-dropdown
-            [nzDropdownMenu]="menu"
-            [nzTrigger]="'click'"
-            (nzVisibleChange)="cancelMenuOpened = $event"
-            class="cancel-button">
-      Cancel
-      <i class="arrow" [ngClass]="{'icon-arrow-down': !cancelMenuOpened, 'icon-arrow-up': cancelMenuOpened}"></i>
-    </button>
-    <nz-dropdown-menu #menu="nzDropdownMenu">
-      <ul nz-menu class="cancel-dropdown-list">
-        <li nz-menu-item (click)="cancelAllOrders()">All</li>
-        <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
-      </ul>
-    </nz-dropdown-menu>
+    <div class="d-flex align-items-center">
+      <!--      <button><i class="icon-group"></i></button>-->
+
+      <button nz-dropdown
+              [nzDropdownMenu]="menu"
+              [nzTrigger]="'click'"
+              (nzVisibleChange)="cancelMenuOpened = $event"
+              class="cancel-button">
+        Cancel
+        <i class="arrow" [ngClass]="{'icon-arrow-down': !cancelMenuOpened, 'icon-arrow-up': cancelMenuOpened}"></i>
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <div class="cancel-dropdown-menu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="cancelAllOrders()">All</li>
+            <li nz-menu-item (click)="cancelSelectedOrders()">Selected</li>
+            <li class="divider"></li>
+            <li nz-menu-item (click)="cancelBuyOrders()">BUY Orders</li>
+            <li nz-menu-item (click)="cancelSellOrders()">SELL Orders</li>
+            <li class="divider"></li>
+            <li nz-menu-item (click)="cancelOrdersByType(orderType.Limit)">Limits</li>
+            <li nz-menu-item (click)="cancelOrdersByType(orderType.StopLimit)">Stop Limits</li>
+            <li nz-menu-item (click)="cancelOrdersByType(orderType.StopMarket)">Stop Markets</li>
+          </ul>
+        </div>
+      </nz-dropdown-menu>
+
+      <button title="Duplicate" (click)="duplicateSelectedOrder()" [disabled]="selectedOrders.length !== 1">
+        <i class="icon-duplicate"></i>
+      </button>
+      <button (click)="openOrderForm()"><i class="icon-add"></i></button>
+
+      <!--      <div class="submit-buttons">-->
+      <!--        <button><i class="icon-stop"></i></button>-->
+      <!--        <button><i class="icon-play"></i></button>-->
+      <!--      </div>-->
+
+      <div class="reprices-buttons">
+        <button title="Tick up" (click)="repriceSelectedOrdersByTickSize(true)" [disabled]="!selectedOrders.length">
+          <i class="icon-arrow-up"></i>
+        </button>
+
+        <button title="Tick down" (click)="repriceSelectedOrdersByTickSize(false)" [disabled]="!selectedOrders.length">
+          <i class="icon-arrow-down"></i>
+        </button>
+      </div>
+    </div>
   </ng-template>
 
   <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
-    <nz-tab nzTitle="Working" (nzClick)="changeTab('Working')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+    <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+                 [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
-    <nz-tab nzTitle="Filled" (nzClick)="changeTab('Filled')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+    <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab('Filled')">
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+                 [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
-    <nz-tab nzTitle="All" (nzClick)="changeTab('Show All')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" [showHeaderPanelInContextMenu]="true" #grid [items]="items" [handlers]="handlers" [columns]="columns"></data-grid>
+    <nz-tab nzTitle="All" (nzClick)="changeActiveTab('All')">
+      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+                 [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
-<!--    <nz-tab nzTitle="History">
-      Content of Tab Pane 2
-    </nz-tab>-->
+    <!--    <nz-tab nzTitle="History">
+          Content of Tab Pane 2
+        </nz-tab>-->
   </nz-tabset>
 </div>

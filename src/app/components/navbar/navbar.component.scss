@@ -6,6 +6,8 @@
   width: 100%;
   display: block !important;
   background-color: transparent !important;
+  position: absolute;
+  z-index: 1;
 
   &.hidden {
     .navigation-bar {
@@ -14,6 +16,14 @@
 
     &.Bottom .navigation-bar {
       margin-top: 36px;
+    }
+  }
+
+  &.Bottom {
+    bottom: 0;
+
+    &:not(.hidden) {
+      z-index: 1000;
     }
   }
 
@@ -77,8 +87,7 @@
     justify-content: center;
     height: 100%;
     align-items: center;
-    padding-left: 1px;
-    padding-right: 1px;
+    padding: 0 2px;
 
     app-drag-drawer {
       height: 100%;
@@ -88,7 +97,7 @@
       content: '';
       height: calc(100% - 8px);
       top: 4px;
-      width: 0.5px;
+      width: 1px;
       position: absolute;
       background: $lightBackground;
     }

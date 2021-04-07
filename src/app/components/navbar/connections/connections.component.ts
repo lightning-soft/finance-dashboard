@@ -34,7 +34,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
-
+  isConnectionsDropdownOpened = false;
 
   protected _clearOnDisconnect = false;
 
@@ -118,6 +118,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   }
 
   disconnect() {
+    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -126,6 +127,9 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
           this.activeConnection = null;
         },
         err => this._notifier.showError(err),
+        () => {
+          delete this.isLoading[this.contextMenuConnection.id];
+        }
       );
   }
 

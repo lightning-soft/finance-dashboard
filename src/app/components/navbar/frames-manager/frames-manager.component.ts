@@ -102,5 +102,6 @@ export class FramesManagerComponent {
 }
 
 const componentTitles = {
-  [Components.OrderForm]: 'Order Ticket'
+  [Components.OrderForm]: 'Order Ticket',
+  [Components.Dom]: 'DOM',
 };

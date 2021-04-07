@@ -1,22 +1,31 @@
-<div class="clock-container" *ngIf="enabledTimezone">
-  <span class="zone">{{enabledTimezone.name}}</span>
-  <span class="time" *ngIf="time; else emptyTime">
-    {{ time | date: "HH:mm:ss": (enabledTimezone.offset | utc) }}
-  </span>
-</div>
-
-<div
+<button
+  *ngIf="enabledTimezone"
   nz-dropdown
   nzTrigger="click"
-  class="clock-container cursor-pointer"
+  class="clock-container"
   [nzDropdownMenu]="menu"
+  [nzPlacement]="dropdownPlacement"
+  [nzClickHide]="false"
+>
+  <span class="zone">{{enabledTimezone.name}}</span>
+  <span class="time" *ngIf="time; else emptyTime">
+      {{ time | date: "HH:mm:ss": (enabledTimezone.offset | utc) }}
+  </span>
+</button>
+
+<button
+  nz-dropdown
+  nzTrigger="click"
+  class="clock-container"
+  [nzDropdownMenu]="menu"
+  [nzPlacement]="dropdownPlacement"
   [nzClickHide]="false"
 >
   <span class="zone">{{localTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">
     {{ time | date: "HH:mm:ss" }}
   </span>
-</div>
+</button>
 
 <ng-template #emptyTime><span class="time">--:--:--</span></ng-template>
 

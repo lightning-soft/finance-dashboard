@@ -71,8 +71,20 @@
     margin-top: 4px;
   }
 
-  body.navbarBottom .window-dropdown-menu {
-    margin-bottom: 4px;
+  body.navbarBottom {
+    .window-dropdown-menu {
+      margin-bottom: 4px;
+    }
+
+    nz-select {
+      .anticon-down {
+        transform: rotate(180deg);
+      }
+
+      &.ant-select-open .anticon-down {
+        transform: rotate(0) !important;
+      }
+    }
   }
 }
 

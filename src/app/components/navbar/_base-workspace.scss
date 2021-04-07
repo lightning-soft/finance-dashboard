@@ -62,4 +62,9 @@
   margin: 12px 10px;
   width: 186px;
   font-size: 0.8rem;
+  transition: opacity .2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }

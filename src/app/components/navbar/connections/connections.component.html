@@ -23,11 +23,12 @@
   nz-dropdown
   nzTrigger="click"
   nzPlacement="bottomRight"
+  (nzVisibleChange)="isConnectionsDropdownOpened = $event"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
   *ngIf="favourites.length > 2"
 >
-  <i class="icon-arrow-down text-small mr-1"></i>
+  <i class="icon-arrow-down text-small mr-1" [class.opened]="isConnectionsDropdownOpened"></i>
   <i [ngClass]="{
     'text-active': activeConnection
   }" class="icon-signal"></i>

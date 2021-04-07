@@ -495,6 +495,17 @@ nz-input-number {
         background-color: #101114;
         color: #ffffff;
         border-color: #4895F5;
+        transition: opacity .2s ease;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      button {
+        min-width: 70px;
+        height: 26px;
+        font-size: 10px;
       }
     }
 

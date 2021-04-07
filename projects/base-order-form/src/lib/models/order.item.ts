@@ -1,8 +1,27 @@
 import { IViewItem, StringHelper } from 'base-components';
 import { Id } from 'communication';
 import { DataCell, IconCell, CheckboxCell, Column } from 'data-grid';
+import { DataCell, IconCell, CheckboxCell, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
+
+const allFields: Partial<keyof OrderItem>[] = [
+  'checkbox',
+  'averageFillPrice',
+  'description',
+  'duration',
+  'filledQuantity',
+  'quantity',
+  'side',
+  'status',
+  'type',
+  'exchange',
+  'symbol',
+  'fcmId',
+  'ibId',
+  'identifier',
+  'close',
+];
 
 export type HeaderItem = [string, string, IHeaderItemOptions?] | string;
 
@@ -74,10 +93,21 @@ export class OrderItem implements IViewItem<IOrder> {
 
   toggleSelect(event: MouseEvent): void {
     this.checkbox.toggleSelect(event);
+    this._updateSelectedStatus();
   }
 
   updateSelect(selected: boolean): void {
     this.checkbox.updateValue(selected);
+    this._updateSelectedStatus();
+  }
+
+  private _updateSelectedStatus(): void {
+    const selectedStatusName = this.isSelected ? 'selected' : '';
+    allFields.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
+  }
+
+  changeCheckboxHorizontalAlign(align: 'left' | 'right' | 'center'): void {
+    this.checkbox.horizontalAlign = align;
   }
 }
 

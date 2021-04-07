@@ -11,8 +11,8 @@ const DEFAULT_NAME = 'Default';
 export class WorkspacesManager {
 
   public workspaces: BehaviorSubject<Workspace[]> = new BehaviorSubject([]);
-  public reload = new Subject();
-  public save = new Subject();
+  public reload = new Subject<void>();
+  public save = new Subject<void>();
   public workspaceInit = new BehaviorSubject<boolean>(false);
 
   constructor(private _workspacesStore: WorkspacesStore) {
@@ -78,8 +78,11 @@ export class WorkspacesManager {
     return window;
   }
 
-  public switchWorkspace(id: WorkspaceId): void {
-    this.save.next();
+  public switchWorkspace(id: WorkspaceId, emitSave = true): void {
+    if (emitSave) {
+      this.save.next();
+    }
+
     const workspaces = this._switchWorkspace(this.workspaces.value, id);
     this.workspaces.next(workspaces);
     this.reload.next();
@@ -168,8 +171,11 @@ export class WorkspacesManager {
     this.save.next();
   }
 
-  switchWindow(windowId) {
-    this.save.next();
+  switchWindow(windowId, emitSave = true) {
+    if (emitSave) {
+      this.save.next();
+    }
+
     const workspace = this.getActiveWorkspace();
     workspace.windows = workspace.windows.map(item => {
       item.isSelected = item.id === windowId;

@@ -53,7 +53,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       const connection = this._accountsManager.getActiveConnection();
 
       if (connection)
-        this._websocketService.send({ Id: connection.connectionData.apiKey });
+        this._websocketService.send({ type: 'Id', value: connection.connectionData.apiKey });
     });
 
     this._setupSettings();
@@ -272,7 +272,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-
     if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
       this.hasBeenSaved = true;

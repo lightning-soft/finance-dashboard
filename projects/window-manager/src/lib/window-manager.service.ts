@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { WindowManager } from 'simple-window-manager';
 import { EVENTS, Position } from './enums';
 import { IWindow, IWindowManager } from './interfaces';
-import { Options, saveData } from './types';
+import { Bounds, Options, saveData } from './types';
 
 const Shift = 30;
 
@@ -77,6 +77,10 @@ export class WindowManagerService {
 
   public updateGlobalOffset(): void {
     this.wm.updateGlobalOffset();
+  }
+
+  setBounds(bounds: Bounds): void {
+    this.wm.setCustomBounds(bounds);
   }
 
   private calculatePosition(options: Options): Cords {
