@@ -285,6 +285,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    */
   theme: any;
   showBarInfoInTitle: boolean;
+
+  incomePrecision: number;
   /**
    * The flag that indicates whether instrument watermark should be visible.
    * @name showInstrumentWatermark

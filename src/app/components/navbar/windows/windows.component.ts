@@ -133,10 +133,8 @@ export class WindowsComponent implements OnInit {
     }
   }
 
-  private async _saveAndSwitchWindow(windowId, saveInStorage = true) {
-    if (saveInStorage)
-      await this._workspacesService.saveWorkspaces(this._workspacesService.getActiveWorkspace().id, this.layout.saveState());
-    this._workspacesService.switchWindow(windowId);
+  private _saveAndSwitchWindow(windowId, saveInStorage = true) {
+    this._workspacesService.switchWindow(windowId, saveInStorage);
     this.currentWindowId = windowId;
   }
 
@@ -149,6 +147,6 @@ export class WindowsComponent implements OnInit {
   }
 
   popupWindow(window: WorkspaceWindow) {
-    this._windowPopupManager.openWindow(window);
+    this._windowPopupManager.openWindow(this.currentWorkspace, window);
   }
 }

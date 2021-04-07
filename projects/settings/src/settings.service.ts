@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ITimezone } from 'timezones-clock';
+import { catchError } from 'rxjs/operators';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -18,7 +19,7 @@ function createCommand(name: string, uiSstring: string = name): ICommand {
 
 export enum HotkeyEvents {
   SavePage = 'saveAll',
- // CenterAllWindows = 'CenterAllWindows',
+  // CenterAllWindows = 'CenterAllWindows',
   OpenOrderTicket = 'openOrderForm',
   OpenTradingDom = 'openDOM',
   OpenChart = 'openChart',
@@ -52,6 +53,7 @@ const defaultSettings: SettingsData = {
   tradingEnabled: true,
   workspaces: [],
   timezones: [],
+  localTimezoneTitle: 'Local',
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
 };
@@ -72,8 +74,13 @@ export class SettingsService {
   private _init(): void {
     this._settingStore
       .getItem()
+      .pipe(
+        catchError(() => {
+          return of(defaultHotkeyEntries);
+        }),
+      )
       .subscribe(
-        (s) => s && this._updateState(s, false),
+        (s: any) => s && this._updateState(s, false),
         (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
@@ -124,6 +131,10 @@ export class SettingsService {
 
   saveTimezones(timezones: ITimezone[]): void {
     this._updateState({ timezones });
+  }
+
+  saveLocalTimezoneTitle(localTimezoneTitle: string): void {
+    this._updateState({ localTimezoneTitle });
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {

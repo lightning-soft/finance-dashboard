@@ -30,6 +30,11 @@
       border: none;
       color: $text-80;
       box-shadow: none;
+      transition: color .2s ease;
+
+      &:hover {
+        color: $primary;
+      }
 
       &:after {
         content: none;

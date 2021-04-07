@@ -12,7 +12,9 @@
           <label class="radio-btn" nz-radio [nzValue]="window.id">{{ window.name }}</label>
         </div>
         <div class="actions">
-          <button [title]="'Open In New Window'" class="icon-popup" (click)="$event.stopPropagation(); popupWindow(window)"></button>
+          <button [title]="'Open In New Window'"
+                  *ngIf="!window.isSelected"
+                  class="icon-popup" (click)="$event.stopPropagation(); popupWindow(window)"></button>
           <button [title]="'Edit'" (click)="$event.stopPropagation();rename(window?.id)" class="icon-edit"></button>
           <button [title]="'Delete'" (click)="$event.stopPropagation(); delete(window?.id)"
                   class="icon-tool-delete"></button>

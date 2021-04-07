@@ -2,18 +2,38 @@
 @import "~src/scss/dark.theme";
 @import "../scroll";
 
+:host ::ng-deep {
+  timezone-item {
+    .subtitle {
+      color: $text-60;
+    }
+
+    .ant-checkbox-inner {
+      border-radius: 50%;
+
+      &:after {
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
 ::ng-deep {
   .timezones-modal {
     .ant-modal-body {
+      min-width: unset !important;
       padding: 4px !important;
       background-color: $light !important;
     }
   }
 }
 
-
 timezone-item {
   background-color: $inputBackground;
+
+  &:hover {
+    background-color: $light;
+  }
 
   &.selected {
     background-color: $light3;
@@ -21,7 +41,7 @@ timezone-item {
 
   &.disabled {
     background-color: transparent;
-    opacity: 0.5;
+    opacity: 0.3;
   }
 }
 
@@ -64,6 +84,10 @@ timezone-item {
   cursor: pointer;
   margin-left: auto;
   font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .move-buttons {
@@ -85,5 +109,33 @@ timezone-item {
     align-items: center;
     justify-content: center;
     margin: 3px 0;
+  }
+}
+
+.max-size-error {
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $red;
+  padding: 4px 8px;
+  border-radius: 2px;
+  text-align: left;
+  font-size: 11px;
+  line-height: 16px;
+  color: #fff;
+  z-index: 1;
+
+  .icon-close-window {
+    padding-left: 8px;
+    font-size: 11px;
+    transition: color .2s ease;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary;
+    }
   }
 }

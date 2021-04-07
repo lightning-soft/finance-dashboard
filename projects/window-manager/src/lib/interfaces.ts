@@ -12,6 +12,7 @@ export interface IWindowManager {
   createWindow(option: object): IWindow;
   save(): saveData;
   updateGlobalOffset(): void;
+  setCustomBounds(bounds: Bounds): void;
 }
 
 export interface IWindow {

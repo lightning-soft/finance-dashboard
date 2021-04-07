@@ -1,17 +1,19 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { ITimezone } from "../timezones";
 
 @Component({
-    selector: 'timezone-item',
-    templateUrl: 'timezone-item.component.html',
-    styleUrls: ['timezone-item.component.scss']
+  selector: 'timezone-item',
+  templateUrl: 'timezone-item.component.html',
+  styleUrls: ['timezone-item.component.scss']
 })
 export class TimezoneItemComponent {
   editing = false;
 
-  @Input() timezone: ITimezone;
-  @Input() editable = true;
+  @Input() @HostBinding('class.editable') editable = true;
   @Input() canToggle = true;
+  @Input() canDelete = true;
+  @Input() timezone: ITimezone;
+  @Input() subtitleFontSize = 10;
 
   @Output() reset = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();

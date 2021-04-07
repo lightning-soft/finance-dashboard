@@ -31,7 +31,6 @@ export function convertToColumn(nameOrArr: any) {
 export interface RealtimeGridComponent<T extends IBaseItem, P extends IPaginationParams = any> extends ILayoutNode {
 }
 
-
 @UntilDestroy()
 @Directive()
 export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationParams = any>
@@ -78,7 +77,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:
-        this._handleKey(data);
+        return this._handleKey(data);
     }
 
     return true;
@@ -86,7 +85,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
 
   protected _handleKey(event) {
     if (!(event instanceof KeyboardEvent)) {
-      return;
+      return true;
     }
     // this.keysStack.handle(event);
     // const keyBinding = Object.entries(this._settings.hotkeys)

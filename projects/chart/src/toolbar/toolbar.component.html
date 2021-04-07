@@ -90,6 +90,7 @@
   <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
     <nz-select
       #frame
+      [(nzOpen)]="frameOpen"
       [nzShowArrow]="false"
       [compareWith]="compareTimeFrame"
       [nzOptionHeightPx]="22"
@@ -114,6 +115,7 @@
   <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
     <nz-select
       #price
+      [(nzOpen)]="priceOpen"
       [nzShowArrow]="false"
       [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
@@ -129,7 +131,7 @@
         (click)="changePriceStyle(option)"
       >
         <span class="scx-icon icon-{{option}}"></span>
-        {{option}}
+        {{priceStyleNames[option]}}
       </nz-option>
     </nz-select>
     <i (click)="price.setOpenState(true)" class="icon-arrow-down"></i>
@@ -171,7 +173,7 @@
           (click)="zoom(option)"
         >
           <span class="scx-icon icon-zoom-{{option}}"></span>
-          {{option}}
+          {{zoomNames[option]}}
         </li>
       </ul>
     </nz-dropdown-menu>
@@ -181,6 +183,7 @@
     <nz-select
       #cross
       [nzShowArrow]="false"
+      [(nzOpen)]="crossOpen"
       [nzOptionHeightPx]="22"
       [nzCustomTemplate]="defaultTemplate"
       nzDropdownClassName="toolbar-dropdown"
@@ -194,7 +197,7 @@
         nzCustomContent
       >
         <span class="scx-icon icon-{{option}}"></span>
-        {{option}}
+        {{cursorNames[option]}}
       </nz-option>
     </nz-select>
     <i (click)="cross.setOpenState(true)" class="icon-arrow-down"></i>

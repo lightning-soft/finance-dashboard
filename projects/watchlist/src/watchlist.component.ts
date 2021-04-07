@@ -158,10 +158,10 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
         this._handleResize();
-        break;
+        return true;
     }
 
-    return true;
+    return false;
   }
 
 

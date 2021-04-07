@@ -20,16 +20,20 @@ button {
 
 .side-navigation {
   width: 125px;
-  padding: 0;
+  padding: 4px;
   border: 1px solid $lighter;
   border-radius: 2px;
   background-color: $light !important;
   box-shadow: 0px 0px 10px #15161D;
 
   li {
-    padding: 10px;
+    padding: 6px;
   }
 
+  li.divider {
+    margin: 5px 0;
+    padding: 0;
+  }
 }
 
 .change-name {
@@ -45,18 +49,24 @@ button {
   }
 
   button {
+    padding: 0;
     font-size: 12px;
     color: $textColor60;
     background-color: transparent;
     height: auto;
     margin-left: auto;
+    transition: color .2s ease;
+
+    &:hover {
+      color: $primary;
+    }
   }
 }
 
 .log-out {
   position: relative;
-  font-size: 0.7rem;
-  line-height: 0.8rem;
+  font-size: 11px;
+  line-height: 16px;
   color: $textColor60;
   display: flex;
   align-items: center;
@@ -64,16 +74,5 @@ button {
   i {
     margin-right: 5px;
     font-size: 12px;
-  }
-
-  &::before {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 10px;
-    width: 105px;
-    height: 1px;
-    background-color: $lightBackground;
   }
 }

@@ -46,17 +46,19 @@
     <app-trade-lock></app-trade-lock>
     <app-workspace [layout]="layout" [dropdownPlacement]="dropdownPlacementRightSide"></app-workspace>
     <button
+      #settingsButton
       [title]="'Settings'"
-      (click)="openSettings()" class="icon-setting-gear navbar-button"></button>
+      (click)="openSettings(); settingsButton.blur()" class="icon-setting-gear navbar-button"></button>
     <button
+      #notificationsButton
       [title]="'Notifications'"
-      (click)="openNotificationsList()" class="icon-notification  navbar-button">
+      (click)="openNotificationsList(); notificationsButton.blur()" class="icon-notification  navbar-button">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
     <app-account></app-account>
   </div>
   <div class="time">
-    <app-clock></app-clock>
+    <app-clock [dropdownPlacement]="dropdownPlacementRightSide"></app-clock>
   </div>
 
   <div class="control">

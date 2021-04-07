@@ -367,6 +367,12 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.detectChanges();
   }
 
+  setFitColumnsWidth(): void {
+    this.columns.forEach(column => {
+      this._grid.fitColumnToValues(column);
+    });
+  }
+
   changeShowPanel($event: boolean) {
     this.showHeaderPanel = $event;
     this.showHeaderPanelChange.emit($event);

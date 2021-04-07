@@ -77,7 +77,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       if (type === this.subscribeType) {
         subscriptions[hash] = (subscriptions[hash] || 0) + 1;
         if (subscriptions[hash] === 1) {
-          const dto = { Instruments: [item], Timestamp: new Date() };
+          const dto = { Value: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
           if (this._sucessfullyConected)
             this._webSocketService.send({ Type: type, ...dto });

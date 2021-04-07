@@ -45,14 +45,13 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     this.form.patchValue({
       isIce: !isIce
     });
-    this.updateIceQuantityState();
+    this.onTypeUpdated();
   }
 
-  updateIceQuantityState(){
+  onTypeUpdated() {
     if (!this.isIceEnabled || !this.isIce) {
       this.form.controls.iceQuantity.disable();
-    }
-    else {
+    } else {
       this.form.controls.iceQuantity.enable();
     }
   }
@@ -80,9 +79,10 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     return value;
   }
 }
+
 export const orderDurations = Object.values(OrderDuration);
 export const orderTypes = [
-   { label: 'MKT', value: OrderType.Market },
+  { label: 'MKT', value: OrderType.Market },
   { label: 'LMT', value: OrderType.Limit },
   { label: 'STP LMT', value: OrderType.StopLimit },
   { label: 'STP MKT', value: OrderType.StopMarket },

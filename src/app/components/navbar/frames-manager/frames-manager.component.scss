@@ -15,7 +15,6 @@
     display: flex;
     align-items: center;
 
-
     & > .frame {
       display: flex;
       justify-content: center;
@@ -76,6 +75,16 @@
         }
       }
     }
+  }
+}
+
+::ng-deep {
+  body.navbarTop .windows-list-dropdown-menu {
+    margin-top: 8px;
+  }
+
+  body.navbarBottom .windows-list-dropdown-menu {
+    margin-bottom: 8px;
   }
 }
 
@@ -158,4 +167,6 @@
 .windows-list-trigger {
   display: flex;
   align-items: center;
+  background: transparent;
+  padding: 0;
 }

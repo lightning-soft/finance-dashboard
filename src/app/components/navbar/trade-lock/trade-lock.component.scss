@@ -33,7 +33,7 @@ button {
 .lock-alert,
 .unlock-alert {
   position: absolute;
-  bottom: -50px;
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 999999;
@@ -49,7 +49,7 @@ button {
   .lock-alert,
   .unlock-alert {
     bottom: unset;
-    top: -50px;
+    top: -40px;
   }
 }
 

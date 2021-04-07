@@ -134,7 +134,10 @@ export class RithmicDatafeed extends Datafeed {
 
   cancel(request: IRequest) {
     super.cancel(request);
+    const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
+    this._barDataFeed.unsubscribe(instrument);
+    this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
     this.requestSubscriptions.delete(request.id);

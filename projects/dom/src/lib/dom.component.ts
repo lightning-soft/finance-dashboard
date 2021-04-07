@@ -402,7 +402,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         ['delta', 'delta', 'Delta'],
         ['bidDelta', 'delta', 'Bid Delta'],
         ['bid', 'bid', 'Bid', 'histogram'],
-        ['ltq', 'ltg', 'LTQ'],
+        ['ltq', 'ltq', 'LTQ'],
         ['currentBid', 'c.bid', 'C.Bid', 'histogram'],
         ['currentAsk', 'c.ask', 'C.Ask', 'histogram'],
         ['ask', 'ask', 'Ask', 'histogram'],
@@ -1644,16 +1644,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:
-        this._handleKey(data);
+        return this._handleKey(data);
     }
-    return true;
+    return false;
   }
 
   private _handleKey(event) {
     if (!(event instanceof KeyboardEvent)) {
-      return;
+      return false;
     }
-
     this.keysStack.handle(event);
     // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
@@ -1664,6 +1663,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (keyBinding) {
       console.warn(keyBinding[0]);
       this.domKeyHandlers[keyBinding[0] as string]();
+      return true;
     }
   }
 
@@ -1717,7 +1717,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   openSettings(hidden = false) {
     const settingsExists = this.layout.findComponent((item: IWindow) => {
-      return item.options.componentState()?.state.linkKey === this._getSettingsKey();
+      return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
     if (settingsExists)
       this._closeSettings();
@@ -1793,8 +1793,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _getPriceSpecs(item: IOrder & { amount: number }, price) {
-    const priceSpecs: any = {};
+  _getPriceSpecs(item: IOrder & { amount: number }, price: number): Partial<Pick<IOrder, 'stopPrice' | 'limitPrice'>> {
+    const priceSpecs: Partial<Pick<IOrder, 'stopPrice' | 'limitPrice'>> = {};
     if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
       priceSpecs.limitPrice = price;
     }

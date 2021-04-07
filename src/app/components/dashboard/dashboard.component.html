@@ -1,15 +1,8 @@
-<ng-template [ngIf]="settings?.navbarPosition === 'Top'">
-  <ng-template [ngTemplateOutlet]="navbar"></ng-template>
-</ng-template>
+<app-navbar [class.window-navbar]="isWindowPopup()"
+            *ngIf="layout && shouldShowToolBar()"
+            [layout]="layout"
+></app-navbar>
 
 <layout></layout>
 
-<ng-template [ngIf]="settings?.navbarPosition === 'Bottom'">
-  <ng-template [ngTemplateOutlet]="navbar"></ng-template>
-</ng-template>
-
 <context-menu></context-menu>
-
-<ng-template #navbar>
-  <app-navbar *ngIf="layout && !isPopup()" [layout]="layout" #bar></app-navbar>
-</ng-template>

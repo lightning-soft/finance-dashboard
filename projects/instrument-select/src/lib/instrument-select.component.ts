@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { Id, ItemsComponent } from 'base-components';
 import { IInstrument, InstrumentsRepository } from 'trading';
-import { untilDestroyed } from "@ngneat/until-destroy";
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 @Component({
   selector: 'instrument-select',
@@ -57,7 +57,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
 
     if (!instrument._loaded) {
       const hide = this.showLoading();
-      this._repository.getItemById(instrument.symbol)
+      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange })
         .pipe(untilDestroyed(this))
         .subscribe(
           (_instrument: IInstrument) => {

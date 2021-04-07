@@ -4,10 +4,16 @@ import { Observable } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { ITimezone, Timezone } from "./timezones";
 
+interface ITimezonesData {
+  localTimezoneTitle: string;
+  timezones: ITimezone[];
+}
+
 @Injectable()
-export class ActiveTimezonesService {
+export class TimezonesService {
   private _timezones: ITimezone[] = [];
-  public timezones$: Observable<ITimezone[]>;
+  public timezonesData$: Observable<ITimezonesData>;
+  public localTimezoneTitle: string;
 
   get enabledTimezone(): ITimezone {
     return this._timezones.find(i => i.enabled);
@@ -15,9 +21,10 @@ export class ActiveTimezonesService {
 
   constructor(private _settingsService: SettingsService) {
 
-    this.timezones$ = this._settingsService.settings.pipe(
-      map(settings => settings.timezones),
-      tap(timezones => this._timezones = timezones),
+    this.timezonesData$ = this._settingsService.settings.pipe(
+      map(settings => ({ localTimezoneTitle: settings.localTimezoneTitle, timezones: settings.timezones })),
+      tap(data => this._timezones = data.timezones),
+      tap(data => this.localTimezoneTitle = data.localTimezoneTitle),
     )
   }
 
@@ -41,7 +48,7 @@ export class ActiveTimezonesService {
   }
 
   resetItem(timezone: ITimezone): void {
-    Timezone.setDefaultProperties(timezone);
+    Timezone.setDefaultName(timezone);
     this._save();
   }
 
@@ -53,6 +60,14 @@ export class ActiveTimezonesService {
   deleteAll(): void {
     this._timezones = [];
     this._save();
+  }
+
+  changeLocalTitle(title: string): void {
+    this._settingsService.saveLocalTimezoneTitle(title);
+  }
+
+  resetLocalTitle(): void {
+    this._settingsService.saveLocalTimezoneTitle('Local');
   }
 
   private _save(): void {

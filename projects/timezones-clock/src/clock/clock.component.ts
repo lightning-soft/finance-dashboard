@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NzModalService } from "ng-zorro-antd";
+import { Component, Input, OnInit } from '@angular/core';
+import { NzModalService, NzPlacementType } from "ng-zorro-antd";
 import { AddTimezoneModalComponent } from "../add-timezone-modal/add-timezone-modal.component";
-import { ActiveTimezonesService } from "../active-timezones.service";
+import { TimezonesService } from "../timezones.service";
 import { ITimezone, Timezone, TIMEZONES } from "../timezones";
 import { interval } from "rxjs";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
@@ -18,8 +18,10 @@ export class ClockComponent implements OnInit {
   localTimezone: ITimezone;
   enabledTimezone: ITimezone;
 
+  @Input() dropdownPlacement: NzPlacementType;
+
   constructor(private modalService: NzModalService,
-              private timezonesService: ActiveTimezonesService) {
+              private timezonesService: TimezonesService) {
 
     interval(1000)
       .pipe(untilDestroyed(this))
@@ -27,19 +29,21 @@ export class ClockComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.timezonesService.timezones$.subscribe((timezones) => {
-      this.timezones = timezones;
-      this.enabledTimezone = this.timezonesService.enabledTimezone;
-    })
-
     this.localTimezone = this._getLocalTimezone();
+
+    this.timezonesService.timezonesData$.subscribe((data) => {
+      this.timezones = data.timezones
+      this.enabledTimezone = this.timezonesService.enabledTimezone;
+      this.localTimezone.name = data.localTimezoneTitle;
+    })
   }
 
   addTimezone(): void {
     this.modalService.create({
       nzContent: AddTimezoneModalComponent,
       nzWrapClassName: 'timezones-modal vertical-center-modal',
-      nzFooter: null
+      nzFooter: null,
+      nzWidth: 416
     });
   }
 
@@ -57,6 +61,14 @@ export class ClockComponent implements OnInit {
 
   resetTimezone(timezone: ITimezone): void {
     this.timezonesService.resetItem(timezone);
+  }
+
+  renameLocalTitle(title: string): void {
+    this.timezonesService.changeLocalTitle(title);
+  }
+
+  resetLocalTitle(): void {
+    this.timezonesService.resetLocalTitle();
   }
 
   private _getLocalTimezone(): ITimezone {

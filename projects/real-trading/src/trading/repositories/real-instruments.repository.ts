@@ -19,8 +19,8 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
     );
   }
 
-  getItemById(id): Observable<IInstrument> {
-    return super.getItemById(id).pipe(
+  getItemById(id, query?): Observable<IInstrument> {
+    return super.getItemById(id, query).pipe(
       map(({ result }: any) => ({
         ...result,
         id: result.symbol,
