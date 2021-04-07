@@ -3,9 +3,13 @@
 >
   <div class="mt-2 text-left">
     <small class="text-muted px-2 mb-1">Start with</small>
-    <nz-select [nzOptionHeightPx]="20" class="custom-form-control" [(ngModel)]="base" formControlName="base">
-      <nz-option nzValue="blank" [nzLabel]="blankOption"></nz-option>
-      <nz-option *ngFor="let option of options" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+    <nz-select [nzOptionHeightPx]="26" class="custom-form-control" [(ngModel)]="base" formControlName="base">
+      <nz-option nzValue="blank" [nzLabel]="blankOption" [nzCustomContent]="true">
+        <span class="option-label">{{blankOption}}</span>
+      </nz-option>
+      <nz-option *ngFor="let option of options" [nzValue]="option.value" [nzLabel]="option.label" [nzCustomContent]="true">
+        <span class="option-label">{{option.label}}</span>
+      </nz-option>
     </nz-select>
   </div>
   <div class="mb-1 mt-3 text-left">

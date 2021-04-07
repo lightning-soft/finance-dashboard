@@ -34,7 +34,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
 
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
-
+  isConnectionsDropdownOpened = false;
 
   protected _clearOnDisconnect = false;
 
