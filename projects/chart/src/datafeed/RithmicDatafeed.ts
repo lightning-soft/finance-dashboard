@@ -6,7 +6,7 @@ import {
   HistoryRepository,
   InstrumentsRepository,
   TradeDataFeed, TradePrint,
-  BarDataFeed, Bar,
+  BarDataFeed, Bar, IInstrument,
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
@@ -134,7 +134,10 @@ export class RithmicDatafeed extends Datafeed {
 
   cancel(request: IRequest) {
     super.cancel(request);
+    const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
+    this._barDataFeed.unsubscribe(instrument);
+    this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
     this.requestSubscriptions.delete(request.id);
@@ -163,10 +166,11 @@ export class RithmicDatafeed extends Datafeed {
   subscribeToRealtime(request: IBarsRequest) {
     const chart = request.chart;
     const instrument = this._getInstrument(request);
-    this._barDataFeed.subscribe(instrument);
-    this._tradeDataFeed.subscribe(instrument);
 
     this._unsubscribe();
+    this._unsubscribeFromRealtime(instrument);
+    this._barDataFeed.subscribe(instrument);
+    this._tradeDataFeed.subscribe(instrument);
 
     this._unsubscribeFns.push(this._barDataFeed.on((quote: Bar) => {
       const _quote: ChartQuote = {
@@ -198,6 +202,11 @@ export class RithmicDatafeed extends Datafeed {
 
   private _getInstrument(req: IRequest) {
     return req.instrument ?? req.chart.instrument;
+  }
+
+  _unsubscribeFromRealtime(instrument: IInstrument) {
+    this._barDataFeed.unsubscribe(instrument);
+    this._tradeDataFeed.unsubscribe(instrument);
   }
 
   _unsubscribe() {

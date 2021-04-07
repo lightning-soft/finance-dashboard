@@ -26,6 +26,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { BarDataFeed, TradeDataFeed } from "trading";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -77,6 +78,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument.symbol === value.symbol
       && this.chart.instrument.exchange === value.exchange)
       return;
+    if (this.instrument) {
+      this._barDataFeed.unsubscribe(this.instrument);
+      this._tradeDataFeed.unsubscribe(this.instrument);
+    }
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
     if (value) {
@@ -103,7 +108,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     protected _loadingService: LoadingService,
-    protected _accountsManager: AccountsManager
+    protected _accountsManager: AccountsManager,
+    private _barDataFeed: BarDataFeed,
+    private _tradeDataFeed: TradeDataFeed,
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -144,7 +151,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _instrumentChangeHandler = (event) => {
     this._setUnavaliableIfNeed();
     this.instrument = event.value;
-
     this.broadcastLinkData({
       instrument: {
         id: event.value.symbol,
@@ -247,7 +253,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
-      incomePrecision:  state?.instrument.precision ?? 2,
+      incomePrecision: state?.instrument.precision ?? 2,
       stayInDrawingMode: false,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
@@ -354,6 +360,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._positions.destroy();
     this._orders.destroy();
     if (this.chart) {
+      this._barDataFeed.unsubscribe(this.instrument);
+      this._tradeDataFeed.unsubscribe(this.instrument);
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.destroy();

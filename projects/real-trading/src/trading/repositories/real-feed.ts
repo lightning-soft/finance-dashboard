@@ -14,7 +14,12 @@ export enum WSMessageTypes {
 @Injectable()
 export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
-  private _subscriptions = {};
+  private _subscriptions: {
+    [hash: string]: {
+      count: number,
+      payload: object,
+    }
+  } = {};
   private _unsubscribeFns = {};
   private _executors: OnTradeFn<T>[] = [];
 
@@ -28,7 +33,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   private _pendingRequests = [];
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
-    @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
+              @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
     this._webSocketService.on(this._handleTrade.bind(this));
     this._webSocketService.connection$.subscribe(conected => !conected && this._clearSubscription());
     this._accountsManager.connections.subscribe(() => {
@@ -39,12 +44,15 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _clearSubscription() {
+    console.warn('clearSubscription');
+    console.warn(this._subscriptions);
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
-
+    this._pendingRequests = [];
+    Object.values(this._subscriptions).forEach(item =>
+      this.createPendingRequest(this.subscribeType, item.payload));
     this._subscriptions = {};
     this._unsubscribeFns = {};
-    this._pendingRequests = [];
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -75,25 +83,33 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       const hash = this._getHash(item);
 
       if (type === this.subscribeType) {
-        subscriptions[hash] = (subscriptions[hash] || 0) + 1;
-        if (subscriptions[hash] === 1) {
+        subscriptions[hash] = {} as any;
+        subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
+        if (subscriptions[hash].count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
+          subscriptions[hash].payload = dto;
           if (this._sucessfullyConected)
             this._webSocketService.send({ Type: type, ...dto });
           else
-            this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...dto }));
+            this.createPendingRequest(type, dto);
         }
+        console.warn(this.constructor.name, subscriptions);
       } else {
-        subscriptions[hash] = (subscriptions[hash] || 1) - 1;
-        if (subscriptions[hash] === 0) {
+        subscriptions[hash].count = (subscriptions[hash].count || 1) - 1;
+        if (subscriptions[hash].count === 0) {
           if (this._unsubscribeFns[hash]) {
             this._unsubscribeFns[hash]();
             delete this._unsubscribeFns[hash];
           }
         }
+        console.warn(this.constructor.name, subscriptions);
       }
     });
+  }
+
+  private createPendingRequest(type, payload) {
+    this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...payload }));
   }
 
   protected _getHash(instrument: I) {

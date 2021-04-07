@@ -6,10 +6,10 @@
   },
   "rithmic": {
     "http": {
-      "url": "http://528b5fa66f5e.ngrok.io/api/"
+      "url": "https://rithmic-dev.amstradinggroup.com/api/"
     },
     "ws": {
-      "url": "wss://528b5fa66f5e.ngrok.io/api/market"
+      "url": "wss://rithmic-dev.amstradinggroup.com/api/market"
     }
   },
   "identity": {
