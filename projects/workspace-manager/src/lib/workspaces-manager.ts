@@ -78,8 +78,11 @@ export class WorkspacesManager {
     return window;
   }
 
-  public switchWorkspace(id: WorkspaceId): void {
-    this.save.next();
+  public switchWorkspace(id: WorkspaceId, emitSave = true): void {
+    if (emitSave) {
+      this.save.next();
+    }
+
     const workspaces = this._switchWorkspace(this.workspaces.value, id);
     this.workspaces.next(workspaces);
     this.reload.next();

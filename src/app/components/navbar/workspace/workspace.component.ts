@@ -99,16 +99,9 @@ export class WorkspaceComponent implements OnInit {
           cancelText: 'No'
         },
       });
-      modal.afterClose.subscribe(async (res) => {
-        console.log(res);
-        if (res) {
-          await this._workspacesService.saveWorkspaces(this.activeWorkspaceId, this.layout.saveState());
+      modal.afterClose.subscribe((needSave) => {
           this.activeWorkspaceId = $event;
-          this._workspacesService.switchWorkspace(this.activeWorkspaceId);
-        } else {
-          this.activeWorkspaceId = $event;
-          this._workspacesService.switchWorkspace(this.activeWorkspaceId);
-        }
+          this._workspacesService.switchWorkspace(this.activeWorkspaceId, needSave);
       });
     }
   }
