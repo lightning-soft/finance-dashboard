@@ -1,20 +1,7 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
+import { AlertType } from 'communication';
 
-export enum AlertType {
-  Undefined = 'Undefined',
-  ConnectionOpened = 'ConnectionOpened',
-  ConnectionClosed = 'ConnectionClosed',
-  ConnectionBroken = 'ConnectionBroken',
-  LoginComplete = 'LoginComplete',
-  LoginFailed = 'LoginFailed',
-  ServiceError = 'ServiceError',
-  ForcedLogout = 'ForcedLogout',
-  QuietHeartbeat = 'QuietHeartbeat',
-  TradingDisabled = 'TradingDisabled',
-  TradingEnabled = 'TradingEnabled',
-  ShutdownSignal = 'ShutdownSignal',
-}
 
 const errorAlerts = [
   AlertType.ServiceError,

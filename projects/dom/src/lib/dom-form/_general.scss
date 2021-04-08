@@ -25,6 +25,12 @@ button, button:hover, button:active, button:focus-within {
     padding-right: 15px;
   }
 }
+:host-context(.full-screen-window.slim) {
+  button, button:hover, button:active, button:focus-within {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+}
 
 .black-btn, .black-btn:hover, .black-btn:active, .black-btn:focus-within {
   background: #1B1D22;

@@ -173,13 +173,25 @@ cdk-virtual-scroll-viewport {
 
   .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
     background-color: #24262C;
-    border: none;
+    box-shadow: none;
+  }
+
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: rgba($primary, 0.5);
   }
 }
 
+.icon-arrow-down {
+  font-size: 7px;
+  align-self: center;
+  line-height: 1;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
 .sub-menu {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 15px;
+  padding-right: 0px;
   margin-top: 2px;
 }
 
@@ -199,11 +211,44 @@ cdk-virtual-scroll-viewport {
     padding-bottom: 4px;
     color: #A1A2A5;
 
-    &.active {
+    .icon-arrow-down {
+      transform: rotate(180deg);
+      transition: transform 0.5s;
+    }
+
+    &.submenu-item {
+      padding: 0;
+
+      .menu-item-inner {
+        padding-left: 8px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+    }
+
+    .sub-menu {
+      display: none;
+    }
+
+    &.expanded {
+      .icon-arrow-down {
+        transform: rotate(0deg);
+      }
+
+      .sub-menu {
+        display: block;
+      }
+    }
+
+    &.active, &.submenu-active .menu-item-inner {
       font-weight: 600;
       border-radius: 2px;
       background: #24262C;
       color: white;
+    }
+
+    &.submenu-active .menu-item-inner {
+      background: transparent;
     }
   }
 }

@@ -9,6 +9,21 @@ export interface IWebSocketConfig {
   protocols?: string;
 }
 
+export enum AlertType {
+  Undefined = 'Undefined',
+  ConnectionOpened = 'ConnectionOpened',
+  ConnectionClosed = 'ConnectionClosed',
+  ConnectionBroken = 'ConnectionBroken',
+  LoginComplete = 'LoginComplete',
+  LoginFailed = 'LoginFailed',
+  ServiceError = 'ServiceError',
+  ForcedLogout = 'ForcedLogout',
+  QuietHeartbeat = 'QuietHeartbeat',
+  TradingDisabled = 'TradingDisabled',
+  TradingEnabled = 'TradingEnabled',
+  ShutdownSignal = 'ShutdownSignal',
+}
+
 export type IWSListener<T = any> = (message: T) => void;
 export type IWSListenerUnsubscribe = () => void;
 
@@ -37,7 +52,7 @@ export class WebSocketService {
         return;
       }
     })
-   }
+  }
 
   connect(onOpen?: () => void) {
     if (this.connection$.value) {

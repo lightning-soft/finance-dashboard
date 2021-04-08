@@ -1,4 +1,4 @@
-import { Component, HostBinding, Injector } from '@angular/core';
+import { Component, HostBinding, Injector, OnChanges, SimpleChanges } from '@angular/core';
 import { RealtimeGridComponent, StringHelper } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
@@ -126,7 +126,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       unwrap: (item: OrderItem) => item.order,
       addNewItems: 'start',
     });
-
+    this.setTabIcon('icon-widget-orders');
+    this.setTabTitle('Orders');
+    if (this.columns && this.columns.length)
+      return;
     this.columns = this.headers.map((nameOrArr: HeaderItem) => {
       nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
       const [name, title, options] = nameOrArr;
@@ -161,9 +164,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     column.style = { ...column.style, textOverflow: true };
     const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');
     checkboxColumn.tableViewName = 'Checkbox';
-    this.setTabIcon('icon-widget-orders');
-    this.setTabTitle('Orders');
+
   }
+
 
   changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
     switch (tab) {
@@ -201,7 +204,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return { columns: this.columns };
+    return { ...this.dataGrid.saveState() };
   }
 
   loadState(state): void {
