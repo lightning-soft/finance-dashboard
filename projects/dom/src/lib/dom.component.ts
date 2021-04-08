@@ -96,6 +96,7 @@ interface IDomState {
   instrument: IInstrument;
   settings?: any;
   componentInstanceId: number;
+  columns: any;
 }
 
 const directionsHints = {
@@ -291,7 +292,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _levelsInterval: number;
   private _clearInterval: () => void;
   private _upadateInterval: number;
-  private _customTickSizeApplyed: boolean;
+  private _customTickSize: number;
 
   get accountId() {
     return this._accountId;
@@ -366,12 +367,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get _tickSize() {
-    return this.instrument.tickSize ?? 0.25;
+    return this.instrument?.tickSize ?? 0.25;
   }
 
   private _bestBidPrice: number;
   private _bestAskPrice: number;
   componentInstanceId: number;
+
+  private _counter = 0;
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -391,6 +394,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     (window as any).dom = this;
+
+    setInterval(() => {
+      console.log(this._counter);
+      this._counter = 0;
+    }, 1000 * 60);
 
     this.columns = [
       ...[
@@ -632,7 +640,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
-    if (useCustomTickSize != this._customTickSizeApplyed) {
+    if ((useCustomTickSize && this._customTickSize != general?.commonView?.ticksMultiplier)
+      || (!useCustomTickSize && this._customTickSize != null)) {
       this.centralize();
       this._calculateDepth();
     }
@@ -991,12 +1000,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _getDomItemsMap() {
     let map = {};
 
-    if (this._customTickSizeApplyed) {
+    if (this._customTickSize) {
 
       for (const i of this.items) {
         map = {
           ...map,
           ...(i.getDomItems ? i.getDomItems() : {}),
+          ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
         };
       }
     } else {
@@ -1017,7 +1027,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const commonView = this._settings.general.commonView;
-    if (commonView.useCustomTickSize) {
+    const ticksMultiplier = commonView.useCustomTickSize ? commonView.ticksMultiplier : null;
+    if (ticksMultiplier != this._customTickSize) {
       const map = this._getDomItemsMap();
       this._map.clear();
       this.items = [];
@@ -1025,7 +1036,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let offset = 0;
 
       const tickSize = this._tickSize;
-      const multiplier = commonView.ticksMultiplier ?? 1;
+      const multiplier = ticksMultiplier ?? 1;
       const _lastPrice = this._normalizePrice(lastPrice + (ROWS / 2 * tickSize * multiplier));
       const decimals = _lastPrice % 1;
       const startPrice = _lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
@@ -1061,9 +1072,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         offset++;
       }
 
-      this._customTickSizeApplyed = true;
+      this._customTickSize = ticksMultiplier;
     } else {
-      if (this._customTickSizeApplyed) {
+      if (this._customTickSize) {
         const map = this._getDomItemsMap();
         this._map.clear();
         this.items = [];
@@ -1091,7 +1102,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
-      this._customTickSizeApplyed = false;
+      this._customTickSize = null;
     }
 
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
@@ -1144,7 +1155,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   protected _handleTrade(trade: TradePrint) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
-
+    this._counter++;
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
     let needCentralize = false;
@@ -1203,11 +1214,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let endTradedPriceIndex;
     let item;
     let priceSum = 0;
+    let maxCurrentAsk = 0;
+    let maxCurrentBid = 0;
     let items = this.items;
 
     for (let i = 0; i < items.length; i++) {
       item = items[i];
       const value = item.volume._value;
+
+      if (item.currentAsk._value > maxCurrentAsk)
+        maxCurrentAsk = item.currentAsk._value;
+
+      if (item.currentBid._value > maxCurrentBid)
+        maxCurrentBid = item.currentBid._value;
+
       if (!value)
         continue;
 
@@ -1225,25 +1245,36 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
-    if (sum == 0)
-      return;
-
     const vwap = this._normalizePrice(priceSum / sum);
 
     let i = 0;
     const valueAreaNum = sum * 0.7;
     let ended = false;
     let valueAreaSum = 0;
+    let item1: DomItem;
+    let item2: DomItem;
     let volume1: HistogramCell;
     let volume2: HistogramCell;
     const maxVolume = items[pointOfControlIndex]?.volume?._value || 0;
 
     while (!ended) {
-      volume1 = items[pointOfControlIndex + i]?.volume;
-      volume2 = items[pointOfControlIndex - i]?.volume;
+      item1 = items[pointOfControlIndex + i];
+      item2 = items[pointOfControlIndex - i];
 
-      if (volume1 == volume2)
-        volume2 = null;
+      if (item1 === item2)
+        item1 = null;
+
+      volume1 = item1?.volume;
+      volume2 = item2?.volume;
+
+      if (item1) {
+        item1.currentBid.calcHist(maxCurrentBid);
+        item1.currentAsk.calcHist(maxCurrentAsk);
+      }
+      if (item2) {
+        item2.currentBid.calcHist(maxCurrentBid);
+        item2.currentAsk.calcHist(maxCurrentAsk);
+      }
 
       volume1?.changeStatus('');
       volume2?.changeStatus('');
@@ -1252,10 +1283,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         break;
 
       if (pointOfControlIndex + i <= endTradedPriceIndex)
-        items[pointOfControlIndex + i].changePriceStatus('tradedPrice')
+        items[pointOfControlIndex + i].changePriceStatus('tradedPrice');
 
       if (pointOfControlIndex - i >= startTradedPriceIndex)
-        items[pointOfControlIndex - i].changePriceStatus('tradedPrice')
+        items[pointOfControlIndex - i].changePriceStatus('tradedPrice');
 
       valueAreaSum += (volume1?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)
@@ -1391,6 +1422,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleQuote(trade: IQuote) {
     if (trade.instrument?.symbol !== this.instrument?.symbol) return;
 
+    this._counter++;
     let item = this._getItem(trade.price);
 
     // console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
@@ -1494,7 +1526,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (askSumItem) {
-      askSumItem.setAskSum();
+      askSumItem.setAskSum(askSum);
     }
   }
 
@@ -1677,7 +1709,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
-      settings: this._settings.toJson()
+      settings: this._settings.toJson(),
+      ...this.dataGrid.saveState(),
     };
   }
 
@@ -1687,7 +1720,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
-
+    if (state?.columns)
+      this.columns = state.columns;
     // for debug purposes
     if (!state)
       state = {} as any;
@@ -1909,7 +1943,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _normalizePrice(price) {
     const tickSize = this._tickSize;
-    return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument.precision);
+    return +(Math.round(price / tickSize) * tickSize).toFixed(this.instrument?.precision);
   }
 
   private _handleQuantitySelect(position: number): void {

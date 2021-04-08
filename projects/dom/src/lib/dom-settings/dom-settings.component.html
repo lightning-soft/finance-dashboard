@@ -4,16 +4,23 @@
     <ul class="menu">
       <li
         class="menu-item"
-        [class.active]="shouldShowForm(item.tab)"
-        (click)="item.tab && select(item)"
+        [class.active]="isTabActive(item)"
+        [class.submenu-active]="isSubMenuActive(item)"
+        [class.expanded]="item.expanded"
+        [class.submenu-item]="item.children"
+        (click)="toggleMenuItem(item)"
         *ngFor="let item of list"
       >
-        <span>{{item.label}}</span>
+        <div class="d-flex menu-item-inner">
+          <span>{{item.label}}</span>
+          <i *ngIf=" item.children"
+             class="icon-arrow-down"></i>
+        </div>
         <ul *ngIf="item.children" class="sub-menu">
           <li
             class="menu-item"
             (click)="$event.stopPropagation(); select(item)"
-            [class.active]="shouldShowForm(item.tab)"
+            [class.active]="isTabActive(item)"
             *ngFor="let item of item.children"
           >
             {{item.label}}

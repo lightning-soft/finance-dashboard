@@ -227,7 +227,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   saveState() {
-    return { columns: this._columns };
+    return { ...this.dataGrid.saveState() };
   }
 
   loadState(state): void {

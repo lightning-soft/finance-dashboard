@@ -13,6 +13,7 @@ import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { environment } from 'environment';
 import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
+import { NzConfigService } from "ng-zorro-antd";
 
 
 @Component({
@@ -32,9 +33,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   private _autoSaveIntervalId: number;
   private _subscriptions = [];
 
+  @ViewChild('defaultEmptyContainer', { static: true }) defaultEmptyContainer;
+
   constructor(
     private _zone: NgZone,
     private _renderer: Renderer2,
+    private readonly nzConfigService: NzConfigService,
     private _themesHandler: ThemesHandler,
     private _accountsManager: AccountsManager,
     private _websocketService: WebSocketService,
@@ -47,6 +51,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
+    this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
+
     this._websocketService.connect();
 
     this._accountsManager.connections.subscribe(() => {
