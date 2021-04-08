@@ -1,7 +1,6 @@
 import { IViewItem, StringHelper } from 'base-components';
 import { Id } from 'communication';
-import { DataCell, IconCell, CheckboxCell, Column } from 'data-grid';
-import { DataCell, IconCell, CheckboxCell, Cell } from 'data-grid';
+import { DataCell, IconCell, CheckboxCell, Column, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
 

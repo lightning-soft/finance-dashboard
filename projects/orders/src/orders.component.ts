@@ -4,7 +4,7 @@ import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
-import { IOrder, IOrderParams, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { finalize } from 'rxjs/operators';
 import { HeaderItem, OrderItem, transformHeaderColumn } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
