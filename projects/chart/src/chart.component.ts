@@ -57,8 +57,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chart: IChart;
   link: any;
 
-  showOHLC = false;
-  showChanges = false;
+  showOHLC = true;
+  showChanges = true;
   private _accountId: Id;
 
   get accountId(): Id {
@@ -162,8 +162,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
-    this.showChanges = state?.showChanges;
-    this.showOHLC = state?.showOHLC;
+    if (state.hasOwnProperty('showChanges'))
+      this.showChanges = state?.showChanges;
+    if (state.hasOwnProperty('showOHLC'))
+      this.showOHLC = state?.showOHLC;
     this._setUnavaliableIfNeed();
 
     if (!chart) {
