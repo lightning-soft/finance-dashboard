@@ -1,4 +1,4 @@
-import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -26,7 +26,7 @@ const maxAccountsPerConnection = 4;
   styleUrls: ['./accounts.component.scss'],
 })
 @LayoutNode()
-export class AccountsComponent implements IStateProvider<AccountsState>, OnInit {
+export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, AfterViewInit {
 
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
@@ -64,7 +64,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   ngOnInit() {
-    this.builder.setParams({ groupBy: ['broker'] });
+    this.builder.setParams({
+      groupBy: ['broker'],
+      sort: (a, b) => a.name > b.name ? 1 : -1
+    });
+
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -106,6 +110,14 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       });
   }
 
+  ngAfterViewInit() {
+    this.form.controls.connectOnStartUp.valueChanges.subscribe(connect => {
+      if (connect) {
+        this.userData?.form?.controls?.autoSavePassword?.setValue(true);
+      }
+    })
+  }
+
   contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
   }
@@ -130,12 +142,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     }
   }
 
-  getBrokerItems(broker): IConnection[] {
+  getConnectionsByBroker(broker: IBroker): IConnection[] {
     return this.builder.getItems('broker', broker.name);
   }
 
-  canAddAccount(broker): boolean {
-    return this.getBrokerItems(broker).length < maxAccountsPerConnection;
+  canAddAccount(broker: IBroker): boolean {
+    return this.getConnectionsByBroker(broker).length < maxAccountsPerConnection;
   }
 
   expandBrokers(): void {
@@ -146,7 +158,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
   }
 
   handleBrockerClick($event, broker: IBroker): void {
-    if (!this.getBrokerItems(broker).length && this.canAddAccount(broker)) {
+    if (!this.getConnectionsByBroker(broker).length && this.canAddAccount(broker)) {
       this.openCreateForm($event, broker);
     }
   }
@@ -177,10 +189,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     return { ...data, broker, userData };
   }
 
-  handleSubmit() {
+  handleSubmit(): void {
     this.isSubmitted = true;
     if (!this.userData?.isValid) {
-      return this;
+      return;
     }
     if (!this.selectedItem.id) {
       this.create();
@@ -202,8 +214,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
         (item: IConnection) => {
           this.expandBrokers();
           this.selectItem(item);
-          if (!this._accountsManager.getActiveConnection())
-            this.connect();
+          this.connect();
         },
         err => this._notifier.showError(err),
       );
@@ -300,5 +311,4 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     else
       this.form.get(control).disable();
   }
-
 }
