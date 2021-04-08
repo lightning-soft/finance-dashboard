@@ -106,7 +106,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
       });
   }
 
-  contextMenu($event: MouseEvent, menu: any) {
+  contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
   }
 
@@ -122,7 +122,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     }
   }
 
-  private _updateSelectedItem() {
+  private _updateSelectedItem(): void {
     if (this.selectedItem) {
       const item = this.builder.items.find(data => data.id === this.selectedItem.id);
       if (item)
@@ -130,41 +130,41 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit 
     }
   }
 
-  getBrokerItems(broker) {
+  getBrokerItems(broker): IConnection[] {
     return this.builder.getItems('broker', broker.name);
   }
 
-  canAddAccount(broker) {
+  canAddAccount(broker): boolean {
     return this.getBrokerItems(broker).length < maxAccountsPerConnection;
   }
 
-  expandBrokers() {
+  expandBrokers(): void {
     if (!Array.isArray(this.brokers) || !this.selectedItem)
       return;
 
     this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker)
   }
 
-  handleBrockerClick($event, broker: IBroker) {
+  handleBrockerClick($event, broker: IBroker): void {
     if (!this.getBrokerItems(broker).length && this.canAddAccount(broker)) {
       this.openCreateForm($event, broker);
     }
   }
 
-  openCreateForm(event: MouseEvent, broker: IBroker) {
+  openCreateForm(event: MouseEvent, broker: IBroker): void {
     event?.stopPropagation();
     if (this.canAddAccount(broker))
       this.selectItem({ broker: broker.name } as IConnection);
   }
 
-  selectItem(item: IConnection) {
+  selectItem(item: IConnection): void {
     this.selectedItem = item;
     this.expandBrokers();
     this.isSubmitted = false;
     this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
-  convertItemToFormValue(item: IConnection, broker) {
+  convertItemToFormValue(item: IConnection, broker: IBroker) {
     const _server = item.server;
     let server;
     if (typeof _server === 'string')

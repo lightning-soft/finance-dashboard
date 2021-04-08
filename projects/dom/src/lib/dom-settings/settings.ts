@@ -25,7 +25,7 @@ export class DomSettings {
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
-    recenter: false,
+    recenter: true,
     commonView: {
       autoCenterTicks: 10,
       ticksMultiplier: 2,

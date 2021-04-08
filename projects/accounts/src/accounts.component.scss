@@ -1,4 +1,5 @@
 @import "~src/scss/variables";
+@import "~src/scss/dark.theme";
 
 :host {
   display: block;
@@ -6,6 +7,7 @@
 
   .broken-logo {
     min-width: 128px;
+    opacity: 0.4;
   }
 
   .aggregated-quotes {
@@ -48,6 +50,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: $text-80;
   }
 
   ::ng-deep {
@@ -210,6 +213,10 @@ small {
   outline: none;
   justify-content: flex-end;
   position: relative;
+
+  &.selectable-item-active .connection-name {
+    color: $titleColor;
+  }
 
   &:before {
     content: '';

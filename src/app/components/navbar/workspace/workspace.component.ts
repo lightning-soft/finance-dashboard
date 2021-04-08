@@ -108,6 +108,7 @@ export class WorkspaceComponent implements OnInit {
 
   createWorkspace() {
     const modal = this._modalService.create({
+      nzWidth: 440,
       nzTitle: 'New workspace',
       nzContent: CreateModalComponent,
       nzWrapClassName: 'modal-workspace vertical-center-modal',

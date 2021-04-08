@@ -7,9 +7,11 @@
   display: block !important;
   background-color: transparent !important;
   position: absolute;
-  z-index: 1;
+  z-index: 1000;
 
   &.hidden {
+    z-index: 1;
+
     .navigation-bar {
       margin-top: -36px;
     }
@@ -21,10 +23,6 @@
 
   &.Bottom {
     bottom: 0;
-
-    &:not(.hidden) {
-      z-index: 1000;
-    }
   }
 
   &.window-navbar {

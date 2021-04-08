@@ -1765,6 +1765,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         closableIfPopup: true,
         resizable: false,
         removeIfExists: false,
+        minimizable: false,
+        maximizable: false,
         hidden,
       });
   }

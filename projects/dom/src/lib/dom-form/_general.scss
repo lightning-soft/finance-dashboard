@@ -21,8 +21,8 @@ button, button:hover, button:active, button:focus-within {
 
 :host-context(.full-screen-window) {
   button, button:hover, button:active, button:focus-within {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 :host-context(.full-screen-window.slim) {

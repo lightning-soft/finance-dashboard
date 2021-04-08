@@ -2,7 +2,7 @@
   <nz-select
     [nzDropdownRender]="renderTemplate"
     nzDropdownClassName="window-dropdown-menu"
-    [nzOptionHeightPx]="27"
+    [nzOptionHeightPx]="24"
     [ngModel]="currentWindowId"
     nzPlaceHolder="Select a window">
     <nz-option [nzLabel]="window.name" class="options" [nzValue]="window.id" *ngFor="let window of windows"
