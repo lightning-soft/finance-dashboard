@@ -27,7 +27,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   unsubscribeType: WSMessageTypes;
 
   private get _sucessfullyConected() {
-    return this._webSocketService.sucessfulyConnected;
+    return this._accountsManager.getActiveConnection()?.connected && this._webSocketService.sucessfulyConnected;
   }
 
   private _pendingRequests = [];
@@ -35,23 +35,19 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
               @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
     this._webSocketService.on(this._handleTrade.bind(this));
-    this._webSocketService.connection$.subscribe(conected => !conected && this._clearSubscription());
+    this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
     this._accountsManager.connections.subscribe(() => {
       const connection = this._accountsManager.getActiveConnection();
       if (!connection || !connection.connected)
-        this._clearSubscription();
+        this._onConnectionLost();
     });
   }
 
-  protected _clearSubscription() {
-    console.warn('clearSubscription');
-    console.warn(this._subscriptions);
+  protected _onConnectionLost() {
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
-    this._pendingRequests = [];
     Object.values(this._subscriptions).forEach(item =>
       this.createPendingRequest(this.subscribeType, item.payload));
-    this._subscriptions = {};
     this._unsubscribeFns = {};
   }
 
@@ -83,8 +79,11 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       const hash = this._getHash(item);
 
       if (type === this.subscribeType) {
-        subscriptions[hash] = {} as any;
+        if (!subscriptions[hash]?.hasOwnProperty('count'))
+          subscriptions[hash] = {} as any;
+
         subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
+
         if (subscriptions[hash].count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
@@ -94,7 +93,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
           else
             this.createPendingRequest(type, dto);
         }
-        console.warn(this.constructor.name, subscriptions);
       } else {
         subscriptions[hash].count = (subscriptions[hash].count || 1) - 1;
         if (subscriptions[hash].count === 0) {
@@ -103,7 +101,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
             delete this._unsubscribeFns[hash];
           }
         }
-        console.warn(this.constructor.name, subscriptions);
       }
     });
   }
