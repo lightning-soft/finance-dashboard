@@ -84,7 +84,6 @@ body {
 
 .ant-message {
   top: 40px !important;
-  padding-right: 163px;
   display: flex;
   justify-content: flex-end;
 }
@@ -195,7 +194,7 @@ body.navbarBottom {
   color: $text-80;
 
   &:not(:first-child) {
-    margin-top: 4px;
+    margin-top: 1px;
   }
 }
 

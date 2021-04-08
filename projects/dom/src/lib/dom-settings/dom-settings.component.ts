@@ -58,7 +58,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
         { tab: SettingTab.Orders, label: 'Orders' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
-        { tab: SettingTab.Note, label: 'Notes' },
+        // { tab: SettingTab.Note, label: 'Notes' },
       ]
     },
   ];

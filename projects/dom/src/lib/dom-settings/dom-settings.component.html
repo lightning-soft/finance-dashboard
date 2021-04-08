@@ -1,7 +1,6 @@
 <window-header (close)="saveState()" [window]="this"></window-header>
 <div class="dom-settings">
   <div class="d-flex h-100">
-
     <ul class="menu">
       <li
         class="menu-item"
@@ -22,6 +21,7 @@
         </ul>
       </li>
     </ul>
+
     <cdk-virtual-scroll-viewport [class.split-orders]="settings?.orders.split" class="{{currentTab}}" itemSize="">
       <formly-form
         [form]="form"

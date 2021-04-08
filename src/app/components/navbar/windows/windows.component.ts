@@ -83,6 +83,7 @@ export class WindowsComponent implements OnInit {
 
   createWindow() {
     const modal = this._modalService.create({
+      nzWidth: 440,
       nzTitle: 'New window',
       nzContent: CreateModalComponent,
       nzWrapClassName: 'modal-workspace vertical-center-modal',
