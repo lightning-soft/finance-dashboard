@@ -96,6 +96,7 @@ interface IDomState {
   instrument: IInstrument;
   settings?: any;
   componentInstanceId: number;
+  columns: any;
 }
 
 const directionsHints = {
@@ -1712,7 +1713,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
-      settings: this._settings.toJson()
+      settings: this._settings.toJson(),
+      ...this.dataGrid.saveState(),
     };
   }
 
@@ -1722,7 +1724,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
-
+    if (state?.columns)
+      this.columns = state.columns;
     // for debug purposes
     if (!state)
       state = {} as any;
@@ -1766,6 +1769,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         closableIfPopup: true,
         resizable: false,
         removeIfExists: false,
+        minimizable: false,
+        maximizable: false,
         hidden,
       });
   }

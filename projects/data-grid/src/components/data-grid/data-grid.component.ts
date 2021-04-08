@@ -38,6 +38,10 @@ interface GridStyles {
   scrollSensetive?: number;
 }
 
+export interface DataGridState {
+  columns: any;
+}
+
 @Component({
   selector: 'data-grid',
   templateUrl: 'data-grid.component.html',
@@ -250,6 +254,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   //     ...handlers
   //   ];
   // }
+  saveState(): DataGridState {
+    return { columns: this._grid.schema };
+  }
 
   createComponentModal($event): void {
     $event.preventDefault();
