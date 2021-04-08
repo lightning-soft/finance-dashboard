@@ -504,17 +504,21 @@ export class DomItem implements IBaseItem {
 
   clearAskDelta() {
     this.askDelta.clear();
-    this._ask = this.ask._value;
+    if (this.ask.status !== SumStatus)
+      this._ask = this.ask._value;
   }
 
   clearBidDelta() {
     this.bidDelta.clear();
-    this._bid = this.bid._value;
+    if (this.bid.status !== SumStatus)
+      this._bid = this.bid._value;
   }
 
   clearLTQ() {
     this.ltq.changeStatus('');
     this.ltq.clear();
+    this.currentAsk.changeStatus('');
+    this.currentBid.changeStatus('');
     this._updatePriceStatus();
   }
 
@@ -575,9 +579,9 @@ export class DomItem implements IBaseItem {
       res.ask = this.ask._value;
 
       if (this._ask == null)
-        this._ask = this.ask._value;
+        this._ask = data.volume;
       else
-        this.askDelta.updateValue(this.ask._value - this._ask);
+        this._calculateAskDelta();
 
       res.askDelta = this.askDelta.value;
     }
@@ -599,9 +603,9 @@ export class DomItem implements IBaseItem {
       res.bid = this.bid._value;
 
       if (this._bid == null)
-        this._bid = this.bid._value;
+        this._bid = data.volume;
       else
-        this.bidDelta.updateValue(this.bid._value - this._bid);
+        this._calculateBidDelta();
 
       res.bidDelta = this.bidDelta._value;
     }
@@ -609,6 +613,14 @@ export class DomItem implements IBaseItem {
     if (this.clearCross)
       this.clearAsk();
     return this._getBidValues();
+  }
+
+  protected _calculateAskDelta() {
+    return this.askDelta.updateValue(this.ask._value - this._ask);
+  }
+
+  protected _calculateBidDelta() {
+    return this.bidDelta.updateValue(this.bid._value - this._bid);
   }
 
   changePriceStatus(status: string) {
@@ -681,12 +693,14 @@ export class DomItem implements IBaseItem {
 
   setBidSum(value) {
     this.bid.changeStatus(value == null ? '' : SumStatus);
-    this.bid.updateValue(value == null ? 0 : value);
+    this.bid.updateValue(value == null ? this._bid : value);
+    this.clearBidDelta();
   }
 
   setAskSum(value) {
     this.ask.changeStatus(value == null ? '' : SumStatus);
-    this.ask.updateValue(value == null ? 0 : value);
+    this.ask.updateValue(value == null ? this._ask : value);
+    this.clearAskDelta();
   }
 
   refresh() {
@@ -855,12 +869,6 @@ export class CustomDomItem extends DomItem {
         volume: data.volume - bid + (this.bid._value ?? 0),
       };
     }
-    // if (this.bid._value == 8)
-    //   console.log('this.bid._value', this.bid._value);
-    // console.log(data.price, data.volume, ...Object.keys(this._domItems).map(i => this._domItems[i].bidDelta._value), ...Object.keys(this._domItems).map(i => this._domItems[i].bid._value));
-
-    if (this.ask.status == 'sum')
-      console.log(data);
 
     item.handleQuote(data);
 
@@ -905,4 +913,39 @@ export class CustomDomItem extends DomItem {
   getDomItems() {
     return this._domItems;
   }
+
+  // protected _calculateAskDelta() {
+  //   const snapshot = this._domItems;
+  //   let sum = 0;
+
+  //   for (const price in snapshot) {
+  //     if (snapshot.hasOwnProperty(price)) {
+  //       const data = snapshot[price];
+
+  //       sum += data.askDelta._value ?? 0;
+  //     }
+  //   }
+
+  //   return this.askDelta.updateValue(sum);
+  // }
+
+  // protected _calculateBidDelta() {
+  //   const snapshot = this._domItems;
+  //   let sum = 0;
+  //   // console.log('data.bidDelta._value -----');
+
+  //   for (const price in snapshot) {
+  //     if (snapshot.hasOwnProperty(price)) {
+  //       const data = snapshot[price];
+
+  //       if (!data.bidDelta._value)
+  //         continue;
+
+  //       sum += data.bidDelta._value ?? 0;
+  //       // console.log('data.bidDelta._value', price, data.bidDelta._value);
+  //     }
+  //   }
+
+  //   return this.bidDelta.updateValue(sum);
+  // }
 }
