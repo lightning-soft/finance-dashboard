@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -118,7 +118,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     })
   }
 
-  contextMenu($event: MouseEvent, menu: any) {
+  contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
   }
 
@@ -134,7 +134,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
-  private _updateSelectedItem() {
+  private _updateSelectedItem(): void {
     if (this.selectedItem) {
       const item = this.builder.items.find(data => data.id === this.selectedItem.id);
       if (item)
@@ -176,7 +176,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
   }
 
-  convertItemToFormValue(item: IConnection, broker) {
+  convertItemToFormValue(item: IConnection, broker: IBroker) {
     const _server = item.server;
     let server;
     if (typeof _server === 'string')
@@ -311,5 +311,4 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     else
       this.form.get(control).disable();
   }
-
 }

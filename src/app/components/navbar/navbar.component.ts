@@ -5,7 +5,7 @@ import { Themes, ThemesHandler } from 'themes';
 import { NavbarPosition, SettingsService } from 'settings';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { fromEvent, merge } from 'rxjs';
-import { debounceTime, delay, map, tap } from 'rxjs/operators';
+import { debounceTime, map, tap } from 'rxjs/operators';
 import { NzPlacementType } from 'ng-zorro-antd';
 import { Bounds, WindowManagerService } from 'window-manager';
 
@@ -102,7 +102,7 @@ export class NavbarComponent {
 
   private _updateWindowsBounds(): void {
     const bounds: Bounds = this.isNavbarHidden ? null : {
-      top: this.elementRef.nativeElement.offsetHeight,
+      top: this.currentNavbarPosition === NavbarPosition.Top ? this.elementRef.nativeElement.offsetHeight : 0,
       left: 0,
       bottom: this.windowManagerService.container.offsetHeight,
       right: this.windowManagerService.container.offsetWidth

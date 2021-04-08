@@ -1,11 +1,18 @@
 $nav-height: 42px;
-
+@import "~src/scss/variables";
 :host {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 }
+
+.empty-container {
+  color: $text-60;
+  font-size: 0.8rem;
+}
+
+
 
 app-navbar {
   flex-shrink: 0;
