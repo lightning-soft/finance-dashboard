@@ -42,6 +42,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
     { tab: SettingTab.OrderArea, label: 'Order Area' },
     {
       label: 'Columns',
+      expanded: true,
       children: [
         { tab: SettingTab.Common, label: 'Common' },
         { tab: SettingTab.LTQ, label: 'LTQ' },
@@ -58,7 +59,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
         { tab: SettingTab.Orders, label: 'Orders' },
         { tab: SettingTab.CurrentAtBid, label: 'Current At Bid' },
         { tab: SettingTab.CurrentAtAsk, label: 'Current At Ask' },
-        { tab: SettingTab.Note, label: 'Notes' },
+        // { tab: SettingTab.Note, label: 'Notes' },
       ]
     },
   ];
@@ -71,6 +72,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
 
   selectedConfig: any;
   currentTab: SettingTab;
+  currentMenuItem;
 
   constructor() {
     this.setTabTitle('DOM settings');
@@ -91,6 +93,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
       return;
 
     this.currentTab = item.tab;
+    this.currentMenuItem = item;
     this.selectedConfig = this.settingsConfig[item.tab];
 
     this.formValueChangesSubscription?.unsubscribe();
@@ -104,8 +107,12 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
       });
   }
 
-  shouldShowForm(tab: SettingTab) {
-    return this.currentTab === tab;
+  isTabActive(item) {
+    return this.currentTab === item.tab;
+  }
+
+  isSubMenuActive(item) {
+    return item.children?.some(subItem => subItem.tab === this.currentTab);
   }
 
   saveState() {
@@ -135,6 +142,14 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
   handleLinkData(data: IDomSettingsEvent) {
     if (data.action === 'close' && this._linkKey == data.linkKey) {
       this.close();
+    }
+  }
+
+  toggleMenuItem(item) {
+    if (item.children) {
+      item.expanded = !item.expanded;
+    } else {
+      this.select(item);
     }
   }
 }

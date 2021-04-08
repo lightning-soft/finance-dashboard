@@ -163,9 +163,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
-
     this._orders.init();
     this._positions.init();
+
+    chart.showInstrumentWatermark = false;
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -247,6 +248,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       allowReadMoreHistory: true,
       autoSave: false,
       autoLoad: false,
+      showInstrumentWatermark: false,
       incomePrecision:  state?.instrument.precision ?? 2,
       stayInDrawingMode: false,
       timeFrame: (state && state.timeFrame)

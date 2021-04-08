@@ -167,7 +167,6 @@ export class ToolbarComponent {
   @HostBinding('class.opened')
   get isOpened() {
     return this.priceOpen || this.crossOpen ||
-      this.isDrawingsVisible ||
       this.frameOpen || this.zoomDropdownVisible;
   }
 

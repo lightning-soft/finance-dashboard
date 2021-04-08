@@ -14,7 +14,7 @@
             [class.pos-negative]="isPositionsNegative"
     >{{positionSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
-    <nz-select [nzOptionHeightPx]="20" formControlName="type" class="type-select">
+    <nz-select [nzOptionHeightPx]="22" formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeSelectOptions"
                  [nzLabel]="item.label" [nzValue]="item.value"
       ></nz-option>
@@ -73,7 +73,7 @@
     </type-buttons>
 
 
-    <nz-select [nzOptionHeightPx]="20" formControlName="duration" class="type-select tif-select">
+    <nz-select [nzOptionHeightPx]="22" formControlName="duration" class="type-select tif-select">
       <nz-option *ngFor="let item of tifButtons"
                  [nzLabel]="item.label" [nzValue]="item.value"
       ></nz-option>
