@@ -6,7 +6,6 @@ import {
   HistoryRepository,
   InstrumentsRepository,
   TradeDataFeed, TradePrint,
-  BarDataFeed, Bar,
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
@@ -26,7 +25,6 @@ export class RithmicDatafeed extends Datafeed {
     private _accountsManager: AccountsManager,
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
-    private _barDataFeed: BarDataFeed,
     private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
@@ -136,7 +134,6 @@ export class RithmicDatafeed extends Datafeed {
     super.cancel(request);
     const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
-    this._barDataFeed.unsubscribe(instrument);
     this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
@@ -164,23 +161,10 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   subscribeToRealtime(request: IBarsRequest) {
-    const chart = request.chart;
     const instrument = this._getInstrument(request);
-    this._barDataFeed.subscribe(instrument);
     this._tradeDataFeed.subscribe(instrument);
 
     this._unsubscribe();
-
-    this._unsubscribeFns.push(this._barDataFeed.on((quote: Bar) => {
-      const _quote: ChartQuote = {
-        instrument: quote.instrument,
-        price: quote.closePrice,
-        date: new Date(quote.timestamp),
-        volume: quote.volume,
-      } as any;
-
-      this.processQuote(chart, _quote);
-    }));
 
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
       const _quote: ChartQuote = {
@@ -195,7 +179,7 @@ export class RithmicDatafeed extends Datafeed {
         side: quote.side,
       } as any;
 
-      this.processQuote(chart, _quote);
+      this.processQuote(request, _quote);
     }));
   }
 
