@@ -5,18 +5,11 @@ import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
-import { OrderItem } from './models/order.item';
 import { finalize } from 'rxjs/operators';
+import { HeaderItem, OrderItem, transformHeaderColumn } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
-type HeaderItem = [string, string, IHeaderItemOptions?] | string;
-
-interface IHeaderItemOptions {
-  style?: any;
-  width?: number;
-  drawObject?: { draw(context): boolean }
-}
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -126,45 +119,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       unwrap: (item: OrderItem) => item.order,
       addNewItems: 'start',
     });
-    this.setTabIcon('icon-widget-orders');
-    this.setTabTitle('Orders');
-    if (this.columns && this.columns.length)
-      return;
-    this.columns = this.headers.map((nameOrArr: HeaderItem) => {
-      nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
-      const [name, title, options] = nameOrArr;
 
-      const column: Column = {
-        name,
-        title: title.toUpperCase(),
-        tableViewName: StringHelper.capitalize(name),
-        style: {
-          buyColor: 'rgba(72, 149, 245, 1)',
-          sellColor: 'rgba(220, 50, 47, 1)',
-          selectedbuyColor: 'rgba(72, 149, 245, 1)',
-          selectedsellColor: 'rgba(220, 50, 47, 1)',
-          selectedBackgroundColor: '#383A40',
-          selectedbuyBackgroundColor: '#383A40',
-          selectedsellBackgroundColor: '#383A40',
-          textOverflow: true,
-          textAlign: 'left',
-          ...options?.style,
-        },
-        visible: true,
-        width: options?.width
-      };
-
-      if (options?.drawObject) {
-        column.draw = (context) => options.drawObject.draw(context);
-      }
-
-      return column;
-    });
+    this.columns = this.headers.map(transformHeaderColumn);
     const column = this.columns.find(i => i.name == 'description');
     column.style = { ...column.style, textOverflow: true };
     const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');
     checkboxColumn.tableViewName = 'Checkbox';
-
+    this.setTabIcon('icon-widget-orders');
+    this.setTabTitle('Orders');
   }
 
 

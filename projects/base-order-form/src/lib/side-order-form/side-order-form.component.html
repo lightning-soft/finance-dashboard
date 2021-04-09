@@ -1,14 +1,6 @@
 <cdk-virtual-scroll-viewport itemSize="">
   <form [formGroup]="form" class="form-layout">
-    <daily-info [instrument]="instrument"
-                [showInstrumentChange]="setting.formSettings.showInstrumentChange"
-                [showOHLVInfo]="setting.formSettings.showOHLVInfo"
-                [trade]="trade"
-                [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
-    <nz-input-group [class.d-none]="!setting.formSettings.showPLInfo" class="pl-input" [nzPrefix]="prefixTemplateUser">
-      <input disabled [value]="getPl()" nz-input>
-      <ng-template #prefixTemplateUser>PL</ng-template>
-    </nz-input-group>
+    <ng-content select="[headerContent]"></ng-content>
 
     <button title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"

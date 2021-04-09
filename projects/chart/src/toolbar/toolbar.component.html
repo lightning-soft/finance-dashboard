@@ -149,6 +149,17 @@
       </button>
     </nz-button-group>
   </div>
+  <div title="Trading on" class="tool center">
+    <nz-button-group nzSize='small'>
+      <button
+        nz-button
+        nzPlacement="bottomRight"
+        (click)="toggleForm()"
+      >
+        <span [class.show-form]="enableOrderForm" class="icon-chart-form"></span>
+      </button>
+    </nz-button-group>
+  </div>
 
 
   <div [class.tool-active]="zoomDropdownVisible"  title="Zoom" class="tool btn-group">

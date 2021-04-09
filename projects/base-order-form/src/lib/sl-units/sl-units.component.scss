@@ -1,5 +1,5 @@
 @import "../ticks";
-@import "~projects/dom/src/lib/dom-form/general";
+@import "../general";
 
 .sl-tick, .sl-tick:focus, .sl-tick:hover, .sl-tick:focus-within {
   background: rgba(201, 59, 59, 0.2);

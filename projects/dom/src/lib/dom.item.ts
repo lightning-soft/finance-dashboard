@@ -277,8 +277,8 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   }
 
   addOcoOrder(ocoOrder) {
-    this._item.sellOrders.addOrder(ocoOrder);
-    this._item.buyOrders.addOrder(ocoOrder);
+    this._item.sellOrders.addOcoOrder(ocoOrder);
+    this._item.buyOrders.addOcoOrder(ocoOrder);
   }
 
   clearOcoOrder() {
