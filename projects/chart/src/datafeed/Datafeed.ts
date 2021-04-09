@@ -266,9 +266,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
     }
 
-    let details = detailsDataSeries?.lastValue as IDetails[];
-    if (!details)
-      details = [];
+    let details = detailsDataSeries.lastValue as IDetails[];
 
     if (!Array.isArray(details) || !details.length) {
       details = [item];
@@ -296,7 +294,7 @@ export abstract class Datafeed implements IDatafeed {
       }
     }
 
-    detailsDataSeries?.updateLast(details);
+    detailsDataSeries.updateLast(details);
 
     chart.setNeedsUpdate();
   }

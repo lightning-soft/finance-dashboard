@@ -149,8 +149,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
-        this._ordersRepository = _ordersRepository.forConnection(connection);
-        this._positionsRepository = _positionsRepository.forConnection(connection);
+        this._ordersRepository = this._ordersRepository.forConnection(connection);
+        this._positionsRepository = this._positionsRepository.forConnection(connection);
       });
   }
 
@@ -454,13 +454,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.clearOcoOrders();
         break;
       case FormActions.CloseOrders:
-        this.closeOrders();
+        this._closeOrders();
         break;
       case FormActions.CloseBuyOrders:
-        this.closeOrders(OrderSide.Buy);
+        this._closeOrders(OrderSide.Buy);
         break;
       case FormActions.CloseSellOrders:
-        this.closeOrders(OrderSide.Sell);
+        this._closeOrders(OrderSide.Sell);
         break;
       case FormActions.CreateBuyMarketOrder:
         this.createOrder({ side: OrderSide.Buy, type: OrderType.Market });
@@ -470,7 +470,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         break;
       case FormActions.Flatten:
         this._closePositions();
-        this.closeOrders();
+        this._closeOrders();
         break;
       case FormActions.ClosePositions:
         this._closePositions();
@@ -569,7 +569,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       );
   }
 
-  private closeOrders(side?: OrderSide) {
+  private _closeOrders(side?: OrderSide) {
     const orders = this._orders.getOrders(side);
     this._ordersRepository.deleteMany(orders)
       .pipe(untilDestroyed(this))
@@ -593,7 +593,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   checkIfTradingEnabled() {
     this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
-    //  this.chart.mainPanel.positions.forEach(item => item.visible = this.enableOrderForm);
     this.setNeedUpdate();
   }
 }

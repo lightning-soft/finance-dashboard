@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
-import { IOrder, IPosition, OrderSide } from 'projects/trading';
+import { IOrder, IPosition, OrderSide } from 'trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { skip } from 'rxjs/operators';
 import {
   HistoryRepository,
   IConnection,

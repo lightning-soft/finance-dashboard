@@ -15,7 +15,7 @@ import {
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { Id } from 'projects/communication';
+import { Id } from 'communication';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   HistoryRepository,

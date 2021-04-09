@@ -68,14 +68,15 @@ export class Orders extends ChartObjects<IOrder> {
   }
 
   getOrders(side?: OrderSide) {
-    return Object.values(this._barsMap).map((item: any) => item.order)
-      .filter(item => {
+    return Object.values(this._barsMap)
+      .filter((item: any) => {
         if (!side)
           return true;
-        if (item.isOco)
+        if (item.order.isOco)
           return false;
-        return item.side === side;
-      });
+        return item.order.side === side;
+      }).map((item: any) => item.order);
+
   }
 
   private _openDialog = (event) => {
