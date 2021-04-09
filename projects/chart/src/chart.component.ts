@@ -162,9 +162,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const { loadedState } = this;
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
-    if (state.hasOwnProperty('showChanges'))
+    if (state?.hasOwnProperty('showChanges'))
       this.showChanges = state?.showChanges;
-    if (state.hasOwnProperty('showOHLC'))
+    if (state?.hasOwnProperty('showOHLC'))
       this.showOHLC = state?.showOHLC;
     this._setUnavaliableIfNeed();
 
