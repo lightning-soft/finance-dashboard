@@ -1728,7 +1728,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESH1',
+        id: 'ESM1',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,

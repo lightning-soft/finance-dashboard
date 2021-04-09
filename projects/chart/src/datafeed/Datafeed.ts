@@ -33,12 +33,19 @@ export abstract class Datafeed implements IDatafeed {
   private _requests = new Map<number, IRequest>();
 
   /**
+   * @internal
+   */
+  protected _details: IDetails[] = [];
+
+  /**
    * Executes request post cancel actions (e.g. hides waiting bar).
    * @method onRequstCanceled
    * @memberOf StockChartX.Datafeed#
    * @protected
    */
   protected onRequstCanceled(request: IBarsRequest) {
+    this._details = [];
+
     if (this._requests.size === 0)
       request.chart.hideWaitingBar();
   }
@@ -145,9 +152,16 @@ export abstract class Datafeed implements IDatafeed {
   }
 
 
-  protected processQuote(chart: IChart, quote: IQuote): void {
+  protected processQuote(request: IRequest, quote: IQuote): void {
     if (quote?.instrument?.symbol == null)
       return;
+
+    if (this.isRequestAlive(request)) {
+      this._details = this._mergeRealtimeDetails(quote, this._details);
+      return;
+    }
+
+    const { chart } = request;
 
     // if instrument is null then you operate with main bars otherwise with others bars datasiries(compare instruments)
     const instrument = chart.instrument.symbol == quote.instrument.symbol ? null : quote.instrument;
@@ -156,13 +170,19 @@ export abstract class Datafeed implements IDatafeed {
     if (!lastBar)
       return;
 
+    if (this._details.length) {
+      this._mergeDetails(chart, instrument);
+
+      this._details = [];
+    }
+
     let currentBarStartTimestamp = lastBar.date.getTime();
     let nextBarStartTimestamp = <number>currentBarStartTimestamp + <number>chart.timeInterval;
     const nextBarStartDate = new Date(nextBarStartTimestamp);
     if (quote.date.getTime() < currentBarStartTimestamp || quote.price === 0)
       return;
 
-    if (!quote.side && (new Date(quote.date) >= nextBarStartDate || lastBar === null)) {
+    if (new Date(quote.date) >= nextBarStartDate || lastBar === null) {
       // If there were no historical data and timestamp is in range of current time frame
       if (lastBar === null && quote.date < nextBarStartDate)
         nextBarStartTimestamp = currentBarStartTimestamp;
@@ -179,19 +199,7 @@ export abstract class Datafeed implements IDatafeed {
         close: quote.price,
         volume: quote.volume,
         date: new Date(nextBarStartTimestamp),
-        details: [{
-          bidInfo: {
-            volume: 0,
-            tradesCount: 0
-          },
-          askInfo: {
-            volume: 0,
-            tradesCount: 0
-          },
-          volume: 0,
-          tradesCount: 0,
-          price: quote.price
-        }]
+        details: this._mergeRealtimeDetails(quote),
       };
 
       if (!instrument)
@@ -201,20 +209,17 @@ export abstract class Datafeed implements IDatafeed {
 
       chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
     } else {
-      if (!quote.side) {
-        lastBar.close = quote.price;
-        lastBar.volume += quote.volume;
+      lastBar.close = quote.price;
+      lastBar.volume += quote.volume;
 
-        if (lastBar.high < quote.price)
-          lastBar.high = quote.price;
+      if (lastBar.high < quote.price)
+        lastBar.high = quote.price;
 
-        if (lastBar.low > quote.price)
-          lastBar.low = quote.price;
+      if (lastBar.low > quote.price)
+        lastBar.low = quote.price;
 
-        this._updateLastBar(lastBar, chart, instrument);
-      } else {
-        this._updateLastBarDetails(quote, chart, instrument);
-      }
+      this._updateLastBarDetails(quote, chart, instrument);
+      this._updateLastBar(lastBar, chart, instrument);
 
       chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
     }
@@ -238,10 +243,17 @@ export abstract class Datafeed implements IDatafeed {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
+    const lastDetails = detailsDataSeries.lastValue as IDetails[];
+    const details = this._mergeRealtimeDetails(quote, lastDetails);
+
+    detailsDataSeries.updateLast(details);
+  }
+
+  private _mergeRealtimeDetails(quote: IQuote, details: IDetails[] = null): IDetails[] {
     const { volume, tradesCount: _tradesCount, price } = quote;
     const tradesCount = _tradesCount ?? volume;
 
-    const item: IDetails = {
+    const tmpItem: IDetails = {
       bidInfo: {
         volume: 0,
         tradesCount: 0
@@ -257,46 +269,64 @@ export abstract class Datafeed implements IDatafeed {
 
     switch (quote.side) {
       case OrderSide.Sell:
-        item.bidInfo.volume = volume;
-        item.bidInfo.tradesCount = tradesCount;
+        tmpItem.bidInfo.volume = volume;
+        tmpItem.bidInfo.tradesCount = tradesCount;
         break;
       case OrderSide.Buy:
-        item.askInfo.volume = volume;
-        item.askInfo.tradesCount = tradesCount;
+        tmpItem.askInfo.volume = volume;
+        tmpItem.askInfo.tradesCount = tradesCount;
         break;
     }
 
-    let details = detailsDataSeries.lastValue as IDetails[];
-
     if (!Array.isArray(details) || !details.length) {
-      details = [item];
-    } else {
-      const index = details.findIndex(i => i.price === price);
-
-      if (index === -1) {
-        details.push(item);
-      } else {
-        const _item = details[index];
-
-        switch (quote.side) {
-          case OrderSide.Sell:
-            _item.bidInfo.volume += item.bidInfo.volume;
-            _item.bidInfo.tradesCount += item.bidInfo.tradesCount;
-            break;
-          case OrderSide.Buy:
-            _item.askInfo.volume += item.askInfo.volume;
-            _item.askInfo.tradesCount += item.askInfo.tradesCount;
-            break;
-        }
-
-        _item.volume = _item.bidInfo.volume + _item.askInfo.volume;
-        _item.tradesCount = _item.bidInfo.tradesCount + _item.askInfo.tradesCount;
-      }
+      return [tmpItem];
     }
 
-    detailsDataSeries.updateLast(details);
+    const item = details.find(i => i.price === price);
 
-    chart.setNeedsUpdate();
+    if (!item) {
+      details.push(tmpItem);
+
+      return details;
+    }
+
+    switch (quote.side) {
+      case OrderSide.Sell:
+        item.bidInfo.volume += volume;
+        item.bidInfo.tradesCount += tradesCount;
+        break;
+      case OrderSide.Buy:
+        item.askInfo.volume += volume;
+        item.askInfo.tradesCount += tradesCount;
+        break;
+    }
+
+    item.volume += volume;
+    item.tradesCount += tradesCount;
+
+    return details;
+  }
+
+  private _mergeDetails(chart: IChart, instrument?: IStockChartXInstrument) {
+    const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
+    const barDataSeries = chart.dataManager.barDataSeries(symbol);
+    const detailsDataSeries = barDataSeries.details;
+    const lastDetails = detailsDataSeries.lastValue as IDetails[];
+
+    this._details.forEach(tmpItem => {
+      const item = lastDetails.find(i => i.price === tmpItem.price);
+
+      if (item) {
+        item.bidInfo.volume += tmpItem.bidInfo.volume;
+        item.bidInfo.tradesCount += tmpItem.bidInfo.tradesCount;
+        item.askInfo.volume += tmpItem.askInfo.volume;
+        item.askInfo.tradesCount += tmpItem.askInfo.tradesCount;
+        item.volume += tmpItem.volume;
+        item.tradesCount += tmpItem.tradesCount;
+      }
+    });
+
+    detailsDataSeries.updateLast(lastDetails);
   }
 
   protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
