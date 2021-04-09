@@ -238,8 +238,7 @@ export abstract class Datafeed implements IDatafeed {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
-    const price = barDataSeries.close.lastValue;
-    const { volume, tradesCount: _tradesCount } = quote;
+    const { volume, tradesCount: _tradesCount, price } = quote;
     const tradesCount = _tradesCount ?? volume;
 
     const item: IDetails = {

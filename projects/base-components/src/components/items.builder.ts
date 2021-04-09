@@ -16,6 +16,7 @@ export interface IItemsBuilder<Item, ViewItem = Item> {
 export interface IItemsBuilderParams<T, VM> {
   order?: 'asc' | 'desc';
   filter?: (item: T) => boolean;
+  sort?: (a: T, b: T) => number;
   wrap?: (item: T) => VM;
   unwrap?: (item: VM) => T;
   addNewItems?: 'start' | 'end';
@@ -81,7 +82,14 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
     return filter ? items.filter(filter) : items;
   }
 
+  protected _sort(items: T[]): T[] {
+    const { sort } = this._params;
+
+    return sort ? items.sort(sort) : items;
+  }
+
   protected _order(items: any[]): any[] {
+    items = this._sort(items);
     const _items = (() => {
       switch (this._params.order) {
         case 'asc':
