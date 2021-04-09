@@ -16,16 +16,16 @@ export class WindowHeaderComponent {
   constructor(private windowPopupManager: WindowPopupManager) {
   }
 
-  onClose() {
+  onClose(): void {
     this.close.emit(true);
     this.window.close();
   }
 
-  popup() {
+  popup(): void {
     this.windowPopupManager.openWidget(this.window);
   }
 
-  hideInstruments() {
-   return  this.windowPopupManager.hideWindowHeaderInstruments;
+  hideInstruments(): boolean {
+   return this.windowPopupManager.hideWindowHeaderInstruments;
   }
 }

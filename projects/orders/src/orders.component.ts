@@ -1,4 +1,4 @@
-import { Component, HostBinding, Injector } from '@angular/core';
+import { Component, HostBinding, Injector, OnChanges, SimpleChanges } from '@angular/core';
 import { RealtimeGridComponent, StringHelper } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
@@ -129,6 +129,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
+
   changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
     switch (tab) {
       case 'All':
@@ -165,7 +166,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return { columns: this.columns };
+    return { ...this.dataGrid.saveState() };
   }
 
   loadState(state): void {

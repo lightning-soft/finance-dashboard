@@ -23,6 +23,8 @@
     }
 
     .ant-modal .ant-modal-content .ant-modal-body {
+      width: 100%;
+      min-width: unset;
       color: white;
       font-weight: 600;
       font-size: 0.9rem;

@@ -3,7 +3,7 @@
   <account-select [labelTransformer]="transformLabel.bind(this)" class="ml-1"
                   (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
-<div class="window-header-button">
+<div (contextmenu)="grid.createComponentModal($event)" class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
   </button>
   <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" [title]="'Clear'"
@@ -85,7 +85,7 @@
                [showHeaderPanelInContextMenu]="true"
                [(showHeaderPanel)]="showHeaderPanel"
                (columnUpdate)="onColumnUpdate($event)"
-               [showContextMenuSettings]="true"
+               [showContextMenuSettings]="false"
                (currentCellChanged)="onCurrentCellChanged($event)"
                [afterDraw]="afterDraw" [handlers]="handlers">
     </data-grid>

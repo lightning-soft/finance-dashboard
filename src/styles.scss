@@ -56,6 +56,10 @@ body {
   }
 }
 
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: $checkboxBorderColor;
+}
+
 .ant-checkbox-checked .ant-checkbox-inner {
   border: 1px solid rgba($primary, 0.4);
   background: none;
@@ -82,9 +86,13 @@ body {
   font-size: 0.85rem;
 }
 
+.ant-select-item-empty {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
 .ant-message {
   top: 40px !important;
-  padding-right: 163px;
   display: flex;
   justify-content: flex-end;
 }
@@ -195,7 +203,7 @@ body.navbarBottom {
   color: $text-80;
 
   &:not(:first-child) {
-    margin-top: 4px;
+    margin-top: 1px;
   }
 }
 

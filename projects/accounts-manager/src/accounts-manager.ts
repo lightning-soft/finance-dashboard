@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { WebSocketService } from 'communication';
+import { AlertType, WebSocketService } from 'communication';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
@@ -45,10 +45,14 @@ export class AccountsManager {
   }
 
   private _handleStream(msg: any): void {
+    if (msg?.type === 'Connect' && (
+      msg.result.type === AlertType.ConnectionClosed ||
+      msg.result.type === AlertType.ConnectionBroken ||
+      msg.result.type === AlertType.ForcedLogout))
+      this._deactivateConnection();
     if (msg?.type != 'Error')
       return;
-
-    if (msg.result?.value == "No connection!") {
+    if (msg.result?.value == 'No connection!') {
       this._deactivateConnection();
     }
   }
@@ -78,10 +82,10 @@ export class AccountsManager {
       .pipe(
         concatMap(item => {
           if (oldConnection && !item.error)
-           return  this.disconnect(oldConnection)
-             .pipe(
-               map(conn => item)
-             );
+            return this.disconnect(oldConnection)
+              .pipe(
+                map(conn => item)
+              );
           return of(item);
         }),
         concatMap(item => {
