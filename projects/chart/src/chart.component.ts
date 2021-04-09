@@ -486,6 +486,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrderWithConfirm(config: Partial<IOrder>) {
+    if (this.isTradingLocked)
+      return;
     if (this.showOrderConfirm) {
       const dto = this._sideForm.getDto();
       this._modalService.create({
