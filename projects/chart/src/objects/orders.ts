@@ -3,6 +3,7 @@ import { IOrder, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { getPriceSpecs } from 'base-order-form';
 
 declare const StockChartX: any;
 
@@ -83,11 +84,16 @@ export class Orders extends ChartObjects<IOrder> {
   }
 
   private _updatePrice = ($event) => {
-    this._repository.updateItem(this._mapToIOrder($event.target.order, true)).toPromise();
+    const order = this._mapToIOrder($event.target.order, true);
+    const priceSpecs = getPriceSpecs(order, order.price,
+      this._instance.instrument.tickSize);
+    this._repository.updateItem({
+      ...order, instrument: this._instance.instrument, ...priceSpecs
+    }).toPromise();
   }
 
   private _updateOrder = (event) => {
-    this._instance.openOrderPanel();
+    // this._instance.openOrderPanel();
   }
 
 
@@ -114,11 +120,15 @@ export class Orders extends ChartObjects<IOrder> {
     }
     const duration = order.duration;
     return {
+      instrument: order.instument,
+      account: order.account,
       quantity: order.quantity,
       orderId: order.orderId,
+      id: order.id,
       ...priceSpecs,
       duration,
       type,
+      price: order.price,
       side: StringHelper.capitalize(order.action),
       ...this.requestParams
     };

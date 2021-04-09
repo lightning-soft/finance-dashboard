@@ -297,7 +297,7 @@ export abstract class Datafeed implements IDatafeed {
       }
     }
 
-    detailsDataSeries.updateLast(details);
+    detailsDataSeries?.updateLast(details);
 
     chart.setNeedsUpdate();
   }

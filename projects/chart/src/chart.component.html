@@ -44,10 +44,10 @@
     [instrument]="instrument">
     <div class="form-header" headerContent>
       <div>
-        A: --
+        A: {{getQuoteInfo(bestAskPrice)}} {{getQuoteInfo(askSize)}}
       </div>
       <div>
-        B: --
+        B: {{getQuoteInfo(bestBidPrice)}} {{getQuoteInfo(bidSize)}}
       </div>
     </div>
   </side-form>

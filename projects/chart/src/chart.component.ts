@@ -19,10 +19,20 @@ import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IOrder, OrderSide, OrdersRepository, OrderType, PositionsRepository } from 'trading';
+import {
+  IOrder,
+  IQuote,
+  Level1DataFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderType,
+  PositionsRepository,
+  QuoteSide,
+  UpdateType
+} from 'trading';
 import { NotifierService } from 'notifier';
-import { NzModalService } from "ng-zorro-antd/modal";
-import { ConfirmOrderComponent } from "./modals/confirm-order/confirm-order.component";
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -88,7 +98,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument.symbol === value.symbol
       && this.chart.instrument.exchange === value.exchange)
       return;
+    if (this.chart.instrument)
+      this._levelOneDatafeed.unsubscribe(this.chart.instrument);
     this.chart.instrument = value;
+    this._levelOneDatafeed.subscribe(value);
     this.chart.incomePrecision = value.precision ?? 2;
     if (value) {
       value.company = this._getInstrumentCompany();
@@ -102,6 +115,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       showOrderConfirm: boolean, enableOrderForm: boolean
     }>(null);
 
+  bestAskPrice: number;
+  bestBidPrice: number;
+  bidSize: number;
+  askSize: number;
 
   private _orders: Orders;
   private _positions: Positions;
@@ -118,6 +135,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager,
+    private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
   ) {
@@ -126,6 +144,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
+    this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)));
     this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -137,6 +156,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.load();
+  }
+
+  private _handleQuote(quote: IQuote) {
+    if (quote.updateType === UpdateType.Undefined) {
+      if (quote.side === QuoteSide.Ask) {
+        this.bestAskPrice = quote.price;
+        this.askSize = quote.volume;
+      } else {
+        this.bestBidPrice = quote.price;
+        this.bidSize = quote.volume;
+      }
+    }
+  }
+
+  getQuoteInfo(info: number) {
+    return info ?? '-';
   }
 
   async ngAfterViewInit() {
@@ -184,9 +219,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showOHLC = state?.showOHLC;
     this.enableOrderForm = state?.enableOrderForm;
     this.showChartForm = state?.showChartForm;
-    if (state.hasOwnProperty('showOrderConfirm'))
+    if (state?.hasOwnProperty('showOrderConfirm'))
       this.showOrderConfirm = state?.showOrderConfirm;
-    this.checkIfTradingEnabled();
     this._setUnavaliableIfNeed();
 
     if (!chart) {
@@ -195,6 +229,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._orders.init();
     this._positions.init();
+    this.checkIfTradingEnabled();
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -208,6 +243,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (!value) {
           return;
         }
+        this.checkIfTradingEnabled();
 
         if (value.instrument && value.instrument.id != null) {
           chart.instrument = value.instrument; // todo: test it

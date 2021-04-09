@@ -29,6 +29,10 @@ export class Positions extends ChartObjects<IPosition> {
     return bar;
   }
 
+  shouldBarBeVisible() {
+    return false;
+  }
+
   getPositions() {
     return Object.values(this._barsMap).map((item: any) => item.position);
   }
