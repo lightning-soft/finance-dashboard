@@ -1,10 +1,5 @@
 <cdk-virtual-scroll-viewport itemSize="">
   <form [formGroup]="form" class="form-layout">
-  <!--  <daily-info [instrument]="instrument"
-                [showInstrumentChange]="setting.formSettings.showInstrumentChange"
-                [showOHLVInfo]="setting.formSettings.showOHLVInfo"
-                [trade]="trade"
-                [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>-->
     <ng-content select="[headerContent]"></ng-content>
 
     <button title="Positions" class="top-position-btn"

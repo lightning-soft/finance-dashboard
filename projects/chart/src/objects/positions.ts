@@ -34,7 +34,7 @@ export class Positions extends ChartObjects<IPosition> {
   }
 
   getPositions() {
-    return Object.values(this._barsMap).map((item: any) => item.position);
+    return this.items;
   }
 
   private _closePosition = ({ value }) => {

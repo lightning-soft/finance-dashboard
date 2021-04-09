@@ -38,7 +38,7 @@
   <side-form
     [class.d-none]="!showChartForm || !enableOrderForm"
     [accountId]="accountId"
-    [positions]="getPositions()"
+    [positions]="positions"
     [ocoStep]="ocoStep"
     (actions)="handleFormAction($event)"
     [instrument]="instrument">

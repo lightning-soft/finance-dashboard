@@ -440,8 +440,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.layout.removeComponent(Components.IndicatorList);
   }
 
-  getPositions() {
-    return this._positions.getPositions();
+  get positions() {
+    return this._positions.items;
   }
 
   handleFormAction($event: FormActions) {
