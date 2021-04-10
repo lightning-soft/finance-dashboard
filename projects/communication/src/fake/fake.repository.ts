@@ -24,10 +24,15 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
 
   protected async _init() {
     const items = await this._getItems();
+    let id = this._id;
 
     for (const item of items) {
       this._store[item.id] = item;
+
+      id = Math.max(id, +item.id);
     }
+
+    this._id = id;
   }
 
   protected abstract async _getItems(): Promise<T[]>;

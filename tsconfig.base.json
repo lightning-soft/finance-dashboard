@@ -151,6 +151,15 @@
       "timezones-clock": [
         "projects/timezones-clock/index"
       ],
+      "session-manager": [
+        "projects/session-manager/index"
+      ],
+      "data-select": [
+        "projects/data-select/index"
+      ],
+      "time-select": [
+        "projects/time-select/index"
+      ],
       "environment": [
         "src/environments/environment"
       ]

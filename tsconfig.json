@@ -7,6 +7,18 @@
       "workspaces": [
         "dist/workspaces/workspaces",
         "dist/workspaces"
+      ],
+      "session-manager": [
+        "dist/session-manager/session-manager",
+        "dist/session-manager"
+      ],
+      "data-select": [
+        "dist/data-select/data-select",
+        "dist/data-select"
+      ],
+      "time-select": [
+        "dist/time-select/time-select",
+        "dist/time-select"
       ]
     }
   },
@@ -220,6 +232,24 @@
     },
     {
       "path": "./projects/timezones-clock/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/session-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/session-manager/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-select/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/time-select/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/time-select/tsconfig.spec.json"
     }
   ]
 }

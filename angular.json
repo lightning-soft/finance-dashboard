@@ -1824,6 +1824,126 @@
           }
         }
       }
+    },
+    "session-manager": {
+      "projectType": "library",
+      "root": "projects/session-manager",
+      "sourceRoot": "projects/session-manager/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/session-manager/tsconfig.lib.json",
+            "project": "projects/session-manager/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/session-manager/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/session-manager/src/test.ts",
+            "tsConfig": "projects/session-manager/tsconfig.spec.json",
+            "karmaConfig": "projects/session-manager/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/session-manager/tsconfig.lib.json",
+              "projects/session-manager/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "data-select": {
+      "projectType": "library",
+      "root": "projects/data-select",
+      "sourceRoot": "projects/data-select/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/data-select/tsconfig.lib.json",
+            "project": "projects/data-select/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/data-select/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/data-select/src/test.ts",
+            "tsConfig": "projects/data-select/tsconfig.spec.json",
+            "karmaConfig": "projects/data-select/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/data-select/tsconfig.lib.json",
+              "projects/data-select/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "time-select": {
+      "projectType": "library",
+      "root": "projects/time-select",
+      "sourceRoot": "projects/time-select/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/time-select/tsconfig.lib.json",
+            "project": "projects/time-select/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/time-select/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/time-select/src/test.ts",
+            "tsConfig": "projects/time-select/tsconfig.spec.json",
+            "karmaConfig": "projects/time-select/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/time-select/tsconfig.lib.json",
+              "projects/time-select/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "angular-starter",

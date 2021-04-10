@@ -17,3 +17,5 @@ export * from './settings.repository';
 export * from './order-books.repository';
 export * from './trade.data-feed';
 export * from './volume-history.repository';
+export * from './sessions.repository';
+export * from './timezones.repository';
