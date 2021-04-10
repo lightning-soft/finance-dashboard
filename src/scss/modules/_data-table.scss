@@ -1,0 +1,12 @@
+.data-table {
+  width: 100%;
+  margin: -4px;
+
+  th, td {
+    padding: 4px;
+  }
+
+  th {
+    color: $text-muted;
+  }
+}

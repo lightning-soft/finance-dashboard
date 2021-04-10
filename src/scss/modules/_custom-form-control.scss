@@ -12,6 +12,19 @@ body .custom-form-control {
     border-radius: 2px;
   }
 
+  &.ant-select,
+  &.ant-input-number,
+  .ant-select-selector {
+    height: 24px !important;
+    color: inherit !important;
+    font-size: inherit !important;
+  }
+
+  &.ant-input-number,
+  .ant-select-selector {
+    background: $light;
+  }
+
   .ant-input:focus,
   &.ant-input-number-focused,
   &.ant-select-focused .ant-select-selector {
@@ -24,6 +37,7 @@ body .custom-form-control {
   }
 
   .ant-input-number-handler {
+    z-index: 1;
     height: 50% !important;
     border: 0;
     background: none;

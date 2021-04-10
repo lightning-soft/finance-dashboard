@@ -1,0 +1,133 @@
+<window-header [window]="this"></window-header>
+<div
+  class="d-flex flex-column h-100 p-2 pt-3 bg-secondary"
+  [class.loading-block]="loading"
+>
+  <div>
+    <div class="d-flex">
+      <div class="pr-2 session-select">
+        <data-select
+          label="Name"
+          [default]="blankSession"
+          [actions]="sessionActions"
+          [repository]="repository"
+          (handleChange)="handleSessionChange($event)"
+        ></data-select>
+      </div>
+      <div class="pl-2 flex-grow-1">
+        <data-select
+          label="Time Zone"
+          [value]="session.timezoneId"
+          [repository]="timezonesRepository"
+          (handleChange)="handleTimezoneChange($event)"
+        ></data-select>
+      </div>
+    </div>
+  </div>
+  <div class="divider text-muted"></div>
+  <cdk-virtual-scroll-viewport itemSize="" class="flex-grow-1">
+    <table class="data-table mb-2">
+      <tr>
+        <th>Start Day</th>
+        <th>Start Time</th>
+        <th></th>
+        <th>End Day</th>
+        <th>End Time</th>
+        <th></th>
+      </tr>
+      <tr *ngFor="let item of session.workingTime">
+        <td>
+          <nz-select
+            class="custom-form-control"
+            [(ngModel)]="item.startDay"
+          >
+            <nz-option
+              *ngFor="let day of days; let i = index"
+              [nzValue]="i"
+              [nzLabel]="day"
+            ></nz-option>
+          </nz-select>
+        </td>
+        <td>
+          <time-select [(value)]="item.startTime"></time-select>
+        </td>
+        <td></td>
+        <td>
+          <nz-select
+            class="custom-form-control"
+            [(ngModel)]="item.endDay"
+          >
+            <nz-option
+              *ngFor="let day of days; let i = index"
+              [nzValue]="i"
+              [nzLabel]="day"
+            ></nz-option>
+          </nz-select>
+        </td>
+        <td>
+          <time-select [(value)]="item.endTime"></time-select>
+        </td>
+        <td>
+          <span class="link" (click)="deleteWorkingTime(item)">
+            <i class="icon-delete font-size-inherit"></i>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <div class="d-flex">
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        class="px-4 mr-2 bg-lighter border-lighter text-white"
+        (click)="createWorkingTime()"
+      >Add</button>
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        class="px-4 mr-2 bg-lighter border-lighter text-white"
+        (click)="createWorkingTime(0, 4)"
+      >Add Monday through Friday</button>
+    </div>
+  </cdk-virtual-scroll-viewport>
+  <div class="divider text-muted"></div>
+  <div class="d-flex">
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="small"
+      class="px-5 mr-2 bg-darker"
+      (click)="save()"
+    >Save</button>
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="small"
+      class="px-5 mr-auto bg-darker"
+      (click)="saveAs()"
+    >Save As</button>
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="small"
+      class="px-5 mr-2 bg-darker"
+      (click)="cancel()"
+    >Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="small"
+      class="px-5"
+      (click)="ok()"
+    >Ok</button>
+  </div>
+</div>
+<ng-template #nameForm>
+  <div class="text-left">
+    <small class="text-muted px-2 mb-1">Name</small>
+    <nz-form-control class="custom-form-control">
+      <input nz-input type="text" [(ngModel)]="sessionName">
+    </nz-form-control>
+  </div>
+</ng-template>

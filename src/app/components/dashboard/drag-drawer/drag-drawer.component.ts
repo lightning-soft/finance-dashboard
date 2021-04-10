@@ -52,6 +52,14 @@ export const widgetList = [
         minWidth: 1200,
       }
     },
+    {
+      icon: 'icon-clock',
+      name: 'Session Manager',
+      component: Components.SessionManager,
+      options: {
+        minWidth: 600,
+      },
+    },
     // {
     //   icon: 'icon-scripting',
     //   name: 'Scripting',

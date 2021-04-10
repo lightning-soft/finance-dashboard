@@ -1,0 +1,29 @@
+<div class="d-flex align-items-center">
+  <nz-input-number
+    class="custom-form-control time-input"
+    [nzFormatter]="formatter"
+    [nzParser]="parser"
+    [ngModel]="hours"
+    (ngModelChange)="handleHoursChange($event)"
+  ></nz-input-number>
+  <div class="time-separator">:</div>
+  <nz-input-number
+    class="custom-form-control time-input"
+    [nzStep]="step"
+    [nzFormatter]="formatter"
+    [nzParser]="parser"
+    [ngModel]="minutes"
+    (ngModelChange)="handleMinutesChange($event)"
+  ></nz-input-number>
+  <nz-select
+    class="custom-form-control time-select ml-2"
+    [(ngModel)]="partOfDay"
+    (ngModelChange)="handleValueChange()"
+  >
+    <nz-option
+      *ngFor="let item of partsOfDay"
+      [nzValue]="item"
+      [nzLabel]="item"
+    ></nz-option>
+  </nz-select>
+</div>
