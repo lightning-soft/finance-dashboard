@@ -11,6 +11,7 @@ export const Modules = {
   Settings: 'settings',
   Dom: 'dom',
   NotificationList: 'notification-list',
+  SessionManager: 'session-manager',
 };
 
 export const Components = {
@@ -26,7 +27,9 @@ export const Components = {
   Dom: 'dom',
   DomSettings: 'dom-settings',
   NotificationList: 'notification-list',
-  IndicatorList: 'indicatorList'
+  SessionManager: 'session-manager',
+  IndicatorList: 'indicatorList',
+  OrdersPanel: 'ordersPanel'
 };
 
 export const modulesStore: IModules[] = [
@@ -36,6 +39,7 @@ export const modulesStore: IModules[] = [
       Components.Chart,
       Components.Indicators,
       Components.IndicatorList,
+      Components.OrdersPanel,
     ]
   },
   {
@@ -92,6 +96,12 @@ export const modulesStore: IModules[] = [
     module: Modules.NotificationList,
     components: [
       Components.NotificationList,
+    ]
+  },
+  {
+    module: Modules.SessionManager,
+    components: [
+      Components.SessionManager,
     ]
   }
 ];

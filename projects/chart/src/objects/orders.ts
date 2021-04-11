@@ -1,9 +1,9 @@
 import { StringHelper } from 'base-components';
-import { IOrder, OrderDuration, OrdersFeed, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { IOrder, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { ModalOrderComponent } from '../modals/modal-order/modal-order.component';
+import { getPriceSpecs } from 'base-order-form';
 
 declare const StockChartX: any;
 
@@ -27,10 +27,38 @@ export class Orders extends ChartObjects<IOrder> {
     this._modal = this._injector.get(NzModalService);
 
     this._chart.on(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
-    this._chart.on(StockChartX.OrderBarEvents.ORDER_CREATED, this._createOrder);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_SETTINGS_CLICKED, this._updateOrder);
     this._chart.on(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
+    this._chart.on(StockChartX.TradingPanelEvents.BUY_AREA_CONTEXT_MENU_CLICKED, this._tradingBuyAreaClicked);
+    this._chart.on(StockChartX.TradingPanelEvents.SELL_AREA_CONTEXT_MENU_CLICKED, this._tradingSellAreaClicked);
+  }
+
+  _tradingSellAreaClicked = (event) => {
+    this._instance.createOrderWithConfirm({ side: OrderSide.Sell, price: event.value.price });
+  }
+  _tradingBuyAreaClicked = (event) => {
+    this._instance.createOrderWithConfirm({ side: OrderSide.Buy, price: event.value.price });
+  }
+
+  createOcoOrder(config) {
+    const bar = this.createBar(config);
+    bar.locked = true;
+    this._instance.chart.mainPanel.addObjects(bar);
+    this._barsMap['oco' + config.side] = bar;
+  }
+
+  clearOcoOrders() {
+    const sellBar = this._barsMap['oco' + OrderSide.Sell];
+    if (sellBar) {
+      sellBar.remove();
+      delete this._barsMap['oco' + OrderSide.Sell];
+    }
+    const buyBar = this._barsMap['oco' + OrderSide.Buy];
+    if (buyBar) {
+      buyBar.remove();
+      delete this._barsMap['oco' + OrderSide.Buy];
+    }
   }
 
   createBar(model) {
@@ -39,69 +67,38 @@ export class Orders extends ChartObjects<IOrder> {
     });
   }
 
+  getOrders(side?: OrderSide) {
+    return Object.values(this._barsMap)
+      .filter((item: any) => {
+        if (!side)
+          return true;
+        if (item.order.isOco)
+          return false;
+        return item.order.side === side;
+      }).map((item: any) => item.order);
+
+  }
+
   private _openDialog = (event) => {
     const price = event.value.order.price;
-    this._modal.create({
-      nzContent: ModalOrderComponent,
-      nzFooter: null,
-      nzWidth: 167,
-      nzClassName: 'chart-modal-order',
-      nzComponentParams: {
-        stopPrice: price,
-        limitPrice: price
-      }
-    }).afterClose.subscribe((res) => {
-      if (res)
-        this._repository.createItem({ ...res, ...this.requestParams }).toPromise();
-    });
+    this._instance.createOrder({ price, side: OrderSide.Buy });
   }
 
   private _updatePrice = ($event) => {
-    this._repository.updateItem(this._mapToIOrder($event.target.order, true)).toPromise();
+    const order = this._mapToIOrder($event.target.order, true);
+    const priceSpecs = getPriceSpecs(order, order.price,
+      this._instance.instrument.tickSize);
+    this._repository.updateItem({
+      ...order, instrument: this._instance.instrument, ...priceSpecs
+    }).toPromise();
   }
 
   private _updateOrder = (event) => {
-    const target = event.target;
-    const order = this._mapToIOrder(target.order, true);
-    this._modal.create(
-      {
-        nzContent: ModalOrderComponent,
-        nzFooter: null,
-        nzWidth: 167,
-        nzClassName: 'chart-modal-order',
-        nzComponentParams: {
-          isEdit: true,
-          ...order
-        }
-      }
-    ).afterClose.subscribe((res) => {
-      if (res)
-        this._repository.updateItem({
-          ...order,
-          ...res, ...this.requestParams
-        }).toPromise();
-    });
+    // this._instance.openOrderPanel();
   }
 
-  private _createOrder = (event) => {
-    const order = event.target.order;
-    const target = event.target;
-    this._repository.createItem(this._mapToIOrder(order))
-      .pipe(
-        untilDestroyed(this._instance)
-      )
-      .subscribe((item: any) => {
-        target.order = this._map(item.result, order.price);
-        target.update();
-        this._barsMap[target.order.id] = target;
-        this._notifier.showSuccess('Order is created');
-      }, error => {
-        target.remove();
-        this._notifier.showError('Fail to create order');
-      });
-  }
 
- private _mapToIOrder(order, update = false) {
+  private _mapToIOrder(order, update = false) {
     const priceSpecs: any = {};
     const typeMap = {
       stop: OrderType.StopMarket,
@@ -124,11 +121,15 @@ export class Orders extends ChartObjects<IOrder> {
     }
     const duration = order.duration;
     return {
+      instrument: order.instument,
+      account: order.account,
       quantity: order.quantity,
       orderId: order.orderId,
+      id: order.id,
       ...priceSpecs,
       duration,
       type,
+      price: order.price,
       side: StringHelper.capitalize(order.action),
       ...this.requestParams
     };
@@ -137,6 +138,10 @@ export class Orders extends ChartObjects<IOrder> {
   private _cancelOrder = ({ value }) => {
     const order = value.order;
     if (!order) {
+      return;
+    }
+    if (order.isOco) {
+      this._instance.clearOcoOrders();
       return;
     }
 
@@ -158,11 +163,12 @@ export class Orders extends ChartObjects<IOrder> {
 
   destroy() {
     super.destroy();
-    this._chart?.off(StockChartX.OrderBarEvents.ORDER_CREATED, this._createOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CANCEL_ORDER_CLICKED, this._cancelOrder);
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
+    this._chart?.off(StockChartX.TradingPanelEvents.SELL_AREA_CONTEXT_MENU_CLICKED, this._tradingSellAreaClicked);
+    this._chart?.off(StockChartX.TradingPanelEvents.BUY_AREA_CONTEXT_MENU_CLICKED, this._tradingBuyAreaClicked);
   }
 
   protected _isValid(item: IOrder) {

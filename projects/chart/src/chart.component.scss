@@ -10,7 +10,83 @@ app-window-toolbar {
   margin-left: 4px;
 }
 
+.form-header {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  color: $text-80;
+  padding-top: 8px;
+  font-weight: 600;
+  padding-left: 1px;
+}
+
+side-form {
+  width: 100px;
+  min-width: 100px;
+}
+
+.trading-instruments {
+  color: $text-40;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+
+  & > * {
+    margin-left: 4px;
+    cursor: pointer;
+  }
+
+  .lock, .icon-widget-orders {
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    background: $darkBackground;
+    font-size: 12px;
+    line-height: 1;
+    color: $text-80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-widget-orders {
+    margin-left: 7px;
+
+    &.active {
+      color: $primary;
+    }
+  }
+
+  .lock {
+    margin-right: 7px;
+
+    &.icon-lock {
+      color: $red;
+    }
+  }
+
+  .icon-window-left, .icon-window-right {
+    font-size: 8px;
+    line-height: 1;
+
+    &.active {
+      color: $primary;
+    }
+  }
+
+}
+
 ::ng-deep {
+  .confirm-order {
+    .ant-modal-content {
+      width: 379px;
+      .ant-modal-body {
+        padding: 30px 40px;
+        width: 376px;
+        min-width: 376px;
+      }
+    }
+  }
+
   .modal-content {
     max-height: 90vh;
     overflow: auto;
@@ -28,6 +104,11 @@ app-window-toolbar {
 }
 
 :host ::ng-deep {
+  side-form {
+    button.top-position-btn {
+      margin-top: 8px;
+    }
+  }
 
   .scxPanelTitleValue {
     margin-left: 0px;
@@ -159,6 +240,10 @@ instrument-select {
 .component-container {
   display: flex;
   height: 100%;
+
+  &.window-left {
+    flex-direction: row-reverse;
+  }
 }
 
 .chart-container {

@@ -1,40 +1,64 @@
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
+  <account-select
+    class="mr-2"
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
   <instrument-select
     placeholder="Symbol"
     [instrument]="instrument"
     (instrumentChange)="instrument = $event"
   ></instrument-select>
-  <account-select
-    class="mr-2"
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
-  <app-window-toolbar class="wm-draggable"></app-window-toolbar>
+  <!--  <app-window-toolbar class="wm-draggable"></app-window-toolbar>-->
+  <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
+    <i *ngFor="let item of directions" (click)="currentDirection = item"
+       [class.active]="currentDirection === item"
+       class="icon-{{item}} direction window-icon"></i>
+    <i (click)="showChartForm = !showChartForm; setNeedUpdate()" [class.active]="showChartForm"
+       [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
+    <i (click)="isTradingLocked = !isTradingLocked"
+       [class.icon-lock]="isTradingLocked"
+       [class.icon-unlock]="!isTradingLocked"
+       [title]="isTradingLocked? 'Lock' : 'Unlock'"
+       class="lock"></i>
+  </div>
+
 </window-header>
-<div class="component-container">
+<div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLC"
        [class.hide-changes]="!showChanges"
        class="chart-container">
-    <app-toolbar [class.location-up]="!showChanges && !showOHLC" [layout]="layout" [chart]="chart" [link]="link"></app-toolbar>
+    <app-toolbar
+      [(enableOrderForm)]="enableOrderForm"
+      (enableOrderFormChange)="checkIfTradingEnabled()"
+      [class.location-up]="!showChanges && !showOHLC" [layout]="layout" [chart]="chart"
+      [link]="link"></app-toolbar>
     <div class="chart" #chartContainer></div>
-    <div *ngIf="enableOrderForm"
-         (click)="showOrderForm = !showOrderForm"
-         class="icon-container">
-      <i [class.icon-arrow-left]="!showOrderForm"
-         [class.icon-arrow-right]="showOrderForm"></i>
-    </div>
   </div>
 
-  <order-form *ngIf="enableOrderForm"
-              [class.disappearing]="!showOrderForm"
-              [instrument]="instrument"></order-form>
+  <side-form
+    [class.d-none]="!showChartForm || !enableOrderForm"
+    [accountId]="accountId"
+    [positions]="positions"
+    [ocoStep]="ocoStep"
+    (actions)="handleFormAction($event)"
+    [instrument]="instrument">
+    <div class="form-header" headerContent>
+      <div>
+        A: {{getQuoteInfo(bestAskPrice)}} {{getQuoteInfo(askSize)}}
+      </div>
+      <div>
+        B: {{getQuoteInfo(bestBidPrice)}} {{getQuoteInfo(bidSize)}}
+      </div>
+    </div>
+  </side-form>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul class="chart-menu-dropdown" nz-menu>
     <li (click)="showOHLC = !showOHLC" nz-menu-item>{{showOHLC ? 'Hide' : 'Show'}} OHLC</li>
     <li (click)="showChanges = !showChanges" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
-  <!--  <li nz-menu-divider></li>
-    <li nz-menu-item>Reset PB</li>
-    <li nz-menu-divider></li>
-    <li nz-menu-item>Settings</li>-->
+    <!--  <li nz-menu-divider></li>
+      <li nz-menu-item>Reset PB</li>
+      <li nz-menu-divider></li>
+      <li nz-menu-item>Settings</li>-->
   </ul>
 </nz-dropdown-menu>

@@ -201,6 +201,10 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
         path: Modules.Dom,
         loadChildren: () => import('dom').then(i => i.DomModule)
       },
+      {
+        path: Modules.SessionManager,
+        loadChildren: () => import('session-manager').then(i => i.SessionManagerModule)
+      },
     ], modulesStore),
     RouterModule.forRoot([
       {

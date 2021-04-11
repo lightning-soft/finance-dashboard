@@ -20,7 +20,8 @@ export class FramesManagerComponent {
     [Components.Positions, new Set()],
     [Components.Orders, new Set()],
     [Components.Dom, new Set()],
-    [Components.OrderForm, new Set()]
+    [Components.OrderForm, new Set()],
+    [Components.SessionManager, new Set()],
   ];
 
   @HostBinding('class.has-windows')
@@ -32,8 +33,8 @@ export class FramesManagerComponent {
     [Components.Orders]: 'icon-widget-orders',
     [Components.Positions]: 'icon-widget-positions',
     [Components.Dom]: 'icon-widget-dom',
-    [Components.OrderForm]: 'icon-widget-create-orders'
-
+    [Components.OrderForm]: 'icon-widget-create-orders',
+    [Components.SessionManager]: 'icon-clock',
   };
 
   get windowAreaTopPosition(): number {

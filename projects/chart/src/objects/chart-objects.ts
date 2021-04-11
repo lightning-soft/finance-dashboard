@@ -16,6 +16,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   protected _repositorySubscription: Subscription;
   protected _dataFeed: Feed<T>;
   private unsubscribeFn: () => void;
+  items: T[] = [];
 
   protected get _chart(): IChart {
     return this._instance.chart;
@@ -51,17 +52,27 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     }
     if (!this._barsMap[model.id]) {
       const bar = this.createBar(model);
+      if (!this.items.some((item) => item.id === model.id))
+        this.items.push(model);
+      bar.visible = this.shouldBarBeVisible();
       bar.chartPanel = this._chart.mainPanel;
       this._chart.mainPanel.addObjects(bar);
       this._barsMap[model.id] = bar;
     } else {
       const orderBar = this._barsMap[model.id];
       orderBar.order = this._map(model);
+      const index = this.items.findIndex(item => item.id === model.id);
+      if (index !== -1)
+        this.items[index] = model;
       orderBar.update(false);
     }
     if (!this._isValid(model)) {
       this.delete(model.id);
     }
+  }
+
+  shouldBarBeVisible() {
+    return this._instance.enableOrderForm;
   }
 
   abstract createBar(model);
@@ -105,6 +116,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     this._repository.getItems(this._params)
       .pipe(untilDestroyed(this._instance))
       .subscribe((res: IPaginationResponse<T>) => {
+        this.items = res.data;
         res.data.forEach(item => {
           this.handle(item);
         });
@@ -115,10 +127,12 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     Object.keys(this._barsMap).forEach(key => {
       this.delete(key);
     });
+    this.items = [];
   }
 
   delete(id: Id) {
     this._barsMap[id]?.remove();
+    this.items = this.items.filter(item => item.id !== id);
     delete this._barsMap[id];
   }
 

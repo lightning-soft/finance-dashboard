@@ -28,6 +28,7 @@ $cell-background: #1b1d22;
   }
 
   ::ng-deep {
+    @import "side-form";
     account-select {
       .custom-form-control {
         background-color: transparent;
@@ -221,10 +222,27 @@ daily-info {
   color: rgba(201, 59, 59, 1);
 }
 
-dom-form {
+side-form {
   width: 100px;
   display: block;
   height: 100%;
+}
+
+.pl-input {
+  color: white;
+  margin-top: 8px;
+  border: 1px solid #47494F;
+  border-radius: 2px;
+  padding: 1.5px;
+
+  font-size: 0.65rem;
+  padding-left: 4px;
+
+  input {
+    color: white;
+    font-size: 0.65rem;
+    text-align: right;
+  }
 }
 
 .window-icon-container {

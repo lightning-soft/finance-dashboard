@@ -2,6 +2,10 @@ import { Cell } from './cell';
 
 export enum Icon {
   Close = 'close',
+  MoveDown = 'moveDown',
+  MoveUp = 'moveUp',
+  Stop = 'stop',
+  Play = 'play',
 }
 
 export class IconCell extends Cell {
@@ -24,24 +28,113 @@ export class IconCell extends Cell {
 
     switch (this._icon) {
       case Icon.Close:
-        const x = context.x + context.width / 2;
-        const y = context.y + context.height / 2;
-        const offset = (context.height * 0.6) / 2;
+        drawClose(context);
+        break;
+      case Icon.MoveDown:
+        drawMoveDown(context);
+        break;
+      case Icon.MoveUp:
+        drawMoveUp(context);
+        break;
+      case Icon.Stop:
+        drawStop(context);
+        break;
 
-        ctx.save();
-        ctx.strokeStyle = '#fff';
-        ctx.beginPath();
-
-        ctx.moveTo(x - offset, y - offset);
-        ctx.lineTo(x + offset, y + offset);
-
-        ctx.moveTo(x + offset, y - offset);
-        ctx.lineTo(x - offset, y + offset);
-        ctx.stroke();
-        ctx.restore();
+      case Icon.Play:
+        drawPlay(context);
         break;
     }
 
     return true;
   }
+}
+
+function drawClose(context) {
+  const ctx = context.ctx;
+  const x = context.x + context.width / 2;
+  const y = context.y + context.height / 2;
+  const offset = (context.height * 0.6) / 2;
+
+  ctx.save();
+  ctx.strokeStyle = '#fff';
+  ctx.beginPath();
+
+  ctx.moveTo(x - offset, y - offset);
+  ctx.lineTo(x + offset, y + offset);
+
+  ctx.moveTo(x + offset, y - offset);
+  ctx.lineTo(x - offset, y + offset);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawMoveDown(context) {
+  const ctx = context.ctx;
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(36,38,44,1)';
+  const buttonSize = 20;
+  ctx.fillRect(context.x, context.y, buttonSize, buttonSize);
+  ctx.restore();
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(201,59,59,1)';
+  const startX = context.x + 3;
+  const startY = context.y + 5;
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(context.x + buttonSize / 2, context.y + 3 + buttonSize / 2);
+  ctx.stroke();
+  ctx.lineTo(context.x + buttonSize - 3, startY);
+  ctx.stroke();
+}
+
+function drawStop(context) {
+  const ctx = context.ctx;
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(36,38,44,1)';
+  const size = 16;
+  const innerSize = 6;
+  ctx.fillRect(context.x, context.y, size, size);
+  ctx.fillStyle = 'rgba(208,208,210,1)';
+  ctx.fillRect(context.x + 5, context.y + 5, innerSize, innerSize);
+}
+
+function drawMoveUp(context) {
+  const ctx = context.ctx;
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(36,38,44,1)';
+  const buttonSize = 20;
+  ctx.fillRect(context.x, context.y, buttonSize, buttonSize);
+  ctx.restore();
+  ctx.beginPath();
+  ctx.strokeStyle = '#4895F5';
+  const startX = context.x + 3;
+  const startY = context.y + buttonSize - 5;
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(context.x + buttonSize / 2, context.y - 2 + buttonSize / 2);
+  ctx.stroke();
+  ctx.lineTo(context.x + buttonSize - 3, startY);
+  ctx.stroke();
+}
+
+function drawPlay(context) {
+  const ctx = context.ctx;
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(36,38,44,1)';
+  const size = 16;
+
+  ctx.fillRect(context.x, context.y, size, size);
+  const padding = 6;
+  const top = context.y + padding;
+  const right = context.x + 6 + padding;
+  const bottom = top + 6;
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(208,208,210,1)';
+  ctx.moveTo(context.x + 6, top);
+  ctx.lineTo(right, (top + bottom) / 2);
+  ctx.lineTo(context.x + 6, bottom);
+  ctx.lineTo(context.x + 6, top);
+  ctx.fill();
 }

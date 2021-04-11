@@ -11,3 +11,5 @@ export * from './periodicity';
 export * from './settings';
 export * from './order-book';
 export * from './trade-print';
+export * from './timezone';
+export * from './session';

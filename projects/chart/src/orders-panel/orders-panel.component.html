@@ -1,0 +1,13 @@
+<data-grid
+  [columns]="columns"
+  [items]="items"
+
+  [handlers]="handlers"
+></data-grid>
+<div class="button-container">
+  <button class="dark-button">Cancel
+    <ng-container *ngIf="selectedItemsCount">({{selectedItemsCount}})</ng-container>
+  </button>
+  <button class="dark-button">Discard</button>
+  <button class="primary">Apply</button>
+</div>

@@ -1,0 +1,33 @@
+<div class="d-flex align-items-center">
+  <label class="mr-2">{{ label }}</label>
+  <nz-select
+    class="custom-form-control w-auto flex-grow-1"
+    [nzLoading]="loading"
+    (nzOpenChange)="handleToggle($event)"
+    [(ngModel)]="value"
+    (ngModelChange)="handleValueChange()"
+  >
+    <nz-option
+      *ngIf="default"
+      [nzValue]="default.id"
+      [nzLabel]="default.name"
+    ></nz-option>
+    <nz-option
+      *ngFor="let item of items"
+      [nzValue]="item.id"
+      [nzLabel]="item.name"
+      [nzCustomContent]="true"
+    >
+      <div class="d-flex align-items-center w-100">
+        <span class="mr-auto">{{ item.name }}</span>
+        <span
+          *ngFor="let action of actions"
+          class="text-muted link data-select-item-action ml-2"
+          (click)="action.callback(item)"
+        >
+          <i class="{{ action.icon }} font-size-inherit"></i>
+        </span>
+      </div>
+    </nz-option>
+  </nz-select>
+</div>

@@ -1,12 +1,10 @@
 import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { BaseOrderForm, QuantityInputComponent } from 'base-order-form';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
-import { IPosition } from 'projects/trading';
+import { IOrder, IPosition, OrderSide } from 'trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
-import { skip } from 'rxjs/operators';
 import {
   HistoryRepository,
   IConnection,
@@ -16,8 +14,10 @@ import {
   Periodicity,
   PositionsRepository
 } from 'trading';
-import { ITypeButton } from './type-buttons/type-buttons.component';
-import { Side } from "trading";
+import { Side } from 'trading';
+import { ITypeButton } from '../type-buttons/type-buttons.component';
+import { BaseOrderForm } from '../base-order-form';
+import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -65,12 +65,12 @@ export interface DomFormSettings {
 }
 
 @Component({
-  selector: 'dom-form',
-  templateUrl: './dom-form.component.html',
-  styleUrls: ['./dom-form.component.scss']
+  selector: 'side-form',
+  templateUrl: './side-order-form.component.html',
+  styleUrls: ['./side-order-form.component.scss']
 })
 @UntilDestroy()
-export class DomFormComponent extends BaseOrderForm {
+export class SideOrderFormComponent extends BaseOrderForm {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   dailyInfo: IHistoryItem;
@@ -154,7 +154,7 @@ export class DomFormComponent extends BaseOrderForm {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (this.instrument$.getValue()?.id !== value.id) {
+    if (value?.id != null && this.instrument$.getValue()?.id !== value?.id) {
       this.instrument$.next(value);
       this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
     }
@@ -216,7 +216,7 @@ export class DomFormComponent extends BaseOrderForm {
   editIceAmount = false;
 
   get amount() {
-    return this.formValue['amount'];
+    return this.formValue.amount;
   }
 
 
@@ -233,41 +233,8 @@ export class DomFormComponent extends BaseOrderForm {
     super._handleConnection(connection);
     this._historyRepository = this._historyRepository.forConnection(connection);
     this.positionsRepository = this.positionsRepository.forConnection(connection);
-
-    if (connection != null) {
-      this._loadHistory();
-      this.instrument$
-        .pipe(
-          skip(1),
-          untilDestroyed(this)
-        )
-        .subscribe((res) => {
-          this._loadHistory();
-        });
-    }
   }
 
-  private _loadHistory() {
-    const instrument = this.instrument;
-    if (!instrument)
-      return;
-
-    return this._historyRepository.getItems({
-      id: instrument.id,
-      Exchange: instrument.exchange,
-      ...historyParams,
-    })
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        res => {
-          const data = res.data;
-          const length = data.length;
-          this.dailyInfo = data[length - 1];
-          this.prevItem = data[length - 2];
-        },
-        err => this._notifier.showError(err)
-      );
-  }
 
   positionsToQuantity() {
     if (typeof this.positionSum === 'number' && this.positionSum != 0) {
@@ -307,20 +274,6 @@ export class DomFormComponent extends BaseOrderForm {
     this.quantitySelect.currentItem.value += value;
   }
 
-  getPl(): string {
-    const i = this.instrument;
-    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
-    const precision = this.setting.formSettings.roundPL ? 0 : (i?.precision ?? 2);
-    const includeRealizedPl = this.setting.formSettings.includeRealizedPL;
-
-    if (this.dailyInfo && position) {
-      return calculatePL(position, this.dailyInfo.close, this.tickSize, i.contractSize, includeRealizedPl)
-        .toFixed(precision);
-    }
-
-    return '';
-  }
-
 
   emit(action: FormActions) {
     this.actions.emit(action);
@@ -339,15 +292,19 @@ export class DomFormComponent extends BaseOrderForm {
   }
 }
 
-export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
-  if (!position)
-    return null;
-
-  const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
-  let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
-  if (includePnl) {
-    pl += position.realized;
+export function getPriceSpecs(item: IOrder & { amount: number }, price: number, tickSize) {
+  const priceSpecs: any = {};
+  const multiplier = 1 / tickSize;
+  price = (Math.ceil(price * multiplier) / multiplier);
+  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.limitPrice = price;
   }
-
-  return pl;
+  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.stopPrice = price;
+  }
+  if (item.type === OrderType.StopLimit) {
+    const offset = tickSize * item.amount;
+    priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
+  }
+  return priceSpecs;
 }
