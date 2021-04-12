@@ -1,4 +1,4 @@
-import { Component, Injector, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -29,7 +29,7 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
-export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
+export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
   orderDurations = orderDurations;
   orderTypes = orderTypes;
   step = 1;
@@ -246,6 +246,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     const quantity = this.quantity - 1;
     if (quantity >= 1)
       this.form.patchValue({ quantity });
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this._tradeDataFeed.unsubscribe(this.instrument);
   }
 
   addToSelectedQuantity(count: number) {

@@ -1,6 +1,7 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
 import { AlertType } from 'communication';
+import { OrderStatus } from 'trading';
 
 
 const errorAlerts = [
@@ -49,7 +50,7 @@ export const handlers = {
   },
 
   [MessageTypes.ORDER]: (msg) => {
-    if (msg.result.status !== 'Rejected')
+    if (msg.result.status !== OrderStatus.Rejected)
       return;
 
     return new Notification({

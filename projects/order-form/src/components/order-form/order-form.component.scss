@@ -113,6 +113,12 @@
   }
 
   ::ng-deep {
+    account-select {
+      nz-select-top-control {
+        align-items: center;
+      }
+    }
+
     nz-select {
       height: 24px !important;
 
