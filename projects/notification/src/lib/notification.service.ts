@@ -37,7 +37,7 @@ export class NotificationService extends NotifierService {
   }
 
   addNotification(notification) {
-    this._notifications.push(notification);
+    this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());
   }
 
