@@ -33,7 +33,7 @@ import {
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
-import { BarDataFeed, TradeDataFeed } from "trading";
+import { TradeDataFeed } from 'trading';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -99,14 +99,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument.symbol === value.symbol
       && this.chart.instrument.exchange === value.exchange)
       return;
-    if (this.instrument) {
-      this._barDataFeed.unsubscribe(this.instrument);
-      this._tradeDataFeed.unsubscribe(this.instrument);
-    }
-    if (this.chart.instrument)
+    if (this.chart.instrument) {
+      this._tradeDataFeed.unsubscribe(this.chart.instrument);
       this._levelOneDatafeed.unsubscribe(this.chart.instrument);
+    }
     this.chart.instrument = value;
-    this._levelOneDatafeed.subscribe(value);
+    this._tradeDataFeed.subscribe(this.chart.instrument);
+    this._levelOneDatafeed.subscribe(this.chart.instrument);
     this.chart.incomePrecision = value.precision ?? 2;
     if (value) {
       value.company = this._getInstrumentCompany();
@@ -140,9 +139,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager,
-    private _barDataFeed: BarDataFeed,
     private _tradeDataFeed: TradeDataFeed,
-    protected _accountsManager: AccountsManager,
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
@@ -243,6 +240,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.checkIfTradingEnabled();
 
     chart.showInstrumentWatermark = false;
+
+    this._tradeDataFeed.subscribe(this.chart.instrument);
+    this._levelOneDatafeed.subscribe(this.chart.instrument);
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -439,8 +439,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._positions.destroy();
     this._orders.destroy();
     if (this.chart) {
-      this._barDataFeed.unsubscribe(this.instrument);
       this._tradeDataFeed.unsubscribe(this.instrument);
+      this._levelOneDatafeed.unsubscribe(this.instrument);
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.destroy();

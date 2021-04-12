@@ -11,7 +11,7 @@ import {
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity } from './TimeFrame';
-import { IBar } from "../models";
+import { IBar } from '../models';
 
 declare let StockChartX: any;
 
@@ -133,9 +133,7 @@ export class RithmicDatafeed extends Datafeed {
 
   cancel(request: IRequest) {
     super.cancel(request);
-    const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
-    this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
     this.requestSubscriptions.delete(request.id);
@@ -165,47 +163,28 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
 
     this._unsubscribe();
-    this._unsubscribeFromRealtime(instrument);
-    this._barDataFeed.subscribe(instrument);
-    this._tradeDataFeed.subscribe(instrument);
-
-    this._unsubscribeFns.push(this._barDataFeed.on((quote: Bar) => {
-      const _quote: ChartQuote = {
-        instrument: quote.instrument,
-        price: quote.closePrice,
-        date: new Date(quote.timestamp),
-        volume: quote.volume,
-      } as any;
-
-      this.processQuote(chart, _quote);
-    }));
-
-    this._unsubscribe();
 
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
-      const _quote: ChartQuote = {
-        // Ask: quote.volume;
-        // AskSize: number;
-        // Bid: number;
-        // BidSize: number;
-        instrument: quote.instrument,
-        price: quote.price,
-        date: new Date(quote.timestamp),
-        volume: quote.volume,
-        side: quote.side,
-      } as any;
+      if (instrument.id != null && instrument.id === quote.instrument.id) {
+        const _quote: ChartQuote = {
+          // Ask: quote.volume;
+          // AskSize: number;
+          // Bid: number;
+          // BidSize: number;
+          instrument: quote.instrument,
+          price: quote.price,
+          date: new Date(quote.timestamp),
+          volume: quote.volume,
+          side: quote.side,
+        } as any;
 
-      this.processQuote(request, _quote);
+        this.processQuote(request, _quote);
+      }
     }));
   }
 
   private _getInstrument(req: IRequest) {
     return req.instrument ?? req.chart.instrument;
-  }
-
-  _unsubscribeFromRealtime(instrument: IInstrument) {
-    this._barDataFeed.unsubscribe(instrument);
-    this._tradeDataFeed.unsubscribe(instrument);
   }
 
   _unsubscribe() {

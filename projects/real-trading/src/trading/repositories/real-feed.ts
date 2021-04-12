@@ -91,11 +91,9 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
           else
             this.createPendingRequest(type, dto);
         }
-        console.warn('subscribe ' + this.constructor.name, subscriptions);
       } else {
         if (!subscriptions[hash])
           return;
-        console.warn('unsubscribe ' + this.constructor.name, subscriptions);
         subscriptions[hash].count = (subscriptions[hash]?.count || 1) - 1;
         if (subscriptions[hash].count === 0) {
           if (this._unsubscribeFns[hash]) {
