@@ -332,9 +332,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   public set instrument(value: IInstrument) {
     if (this._instrument?.id == value.id)
       return;
+    const prevInstrument = this._instrument;
     this._unsubscribeFromInstrument();
     this._instrument = value;
-    this._onInstrumentChange();
+    this._onInstrumentChange(prevInstrument);
   }
 
   get isFormOnTop() {
@@ -460,7 +461,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
         this._historyRepository = this._historyRepository.forConnection(connection);
         if (connection)
-          this._onInstrumentChange();
+          this._onInstrumentChange(this.instrument);
       });
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
@@ -848,11 +849,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  _onInstrumentChange() {
+  _onInstrumentChange(prevInstrument: IInstrument) {
     const instrument = this.instrument;
+    if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
+      this._levelOneDatafeed.subscribe(instrument);
+      this._tradeDatafeed.subscribe(instrument);
+    }
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
-    this._levelOneDatafeed.subscribe(instrument);
-    this._tradeDatafeed.subscribe(instrument);
+
 
     this._loadData();
   }

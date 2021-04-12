@@ -10,7 +10,6 @@ import * as moment from 'moment';
 
 interface NotificationGroup {
   notifications: Notification[];
-
 }
 
 export interface NotificationListComponent extends ILayoutNode {

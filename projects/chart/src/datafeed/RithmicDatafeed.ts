@@ -6,11 +6,12 @@ import {
   HistoryRepository,
   InstrumentsRepository,
   TradeDataFeed, TradePrint,
+  BarDataFeed, Bar, IInstrument,
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity } from './TimeFrame';
-import { IBar } from "../models";
+import { IBar } from '../models';
 
 declare let StockChartX: any;
 
@@ -132,9 +133,7 @@ export class RithmicDatafeed extends Datafeed {
 
   cancel(request: IRequest) {
     super.cancel(request);
-    const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
-    this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
     this.requestSubscriptions.delete(request.id);
@@ -162,24 +161,25 @@ export class RithmicDatafeed extends Datafeed {
 
   subscribeToRealtime(request: IBarsRequest) {
     const instrument = this._getInstrument(request);
-    this._tradeDataFeed.subscribe(instrument);
 
     this._unsubscribe();
 
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
-      const _quote: ChartQuote = {
-        // Ask: quote.volume;
-        // AskSize: number;
-        // Bid: number;
-        // BidSize: number;
-        instrument: quote.instrument,
-        price: quote.price,
-        date: new Date(quote.timestamp),
-        volume: quote.volume,
-        side: quote.side,
-      } as any;
+      if (instrument.id != null && instrument.id === quote.instrument.id) {
+        const _quote: ChartQuote = {
+          // Ask: quote.volume;
+          // AskSize: number;
+          // Bid: number;
+          // BidSize: number;
+          instrument: quote.instrument,
+          price: quote.price,
+          date: new Date(quote.timestamp),
+          volume: quote.volume,
+          side: quote.side,
+        } as any;
 
-      this.processQuote(request, _quote);
+        this.processQuote(request, _quote);
+      }
     }));
   }
 

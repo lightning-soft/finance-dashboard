@@ -1,13 +1,13 @@
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
-  <account-select
-    class="mr-2"
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
   <instrument-select
+    class="mr-2"
     placeholder="Symbol"
     [instrument]="instrument"
     (instrumentChange)="instrument = $event"
   ></instrument-select>
+  <account-select
+    (accountChange)="handleAccountChange($event)"
+  ></account-select>
   <!--  <app-window-toolbar class="wm-draggable"></app-window-toolbar>-->
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item"
