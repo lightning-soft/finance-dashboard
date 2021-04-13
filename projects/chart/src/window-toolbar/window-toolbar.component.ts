@@ -17,7 +17,7 @@ export class WindowToolbarComponent implements OnInit {
   constructor(private _accountsManager: AccountsManager) {}
 
   ngOnInit() {
-    this._accountsManager.connections
+    this._accountsManager.connectionsData
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();

@@ -89,20 +89,20 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         err => this._notifier.showError(err)
       );
 
-    this._accountsManager.connections
+    this._accountsManager.connectionsData
       .pipe(
         untilDestroyed(this))
-      .subscribe((items: any) => {
-        if (items) {
-          this.builder.replaceItems(items);
+      .subscribe((data) => {
+        if (data) {
+          this.builder.replaceItems(data.connections);
           this.expandBrokers();
           this._updateSelectedItem();
         }
       });
 
-    this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
-      .subscribe((items) => {
-        const item = items.find(item => item.connected && item.connectOnStartUp);
+    this._accountsManager.connectionsData.pipe(take(1), untilDestroyed(this))
+      .subscribe((data) => {
+        const item = data.connections.find(item => item.connected && item.connectOnStartUp);
         if (!this.selectedItem) {
           this.selectItem(item);
         }
