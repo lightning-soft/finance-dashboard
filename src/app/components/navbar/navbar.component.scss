@@ -9,6 +9,12 @@
   position: absolute;
   z-index: 1000;
 
+  &.is-electron {
+    .control {
+      display: flex !important;
+    }
+  }
+
   &.hidden {
     z-index: 1;
 
@@ -31,7 +37,7 @@
     }
 
     .preferences {
-     //  margin-left: auto;
+      //  margin-left: auto;
       &:before, &:after {
         content: none;
       }
@@ -186,6 +192,7 @@
 
   .control {
     margin: 0 8px;
+    display: none;
 
     button {
       background-color: transparent;

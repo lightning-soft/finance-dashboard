@@ -13,6 +13,7 @@ import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
+import { environment } from 'environment';
 
 
 @Component({
@@ -99,7 +100,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     window.onbeforeunload = (e) => {
       for (const fn of this._subscriptions)
         fn();
-      if (this.hasBeenSaved || this._windowPopupManager.isPopup())
+      if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
         return;
       e = e || window.event;
 
