@@ -177,10 +177,11 @@ export class NavbarComponent implements AfterViewInit {
   //   });
   // }
 }
+declare var process;
 
 function isElectron() {
   // Renderer process
-  if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+  if (typeof window !== 'undefined' && typeof window['process'] === 'object' && window['process'].type === 'renderer') {
     return true;
   }
 

@@ -50,9 +50,16 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   @ViewChild('grid') dataGrid: DataGrid;
 
-  get columns() {
-    return this._columns;
-  }
+  private _status: PositionStatus = PositionStatus.Open;
+
+  private _accountId;
+
+  handlers = [
+    new CellClickDataGridHandler<PositionItem>({
+      column: 'close',
+      handler: (item) => this.delete(item),
+    }),
+  ];
 
   protected _levelOneDataFeedHandler = (quote: IQuote) => {
     this.items.map(i => i.updateUnrealized(quote));
@@ -60,11 +67,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.updatePl();
   }
 
+  get columns() {
+    return this._columns;
+  }
+
   private get positions(): IPosition[] {
     return this.items.filter(item => item.position).map(item => item.position);
   }
-
-  private _status: PositionStatus = PositionStatus.Open;
 
   get status() {
     return this._status;
@@ -73,7 +82,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
   }
-
 
 
   set status(value: PositionStatus) {
@@ -88,8 +96,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return { ...this._params, status: this.status };
   }
 
-  private _accountId;
-
   set accountId(accountId) {
     this._accountId = accountId;
     this.loadData({ accountId });
@@ -98,13 +104,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   get accountId() {
     return this._accountId;
   }
-
-  handlers = [
-    new CellClickDataGridHandler<PositionItem>({
-      column: 'close',
-      handler: (item) => this.delete(item),
-    }),
-  ];
 
   constructor(
     protected _repository: PositionsRepository,
@@ -126,9 +125,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.setTabTitle('Positions');
   }
 
+
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
     this.updatePl();
+  }
+
+  protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
+    super._handleResponse(response, params);
+    response.data.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
@@ -212,6 +217,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
           err => this._handleDeleteError(err),
         );
     }
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.positions.forEach(item => {
+      this._levelOneDataFeed.unsubscribe(item.instrument);
+    });
   }
 
   protected _deleteItem(item: IPosition) {

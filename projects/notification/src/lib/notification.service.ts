@@ -66,8 +66,7 @@ export class NotificationService extends NotifierService {
     const notification = reducer(msg);
 
     if (notification) {
-      this._notifications.push(notification);
-      this.notifications.next(this.getNotification());
+        this.addNotification(notification);
     }
   }
 
