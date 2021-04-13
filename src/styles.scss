@@ -46,6 +46,22 @@ html {
   cursor: grabbing;
 }
 
+nav {
+  -webkit-app-region: drag
+}
+
+nav > * {
+  -webkit-app-region: no-drag
+}
+
+.spacer {
+  -webkit-app-region: drag;
+}
+
+.logo {
+  -webkit-app-region: drag;
+}
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }

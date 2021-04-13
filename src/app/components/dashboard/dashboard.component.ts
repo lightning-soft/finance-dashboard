@@ -10,10 +10,9 @@ import { WorkspacesManager } from 'workspace-manager';
 import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
-import { environment } from 'environment';
 import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
-import { NzConfigService } from "ng-zorro-antd";
+import { NzConfigService } from 'ng-zorro-antd';
 
 
 @Component({
@@ -97,7 +96,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       $('body').removeClass();
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
+    window.onbeforeunload = (e) => {
+      for (const fn of this._subscriptions)
+        fn();
+      if (this.hasBeenSaved || this._windowPopupManager.isPopup())
+        return;
+      e = e || window.event;
+
+      // For IE and Firefox prior to version 4
+      if (e) {
+        e.returnValue = true;
+      }
+      // For Safari
+      return true;
+    };
   }
+
 
   isPopup() {
     return this._windowPopupManager.isPopup();
@@ -283,24 +297,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.hasBeenSaved = true;
     }
   }
-
-  @HostListener('window:beforeunload', ['$event'])
-  async beforeUnloadHandler(e) {
-    for (const fn of this._subscriptions)
-      fn();
-    if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
-      return;
-    e = e || window.event;
-
-    // For IE and Firefox prior to version 4
-    if (e) {
-      e.returnValue = true;
-    }
-    // For Safari
-    return true;
-  }
 }
 
 function isInput(element: Element): boolean {
-  return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
+    return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
 }
