@@ -8,6 +8,12 @@
       color: $text-60;
     }
 
+    .ant-checkbox-checked {
+      &:after {
+        border-radius: 50%;
+      }
+    }
+
     .ant-checkbox-inner {
       border-radius: 50%;
 

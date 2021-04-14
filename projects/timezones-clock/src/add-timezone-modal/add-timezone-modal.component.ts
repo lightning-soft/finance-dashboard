@@ -27,44 +27,48 @@ export class AddTimezoneModalComponent {
   selectedTimezone: ITimezone;
   showMaxSizeError = false;
 
-  constructor(private _activeTimezonesService: TimezonesService) {
+  get canEnableTimezone(): boolean {
+    return this.timezonesService.canEnableTimezone;
+  }
+
+  constructor(private timezonesService: TimezonesService) {
 
     this.allTimezones = TIMEZONES.map(i => new Timezone(i));
 
-    this._activeTimezonesService.timezonesData$
+    this.timezonesService.timezonesData$
       .pipe(untilDestroyed(this))
       .subscribe((settings) => {
         this.currentTimezones = settings.timezones;
-      })
+      });
   }
 
   addToCurrent(timezone: ITimezone): void {
     this.showMaxSizeError = this.currentTimezones.length >= this.maxCurrentTimezonesSize;
 
     if (!this.showMaxSizeError) {
-      this._activeTimezonesService.add(timezone);
+      this.timezonesService.add(timezone);
     }
   }
 
   deleteTimezone(timezone: ITimezone): void {
-    this._activeTimezonesService.delete(timezone);
+    this.timezonesService.delete(timezone);
     this.showMaxSizeError = false;
   }
 
   updateTimezoneName(timezone: ITimezone, name: string): void {
-    this._activeTimezonesService.rename(timezone, name);
+    this.timezonesService.rename(timezone, name);
   }
 
   toggleTimezone(timezone: ITimezone, enabled: boolean): void {
-    this._activeTimezonesService.toggleEnabled(timezone, enabled);
+    this.timezonesService.toggleEnabled(timezone, enabled);
   }
 
   resetTimezone(timezone: ITimezone): void {
-    this._activeTimezonesService.resetItem(timezone);
+    this.timezonesService.resetItem(timezone);
   }
 
   resetTimezones(): void {
-    this._activeTimezonesService.deleteAll();
+    this.timezonesService.deleteAll();
   }
 
   isTimezoneDisabled(timezone: ITimezone): boolean {
