@@ -46,11 +46,11 @@ html {
   cursor: grabbing;
 }
 
-nav {
+.navigation-bar {
   -webkit-app-region: drag
 }
 
-nav > * {
+.navigation-bar > * {
   -webkit-app-region: no-drag
 }
 
