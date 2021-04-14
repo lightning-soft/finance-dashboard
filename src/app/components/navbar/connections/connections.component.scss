@@ -12,10 +12,6 @@ $horizontal-padding: 8px;
 
 }
 
-.navigation-button {
-  cursor: pointer;
-}
-
 .dropdown-connection-name, .connection-name {
   max-width: 170px;
   min-width: 60px;
@@ -89,6 +85,7 @@ $horizontal-padding: 8px;
   height: 36px;
   width: 36px;
   cursor: pointer;
+  background-color: transparent;
 
   &:hover {
     background-color: $inputBackground;
