@@ -34,7 +34,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
           high: item.highPrice,
           low: item.lowPrice,
           volume: item.volume,
-          details: item.details?.map(i => ({
+          details: (item.details || []).map(i => ({
             ...i,
             tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
           })),
