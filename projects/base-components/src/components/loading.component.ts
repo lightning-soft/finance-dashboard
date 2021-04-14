@@ -5,7 +5,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, RealtimeAction, Repository } from 'communication';
 import { NotifierService } from 'notifier';
-import { finalize } from 'rxjs/operators';
+import { filter, finalize } from 'rxjs/operators';
 import { isEqual } from 'underscore';
 import { Subscription } from 'rxjs';
 import { IConnection } from 'trading';
@@ -181,8 +181,8 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   protected _subscribeToConnections() {
     this._accountsManager = this._injector.get(AccountsManager);
 
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
+    this._accountsManager.connectionsData
+      .pipe(filter(data => data.needUpdateConnection), untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
 

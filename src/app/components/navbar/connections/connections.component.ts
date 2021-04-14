@@ -57,13 +57,13 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     this.builder.setParams({
       filter: (connection: IConnection) => connection.favourite,
     });
-    this._accountsManager.connections
+    this._accountsManager.connectionsData
       .pipe(
         filter(res => !!res),
         untilDestroyed(this),
       )
       .subscribe((res) => {
-          const value = res.filter(item => item.favourite);
+          const value = res.connections.filter(item => item.favourite);
           this.builder.replaceItems(value);
         }
       );
