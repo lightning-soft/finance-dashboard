@@ -1,8 +1,9 @@
 <div class="utc-time">
   <label nz-checkbox
          [nzChecked]="timezone.enabled"
-         *ngIf="canToggle"
-         (nzCheckedChange)="toggleEnabled.emit($event)">
+         [nzDisabled]="checkboxDisabled"
+         *ngIf="showCheckbox"
+         (nzCheckedChange)="checkbox.emit($event)">
   </label>
 
   <div class="name">

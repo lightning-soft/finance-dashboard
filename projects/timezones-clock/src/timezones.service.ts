@@ -12,20 +12,29 @@ interface ITimezonesData {
 @Injectable()
 export class TimezonesService {
   private _timezones: ITimezone[] = [];
+  private _canEnableTimezone: boolean;
   public timezonesData$: Observable<ITimezonesData>;
   public localTimezoneTitle: string;
+  public maxEnabledTimezonesCount: number;
 
-  get enabledTimezone(): ITimezone {
-    return this._timezones.find(i => i.enabled);
+  get enabledTimezones(): ITimezone[] {
+    return this._timezones.filter(i => i.enabled);
+  }
+
+  get canEnableTimezone(): boolean {
+    return this._canEnableTimezone;
   }
 
   constructor(private _settingsService: SettingsService) {
 
     this.timezonesData$ = this._settingsService.settings.pipe(
       map(settings => ({ localTimezoneTitle: settings.localTimezoneTitle, timezones: settings.timezones })),
-      tap(data => this._timezones = data.timezones),
-      tap(data => this.localTimezoneTitle = data.localTimezoneTitle),
-    )
+      tap(data => {
+        this._timezones = data.timezones;
+        this.localTimezoneTitle = data.localTimezoneTitle;
+        this._canEnableTimezone = this.maxEnabledTimezonesCount == null || this.enabledTimezones.length < this.maxEnabledTimezonesCount;
+      }),
+    );
   }
 
   add(timezone: ITimezone): void {
@@ -37,19 +46,17 @@ export class TimezonesService {
   }
 
   rename(timezone: ITimezone, name: string): void {
-    timezone.name = name;
-    this._save();
+    this._updateItem({ ...timezone, name });
   }
 
   toggleEnabled(timezone: ITimezone, enabled: boolean): void {
-    this._timezones.forEach(i => i.enabled = false);
-    timezone.enabled = enabled;
-    this._save();
+    if (!enabled || this.canEnableTimezone) {
+      this._updateItem({ ...timezone, enabled });
+    }
   }
 
   resetItem(timezone: ITimezone): void {
-    Timezone.setDefaultName(timezone);
-    this._save();
+    this._updateItem({ ...timezone, name: Timezone.getDefaultName(timezone) });
   }
 
   delete(timezone: ITimezone): void {
@@ -72,5 +79,14 @@ export class TimezonesService {
 
   private _save(): void {
     this._settingsService.saveTimezones(this._timezones);
+  }
+
+  private _updateItem(timezone: ITimezone, save = true): void {
+    const index = this._timezones.findIndex(i => i.id === timezone.id);
+    this._timezones[index] = timezone;
+
+    if (save) {
+      this._save();
+    }
   }
 }
