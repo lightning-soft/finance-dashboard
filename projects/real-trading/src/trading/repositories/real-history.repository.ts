@@ -4,13 +4,14 @@ import { IBar } from 'chart';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseRepository } from './base-repository';
+import { HistoryRepository } from "trading";
 
 declare const moment: any;
 
 export interface IHistoryItem extends IBaseItem, IBar {}
 
 @Injectable()
-export class RealHistoryRepository extends BaseRepository<IHistoryItem> {
+export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
   protected get suffix(): string {
     return 'History';
   }
@@ -33,7 +34,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> {
           high: item.highPrice,
           low: item.lowPrice,
           volume: item.volume,
-          details: item.details.map(i => ({
+          details: (item.details || []).map(i => ({
             ...i,
             tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
           })),

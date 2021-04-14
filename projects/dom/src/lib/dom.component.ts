@@ -703,12 +703,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return '';
   }
 
-  private _loadHistory() {
+  private _loadHistory(): void {
     const instrument = this.instrument;
     if (!instrument)
       return;
 
-    return this._historyRepository.getItems({
+    this._historyRepository.getItems({
       id: instrument.id,
       Exchange: instrument.exchange,
       ...historyParams,
@@ -958,7 +958,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       );
   }
 
-  protected _loadOrders() {
+  protected _loadOrders(): void {
     if (!this._accountId)
       return;
 
@@ -970,7 +970,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           if (!Array.isArray(orders))
             return;
 
-          console.log(orders);
           this._handleOrders(orders);
         },
         error => this.notifier.showError(error),
