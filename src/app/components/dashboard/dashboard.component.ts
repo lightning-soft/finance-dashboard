@@ -55,7 +55,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this._websocketService.connect();
 
-    this._accountsManager.connectionsData.subscribe(() => {
+    this._accountsManager.connections.subscribe(() => {
       const connection = this._accountsManager.getActiveConnection();
 
       if (connection)

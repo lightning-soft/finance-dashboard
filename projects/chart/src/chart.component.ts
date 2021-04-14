@@ -150,7 +150,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders = new Orders(this);
     this._positions = new Positions(this);
     this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)));
-    this._accountsManager.connectionsData
+    this._accountsManager.connections
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
