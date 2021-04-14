@@ -19,7 +19,12 @@
       font-weight: 600;
       font-size: 0.8rem;
       color: white;
+      user-select: none;
 
+    }
+
+    small {
+      user-select: none;
     }
 
     .ant-modal .ant-modal-content .ant-modal-body {

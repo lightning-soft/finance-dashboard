@@ -51,11 +51,13 @@ timezone-item {
   color: $titleColor;
   font-size: 14px;
   padding-bottom: 10px;
+  user-select: none;
 }
 
 .timezones-header {
   display: flex;
   align-items: center;
+  user-select: none;
   font-size: 10px;
   text-transform: uppercase;
   text-align: left;

@@ -28,6 +28,7 @@ button {
 
   li {
     padding: 6px;
+    user-select: none;
   }
 
   li.divider {
@@ -70,6 +71,7 @@ button {
   color: $textColor60;
   display: flex;
   align-items: center;
+  user-select: none;
 
   i {
     margin-right: 5px;

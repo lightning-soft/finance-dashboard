@@ -27,6 +27,7 @@ body.#{$themeName} {
       background-color: $tabBackground;
       color: $textColor !important;
       padding: 0;
+      user-select: none;
     }
 
     .ant-select-dropdown {
