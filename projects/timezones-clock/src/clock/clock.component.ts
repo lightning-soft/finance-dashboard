@@ -32,10 +32,10 @@ export class ClockComponent implements OnInit {
     this.localTimezone = this._getLocalTimezone();
 
     this.timezonesService.timezonesData$.subscribe((data) => {
-      this.timezones = data.timezones
+      this.timezones = data.timezones;
       this.enabledTimezone = this.timezonesService.enabledTimezone;
       this.localTimezone.name = data.localTimezoneTitle;
-    })
+    });
   }
 
   addTimezone(): void {
@@ -74,11 +74,11 @@ export class ClockComponent implements OnInit {
   private _getLocalTimezone(): ITimezone {
     const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const foundTimezones = TIMEZONES.filter(timezone => {
+    const matchedTimezones = TIMEZONES.filter(timezone => {
       return timezone.utc.some(i => i === timezoneName);
-    })
+    });
 
-    const supposedTimezone = (foundTimezones || []).reduce((acc, item) => {
+    const supposedTimezone = matchedTimezones.reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
     });
 

@@ -1565,4 +1565,5 @@ export const TIMEZONES: IDefaultTimezone[] = [
       "Pacific/Apia"
     ]
   }
-]
+];
+

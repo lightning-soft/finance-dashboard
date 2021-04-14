@@ -29,13 +29,15 @@ export class AddTimezoneModalComponent {
 
   constructor(private _activeTimezonesService: TimezonesService) {
 
-    this.allTimezones = TIMEZONES.map(i => new Timezone(i));
+    this.allTimezones = TIMEZONES
+      .map(i => new Timezone(i))
+      .sort((a, b) => a.offset < b.offset ? 1 : -1);
 
     this._activeTimezonesService.timezonesData$
       .pipe(untilDestroyed(this))
       .subscribe((settings) => {
         this.currentTimezones = settings.timezones;
-      })
+      });
   }
 
   addToCurrent(timezone: ITimezone): void {
