@@ -28,6 +28,7 @@ button.turned-off, button.turned-off:hover, button.turned-off:focus, button.turn
 
 .checkbox-title {
   font-size: 0.7rem;
+  user-select: none;
 }
 
 .number-input {

@@ -33,6 +33,7 @@ $horizontal-padding: 8px;
   line-height: 1;
   color: $text-60;
   transition: all 0.3s;
+  user-select: none;
 }
 
 .transition {

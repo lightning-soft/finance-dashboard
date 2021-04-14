@@ -17,7 +17,7 @@
       </li>
       <li nz-menu-item *ngIf="!isNavbarHidden"
           (click)="changeNavbarVisibility(true)">
-        <i class="icon-hide"></i> Hide
+        <i class="icon-hide"></i> Auto-hide
       </li>
       <li nz-menu-item *ngIf="isNavbarHidden"
           (click)="changeNavbarVisibility(false)">
@@ -62,7 +62,8 @@
   </div>
 
   <div class="control">
-    <button class="icon-minimize-window native-minimize-button"
+    <button
+      class="icon-minimize-window native-minimize-button"
             onclick="window.nativeMinimize && window.nativeMinimize()"></button>
     <button class="icon-full-screen-window native-maximize-button"
             onclick="window.nativeMaximize && window.nativeMaximize()"></button>

@@ -234,6 +234,7 @@
       color: inherit;
       display: flex;
       align-items: center;
+      user-select: none;
 
       &:hover {
         color: #fff;

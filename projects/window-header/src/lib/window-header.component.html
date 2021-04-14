@@ -10,9 +10,9 @@
 
 <div>
   <ng-container *ngIf="!hideInstruments()">
-  <span *ngIf="window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
+<!--  <span *ngIf="window.shouldOpenInNewWindow()" (click)="popup()" class="link popup-link">
     <i class="icon-popup"></i>
-  </span>
+  </span>-->
     <span class="link" *ngIf="window.minimizable()" (click)="window.minimize()">
     <i class="icon-minimize-window"></i>
   </span>

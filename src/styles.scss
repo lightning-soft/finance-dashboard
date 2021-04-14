@@ -46,6 +46,22 @@ html {
   cursor: grabbing;
 }
 
+.navigation-bar {
+  -webkit-app-region: drag
+}
+
+.navigation-bar > * {
+  -webkit-app-region: no-drag
+}
+
+.spacer {
+  -webkit-app-region: drag;
+}
+
+.logo {
+  -webkit-app-region: drag;
+}
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
@@ -89,6 +105,7 @@ body {
 .ant-select-item-empty {
   padding-top: 20px;
   padding-bottom: 20px;
+  user-select: none;
 }
 
 .ant-message {
@@ -201,6 +218,7 @@ body.navbarBottom {
   padding: 3px;
   border-radius: 2px;
   color: $text-80;
+  user-select: none;
 
   &:not(:first-child) {
     margin-top: 1px;
@@ -250,6 +268,7 @@ small {
 
 nz-select {
   height: 20px;
+  user-select: none;
 }
 
 window-header {
@@ -306,6 +325,11 @@ button {
 .ant-dropdown-menu-item {
   border-radius: 2px;
   padding: 3px;
+  user-select: none;
+}
+
+nz-message {
+  user-select: none;
 }
 
 .toolbar-dropdown {

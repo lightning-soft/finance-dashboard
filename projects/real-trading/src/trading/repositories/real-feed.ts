@@ -46,6 +46,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   protected _onConnectionLost() {
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
+    this._pendingRequests = [];
     Object.values(this._subscriptions).forEach(item =>
       this.createPendingRequest(this.subscribeType, item.payload));
     this._unsubscribeFns = {};
