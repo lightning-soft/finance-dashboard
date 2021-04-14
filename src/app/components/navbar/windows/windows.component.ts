@@ -8,6 +8,7 @@ import { LayoutComponent, WindowPopupManager } from 'layout';
 import { RenameModalComponent } from '../workspace/rename-modal/rename-modal.component';
 import { ConfirmModalComponent } from '../workspace/confirm-modal/confirm-modal.component';
 import { SettingsService } from 'settings';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'windows',
@@ -20,6 +21,7 @@ export class WindowsComponent implements OnInit {
   currentWorkspace: Workspace;
   currentWindowId;
   @Input() layout: LayoutComponent;
+  formControl = new FormControl();
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,
@@ -72,7 +74,7 @@ export class WindowsComponent implements OnInit {
     });
 
     modal.afterClose.subscribe(result => {
-      if (result)
+      if (result && result.confirmed)
         this._workspacesService.deleteWindow(id);
     });
   }
@@ -123,7 +125,12 @@ export class WindowsComponent implements OnInit {
           },
         });
         modal.afterClose.subscribe(async (res) => {
-          if (res) {
+          if (!res) {
+            this.formControl.patchValue(this.currentWindowId);
+            return;
+          }
+
+          if (res.confirmed) {
             this._saveAndSwitchWindow(windowId);
           } else {
             this._saveAndSwitchWindow(windowId, false);

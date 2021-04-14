@@ -1,4 +1,4 @@
-<nz-radio-group (ngModelChange)="selectWindow($event)" [ngModel]="currentWindowId">
+<nz-radio-group [formControl]="formControl" (ngModelChange)="selectWindow($event);" [ngModel]="currentWindowId">
   <nz-select
     [nzDropdownRender]="renderTemplate"
     nzDropdownClassName="window-dropdown-menu"

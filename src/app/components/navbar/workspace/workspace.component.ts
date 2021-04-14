@@ -7,6 +7,7 @@ import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 import { CreateModalComponent } from './create-modal/create-modal.component';
 import { RenameModalComponent } from './rename-modal/rename-modal.component';
 import { SettingsService } from 'settings';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-workspace',
@@ -18,6 +19,7 @@ export class WorkspaceComponent implements OnInit {
   @Input() dropdownPlacement: NzPlacementType;
 
   activeWorkspaceId: WorkspaceId;
+  formControl = new FormControl();
 
   workspaces: Workspace[] = [];
   isMenuVisible: boolean;
@@ -71,7 +73,7 @@ export class WorkspaceComponent implements OnInit {
     });
 
     modal.afterClose.subscribe(result => {
-      if (result)
+      if (result && result.confirmed)
         this._workspacesService.deleteWorkspace(id);
     });
   }
@@ -99,9 +101,15 @@ export class WorkspaceComponent implements OnInit {
           cancelText: 'No'
         },
       });
-      modal.afterClose.subscribe((needSave) => {
+      modal.afterClose.subscribe((result: any) => {
+        if (!result) {
+          this.formControl.patchValue(this.activeWorkspaceId);
+          return;
+        }
+        if (result) {
           this.activeWorkspaceId = $event;
-          this._workspacesService.switchWorkspace(this.activeWorkspaceId, needSave);
+          this._workspacesService.switchWorkspace(this.activeWorkspaceId, result.confirmed);
+        }
       });
     }
   }
@@ -115,7 +123,7 @@ export class WorkspaceComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new workspace',
         blankOption: 'Blank workspace',
-        options: [...this.workspaces.map(item => ({value: item.id, label: item.name}))],
+        options: [...this.workspaces.map(item => ({ value: item.id, label: item.name }))],
       },
     });
 
