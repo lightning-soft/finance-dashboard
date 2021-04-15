@@ -37,8 +37,10 @@ export class WorkspaceComponent implements OnInit {
       this.workspaces = [...workspaces];
 
       const activeWorkspace = workspaces.find(w => w.isActive);
-      if (activeWorkspace)
+      if (activeWorkspace) {
         this.activeWorkspaceId = activeWorkspace.id;
+        this.formControl.patchValue(activeWorkspace.id);
+      }
     });
   }
 
@@ -89,6 +91,7 @@ export class WorkspaceComponent implements OnInit {
   switchWorkspace($event) {
     if (this._settingsService.settings.value.autoSave) {
       this.activeWorkspaceId = $event;
+      this.formControl.patchValue($event);
       this._workspacesService.switchWorkspace(this.activeWorkspaceId);
     } else {
       const modal = this._modalService.create({
@@ -108,6 +111,7 @@ export class WorkspaceComponent implements OnInit {
         }
         if (result) {
           this.activeWorkspaceId = $event;
+          this.formControl.patchValue($event);
           this._workspacesService.switchWorkspace(this.activeWorkspaceId, result.confirmed);
         }
       });

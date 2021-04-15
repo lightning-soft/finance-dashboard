@@ -39,6 +39,7 @@ export class WindowsComponent implements OnInit {
 
   updateCurrentWindow() {
     this.currentWindowId = this._workspacesService.getCurrentWindow()?.id;
+    this.formControl.patchValue(this.currentWindowId);
   }
 
   ngOnInit(): void {
@@ -92,7 +93,7 @@ export class WindowsComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new window',
         blankOption: 'Blank window',
-        options: [...this.windows.map(item => ({ value: item.id, label: item.name }))],
+        options: this.windows.map(item => ({ value: item.id, label: item.name })),
       },
     });
 
@@ -144,6 +145,7 @@ export class WindowsComponent implements OnInit {
   private _saveAndSwitchWindow(windowId, saveInStorage = true) {
     this._workspacesService.switchWindow(windowId, saveInStorage);
     this.currentWindowId = windowId;
+    this.formControl.patchValue(windowId);
   }
 
   save() {
