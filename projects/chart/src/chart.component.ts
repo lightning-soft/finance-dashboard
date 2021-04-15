@@ -150,10 +150,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders = new Orders(this);
     this._positions = new Positions(this);
     this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)));
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
+      .subscribe((connection) => {
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
       });
