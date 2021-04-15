@@ -4,7 +4,7 @@
     nzDropdownClassName="window-dropdown-menu"
     [nzOptionHeightPx]="24"
     [ngModel]="currentWindowId"
-    (nzOpenChange)="toggleDropdown.emit($event)"
+    (nzOpenChange)="handleToggleDropdown.emit($event)"
     nzPlaceHolder="Select a window">
     <nz-option [nzLabel]="window.name" class="options"
                [nzValue]="window.id"

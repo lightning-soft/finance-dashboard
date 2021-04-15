@@ -36,7 +36,11 @@
   <div class="logo">
   </div>
   <div class="create-frame">
-    <app-drag-drawer *ngIf="layout" [layout]="layout" (toggleDropdown)="handleInsideDropdownToggle($event)"></app-drag-drawer>
+    <app-drag-drawer *ngIf="layout"
+                     [layout]="layout"
+                     (handleToggleDropdown)="handleInsideDropdownToggle($event)"
+    ></app-drag-drawer>
+
   </div>
   <app-frames-manager [dropdownPlacement]="dropdownPlacementLeftSide"></app-frames-manager>
   <!-- <div class="search">
@@ -44,7 +48,7 @@
   </div> -->
   <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
-  <windows [layout]="layout" (toggleDropdown)="handleInsideDropdownToggle($event)"></windows>
+  <windows [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></windows>
   <app-connections [layout]="layout"></app-connections>
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
@@ -56,15 +60,13 @@
     ></app-workspace>
 
     <button
-      #settingsButton
       [title]="'Settings'"
-      (click)="openSettings(); settingsButton.blur()" class="icon-setting-gear navbar-button"
+      (click)="openSettings(); $event.target.blur()" class="icon-setting-gear navbar-button"
     ></button>
 
     <button
-      #notificationsButton
       [title]="'Notifications'"
-      (click)="openNotificationsList(); notificationsButton.blur()" class="icon-notification  navbar-button">
+      (click)="openNotificationsList(); $event.target.blur()" class="icon-notification  navbar-button">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
 
@@ -72,7 +74,7 @@
   </div>
   <div class="time">
     <app-clock [dropdownPlacement]="dropdownPlacementRightSide"
-               (toggleDropdown)="handleInsideDropdownToggle($event)"
+               (handleToggleDropdown)="handleInsideDropdownToggle($event)"
     ></app-clock>
   </div>
 

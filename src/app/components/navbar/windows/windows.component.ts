@@ -23,7 +23,7 @@ export class WindowsComponent implements OnInit {
   formControl = new FormControl();
 
   @Input() layout: LayoutComponent;
-  @Output() toggleDropdown = new EventEmitter<boolean>();
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,

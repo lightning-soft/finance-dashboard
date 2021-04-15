@@ -20,7 +20,7 @@
   [nzDropdownMenu]="menu"
   [nzPlacement]="dropdownPlacement"
   [nzClickHide]="false"
-  (nzVisibleChange)="toggleDropdown.emit($event)"
+  (nzVisibleChange)="handleToggleDropdown.emit($event)"
 >
   <span class="zone">{{localTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">

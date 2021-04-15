@@ -75,7 +75,7 @@ export const widgetList = [
 })
 export class DragDrawerComponent {
   @Input() layout: LayoutComponent;
-  @Output() toggleDropdown = new EventEmitter<boolean>();
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   opened = false;
   items = widgetList;
@@ -91,6 +91,6 @@ export class DragDrawerComponent {
 
   handleDropdownToggle(opened: boolean): void {
     this.opened = opened;
-    this.toggleDropdown.emit(opened);
+    this.handleToggleDropdown.emit(opened);
   }
 }

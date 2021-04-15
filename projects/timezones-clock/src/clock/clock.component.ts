@@ -21,7 +21,7 @@ export class ClockComponent implements OnInit {
   @Input() dropdownPlacement: NzPlacementType;
   @Input() maxAdditionalTimezonesCount = 2;
 
-  @Output() toggleDropdown = new EventEmitter<boolean>();
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   get canEnableTimezone(): boolean {
     return this.timezonesService.canEnableTimezone;
