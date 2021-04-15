@@ -8,6 +8,7 @@ import { LayoutComponent, WindowPopupManager } from 'layout';
 import { RenameModalComponent } from '../workspace/rename-modal/rename-modal.component';
 import { ConfirmModalComponent } from '../workspace/confirm-modal/confirm-modal.component';
 import { SettingsService } from 'settings';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'windows',
@@ -20,6 +21,7 @@ export class WindowsComponent implements OnInit {
   currentWorkspace: Workspace;
   currentWindowId;
   @Input() layout: LayoutComponent;
+  formControl = new FormControl();
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,
@@ -37,6 +39,7 @@ export class WindowsComponent implements OnInit {
 
   updateCurrentWindow() {
     this.currentWindowId = this._workspacesService.getCurrentWindow()?.id;
+    this.formControl.patchValue(this.currentWindowId);
   }
 
   ngOnInit(): void {
@@ -72,7 +75,7 @@ export class WindowsComponent implements OnInit {
     });
 
     modal.afterClose.subscribe(result => {
-      if (result)
+      if (result && result.confirmed)
         this._workspacesService.deleteWindow(id);
     });
   }
@@ -90,7 +93,7 @@ export class WindowsComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new window',
         blankOption: 'Blank window',
-        options: [...this.windows.map(item => ({ value: item.id, label: item.name }))],
+        options: this.windows.map(item => ({ value: item.id, label: item.name })),
       },
     });
 
@@ -123,7 +126,12 @@ export class WindowsComponent implements OnInit {
           },
         });
         modal.afterClose.subscribe(async (res) => {
-          if (res) {
+          if (!res) {
+            this.formControl.patchValue(this.currentWindowId);
+            return;
+          }
+
+          if (res.confirmed) {
             this._saveAndSwitchWindow(windowId);
           } else {
             this._saveAndSwitchWindow(windowId, false);
@@ -137,6 +145,7 @@ export class WindowsComponent implements OnInit {
   private _saveAndSwitchWindow(windowId, saveInStorage = true) {
     this._workspacesService.switchWindow(windowId, saveInStorage);
     this.currentWindowId = windowId;
+    this.formControl.patchValue(windowId);
   }
 
   save() {

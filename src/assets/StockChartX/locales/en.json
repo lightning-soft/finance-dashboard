@@ -4,7 +4,8 @@
       "open": "O: ",
       "high": "H: ",
       "low": "L: ",
-      "close": "C: "
+      "close": "C: ",
+      "volume": "V: "
     },
     "options": {
       "moveUp": "Panel Move Up",
