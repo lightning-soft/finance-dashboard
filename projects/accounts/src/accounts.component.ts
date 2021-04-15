@@ -66,7 +66,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   ngOnInit() {
     this.builder.setParams({
       groupBy: ['broker'],
-      sort: (a, b) => a.name > b.name ? 1 : -1
+      sort: (a, b) => {
+        if (a.name === b.name)
+          return a.id > b.id ? 1 : -1;
+        return a.name > b.name ? 1 : -1;
+      }
     });
 
     this._brokersRepository.getItems()

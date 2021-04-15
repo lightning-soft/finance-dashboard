@@ -13,7 +13,7 @@
     <timezone-item *ngFor="let timezone of allTimezones"
                    [timezone]="timezone"
                    [editable]="false"
-                   [canToggle]="false"
+                   [showCheckbox]="false"
                    (dblclick)="addToCurrent(timezone)"
                    [class.selected]="timezone.id === selectedTimezone?.id"
                    [class.disabled]="isTimezoneDisabled(timezone)"
@@ -30,10 +30,11 @@
       <timezone-item *ngFor="let timezone of currentTimezones"
                      [timezone]="timezone"
                      [class.selected]="timezone.id === selectedTimezone?.id"
+                     [checkboxDisabled]="!timezone.enabled && !canEnableTimezone"
                      (delete)="deleteTimezone(timezone)"
                      (reset)="resetTimezone(timezone)"
                      (rename)="updateTimezoneName(timezone, $event)"
-                     (toggleEnabled)="toggleTimezone(timezone, $event)"
+                     (checkbox)="toggleTimezone(timezone, $event)"
                      (click)="selectedTimezone = timezone"
       ></timezone-item>
   </div>

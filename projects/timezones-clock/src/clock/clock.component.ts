@@ -15,27 +15,35 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 export class ClockComponent implements OnInit {
   time: number;
   timezones: ITimezone[] = [];
+  enabledTimezones: ITimezone[] = [];
   localTimezone: ITimezone;
-  enabledTimezone: ITimezone;
 
   @Input() dropdownPlacement: NzPlacementType;
+  @Input() maxAdditionalTimezonesCount = 2;
+
+  get canEnableTimezone(): boolean {
+    return this.timezonesService.canEnableTimezone;
+  }
 
   constructor(private modalService: NzModalService,
               private timezonesService: TimezonesService) {
+    this.timezonesService.maxEnabledTimezonesCount = this.maxAdditionalTimezonesCount;
 
     interval(1000)
       .pipe(untilDestroyed(this))
-      .subscribe(() => this.time = Date.now())
+      .subscribe(() => this.time = Date.now());
   }
 
   ngOnInit(): void {
     this.localTimezone = this._getLocalTimezone();
 
-    this.timezonesService.timezonesData$.subscribe((data) => {
-      this.timezones = data.timezones
-      this.enabledTimezone = this.timezonesService.enabledTimezone;
-      this.localTimezone.name = data.localTimezoneTitle;
-    })
+    this.timezonesService.timezonesData$
+      .pipe(untilDestroyed(this))
+      .subscribe((data) => {
+        this.timezones = data.timezones;
+        this.enabledTimezones = this.timezonesService.enabledTimezones;
+        this.localTimezone.name = data.localTimezoneTitle;
+      });
   }
 
   addTimezone(): void {
@@ -76,7 +84,7 @@ export class ClockComponent implements OnInit {
 
     const foundTimezones = TIMEZONES.filter(timezone => {
       return timezone.utc.some(i => i === timezoneName);
-    })
+    });
 
     const supposedTimezone = (foundTimezones || []).reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
