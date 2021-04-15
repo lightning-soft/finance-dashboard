@@ -87,9 +87,8 @@ export class DomSettings {
     clearTotalTradesUpAllWindows:
       getKeyBindings([KeyCode.KEY_U, KeyCode.KEY_W]),
   };
-  // columns: any = {};
   common: any = {
-    fontFamily: 'Open Sans',
+    fontFamily:  '\"Open Sans\", sans-serif',
     fontSize: 12,
     fontWeight: '',
     generalColors: {
