@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -17,8 +17,9 @@ export class WorkspaceComponent implements OnInit {
   @Input() layout: LayoutComponent;
   @Input() dropdownPlacement: NzPlacementType;
 
-  activeWorkspaceId: WorkspaceId;
+  @Output() toggleDropdown = new EventEmitter<boolean>();
 
+  activeWorkspaceId: WorkspaceId;
   workspaces: Workspace[] = [];
   isMenuVisible: boolean;
 
@@ -134,5 +135,8 @@ export class WorkspaceComponent implements OnInit {
     this._notificationService.showSuccess('Workspace was saved');
   }
 
-
+  handleDropdownToggle(opened: boolean): void {
+    this.isMenuVisible = opened;
+    this.toggleDropdown.emit(opened);
+  }
 }

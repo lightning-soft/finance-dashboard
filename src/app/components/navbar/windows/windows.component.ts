@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CreateModalComponent } from '../workspace/create-modal/create-modal.component';
 import { NzModalService } from 'ng-zorro-antd';
 import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -19,7 +19,9 @@ export class WindowsComponent implements OnInit {
   windows: WorkspaceWindow[] = [];
   currentWorkspace: Workspace;
   currentWindowId;
+
   @Input() layout: LayoutComponent;
+  @Output() toggleDropdown = new EventEmitter<boolean>();
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,
