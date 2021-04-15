@@ -16,11 +16,11 @@ export class ConfirmModalComponent {
   }
 
   public handleCancel(): void {
-    this.modal.close(false);
+    this.modal.close({ confirmed: false });
   }
 
   public handleOk(): void {
-    this.modal.close(true);
+    this.modal.close({ confirmed: true });
   }
 
 }

@@ -19,7 +19,7 @@
     >{{ connection.name }}</div>
   </div>
 </div>
-<div
+<button
   nz-dropdown
   nzTrigger="click"
   nzPlacement="bottomRight"
@@ -32,7 +32,7 @@
   <i [ngClass]="{
     'text-active': activeConnection
   }" class="icon-signal"></i>
-</div>
+</button>
 <div
   class="d-flex align-items-center justify-content-center navigation-button"
   (click)="openAccounts()"
