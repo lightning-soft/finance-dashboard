@@ -156,7 +156,7 @@ export class AccountsManager {
     this._connections.next(connections);
 
     if (emitActiveConnectionChange) {
-      this._activeConnection.next(connection);
+      this._activeConnection.next(connection.connected ? connection : null);
     }
   }
 }
