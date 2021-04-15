@@ -12,19 +12,22 @@
 </button>
 <nz-dropdown-menu nzClassName="workspaces-dropdown" #menu="nzDropdownMenu">
   <div class="workspaces">
-    <nz-radio-group [ngModel]="activeWorkspaceId" (ngModelChange)="switchWorkspace($event)">
+    <nz-radio-group [formControl]="formControl" >
       <ul class="workspaces-list">
         <li
           class="workspace"
+          (click)="switchWorkspace(workspace.id)"
           *ngFor="let workspace of workspaces"
         >
-          <div class="title">
-            <label class="radio-btn" nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
+          <div  class="title">
+            <label class="radio-btn"
+                   (click)="switchWorkspace(workspace.id)"
+                   nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
           </div>
           <div class="actions">
             <button [title]="'Edit'" (click)="rename(workspace?.id)" class="icon-edit"></button>
-            <button [title]="'Delete'"  (click)="delete(workspace?.id)" class="icon-tool-delete"></button>
-            <button title="Duplicate"  (click)="duplicate(workspace?.id)" class="icon-duplicate"></button>
+            <button [title]="'Delete'" (click)="delete(workspace?.id)" class="icon-tool-delete"></button>
+            <button title="Duplicate" (click)="duplicate(workspace?.id)" class="icon-duplicate"></button>
             <button title="Share" (click)="share(workspace?.id)" class="icon-tool-share"></button>
           </div>
         </li>
