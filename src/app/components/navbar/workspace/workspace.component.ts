@@ -127,7 +127,7 @@ export class WorkspaceComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new workspace',
         blankOption: 'Blank workspace',
-        options: [...this.workspaces.map(item => ({ value: item.id, label: item.name }))],
+        options: this.workspaces.map(item => ({ value: item.id, label: item.name })),
       },
     });
 
