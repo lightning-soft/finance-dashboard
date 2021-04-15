@@ -52,6 +52,7 @@ export class WindowsComponent implements OnInit {
       nzTitle: 'Rename window',
       nzContent: RenameModalComponent,
       nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
         workspaceName: window.name,
@@ -68,7 +69,7 @@ export class WindowsComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Delete window',
       nzContent: ConfirmModalComponent,
-      nzWrapClassName: 'modal-workspace vertical-center-modal',
+      nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
         message: 'Do you want delete the window?'
       },
@@ -118,7 +119,7 @@ export class WindowsComponent implements OnInit {
         const modal = this._modalService.create({
           nzTitle: 'Saving window',
           nzContent: ConfirmModalComponent,
-          nzWrapClassName: 'modal-workspace vertical-center-modal',
+          nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
           nzComponentParams: {
             message: 'Do you want save changes in window?',
             confirmText: 'Yes',
