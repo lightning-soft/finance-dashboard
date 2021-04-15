@@ -46,7 +46,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     return this.favourites.length;
   }
 
-
   constructor(
     protected _injector: Injector,
     protected _repository: ConnectionsRepository,
@@ -57,13 +56,13 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     this.builder.setParams({
       filter: (connection: IConnection) => connection.favourite,
     });
-    this._accountsManager.connectionsData
+    this._accountsManager.connections
       .pipe(
         filter(res => !!res),
         untilDestroyed(this),
       )
-      .subscribe((res) => {
-          const value = res.connections.filter(item => item.favourite);
+      .subscribe((connections) => {
+          const value = connections.filter(item => item.favourite);
           this.builder.replaceItems(value);
         }
       );

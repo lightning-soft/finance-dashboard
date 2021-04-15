@@ -181,11 +181,9 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   protected _subscribeToConnections() {
     this._accountsManager = this._injector.get(AccountsManager);
 
-    this._accountsManager.connectionsData
-      .pipe(filter(data => data.needUpdateConnection), untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+    this._accountsManager.activeConnection
+      .pipe(untilDestroyed(this))
+      .subscribe((connection) => {
         this._repositorySubscription?.unsubscribe();
 
         if (connection) {

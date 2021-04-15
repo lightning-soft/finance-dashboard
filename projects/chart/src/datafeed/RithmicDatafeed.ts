@@ -30,11 +30,9 @@ export class RithmicDatafeed extends Datafeed {
   ) {
     super();
 
-    this._accountsManager.connectionsData
-      .pipe(filter(data => data.needUpdateConnection), takeUntil(this._destroy))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+    this._accountsManager.activeConnection
+      .pipe(takeUntil(this._destroy))
+      .subscribe((connection) => {
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
   }

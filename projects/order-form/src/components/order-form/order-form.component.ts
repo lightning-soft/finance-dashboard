@@ -156,10 +156,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   ngOnInit() {
     super.ngOnInit();
     this.onTypeUpdated();
-    this._accountsManager.connectionsData
-      .pipe(filter(data => data.needUpdateConnection), untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
+    this._accountsManager.activeConnection
+      .pipe(untilDestroyed(this))
+      .subscribe((connection) => {
         this._repository = this._repository.forConnection(connection);
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });

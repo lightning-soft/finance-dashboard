@@ -88,11 +88,9 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   }
 
   protected _subscribeToConnections() {
-    this._accountsManager.connectionsData
+    this._accountsManager.activeConnection
       .pipe(untilDestroyed(this._instance))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+      .subscribe((connection) => {
         this._repositorySubscription?.unsubscribe();
 
         if (connection) {
