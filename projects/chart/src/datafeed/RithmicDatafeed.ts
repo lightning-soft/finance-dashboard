@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
-import { map, takeUntil, tap, catchError } from 'rxjs/operators';
+import { map, takeUntil, tap, catchError, filter } from 'rxjs/operators';
 import {
   HistoryRepository,
   InstrumentsRepository,
@@ -30,11 +30,9 @@ export class RithmicDatafeed extends Datafeed {
   ) {
     super();
 
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(takeUntil(this._destroy))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+      .subscribe((connection) => {
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
   }

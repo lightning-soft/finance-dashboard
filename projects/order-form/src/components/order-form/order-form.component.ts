@@ -14,6 +14,7 @@ import {
   OrderType,
   PositionsRepository, QuoteSide, UpdateType
 } from 'trading';
+import { filter } from "rxjs/operators";
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -155,10 +156,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   ngOnInit() {
     super.ngOnInit();
     this.onTypeUpdated();
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
+      .subscribe((connection) => {
         this._repository = this._repository.forConnection(connection);
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
