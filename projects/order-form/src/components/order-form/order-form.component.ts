@@ -7,12 +7,12 @@ import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
   IInstrument,
-  IOrder,
+  IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, TradeDataFeed, TradePrint
+  PositionsRepository, QuoteSide, UpdateType
 } from 'trading';
 import { filter } from "rxjs/operators";
 
@@ -70,8 +70,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (value?.id === this.instrument?.id)
       return;
 
-    this._tradeDataFeed.unsubscribe(this._instrument);
-    this._tradeDataFeed.subscribe(value);
+    this._levelOneDatafeed.unsubscribe(this._instrument);
+    this._levelOneDatafeed.subscribe(value);
     this._instrument = value;
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
@@ -101,7 +101,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     protected _repository: OrdersRepository,
     protected positionsRepository: PositionsRepository,
     // protected _levelOneDatafeedService: Level1DataFeed,
-    private _tradeDataFeed: TradeDataFeed,
+    private _levelOneDatafeed: Level1DataFeed,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -163,14 +163,14 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
 
-    this.onRemove(this._tradeDataFeed.on((trade: TradePrint) => {
-      if (trade.instrument?.symbol === this.instrument?.symbol) {
-        if (trade.side === OrderSide.Buy) {
-          this.askPrice = trade.price;
-          this.askVolume = trade.volumeBuy;
+    this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => {
+      if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+        if (quote.side === QuoteSide.Ask) {
+          this.askPrice = quote.price;
+          this.askVolume = quote.volume;
         } else {
-          this.bidVolume = trade.volumeSell;
-          this.bidPrice = trade.price;
+          this.bidVolume = quote.volume;
+          this.bidPrice = quote.price;
         }
       }
     }));
@@ -250,7 +250,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    this._tradeDataFeed.unsubscribe(this.instrument);
+    this._levelOneDatafeed.unsubscribe(this.instrument);
   }
 
   addToSelectedQuantity(count: number) {

@@ -87,9 +87,8 @@ export class DomSettings {
     clearTotalTradesUpAllWindows:
       getKeyBindings([KeyCode.KEY_U, KeyCode.KEY_W]),
   };
-  // columns: any = {};
   common: any = {
-    fontFamily: 'Open Sans',
+    fontFamily:  '\"Open Sans\", sans-serif',
     fontSize: 12,
     fontWeight: '',
     generalColors: {
@@ -234,16 +233,18 @@ export class DomSettings {
     textAlign: TextAlign.Center,
     // 'break-evenBackground': 'rgba(0, 44, 55, 1)',
     // 'break-evenForeground': 'rgba(255, 255, 255, 1)',
-    buyOrderBackgroundColor: 'rgba(22, 140, 213, 1)',
-    buyOrderColor: 'rgba(242, 242, 242, 1)',
+    buyOrderBackgroundColor: 'rgba(72, 149, 245, 0.7)',
+    buyOrderColor: '#fff',
+    buyOrderBorderColor: '#4895f5',
     // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
     highlightColor: 'rgba(29, 73, 127, 1)',
     inProfitBackgroundColor: 'rgba(0, 44, 55, 1)',
     inProfitColor: 'rgba(72, 149, 245, 1)',
     lossBackgroundColor: 'rgba(0, 44, 55, 1)',
     lossColor: 'rgba(201, 59, 59, 1)',
-    sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
-    sellOrderColor: 'rgba(255, 255, 255, 1)',
+    sellOrderBackgroundColor: 'rgba(201, 59, 59, 0.7)',
+    sellOrderColor: '#fff',
+    sellOrderBorderColor: '#C93B3B',
     sellOrdersBackgroundColor: 'rgba(255, 255, 255, 0.5)',
     buyOrdersBackgroundColor: 'rgba(22, 140, 213, 0.5)',
     // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
