@@ -36,7 +36,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
               @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
     this._webSocketService.on(this._handleTrade.bind(this));
     this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
-    this._accountsManager.connections.subscribe(() => {
+    this._accountsManager.connectionsData.subscribe(() => {
       const connection = this._accountsManager.getActiveConnection();
       if (!connection || !connection.connected)
         this._onConnectionLost();

@@ -44,6 +44,7 @@ import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.ite
 import { HistogramCell } from './histogram/histogram.cell';
 import { IWindow } from 'window-manager';
 import { FormActions, SideOrderFormComponent, OcoStep, getPriceSpecs } from 'base-order-form';
+import { filter } from "rxjs/operators";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -451,8 +452,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngOnInit(): void {
     super.ngOnInit();
-    this._accountsManager.connections
-      .pipe(untilDestroyed(this))
+    this._accountsManager.connectionsData
+      .pipe(filter(data => data.needUpdateConnection), untilDestroyed(this))
       .subscribe(() => {
         const connection = this._accountsManager.getActiveConnection();
         this._ordersRepository = this._ordersRepository.forConnection(connection);
