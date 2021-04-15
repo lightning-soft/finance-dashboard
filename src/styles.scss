@@ -492,10 +492,15 @@ nz-input-number:not(.custom-form-control) {
 
 }
 
+.ant-modal-footer button + button {
+  margin-left: 16px;
+}
+
 .ant-modal {
   .ant-modal-content {
-    padding: 1px;
+    padding: 0px;
     border: 1px solid $lighter;
+    filter: drop-shadow(0px 0px 10px #15161D);
 
     .ant-modal-header {
       background-color: #24262C;
@@ -536,7 +541,8 @@ nz-input-number:not(.custom-form-control) {
 
       button {
         min-width: 70px;
-        height: 26px;
+        height: 22px;
+        line-height: 1;
         font-size: 10px;
       }
     }

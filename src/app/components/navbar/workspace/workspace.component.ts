@@ -8,6 +8,7 @@ import { CreateModalComponent } from './create-modal/create-modal.component';
 import { RenameModalComponent } from './rename-modal/rename-modal.component';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
+import { Id } from 'communication';
 
 @Component({
   selector: 'app-workspace',
@@ -51,6 +52,7 @@ export class WorkspaceComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Rename workspace',
       nzContent: RenameModalComponent,
+      nzWidth: 438,
       nzClassName: 'modal-dialog-workspace',
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
@@ -68,7 +70,7 @@ export class WorkspaceComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Delete workspace',
       nzContent: ConfirmModalComponent,
-      nzWrapClassName: 'modal-workspace vertical-center-modal',
+      nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
         message: 'Do you want delete the workspace?'
       },
@@ -88,7 +90,9 @@ export class WorkspaceComponent implements OnInit {
     console.log('Share workspace');
   }
 
-  switchWorkspace($event) {
+  switchWorkspace($event: Id) {
+    if (this.activeWorkspaceId === $event)
+      return;
     if (this._settingsService.settings.value.autoSave) {
       this.activeWorkspaceId = $event;
       this.formControl.patchValue($event);
@@ -97,7 +101,7 @@ export class WorkspaceComponent implements OnInit {
       const modal = this._modalService.create({
         nzTitle: 'Saving workspace',
         nzContent: ConfirmModalComponent,
-        nzWrapClassName: 'modal-workspace vertical-center-modal',
+        nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
         nzComponentParams: {
           message: 'Do you want save changes in workspace?',
           confirmText: 'Yes',
