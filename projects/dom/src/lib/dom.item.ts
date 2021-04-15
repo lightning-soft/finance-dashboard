@@ -189,12 +189,12 @@ class OrdersCell extends HistogramCell {
 
     switch (this.orderStyle) {
       case 'ask':
-        ctx.fillStyle = settings.sellOrderBackgroundColor ?? 'rgba(201, 59, 59, 0.5)';
-        ctx.strokeStyle = settings.sellOrderColor ?? '#C93B3B';
+        ctx.fillStyle = settings.sellOrderBackgroundColor ?? 'rgba(201, 59, 59, 0.7)';
+        ctx.strokeStyle = settings.sellOrderBorderColor ?? '#C93B3B';
         break;
       case 'bid':
-        ctx.fillStyle = settings.buyOrderBackgroundColor ?? 'rgba(72,149,245,0.5)';
-        ctx.strokeStyle = settings.buyOrderColor ?? '#4895f5';
+        ctx.fillStyle = settings.buyOrderBackgroundColor ?? 'rgba(72,149,245,0.7)';
+        ctx.strokeStyle = settings.buyOrderBorderColor ?? '#4895f5';
         break;
       case 'oco':
         ctx.fillStyle = 'rgba(190,60,177, 0.5)';
@@ -206,7 +206,9 @@ class OrdersCell extends HistogramCell {
 
     ctx.textBaseline = 'middle';
     ctx.textAlign = isOrderColumn ? 'end' : isAsk ? 'start' : 'end';
-    ctx.fillStyle = 'white';
+    const textColor = this.side === QuoteSide.Ask ? settings.sellOrderColor :
+      settings.buyOrderColor;
+    ctx.fillStyle = textColor ?? 'white';
 
     ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
