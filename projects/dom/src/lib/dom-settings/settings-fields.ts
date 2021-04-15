@@ -32,7 +32,7 @@ export const commonFields: IFieldConfig[] = [
       {
         type: FieldType.Select,
         templateOptions: {
-          options: [{ label: 'Open Sans', value: 'Open Sans' },
+          options: [{ label: 'Open Sans', value: '\"Open Sans\", sans-serif' },
             { label: 'Monospace', value: 'monospace' },
             { label: 'Sans Serif', value: 'sans-serif' }],
         },

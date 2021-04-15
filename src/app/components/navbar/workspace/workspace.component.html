@@ -25,10 +25,10 @@
                    nz-radio [nzValue]="workspace.id">{{ workspace.name }}</label>
           </div>
           <div class="actions">
-            <button [title]="'Edit'" (click)="rename(workspace?.id)" class="icon-edit"></button>
-            <button [title]="'Delete'" (click)="delete(workspace?.id)" class="icon-tool-delete"></button>
-            <button title="Duplicate" (click)="duplicate(workspace?.id)" class="icon-duplicate"></button>
-            <button title="Share" (click)="share(workspace?.id)" class="icon-tool-share"></button>
+            <button [title]="'Edit'" (click)="$event.stopPropagation();rename(workspace?.id)" class="icon-edit"></button>
+            <button [title]="'Delete'" (click)="$event.stopPropagation();delete(workspace?.id)" class="icon-tool-delete"></button>
+            <button title="Duplicate" (click)="$event.stopPropagation();duplicate(workspace?.id)" class="icon-duplicate"></button>
+            <button title="Share" (click)="$event.stopPropagation();share(workspace?.id)" class="icon-tool-share"></button>
           </div>
         </li>
         <li

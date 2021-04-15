@@ -3,7 +3,7 @@
     [nzDropdownRender]="renderTemplate"
     nzDropdownClassName="window-dropdown-menu"
     [nzOptionHeightPx]="24"
-    [ngModel]="currentWindowId"
+    [formControl]="formControl"
     nzPlaceHolder="Select a window">
     <nz-option [nzLabel]="window.name" class="options"
                [nzValue]="window.id"
