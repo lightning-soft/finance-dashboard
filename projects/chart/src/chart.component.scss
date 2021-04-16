@@ -82,27 +82,51 @@ side-form {
       margin-bottom: 0;
     }
 
+    .scxSpectrum.sp-container {
+      background: $light;
+      border-color: $lighter !important;
+      box-shadow: none;
+
+      .sp-palette .sp-thumb-el {
+        border: none;
+      }
+    }
+
     .scxDropdown .dropdown-menu {
       box-shadow: none !important;
-      border-radius: 2px;
+      border-radius: 2px !important;
       border: none;
+      box-shadow: none;
       background-color: $light !important;
+      padding-top: 4px;
+      padding-bottom: 4px;
 
       > li {
-        &.selected {
-          background: $lighter !important;
-        }
-      }
-
-      > li a {
         color: $text-80 !important;
+        border-radius: 2px;
+        padding-left: 3px;
+        padding-right: 3px;
+        background-color: transparent !important;
 
-        &:hover {
-          // color: $text-80 !important;
-          background: $lighter !important;
+        &:not(:first-child) {
+          margin-top: 2px;
         }
 
+        a {
+          padding-left: 5px;
+          padding-top: 5px;
+          border-radius: 2px;
+          font-size: 0.8rem;
+        }
 
+        &.selected a {
+          font-weight: 600;
+        }
+
+        &.selected a, &:hover a {
+          background-color: $lighter !important;
+          color: #fff !important;
+        }
       }
     }
 
@@ -111,6 +135,8 @@ side-form {
     }
 
     .scxDialog .modal-dialog {
+      width: 437px !important;
+
       h4 {
         font-size: 1.15rem;
       }
@@ -225,6 +251,7 @@ side-form {
       .modal-content {
         background-color: $secondary !important;
         color: $text-80 !important;
+        user-select: none;
 
         .modal-header .close {
           color: $text-80 !important;
@@ -235,11 +262,28 @@ side-form {
           }
         }
 
-        .modal-body {
-          table td label {
-            font-size: 0.8rem;
-            color: $text-80;
+        .table-condensed {
+          .btn {
+            color: $primary !important;
           }
+
+          .btn[data-action=togglePeriod] {
+            background: $primary !important;
+            color: #fff !important;
+            font-size: 0.8rem;
+            padding-left: 7px;
+            padding-right: 7px;
+          }
+        }
+
+        .modal-body {
+          table {
+            td label {
+              font-size: 0.8rem;
+              color: $text-80;
+            }
+          }
+
 
           .scxTabs {
             border-bottom-color: $light3;
@@ -276,11 +320,47 @@ side-form {
           }
         }
 
+        #scxTooltipView .scxTooltipView_tooltipTextStyles label.scxTooltipView_label_textItalic,
+        .scxTooltipView_label_textUnderline,
+        #scxTooltipView .scxTooltipView_tooltipTextStyles label.scxTooltipView_label_textBold {
+          background-image: none !important;
+          border-radius: 2px;
+
+          &.active {
+            background-color: $light3;
+          }
+        }
+
+        #scxTooltipView .scxTooltipView_tooltipTextStyles label.scxTooltipView_label_textItalic {
+          font-style: italic;
+          font-weight: 600;
+
+          &:before {
+            content: 'I';
+          }
+        }
+
+        #scxTooltipView .scxTooltipView_tooltipTextStyles label.scxTooltipView_label_textBold {
+          font-weight: 600;
+
+          &:before {
+            content: 'B';
+          }
+        }
+
+        .scxTooltipView_label_textUnderline, scxTooltipView_label_textUnderline.active {
+          text-decoration: underline;
+
+          &:before {
+            content: 'U';
+          }
+        }
+
         .form-control {
           background-color: $light !important;
           border-radius: 2px;
           color: #fff;
-          font-size: 0.8rem;
+          font-size: 0.8rem !important;
           border: none;
           height: 20px !important;
 
@@ -296,28 +376,93 @@ side-form {
         .scxTooltipView_image_previewWrapper.form-control {
           min-height: 160px;
           height: auto;
+          border: 1px solid $lighter !important;
         }
 
-        .modal-footer button.btn {
-          font-size: 0.75rem;
-          padding-left: 15px;
-          padding-right: 15px;
+        #scxTooltipView #scxTooltipView_region_image td > * {
+          color: #fff;
 
-          &.btn-default {
-            color: #fff;
-            background: $inputBackground;
-            border: 1px solid $primary;
-          }
-
-          &.btn-success {
-            background-color: #5cb85c;
-          }
-
-          &.btn-primary {
-            background-color: $primary;
-            border: none;
+          &::placeholder {
+            color: #a1a2a5;
           }
         }
+
+        .scxCoordinate-type-item {
+          font-weight: 400 !important;
+        }
+
+        .bootstrap-datetimepicker-widget {
+          background: $light;
+          box-shadow: none;
+          border-color: $lighter;
+
+          table {
+            transition: all 0.3s;
+
+            th.picker-switch {
+              font-size: 1.2rem;
+              transition: all 0.3s;
+            }
+
+            th.dow {
+              font-size: 0.9rem;
+            }
+
+            td {
+              font-size: 0.8rem;
+            }
+
+            thead tr:first-child th:hover {
+              background: transparent;
+            }
+
+            td span, td.day, td.minute, td.hour {
+              transition: all 0.3s;
+
+              &:hover {
+                background: rgba($primary, 0.4);
+              }
+            }
+
+            td.active, td span.active {
+              background: $primary;
+            }
+
+            td.new, td.old {
+              color: $text-40;
+
+              &:hover {
+                color: rgba(161, 162, 165, 1);
+              }
+            }
+          }
+
+          a[data-action=togglePicker] {
+            color: $primary !important;
+          }
+        }
+      }
+    }
+
+    .scxDialog .modal-dialog .modal-content .modal-footer button.btn, .scxSpectrum.sp-container .btn {
+      font-size: 0.75rem !important;
+      padding-left: 15px;
+      padding-right: 15px;
+
+      &.btn-default, &.sp-cancel, &.btn-warning {
+        color: #fff;
+        background: $inputBackground;
+        border: 1px solid $primary;
+      }
+
+      &.btn-success {
+        background-color: #5cb85c;
+      }
+
+      &.btn-primary, .btn-info, &.sp-choose {
+        background-color: $primary;
+        border: none;
+
       }
     }
 
