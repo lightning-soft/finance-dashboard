@@ -159,17 +159,21 @@ export class RithmicDatafeed extends Datafeed {
 
   subscribeToRealtime(request: IBarsRequest) {
     const instrument = this._getInstrument(request);
+    const instrumentId = `${instrument.exchange}.${instrument.symbol}`;
 
     this._unsubscribe();
 
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
-      if (instrument.id != null && instrument.id === quote.instrument.id) {
+      const quoteInstrument = quote.instrument;
+      const quoteInstrumentId = `${quoteInstrument.exchange}.${quoteInstrument.symbol}`;
+
+      if (instrumentId === quoteInstrumentId) {
         const _quote: ChartQuote = {
           // Ask: quote.volume;
           // AskSize: number;
           // Bid: number;
           // BidSize: number;
-          instrument: quote.instrument,
+          instrument: quoteInstrument,
           price: quote.price,
           date: new Date(quote.timestamp),
           volume: quote.volume,
