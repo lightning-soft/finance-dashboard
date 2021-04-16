@@ -44,6 +44,7 @@ export class AccountsManager {
           return item;
         });
         this._connections.next(connections);
+        this._activeConnection.next(this.getActiveConnection());
       });
 
     return this.connections.pipe(
@@ -139,6 +140,9 @@ export class AccountsManager {
       connection.name = `${connection.server}(${connection.gateway})`;
     }
     this._connections.next([...this.items, connection]);
+    if (connection.connected) {
+      this._activeConnection.next(connection);
+    }
   }
 
   protected onDeleted(connection: IConnection): void {
