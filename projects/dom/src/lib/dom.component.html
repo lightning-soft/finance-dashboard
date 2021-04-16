@@ -79,7 +79,8 @@
     </side-form>
   </div>
   <div class="grid-wrapper">
-    <data-grid #grid [columns]="columns"
+    <data-grid #grid
+               [columns]="columns"
                [showSettingsInContextMenu]="true"
                (settingsClicked)="openSettings()"
                [showHeaderPanelInContextMenu]="true"
@@ -87,7 +88,9 @@
                (columnUpdate)="onColumnUpdate($event)"
                [showContextMenuSettings]="false"
                (currentCellChanged)="onCurrentCellChanged($event)"
-               [afterDraw]="afterDraw" [handlers]="handlers">
+               [showColumnTitleOnHover]="showColumnTitleOnHover"
+               [afterDraw]="afterDraw"
+               [handlers]="handlers">
     </data-grid>
   </div>
 
