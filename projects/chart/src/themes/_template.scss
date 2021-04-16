@@ -70,7 +70,7 @@ body.#{$themeName} :host {
       background-color: $waitingBarDotColor;
     }
   }
-
+/*
   .scxInstrumentSearchInputField {
     border-color: $toolbarButtonsBorderColor;
     background-color: transparent;
@@ -288,7 +288,7 @@ body.#{$themeName} :host {
         color: $textColorOnHover;
       }
 
-      @include dropdownMenu();
+      // @include dropdownMenu();
     }
   }
 
@@ -371,6 +371,6 @@ body.#{$themeName} :host {
         color: $instrumentSearchResultsHighlightedTextColor;
       }
     }
-  }
+  }*/
 
 }
