@@ -27,11 +27,9 @@ export const accountsOptions = {
   styleUrls: ['./connections.component.scss'],
 })
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
+  @Input() layout: LayoutComponent;
 
-  @Input()
-  layout: LayoutComponent;
   isLoading: { [key: number]: boolean } = {};
-
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
