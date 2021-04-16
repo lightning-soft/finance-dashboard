@@ -85,6 +85,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass('scxThemeLight scxThemeDark');
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
     if (this.isPopup())
       this._loadPopupState();
     else {
@@ -176,7 +180,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .subscribe(() => {
         this._save();
       });
+    this._setupReloadWorkspaces();
+  }
 
+  private _setupReloadWorkspaces() {
     this._workspaceService.reload
       .pipe(
         untilDestroyed(this)
@@ -191,11 +198,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         const config = this._workspaceService.getWorkspaceConfig();
         this.layout.loadState(config);
       });
-
-    this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass('scxThemeLight scxThemeDark');
-      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
-    });
   }
 
   private _setupSettings(): void {

@@ -145,10 +145,10 @@ export class WorkspacesManager {
 
     if (!workspace)
       return;
-    const window = workspace.windows.find(item => item.id = windowId);
-    if (!window)
+    const workspaceWindow = workspace.windows.find(item => item.id === windowId);
+    if (!workspaceWindow)
       return;
-    window.config = state;
+    workspaceWindow.config = state;
     this.workspaces.next(this.workspaces.value);
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
   }
