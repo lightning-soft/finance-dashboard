@@ -1,13 +1,22 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IPosition, IPositionParams, IQuote, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
+import {
+  AccountRepository,
+  IPosition,
+  IPositionParams,
+  IQuote,
+  PositionsFeed,
+  PositionsRepository,
+  PositionStatus
+} from 'trading';
 import { PositionItem } from './models/position.item';
+import { NotifierService } from "notifier";
 
 const headers = [
   'account',
@@ -109,9 +118,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
+    protected _notifier: NotifierService,
+    private _accountRepository: AccountRepository,
   ) {
     super();
     this.autoLoadData = false;
+    this.subscribeToConnections = false;
 
     this.builder.setParams({
       groupBy: ['accountId', 'instrumentName'],
@@ -141,14 +153,24 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.updatePl();
   }
 
-  private updatePl() {
+  protected _handleConnection(connection) {
+    super._handleConnection(connection);
+    this._accountRepository = this._accountRepository.forConnection(connection);
+    if (!connection?.connected) {
+      this.accountId = null;
+    } else {
+      this._loadAccount();
+    }
+  }
+
+  private updatePl(): void {
     this.open = +this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
     this.realized = +this.positions.reduce((total, current) => total + (current.realized * current.price), 0).toFixed(4);
     this.totalPl = this.open + this.realized;
   }
 
-  _transformDataFeedItem(item) {
+  protected _transformDataFeedItem(item) {
     return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
   }
 
@@ -230,10 +252,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return this.repository.deleteItem(item);
   }
 
-  handleAccountChange(accountId: Id): void {
-    this.accountId = accountId;
-  }
-
   protected _handleDeleteItems(items: IPosition[]) {
     // handle by realtime
   }
@@ -251,5 +269,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   isEmpty(number: number): boolean {
     return number === 0;
+  }
+
+  private _loadAccount(): void {
+    this._accountRepository.getItems({status: 'Active', criteria: '', limit: 1})
+      .subscribe({
+        next: (res) => this.accountId = res?.data && res.data[0].id,
+        error: err => this._notifier.showError(err, 'Failed to load account')
+      });
   }
 }
