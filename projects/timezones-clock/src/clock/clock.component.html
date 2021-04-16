@@ -3,9 +3,7 @@
   nz-dropdown
   nzTrigger="click"
   class="clock-container"
-  [nzDropdownMenu]="menu"
-  [nzPlacement]="dropdownPlacement"
-  [nzClickHide]="false"
+  (click)="timezonesDropdownTriggerButton.click()"
 >
   <span class="zone">{{enabledTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">
@@ -14,6 +12,7 @@
 </button>
 
 <button
+  #timezonesDropdownTriggerButton
   nz-dropdown
   nzTrigger="click"
   class="clock-container"
