@@ -4,7 +4,7 @@
   nzTrigger="click"
   [nzPlacement]="dropdownPlacement"
   [title]="'Workspaces'"
-  (nzVisibleChange)="isMenuVisible = $event"
+  (nzVisibleChange)="handleDropdownToggle($event)"
   [class.active]="isMenuVisible"
   [nzClickHide]="true"
   [nzDropdownMenu]="menu"

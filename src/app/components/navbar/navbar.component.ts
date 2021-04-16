@@ -18,14 +18,18 @@ import { Bounds, WindowManagerService } from 'window-manager';
 export class NavbarComponent implements AfterViewInit {
   @Input() layout: LayoutComponent;
 
-  public isNewNotification: boolean;
   public readonly navbarPosition = NavbarPosition;
-  @HostBinding('class.is-electron')
-  isElectron: boolean;
+  public isNewNotification: boolean;
   public isNavbarHidden = false;
   private navbarActive = false;
+  private isInsideDropdownOpened = false;
 
+  @HostBinding('class.is-electron') public isElectron: boolean;
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
+
+  @HostBinding('class.hidden') get hidden() {
+    return this.isNavbarHidden && !this.navbarActive && !this.isInsideDropdownOpened;
+  }
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -88,8 +92,8 @@ export class NavbarComponent implements AfterViewInit {
     this.isElectron = isElectron();
   }
 
-  @HostBinding('class.hidden') get hidden() {
-    return this.isNavbarHidden && !this.navbarActive;
+  handleInsideDropdownToggle(opened: boolean): void {
+    this.isInsideDropdownOpened = opened;
   }
 
   switchTheme() {
@@ -116,7 +120,7 @@ export class NavbarComponent implements AfterViewInit {
     this.windowManagerService.setBounds(bounds);
   }
 
-  openNotificationsList() {
+  openNotificationsList(): void {
     this.layout.addComponent({
       component: {
         name: 'notification-list'
@@ -135,7 +139,7 @@ export class NavbarComponent implements AfterViewInit {
     });
   }
 
-  openSettings() {
+  openSettings(): void {
     this.layout.addComponent({
       component: {
         name: 'settings',
@@ -179,7 +183,7 @@ export class NavbarComponent implements AfterViewInit {
 }
 declare var process;
 
-function isElectron() {
+function isElectron(): boolean {
   // Renderer process
   if (typeof window !== 'undefined' && typeof window['process'] === 'object' && window['process'].type === 'renderer') {
     return true;

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NzModalService, NzPlacementType } from "ng-zorro-antd";
 import { AddTimezoneModalComponent } from "../add-timezone-modal/add-timezone-modal.component";
 import { TimezonesService } from "../timezones.service";
@@ -20,6 +20,8 @@ export class ClockComponent implements OnInit {
 
   @Input() dropdownPlacement: NzPlacementType;
   @Input() maxAdditionalTimezonesCount = 2;
+
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   get canEnableTimezone(): boolean {
     return this.timezonesService.canEnableTimezone;
