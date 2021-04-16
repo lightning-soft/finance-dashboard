@@ -84,11 +84,11 @@ export class ClockComponent implements OnInit {
   private _getLocalTimezone(): ITimezone {
     const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const foundTimezones = TIMEZONES.filter(timezone => {
+    const matchedTimezones = TIMEZONES.filter(timezone => {
       return timezone.utc.some(i => i === timezoneName);
     });
 
-    const supposedTimezone = (foundTimezones || []).reduce((acc, item) => {
+    const supposedTimezone = matchedTimezones.reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
     });
 
