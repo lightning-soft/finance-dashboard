@@ -6,7 +6,7 @@ import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzMessageRef, NzMessageService } from 'ng-zorro-antd/message';
 import { ITimezone } from 'timezones-clock';
 import { catchError } from 'rxjs/operators';
 
@@ -102,11 +102,15 @@ export class SettingsService {
   }
 
   saveState(): void {
-    const { messageId } = this.messageService.loading('Saving', { nzDuration: 1000 });
+    this.showLoader();
     this._settingStore.setItem(this.settings.value).toPromise()
       .finally(() => {
         // this.messageService.remove(messageId);
       });
+  }
+
+  showLoader(): NzMessageRef {
+    return this.messageService.loading('Saving', { nzDuration: 1000 });
   }
 
   saveKeyBinding(hotkeys: HotkeyEntire) {

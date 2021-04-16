@@ -84,8 +84,8 @@
     </div>
     <div class="trade-button">
       <div class="buy-info">
-        <span>{{askVolume != null ? askVolume : '--'}}</span>
-        <span>{{askPrice != null ? askPrice : '--' }}</span>
+        <span>{{bidVolume != null ? bidVolume : '--'}}</span>
+        <span>{{bidPrice != null ? bidPrice : '--' }}</span>
       </div>
       <button
         (click)="submit(OrderSide.Buy)"
@@ -94,7 +94,7 @@
     </div>
     <div class="trade-button">
       <div class="sell-info">
-        <span>{{bidPrice != null ? bidPrice : '--'}}</span> <span>{{bidVolume != null ? bidVolume : '--'}}</span>
+        <span>{{askPrice != null ? askPrice : '--'}}</span> <span>{{askVolume != null ? askVolume : '--'}}</span>
       </div>
       <button
         (click)="submit(OrderSide.Sell)"

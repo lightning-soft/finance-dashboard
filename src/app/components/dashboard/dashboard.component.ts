@@ -90,6 +90,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
+      window.addEventListener('message', (event) => {
+        try {
+          const data = event.data;
+          if (typeof data !== 'string')
+            return;
+          const { workspaceId, windowId, state } = JSON.parse(data);
+          this._workspaceService.saveWindow(+workspaceId, +windowId, state);
+          this._settingsService.showLoader();
+        } catch (err) {
+          console.error(err);
+        }
+      });
     }
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
@@ -144,7 +156,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   _loadPopupWindow() {
     this._subscribeOnKeys();
-    this._setupWorkspaces();
     this.layout.loadEmptyState();
     this._workspaceService.workspaceInit
       .pipe(
@@ -153,9 +164,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         untilDestroyed(this)
       ).subscribe(() => {
       const workspaceId = +this._windowPopupManager.workspaceId;
-      this._workspaceService.switchWorkspace(workspaceId);
+      this._workspaceService.switchWorkspace(workspaceId, false);
       const windowId = +this._windowPopupManager.windowId;
-      this._workspaceService.switchWindow(windowId);
+      this._workspaceService.switchWindow(windowId, false);
     });
   }
 
@@ -291,7 +302,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-    if (this._workspaceService.getActiveWorkspace()) {
+    if (this._windowPopupManager.isWindowPopup()) {
+      const state = { ...this._windowPopupManager.getSaveConfigs(), state: this.layout.saveState() };
+      const message = JSON.stringify(state);
+      window?.opener.postMessage(message, window.location.origin);
+      this._settingsService.showLoader();
+      this.hasBeenSaved = true;
+    } else if (this._workspaceService.getActiveWorkspace()) {
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
       this.hasBeenSaved = true;
     }
@@ -299,5 +316,5 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 }
 
 function isInput(element: Element): boolean {
-    return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
+  return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
 }

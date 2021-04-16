@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
+import { Id } from "communication";
 
 export type WorkspaceId = number | string;
 
@@ -132,6 +133,19 @@ export class WorkspacesManager {
     if (!workspace)
       return;
     const window = workspace.windows.find(item => item.isSelected);
+    if (!window)
+      return;
+    window.config = state;
+    this.workspaces.next(this.workspaces.value);
+    await this._workspacesStore.setItems(this.workspaces.value).toPromise();
+  }
+
+  public async saveWindow(workspaceId: WorkspaceId, windowId: Id, state: any) {
+    const workspace = this.workspaces.value.find(w => w.id === workspaceId);
+
+    if (!workspace)
+      return;
+    const window = workspace.windows.find(item => item.id = windowId);
     if (!window)
       return;
     window.config = state;
