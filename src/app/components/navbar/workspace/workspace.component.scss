@@ -15,26 +15,61 @@
 
 ::ng-deep {
   .modal-workspace {
-    .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title {
-      font-weight: 600;
-      font-size: 0.8rem;
-      color: white;
-      user-select: none;
+    .ant-modal .ant-modal-content {
+      .ant-modal-close-x {
+        height: 20px;
+        width: 20px;
+        line-height: 23px;
+        color: #fff;
+        margin-right: 3px;
+      }
 
+      .ant-modal-header .ant-modal-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #fff;
+        user-select: none;
+        line-height: 1.35;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+    }
+
+    &.confirm-modal-workspace {
+      .ant-modal .ant-modal-content {
+        .ant-modal-body {
+          padding: 28px 34px 24px;
+        }
+
+        .ant-modal-footer {
+          padding-bottom: 40px;
+        }
+      }
     }
 
     small {
       user-select: none;
+      font-weight: 400;
     }
 
-    .ant-modal .ant-modal-content .ant-modal-body {
-      width: 100%;
-      min-width: unset;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      line-height: 1.2rem;
-      padding: 24px;
+    .ant-modal .ant-modal-content {
+      .ant-modal-body {
+        width: 100%;
+        min-width: unset;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        line-height: 1.2rem;
+        padding: 32px 91px;
+      }
+
+      .ant-modal-footer {
+        padding-bottom: 32px;
+
+        button {
+          font-weight: 600;
+        }
+      }
     }
 
     .ant-btn {
@@ -48,7 +83,7 @@
 }
 
 .active {
-  color: white;
+  color: #fff;
 }
 
 .icon-union {

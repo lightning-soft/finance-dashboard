@@ -11,7 +11,9 @@ small {
     border: 1px solid transparent;
     font-size: 0.8rem;
     font-weight: 400;
+    color: #fff;
     height: 24px;
+    max-width: 255px;
 
     &:focus {
       border: 1px solid $primary;
