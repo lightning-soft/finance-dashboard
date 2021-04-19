@@ -23,7 +23,7 @@
   nz-dropdown
   nzTrigger="click"
   nzPlacement="bottomRight"
-  (nzVisibleChange)="isConnectionsDropdownOpened = $event"
+  (nzVisibleChange)="handleDropdownToggle($event)"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
   *ngIf="favourites.length > 2"
