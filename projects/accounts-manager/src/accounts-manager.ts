@@ -100,7 +100,7 @@ export class AccountsManager {
           return this._connectionsRepository.updateItem(item)
             .pipe(map(_ => item));
         }),
-        tap((conn) => this.onUpdated(conn)));
+        tap((conn) => this.onUpdated(conn, !conn.error)));
   }
 
   disconnect(connection: IConnection): Observable<void> {
