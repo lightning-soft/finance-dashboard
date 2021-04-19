@@ -3,7 +3,7 @@ import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
-import { Broker, IConnection } from 'trading';
+import { Broker, ConnectionsRepository, IConnection } from 'trading';
 
 interface AccountSetting {
   id: string;
@@ -38,7 +38,7 @@ class Connection implements IConnection {
 }
 
 @Injectable()
-export class RealConnectionsRepository extends HttpRepository<IConnection> {
+export class RealConnectionsRepository extends HttpRepository<IConnection> implements ConnectionsRepository {
   connections: IConnection[] = [];
 
   protected get _baseUrl(): string {
