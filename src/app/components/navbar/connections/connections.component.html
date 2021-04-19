@@ -23,7 +23,7 @@
   nz-dropdown
   nzTrigger="click"
   nzPlacement="bottomRight"
-  (nzVisibleChange)="isConnectionsDropdownOpened = $event"
+  (nzVisibleChange)="handleDropdownToggle($event)"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
   *ngIf="favourites.length > 2"
@@ -46,9 +46,8 @@
 </div>
 <nz-dropdown-menu #connectionsDropdown="nzDropdownMenu">
   <div class="dropdown">
-    <cdk-virtual-scroll-viewport [itemSize]
-                                 [style.height.px]="list.offsetHeight > 320 ? 320 : list.offsetHeight">
-      <ul nz-menu #list>
+    <cdk-virtual-scroll-viewport [itemSize] [style.height.px]="connectionsListHeight">
+      <ul nz-menu #connectionsList>
         <li
           nz-menu-item
           class="d-flex transition align-items-center"

@@ -1,4 +1,4 @@
-import { Component, Injector, Input } from '@angular/core';
+import { Component, ElementRef, Injector, Input, NgModuleRef, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
@@ -29,10 +29,13 @@ export const accountsOptions = {
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   @Input() layout: LayoutComponent;
 
+  @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
+
   isLoading: { [key: number]: boolean } = {};
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
+  connectionsListHeight: number;
 
   protected _clearOnDisconnect = false;
 
@@ -138,5 +141,18 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
         },
         err => console.error(err),
       );
+  }
+
+  handleDropdownToggle(opened: boolean): void {
+    this.isConnectionsDropdownOpened = opened;
+    if (opened) {
+      setTimeout(() => this._setConnectionsListHeight());
+    }
+  }
+
+  private _setConnectionsListHeight(): void {
+    const maxHeight = 320;
+    const connectionsOffsetHeight = this.connectionsList.nativeElement.offsetHeight;
+    this.connectionsListHeight = connectionsOffsetHeight > maxHeight ? maxHeight : connectionsOffsetHeight;
   }
 }
