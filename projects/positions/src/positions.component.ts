@@ -274,7 +274,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _loadAccount(): void {
     this._accountRepository.getItems({status: 'Active', criteria: '', limit: 1})
       .subscribe({
-        next: (res) => this.accountId = res?.data && res.data[0].id,
+        next: (res) => this.accountId = res?.data?.length && res.data[0].id,
         error: err => this._notifier.showError(err, 'Failed to load account')
       });
   }
