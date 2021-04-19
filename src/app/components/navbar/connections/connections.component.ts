@@ -1,4 +1,4 @@
-import { Component, Injector, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
@@ -30,10 +30,13 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
+  @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
+
   isLoading: { [key: number]: boolean } = {};
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
+  connectionsListHeight: number;
 
   protected _clearOnDisconnect = false;
 
@@ -144,5 +147,14 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   handleDropdownToggle(opened: boolean): void {
     this.isConnectionsDropdownOpened = opened;
     this.handleToggleDropdown.emit(opened);
+    if (opened) {
+      setTimeout(() => this._setConnectionsListHeight());
+    }
+  }
+
+  private _setConnectionsListHeight(): void {
+    const maxHeight = 320;
+    const connectionsOffsetHeight = this.connectionsList.nativeElement.offsetHeight;
+    this.connectionsListHeight = connectionsOffsetHeight > maxHeight ? maxHeight : connectionsOffsetHeight;
   }
 }

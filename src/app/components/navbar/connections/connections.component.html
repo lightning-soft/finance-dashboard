@@ -46,8 +46,8 @@
 </div>
 <nz-dropdown-menu #connectionsDropdown="nzDropdownMenu">
   <div class="dropdown">
-    <cdk-virtual-scroll-viewport [itemSize]>
-      <ul nz-menu>
+    <cdk-virtual-scroll-viewport [itemSize] [style.height.px]="connectionsListHeight">
+      <ul nz-menu #connectionsList>
         <li
           nz-menu-item
           class="d-flex transition align-items-center"
