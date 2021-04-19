@@ -10,7 +10,7 @@ import {
   DataGrid,
   IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter,
-  Column
+  Column, ICellChangedEvent
 } from 'data-grid';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -156,8 +156,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
-  private currentCell;
   positions: IPosition[] = [];
+  showColumnTitleOnHover = (item: Column) => false;
+  private currentRow: DomItem;
 
   domKeyHandlers = {
     autoCenter: () => this.centralize(),
@@ -675,16 +676,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   _setPriceForAllOrders(type: OrderType) {
-    const row = this.currentCell.row;
-    if (row) {
+    if (this.currentRow) {
       // #TODO investigate what side should be if row is in center
-      const side = row.isBelowCenter ? OrderSide.Buy : OrderSide.Sell;
+      const side = this.currentRow.isCenter ? OrderSide.Buy : OrderSide.Sell;
       const orders = this.items.reduce((total, item) => {
         return total.concat(item.orders.orders.filter(order => {
           return order.type === type && order.side === side;
         }));
       }, []);
-      const price = +row.price.value;
+      const price = +this.currentRow.price.value;
       this._setPriceForOrders(orders, price);
     }
   }
@@ -1686,26 +1686,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  transformLabel(label: string) {
-    const replacer = '*';
-    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
-    if (hideAccountName) {
-
-      if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
-        return replacer.repeat(label.length);
-      }
-      if ((hideFromLeft || hideFromRight) && digitsToHide >= label.length) {
-        return replacer.repeat(label.length);
-      }
-      let _label = label;
-      if (hideFromLeft)
-        _label = replacer.repeat(digitsToHide) + _label.substring(digitsToHide, label.length);
-      if (hideFromRight)
-        _label = _label.substring(0, label.length - digitsToHide) + replacer.repeat(digitsToHide);
-      return _label;
-    }
-    return label;
-  }
+  // transformLabel(label: string) {
+  //   const replacer = '*';
+  //   const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+  //   if (hideAccountName) {
+  //
+  //     if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
+  //       return replacer.repeat(label.length);
+  //     }
+  //     if ((hideFromLeft || hideFromRight) && digitsToHide >= label.length) {
+  //       return replacer.repeat(label.length);
+  //     }
+  //     let _label = label;
+  //     if (hideFromLeft)
+  //       _label = replacer.repeat(digitsToHide) + _label.substring(digitsToHide, label.length);
+  //     if (hideFromRight)
+  //       _label = _label.substring(0, label.length - digitsToHide) + replacer.repeat(digitsToHide);
+  //     return _label;
+  //   }
+  //   return label;
+  // }
 
   private _closeSettings() {
     this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
@@ -2008,8 +2008,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._unsubscribeFromInstrument();
   }
 
-  onCurrentCellChanged($event: any) {
-    this.currentCell = $event;
+  onCurrentCellChanged(event: ICellChangedEvent<DomItem>) {
+    this.currentRow = event.row;
   }
 
   onColumnUpdate(column: Column) {

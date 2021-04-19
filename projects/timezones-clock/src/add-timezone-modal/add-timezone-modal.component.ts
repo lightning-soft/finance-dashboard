@@ -32,10 +32,9 @@ export class AddTimezoneModalComponent {
   }
 
   constructor(private timezonesService: TimezonesService) {
-
     this.allTimezones = TIMEZONES
-      .map(i => new Timezone(i))
-      .sort((a, b) => a.offset < b.offset ? 1 : -1);
+      .sort((a, b) => a.offset < b.offset ? 1 : -1)
+      .map(i => new Timezone(i));
 
     this.timezonesService.timezonesData$
       .pipe(untilDestroyed(this))

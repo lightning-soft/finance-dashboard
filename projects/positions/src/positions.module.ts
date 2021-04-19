@@ -5,7 +5,6 @@ import { DataGridModule } from 'data-grid';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import { NzDropDownModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
-import { AccountSelectModule } from 'account-select';
 import { LayoutModule } from 'layout';
 import { WindowHeaderModule } from 'window-header';
 
@@ -15,7 +14,6 @@ import { WindowHeaderModule } from 'window-header';
     DataGridModule,
     NzSelectModule,
     ReactiveFormsModule,
-    AccountSelectModule,
     LayoutModule,
     WindowHeaderModule,
     NzDropDownModule,

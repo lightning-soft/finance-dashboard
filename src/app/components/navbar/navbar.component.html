@@ -40,8 +40,8 @@
                      [layout]="layout"
                      (handleToggleDropdown)="handleInsideDropdownToggle($event)"
     ></app-drag-drawer>
-
   </div>
+
   <app-frames-manager [dropdownPlacement]="dropdownPlacementLeftSide"></app-frames-manager>
   <!-- <div class="search">
     <button class="icon-search"></button>
@@ -49,12 +49,14 @@
   <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
   <windows [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></windows>
-  <app-connections [layout]="layout"></app-connections>
+
+  <app-connections [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-connections>
+
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
 
     <app-workspace
-      (toggleDropdown)="handleInsideDropdownToggle($event)"
+      (handleToggleDropdown)="handleInsideDropdownToggle($event)"
       [layout]="layout"
       [dropdownPlacement]="dropdownPlacementRightSide"
     ></app-workspace>
@@ -70,7 +72,7 @@
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
 
-    <app-account></app-account>
+    <app-account (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-account>
   </div>
   <div class="time">
     <app-clock [dropdownPlacement]="dropdownPlacementRightSide"

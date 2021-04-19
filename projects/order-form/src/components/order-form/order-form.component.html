@@ -26,11 +26,11 @@
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
     <div class="grid gap-4">
-      <nz-select (ngModelChange)="onTypeUpdated()" formControlName="type" [nzOptionHeightPx]="20">
+      <nz-select (ngModelChange)="onTypeUpdated()" formControlName="type" [nzOptionHeightPx]="23">
         <nz-option *ngFor="let item of orderTypes" [nzValue]="item.value" [nzLabel]="item.label">
         </nz-option>
       </nz-select>
-      <nz-select formControlName="duration" [nzOptionHeightPx]="20">
+      <nz-select formControlName="duration" [nzOptionHeightPx]="23">
         <nz-option *ngFor="let item of orderDurations" [nzValue]="item" [nzLabel]="item">
         </nz-option>
       </nz-select>
