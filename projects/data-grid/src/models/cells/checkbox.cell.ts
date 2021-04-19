@@ -1,8 +1,7 @@
 import { Cell } from './cell';
-import { TextAlign } from "dynamic-form";
 
 export class CheckboxCell extends Cell {
-  public horizontalAlign: TextAlign = TextAlign.Center;
+  public horizontalAlign: 'left' | 'center' | 'right' = 'center';
   private readonly rectOffset = 2.2;
   private readonly minWidthFromEdge = 4;
   private x: number;
@@ -61,13 +60,13 @@ export class CheckboxCell extends Cell {
 
   private _setHorizontalPosition(context): void {
     switch (this.horizontalAlign) {
-      case TextAlign.Center:
+      case 'center':
         this.x = context.x + context.width / 2 - (this._size / 2);
         break;
-      case TextAlign.Left:
+      case 'left':
         this.x = context.x + this.minWidthFromEdge;
         break;
-      case TextAlign.Right:
+      case 'right':
         this.x = context.x + context.width - this._size - this.minWidthFromEdge;
         break;
     }

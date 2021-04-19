@@ -1,5 +1,5 @@
 const textBoldClass = ' text-bold';
-const hoverStatus = 'hover';
+
 
 enum TextAlign {
   Left = 'left',
@@ -24,14 +24,11 @@ export interface ICell {
 
   updateValue(...args: any[]);
 
-  toggleHoverStatus(hovered: boolean): void;
-
   clear();
 }
 
 export interface ICellConfig {
   settings?: ICellSettings;
-  withHoverStatus?: boolean;
 }
 
 export enum CellStatus {
@@ -49,15 +46,13 @@ export abstract class Cell implements ICell {
 
   protected _statses: string[];
   protected _statusPrefix: string;
-  protected _hoverStatusEnabled: boolean;
-  protected _hovered: boolean;
 
   name: string = '';
   value = '';
   class = '';
   colSpan = 0;
   _bold: boolean;
-  settings: ICellSettings = {};
+  settings = {};
   drawed = false; // performance solution
   status: string = '';
   private _prevStatus = '';
@@ -79,7 +74,6 @@ export abstract class Cell implements ICell {
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
-    this._hoverStatusEnabled = config?.withHoverStatus ?? false;
   }
 
   set bold(value: boolean) {
@@ -108,12 +102,12 @@ export abstract class Cell implements ICell {
     this.drawed = false;
   }
 
-  protected _getStatus(status: string, usePrefix = true) {
-    return usePrefix ? Cell.mergeStatuses(this._statusPrefix, status) : status;
+  protected _getStatus(status) {
+    return Cell.mergeStatuses(this._statusPrefix, status);
   }
 
-  changeStatus(status: string, usePrefix = true): void {
-    status = this._getStatus(status, usePrefix);
+  changeStatus(status: string) {
+    status = this._getStatus(status);
 
     if (status == this.status)
       return;
@@ -147,20 +141,12 @@ export abstract class Cell implements ICell {
   }
 
   refresh() {
+
   }
 
   toString() {
     return this.value;
   }
-
-  toggleHoverStatus(hovered: boolean): void {
-    if (!this._hoverStatusEnabled || hovered === this._hovered) {
-      return;
-    }
-
-    this._hovered = hovered;
-    this.changeStatus(hovered ? hoverStatus : this._prevStatus, !hovered);
-  };
 }
 
 export class ReadonlyCell implements ICell {
@@ -175,9 +161,6 @@ export class ReadonlyCell implements ICell {
   }
 
   clear() {
-  }
-
-  toggleHoverStatus(hovered: boolean) {
   }
 }
 

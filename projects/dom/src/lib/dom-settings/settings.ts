@@ -170,7 +170,6 @@ export class DomSettings {
     color: 'white',
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-    hoverBackgroundColor: '#4895F5',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
     largeSize: 14,
@@ -183,7 +182,6 @@ export class DomSettings {
   ask: any = {
     color: 'white',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
-    hoverBackgroundColor: '#C93B3B',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
