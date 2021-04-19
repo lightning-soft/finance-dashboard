@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { AuthService } from 'auth';
 import { AppConfig } from 'src/app/app.config';
 
@@ -8,13 +8,11 @@ import { AppConfig } from 'src/app/app.config';
   styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit {
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   isAuthenticated: boolean;
-
   userName: string;
-
   loginLink: string;
-
   visible = false;
 
   constructor(
