@@ -19,7 +19,7 @@ export class WorkspaceComponent implements OnInit {
   @Input() layout: LayoutComponent;
   @Input() dropdownPlacement: NzPlacementType;
 
-  @Output() toggleDropdown = new EventEmitter<boolean>();
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   activeWorkspaceId: WorkspaceId;
   formControl = new FormControl();
@@ -154,6 +154,6 @@ export class WorkspaceComponent implements OnInit {
 
   handleDropdownToggle(opened: boolean): void {
     this.isMenuVisible = opened;
-    this.toggleDropdown.emit(opened);
+    this.handleToggleDropdown.emit(opened);
   }
 }

@@ -7,9 +7,6 @@
     >
       <i class="icon-setting-gear"></i>
     </button>-->
-  <account-select
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
   <span [class.opened]="menuVisible"
         class="group-container">
   <i nz-dropdown (nzVisibleChange)="menuVisible = $event" [nzDropdownMenu]="menu"

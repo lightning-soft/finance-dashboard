@@ -1,10 +1,10 @@
-import { Component, ElementRef, Injector, Input, NgModuleRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { filter, skip } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 export const accountsOptions = {
@@ -28,6 +28,7 @@ export const accountsOptions = {
 })
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   @Input() layout: LayoutComponent;
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
 
@@ -145,6 +146,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
 
   handleDropdownToggle(opened: boolean): void {
     this.isConnectionsDropdownOpened = opened;
+    this.handleToggleDropdown.emit(opened);
     if (opened) {
       setTimeout(() => this._setConnectionsListHeight());
     }

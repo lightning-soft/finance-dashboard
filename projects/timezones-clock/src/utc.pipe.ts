@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 })
 export class UtcPipe implements PipeTransform {
   transform(offset: number, ...args): string {
-    const integer = Math.floor(offset);
+    const integer = Math.trunc(offset);
     let text = `UTC${offset >= 0 ? '+' : ''}${integer}`;
 
     const minutes = this.getMinutesFromOffset(offset);
