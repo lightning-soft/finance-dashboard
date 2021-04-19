@@ -3,6 +3,7 @@ import { Id } from 'communication';
 import { DataCell, IconCell, CheckboxCell, Column, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
+import { TextAlign } from "dynamic-form";
 
 const allFields: Partial<keyof OrderItem>[] = [
   'checkbox',
@@ -105,7 +106,7 @@ export class OrderItem implements IViewItem<IOrder> {
     allFields.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
   }
 
-  changeCheckboxHorizontalAlign(align: 'left' | 'right' | 'center'): void {
+  changeCheckboxHorizontalAlign(align: TextAlign): void {
     this.checkbox.horizontalAlign = align;
   }
 }

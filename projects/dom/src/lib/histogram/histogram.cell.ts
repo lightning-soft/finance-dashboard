@@ -1,7 +1,11 @@
-import { AddClassStrategy, ICellSettings, NumberCell } from 'data-grid';
+import { AddClassStrategy, ICellSettings, INumberConfig, NumberCell } from 'data-grid';
 import { HistogramOrientation } from 'dynamic-form';
 
 export const histogramComponent = 'histogram-component';
+
+interface IHistogramConfig extends INumberConfig {
+  settings: IHistogramSettings;
+}
 
 export interface IHistogramSettings extends ICellSettings {
   histogramOrientation: HistogramOrientation;
@@ -18,7 +22,7 @@ export class HistogramCell extends NumberCell {
 
   private _histValue;
 
-  constructor(config) {
+  constructor(config: IHistogramConfig) {
     super({
       ...config,
       strategy: AddClassStrategy.NONE,

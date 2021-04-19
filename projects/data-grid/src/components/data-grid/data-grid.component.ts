@@ -84,6 +84,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _items: T[] = [];
   private _styles: GridStyles;
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
+  private _prevActiveCell: Cell;
 
   // private _subscribedEvents = [];
 
@@ -307,12 +308,21 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _currentCellChanged = (event: ICellChangedEvent<T>) => {
-    this.currentCellChanged.emit(event);
+    this.updateCellHoverStatus(event?.item);
     this.title = this.showColumnTitleOnHover(event.column) ? (event?.item?.toString() ?? '') : null;
+    this.currentCellChanged.emit(event);
   }
 
   private _afterDraw = (e) => {
     this.afterDraw(e, this._grid);
+  }
+
+  updateCellHoverStatus(cell: Cell): void {
+    if (this._prevActiveCell)
+      this._prevActiveCell.toggleHoverStatus(false);
+
+    this._prevActiveCell = cell;
+    cell?.toggleHoverStatus(true);
   }
 
   // private _handleEvent = (event) => {
