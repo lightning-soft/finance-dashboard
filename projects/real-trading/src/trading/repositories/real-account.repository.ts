@@ -1,10 +1,10 @@
 import { IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IAccount } from 'trading';
+import { AccountRepository, IAccount } from 'trading';
 import { BaseRepository } from './base-repository';
 
-export class RealAccountRepository extends BaseRepository<IAccount>{
+export class RealAccountRepository extends BaseRepository<IAccount> implements AccountRepository {
   protected get suffix(): string {
     return 'Account';
   }
