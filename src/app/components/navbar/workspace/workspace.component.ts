@@ -74,7 +74,9 @@ export class WorkspaceComponent implements OnInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the workspace?'
+        message: 'Do you want delete the workspace?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 

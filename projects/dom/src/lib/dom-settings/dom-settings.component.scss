@@ -11,8 +11,28 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+  .ant-form-item-control {
+    /* padding-left: 3px;
+     padding-right: 3px;*/
+  }
+  .reset-settings {
+    grid-template-columns: 265px 1fr;
+  }
+
+  .close-current-orders {
+    grid-column-start: 2 span;
+  }
+
   .d-grid {
     display: grid !important;
+  }
+
+  .field-item {
+    display: block;
+
+    &:not(:first-child) {
+      margin-top: 27px;
+    }
   }
 
   .grid-two-rows {
@@ -54,7 +74,7 @@ cdk-virtual-scroll-viewport {
 
   nz-form-item {
     flex-direction: column;
-    margin-bottom: 7px;
+    margin-bottom: 0px;
 
     .ant-form-item-label {
       text-align: start;
@@ -64,6 +84,10 @@ cdk-virtual-scroll-viewport {
 
       label {
         font-weight: 600;
+        margin-bottom: 0px;
+        line-height: 1;
+        padding-bottom: 7px;
+        padding-left: 6px;
 
         &:after {
           display: none;
@@ -80,6 +104,10 @@ cdk-virtual-scroll-viewport {
   .no-underline {
     nz-form-item .ant-form-item-label {
       border-bottom: none;
+
+      label {
+        padding-left: 0;
+      }
     }
   }
 

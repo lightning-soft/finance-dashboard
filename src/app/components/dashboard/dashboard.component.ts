@@ -14,7 +14,12 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
+import { SaveService } from "../save.service";
+import { SaveLoaderService } from "ui";
 
+enum WindowEvents {
+  Message = 'message'
+}
 
 @Component({
   selector: 'dashboard',
@@ -47,6 +52,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private trade: TradeHandler,
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
+    private saverService: SaveService,
+    private loaderService: SaveLoaderService,
   ) {
   }
 
@@ -94,14 +101,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
-      window.addEventListener('message', (event) => {
+      window.addEventListener(WindowEvents.Message, (event) => {
         try {
           const data = event.data;
           if (typeof data !== 'string')
             return;
           const { workspaceId, windowId, state } = JSON.parse(data);
           this._workspaceService.saveWindow(+workspaceId, +windowId, state);
-          this._settingsService.showLoader();
         } catch (err) {
           console.error(err);
         }
@@ -299,21 +305,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         ...widgetOptions.options
       });
     } else {
-      console.error(`Component ${component} not found, make sure spelling is correct`);
+      console.error(`Component ${ component } not found, make sure spelling is correct`);
     }
   }
 
   private async _save() {
-    if (this._windowPopupManager.isWindowPopup()) {
-      const state = { ...this._windowPopupManager.getSaveConfigs(), state: this.layout.saveState() };
-      const message = JSON.stringify(state);
-      window?.opener.postMessage(message, window.location.origin);
-      this._settingsService.showLoader();
-      this.hasBeenSaved = true;
-    } else if (this._workspaceService.getActiveWorkspace()) {
-      await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
-      this.hasBeenSaved = true;
-    }
+    await this.saverService.save(this.layout.getState());
+    this.hasBeenSaved = true;
   }
 }
 

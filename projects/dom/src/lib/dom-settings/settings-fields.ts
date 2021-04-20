@@ -67,11 +67,11 @@ export const commonFields: IFieldConfig[] = [
         label: 'General Color',
         key: 'generalColors',
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
-        className: 'w-100 ml-0',
+        className: 'w-100 ml-0 field-item',
         fieldGroup: [
           getColor('Grid Line Color', (value) => {
             if (value)
-              return { ' td': { border: `1px solid ${value}` } };
+              return { ' td': { border: `1px solid ${ value }` } };
           }),
           getColor('Order Grid Line Color'),
           getColor('Center Line Color', (value) => {
@@ -103,8 +103,10 @@ export const commonFields: IFieldConfig[] = [
               { label: 'Price', key: 'price' },
               { label: 'Сurrent Ask', key: 'currentAsk' },
               { label: 'Сurrent Bid', key: 'currentBid' },
-            ], label: 'Columns View', extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
-          }), className: 'w-100'
+            ],
+            label: 'Columns View',
+            extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
+          }), className: 'w-100  field-item'
       }
     ]
   }),
@@ -160,12 +162,41 @@ export const generalFields: IFieldConfig[] = [
     fieldGroup: [
       getCheckboxes({
         checkboxes: [
-          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          {
+            key: 'closeOutstandingOrders',
+            label: 'Close Outstanding Orders When Position is Closed', config: {
+              className: 'close-current-orders',
+            }
+          },
           { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          {
+            label: 'All Windows', key: 'currentTradesAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearCurrentTrades',
+              }
+            }
+          },
+          // disableExpression({ label: 'All Windows',  key: 'currentTradesAllWindows' }, '!model.clearCurrentTrades'),
           { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          {
+            label: 'All Windows', key: 'currentTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearTotalTrades',
+              }
+            }
+          },
           { label: 'Re-Center On New Position', key: 'recenter' },
-          { label: 'All Windows', key: 'allWindows' },
+          {
+            label: 'All Windows', key: 'recenterTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.recenter',
+              }
+            }
+          },
         ],
+        extraConfig: {
+          fieldGroupClassName: 'd-grid reset-settings',
+        },
         label: 'Reset settings'
       }),
       getCheckboxes({
@@ -178,7 +209,8 @@ export const generalFields: IFieldConfig[] = [
           templateOptions: { min: 0, label: 'Account Digits To Hide' },
           key: 'digitsToHide',
           type: FieldType.Number,
-        }]
+        }],
+        extraConfig: { className: 'field-item' },
       }),
       new FieldConfig({
         label: 'Common View',
@@ -351,7 +383,7 @@ export const ltqFields: IFieldConfig[] = [
 
 function buttonApplier(selector, value) {
   if (value) {
-    const buttonSelector = ` ${selector}, ${selector}:hover, ${selector}:focus, ${selector}:focus-within`;
+    const buttonSelector = ` ${ selector }, ${ selector }:hover, ${ selector }:focus, ${ selector }:focus-within`;
     return { [buttonSelector]: value };
   }
 }
@@ -361,10 +393,10 @@ export const orderAreaFields: IFieldConfig[] = [
     label: 'Order Area',
     fieldGroup: [
       getColor('Buy Buttons Background Color', (background) => {
-        return buttonApplier('.cxl-buy', { background: `${background}!important` });
+        return buttonApplier('.cxl-buy', { background: `${ background }!important` });
       }),
       getColor('Flat Buttons Background Color', (background) => {
-        return buttonApplier('.flatten', { background: `${background}!important` });
+        return buttonApplier('.flatten', { background: `${ background }!important` });
       }),
       getColor('Buy Buttons Font Color', (color) => {
         return buttonApplier('.cxl-buy', { color });
@@ -373,10 +405,10 @@ export const orderAreaFields: IFieldConfig[] = [
         return buttonApplier('.flatten', { color });
       }),
       getColor('Sell Buttons Background Color', (background) => {
-        return buttonApplier('.cxl-sell', { background: `${background}!important` });
+        return buttonApplier('.cxl-sell', { background: `${ background }!important` });
       }),
       getColor('Cancel Button Background Color', (background) => {
-        return buttonApplier('.cxl-all', { background: `${background}!important` });
+        return buttonApplier('.cxl-all', { background: `${ background }!important` });
       }),
       getColor('Sell Buttons Font Color', (color) => {
         return buttonApplier('.cxl-sell', { color });
@@ -474,7 +506,7 @@ function getDeltaFields(label: string) {
 
 function getDepthConfig(label: string) {
   return new FieldConfig({
-    label: `${label} Depth`,
+    label: `${ label } Depth`,
     key: label.toLowerCase(),
     fieldGroup: [
       getColor('Background Color'),
@@ -484,15 +516,15 @@ function getDepthConfig(label: string) {
       {
         ...getCheckboxes({
           checkboxes: [
-            { key: 'histogramEnabled', label: `${label} Depth Histogram` },
-            { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]
+            { key: 'histogramEnabled', label: `${ label } Depth Histogram` },
+            { key: 'highlightLarge', label: `Highlight Large ${ label } Only` }]
         }),
         className: 'w-100',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
       getHistogramOrientation(),
-      getNumber({ key: 'largeSize', label: `Large ${label} Size` }),
+      getNumber({ key: 'largeSize', label: `Large ${ label } Size` }),
       getTextAlign(),
     ]
   });
@@ -645,24 +677,24 @@ function disableExpression(field, expression: string) {
 function getCurrentFields(suffix: string) {
   return [
     new FieldConfig({
-      label: `Current At ${suffix}`,
-      key: `current${suffix}`,
+      label: `Current At ${ suffix }`,
+      key: `current${ suffix }`,
       fieldGroup: [
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }] }),
+        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${ suffix } Histogram` }] }),
         getBackgroundColor(),
         wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
           className: 'color-levels',
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
-            .map(i => getColor({ label: `Level ${i}`, key: `level${i}BackgroundColor` })),
+            .map(i => getColor({ label: `Level ${ i }`, key: `level${ i }BackgroundColor` })),
         }), { key: null }),
         new FieldConfig({
           fieldGroupClassName: 'current-level',
           className: 'current-level-item',
           fieldGroup: [
             getFontColor(),
-            getColor({ label: `Inside ${suffix} Background Color`, key: 'insideBackgroundColor' }),
+            getColor({ label: `Inside ${ suffix } Background Color`, key: 'insideBackgroundColor' }),
             getHightlightColor(),
             getHistogramColor(),
             getTextAlign(),
@@ -673,11 +705,11 @@ function getCurrentFields(suffix: string) {
             fieldGroupClassName: '',
             className: 'mt-0',
             fieldGroup: [
-              getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
+              getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
               wrapWithClass(getCheckboxes({
                   checkboxes: [{
                     key: `tailInsideBold`,
-                    label: `Tail Inside ${suffix} Bold`
+                    label: `Tail Inside ${ suffix } Bold`
                   }]
                 }),
                 'd-block tail-checkbox'),

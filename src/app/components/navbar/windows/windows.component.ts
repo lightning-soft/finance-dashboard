@@ -73,7 +73,9 @@ export class WindowsComponent implements OnInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the window?'
+        message: 'Do you want delete the window?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 

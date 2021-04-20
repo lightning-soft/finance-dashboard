@@ -52,6 +52,7 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+import { SaveLoaderModule } from 'ui';
 
 /**
  *  Move declaration to enother file
@@ -135,6 +136,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     HttpClientModule,
     CommunicationModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    SaveLoaderModule,
     NzModalModule,
     NzDropDownModule,
     ScrollingModule,

@@ -6,9 +6,9 @@ import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
-import { NzMessageRef, NzMessageService } from 'ng-zorro-antd/message';
 import { ITimezone } from 'timezones-clock';
 import { catchError } from 'rxjs/operators';
+import { SaveLoaderService } from 'ui';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -66,7 +66,7 @@ export class SettingsService {
   constructor(
     public themeHandler: ThemesHandler,
     private _settingStore: SettingsStore,
-    private messageService: NzMessageService
+    private loaderService: SaveLoaderService,
   ) {
     this._init();
   }
@@ -81,7 +81,7 @@ export class SettingsService {
       )
       .subscribe(
         (s: any) => s && this._updateState(s, false),
-        (e) => console.error(`Something goes wrong ${e.message}`)
+        (e) => console.error(`Something goes wrong ${ e.message }`)
       );
   }
 
@@ -102,15 +102,11 @@ export class SettingsService {
   }
 
   saveState(): void {
-    this.showLoader();
+    const hide = this.loaderService.showLoader();
     this._settingStore.setItem(this.settings.value).toPromise()
       .finally(() => {
-        // this.messageService.remove(messageId);
+        hide();
       });
-  }
-
-  showLoader(): NzMessageRef {
-    return this.messageService.loading('Saving', { nzDuration: 1000 });
   }
 
   saveKeyBinding(hotkeys: HotkeyEntire) {

@@ -21,7 +21,9 @@ export class DomSettings {
   }
 
   general: any = {
-    allWindows: false,
+    currentTradesAllWindows: false,
+    currentTotalAllWindows: false,
+    recenterTotalAllWindows: false,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
