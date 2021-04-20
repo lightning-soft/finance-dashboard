@@ -138,7 +138,10 @@ export class SettingsService {
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
-    this.settings.next({ ...this.settings.value, ...settings });
+    console.log(settings);
+    const clonedSettings = JSON.parse(JSON.stringify(settings));
+    console.log({ ...this.settings.value, ...clonedSettings });
+    this.settings.next({ ...this.settings.value, ...clonedSettings });
     if (saveInStorage)
       this.saveState();
   }

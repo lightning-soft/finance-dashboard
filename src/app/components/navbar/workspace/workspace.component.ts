@@ -150,7 +150,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    this._workspacesService.save.next();
+    this._workspacesService.save$.next();
     this._notificationService.showSuccess('Workspace was saved');
   }
 

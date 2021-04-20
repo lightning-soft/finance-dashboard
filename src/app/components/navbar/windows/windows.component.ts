@@ -106,6 +106,7 @@ export class WindowsComponent implements OnInit {
       if (!result)
         return;
       let config = [];
+      this._workspacesService.save();
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
       this._workspacesService.createWindow(new WorkspaceWindow({
@@ -154,7 +155,7 @@ export class WindowsComponent implements OnInit {
   }
 
   save() {
-    this._workspacesService.save.next();
+    this._workspacesService.save$.next();
   }
 
   loadOnStartUp(id) {

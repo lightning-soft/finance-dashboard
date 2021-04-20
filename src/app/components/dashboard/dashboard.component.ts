@@ -181,7 +181,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _setupWorkspaces() {
-    this._workspaceService.save
+    this._workspaceService.save$
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         this._save();
@@ -190,7 +190,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _setupReloadWorkspaces() {
-    this._workspaceService.reload
+    this._workspaceService.reload$
       .pipe(
         untilDestroyed(this)
       )
