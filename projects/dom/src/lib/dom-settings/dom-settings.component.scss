@@ -11,12 +11,20 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+
   .ant-form-item-control {
     /* padding-left: 3px;
      padding-right: 3px;*/
   }
+
+  .depth-checkboxes {
+    padding-left: 2px;
+  }
+
   .reset-settings {
     grid-template-columns: 265px 1fr;
+    padding-left: 3px;
+    padding-right: 3px;
   }
 
   .close-current-orders {
@@ -32,6 +40,11 @@ cdk-virtual-scroll-viewport {
 
     &:not(:first-child) {
       margin-top: 27px;
+    }
+
+    > formly-wrapper-nz-form-field > nz-form-item > nz-form-control {
+      padding-left: 3px;
+      padding-right: 3px;
     }
   }
 

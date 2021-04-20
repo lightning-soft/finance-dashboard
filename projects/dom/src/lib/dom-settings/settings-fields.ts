@@ -519,7 +519,7 @@ function getDepthConfig(label: string) {
             { key: 'histogramEnabled', label: `${ label } Depth Histogram` },
             { key: 'highlightLarge', label: `Highlight Large ${ label } Only` }]
         }),
-        className: 'w-100',
+        className: 'w-100 depth-checkboxes',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
@@ -545,7 +545,11 @@ function getTotalFields(label: string, key: string) {
         getHightlightColor(),
         getFontColor(),
         getHistogramColor(),
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }] }),
+        getCheckboxes({
+          checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }], extraConfig: {
+            className: ' depth-checkboxes',
+          }
+        }),
         getTextAlign(),
         getHistogramOrientation(),
       ]
