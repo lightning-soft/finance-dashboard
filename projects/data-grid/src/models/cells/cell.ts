@@ -1,3 +1,5 @@
+import set = Reflect.set;
+
 const textBoldClass = ' text-bold';
 const hoverStatus = 'hover';
 
@@ -77,11 +79,6 @@ export abstract class Cell implements ICell {
     this._visibilityChange();
   }
 
-  constructor(config?: ICellConfig) {
-    this.settings = config?.settings ?? {};
-    this._hoverStatusEnabled = config?.withHoverStatus ?? false;
-  }
-
   set bold(value: boolean) {
     if (this._bold === value) {
       return;
@@ -93,6 +90,24 @@ export abstract class Cell implements ICell {
     } else if (this.class.includes(textBoldClass)) {
       this.class.replace(textBoldClass, '');
     }
+  }
+
+  set hovered(hovered: boolean) {
+    if (!this._hoverStatusEnabled || hovered === this._hovered) {
+      return;
+    }
+
+    this._hovered = hovered;
+    this.changeStatus(hovered ? hoverStatus : this._prevStatus, !hovered);
+  }
+
+  get hovered(): boolean {
+    return this._hovered;
+  }
+
+  constructor(config?: ICellConfig) {
+    this.settings = config?.settings ?? {};
+    this._hoverStatusEnabled = config?.withHoverStatus ?? false;
   }
 
   abstract updateValue(...args: any[]);
@@ -154,12 +169,7 @@ export abstract class Cell implements ICell {
   }
 
   toggleHoverStatus(hovered: boolean): void {
-    if (!this._hoverStatusEnabled || hovered === this._hovered) {
-      return;
-    }
 
-    this._hovered = hovered;
-    this.changeStatus(hovered ? hoverStatus : this._prevStatus, !hovered);
   };
 }
 
