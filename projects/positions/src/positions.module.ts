@@ -7,6 +7,8 @@ import { NzDropDownModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
 import { LayoutModule } from 'layout';
 import { WindowHeaderModule } from 'window-header';
+import { PositionsFeed, TradeDataFeed } from 'trading';
+import { RealPositionsFeed, RealTradeDataFeed } from 'real-trading';
 
 @NgModule({
   imports: [
@@ -25,6 +27,16 @@ import { WindowHeaderModule } from 'window-header';
   ],
   declarations: [
     PositionsComponent,
+  ],
+  providers: [
+    {
+      provide: PositionsFeed,
+      useClass: RealPositionsFeed,
+    },
+    {
+      provide: TradeDataFeed,
+      useClass: RealTradeDataFeed,
+    },
   ],
 
 })
