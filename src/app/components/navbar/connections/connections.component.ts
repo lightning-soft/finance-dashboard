@@ -138,8 +138,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     this._accountsManager.toggleFavourite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {
-        },
+        () => setTimeout(() => this._setConnectionsListHeight()),
         err => console.error(err),
       );
   }
@@ -147,13 +146,15 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   handleDropdownToggle(opened: boolean): void {
     this.isConnectionsDropdownOpened = opened;
     this.handleToggleDropdown.emit(opened);
-    if (opened) {
-      setTimeout(() => this._setConnectionsListHeight());
-    }
+    setTimeout(() => this._setConnectionsListHeight());
   }
 
   private _setConnectionsListHeight(): void {
+    if (!this.isConnectionsDropdownOpened)
+      return;
+
     const maxHeight = 320;
+
     const connectionsOffsetHeight = this.connectionsList.nativeElement.offsetHeight;
     this.connectionsListHeight = connectionsOffsetHeight > maxHeight ? maxHeight : connectionsOffsetHeight;
   }
