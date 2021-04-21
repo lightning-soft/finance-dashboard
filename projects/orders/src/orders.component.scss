@@ -11,17 +11,6 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
-    nz-tabs-nav {
-      display: none;
-    }
-
-    &.show-header {
-
-    }
-
-    .ant-tabs-top-content {
-      height: 100%;
-    }
 
     window-header {
       .title {
@@ -61,9 +50,7 @@ $selectMarginBottom: 15px;
       height: 100%;
       text-align: right;
     }
-  }
 
-  &.show-header ::ng-deep {
     nz-tabs-nav {
       display: block;
     }
@@ -78,6 +65,17 @@ $selectMarginBottom: 15px;
       padding-top: 4px;
     }
   }
+
+  &.hide-header ::ng-deep {
+    nz-tabs-nav {
+      display: none;
+    }
+
+    .ant-tabs-top-content {
+      height: 100%;
+    }
+  }
+
 
   .select-container {
     position: relative;

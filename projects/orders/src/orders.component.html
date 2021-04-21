@@ -31,7 +31,6 @@
       <i class="icon-arrow-dropdown"></i>
     </div> -->
   </div>
-
   <ng-template #headerPanelTemplate>
     <div class="d-flex align-items-center">
       <!--      <button><i class="icon-group"></i></button>-->
@@ -84,19 +83,24 @@
 
   <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
     <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
-                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
-                 [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid
+        [(contextMenuState)]="contextMenuState"
+        (columnUpdate)="handleUpdateColumn($event)"
+        [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+        [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab('Filled')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
+      <data-grid (columnUpdate)="handleUpdateColumn($event)"
+                 [(contextMenuState)]="contextMenuState"
                  [showHeaderPanelInContextMenu]="true" #grid [items]="items"
                  [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeActiveTab('All')">
-      <data-grid [(showHeaderPanel)]="showHeaderPanel" (columnUpdate)="handleUpdateColumn($event)"
-                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
-                 [handlers]="handlers" [columns]="columns"></data-grid>
+      <data-grid
+        [(contextMenuState)]="contextMenuState"
+        (columnUpdate)="handleUpdateColumn($event)"
+        [showHeaderPanelInContextMenu]="true" #grid [items]="items"
+        [handlers]="handlers" [columns]="columns"></data-grid>
     </nz-tab>
     <!--    <nz-tab nzTitle="History">
           Content of Tab Pane 2

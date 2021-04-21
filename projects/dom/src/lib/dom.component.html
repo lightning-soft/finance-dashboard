@@ -83,7 +83,7 @@
                [showSettingsInContextMenu]="true"
                (settingsClicked)="openSettings()"
                [showHeaderPanelInContextMenu]="true"
-               [(showHeaderPanel)]="showHeaderPanel"
+               [(contextMenuState)]="dataGridMenuState"
                (columnUpdate)="onColumnUpdate($event)"
                [showContextMenuSettings]="false"
                (currentCellChanged)="onCurrentCellChanged($event)"

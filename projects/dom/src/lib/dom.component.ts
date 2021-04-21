@@ -106,6 +106,7 @@ interface IDomState {
   settings?: any;
   componentInstanceId: number;
   columns: any;
+  contextMenuState: any;
 }
 
 const directionsHints = {
@@ -263,6 +264,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   draggingOrders: IOrder[] = [];
   draggingDomItemId: Id;
 
+  dataGridMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
+
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
       new CellClickDataGridHandler<DomItem>({
@@ -345,8 +351,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   visibleRows = 0;
-  @HostBinding('class.header-panel')
-  showHeaderPanel = true;
+
+  @HostBinding('class.hide-header-panel')
+  get showHeaderPanel() {
+    return !this.dataGridMenuState?.showHeaderPanel;
+  }
 
   get items() {
     return this.dataGrid.items ?? [];
@@ -808,16 +817,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       recenter,
       clearCurrentTrades,
       clearTotalTrades,
-      allWindows
+      currentTotalAllWindows,
+      recenterTotalAllWindows,
+      currentTradesAllWindows,
     } = this._settings.general;
     if (clearCurrentTrades) {
-      if (allWindows) {
+      if (currentTradesAllWindows) {
         this.domKeyHandlers.clearCurrentTradesAllWindows();
       } else
         this.domKeyHandlers.clearCurrentTrades();
     }
     if (clearTotalTrades) {
-      if (allWindows) {
+      if (currentTotalAllWindows) {
         this.domKeyHandlers.clearTotalTradesDownAllWindows();
         this.domKeyHandlers.clearTotalTradesUpAllWindows();
       } else {
@@ -826,7 +837,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
     if (recenter) {
-      if (allWindows) {
+      if (recenterTotalAllWindows) {
         this.domKeyHandlers.autoCenterAllWindows();
       } else {
         this.domKeyHandlers.autoCenter();
@@ -1776,6 +1787,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (state?.columns)
       this.columns = state.columns;
     // for debug purposes
+    if (state && state.contextMenuState) {
+      this.dataGridMenuState = state.contextMenuState;
+    }
     if (!state)
       state = {} as any;
 
@@ -1878,8 +1892,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _getPriceSpecs(item: IOrder & { amount: number }, price) {
-    return  getPriceSpecs(item, price, this._tickSize);
+  private _getPriceSpecs(item: IOrder & { amount: number }, price) {
+    return getPriceSpecs(item, price, this._tickSize);
   }
 
   private _createOcoOrder() {

@@ -340,6 +340,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         symbol: 'ESM1',
         exchange: 'CME',
         tickSize: 0.25,
+        precision: 2,
         company: this._getInstrumentCompany(),
       },
       theme: getScxTheme(this._themesHandler.theme),

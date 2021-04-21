@@ -14,7 +14,9 @@
      [class.active]="isGroupSelected" class="icon-group "></i>
     </span>
 </window-header>
-<data-grid #grid [items]="builder.items" [handlers]="handlers" [columns]="columns"></data-grid>
+<data-grid #grid [items]="builder.items" [handlers]="handlers"
+           [(contextMenuState)]="contextMenuState"
+           [columns]="columns"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total p/l</span>
   <div [class.empty]="isEmpty(totalPl)" [class.negative]="(totalPl )< 0"

@@ -6,9 +6,9 @@ import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { ITimezone } from 'timezones-clock';
 import { catchError } from 'rxjs/operators';
+import { SaveLoaderService } from 'ui';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -66,7 +66,7 @@ export class SettingsService {
   constructor(
     public themeHandler: ThemesHandler,
     private _settingStore: SettingsStore,
-    private messageService: NzMessageService
+    private loaderService: SaveLoaderService,
   ) {
     this._init();
   }
@@ -102,10 +102,10 @@ export class SettingsService {
   }
 
   saveState(): void {
-    const { messageId } = this.messageService.loading('Saving', { nzDuration: 1000 });
+    const hide = this.loaderService.showLoader();
     this._settingStore.setItem(this.settings.value).toPromise()
       .finally(() => {
-        // this.messageService.remove(messageId);
+        hide();
       });
   }
 
@@ -138,8 +138,14 @@ export class SettingsService {
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
-    this.settings.next({ ...this.settings.value, ...settings });
-    if (saveInStorage)
-      this.saveState();
+    try {
+      const clonedSettings = jQuery.extend(true, {}, settings);
+      this.settings.next({ ...this.settings.value, ...clonedSettings });
+      if (saveInStorage)
+        this.saveState();
+    } catch (err) {
+      console.error(settings);
+    }
+
   }
 }
