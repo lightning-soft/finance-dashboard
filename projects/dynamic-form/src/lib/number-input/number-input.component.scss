@@ -1,13 +1,37 @@
+:host ::ng-deep {
+  .ant-input-number {
+    width: 60px;
 
-input {
-  width: 70px;
-  background:  #24262C;
+    .ant-input-number-input-wrap {
+      height: 100%;
+
+      .ant-input-number-input {
+        height: 100%;
+      }
+    }
+
+    .ant-input-number-handler-wrap {
+      opacity: 1 !important;
+
+      .ant-input-number-handler i {
+        width: 10px;
+        background-color: #fff;
+        mask-size: 6px;
+        margin-top: -3px;
+      }
+    }
+  }
+}
+
+nz-input-number {
+  background: #24262C;
   height: 20px;
   border: none !important;
   border-radius: 2px;
   font-size: .7rem;
 }
-.number-label{
+
+.number-label {
   margin-left: 10px;
   font-size: .7rem;
   line-height: 1.1rem;
