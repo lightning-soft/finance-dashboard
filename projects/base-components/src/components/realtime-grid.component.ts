@@ -40,7 +40,6 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
   dataGrid: DataGrid;
 
   protected _dataFeed: any;
-  protected _dataFeedHandler: OnTradeFn<T>;
   protected _levelOneDataFeed: Level1DataFeed;
   protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
   private _unsubscribeFunctions = [];
@@ -116,10 +115,6 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
         this._handleUpdateItems([this._dataFeed.merge(_oldItem, item)]);
       } else {
         this._handleCreateItems([item]);
-      }
-
-      if (this._dataFeedHandler) {
-        this._dataFeedHandler(_item);
       }
     }));
   }
