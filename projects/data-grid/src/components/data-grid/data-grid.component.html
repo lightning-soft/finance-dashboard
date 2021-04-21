@@ -1,17 +1,14 @@
 <div class="grid" #tableContainer></div>
-
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="columns-items column-main-menu">
     <li *ngIf="showHeaderPanelInContextMenu" nz-menu-item>
-      <label [nzChecked]="showHeaderPanel"
+      <label [(nzChecked)]="contextMenuState.showHeaderPanel"
              (click)="$event.preventDefault()"
-             [nzIndeterminate]="showHeaderPanel"
              (nzCheckedChange)="changeShowPanel($event)" nz-checkbox
       >Header Panel</label></li>
     <li nz-menu-item><label (click)="$event.preventDefault()"
-                            [nzIndeterminate]="showColumnHeaders"
                             (nzCheckedChange)="toggleColumns()" nz-checkbox
-                            [nzChecked]="showColumnHeaders"
+                            [(nzChecked)]="contextMenuState.showColumnHeaders"
     >Column Headers</label></li>
     <li nz-menu-divider></li>
     <li nz-menu-item (click)="setFitColumnsWidth()">Best Fit Columns</li>
@@ -22,7 +19,6 @@
           <label nz-checkbox
                  (click)="$event.stopPropagation();"
                  (nzCheckedChange)="changeColumnVisibility(item, $event)"
-                 [nzIndeterminate]="item.visible"
                  [nzChecked]="item.visible"
           >{{getColumnName(item)}}</label> <span (click)="$event.stopPropagation(); changeAlign(item)"
                                                                  class="align">

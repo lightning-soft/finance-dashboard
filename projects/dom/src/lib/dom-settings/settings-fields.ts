@@ -67,7 +67,7 @@ export const commonFields: IFieldConfig[] = [
         label: 'General Color',
         key: 'generalColors',
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
-        className: 'w-100 ml-0',
+        className: 'w-100 ml-0 field-item',
         fieldGroup: [
           getColor('Grid Line Color', (value) => {
             if (value)
@@ -103,8 +103,10 @@ export const commonFields: IFieldConfig[] = [
               { label: 'Price', key: 'price' },
               { label: 'Сurrent Ask', key: 'currentAsk' },
               { label: 'Сurrent Bid', key: 'currentBid' },
-            ], label: 'Columns View', extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
-          }), className: 'w-100'
+            ],
+            label: 'Columns View',
+            extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
+          }), className: 'w-100  field-item'
       }
     ]
   }),
@@ -160,12 +162,41 @@ export const generalFields: IFieldConfig[] = [
     fieldGroup: [
       getCheckboxes({
         checkboxes: [
-          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          {
+            key: 'closeOutstandingOrders',
+            label: 'Close Outstanding Orders When Position is Closed', config: {
+              className: 'close-current-orders',
+            }
+          },
           { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          {
+            label: 'All Windows', key: 'currentTradesAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearCurrentTrades',
+              }
+            }
+          },
+          // disableExpression({ label: 'All Windows',  key: 'currentTradesAllWindows' }, '!model.clearCurrentTrades'),
           { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          {
+            label: 'All Windows', key: 'currentTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearTotalTrades',
+              }
+            }
+          },
           { label: 'Re-Center On New Position', key: 'recenter' },
-          { label: 'All Windows', key: 'allWindows' },
+          {
+            label: 'All Windows', key: 'recenterTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.recenter',
+              }
+            }
+          },
         ],
+        extraConfig: {
+          fieldGroupClassName: 'd-grid reset-settings',
+        },
         label: 'Reset settings'
       }),
       getCheckboxes({
@@ -178,7 +209,8 @@ export const generalFields: IFieldConfig[] = [
           templateOptions: { min: 0, label: 'Account Digits To Hide' },
           key: 'digitsToHide',
           type: FieldType.Number,
-        }]
+        }],
+        extraConfig: { className: 'field-item' },
       }),
       new FieldConfig({
         label: 'Common View',
@@ -487,7 +519,7 @@ function getDepthConfig(label: string) {
             { key: 'histogramEnabled', label: `${label} Depth Histogram` },
             { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]
         }),
-        className: 'w-100',
+        className: 'w-100 depth-checkboxes',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
@@ -513,7 +545,11 @@ function getTotalFields(label: string, key: string) {
         getHightlightColor(),
         getFontColor(),
         getHistogramColor(),
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }] }),
+        getCheckboxes({
+          checkboxes: [{ key: 'histogramEnabled', label: `${label} Histogram` }], extraConfig: {
+            className: ' depth-checkboxes',
+          }
+        }),
         getTextAlign(),
         getHistogramOrientation(),
       ]

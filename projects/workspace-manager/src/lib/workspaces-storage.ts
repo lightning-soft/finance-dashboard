@@ -20,9 +20,6 @@ export class WorkspacesStore {
       }),
       skip(1),
       take(1),
-      tap((data) => {
-        console.warn(data);
-      })
     );
   }
 

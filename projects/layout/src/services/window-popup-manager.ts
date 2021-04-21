@@ -46,6 +46,13 @@ export class WindowPopupManager {
     return params?.windowId;
   }
 
+  getSaveConfigs() {
+    return {
+      windowId: this.windowId,
+      workspaceId: this.workspaceId,
+    };
+  }
+
   openWidget(widget) {
     const options: any = deepmerge({}, widget.layoutContainer.options);
     const name = widget.layoutContainer.type;

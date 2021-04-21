@@ -73,7 +73,9 @@ export class WindowsComponent implements OnInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the window?'
+        message: 'Do you want delete the window?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 
@@ -103,7 +105,10 @@ export class WindowsComponent implements OnInit {
     modal.afterClose.subscribe(result => {
       if (!result)
         return;
+
       let config = [];
+      this._workspacesService.save();
+
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
       this._workspacesService.createWindow(new WorkspaceWindow({
@@ -152,7 +157,7 @@ export class WindowsComponent implements OnInit {
   }
 
   save() {
-    this._workspacesService.save.next();
+    this._workspacesService.save$.next();
   }
 
   loadOnStartUp(id) {

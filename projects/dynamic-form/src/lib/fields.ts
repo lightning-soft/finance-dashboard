@@ -19,6 +19,7 @@ export class FieldConfig implements IFieldConfig {
   constructor(config: IFieldConfig) {
     Object.assign(this, {
       wrappers: ['form-field'],
+      className: 'field-item',
       fieldGroupClassName: 'd-flex flex-wrap two-rows',
       templateOptions: {
         label: config.label,

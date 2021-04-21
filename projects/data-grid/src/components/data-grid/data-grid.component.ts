@@ -40,6 +40,10 @@ interface GridStyles {
 
 export interface DataGridState {
   columns: any;
+  contextMenuState: {
+    showColumnHeaders: boolean;
+    showHeaderPanel: boolean;
+  };
 }
 
 export interface ICellChangedEvent<T> {
@@ -68,7 +72,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   @Output() currentCellChanged = new EventEmitter<ICellChangedEvent<T>>();
   @Output() settingsClicked = new EventEmitter();
-  @Output() showHeaderPanelChange = new EventEmitter<boolean>();
   @Output() columnUpdate = new EventEmitter<Column>();
 
   @Input() handlers: DataGridHandler[] = [];
@@ -87,7 +90,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   // private _subscribedEvents = [];
 
-  public showColumnHeaders = true;
   public rowHeight = 19;
   public list: TransferItem[] = [];
   public onDestroy$ = new Subject();
@@ -119,6 +121,23 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   set scrollTop(value: number) {
     this._grid.scrollTop = value;
   }
+
+  private _contextMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
+
+  @Input() set contextMenuState(value) {
+    if (value)
+      this._contextMenuState = value;
+  }
+
+  get contextMenuState() {
+    return this._contextMenuState;
+  }
+
+  @Output()
+  contextMenuStateChange = new EventEmitter<any>();
 
   constructor(
     private modalService: NzModalService,
@@ -192,7 +211,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.data = this._items;
     grid.attributes.allowSorting = false;
     grid.attributes.showRowHeaders = false;
-    grid.attributes.showColumnHeaders = true;
+    grid.attributes.showColumnHeaders = this.contextMenuState.showColumnHeaders;
     grid.attributes.snapToRow = true;
     grid.attributes.columnHeaderClickBehavior = 'none';
     // grid.applyComponentStyle();
@@ -254,7 +273,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   //   ];
   // }
   saveState(): DataGridState {
-    return { columns: this._grid.schema };
+    return {
+      columns: this._grid.schema,
+      contextMenuState: this.contextMenuState,
+    };
   }
 
   createComponentModal($event): void {
@@ -368,7 +390,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   toggleColumns() {
-    this.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
+    this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges();
   }
@@ -380,8 +402,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   changeShowPanel($event: boolean) {
-    this.showHeaderPanel = $event;
-    this.showHeaderPanelChange.emit($event);
+    this.contextMenuState.showHeaderPanel = $event;
   }
 
   onSettingsClicked() {

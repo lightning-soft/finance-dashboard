@@ -8,7 +8,12 @@ export enum ProfitClass {
 }
 
 export function getProfitLossClass(value: number): string {
-  return value < 0 ? ProfitClass.DOWN : ProfitClass.UP;
+  if (value < 0)
+    return ProfitClass.DOWN;
+  if (value > 0)
+    return ProfitClass.UP;
+  if (value === 0)
+    return ProfitClass.NONE;
 }
 
 export function getProfitClass(prevVal: number | string, nextVal: number | string): ProfitClass {
