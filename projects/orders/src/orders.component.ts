@@ -106,6 +106,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       },
     })
   ];
+
   @HostBinding('class.hide-header')
   get hideHeaderPanel() {
     return !this.contextMenuState?.showHeaderPanel;
@@ -172,7 +173,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return { ...this.dataGrid.saveState()};
+    return { ...this.dataGrid.saveState() };
   }
 
   loadState(state): void {
@@ -180,6 +181,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
     if (state && state.columns)
       this.columns = state.columns;
+
     if (state) {
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
@@ -198,7 +200,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   updateTitle() {
-    setTimeout(() => this.setTabTitle(`Orders (${ this.items.length })`));
+    setTimeout(() => this.setTabTitle(`Orders (${this.items.length})`));
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {

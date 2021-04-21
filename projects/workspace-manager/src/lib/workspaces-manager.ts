@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
-import { Id } from "communication";
+import { Id } from 'communication';
 
 export type WorkspaceId = number | string;
 
@@ -108,7 +108,7 @@ export class WorkspacesManager {
   public deleteWorkspace(id: WorkspaceId): void {
     const workspace = this.workspaces.value.find(w => w.id == id);
 
-    const workspaces = this.workspaces.value.filter(w => w.id !== id)
+    const workspaces = this.workspaces.value.filter(w => w.id !== id);
 
     if (!workspaces.length) {
       const w = new Workspace(DEFAULT_NAME);
@@ -136,9 +136,11 @@ export class WorkspacesManager {
 
     if (!workspace)
       return;
+
     const window = workspace.windows.find(item => item.isSelected);
     if (!window)
       return;
+
     window.config = state;
     this.workspaces.next(this.workspaces.value);
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
@@ -149,9 +151,11 @@ export class WorkspacesManager {
 
     if (!workspace)
       return;
+
     const workspaceWindow = workspace.windows.find(item => item.id === windowId);
     if (!workspaceWindow)
       return;
+
     workspaceWindow.config = state;
     this.workspaces.next(this.workspaces.value);
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
@@ -215,19 +219,23 @@ export class WorkspacesManager {
 
   duplicateWindow(windowId: any) {
     this.save$.next();
+
     const workspace = this.getActiveWorkspace();
     const window = workspace.windows.find(item => item.id === windowId);
     const newWindow = new WorkspaceWindow(window);
     workspace.windows.push(newWindow);
+
     this.switchWindow(newWindow.id);
   }
 
   deleteWindow(id: any) {
     const workspace = this.getActiveWorkspace();
     workspace.windows = workspace.windows.filter(item => item.id !== id);
+
     if (workspace.windows && workspace.windows.every(item => !item.isOnStartUp)) {
       workspace.windows[0].isOnStartUp = true;
     }
+
     if (!workspace.windows.length) {
       const workspaceWindow = this.createBlankWindow();
       workspace.windows.push(workspaceWindow);

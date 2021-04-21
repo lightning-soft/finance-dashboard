@@ -75,9 +75,11 @@ body {
 .ant-checkbox-input:focus + .ant-checkbox-inner {
   border-color: $checkboxBorderColor;
 }
+
 .ant-checkbox-wrapper[disabled] .ant-checkbox + span {
   color: $light3;
 }
+
 .ant-checkbox-checked .ant-checkbox-inner {
   border: 1px solid rgba($primary, 0.4);
   background: none;
@@ -99,6 +101,7 @@ body {
       border: 1px solid $light3 !important;
   }
 }
+
 .ant-checkbox-indeterminate.ant-checkbox-disabled, .ant-checkbox-indeterminate {
   .ant-checkbox-inner {
     &::after {

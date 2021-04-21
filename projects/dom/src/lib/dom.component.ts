@@ -1892,7 +1892,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _getPriceSpecs(item: IOrder & { amount: number }, price) {
+  private _getPriceSpecs(item: IOrder & { amount: number }, price) {
     return getPriceSpecs(item, price, this._tickSize);
   }
 

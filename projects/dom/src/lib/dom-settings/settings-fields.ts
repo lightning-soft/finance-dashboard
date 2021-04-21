@@ -546,7 +546,7 @@ function getTotalFields(label: string, key: string) {
         getFontColor(),
         getHistogramColor(),
         getCheckboxes({
-          checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }], extraConfig: {
+          checkboxes: [{ key: 'histogramEnabled', label: `${label} Histogram` }], extraConfig: {
             className: ' depth-checkboxes',
           }
         }),

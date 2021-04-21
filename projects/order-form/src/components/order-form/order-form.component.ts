@@ -14,7 +14,6 @@ import {
   OrderType,
   PositionsRepository, QuoteSide, UpdateType
 } from 'trading';
-import { filter } from "rxjs/operators";
 
 interface OrderFormState {
   instrument: IInstrument;

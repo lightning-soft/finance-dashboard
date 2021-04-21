@@ -13,8 +13,10 @@ export class SaveLoaderService {
   showLoader(): () => void {
     const messageId = this.messageService.loading('Saving').messageId;
     const startTime = Date.now();
+
     return () => {
       const endTime = Date.now();
+
       if (endTime - startTime >= minLoaderDuration) {
         this._hideLoader(messageId);
       } else {

@@ -5,7 +5,7 @@ import { WorkspacesManager } from 'workspace-manager';
 import { SaveLoaderService } from 'ui';
 
 @Injectable({ providedIn: 'root' })
-export class SaveService {
+export class SaveLayoutConfigService {
   constructor(
     private _windowPopupManager: WindowPopupManager,
     private _settingsService: SettingsService,
@@ -15,7 +15,6 @@ export class SaveService {
   }
 
   async save(config) {
-    console.log(config);
     if (this._windowPopupManager.isWindowPopup()) {
       const state = { ...this._windowPopupManager.getSaveConfigs(), state: config };
       const message = JSON.stringify(state);

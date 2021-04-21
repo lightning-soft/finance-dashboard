@@ -16,7 +16,7 @@ import {
   PositionStatus
 } from 'trading';
 import { PositionItem } from './models/position.item';
-import { NotifierService } from "notifier";
+import { NotifierService } from 'notifier';
 
 const headers = [
   'account',
@@ -56,7 +56,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
-  contextMenuState =  {
+  contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
@@ -269,14 +269,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     if (state && state.columns)
       this._columns = state.columns;
+
     if (state) {
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
     }
   }
 
-  isEmpty(number: number): boolean {
-    return number === 0;
+  isEmpty(numberInput: number): boolean {
+    return numberInput === 0;
   }
 
   private _loadAccount(): void {

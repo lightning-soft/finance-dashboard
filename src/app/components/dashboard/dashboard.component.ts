@@ -14,8 +14,8 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
-import { SaveService } from "../save.service";
-import { SaveLoaderService } from "ui";
+import { SaveLayoutConfigService } from '../save-layout-config.service';
+import { SaveLoaderService } from 'ui';
 
 enum WindowEvents {
   Message = 'message'
@@ -52,7 +52,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private trade: TradeHandler,
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
-    private saverService: SaveService,
+    private saverService: SaveLayoutConfigService,
     private loaderService: SaveLoaderService,
   ) {
   }
@@ -76,7 +76,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     / For performance reason avoiding ng zone in some cases
     */
     const zone = this._zone;
-    Element.prototype.addEventListener = function (...args) {
+    Element.prototype.addEventListener = function(...args) {
       const _this = this;
 
       if (['wm-container'].some(i => this.classList.contains(i)) ||
@@ -101,6 +101,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
+
       window.addEventListener(WindowEvents.Message, (event) => {
         try {
           const data = event.data;
@@ -113,10 +114,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
       });
     }
+
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
+
     window.onbeforeunload = (e) => {
       for (const fn of this._subscriptions)
         fn();
@@ -171,13 +174,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .pipe(
         filter(item => item),
         first(),
-        untilDestroyed(this)
-      ).subscribe(() => {
-      const workspaceId = +this._windowPopupManager.workspaceId;
-      this._workspaceService.switchWorkspace(workspaceId, false);
-      const windowId = +this._windowPopupManager.windowId;
-      this._workspaceService.switchWindow(windowId, false);
-    });
+        untilDestroyed(this))
+      .subscribe(() => {
+        const workspaceId = +this._windowPopupManager.workspaceId;
+        this._workspaceService.switchWorkspace(workspaceId, false);
+        const windowId = +this._windowPopupManager.windowId;
+        this._workspaceService.switchWindow(windowId, false);
+      });
   }
 
   private _setupWorkspaces() {
@@ -186,6 +189,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .subscribe(() => {
         this._save();
       });
+
     this._setupReloadWorkspaces();
   }
 
@@ -305,7 +309,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         ...widgetOptions.options
       });
     } else {
-      console.error(`Component ${ component } not found, make sure spelling is correct`);
+      console.error(`Component ${component} not found, make sure spelling is correct`);
     }
   }
 

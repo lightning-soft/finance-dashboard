@@ -105,8 +105,10 @@ export class WindowsComponent implements OnInit {
     modal.afterClose.subscribe(result => {
       if (!result)
         return;
+
       let config = [];
       this._workspacesService.save();
+
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
       this._workspacesService.createWindow(new WorkspaceWindow({

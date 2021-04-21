@@ -81,7 +81,7 @@ export class SettingsService {
       )
       .subscribe(
         (s: any) => s && this._updateState(s, false),
-        (e) => console.error(`Something goes wrong ${ e.message }`)
+        (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
 
@@ -138,11 +138,14 @@ export class SettingsService {
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
-    console.log(settings);
-    const clonedSettings = JSON.parse(JSON.stringify(settings));
-    console.log({ ...this.settings.value, ...clonedSettings });
-    this.settings.next({ ...this.settings.value, ...clonedSettings });
-    if (saveInStorage)
-      this.saveState();
+    try {
+      const clonedSettings = JSON.parse(JSON.stringify(settings));
+      this.settings.next({ ...this.settings.value, ...clonedSettings });
+      if (saveInStorage)
+        this.saveState();
+    } catch (err) {
+      console.error(settings);
+    }
+
   }
 }
