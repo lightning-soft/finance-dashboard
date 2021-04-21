@@ -314,6 +314,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._accountId;
   }
 
+  get currentPosition(): IPosition {
+    return this.positions.find(e => e.instrument.symbol == this.instrument.symbol && e.instrument.exchange == this.instrument.exchange);
+  }
+
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
@@ -700,7 +704,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   getPl(): string {
     const i = this.instrument;
-    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
+    const position = this.currentPosition;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
     const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
 
@@ -777,22 +781,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       closeOutstandingOrders,
     } = this._settings.general;
     const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
+
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
+    }
+
     if (isNewPosition) {
       // #TODO test all windows
       this.applySettingsOnNewPosition();
-      this._fillPL(newPosition);
+      this._fillPL();
     } else {
       if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
         && newPosition.side === Side.Closed) {
         this.deleteOutstandingOrders();
       }
       this._removePL();
-    }
-    if (oldPosition) {
-      const index = this.positions.findIndex(item => item.id === newPosition.id);
-      this.positions[index] = newPosition;
-    } else {
-      this.positions.push(newPosition);
     }
   }
 
@@ -802,7 +808,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  private _fillPL(position: IPosition) {
+  private _fillPL() {
+    const position = this.currentPosition;
     const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
 
@@ -964,6 +971,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             }
           }
 
+          this._fillPL();
           this._loadOrders();
           this._loadVolumeHistory();
         },
@@ -1022,7 +1030,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe(items => {
         this.positions = items.data;
         const i = this.instrument;
-        this._fillPL(this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange));
+        this._fillPL();
       });
   }
 
