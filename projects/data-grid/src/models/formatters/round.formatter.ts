@@ -7,7 +7,7 @@ export class RoundFormatter implements IFormatter {
   }
 
   format(value: number): string {
-    if (!value)
+    if (value == null)
       return '';
 
     return value.toFixed(this._digits);
