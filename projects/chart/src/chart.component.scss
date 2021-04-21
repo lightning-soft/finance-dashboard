@@ -732,11 +732,12 @@ instrument-select {
       .scxToggleIndicatorTitles {
         margin-top: 56px;
         margin-left: 3px;
+        display: none !important;
       }
 
       .scxIndicatorTitle {
         margin-left: 3px;
-
+        display: none !important;
         .scxPanelTitleCaption {
           display: inline-block !important;
         }
