@@ -10,10 +10,11 @@ import {
   AccountRepository,
   IPosition,
   IPositionParams,
-  IQuote,
   PositionsFeed,
   PositionsRepository,
-  PositionStatus
+  PositionStatus,
+  TradeDataFeed,
+  TradePrint
 } from 'trading';
 import { PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
@@ -74,12 +75,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }),
   ];
 
-  protected _levelOneDataFeedHandler = (quote: IQuote) => {
-    this.items.map(i => i.updateUnrealized(quote));
-    this.dataGrid?.detectChanges();
-    this.updatePl();
-  }
-
   get columns() {
     return this._columns;
   }
@@ -124,6 +119,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _dataFeed: PositionsFeed,
     protected _notifier: NotifierService,
     private _accountRepository: AccountRepository,
+    private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
     this.autoLoadData = false;
@@ -136,6 +132,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       unwrap: (item: PositionItem) => item.position,
     });
     this._columns = headers.map(convertToColumn);
+
+    this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
+      this.items.map(i => i.updateUnrealized(trade));
+      this.dataGrid?.detectChanges();
+      this.updatePl();
+    }));
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');

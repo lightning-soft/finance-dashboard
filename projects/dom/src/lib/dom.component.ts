@@ -703,17 +703,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   getPl(): string {
-    const i = this.instrument;
     const position = this.currentPosition;
-    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
-    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
 
-    if (this.dailyInfo && position) {
-      return calculatePL(position, this.dailyInfo.close, this._tickSize, i.contractSize, includeRealizedPl)
-        .toFixed(precision);
+    if (!position) {
+      return '-';
     }
 
-    return '';
+    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+    const pl = this._lastChangesItem[Columns.LTQ]?.orders.getPl() ?? 0;
+    const value = includeRealizedPl ? pl + position.realized : pl;
+    const i = this.instrument;
+    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+
+    return value.toFixed(precision);
   }
 
   private _loadHistory(): void {

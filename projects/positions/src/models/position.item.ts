@@ -1,6 +1,6 @@
 import { Id } from 'base-components';
 import { DataCell, IconCell, IFormatter, NumberCell, RoundFormatter } from 'data-grid';
-import { IPosition, IQuote, Side } from 'trading';
+import { IPosition, Side, TradePrint } from 'trading';
 
 export class PositionItem {
   private _priceFormatter: IFormatter;
@@ -48,12 +48,11 @@ export class PositionItem {
     this.close.updateClass(iconClass);
   }
 
-  public updateUnrealized(trade: IQuote) {
+  public updateUnrealized(trade: TradePrint) {
     if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
       return;
     const currentPrice = +this.price.value;
-    const { volume } = trade;
-    const price = trade.price;
+    const { volume, price } = trade;
     switch (this.side.value) {
       case Side.Long:
         this.unrealized.updateValue(this._calculateLongUnrealized(currentPrice, volume, price));
