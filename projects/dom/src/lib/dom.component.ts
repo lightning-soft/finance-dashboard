@@ -264,7 +264,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   draggingOrders: IOrder[] = [];
   draggingDomItemId: Id;
 
-  dataGridMenuState =  {
+  dataGridMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
@@ -552,7 +552,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ DomSettingsSelector }`;
+    return `${this.componentInstanceId}.${DomSettingsSelector}`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -561,7 +561,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const common = settings.common;
     const general = settings?.general;
-    const getFont = (fontWeight) => `${ fontWeight || '' } ${ common.fontSize }px ${ common.fontFamily }`;
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
     const hiddenColumns: any = {};
 
     const hasSplitOrdersChanged = this._settings.orders.split !== settings.orders.split;
@@ -649,8 +649,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${ key }${ _key }`] = obj[_key];
-          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
         }
       }
     }
@@ -2007,7 +2007,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 
