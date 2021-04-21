@@ -64,7 +64,7 @@ export class WorkspacesManager {
     if (base != null && base !== blankBase) {
       this.save$.next();
       const baseWorkspace = workspaces.find(w => w.id === base);
-      workspace.windows = JSON.parse(JSON.stringify(baseWorkspace.windows));
+      workspace.windows = jQuery.extend(true, [], baseWorkspace.windows);
       this.workspaces.next(workspaces);
     } else {
       const window = this.createBlankWindow();
