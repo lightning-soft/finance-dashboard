@@ -3,6 +3,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
 import { Id } from 'communication';
+import { deepAssign } from "../../../base-components/src/utils";
 
 export type WorkspaceId = number | string;
 
@@ -25,7 +26,7 @@ export class WorkspacesManager {
       .getItems()
       .subscribe(
         (w) => this._handleStoreWorkspaces(w),
-        (e) => console.error(`Something goes wrong ${ e.message }`)
+        (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
 
@@ -58,22 +59,21 @@ export class WorkspacesManager {
     const workspace = new Workspace(name);
 
     let workspaces = [...this.workspaces.value, workspace];
-    workspaces = this._switchWorkspace(workspaces, workspace.id);
 
 
     if (base != null && base !== blankBase) {
-      const baseWorkspace = workspaces.find(w => w.id === base);
-      workspace.windows = baseWorkspace.windows;
-      this.workspaces.next(workspaces);
       this.save$.next();
+      const baseWorkspace = workspaces.find(w => w.id === base);
+      workspace.windows = JSON.parse(JSON.stringify(baseWorkspace.windows));
+      this.workspaces.next(workspaces);
     } else {
       const window = this.createBlankWindow();
       workspace.windows.push(window);
     }
-
+    workspaces = this._switchWorkspace(workspaces, workspace.id);
     this.workspaces.next(workspaces);
+    this.save$.next();
     this.reload$.next();
-    setTimeout(() => this.save$.next(), 250);
   }
 
   private createBlankWindow() {
