@@ -160,6 +160,8 @@ export class WindowManagerService {
   }
 
   private _normalizeCordsConsideringBounds(cords: Cords): Cords {
+    cords = {...cords};
+
     if (!this.bounds)
       return;
 
