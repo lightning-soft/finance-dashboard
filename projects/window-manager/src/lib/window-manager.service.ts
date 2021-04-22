@@ -137,7 +137,7 @@ export class WindowManagerService {
 
   private calculateShift({ width, height, containerWidth, containerHeight }): Cords {
     let result: Cords;
-    const shiftedPosition: Cords = this._normalizePositionConsideringBounds({ x: Shift, y: Shift });
+    const shiftedPosition: Cords = this._normalizeCordsConsideringBounds({ x: Shift, y: Shift });
 
     do {
       const windowWithSameCords = this.wm.windows.find(w => w.x === shiftedPosition.x && w.y === shiftedPosition.y);
@@ -159,7 +159,7 @@ export class WindowManagerService {
     return result;
   }
 
-  private _normalizePositionConsideringBounds(cords: Cords): Cords {
+  private _normalizeCordsConsideringBounds(cords: Cords): Cords {
     if (!this.bounds)
       return;
 
