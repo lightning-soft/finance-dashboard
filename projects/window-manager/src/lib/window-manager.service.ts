@@ -160,10 +160,10 @@ export class WindowManagerService {
   }
 
   private _normalizeCordsConsideringBounds(cords: Cords): Cords {
-    cords = {...cords};
-
     if (!this.bounds)
       return;
+
+    cords = {...cords};
 
     if (this.bounds.top > cords.y)
       cords.y = this.bounds.top;
