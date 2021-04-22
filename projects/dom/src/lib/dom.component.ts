@@ -782,7 +782,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const {
       closeOutstandingOrders,
     } = this._settings.general;
-    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
+
+    const isOldPositionOpened = oldPosition && oldPosition.side !== Side.Closed;
+    const isNewPositionOpened = newPosition.side !== Side.Closed;
+
+    const isNewPosition = !isOldPositionOpened && isNewPositionOpened;
 
     if (oldPosition) {
       const index = this.positions.findIndex(item => item.id === newPosition.id);
@@ -794,12 +798,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (isNewPosition) {
       // #TODO test all windows
       this.applySettingsOnNewPosition();
+    } else if (closeOutstandingOrders && isOldPositionOpened && !isNewPositionOpened) {
+      this.deleteOutstandingOrders();
+    }
+
+    if (isNewPositionOpened) {
       this._fillPL();
     } else {
-      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
-        && newPosition.side === Side.Closed) {
-        this.deleteOutstandingOrders();
-      }
       this._removePL();
     }
   }
@@ -2049,10 +2054,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 }
 
-function diffSize(position: IPosition) {
-  return position.buyVolume - position.sellVolume;
-}
-
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
@@ -2083,7 +2084,7 @@ export function capitalizeFirstLetter(string: string) {
 }
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
-  if (!position)
+  if (!position || position.side === Side.Closed)
     return null;
 
   const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
