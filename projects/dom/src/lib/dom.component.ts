@@ -705,7 +705,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   getPl(): string {
     const position = this.currentPosition;
 
-    if (!position) {
+    if (!position || position.side === Side.Closed) {
       return '-';
     }
 
