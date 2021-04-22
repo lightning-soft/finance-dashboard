@@ -5,8 +5,6 @@ import { Notification, NotificationStatus, NotificationType } from './notificati
 import { NotificationId } from './type';
 import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
-import { NetworkService } from 'network';
-import { filter } from 'rxjs/operators';
 
 
 @Injectable()
@@ -18,15 +16,9 @@ export class NotificationService extends NotifierService {
 
   constructor(
     private _webSocketService: WebSocketService,
-    private _networkService: NetworkService,
   ) {
     super();
     this._webSocketService.on(this._handleStream.bind(this));
-    this._networkService.isOnline$
-      .pipe(filter(item => !item))
-      .subscribe(() => {
-        this.showError('Internet connection is lost');
-      });
   }
 
   showError(message: any, defaultMessage?: string) {
@@ -74,7 +66,7 @@ export class NotificationService extends NotifierService {
     const notification = reducer(msg);
 
     if (notification) {
-      this.addNotification(notification);
+        this.addNotification(notification);
     }
   }
 

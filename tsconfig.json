@@ -19,7 +19,7 @@
       "time-select": [
         "dist/time-select/time-select",
         "dist/time-select"
-      ],
+      ]
     }
   },
   "references": [

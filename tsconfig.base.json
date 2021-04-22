@@ -58,9 +58,6 @@
       "communication": [
         "projects/communication/index"
       ],
-      "network": [
-        "projects/network/index"
-      ],
       "fake-communication": [
         "projects/fake-communication/index"
       ],
