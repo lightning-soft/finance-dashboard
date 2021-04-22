@@ -81,7 +81,9 @@
     </div>
   </ng-template>
 
-  <nz-tabset [nzSelectedIndex]="2" [nzTabBarExtraContent]="headerPanelTemplate">
+  <nz-tabset [nzSelectedIndex]="2"
+             [nzTabBarExtraContent]="headerPanelTemplate"
+             (contextmenu)="grid.createComponentModal($event)">
     <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
       <data-grid
         [(contextMenuState)]="contextMenuState"
