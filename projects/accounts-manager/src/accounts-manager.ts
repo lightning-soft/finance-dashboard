@@ -3,22 +3,26 @@ import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AlertType, WebSocketService } from 'communication';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
+import { catchError, concatMap, delay, filter, map, skip, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 import { HttpErrorInterceptor } from './interceptor';
+import { NetworkService } from 'network';
+import { Id } from 'communication';
 
 @Injectable()
 @UntilDestroy()
 export class AccountsManager {
   private _activeConnection = new BehaviorSubject<IConnection>(null);
   private _connections = new BehaviorSubject<IConnection[]>([]);
+  private lastConnectedId?: Id;
   public activeConnection: Observable<IConnection> = this._activeConnection.asObservable();
   public connections: Observable<IConnection[]> = this._connections.asObservable();
 
   constructor(
     protected _connectionsRepository: ConnectionsRepository,
     private _webSocketService: WebSocketService,
-    private _interceptor: HttpErrorInterceptor
+    private _interceptor: HttpErrorInterceptor,
+    private _networkService: NetworkService,
   ) {
   }
 
@@ -41,15 +45,37 @@ export class AccountsManager {
             item.connected = false;
             delete item.connectionData;
           }
+          if (item.connected && item.connectOnStartUp) {
+            this.lastConnectedId = item.id;
+          }
           return item;
         });
         this._connections.next(connections);
         this._activeConnection.next(this.getActiveConnection());
       });
-
+    this._initNetworkHandler();
     return this.connections.pipe(
       take(2), // first default value
     ).toPromise();
+  }
+
+  private _initNetworkHandler() {
+    this._networkService.isOnline$.pipe(
+      filter(item => !item)
+    ).subscribe((value) => {
+      this._deactivateConnection();
+    });
+    this._networkService.isOnline$.pipe(
+      filter(item => item),
+      skip(1),
+      delay(100),
+    ).subscribe((value) => {
+      if (!this.lastConnectedId)
+        return;
+      const conn = this.items.find(item => item.id === this.lastConnectedId);
+      conn.connected = !!conn.connectionData;
+      this.onUpdated(conn);
+    });
   }
 
   private _handleStream(msg: any): void {
@@ -68,8 +94,9 @@ export class AccountsManager {
   private _deactivateConnection(): void {
     const connection = this.getActiveConnection();
     if (connection) {
-      this._connectionsRepository.updateItem({ ...connection, connected: false })
-        .pipe(tap(() => this.onUpdated({ ...connection, connected: false })))
+      connection.connected = false;
+      this.onUpdated(connection);
+      this._connectionsRepository.updateItem(connection)
         .subscribe();
     }
   }
@@ -92,7 +119,13 @@ export class AccountsManager {
           if (oldConnection && !item.error)
             return this.disconnect(oldConnection)
               .pipe(
-                map(conn => item)
+                map(conn => {
+                  return item;
+                }),
+                catchError((err, caught) => {
+                  console.error(err);
+                  return of(item);
+                }),
               );
           return of(item);
         }),
@@ -100,14 +133,20 @@ export class AccountsManager {
           return this._connectionsRepository.updateItem(item)
             .pipe(map(_ => item));
         }),
-        tap((conn) => this.onUpdated(conn, !conn.error)));
+        tap((conn) => {
+          this.onUpdated(conn, !conn.error);
+          this.lastConnectedId = conn.id;
+        }));
   }
 
   disconnect(connection: IConnection): Observable<void> {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
         map(() => ({ ...connection, connected: false })),
-        tap((updatedConnection) => this.onUpdated(updatedConnection)),
+        tap((updatedConnection) => {
+          this.onUpdated(updatedConnection);
+          this.lastConnectedId = null;
+        }),
         concatMap((updatedConnection) => this._connectionsRepository.updateItem(updatedConnection)),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
