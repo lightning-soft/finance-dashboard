@@ -389,7 +389,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.onDestroy$.complete();
   }
 
-  toggleColumns() {
+  toggleColumns(): void {
     this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges();

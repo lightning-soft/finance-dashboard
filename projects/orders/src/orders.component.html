@@ -1,5 +1,5 @@
 <window-header
-  (contextmenu)="grid.createComponentModal($event)"
+  (contextmenu)="dataGrid?.createComponentModal($event)"
   className="widget" [window]="this">
 
   <account-select
@@ -82,30 +82,34 @@
   </ng-template>
 
   <nz-tabset [nzSelectedIndex]="2"
+             (contextmenu)="dataGrid?.createComponentModal($event)"
              [nzTabBarExtraContent]="headerPanelTemplate"
-             (contextmenu)="grid.createComponentModal($event)">
+           >
     <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
-      <data-grid
-        [(contextMenuState)]="contextMenuState"
-        (columnUpdate)="handleUpdateColumn($event)"
-        [showHeaderPanelInContextMenu]="true" #grid [items]="items"
-        [handlers]="handlers" [columns]="columns"></data-grid>
+      <ng-template [ngIf]="activeTab === 'Working'">
+        <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
+      </ng-template>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab('Filled')">
-      <data-grid (columnUpdate)="handleUpdateColumn($event)"
-                 [(contextMenuState)]="contextMenuState"
-                 [showHeaderPanelInContextMenu]="true" #grid [items]="items"
-                 [handlers]="handlers" [columns]="columns"></data-grid>
+      <ng-template [ngIf]="activeTab === 'Filled'">
+        <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
+      </ng-template>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeActiveTab('All')">
-      <data-grid
-        [(contextMenuState)]="contextMenuState"
-        (columnUpdate)="handleUpdateColumn($event)"
-        [showHeaderPanelInContextMenu]="true" #grid [items]="items"
-        [handlers]="handlers" [columns]="columns"></data-grid>
+    <ng-template [ngIf]="activeTab === 'All'">
+      <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
+    </ng-template>
     </nz-tab>
-    <!--    <nz-tab nzTitle="History">
-          Content of Tab Pane 2
-        </nz-tab>-->
   </nz-tabset>
 </div>
+
+<ng-template #gridTemplate>
+  <data-grid #grid
+             (columnUpdate)="handleUpdateColumn($event)"
+             [(contextMenuState)]="contextMenuState"
+             [showHeaderPanelInContextMenu]="true"
+             [items]="items"
+             [handlers]="handlers"
+             [columns]="columns"
+  ></data-grid>
+</ng-template>
