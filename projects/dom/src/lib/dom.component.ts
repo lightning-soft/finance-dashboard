@@ -44,7 +44,6 @@ import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.ite
 import { HistogramCell } from './histogram/histogram.cell';
 import { IWindow } from 'window-manager';
 import { FormActions, SideOrderFormComponent, OcoStep, getPriceSpecs } from 'base-order-form';
-import { filter } from "rxjs/operators";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -1744,6 +1743,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case LayoutNodeEvent.Open:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
+      case LayoutNodeEvent.MakeVisible:
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:

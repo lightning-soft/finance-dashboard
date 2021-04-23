@@ -86,7 +86,9 @@ export class WindowsComponent implements OnInit {
   }
 
   duplicate(id: any) {
-    this._workspacesService.duplicateWindow(id);
+    this.updateWindow();
+    const window = this._workspacesService.duplicateWindow(id);
+    this.selectWindow(window.id);
   }
 
   createWindow() {
@@ -107,57 +109,33 @@ export class WindowsComponent implements OnInit {
         return;
 
       let config = [];
-      this._workspacesService.save();
 
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
-      this._workspacesService.createWindow(new WorkspaceWindow({
+
+      this.updateWindow();
+
+      const workspaceWindow = this._workspacesService.createWindow(new WorkspaceWindow({
         name: result.name,
         config,
       }));
+      this.selectWindow(workspaceWindow.id);
     });
   }
 
   selectWindow(windowId: Id) {
     if (this.currentWindowId !== windowId) {
-      if (this._settingsService.settings.value.autoSave) {
-        this._saveAndSwitchWindow(windowId, false);
-      } else {
-        const modal = this._modalService.create({
-          nzTitle: 'Saving window',
-          nzContent: ConfirmModalComponent,
-          nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
-          nzComponentParams: {
-            message: 'Do you want save changes in window?',
-            confirmText: 'Yes',
-            cancelText: 'No'
-          },
-        });
-        modal.afterClose.subscribe(async (res) => {
-          if (!res) {
-            this.formControl.patchValue(this.currentWindowId);
-            return;
-          }
-
-          if (res.confirmed) {
-            this._saveAndSwitchWindow(windowId);
-          } else {
-            this._saveAndSwitchWindow(windowId, false);
-          }
-        });
-      }
-
+      this.updateWindow();
+      this._workspacesService.switchWindow(windowId);
     }
   }
 
-  private _saveAndSwitchWindow(windowId, saveInStorage = true) {
-    this._workspacesService.switchWindow(windowId, saveInStorage);
-    this.currentWindowId = windowId;
-    this.formControl.patchValue(windowId);
+  updateWindow() {
+    this._workspacesService.updateWindow(this._workspacesService.getActiveWorkspace().id, this.currentWindowId, this.layout.getState());
   }
 
   save() {
-    this._workspacesService.save$.next();
+    this._workspacesService.save();
   }
 
   loadOnStartUp(id) {

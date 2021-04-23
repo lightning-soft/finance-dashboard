@@ -3,7 +3,6 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
 import { Id } from 'communication';
-import { deepAssign } from "../../../base-components/src/utils";
 
 export type WorkspaceId = number | string;
 
@@ -13,7 +12,8 @@ const DEFAULT_NAME = 'Default';
 export class WorkspacesManager {
 
   public workspaces: BehaviorSubject<Workspace[]> = new BehaviorSubject([]);
-  public reload$ = new Subject<void>();
+  public reloadWorkspace$ = new Subject<void>();
+  public reloadWindows$ = new Subject<void>();
   public save$ = new Subject<void>();
   public workspaceInit = new BehaviorSubject<boolean>(false);
 
@@ -48,7 +48,7 @@ export class WorkspacesManager {
         return item;
       });
       this.updateWorkspaces();
-      this.reload$.next();
+      this.reloadWorkspace$.next();
     } else {
       this.createWorkspace(DEFAULT_NAME);
     }
@@ -70,10 +70,10 @@ export class WorkspacesManager {
       const window = this.createBlankWindow();
       workspace.windows.push(window);
     }
+    this.save$.next();
     workspaces = this._switchWorkspace(workspaces, workspace.id);
     this.workspaces.next(workspaces);
-    this.save$.next();
-    this.reload$.next();
+    this.reloadWorkspace$.next();
   }
 
   private createBlankWindow() {
@@ -90,7 +90,7 @@ export class WorkspacesManager {
 
     const workspaces = this._switchWorkspace(this.workspaces.value, id);
     this.workspaces.next(workspaces);
-    this.reload$.next();
+    this.reloadWorkspace$.next();
   }
 
   private _switchWorkspace(workspaces: Workspace[], id: WorkspaceId): Workspace[] {
@@ -124,7 +124,7 @@ export class WorkspacesManager {
 
     this.workspaces.next(workspaces);
     if (workspace.isActive)
-      this.reload$.next();
+      this.reloadWorkspace$.next();
   }
 
   public getWorkspaceConfig() {
@@ -146,7 +146,7 @@ export class WorkspacesManager {
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
   }
 
-  public async saveWindow(workspaceId: WorkspaceId, windowId: Id, state: any) {
+  public updateWindow(workspaceId: WorkspaceId, windowId: Id, state: any) {
     const workspace = this.workspaces.value.find(w => w.id === workspaceId);
 
     if (!workspace)
@@ -158,6 +158,10 @@ export class WorkspacesManager {
 
     workspaceWindow.config = state;
     this.workspaces.next(this.workspaces.value);
+  }
+
+  public async saveWindow(workspaceId: WorkspaceId, windowId: Id, state: any) {
+    this.updateWindow(workspaceId, windowId, state);
     await this._workspacesStore.setItems(this.workspaces.value).toPromise();
   }
 
@@ -193,17 +197,13 @@ export class WorkspacesManager {
     this.save$.next();
   }
 
-  switchWindow(windowId, emitSave = true) {
-    if (emitSave) {
-      this.save$.next();
-    }
-
+  switchWindow(windowId) {
     const workspace = this.getActiveWorkspace();
     workspace.windows = workspace.windows.map(item => {
       item.isSelected = item.id === windowId;
       return item;
     });
-    this.reload$.next();
+    this.reloadWindows$.next();
 
     this.updateWorkspaces();
   }
@@ -214,18 +214,14 @@ export class WorkspacesManager {
     workspaceWindow.name = result;
     this.workspaces.next(this.workspaces.value);
     this._workspacesStore.setItems(this.workspaces.value);
-    this.save$.next();
   }
 
-  duplicateWindow(windowId: any) {
-    this.save$.next();
-
+  duplicateWindow(windowId: any): WorkspaceWindow {
     const workspace = this.getActiveWorkspace();
     const window = workspace.windows.find(item => item.id === windowId);
     const newWindow = new WorkspaceWindow(window);
     workspace.windows.push(newWindow);
-
-    this.switchWindow(newWindow.id);
+    return newWindow;
   }
 
   deleteWindow(id: any) {
@@ -245,16 +241,14 @@ export class WorkspacesManager {
       this.switchWindow(w.id);
     } else {
       this.updateWorkspaces();
-      this._workspacesStore.setItems(this.workspaces.value);
-      //  this.save
     }
   }
 
-  createWindow(workspaceWindow: WorkspaceWindow) {
+  createWindow(workspaceWindow: WorkspaceWindow): WorkspaceWindow {
     const workspace = this.getActiveWorkspace();
     workspace.windows.push(workspaceWindow);
     this.updateWorkspaces();
-    this.switchWindow(workspaceWindow.id);
+    return workspaceWindow;
   }
 
   updateWorkspaces() {

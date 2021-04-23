@@ -170,6 +170,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   _loadPopupWindow() {
     this._subscribeOnKeys();
     this.layout.loadEmptyState();
+    this.setupReloadWindows();
     this._workspaceService.workspaceInit
       .pipe(
         filter(item => item),
@@ -179,7 +180,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         const workspaceId = +this._windowPopupManager.workspaceId;
         this._workspaceService.switchWorkspace(workspaceId, false);
         const windowId = +this._windowPopupManager.windowId;
-        this._workspaceService.switchWindow(windowId, false);
+        this._workspaceService.switchWindow(windowId);
       });
   }
 
@@ -194,7 +195,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _setupReloadWorkspaces() {
-    this._workspaceService.reload$
+    this._workspaceService.reloadWorkspace$
       .pipe(
         untilDestroyed(this)
       )
@@ -207,6 +208,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
         const config = this._workspaceService.getWorkspaceConfig();
         this.layout.loadState(config);
+      });
+    this.setupReloadWindows();
+  }
+
+  setupReloadWindows() {
+    this._workspaceService.reloadWindows$
+      .pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(() => {
+        const workspaces = this._workspaceService.workspaces.value;
+        const activeWorkspace = workspaces.find(w => w.isActive);
+
+        if (!activeWorkspace)
+          return;
+
+        const config = this._workspaceService.getWorkspaceConfig();
+        this.layout.loadState(config, false);
       });
   }
 
