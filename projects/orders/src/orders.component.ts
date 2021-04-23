@@ -1,7 +1,7 @@
-import { Component, HostBinding, Injector, OnChanges, SimpleChanges } from '@angular/core';
-import { RealtimeGridComponent, StringHelper } from 'base-components';
+import { Component, HostBinding, Injector, ViewChild } from '@angular/core';
+import { RealtimeGridComponent } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
+import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
@@ -10,8 +10,13 @@ import { HeaderItem, OrderItem, transformHeaderColumn } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
-
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
+}
+
+enum Tab {
+  Working,
+  Filled,
+  All
 }
 
 const allTypes = 'All';
@@ -24,6 +29,8 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
 })
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
+  @ViewChild('grid', {static: false}) dataGrid: DataGrid;
+
   headerCheckboxCell = new CheckboxCell();
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
@@ -31,6 +38,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   cancelMenuOpened = false;
   allTypes = allTypes;
   builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
+  activeTab: Tab = Tab.All;
   selectedOrders: IOrder[] = [];
   contextMenuState =  {
     showHeaderPanel: true,
@@ -38,6 +46,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   };
 
   readonly orderType = OrderType;
+  readonly tab = Tab;
   readonly headers: (HeaderItem | string)[] = [
     ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell, style: { textAlign: 'center' } }],
     ['averageFillPrice', 'Average Fill Price'],
@@ -137,15 +146,17 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
 
-  changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
+  changeActiveTab(tab: Tab): void {
+    this.activeTab = tab;
+
     switch (tab) {
-      case 'All':
+      case Tab.All:
         this.builder.setParams({ viewItemsFilter: null });
         break;
-      case 'Filled':
+      case Tab.Filled:
         this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
         break;
-      case 'Working':
+      case Tab.Working:
         this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
         break;
     }
