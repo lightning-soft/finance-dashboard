@@ -56,7 +56,7 @@ export const commonFields: IFieldConfig[] = [
       },
       {
         type: FieldType.Number,
-        templateOptions: { label: 'Font size' },
+        templateOptions: { label: 'Font size', min: 1 },
         key: 'fontSize',
         getCss: (value) => {
           if (value && value.fontSize)
@@ -236,7 +236,7 @@ export const generalFields: IFieldConfig[] = [
             ], extraConfig: { className: 'w-100' }
           }),
           {
-            templateOptions: { label: 'Auto Center Ticks' },
+            templateOptions: { label: 'Auto Center Ticks',  min: 1, },
             key: 'autoCenterTicks',
             className: 'ml-0 mr-0',
             type: FieldType.Number,
@@ -275,17 +275,17 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
         fieldGroup: [
           {
-            templateOptions: { label: 'Market Depth' },
+            templateOptions: { label: 'Market Depth',  min: 1, },
             key: 'marketDepth',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Bid/Ask Delta Filter' },
+            templateOptions: { label: 'Bid/Ask Delta Filter', min: 0 },
             key: 'bidAskDeltaFilter',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: ' Bid/Ask Delta Depth' },
+            templateOptions: { label: ' Bid/Ask Delta Depth', min: 1 },
             key: 'bidAskDeltaDepth',
             type: FieldType.Number,
           },
@@ -304,27 +304,27 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap ',
         fieldGroup: [
           {
-            templateOptions: { label: 'Clear Trades Timer Interval' },
+            templateOptions: { label: 'Clear Trades Timer Interval',  min: 1 },
             key: 'clearTradersTimer',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Update Interval' },
+            templateOptions: { label: 'Update Interval', min: 1 },
             key: 'updateInterval',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Scroll Wheel Sensitivity' },
+            templateOptions: { label: 'Scroll Wheel Sensitivity', min: 1 },
             key: 'scrollWheelSensitivity',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Order  Quantity Step' },
+            templateOptions: { label: 'Order  Quantity Step', min: 1 },
             key: 'orderQuantityStep',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Momentum Interval ms' },
+            templateOptions: { label: 'Momentum Interval ms', min: 1 },
             key: 'momentumIntervalMs',
             type: FieldType.Number,
           },
@@ -524,7 +524,7 @@ function getDepthConfig(label: string) {
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
       getHistogramOrientation(),
-      getNumber({ key: 'largeSize', label: `Large ${label} Size` }),
+      getNumber({ key: 'largeSize', label: `Large ${label} Size`, min: 1 }),
       getTextAlign(),
     ]
   });

@@ -1706,26 +1706,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  // transformLabel(label: string) {
-  //   const replacer = '*';
-  //   const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
-  //   if (hideAccountName) {
-  //
-  //     if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
-  //       return replacer.repeat(label.length);
-  //     }
-  //     if ((hideFromLeft || hideFromRight) && digitsToHide >= label.length) {
-  //       return replacer.repeat(label.length);
-  //     }
-  //     let _label = label;
-  //     if (hideFromLeft)
-  //       _label = replacer.repeat(digitsToHide) + _label.substring(digitsToHide, label.length);
-  //     if (hideFromRight)
-  //       _label = _label.substring(0, label.length - digitsToHide) + replacer.repeat(digitsToHide);
-  //     return _label;
-  //   }
-  //   return label;
-  // }
+  transformAccountLabel(label: string) {
+    const replacer = '*';
+    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    if (hideAccountName) {
+      const length = digitsToHide > label.length ? label.length : digitsToHide;
+      let _label = label;
+      if (hideFromLeft)
+        _label = replacer.repeat(length) + _label.substring(length, label.length);
+      if (hideFromRight)
+        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
+      return _label;
+    }
+    return label;
+  }
 
   private _closeSettings() {
     this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
