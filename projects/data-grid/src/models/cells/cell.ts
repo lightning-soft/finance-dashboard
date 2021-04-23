@@ -26,8 +26,6 @@ export interface ICell {
 
   updateValue(...args: any[]);
 
-  toggleHoverStatus(hovered: boolean): void;
-
   clear();
 }
 
@@ -167,10 +165,6 @@ export abstract class Cell implements ICell {
   toString() {
     return this.value;
   }
-
-  toggleHoverStatus(hovered: boolean): void {
-
-  };
 }
 
 export class ReadonlyCell implements ICell {
@@ -185,9 +179,6 @@ export class ReadonlyCell implements ICell {
   }
 
   clear() {
-  }
-
-  toggleHoverStatus(hovered: boolean) {
   }
 }
 
