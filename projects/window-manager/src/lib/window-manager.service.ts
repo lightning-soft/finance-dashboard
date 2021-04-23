@@ -6,6 +6,9 @@ import { IWindow, IWindowManager } from './interfaces';
 import { Bounds, Options, saveData } from './types';
 
 const Shift = 30;
+const StartShiftY = 36;
+const StartShiftX = Shift;
+
 
 type Cords = {
   x: number,
@@ -153,7 +156,8 @@ export class WindowManagerService {
 
   private calculateShift({ width, height, containerWidth, containerHeight }): Cords {
     let result: Cords;
-    const shiftedPosition: Cords = this._normalizeCordsConsideringBounds({ x: Shift, y: Shift });
+
+    const shiftedPosition: Cords = this._normalizeCordsConsideringBounds({ x: StartShiftX, y: StartShiftY });
 
     do {
       const windowWithSameCords = this.wm.windows.find(w => w.x === shiftedPosition.x && w.y === shiftedPosition.y);
@@ -176,10 +180,10 @@ export class WindowManagerService {
   }
 
   private _normalizeCordsConsideringBounds(cords: Cords): Cords {
-    if (!this.bounds)
-      return;
-
     cords = {...cords};
+
+    if (!this.bounds)
+      return cords;
 
     if (this.bounds.top > cords.y)
       cords.y = this.bounds.top;
