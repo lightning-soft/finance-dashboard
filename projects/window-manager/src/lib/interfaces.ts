@@ -1,7 +1,7 @@
 import { Executor } from 'global-handler';
 import { EVENTS } from './enums';
 import { Bounds, Options, saveData } from './types';
-import { ILayoutNode } from "layout";
+import { ILayoutNode } from 'layout';
 
 export interface IWindowManager {
   container: HTMLElement;
@@ -10,6 +10,7 @@ export interface IWindowManager {
   bounds: Bounds;
 
   createWindow(option: object): IWindow;
+  load(config);
   save(): saveData;
   updateGlobalOffset(): void;
   setCustomBounds(bounds: Bounds): void;
@@ -22,6 +23,7 @@ export interface IWindow {
   height: number;
   width: number;
   active: boolean;
+  visible: boolean;
   bounds: Bounds;
   type: any;
   ignoreOffset: number;

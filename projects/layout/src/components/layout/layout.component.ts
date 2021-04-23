@@ -131,11 +131,15 @@ export class LayoutComponent implements IDropable, AfterViewInit {
     this.layout.loadEmptyState();
   }
 
-  async loadState(settings) {
+  async loadState(settings, closeAll = true) {
     let state = settings || [];
 
-    if (this.layout)
-      this._windowManagerService.closeAll();
+    if (this.layout) {
+      if (closeAll)
+        this._windowManagerService.closeAll();
+      else
+        this._windowManagerService.hideAll();
+    }
 
     if (!this.layout)
       this._initLayout();

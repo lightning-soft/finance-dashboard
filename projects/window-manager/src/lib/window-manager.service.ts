@@ -36,7 +36,7 @@ export class WindowManagerService {
 
     win.type = options.type;
 
-    this.windows.next(this.wm.windows);
+    this.updateWindows();
 
     win.on(EVENTS.CLOSE, () => this.windows.next(this.wm.windows));
 
@@ -59,6 +59,11 @@ export class WindowManagerService {
     (window as any).wm = this.wm;
   }
 
+  public load(config) {
+    this.wm.load(config);
+    this.updateWindows();
+  }
+
   public saveState(): saveData {
     return this.wm.save();
   }
@@ -70,7 +75,18 @@ export class WindowManagerService {
     while (this.wm.windows.length)
       this.wm.windows[0].close();
 
+    this.updateWindows();
+  }
+
+  updateWindows() {
     this.windows.next(this.wm.windows);
+  }
+
+  public hideAll() {
+    this.wm.windows.forEach((win) => {
+      win.visible = false;
+    });
+    this.updateWindows();
   }
 
   public updateGlobalOffset(): void {

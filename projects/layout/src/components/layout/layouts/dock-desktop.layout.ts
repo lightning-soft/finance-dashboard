@@ -188,9 +188,16 @@ export class DockDesktopLayout extends Layout {
     if (!Array.isArray(config))
       return;
 
+    const widgets = this.getWidgets();
     for (let i = config.length - 1; i >= 0; i--) {
-      this.addComponent(config[i]);
+      const widget = widgets.find(item => item.id === config[i].id);
+      if (widget)
+          widget.visible = true;
+      else
+        this.addComponent(config[i]);
     }
+
+    this._windowManagerService.updateWindows();
   }
 
   async loadState(config: any) {

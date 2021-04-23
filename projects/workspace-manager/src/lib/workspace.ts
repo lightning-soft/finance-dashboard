@@ -25,7 +25,13 @@ export class WorkspaceWindow {
 
   constructor(windowConfig: ExcludeId<WorkspaceWindow> = {}) {
     this.id = Date.now();
-    this.config = windowConfig.config || [];
+    this.config = generateConfig(windowConfig.config);
     this.name = windowConfig.name || DEFAULT_WINDOW_NAME;
   }
+}
+
+function generateConfig(config) {
+  if (!config)
+    return [];
+  return config.map(item => ({ ...item, id: Date.now() }));
 }
