@@ -162,7 +162,7 @@ class OrdersCell extends HistogramCell {
   }
 
   clearPL() {
-    this.updateValue(null);
+    this.clear();
   }
 
   draw(context) {
