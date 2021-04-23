@@ -1093,7 +1093,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const commonView = this._settings.general.commonView;
     const ticksMultiplier = commonView.useCustomTickSize ? commonView.ticksMultiplier : null;
-    if (ticksMultiplier !== this._customTickSize) {
+    if (ticksMultiplier != this._customTickSize) {
       const map = this._getDomItemsMap();
       this._map.clear();
       this.items = [];
@@ -1136,21 +1136,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         offset++;
       }
-    } else if (this._lastPrice) {
-      if (this._customTickSize != null) {
-        const _item = this._map[this._lastPrice];
-        if (_item) {
-          centerIndex = _item?.index ?? (ROWS / 2);
-          _item.isCenter = true;
-        }
-      } else {
-        for (let i = 0; i < this.items.length; i++) {
-          const item = this.items[i];
-          item.isCenter = i === centerIndex;
-        }
-      }
+    }
 
-      this._customTickSize = null;
+    if (this._lastPrice) {
+      const _item = this._getItem(this._lastPrice);
+      centerIndex = (ROWS / 2);
+
+      if (_item) {
+        centerIndex = _item?.index ?? (ROWS / 2);
+        _item.isCenter = true;
+      }
     }
 
     this._customTickSize = ticksMultiplier;
