@@ -30,9 +30,22 @@ export class AccountsManager {
     return this.items.find(i => i.connected);
   }
 
+  updateConnectionClientState(connection: IConnection) {
+    this.onUpdated(connection);
+  }
+
   async init(): Promise<IConnection[]> {
     this._webSocketService.on(this._handleStream.bind(this));
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
+
+    this.fetchConnections();
+
+    return this.connections.pipe(
+      take(2), // first default value
+    ).toPromise();
+  }
+
+  fetchConnections() {
     this._connectionsRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(res => {
@@ -46,10 +59,6 @@ export class AccountsManager {
         this._connections.next(connections);
         this._activeConnection.next(this.getActiveConnection());
       });
-
-    return this.connections.pipe(
-      take(2), // first default value
-    ).toPromise();
   }
 
   private _handleStream(msg: any): void {
