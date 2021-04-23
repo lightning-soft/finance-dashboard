@@ -24,6 +24,13 @@ export enum AlertType {
   ShutdownSignal = 'ShutdownSignal',
 }
 
+export type IWSEventListener = (event?: Event) => void;
+export type IWSEventListeners = {
+  open?: IWSEventListener;
+  close?: IWSEventListener;
+  error?: IWSEventListener;
+};
+
 export type IWSListener<T = any> = (message: T) => void;
 export type IWSListenerUnsubscribe = () => void;
 
@@ -54,29 +61,40 @@ export class WebSocketService {
     })
   }
 
-  connect(onOpen?: () => void) {
+  connect(listeners: IWSEventListeners = {}) {
     if (this.connection$.value) {
-      if (onOpen)
-        onOpen();
+      if (listeners.open) {
+        listeners.open();
+      }
 
       return;
     }
 
     const url = this._config.rithmic.ws.url;
     this._websocket = new ReconnectingWebSocket(url, [], { minReconnectionDelay: 3000 }) as any;
+
     this._websocket.onopen = (event: Event) => {
-      if (onOpen)
-        onOpen();
+      if (listeners.open) {
+        listeners.open(event);
+      }
 
       this.connection$.next(true);
     };
 
     this._websocket.onclose = (event: Event) => {
+      if (listeners.close) {
+        listeners.close(event);
+      }
+
       this.connection$.next(false);
       this.sucessfulyConnected = false;
     };
 
     this._websocket.onerror = (event: Event) => {
+      if (listeners.error) {
+        listeners.error(event);
+      }
+
       console.error('soket', event);
     };
 

@@ -141,6 +141,10 @@ class OrdersCell extends HistogramCell {
     this._text = `${this._order.quantity}${type}`;
   }
 
+  getPl(): number {
+    return this._value;
+  }
+
   setPL(pl: number) {
     if (pl == null)
       this.clear();
@@ -158,7 +162,7 @@ class OrdersCell extends HistogramCell {
   }
 
   clearPL() {
-    this.updateValue(null);
+    this.clear();
   }
 
   draw(context) {
@@ -354,6 +358,10 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   removeOrder(order) {
     this._item.sellOrders.removeOrder(order);
     this._item.buyOrders.removeOrder(order);
+  }
+
+  getPl(): number {
+    return this._item.sellOrders.getPl() || this._item.buyOrders.getPl();
   }
 
   setPL(pl: number) {

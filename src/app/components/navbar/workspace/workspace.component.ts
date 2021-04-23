@@ -19,7 +19,7 @@ export class WorkspaceComponent implements OnInit {
   @Input() layout: LayoutComponent;
   @Input() dropdownPlacement: NzPlacementType;
 
-  @Output() toggleDropdown = new EventEmitter<boolean>();
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   activeWorkspaceId: WorkspaceId;
   formControl = new FormControl();
@@ -74,7 +74,9 @@ export class WorkspaceComponent implements OnInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the workspace?'
+        message: 'Do you want delete the workspace?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 
@@ -148,12 +150,12 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    this._workspacesService.save.next();
+    this._workspacesService.save$.next();
     this._notificationService.showSuccess('Workspace was saved');
   }
 
   handleDropdownToggle(opened: boolean): void {
     this.isMenuVisible = opened;
-    this.toggleDropdown.emit(opened);
+    this.handleToggleDropdown.emit(opened);
   }
 }

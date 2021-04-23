@@ -10,13 +10,14 @@ import {
   AccountRepository,
   IPosition,
   IPositionParams,
-  IQuote,
   PositionsFeed,
   PositionsRepository,
-  PositionStatus
+  PositionStatus,
+  TradeDataFeed,
+  TradePrint
 } from 'trading';
 import { PositionItem } from './models/position.item';
-import { NotifierService } from "notifier";
+import { NotifierService } from 'notifier';
 
 const headers = [
   'account',
@@ -56,6 +57,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
+  contextMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
 
   @ViewChild('grid') dataGrid: DataGrid;
 
@@ -69,12 +74,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       handler: (item) => this.delete(item),
     }),
   ];
-
-  protected _levelOneDataFeedHandler = (quote: IQuote) => {
-    this.items.map(i => i.updateUnrealized(quote));
-    this.dataGrid?.detectChanges();
-    this.updatePl();
-  }
 
   get columns() {
     return this._columns;
@@ -120,6 +119,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _dataFeed: PositionsFeed,
     protected _notifier: NotifierService,
     private _accountRepository: AccountRepository,
+    private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
     this.autoLoadData = false;
@@ -132,6 +132,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       unwrap: (item: PositionItem) => item.position,
     });
     this._columns = headers.map(convertToColumn);
+
+    this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
+      this.items.map(i => i.updateUnrealized(trade));
+      this.dataGrid?.detectChanges();
+      this.updatePl();
+    }));
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
@@ -265,10 +271,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     if (state && state.columns)
       this._columns = state.columns;
+
+    if (state) {
+      const { contextMenuState } = state;
+      this.contextMenuState = contextMenuState;
+    }
   }
 
-  isEmpty(number: number): boolean {
-    return number === 0;
+  isEmpty(numberInput: number): boolean {
+    return numberInput === 0;
   }
 
   private _loadAccount(): void {

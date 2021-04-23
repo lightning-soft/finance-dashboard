@@ -56,7 +56,7 @@ export const commonFields: IFieldConfig[] = [
       },
       {
         type: FieldType.Number,
-        templateOptions: { label: 'Font size' },
+        templateOptions: { label: 'Font size', min: 1 },
         key: 'fontSize',
         getCss: (value) => {
           if (value && value.fontSize)
@@ -67,7 +67,7 @@ export const commonFields: IFieldConfig[] = [
         label: 'General Color',
         key: 'generalColors',
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
-        className: 'w-100 ml-0',
+        className: 'w-100 ml-0 field-item',
         fieldGroup: [
           getColor('Grid Line Color', (value) => {
             if (value)
@@ -103,8 +103,10 @@ export const commonFields: IFieldConfig[] = [
               { label: 'Price', key: 'price' },
               { label: 'Сurrent Ask', key: 'currentAsk' },
               { label: 'Сurrent Bid', key: 'currentBid' },
-            ], label: 'Columns View', extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
-          }), className: 'w-100'
+            ],
+            label: 'Columns View',
+            extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
+          }), className: 'w-100  field-item'
       }
     ]
   }),
@@ -160,12 +162,41 @@ export const generalFields: IFieldConfig[] = [
     fieldGroup: [
       getCheckboxes({
         checkboxes: [
-          { key: 'closeOutstandingOrders', label: 'Close Outstanding Orders When Position is Closed' },
+          {
+            key: 'closeOutstandingOrders',
+            label: 'Close Outstanding Orders When Position is Closed', config: {
+              className: 'close-current-orders',
+            }
+          },
           { key: 'clearCurrentTrades', label: 'Clear Current Trades On New Position' },
+          {
+            label: 'All Windows', key: 'currentTradesAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearCurrentTrades',
+              }
+            }
+          },
+          // disableExpression({ label: 'All Windows',  key: 'currentTradesAllWindows' }, '!model.clearCurrentTrades'),
           { label: 'Clear Total Trades On New Position', key: 'clearTotalTrades' },
+          {
+            label: 'All Windows', key: 'currentTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.clearTotalTrades',
+              }
+            }
+          },
           { label: 'Re-Center On New Position', key: 'recenter' },
-          { label: 'All Windows', key: 'allWindows' },
+          {
+            label: 'All Windows', key: 'recenterTotalAllWindows', config: {
+              expressionProperties: {
+                'templateOptions.disabled': '!model.recenter',
+              }
+            }
+          },
         ],
+        extraConfig: {
+          fieldGroupClassName: 'd-grid reset-settings',
+        },
         label: 'Reset settings'
       }),
       getCheckboxes({
@@ -178,7 +209,8 @@ export const generalFields: IFieldConfig[] = [
           templateOptions: { min: 0, label: 'Account Digits To Hide' },
           key: 'digitsToHide',
           type: FieldType.Number,
-        }]
+        }],
+        extraConfig: { className: 'field-item' },
       }),
       new FieldConfig({
         label: 'Common View',
@@ -204,7 +236,7 @@ export const generalFields: IFieldConfig[] = [
             ], extraConfig: { className: 'w-100' }
           }),
           {
-            templateOptions: { label: 'Auto Center Ticks' },
+            templateOptions: { label: 'Auto Center Ticks',  min: 1, },
             key: 'autoCenterTicks',
             className: 'ml-0 mr-0',
             type: FieldType.Number,
@@ -243,17 +275,17 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap',
         fieldGroup: [
           {
-            templateOptions: { label: 'Market Depth' },
+            templateOptions: { label: 'Market Depth',  min: 1, },
             key: 'marketDepth',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Bid/Ask Delta Filter' },
+            templateOptions: { label: 'Bid/Ask Delta Filter', min: 0 },
             key: 'bidAskDeltaFilter',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: ' Bid/Ask Delta Depth' },
+            templateOptions: { label: ' Bid/Ask Delta Depth', min: 1 },
             key: 'bidAskDeltaDepth',
             type: FieldType.Number,
           },
@@ -272,27 +304,27 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap ',
         fieldGroup: [
           {
-            templateOptions: { label: 'Clear Trades Timer Interval' },
+            templateOptions: { label: 'Clear Trades Timer Interval',  min: 1 },
             key: 'clearTradersTimer',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Update Interval' },
+            templateOptions: { label: 'Update Interval', min: 1 },
             key: 'updateInterval',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Scroll Wheel Sensitivity' },
+            templateOptions: { label: 'Scroll Wheel Sensitivity', min: 1 },
             key: 'scrollWheelSensitivity',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Order  Quantity Step' },
+            templateOptions: { label: 'Order  Quantity Step', min: 1 },
             key: 'orderQuantityStep',
             type: FieldType.Number,
           },
           {
-            templateOptions: { label: 'Momentum Interval ms' },
+            templateOptions: { label: 'Momentum Interval ms', min: 1 },
             key: 'momentumIntervalMs',
             type: FieldType.Number,
           },
@@ -487,12 +519,12 @@ function getDepthConfig(label: string) {
             { key: 'histogramEnabled', label: `${label} Depth Histogram` },
             { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]
         }),
-        className: 'w-100',
+        className: 'w-100 depth-checkboxes',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
       getHistogramOrientation(),
-      getNumber({ key: 'largeSize', label: `Large ${label} Size` }),
+      getNumber({ key: 'largeSize', label: `Large ${label} Size`, min: 1 }),
       getTextAlign(),
     ]
   });
@@ -513,7 +545,11 @@ function getTotalFields(label: string, key: string) {
         getHightlightColor(),
         getFontColor(),
         getHistogramColor(),
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: label + ' Histogram' }] }),
+        getCheckboxes({
+          checkboxes: [{ key: 'histogramEnabled', label: `${label} Histogram` }], extraConfig: {
+            className: ' depth-checkboxes',
+          }
+        }),
         getTextAlign(),
         getHistogramOrientation(),
       ]

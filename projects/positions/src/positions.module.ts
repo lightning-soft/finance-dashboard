@@ -26,7 +26,6 @@ import { WindowHeaderModule } from 'window-header';
   declarations: [
     PositionsComponent,
   ],
-
 })
 export class PositionsModule implements LazyModule {
   get components(): ComponentStore {

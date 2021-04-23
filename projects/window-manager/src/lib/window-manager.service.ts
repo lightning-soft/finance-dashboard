@@ -6,6 +6,9 @@ import { IWindow, IWindowManager } from './interfaces';
 import { Bounds, Options, saveData } from './types';
 
 const Shift = 30;
+const StartShiftY = 36;
+const StartShiftX = Shift;
+
 
 type Cords = {
   x: number,
@@ -15,18 +18,16 @@ type Cords = {
 @Injectable()
 export class WindowManagerService {
   private wm: IWindowManager;
+  private bounds: Bounds;
+  public windows: BehaviorSubject<IWindow[]> = new BehaviorSubject([]);
 
   get activeWindow() {
     return this.wm.activeWindow;
   }
 
-  public windows: BehaviorSubject<IWindow[]> = new BehaviorSubject([]);
-
   get container(): HTMLElement {
     return this.wm.container;
   }
-
-  constructor() { }
 
   public createWindow(options: Options): IWindow {
     const { x, y } = this.calculatePosition(options);
@@ -38,7 +39,7 @@ export class WindowManagerService {
 
     win.type = options.type;
 
-    this.windows.next(this.wm.windows);
+    this.updateWindows();
 
     win.on(EVENTS.CLOSE, () => this.windows.next(this.wm.windows));
 
@@ -61,6 +62,11 @@ export class WindowManagerService {
     (window as any).wm = this.wm;
   }
 
+  public load(config) {
+    this.wm.load(config);
+    this.updateWindows();
+  }
+
   public saveState(): saveData {
     return this.wm.save();
   }
@@ -72,7 +78,18 @@ export class WindowManagerService {
     while (this.wm.windows.length)
       this.wm.windows[0].close();
 
+    this.updateWindows();
+  }
+
+  updateWindows() {
     this.windows.next(this.wm.windows);
+  }
+
+  public hideAll() {
+    this.wm.windows.forEach((win) => {
+      win.visible = false;
+    });
+    this.updateWindows();
   }
 
   public updateGlobalOffset(): void {
@@ -80,6 +97,7 @@ export class WindowManagerService {
   }
 
   setBounds(bounds: Bounds): void {
+    this.bounds = bounds;
     this.wm.setCustomBounds(bounds);
   }
 
@@ -139,29 +157,40 @@ export class WindowManagerService {
   private calculateShift({ width, height, containerWidth, containerHeight }): Cords {
     let result: Cords;
 
-    let startX = 1;
-
-    const positionMultipliers = { x: startX, y: 1};
+    const shiftedPosition: Cords = this._normalizeCordsConsideringBounds({ x: StartShiftX, y: StartShiftY });
 
     do {
-      const x = Shift * positionMultipliers.x;
-      const y = Shift * positionMultipliers.y;
+      const windowWithSameCords = this.wm.windows.find(w => w.x === shiftedPosition.x && w.y === shiftedPosition.y);
+      if (windowWithSameCords) {
+        shiftedPosition.x += Shift;
+        shiftedPosition.y += Shift;
 
-      if (this.wm.windows.find(w => w.x === x && w.y === y)) {
-        positionMultipliers.x += 1;
-        positionMultipliers.y += 1;
+      } else if (shiftedPosition.y + height > containerHeight && height < containerHeight) {
+        shiftedPosition.x += Shift;
+        shiftedPosition.y += Shift;
 
-      } else if (y + height > containerHeight && height < containerHeight) {
-        positionMultipliers.x = ++startX;
-        positionMultipliers.y = 1;
-
-      } else if (x + width > containerWidth && width < containerWidth) {
+      } else if (shiftedPosition.x + width > containerWidth && width < containerWidth) {
         result = { x: 50, y: 50 };
       } else {
-        result = { x, y };
+        result = shiftedPosition;
       }
     } while (!result);
 
     return result;
+  }
+
+  private _normalizeCordsConsideringBounds(cords: Cords): Cords {
+    cords = {...cords};
+
+    if (!this.bounds)
+      return cords;
+
+    if (this.bounds.top > cords.y)
+      cords.y = this.bounds.top;
+
+    if (this.bounds.left > cords.x)
+      cords.x = this.bounds.left;
+
+    return cords;
   }
 }

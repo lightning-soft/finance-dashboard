@@ -1,10 +1,10 @@
-import { Component, Injector, Input } from '@angular/core';
+import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { filter, skip } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 export const accountsOptions = {
@@ -27,14 +27,16 @@ export const accountsOptions = {
   styleUrls: ['./connections.component.scss'],
 })
 export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
+  @Input() layout: LayoutComponent;
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
-  @Input()
-  layout: LayoutComponent;
+  @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
+
   isLoading: { [key: number]: boolean } = {};
-
   activeConnection: IConnection;
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
+  connectionsListHeight: number;
 
   protected _clearOnDisconnect = false;
 
@@ -136,9 +138,26 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     this._accountsManager.toggleFavourite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {
-        },
+        () => this._setConnectionsListHeight(),
         err => console.error(err),
       );
+  }
+
+  handleDropdownToggle(opened: boolean): void {
+    this.isConnectionsDropdownOpened = opened;
+    this.handleToggleDropdown.emit(opened);
+    this._setConnectionsListHeight();
+  }
+
+  private _setConnectionsListHeight(): void {
+    if (!this.isConnectionsDropdownOpened)
+      return;
+
+    const maxHeight = 320;
+
+    setTimeout(() => {
+      const connectionsOffsetHeight = this.connectionsList.nativeElement.offsetHeight;
+      this.connectionsListHeight = connectionsOffsetHeight > maxHeight ? maxHeight : connectionsOffsetHeight;
+    });
   }
 }

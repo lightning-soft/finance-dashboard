@@ -1,7 +1,7 @@
 import { Component, HostBinding, Input } from '@angular/core';
 import {  IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
-import { NzPlacementType } from "ng-zorro-antd";
+import { NzPlacementType } from 'ng-zorro-antd';
 
 export type WindowTuple = [string, Set<IWindow>];
 
@@ -62,7 +62,7 @@ export class FramesManagerComponent {
   private _setWindowTuples(windows: IWindow[]): void {
     this.windowTuples.forEach(windowTuple => windowTuple[1].clear());
 
-    for (const window of windows) {
+    for (const window of windows.filter(item => item.visible)) {
       const windowTuple = this.windowTuples.find(([type]) => type === window.type);
 
       if (windowTuple) {

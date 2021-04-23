@@ -2,20 +2,19 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, Vi
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
-import { RealtimeActionData } from 'communication';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { Id, RealtimeActionData } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
-  ContextMenuClickDataGridHandler,
+  Column, ContextMenuClickDataGridHandler,
   DataGrid,
-  IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
-  RoundFormatter,
-  Column, ICellChangedEvent
+  ICellChangedEvent, IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
+  RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { Id } from 'communication';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   HistoryRepository,
@@ -37,14 +36,12 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
+import { IWindow } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
-import { IWindow } from 'window-manager';
-import { FormActions, SideOrderFormComponent, OcoStep, getPriceSpecs } from 'base-order-form';
-import { filter } from "rxjs/operators";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -106,6 +103,7 @@ interface IDomState {
   settings?: any;
   componentInstanceId: number;
   columns: any;
+  contextMenuState: any;
 }
 
 const directionsHints = {
@@ -263,6 +261,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   draggingOrders: IOrder[] = [];
   draggingDomItemId: Id;
 
+  dataGridMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
+
   handlers = [
     ...[Columns.Ask, Columns.Bid].map(column => (
       new CellClickDataGridHandler<DomItem>({
@@ -308,6 +311,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._accountId;
   }
 
+  get currentPosition(): IPosition {
+    return this.positions.find(e => e.instrument.symbol == this.instrument.symbol && e.instrument.exchange == this.instrument.exchange);
+  }
+
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
@@ -345,8 +352,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   visibleRows = 0;
-  @HostBinding('class.header-panel')
-  showHeaderPanel = true;
+
+  @HostBinding('class.hide-header-panel')
+  get showHeaderPanel() {
+    return !this.dataGridMenuState?.showHeaderPanel;
+  }
 
   get items() {
     return this.dataGrid.items ?? [];
@@ -690,17 +700,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   getPl(): string {
-    const i = this.instrument;
-    const position = this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange);
-    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
-    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+    const position = this.currentPosition;
 
-    if (this.dailyInfo && position) {
-      return calculatePL(position, this.dailyInfo.close, this._tickSize, i.contractSize, includeRealizedPl)
-        .toFixed(precision);
+    if (!position || position.side === Side.Closed) {
+      return '-';
     }
 
-    return '';
+    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+    const pl = this._lastChangesItem[Columns.LTQ]?.orders.getPl() ?? 0;
+    const value = includeRealizedPl ? pl + position.realized : pl;
+    const i = this.instrument;
+    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+
+    return value.toFixed(precision);
   }
 
   private _loadHistory(): void {
@@ -767,23 +779,30 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const {
       closeOutstandingOrders,
     } = this._settings.general;
-    const isNewPosition = !oldPosition || (diffSize(oldPosition) == 0 && diffSize(newPosition) !== diffSize(oldPosition));
-    if (isNewPosition) {
-      // #TODO test all windows
-      this.applySettingsOnNewPosition();
-      this._fillPL(newPosition);
-    } else {
-      if (closeOutstandingOrders && oldPosition?.side !== Side.Closed
-        && newPosition.side === Side.Closed) {
-        this.deleteOutstandingOrders();
-      }
-      this._removePL();
-    }
+
+    const isOldPositionOpened = oldPosition && oldPosition.side !== Side.Closed;
+    const isNewPositionOpened = newPosition.side !== Side.Closed;
+
+    const isNewPosition = !isOldPositionOpened && isNewPositionOpened;
+
     if (oldPosition) {
       const index = this.positions.findIndex(item => item.id === newPosition.id);
       this.positions[index] = newPosition;
     } else {
       this.positions.push(newPosition);
+    }
+
+    if (isNewPosition) {
+      // #TODO test all windows
+      this.applySettingsOnNewPosition();
+    } else if (closeOutstandingOrders && isOldPositionOpened && !isNewPositionOpened) {
+      this.deleteOutstandingOrders();
+    }
+
+    if (isNewPositionOpened) {
+      this._fillPL();
+    } else {
+      this._removePL();
     }
   }
 
@@ -793,7 +812,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  private _fillPL(position: IPosition) {
+  private _fillPL() {
+    const position = this.currentPosition;
     const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
 
@@ -808,16 +828,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       recenter,
       clearCurrentTrades,
       clearTotalTrades,
-      allWindows
+      currentTotalAllWindows,
+      recenterTotalAllWindows,
+      currentTradesAllWindows,
     } = this._settings.general;
     if (clearCurrentTrades) {
-      if (allWindows) {
+      if (currentTradesAllWindows) {
         this.domKeyHandlers.clearCurrentTradesAllWindows();
       } else
         this.domKeyHandlers.clearCurrentTrades();
     }
     if (clearTotalTrades) {
-      if (allWindows) {
+      if (currentTotalAllWindows) {
         this.domKeyHandlers.clearTotalTradesDownAllWindows();
         this.domKeyHandlers.clearTotalTradesUpAllWindows();
       } else {
@@ -826,7 +848,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
     if (recenter) {
-      if (allWindows) {
+      if (recenterTotalAllWindows) {
         this.domKeyHandlers.autoCenterAllWindows();
       } else {
         this.domKeyHandlers.autoCenter();
@@ -953,6 +975,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             }
           }
 
+          this._fillPL();
           this._loadOrders();
           this._loadVolumeHistory();
         },
@@ -1011,7 +1034,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe(items => {
         this.positions = items.data;
         const i = this.instrument;
-        this._fillPL(this.positions.find(e => e.instrument.symbol == i.symbol && e.instrument.exchange == i.exchange));
+        this._fillPL();
       });
   }
 
@@ -1053,18 +1076,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _getDomItemsMap() {
     let map = {};
 
-    if (this._customTickSize) {
-
-      for (const i of this.items) {
-        map = {
-          ...map,
-          ...(i.getDomItems ? i.getDomItems() : {}),
-          ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
-        };
-      }
-    } else {
-      for (const [key, item] of this._map)
-        map[key] = item;
+    for (const i of this.items) {
+      map = {
+        ...map,
+        ...(i.getDomItems ? i.getDomItems() : {}),
+        ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
+      };
     }
 
     return map;
@@ -1124,43 +1141,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         offset++;
       }
-
-      this._customTickSize = ticksMultiplier;
-    } else {
-      if (this._customTickSize) {
-        const map = this._getDomItemsMap();
-        this._map.clear();
-        this.items = [];
-
-        if (isNaN(lastPrice) || lastPrice == null)
-          return;
-
-        centerIndex = ROWS / 2;
-        const data = this.items;
-        const tickSize = this._tickSize;
-        let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
-        let index = -1;
-
-        while (index++ < ROWS) {
-          price = this._normalizePrice(price += tickSize);
-          const item = map[price];
-          item.index = index;
-          this._map.set(item.lastPrice, item);
-          data.unshift(item);
-        }
-      } else if (this._lastPrice) {
-        for (let i = 0; i < this.items.length; i++) {
-          const item = this.items[i];
-          item.isCenter = i === centerIndex;
-        }
-      }
-
-      this._customTickSize = null;
     }
 
+    if (this._lastPrice) {
+      const _item = this._getItem(this._lastPrice);
+      centerIndex = (ROWS / 2);
+
+      if (_item) {
+        centerIndex = _item?.index ?? (ROWS / 2);
+        _item.isCenter = true;
+      }
+    }
+
+    this._customTickSize = ticksMultiplier;
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
+    this._fillPL();
     this.detectChanges();
   }
+
 
   detectChanges(force = false) {
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
@@ -1686,26 +1684,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     });
   }
 
-  // transformLabel(label: string) {
-  //   const replacer = '*';
-  //   const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
-  //   if (hideAccountName) {
-  //
-  //     if (hideFromLeft && hideFromRight && (digitsToHide * 2) >= label.length) {
-  //       return replacer.repeat(label.length);
-  //     }
-  //     if ((hideFromLeft || hideFromRight) && digitsToHide >= label.length) {
-  //       return replacer.repeat(label.length);
-  //     }
-  //     let _label = label;
-  //     if (hideFromLeft)
-  //       _label = replacer.repeat(digitsToHide) + _label.substring(digitsToHide, label.length);
-  //     if (hideFromRight)
-  //       _label = _label.substring(0, label.length - digitsToHide) + replacer.repeat(digitsToHide);
-  //     return _label;
-  //   }
-  //   return label;
-  // }
+  transformAccountLabel(label: string) {
+    const replacer = '*';
+    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    if (hideAccountName) {
+      const length = digitsToHide > label.length ? label.length : digitsToHide;
+      let _label = label;
+      if (hideFromLeft)
+        _label = replacer.repeat(length) + _label.substring(length, label.length);
+      if (hideFromRight)
+        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
+      return _label;
+    }
+    return label;
+  }
 
   private _closeSettings() {
     this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
@@ -1723,6 +1715,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       case LayoutNodeEvent.Open:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
+      case LayoutNodeEvent.MakeVisible:
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:
@@ -1776,6 +1769,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (state?.columns)
       this.columns = state.columns;
     // for debug purposes
+    if (state && state.contextMenuState) {
+      this.dataGridMenuState = state.contextMenuState;
+    }
     if (!state)
       state = {} as any;
 
@@ -1878,8 +1874,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _getPriceSpecs(item: IOrder & { amount: number }, price) {
-    return  getPriceSpecs(item, price, this._tickSize);
+  private _getPriceSpecs(item: IOrder & { amount: number }, price) {
+    return getPriceSpecs(item, price, this._tickSize);
   }
 
   private _createOcoOrder() {
@@ -2025,10 +2021,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 }
 
-function diffSize(position: IPosition) {
-  return position.buyVolume - position.sellVolume;
-}
-
 export function sum(num1, num2, step = 1) {
   step = Math.pow(10, step);
   return (Math.round(num1 * step) + Math.round(num2 * step)) / step;
@@ -2059,7 +2051,7 @@ export function capitalizeFirstLetter(string: string) {
 }
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
-  if (!position)
+  if (!position || position.side === Side.Closed)
     return null;
 
   const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;

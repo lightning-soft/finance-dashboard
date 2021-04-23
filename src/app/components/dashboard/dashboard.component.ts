@@ -14,7 +14,13 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
+import { SaveLayoutConfigService } from '../save-layout-config.service';
+import { SaveLoaderService } from 'ui';
+import { NotificationService } from 'notification';
 
+enum WindowEvents {
+  Message = 'message'
+}
 
 @Component({
   selector: 'dashboard',
@@ -47,13 +53,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private trade: TradeHandler,
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
+    private saverService: SaveLayoutConfigService,
+    private loaderService: SaveLoaderService,
+    private _notificationService: NotificationService,
   ) {
   }
 
   ngOnInit() {
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
-    this._websocketService.connect();
+    this._connectToWebSocket();
 
     this._accountsManager.activeConnection.subscribe((connection) => {
       if (connection)
@@ -69,7 +78,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     / For performance reason avoiding ng zone in some cases
     */
     const zone = this._zone;
-    Element.prototype.addEventListener = function (...args) {
+    Element.prototype.addEventListener = function(...args) {
       const _this = this;
 
       if (['wm-container'].some(i => this.classList.contains(i)) ||
@@ -85,16 +94,34 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass('scxThemeLight scxThemeDark');
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
     if (this.isPopup())
       this._loadPopupState();
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
+
+      window.addEventListener(WindowEvents.Message, (event) => {
+        try {
+          const data = event.data;
+          if (typeof data !== 'string')
+            return;
+          const { workspaceId, windowId, state } = JSON.parse(data);
+          this._workspaceService.saveWindow(+workspaceId, +windowId, state);
+        } catch (err) {
+          console.error(err);
+        }
+      });
     }
+
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
+
     window.onbeforeunload = (e) => {
       for (const fn of this._subscriptions)
         fn();
@@ -124,6 +151,45 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this._windowPopupManager.isWindowPopup();
   }
 
+  private _connectToWebSocket() {
+    let isOpened = false;
+    let hasError = false;
+
+    this._websocketService.connect({
+      open: () => {
+        if (!isOpened) {
+          isOpened = true;
+          return;
+        }
+
+        hasError = false;
+
+        this._notificationService.showSuccess('Connection restored.');
+
+        this._accountsManager.fetchConnections();
+      },
+      error: () => {
+        if (hasError) {
+          return;
+        }
+
+        hasError = true;
+
+        this._notificationService.showError('Connection lost.');
+
+        const connection = this._accountsManager.getActiveConnection();
+
+        if (connection?.connected) {
+          this._accountsManager.updateConnectionClientState({
+            ...connection,
+            connected: false,
+            error: true,
+          });
+        }
+      },
+    });
+  }
+
   private _loadPopupState() {
     if (this._windowPopupManager.isWindowPopup()) {
       this._loadPopupWindow();
@@ -144,29 +210,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   _loadPopupWindow() {
     this._subscribeOnKeys();
-    this._setupWorkspaces();
     this.layout.loadEmptyState();
+    this.setupReloadWindows();
     this._workspaceService.workspaceInit
       .pipe(
         filter(item => item),
         first(),
-        untilDestroyed(this)
-      ).subscribe(() => {
-      const workspaceId = +this._windowPopupManager.workspaceId;
-      this._workspaceService.switchWorkspace(workspaceId);
-      const windowId = +this._windowPopupManager.windowId;
-      this._workspaceService.switchWindow(windowId);
-    });
+        untilDestroyed(this))
+      .subscribe(() => {
+        const workspaceId = +this._windowPopupManager.workspaceId;
+        this._workspaceService.switchWorkspace(workspaceId, false);
+        const windowId = +this._windowPopupManager.windowId;
+        this._workspaceService.switchWindow(windowId);
+      });
   }
 
   private _setupWorkspaces() {
-    this._workspaceService.save
+    this._workspaceService.save$
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         this._save();
       });
 
-    this._workspaceService.reload
+    this._setupReloadWorkspaces();
+  }
+
+  private _setupReloadWorkspaces() {
+    this._workspaceService.reloadWorkspace$
       .pipe(
         untilDestroyed(this)
       )
@@ -180,11 +250,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         const config = this._workspaceService.getWorkspaceConfig();
         this.layout.loadState(config);
       });
+    this.setupReloadWindows();
+  }
 
-    this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass('scxThemeLight scxThemeDark');
-      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
-    });
+  setupReloadWindows() {
+    this._workspaceService.reloadWindows$
+      .pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(() => {
+        const workspaces = this._workspaceService.workspaces.value;
+        const activeWorkspace = workspaces.find(w => w.isActive);
+
+        if (!activeWorkspace)
+          return;
+
+        const config = this._workspaceService.getWorkspaceConfig();
+        this.layout.loadState(config, false);
+      });
   }
 
   private _setupSettings(): void {
@@ -291,13 +374,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-    if (this._workspaceService.getActiveWorkspace()) {
-      await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
-      this.hasBeenSaved = true;
-    }
+    await this.saverService.save(this.layout.getState());
+    this.hasBeenSaved = true;
   }
 }
 
 function isInput(element: Element): boolean {
-    return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
+  return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
 }

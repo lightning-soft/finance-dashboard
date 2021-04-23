@@ -21,7 +21,9 @@ export class DomSettings {
   }
 
   general: any = {
-    allWindows: false,
+    currentTradesAllWindows: false,
+    currentTotalAllWindows: false,
+    recenterTotalAllWindows: false,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
@@ -42,8 +44,8 @@ export class DomSettings {
       bidAskDeltaFilter: 0
     },
     digitsToHide: 4,
-    hideAccountName: true,
-    hideFromLeft: true,
+    hideAccountName: false,
+    hideFromLeft: false,
     hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,

@@ -32,6 +32,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   allTypes = allTypes;
   builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
   selectedOrders: IOrder[] = [];
+  contextMenuState =  {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
 
   readonly orderType = OrderType;
   readonly headers: (HeaderItem | string)[] = [
@@ -102,8 +106,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       },
     })
   ];
-  @HostBinding('class.show-header')
-  showHeaderPanel = true;
+
+  @HostBinding('class.hide-header')
+  get hideHeaderPanel() {
+    return !this.contextMenuState?.showHeaderPanel;
+  }
 
   constructor(
     protected _repository: OrdersRepository,
@@ -174,6 +181,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
     if (state && state.columns)
       this.columns = state.columns;
+
+    if (state) {
+      const { contextMenuState } = state;
+      this.contextMenuState = contextMenuState;
+    }
   }
 
   openOrderForm() {

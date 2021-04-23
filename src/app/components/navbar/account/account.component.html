@@ -5,6 +5,7 @@
   [nzClickHide]="false"
   nzPlacement="bottomRight"
   [nzDropdownMenu]="menu"
+  (nzVisibleChange)="handleToggleDropdown.emit($event)"
   [(nzVisible)]="visible"
 >
 </button>

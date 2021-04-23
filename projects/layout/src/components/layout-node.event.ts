@@ -11,7 +11,8 @@ export enum LayoutNodeEvent {
   Move = 'move',
   MoveEnd = 'move-end',
   ExtendState = 'extendState',
-
+  MakeVisible = 'makeVisible',
+  MakeInvisible = 'makeInvisible',
   Maximize = 'maximize',
   Restore = 'restore', // undo maximize
 }

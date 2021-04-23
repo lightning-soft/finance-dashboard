@@ -1,5 +1,13 @@
 @import "~src/scss/variables";
 
+:host {
+  height: 100%;
+  .order-form-wrapper {
+    background: $inputBackground;
+    padding: 8px 8px 12px;
+  }
+}
+
 .order-button {
   height: 48px;
   border-radius: 0;
@@ -313,10 +321,5 @@
   }
 }
 
-:host {
-  .order-form-wrapper {
-    background: $inputBackground;
-    padding: 8px 8px 12px;
-  }
-}
+
 
