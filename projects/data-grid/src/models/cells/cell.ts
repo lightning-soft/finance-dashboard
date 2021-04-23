@@ -1,5 +1,3 @@
-import set = Reflect.set;
-
 const textBoldClass = ' text-bold';
 const hoverStatus = 'hover';
 
