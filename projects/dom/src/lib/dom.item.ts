@@ -456,15 +456,9 @@ class SumHistogramCell extends HistogramCell {
 export class DomItem implements IBaseItem {
   id: Id;
   index: number;
-
   isCenter = false;
-
   side: QuoteSide;
   clearCross = true;
-
-  get lastPrice(): number {
-    return this.price._value;
-  }
 
   _id: Cell = new NumberCell();
   price: PriceCell;
@@ -486,6 +480,7 @@ export class DomItem implements IBaseItem {
 
   protected _bid = 0;
   protected _ask = 0;
+  private _hovered: boolean;
 
   get isBidSideVisible() {
     return (this.bid.visible || this.bidDelta.visible);
@@ -495,12 +490,31 @@ export class DomItem implements IBaseItem {
     return (this.ask.visible || this.askDelta.visible);
   }
 
+  get lastPrice(): number {
+    return this.price._value;
+  }
+
+  set hovered(value: boolean) {
+    this._hovered = value;
+
+    if (value) {
+        this.price.hovered = this.ask.hovered || this.bid.hovered || this.price.hovered;
+    } else {
+      this.price.hovered = false;
+    }
+  }
+
+  get hovered() {
+   return this._hovered;
+  }
+
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
-      settings: settings.price
+      settings: settings.price,
+      withHoverStatus: true
     });
     this.bid = new SumHistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false, withHoverStatus: true });
     this.ask = new SumHistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false, withHoverStatus: true });

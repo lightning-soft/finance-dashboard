@@ -149,6 +149,7 @@ export class DomSettings {
   price: any = {
     color: 'rgba(208, 208, 210, 1)',
     backgroundColor: 'rgba(131, 148, 150, 1)',
+    hoverBackgroundColor: '#383A40',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
