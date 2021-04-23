@@ -13,7 +13,11 @@ import { ViewFilterItemsBuilder } from '../../base-components/src/components/vie
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
 
-type Tab = 'Working' | 'Filled' | 'All';
+enum Tab {
+  Working,
+  Filled,
+  All
+}
 
 const allTypes = 'All';
 const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.New, OrderStatus.PartialFilled];
@@ -34,7 +38,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   cancelMenuOpened = false;
   allTypes = allTypes;
   builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
-  activeTab: Tab = 'All';
+  activeTab: Tab = Tab.All;
   selectedOrders: IOrder[] = [];
   contextMenuState =  {
     showHeaderPanel: true,
@@ -42,6 +46,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   };
 
   readonly orderType = OrderType;
+  readonly tab = Tab;
   readonly headers: (HeaderItem | string)[] = [
     ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell, style: { textAlign: 'center' } }],
     ['averageFillPrice', 'Average Fill Price'],
@@ -145,13 +150,13 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.activeTab = tab;
 
     switch (tab) {
-      case 'All':
+      case Tab.All:
         this.builder.setParams({ viewItemsFilter: null });
         break;
-      case 'Filled':
+      case Tab.Filled:
         this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
         break;
-      case 'Working':
+      case Tab.Working:
         this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
         break;
     }

@@ -81,22 +81,22 @@
     </div>
   </ng-template>
 
-  <nz-tabset [nzSelectedIndex]="2"
+  <nz-tabset [nzSelectedIndex]="activeTab"
              (contextmenu)="dataGrid?.createComponentModal($event)"
              [nzTabBarExtraContent]="headerPanelTemplate"
            >
-    <nz-tab nzTitle="Working" (nzClick)="changeActiveTab('Working')">
-      <ng-template [ngIf]="activeTab === 'Working'">
+    <nz-tab nzTitle="Working" (nzClick)="changeActiveTab(tab.Working)">
+      <ng-template [ngIf]="activeTab === tab.Working">
         <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
       </ng-template>
     </nz-tab>
-    <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab('Filled')">
-      <ng-template [ngIf]="activeTab === 'Filled'">
+    <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab(tab.Filled)">
+      <ng-template [ngIf]="activeTab === tab.Filled">
         <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
       </ng-template>
     </nz-tab>
-    <nz-tab nzTitle="All" (nzClick)="changeActiveTab('All')">
-    <ng-template [ngIf]="activeTab === 'All'">
+    <nz-tab nzTitle="All" (nzClick)="changeActiveTab(tab.All)">
+    <ng-template [ngIf]="activeTab === tab.All">
       <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
     </ng-template>
     </nz-tab>
