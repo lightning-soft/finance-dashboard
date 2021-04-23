@@ -7,5 +7,5 @@
   [(ngModel)]="activeAccountId"
   (ngModelChange)="select($event)"
 >
-  <nz-option *ngFor="let item of items" [nzLabel]="item.id" [nzValue]="item.id"></nz-option>
+  <nz-option *ngFor="let item of items" [nzLabel]="labelTransformer(item.id)" [nzValue]="item.id"></nz-option>
 </nz-select>

@@ -18,6 +18,8 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> {
 
   activeAccountId: Id;
 
+  @Input() labelTransformer = (label) => label;
+
   constructor(
     protected _repository: AccountRepository,
     protected _injector: Injector,

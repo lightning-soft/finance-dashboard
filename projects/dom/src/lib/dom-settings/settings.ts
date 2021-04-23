@@ -44,8 +44,8 @@ export class DomSettings {
       bidAskDeltaFilter: 0
     },
     digitsToHide: 4,
-    hideAccountName: true,
-    hideFromLeft: true,
+    hideAccountName: false,
+    hideFromLeft: false,
     hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,
