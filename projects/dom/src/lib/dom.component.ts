@@ -2,20 +2,19 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, Vi
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
-import { RealtimeActionData } from 'communication';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { Id, RealtimeActionData } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
-  ContextMenuClickDataGridHandler,
+  Column, ContextMenuClickDataGridHandler,
   DataGrid,
-  IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
-  RoundFormatter,
-  Column, ICellChangedEvent
+  ICellChangedEvent, IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
+  RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { Id } from 'communication';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   HistoryRepository,
@@ -37,13 +36,12 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
+import { IWindow } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
-import { IWindow } from 'window-manager';
-import { FormActions, SideOrderFormComponent, OcoStep, getPriceSpecs } from 'base-order-form';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -1073,18 +1071,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _getDomItemsMap() {
     let map = {};
 
-    if (this._customTickSize) {
-
-      for (const i of this.items) {
-        map = {
-          ...map,
-          ...(i.getDomItems ? i.getDomItems() : {}),
-          ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
-        };
-      }
-    } else {
-      for (const [key, item] of this._map)
-        map[key] = item;
+    for (const i of this.items) {
+      map = {
+        ...map,
+        ...(i.getDomItems ? i.getDomItems() : {}),
+        ...((i instanceof DomItem && !(i instanceof CustomDomItem)) ? { [i.lastPrice]: i } : {})
+      };
     }
 
     return map;
@@ -1101,7 +1093,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const commonView = this._settings.general.commonView;
     const ticksMultiplier = commonView.useCustomTickSize ? commonView.ticksMultiplier : null;
-    if (ticksMultiplier != this._customTickSize) {
+    if (ticksMultiplier !== this._customTickSize) {
       const map = this._getDomItemsMap();
       this._map.clear();
       this.items = [];
@@ -1144,31 +1136,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
         offset++;
       }
-
-      this._customTickSize = ticksMultiplier;
-    } else {
-      if (this._customTickSize) {
-        const map = this._getDomItemsMap();
-        this._map.clear();
-        this.items = [];
-
-        if (isNaN(lastPrice) || lastPrice == null)
-          return;
-
-        centerIndex = ROWS / 2;
-        const data = this.items;
-        const tickSize = this._tickSize;
-        let price = this._normalizePrice(lastPrice - tickSize * ROWS / 2);
-        let index = -1;
-
-        while (index++ < ROWS) {
-          price = this._normalizePrice(price += tickSize);
-          const item = map[price];
-          item.index = index;
-          this._map.set(item.lastPrice, item);
-          data.unshift(item);
+    } else if (this._lastPrice) {
+      if (this._customTickSize != null) {
+        const _item = this._map[this._lastPrice];
+        if (_item) {
+          centerIndex = _item?.index ?? (ROWS / 2);
+          _item.isCenter = true;
         }
-      } else if (this._lastPrice) {
+      } else {
         for (let i = 0; i < this.items.length; i++) {
           const item = this.items[i];
           item.isCenter = i === centerIndex;
@@ -1178,9 +1153,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._customTickSize = null;
     }
 
+    this._customTickSize = ticksMultiplier;
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
+    this._fillPL();
     this.detectChanges();
   }
+
 
   detectChanges(force = false) {
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
