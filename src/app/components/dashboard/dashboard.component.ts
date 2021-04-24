@@ -16,7 +16,6 @@ import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
 import { SaveLayoutConfigService } from '../save-layout-config.service';
 import { SaveLoaderService } from 'ui';
-import { NotificationService } from 'notification';
 
 enum WindowEvents {
   Message = 'message'
@@ -55,14 +54,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _workspaceService: WorkspacesManager,
     private saverService: SaveLayoutConfigService,
     private loaderService: SaveLoaderService,
-    private _notificationService: NotificationService,
   ) {
   }
 
   ngOnInit() {
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
-    this._connectToWebSocket();
+    this._websocketService.connect();
 
     this._accountsManager.activeConnection.subscribe((connection) => {
       if (connection)
@@ -149,45 +147,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   isWindowPopup() {
     return this._windowPopupManager.isWindowPopup();
-  }
-
-  private _connectToWebSocket() {
-    let isOpened = false;
-    let hasError = false;
-
-    this._websocketService.connect({
-      open: () => {
-        if (!isOpened) {
-          isOpened = true;
-          return;
-        }
-
-        hasError = false;
-
-        this._notificationService.showSuccess('Connection restored.');
-
-        this._accountsManager.fetchConnections();
-      },
-      error: () => {
-        if (hasError) {
-          return;
-        }
-
-        hasError = true;
-
-        this._notificationService.showError('Connection lost.');
-
-        const connection = this._accountsManager.getActiveConnection();
-
-        if (connection?.connected) {
-          this._accountsManager.updateConnectionClientState({
-            ...connection,
-            connected: false,
-            error: true,
-          });
-        }
-      },
-    });
   }
 
   private _loadPopupState() {

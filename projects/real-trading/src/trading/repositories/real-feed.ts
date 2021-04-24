@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, WebSocketService } from 'communication';
+import { IBaseItem, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
 
@@ -34,7 +34,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
               @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
-    this._webSocketService.on(this._handleTrade.bind(this));
+    this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
     this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
     this._accountsManager.activeConnection.subscribe((connection) => {
       if (!connection || !connection.connected)

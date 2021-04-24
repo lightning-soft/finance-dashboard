@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AlertType, WebSocketService } from 'communication';
+import { AlertType, WebSocketService, WSEventType } from 'communication';
+import { NotificationService } from 'notification';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
@@ -15,10 +16,14 @@ export class AccountsManager {
   public activeConnection: Observable<IConnection> = this._activeConnection.asObservable();
   public connections: Observable<IConnection[]> = this._connections.asObservable();
 
+  private _wsIsOpened = false;
+  private _wsHasError = false;
+
   constructor(
     protected _connectionsRepository: ConnectionsRepository,
     private _webSocketService: WebSocketService,
-    private _interceptor: HttpErrorInterceptor
+    private _interceptor: HttpErrorInterceptor,
+    private _notificationService: NotificationService,
   ) {
   }
 
@@ -30,22 +35,21 @@ export class AccountsManager {
     return this.items.find(i => i.connected);
   }
 
-  updateConnectionClientState(connection: IConnection) {
-    this.onUpdated(connection);
-  }
-
   async init(): Promise<IConnection[]> {
-    this._webSocketService.on(this._handleStream.bind(this));
+    this._webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
+    this._webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
+    this._webSocketService.on(WSEventType.Error, this._wsHandleError.bind(this));
+
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
 
-    this.fetchConnections();
+    this._fetchConnections();
 
     return this.connections.pipe(
       take(2), // first default value
     ).toPromise();
   }
 
-  fetchConnections() {
+  private _fetchConnections() {
     this._connectionsRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(res => {
@@ -61,7 +65,7 @@ export class AccountsManager {
       });
   }
 
-  private _handleStream(msg: any): void {
+  private _wsHandleMessage(msg: any): void {
     if (msg?.type === 'Connect' && (
       msg.result.type === AlertType.ConnectionClosed ||
       msg.result.type === AlertType.ConnectionBroken ||
@@ -71,6 +75,39 @@ export class AccountsManager {
       return;
     if (msg.result?.value == 'No connection!') {
       this._deactivateConnection();
+    }
+  }
+
+  private _wsHandleOpen() {
+    if (!this._wsIsOpened) {
+      this._wsIsOpened = true;
+      return;
+    }
+
+    this._wsHasError = false;
+
+    this._notificationService.showSuccess('Connection restored.');
+
+    this._fetchConnections();
+  }
+
+  private _wsHandleError() {
+    if (this._wsHasError) {
+      return;
+    }
+
+    this._wsHasError = true;
+
+    this._notificationService.showError('Connection lost.');
+
+    const connection = this.getActiveConnection();
+
+    if (connection?.connected) {
+      this.onUpdated({
+        ...connection,
+        connected: false,
+        error: true,
+      });
     }
   }
 
