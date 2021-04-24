@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AlertType, WebSocketService } from 'communication';
+import { AlertType, WebSocketService, WSEventType } from 'communication';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
@@ -35,7 +35,7 @@ export class AccountsManager {
   }
 
   async init(): Promise<IConnection[]> {
-    this._webSocketService.on(this._handleStream.bind(this));
+    this._webSocketService.on(WSEventType.Message, this._handleStream.bind(this));
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
 
     this.fetchConnections();

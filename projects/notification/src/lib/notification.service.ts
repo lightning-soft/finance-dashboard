@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { WebSocketService } from 'communication';
+import { WebSocketService, WSEventType } from 'communication';
 import { Subject } from 'rxjs';
 import { Notification, NotificationStatus, NotificationType } from './notification';
 import { NotificationId } from './type';
@@ -18,7 +18,7 @@ export class NotificationService extends NotifierService {
     private _webSocketService: WebSocketService,
   ) {
     super();
-    this._webSocketService.on(this._handleStream.bind(this));
+    this._webSocketService.on(WSEventType.Message, this._handleStream.bind(this));
   }
 
   showError(message: any, defaultMessage?: string) {

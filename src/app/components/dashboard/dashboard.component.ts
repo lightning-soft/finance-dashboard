@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { WebSocketService } from 'communication';
+import { WebSocketService, WSEventType } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
@@ -155,38 +155,39 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     let isOpened = false;
     let hasError = false;
 
-    this._websocketService.connect({
-      open: () => {
-        if (!isOpened) {
-          isOpened = true;
-          return;
-        }
+    this._websocketService.connect();
 
-        hasError = false;
+    this._websocketService.on(WSEventType.Open, () => {
+      if (!isOpened) {
+        isOpened = true;
+        return;
+      }
 
-        this._notificationService.showSuccess('Connection restored.');
+      hasError = false;
 
-        this._accountsManager.fetchConnections();
-      },
-      error: () => {
-        if (hasError) {
-          return;
-        }
+      this._notificationService.showSuccess('Connection restored.');
 
-        hasError = true;
+      this._accountsManager.fetchConnections();
+    });
 
-        this._notificationService.showError('Connection lost.');
+    this._websocketService.on(WSEventType.Error, () => {
+      if (hasError) {
+        return;
+      }
 
-        const connection = this._accountsManager.getActiveConnection();
+      hasError = true;
 
-        if (connection?.connected) {
-          this._accountsManager.updateConnectionClientState({
-            ...connection,
-            connected: false,
-            error: true,
-          });
-        }
-      },
+      this._notificationService.showError('Connection lost.');
+
+      const connection = this._accountsManager.getActiveConnection();
+
+      if (connection?.connected) {
+        this._accountsManager.updateConnectionClientState({
+          ...connection,
+          connected: false,
+          error: true,
+        });
+      }
     });
   }
 
