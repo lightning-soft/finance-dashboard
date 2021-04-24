@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
 import { CommunicationConfig } from '../http';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
@@ -85,22 +84,18 @@ export class WebSocketService {
   }
 
   send(data: any = {}): void {
-    let payload;
+    let payload: any;
+
     try {
       payload = JSON.stringify(data);
     } catch (e) {
-      console.error(`Parse error`, data);
-    }
-
-    if (!this.connected || !payload) {
-      console.warn(`Message didn\'t send `, payload);
-      this.connection$
-        .pipe(filter(i => i), take(1))
-        .subscribe((value) => this._websocket.send(payload));
+      console.error('Parse error', e);
       return;
     }
 
-    this._websocket.send(payload);
+    if (this.connected) {
+      this._websocket.send(payload);
+    }
   }
 
   close() {
@@ -139,22 +134,24 @@ export class WebSocketService {
       },
       error: (event: ErrorEvent) => {
         this._executeListeners(WSEventType.Error, event);
-
-        console.error('soket', event);
       },
-      message: (message: MessageEvent) => {
+      message: (event: MessageEvent) => {
+        let payload: any;
+
         try {
-          const data = JSON.parse(message.data);
-          const { type, result } = data;
-
-          if (type == 'Message' && result.value == 'Api-key accepted!') {
-            this.sucessfulyConnected = true;
-          }
-
-          this._executeListeners(WSEventType.Message, data);
+          payload = JSON.parse(event.data);
         } catch (e) {
           console.error('Parse error', e);
+          return;
         }
+
+        const { type, result } = payload;
+
+        if (type == 'Message' && result.value == 'Api-key accepted!') {
+          this.sucessfulyConnected = true;
+        }
+
+        this._executeListeners(WSEventType.Message, payload);
       },
     };
   }
@@ -178,6 +175,12 @@ export class WebSocketService {
   }
 
   private _executeListeners(type: WSEventType, data?: any) {
-    this._listeners[type].forEach(listener => listener(data));
+    this._listeners[type].forEach(listener => {
+      try {
+        listener(data);
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
 }
