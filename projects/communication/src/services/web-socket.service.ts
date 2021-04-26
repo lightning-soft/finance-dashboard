@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CommunicationConfig } from '../http';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { filter, take } from 'rxjs/operators';
 
 export interface IWebSocketConfig {
   url: string;
@@ -84,18 +85,22 @@ export class WebSocketService {
   }
 
   send(data: any = {}): void {
-    let payload: any;
+    const payload = JSON.stringify(data);
 
-    try {
-      payload = JSON.stringify(data);
-    } catch (e) {
-      console.error('Parse error', e);
+    if (!payload) {
       return;
     }
 
     if (this.connected) {
       this._websocket.send(payload);
+      return;
     }
+
+    console.warn(`Message didn\'t send `, payload);
+
+    this.connection$
+      .pipe(filter(i => i), take(1))
+      .subscribe(() => this._websocket.send(payload));
   }
 
   close() {
