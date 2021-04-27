@@ -506,14 +506,14 @@ export class DomItem implements IBaseItem {
     this._hovered = value;
 
     if (value) {
-        this.price.hovered = this.ask.hovered || this.bid.hovered || this.price.hovered;
+      this.price.hovered = this.ask.hovered || this.bid.hovered || this.price.hovered;
     } else {
       this.price.hovered = false;
     }
   }
 
   get hovered() {
-   return this._hovered;
+    return this._hovered;
   }
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
@@ -524,8 +524,18 @@ export class DomItem implements IBaseItem {
       settings: settings.price,
       withHoverStatus: true
     });
-    this.bid = new SumHistogramCell({ settings: settings.bid, ignoreZero: false, hightlightOnChange: false, withHoverStatus: true });
-    this.ask = new SumHistogramCell({ settings: settings.ask, ignoreZero: false, hightlightOnChange: false, withHoverStatus: true });
+    this.bid = new SumHistogramCell({
+      settings: settings.bid,
+      ignoreZero: false,
+      hightlightOnChange: false,
+      withHoverStatus: true
+    });
+    this.ask = new SumHistogramCell({
+      settings: settings.ask,
+      ignoreZero: false,
+      hightlightOnChange: false,
+      withHoverStatus: true
+    });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
