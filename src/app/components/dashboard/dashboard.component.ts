@@ -6,7 +6,7 @@ import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { WorkspacesManager } from 'workspace-manager';
+import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
@@ -185,6 +185,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _setupWorkspaces() {
+    this._workspaceService.deletedWindow$
+      .pipe(untilDestroyed(this))
+      .subscribe((workspaceWindow: WorkspaceWindow) => {
+        if (!workspaceWindow)
+          return;
+        this.layout.removeComponent((item) => {
+          return workspaceWindow.config.some(config => item.id === config.id);
+        });
+      });
     this._workspaceService.save$
       .pipe(untilDestroyed(this))
       .subscribe(() => {
@@ -199,15 +208,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .pipe(
         untilDestroyed(this)
       )
-      .subscribe(() => {
+      .subscribe(async () => {
         const workspaces = this._workspaceService.workspaces.value;
         const activeWorkspace = workspaces.find(w => w.isActive);
 
         if (!activeWorkspace)
           return;
 
-        const config = this._workspaceService.getWorkspaceConfig();
-        this.layout.loadState(config);
+        const config = this._workspaceService.getWorkspaceConfig().map(item => {
+          item.visible = false;
+          return item;
+        });
+        await this.layout.loadState(config, true);
+        const windowId = this._workspaceService.getCurrentWindow()?.id;
+        if (windowId != null)
+          this._workspaceService.switchWindow(windowId);
       });
     this.setupReloadWindows();
   }
@@ -224,7 +239,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         if (!activeWorkspace)
           return;
 
-        const config = this._workspaceService.getWorkspaceConfig();
+        const config = this._workspaceService.getConfig();
         this.layout.loadState(config, false);
       });
   }

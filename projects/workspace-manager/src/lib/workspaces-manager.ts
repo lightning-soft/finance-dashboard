@@ -15,6 +15,7 @@ export class WorkspacesManager {
   public reloadWorkspace$ = new Subject<void>();
   public reloadWindows$ = new Subject<void>();
   public save$ = new Subject<void>();
+  public deletedWindow$ = new Subject<WorkspaceWindow>();
   public workspaceInit = new BehaviorSubject<boolean>(false);
 
   constructor(private _workspacesStore: WorkspacesStore) {
@@ -128,6 +129,12 @@ export class WorkspacesManager {
   }
 
   public getWorkspaceConfig() {
+    return this.getActiveWorkspace().windows.reduce((total, current) => {
+      return [...total, ...current.config];
+    }, []);
+  }
+
+  public getConfig() {
     return this.getCurrentWindow()?.config;
   }
 
@@ -226,6 +233,8 @@ export class WorkspacesManager {
 
   deleteWindow(id: any) {
     const workspace = this.getActiveWorkspace();
+    const deletedWindow =  workspace.windows.find(item => item.id === id);
+    this.deletedWindow$.next(deletedWindow);
     workspace.windows = workspace.windows.filter(item => item.id !== id);
 
     if (workspace.windows && workspace.windows.every(item => !item.isOnStartUp)) {

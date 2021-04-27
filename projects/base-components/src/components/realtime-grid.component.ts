@@ -74,6 +74,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
       case LayoutNodeEvent.Open:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
+      case LayoutNodeEvent.MakeVisible:
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:
