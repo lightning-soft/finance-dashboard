@@ -393,7 +393,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   toggleColumns(): void {
     this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
-    this.detectChanges();
+    this.detectChanges(true);
   }
 
   setFitColumnsWidth(): void {

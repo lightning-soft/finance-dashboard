@@ -3,7 +3,7 @@ import { Id } from 'communication';
 import { DataCell, IconCell, CheckboxCell, Column, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
-import { TextAlign } from "dynamic-form";
+import { TextAlign } from 'dynamic-form';
 
 const allFields: Partial<keyof OrderItem>[] = [
   'checkbox',
@@ -28,10 +28,11 @@ export type HeaderItem = [string, string, IHeaderItemOptions?] | string;
 export interface IHeaderItemOptions {
   style?: any;
   width?: number;
-  drawObject?: { draw(context): boolean }
+  drawObject?: { draw(context): boolean };
 }
 
 export class OrderItem implements IViewItem<IOrder> {
+  accountId = new DataCell();
   exchange = new DataCell();
   symbol = new DataCell();
   fcmId = new DataCell();
@@ -41,6 +42,7 @@ export class OrderItem implements IViewItem<IOrder> {
   description = new DataCell();
   duration = new DataCell();
   filledQuantity = new DataCell();
+  quantityRemain = new DataCell();
   quantity = new DataCell();
   side = new DataCell();
   status = new DataCell();
@@ -63,10 +65,14 @@ export class OrderItem implements IViewItem<IOrder> {
 
   update(order: IOrder) {
     this.order = { ...this.order, ...order };
+
     ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type']
       .forEach((item) => {
         this[item].updateValue(order[item]);
       });
+
+    this.accountId.updateValue(order.account.id);
+    this.quantityRemain.updateValue(order.quantity - order.filledQuantity);
 
     ['exchange', 'symbol']
       .forEach((item) => {
@@ -85,9 +91,9 @@ export class OrderItem implements IViewItem<IOrder> {
   }
 
   changeStatus() {
-    ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
+    ['averageFillPrice', 'description', 'quantityRemain', 'duration', 'accountId', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
       .forEach((item) => {
-        this[item].changeStatus(this['side'].value.toLowerCase());
+        this[item].changeStatus(this.side.value.toLowerCase());
       });
   }
 
@@ -132,7 +138,7 @@ export function transformHeaderColumn(nameOrArr: HeaderItem) {
   };
 
   if (options?.drawObject) {
-    column.draw = (context) => options.drawObject.draw(context)
+    column.draw = (context) => options.drawObject.draw(context);
   }
 
   return column;
