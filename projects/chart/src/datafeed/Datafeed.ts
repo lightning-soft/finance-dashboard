@@ -92,7 +92,7 @@ export abstract class Datafeed implements IDatafeed {
       }
     }
 
-    chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, request);
+    chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, { request, bars });
 
     this._requests.delete(request.id);
 
@@ -326,7 +326,7 @@ export abstract class Datafeed implements IDatafeed {
       }
     });
 
-    detailsDataSeries.updateLast(lastDetails);
+    detailsDataSeries?.updateLast(lastDetails);
   }
 
   protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
