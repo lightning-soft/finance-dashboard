@@ -66,8 +66,11 @@ export class LayoutComponent implements IDropable, AfterViewInit {
   }
 
   addComponent(options: ComponentOptions | string) {
-    if (this.layout)
-      this.layout.addComponent(options);
+      this.layout?.addComponent(options);
+  }
+
+  removeComponent(callback: (item) => boolean) {
+      this.layout?.removeComponents(callback);
   }
 
   createDragSource(element, item) {
@@ -129,6 +132,10 @@ export class LayoutComponent implements IDropable, AfterViewInit {
       this._initLayout();
 
     this.layout.loadEmptyState();
+  }
+
+  hideAll() {
+    this._windowManagerService.hideAll();
   }
 
   async loadState(settings, closeAll = true) {

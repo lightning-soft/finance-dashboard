@@ -26,7 +26,7 @@ export class DesktopLayout extends Layout {
   }
 
   // TODO implement
-  removeComponent(removeComponent: string) {
+  removeComponents(callback) {
   }
 
   // #TODO implement

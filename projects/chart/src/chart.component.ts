@@ -392,8 +392,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
+      case LayoutNodeEvent.MakeVisible:
         this.setNeedUpdate();
-        this.toolbar.update();
+        this.toolbar?.update();
         break;
       case LayoutNodeEvent.Move:
         this.toolbar.update();
@@ -450,8 +451,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   onWindowClose() {
-    this.layout.removeComponent(Components.Indicators);
-    this.layout.removeComponent(Components.IndicatorList);
+    this.layout.removeComponents((item) => {
+      const isIndicatorComponent = [Components.Indicators, Components.IndicatorList].includes(item.type);
+      return isIndicatorComponent && item.options.componentState()?.state?.link === this.link;
+    });
   }
 
   get positions() {
