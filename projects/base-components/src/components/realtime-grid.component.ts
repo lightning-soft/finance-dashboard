@@ -1,30 +1,35 @@
 import { Directive, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
-import { DataGrid } from 'data-grid';
+import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
 import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 import { StringHelper } from '../helpers';
 
-export function convertToColumn(nameOrArr: any) {
-  nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr]);
-  let [name, title, tableViewName, type] = nameOrArr;
-  if (!tableViewName) {
-    tableViewName = StringHelper.capitalize(title);
+export type HeaderItem = (Partial<Column> & { name: string }) | string;
+
+const DefaultStyles: any = {
+  textOverflow: false,
+  textAlign: 'left',
+}
+
+export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultStyles): Column {
+  item = typeof item === "string" ? { name: item } : item;
+  const title = item.title ?? item.name;
+  const style = {
+    ...defaultStyles,
+    ...item.style,
   }
+
   return {
-    name,
-    type,
-    tableViewName,
-    style: {
-      textOverflow: false,
-      textAlign: 'left',
-    },
-    title: title?.toUpperCase() ?? '',
-    visible: true,
-    // not shown in tableView
-    hidden: false,
+    ...item,
+    style,
+    visible: item.visible ?? true,
+    hidden: item.hidden ?? false, // not shown in tableView
+    canHide: item.canHide ?? true,
+    title: title.toUpperCase(),
+    tableViewName: item.tableViewName ?? StringHelper.capitalize(title),
   };
 }
 

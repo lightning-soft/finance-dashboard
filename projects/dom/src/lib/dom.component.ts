@@ -42,6 +42,7 @@ import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
+import { HeaderItem } from "../../../base-components/src/components/realtime-grid.component";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -51,6 +52,36 @@ const historyParams = {
   BarSize: 1,
   Skip: 0,
 };
+
+const headers: HeaderItem[] = [
+    { name: 'orders', tableViewName: 'Orders' },
+    { name: 'buyOrders', title: 'buy Orders', tableViewName: 'Buy Orders' },
+    { name: 'sellOrders', title: 'sell Orders', tableViewName: 'Sell Orders' },
+    { name: 'volume', tableViewName: 'Volume', type: 'histogram' },
+    'price',
+    { name: 'delta', tableViewName: 'Delta' },
+    { name: 'bidDelta', title: 'delta', tableViewName: 'Bid Delta' },
+    { name: 'bid', tableViewName: 'Bid', type: 'histogram' },
+    { name: 'ltq', tableViewName: 'LTQ' },
+    { name: 'currentBid', title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
+    { name: 'currentAsk', title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
+    { name: 'ask', title: 'ask', tableViewName: 'Ask', type: 'histogram' },
+    { name: 'askDelta', title: 'delta', tableViewName: 'Ask Delta' },
+    { name: 'totalBid', title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
+    { name: 'totalAsk', title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+    // 'tradeColumn',
+    // 'askDepth',
+
+    // {
+    //   name: 'notes',
+    //   style: {
+    //     textOverflow: true,
+    //     textAlign: 'left',
+    //   },
+    //   title: 'NOTES',
+    //   visible: true
+    // }
+];
 
 export class DomItemMax {
   ask: number;
@@ -147,7 +178,7 @@ const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Column
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
-  columns = [];
+    columns: Column[] = [];
 
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
@@ -423,36 +454,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._counter = 0;
     }, 1000 * 60);
 
-    this.columns = [
-      ...[
-        ['orders', 'orders', 'Orders'],
-        ['buyOrders', 'buy Orders', 'Buy Orders'],
-        ['sellOrders', 'sell Orders', 'Sell Orders'],
-        ['volume', 'volume', 'Volume', 'histogram'],
-        'price',
-        ['delta', 'delta', 'Delta'],
-        ['bidDelta', 'delta', 'Bid Delta'],
-        ['bid', 'bid', 'Bid', 'histogram'],
-        ['ltq', 'ltq', 'LTQ'],
-        ['currentBid', 'c.bid', 'C.Bid', 'histogram'],
-        ['currentAsk', 'c.ask', 'C.Ask', 'histogram'],
-        ['ask', 'ask', 'Ask', 'histogram'],
-        ['askDelta', 'delta', 'Ask Delta'],
-        ['totalBid', 't.bid', 'T.Bid', 'histogram'],
-        ['totalAsk', 't.ask', 'T.Ask', 'histogram'],
-        // 'tradeColumn',
-        // 'askDepth',
-      ].map(convertToColumn),
-      // {
-      //   name: 'notes',
-      //   style: {
-      //     textOverflow: true,
-      //     textAlign: 'left',
-      //   },
-      //   title: 'NOTES',
-      //   visible: true
-      // }
-    ];
+        this.columns = headers.map(convertToColumn);
 
     if (!environment.production) {
       this.columns.unshift(convertToColumn('_id'));

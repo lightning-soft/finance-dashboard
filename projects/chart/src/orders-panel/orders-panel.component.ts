@@ -1,7 +1,7 @@
 import { Component, HostBinding, HostListener, OnInit } from '@angular/core';
 import { ILayoutNode, LayoutNode } from 'layout';
-import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
-import { convertToColumn, StringHelper } from 'base-components';
+import { CellClickDataGridHandler, CheckboxCell } from 'data-grid';
+import { convertToColumn, HeaderItem } from 'base-components';
 import { CustomOrderItem } from './custom-order.item';
 import { OrderItem } from 'base-order-form';
 
@@ -22,20 +22,26 @@ export class OrdersPanelComponent implements OnInit {
   orders = [];
   headerCheckboxCell = new CheckboxCell();
 
-  readonly headers = [
-    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell }],
+  readonly headers: HeaderItem[] = [
+    {
+      name: 'chechbox',
+      title: '',
+      width: 30,
+      draw: this.headerCheckboxCell.draw.bind(this.headerCheckboxCell),
+      canHide: false
+    },
     'type',
     'side',
     'symbol',
     'exchange',
-    ['duration', 'TIF'],
-    ['averageFillPrice', 'Price'],
-    ['moveDown', ''],
-    ['moveUp', ''],
-    ['quantity', 'WRK Qty'],
-    ['stop', ''],
-    ['play', ''],
-    ['close', ''],
+    { name: 'duration', title: 'TIF' },
+    { name: 'averageFillPrice', title: 'Price' },
+    { name: 'moveDown', title: '' },
+    { name: 'moveUp', title: '' },
+    { name: 'quantity', title: 'WRK Qty' },
+    { name: 'stop', title: '' },
+    { name: 'play', title: '' },
+    { name: 'close', title: '', canHide: false },
   ];
   handlers = [
     new CellClickDataGridHandler<OrderItem>({
@@ -48,31 +54,14 @@ export class OrdersPanelComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.columns = this.headers.map((nameOrArr: any) => {
-      nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
-      const [name, title, options] = nameOrArr;
-
-      const column: Column = {
-        name,
-        title: title.toUpperCase(),
-        tableViewName: StringHelper.capitalize(name),
-        style: {
-          ...options?.style,
-          buyColor: 'rgba(72, 149, 245, 1)',
-          sellColor: 'rgba(220, 50, 47, 1)',
-          textOverflow: true,
-          textAlign: 'left',
-        },
-        visible: true,
-        width: options?.width
-      };
-
-      if (options?.drawObject) {
-        column.draw = (context) => options.drawObject.draw(context);
-      }
-
-      return column;
-    });
+    this.columns = this.headers.map((item) => {
+      return convertToColumn(item, {
+        buyColor: 'rgba(72, 149, 245, 1)',
+        sellColor: 'rgba(220, 50, 47, 1)',
+        textOverflow: true,
+        textAlign: 'left',
+      })
+    })
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {

@@ -1,5 +1,5 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
+import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -19,7 +19,7 @@ import {
 import { PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
 
-const headers = [
+const headers: HeaderItem[] = [
   'account',
   'price',
   'side',
@@ -27,9 +27,9 @@ const headers = [
   'realized',
   'unrealized',
   'total',
-  ['instrumentName', 'instrument'],
+  { name: 'instrumentName', title: 'instrument' },
   'exchange',
-  'close'
+  { name: 'close', canHide: false }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -283,7 +283,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   private _loadAccount(): void {
-    this._accountRepository.getItems({status: 'Active', criteria: '', limit: 1})
+    this._accountRepository.getItems({ status: 'Active', criteria: '', limit: 1 })
       .subscribe({
         next: (res) => this.accountId = res?.data?.length && res.data[0].id,
         error: err => this._notifier.showError(err, 'Failed to load account')
