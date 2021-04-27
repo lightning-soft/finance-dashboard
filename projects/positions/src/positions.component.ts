@@ -19,13 +19,18 @@ import {
 import { PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
 
+const profitStyles = {
+  lossBackgroundColor: '#C93B3B',
+  inProfitBackgroundColor: '#4895F5'
+}
+
 const headers: HeaderItem[] = [
   'account',
   'price',
   'side',
   'size',
-  'realized',
-  'unrealized',
+  { name: 'realized', style: profitStyles },
+  { name: 'unrealized', style: profitStyles },
   'total',
   { name: 'instrumentName', title: 'instrument' },
   'exchange',
