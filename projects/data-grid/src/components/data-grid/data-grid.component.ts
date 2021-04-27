@@ -87,6 +87,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _items: T[] = [];
   private _styles: GridStyles;
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
+  private _prevActiveCell: Cell;
 
   // private _subscribedEvents = [];
 
@@ -329,8 +330,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _currentCellChanged = (event: ICellChangedEvent<T>) => {
-    this.currentCellChanged.emit(event);
     this.title = this.showColumnTitleOnHover(event.column) ? (event?.item?.toString() ?? '') : null;
+    this.currentCellChanged.emit(event);
   }
 
   private _afterDraw = (e) => {

@@ -32,7 +32,7 @@ export enum AddClassStrategy {
   RELATIVE_ZERO,
 }
 
-interface INumberConfig extends ICellConfig {
+export interface INumberConfig extends ICellConfig {
   strategy?: AddClassStrategy;
   component?: string;
   formatter?: IFormatter;
