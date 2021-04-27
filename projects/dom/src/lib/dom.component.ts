@@ -1098,7 +1098,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const commonView = this._settings.general.commonView;
     const ticksMultiplier = commonView.useCustomTickSize ? commonView.ticksMultiplier : null;
-    if (ticksMultiplier != this._customTickSize) {
+    if (ticksMultiplier !== this._customTickSize) {
       const map = this._getDomItemsMap();
       this._map.clear();
       this.items = [];
