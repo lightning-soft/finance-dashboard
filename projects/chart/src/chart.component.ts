@@ -20,6 +20,7 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
+  IHistoryItem,
   IOrder,
   IQuote,
   Level1DataFeed,
@@ -27,7 +28,7 @@ import {
   OrdersRepository,
   OrderType,
   PositionsRepository,
-  QuoteSide,
+  QuoteSide, TradePrint,
   UpdateType
 } from 'trading';
 import { NotifierService } from 'notifier';
@@ -78,6 +79,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(SideOrderFormComponent)
   private _sideForm: SideOrderFormComponent;
 
+  lastHistoryItem: Partial<IHistoryItem> = {};
+  income: number;
+  incomePercentage: number;
+
   showOHLC = true;
   showChanges = true;
   private _accountId: Id;
@@ -99,18 +104,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument.symbol === value.symbol
       && this.chart.instrument.exchange === value.exchange)
       return;
+
     if (this.chart.instrument) {
       this._tradeDataFeed.unsubscribe(this.chart.instrument);
       this._levelOneDatafeed.unsubscribe(this.chart.instrument);
     }
+
     this.chart.instrument = value;
-    this._tradeDataFeed.subscribe(this.chart.instrument);
-    this._levelOneDatafeed.subscribe(this.chart.instrument);
     this.chart.incomePrecision = value.precision ?? 2;
+
     if (value) {
       value.company = this._getInstrumentCompany();
     }
+
     this.refresh();
+
+    this._tradeDataFeed.subscribe(this.chart.instrument);
+    this._levelOneDatafeed.subscribe(this.chart.instrument);
   }
 
   private loadedState = new BehaviorSubject<IScxComponentState &
@@ -149,13 +159,51 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
-    this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)));
+
+    this.onRemove(
+      this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
+      this._tradeDataFeed.on((trade: TradePrint) => {
+        if (trade.instrument.symbol !== this.instrument?.symbol)
+          return;
+        this.lastHistoryItem.close = trade.price;
+        if (trade.price > this.lastHistoryItem.high || this.lastHistoryItem.high == null) {
+          this.lastHistoryItem.high = trade.price;
+        }
+        if (this.lastHistoryItem.open == null) {
+          this.lastHistoryItem.open = trade.price;
+        }
+        if (trade.price < this.lastHistoryItem.low || this.lastHistoryItem.low == null) {
+          this.lastHistoryItem.low = trade.price;
+        }
+        if (this.lastHistoryItem.volume == null)
+          this.lastHistoryItem.volume = 0;
+        this.lastHistoryItem.volume += trade.volume;
+        this._updateOHLVData();
+      })
+    );
+
     this._accountsManager.activeConnection
       .pipe(untilDestroyed(this))
       .subscribe((connection) => {
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
       });
+  }
+
+  private _updateOHLVData() {
+    if (this.lastHistoryItem.open != null) {
+      this.income = this.lastHistoryItem.close - this.lastHistoryItem.open;
+      const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
+      this.incomePercentage = incomePercentage != null ? +incomePercentage.toFixed(2) : null;
+    }
+    this.chart.updateOHLVData({
+      volume: this.lastHistoryItem.volume,
+      high: this.lastHistoryItem.high,
+      low: this.lastHistoryItem.low,
+      open: this.lastHistoryItem.open,
+      income: this.income,
+      incomePercentage: this.incomePercentage,
+    });
   }
 
   protected loadFiles(): Promise<any> {
@@ -368,6 +416,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+
+    this.lastHistoryItem = {};
+    this.income = null;
+    this.incomePercentage = null;
+    this._updateOHLVData();
 
     if (chart.reload) {
       chart.reload();

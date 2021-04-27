@@ -50,7 +50,6 @@ const historyParams = {
   Periodicity: Periodicity.Hourly,
   BarSize: 1,
   Skip: 0,
-  BarCount: 10
 };
 
 export class DomItemMax {
@@ -395,8 +394,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _bestAskPrice: number;
   componentInstanceId: number;
 
-  dailyInfo: IHistoryItem;
-  prevItem: IHistoryItem;
+  dailyInfo: Partial<IHistoryItem>;
 
   private _counter = 0;
 
@@ -715,28 +713,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return value.toFixed(precision);
   }
 
-  private _loadHistory(): void {
-    const instrument = this.instrument;
-    if (!instrument)
-      return;
-
-    this._historyRepository.getItems({
-      id: instrument.id,
-      Exchange: instrument.exchange,
-      ...historyParams,
-    })
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        res => {
-          const data = res.data;
-          const length = data.length;
-          this.dailyInfo = data[length - 1];
-          this.prevItem = data[length - 2];
-        },
-        err => this._notifier.showError(err)
-      );
-  }
-
   _setPriceForOrders(orders, price) {
     orders.map(item => {
       const priceTypes = this._getPriceSpecs(item, price);
@@ -876,6 +852,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   _onInstrumentChange(prevInstrument: IInstrument) {
     const instrument = this.instrument;
     if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
+      this.dailyInfo = null;
       this._levelOneDatafeed.subscribe(instrument);
       this._tradeDatafeed.subscribe(instrument);
     }
@@ -1023,7 +1000,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _loadData() {
     if (!this._accountId || !this._instrument)
       return;
-    this._loadHistory();
     this._loadPositions();
     this._loadOrderBook();
   }
@@ -1210,7 +1186,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
     let needCentralize = false;
-
+    if (!this.dailyInfo) {
+      this.dailyInfo = {
+        open: trade.price,
+        close: trade.price,
+        high: trade.price,
+        low: trade.price,
+        date: new Date(trade.timestamp),
+        volume: trade.volume,
+      };
+    } else {
+      this.dailyInfo.close = trade.price;
+      if (trade.price < this.dailyInfo.low) {
+        this.dailyInfo.low = trade.price;
+      }
+      if (trade.price > this.dailyInfo.high) {
+        this.dailyInfo.high = trade.price;
+      }
+      this.dailyInfo.date = new Date(trade.timestamp);
+      this.dailyInfo.volume += trade.volume;
+      this.dailyInfo = { ...this.dailyInfo };
+    }
     // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 

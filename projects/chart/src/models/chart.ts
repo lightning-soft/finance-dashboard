@@ -22,6 +22,15 @@ export interface IDetails {
   price: number;
 }
 
+export interface IOHLVData {
+  open: number;
+  high: number;
+  low: number;
+  volume: number;
+  income: number;
+  incomePercentage: number;
+}
+
 export interface IBar {
   close: number;
   high: number;
@@ -487,6 +496,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   allowReadMoreHistory: boolean;
 
   new(config: IChartConfig);
+
+  updateOHLVData(data: IOHLVData);
 
   localize(element?: JQuery): void;
 

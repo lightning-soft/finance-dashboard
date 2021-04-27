@@ -19,11 +19,10 @@
     [title]="'Strategy'"
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
-              [prevItem]="prevItem"
               [showInstrumentChange]="domFormSettings?.formSettings.showInstrumentChange"
               [showOHLVInfo]="domFormSettings?.formSettings.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
-              class="header-daily-info" [dailyInfo]="dailyInfo" [trade]="trade"></daily-info>
+              class="header-daily-info" [dailyInfo]="dailyInfo"></daily-info>
   <span class="window-icon-container">
     <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
       <span [class.switch-item-active]="!isExtended" title="Slim" (click)="isExtended = false" class="slim switch-item">
@@ -67,8 +66,7 @@
         <daily-info [instrument]="instrument"
                     [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
                     [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
-                    [trade]="trade"
-                    [prevItem]="prevItem" [dailyInfo]="dailyInfo"></daily-info>
+                    [dailyInfo]="dailyInfo"></daily-info>
         <nz-input-group [class.d-none]="!domFormSettings.formSettings.showPLInfo" class="pl-input"
                         [nzPrefix]="prefixTemplateUser">
           <input disabled [value]="getPl()" nz-input>
