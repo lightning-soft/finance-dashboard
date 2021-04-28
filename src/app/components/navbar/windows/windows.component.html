@@ -2,8 +2,9 @@
   <nz-select
     [nzDropdownRender]="renderTemplate"
     nzDropdownClassName="window-dropdown-menu"
-    [nzOptionHeightPx]="24"
+    [nzOptionHeightPx]="25"
     [formControl]="formControl"
+    [(nzOpen)]="isSelectOpened"
     (nzOpenChange)="handleToggleDropdown.emit($event)"
     nzPlaceHolder="Select a window">
     <nz-option [nzLabel]="window.name" class="options"
@@ -33,7 +34,7 @@
     <div (click)="createWindow()" class="add-window">
       <i class="icon-add"></i>Add Window
     </div>
-    <nz-divider></nz-divider>
-    <button (click)="save()" class="create-btn">Save active window</button>
+<!--
+    <button (click)="save()" class="create-btn">Save active window</button>-->
   </ng-template>
 </nz-radio-group>
