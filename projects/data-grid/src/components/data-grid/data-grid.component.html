@@ -16,12 +16,19 @@
     <li nz-submenu nzMenuClassName="columns-items" nzTitle="Table View">
       <ul>
         <li *ngFor="let item of getShownColumns()" nz-menu-item>
-          <label nz-checkbox
+          <label *ngIf="item.canHide; else nameTemplate"
+                 nz-checkbox
                  (click)="$event.stopPropagation();"
                  (nzCheckedChange)="changeColumnVisibility(item, $event)"
-                 [nzChecked]="item.visible"
-          >{{getColumnName(item)}}</label> <span (click)="$event.stopPropagation(); changeAlign(item)"
-                                                                 class="align">
+                 [nzChecked]="item.visible">
+            <ng-template [ngTemplateOutlet]="nameTemplate"></ng-template>
+          </label>
+
+          <ng-template #nameTemplate>
+            <span>{{getColumnName(item)}}</span>
+          </ng-template>
+
+          <span (click)="$event.stopPropagation(); changeAlign(item)" class="align">
           <i class="icon-align-{{item.style.textAlign.toLowerCase()}}"></i></span>
         </li>
       </ul>

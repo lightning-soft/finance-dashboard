@@ -21,7 +21,7 @@ export class WindowsComponent implements OnInit {
   currentWorkspace: Workspace;
   currentWindowId;
   formControl = new FormControl();
-
+  isSelectOpened = false;
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
@@ -127,6 +127,7 @@ export class WindowsComponent implements OnInit {
     if (this.currentWindowId !== windowId) {
       this.updateWindow();
       this._workspacesService.switchWindow(windowId);
+      this.isSelectOpened = false;
     }
   }
 
