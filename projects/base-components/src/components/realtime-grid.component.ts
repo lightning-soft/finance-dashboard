@@ -7,7 +7,8 @@ import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 import { StringHelper } from '../helpers';
 
-export type HeaderItem = (Partial<Column> & { name: string }) | string;
+type HeaderItemOptions = (Partial<Column> & { name: string });
+export type HeaderItem = string | HeaderItemOptions;
 
 const DefaultStyles: any = {
   textOverflow: false,
@@ -15,21 +16,21 @@ const DefaultStyles: any = {
 };
 
 export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultStyles): Column {
-  item = typeof item === 'string' ? { name: item } : item;
-  const title = item.title ?? item.name;
+  const options: HeaderItemOptions = typeof item === 'string' ? { name: item } : item;
+  const title = options.title ?? options.name;
   const style = {
     ...defaultStyles,
-    ...item.style,
+    ...options.style,
   };
 
   return {
-    ...item,
+    ...options,
     style,
-    visible: item.visible ?? true,
-    hidden: item.hidden ?? false, // not shown in tableView
-    canHide: item.canHide ?? true,
+    visible: options.visible ?? true,
+    hidden: options.hidden ?? false, // not shown in tableView
+    canHide: options.canHide ?? true,
     title: title.toUpperCase(),
-    tableViewName: item.tableViewName ?? StringHelper.capitalize(title),
+    tableViewName: options.tableViewName ?? StringHelper.capitalize(title),
   };
 }
 

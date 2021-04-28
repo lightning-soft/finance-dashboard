@@ -31,7 +31,6 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
-  headerCheckboxCell = new CheckboxCell();
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
@@ -45,16 +44,16 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     showColumnHeaders: true,
   };
 
+  private _headerCheckboxCell = new CheckboxCell();
+
   readonly orderType = OrderType;
   readonly tab = Tab;
   readonly headers: (HeaderItem | string)[] = [
     {
       name: 'checkbox',
-      title: '',
       width: 30,
-      draw: this.headerCheckboxCell.draw.bind(this.headerCheckboxCell),
-      style: { textAlign: 'center' },
-      canHide: false
+      draw: this._headerCheckboxCell.draw.bind(this._headerCheckboxCell),
+      hidden: true
     },
     { name: 'accountId', title: 'ACCOUNT' },
     'symbol',
@@ -204,8 +203,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   loadState(state): void {
     this._subscribeToConnections();
 
-    if (state && state.columns)
+    if (state && state.columns) {
       this.columns = state.columns;
+      const checkboxColumn = state.columns.find(i => i.name === 'checkbox');
+      checkboxColumn.draw = this._headerCheckboxCell.draw.bind(this._headerCheckboxCell);
+    }
 
     if (state) {
       const { contextMenuState } = state;
@@ -229,8 +231,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {
-    if (this.headerCheckboxCell.toggleSelect(event)) {
-      this.items.forEach(item => item.updateSelect(this.headerCheckboxCell.checked));
+    if (this._headerCheckboxCell.toggleSelect(event)) {
+      this.items.forEach(item => item.updateSelect(this._headerCheckboxCell.checked));
     }
   }
 
