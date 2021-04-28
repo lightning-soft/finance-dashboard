@@ -48,7 +48,7 @@ export abstract class Cell implements ICell {
   protected _statses: string[];
   protected _statusPrefix: string;
   protected _hoverStatusEnabled: boolean;
-  protected _hovered: boolean;
+  protected _hovered = false;
 
   name: string = '';
   value = '';

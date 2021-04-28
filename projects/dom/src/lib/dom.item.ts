@@ -488,7 +488,7 @@ export class DomItem implements IBaseItem {
 
   protected _bid = 0;
   protected _ask = 0;
-  private _hovered: boolean;
+  private _hovered = false;
 
   get isBidSideVisible() {
     return (this.bid.visible || this.bidDelta.visible);
