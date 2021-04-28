@@ -49,7 +49,7 @@ export const widgetList = [
       name: 'DOM',
       component: Components.Dom,
       options: {
-        width: 1200,
+        width: 500,
         minWidth: 470,
       }
     },
