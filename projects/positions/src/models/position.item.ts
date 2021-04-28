@@ -1,5 +1,14 @@
 import { Id } from 'base-components';
-import { DataCell, IconCell, IFormatter, NumberCell, RoundFormatter } from 'data-grid';
+import {
+  AddClassStrategy,
+  Cell,
+  DataCell,
+  IconCell,
+  IFormatter,
+  NumberCell,
+  ProfitClass,
+  RoundFormatter
+} from 'data-grid';
 import { IPosition, Side, TradePrint } from 'trading';
 
 export class PositionItem {
@@ -14,8 +23,8 @@ export class PositionItem {
   exchange = new DataCell();
   price = new NumberCell();
   size = new NumberCell();
-  unrealized = new NumberCell();
-  realized = new NumberCell();
+  unrealized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
+  realized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
   total = new NumberCell();
   close = new IconCell();
   side = new DataCell();
@@ -46,6 +55,8 @@ export class PositionItem {
 
     const iconClass = position.side !== Side.Closed ? 'icon-close-window' : 'd-none';
     this.close.updateClass(iconClass);
+    this._updateCellProfitStatus(this.unrealized);
+    this._updateCellProfitStatus(this.realized);
   }
 
   public updateUnrealized(trade: TradePrint) {
@@ -62,6 +73,8 @@ export class PositionItem {
         this.unrealized.updateValue(this._calculateShortUnrealized(currentPrice, volume, price));
         break;
     }
+
+    this._updateCellProfitStatus(this.unrealized);
   }
 
   private _calculateLongUnrealized(currentPrice: number, volume: number, price: number): number {
@@ -72,6 +85,15 @@ export class PositionItem {
     return ((price * volume) - (currentPrice * volume));
   }
 
+  private _updateCellProfitStatus(cell: Cell): void {
+    let status = '';
+
+    if (cell.class === ProfitClass.DOWN)
+      status = 'loss';
+    else if (cell.class === ProfitClass.UP)
+      status = 'inProfit';
+    cell.changeStatus(status);
+  }
 }
 
 

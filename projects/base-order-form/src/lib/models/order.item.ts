@@ -1,4 +1,4 @@
-import { IViewItem, StringHelper } from 'base-components';
+import { IViewItem } from 'base-components';
 import { Id } from 'communication';
 import { DataCell, IconCell, CheckboxCell, Column, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
@@ -22,14 +22,6 @@ const allFields: Partial<keyof OrderItem>[] = [
   'identifier',
   'close',
 ];
-
-export type HeaderItem = [string, string, IHeaderItemOptions?] | string;
-
-export interface IHeaderItemOptions {
-  style?: any;
-  width?: number;
-  drawObject?: { draw(context): boolean };
-}
 
 export class OrderItem implements IViewItem<IOrder> {
   accountId = new DataCell();
@@ -115,31 +107,4 @@ export class OrderItem implements IViewItem<IOrder> {
   changeCheckboxHorizontalAlign(align: TextAlign): void {
     this.checkbox.horizontalAlign = align;
   }
-}
-
-
-export function transformHeaderColumn(nameOrArr: HeaderItem) {
-  nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr, {}]);
-  const [name, title, options] = nameOrArr;
-
-  const column: Column = {
-    name,
-    title: title.toUpperCase(),
-    tableViewName: StringHelper.capitalize(name),
-    style: {
-      ...options?.style,
-      buyColor: 'rgba(72, 149, 245, 1)',
-      sellColor: 'rgba(220, 50, 47, 1)',
-      textOverflow: true,
-      textAlign: 'left',
-    },
-    visible: true,
-    width: options?.width
-  };
-
-  if (options?.drawObject) {
-    column.draw = (context) => options.drawObject.draw(context);
-  }
-
-  return column;
 }
