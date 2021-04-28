@@ -61,7 +61,7 @@ export class OrdersPanelComponent implements OnInit {
         textOverflow: true,
         textAlign: 'left',
       });
-    })
+    });
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {

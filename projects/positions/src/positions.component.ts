@@ -22,7 +22,7 @@ import { NotifierService } from 'notifier';
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
   inProfitBackgroundColor: '#4895F5'
-}
+};
 
 const headers: HeaderItem[] = [
   'account',

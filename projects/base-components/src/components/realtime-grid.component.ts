@@ -12,7 +12,7 @@ export type HeaderItem = (Partial<Column> & { name: string }) | string;
 const DefaultStyles: any = {
   textOverflow: false,
   textAlign: 'left',
-}
+};
 
 export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultStyles): Column {
   item = typeof item === 'string' ? { name: item } : item;
