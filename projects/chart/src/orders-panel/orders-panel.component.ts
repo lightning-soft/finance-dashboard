@@ -60,7 +60,7 @@ export class OrdersPanelComponent implements OnInit {
         sellColor: 'rgba(220, 50, 47, 1)',
         textOverflow: true,
         textAlign: 'left',
-      })
+      });
     })
   }
 

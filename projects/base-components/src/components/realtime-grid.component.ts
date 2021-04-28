@@ -15,12 +15,12 @@ const DefaultStyles: any = {
 }
 
 export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultStyles): Column {
-  item = typeof item === "string" ? { name: item } : item;
+  item = typeof item === 'string' ? { name: item } : item;
   const title = item.title ?? item.name;
   const style = {
     ...defaultStyles,
     ...item.style,
-  }
+  };
 
   return {
     ...item,

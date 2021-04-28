@@ -178,8 +178,7 @@ const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Column
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
-    columns: Column[] = [];
-
+  columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
@@ -454,7 +453,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._counter = 0;
     }, 1000 * 60);
 
-        this.columns = headers.map(convertToColumn);
+    this.columns = headers.map(convertToColumn);
 
     if (!environment.production) {
       this.columns.unshift(convertToColumn('_id'));
