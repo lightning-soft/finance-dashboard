@@ -155,6 +155,8 @@ export class DomSettings {
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
+    longPositionOpenBackgroundColor: '#2A8AD2',
+    shortPositionOpenBackgroundColor: '#DC322F',
     textAlign: TextAlign.Center,
   };
   bidDelta: any = {
