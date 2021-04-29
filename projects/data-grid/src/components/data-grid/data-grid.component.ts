@@ -17,7 +17,7 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { Cell, ICell } from '../../models';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { CellClickDataGridHandler, DataGridHandler, Events, HandlerEventData } from './data-grid.handler';
+import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from './data-grid.handler';
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
@@ -326,7 +326,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify({column: e.column, item} as HandlerEventData, e.e);
+        handler.notify({column: e.column, item} as IHandlerData, e.e);
     }
   }
 
