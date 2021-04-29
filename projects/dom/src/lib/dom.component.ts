@@ -300,32 +300,32 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   handlers: DataGridHandler[] = [
     new ContextMenuClickDataGridHandler<DomItem>({
       handleHeaderClick: true,
-      handler: (item, event) => {
-        if (!item) {
-          this.dataGrid.createComponentModal(event.event);
-        } else if (OrderColumns.includes(event.column.name)) {
-          this._cancelOrderByClick(event.column.name, item);
+      handler: (data) => {
+        if (!data.item) {
+          this.dataGrid.createComponentModal(data.event);
+        } else if (OrderColumns.includes(data.column.name)) {
+          this._cancelOrderByClick(data.column.name, data.item);
         }
       }
     }),
     new CellClickDataGridHandler<DomItem>({
       column: [Columns.Ask, Columns.Bid],
-      handler: (item, eventData) => this._createOrderByClick(eventData.column.name, item),
+      handler: (data) => this._createOrderByClick(data.column.name, data.item),
     }),
     new MouseDownDataGridHandler<DomItem>({
       column: [Columns.Ask, Columns.Bid],
-      handler: (item) => {
-        const orders = item.orders.orders;
+      handler: (data) => {
+        const orders = data.item.orders.orders;
         if (orders.length) {
-          this.draggingDomItemId = item.index;
+          this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
         }},
     }),
     new MouseUpDataGridHandler<DomItem>({
       column: OrderColumns,
-      handler: (item) => {
-        if (this.draggingDomItemId && this.draggingDomItemId !== item.index) {
-          this._setPriceForOrders(this.draggingOrders, +item.price.value);
+      handler: (data) => {
+        if (this.draggingDomItemId && this.draggingDomItemId !== data.item.index) {
+          this._setPriceForOrders(this.draggingOrders, +data.item.price.value);
         }
         this.draggingDomItemId = null;
         this.draggingOrders = [];

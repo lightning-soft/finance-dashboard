@@ -65,7 +65,7 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   handlers = [
     new CellClickDataGridHandler<WatchlistItem>({
       column: 'close',
-      handler: (item) => this.delete(item),
+      handler: (data) => this.delete(data.item),
     }),
   ];
 

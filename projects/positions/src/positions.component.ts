@@ -76,7 +76,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   handlers = [
     new CellClickDataGridHandler<PositionItem>({
       column: 'close',
-      handler: (item) => this.delete(item),
+      handler: (data) => this.delete(data.item),
     }),
   ];
 

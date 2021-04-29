@@ -47,8 +47,8 @@ export class OrdersPanelComponent implements OnInit {
     new CellClickDataGridHandler<OrderItem>({
       column: 'checkbox',
       handleHeaderClick: true,
-      handler: (item, event) => {
-        item ? item.toggleSelect(event.event) : this.handleHeaderCheckboxClick(event.event);
+      handler: (data) => {
+        data.item ? data.item.toggleSelect(data.event) : this.handleHeaderCheckboxClick(data.event);
       },
     })
   ];
