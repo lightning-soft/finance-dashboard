@@ -386,9 +386,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   handlers: DataGridHandler[] = [
     new ContextMenuClickDataGridHandler<DomItem>({
       handleHeaderClick: true,
-      handler: (data) => {
+      handler: (data, event) => {
         if (!data.item) {
-          this.dataGrid.createComponentModal(data.event);
+          this.dataGrid.createComponentModal(event);
         } else if (OrderColumns.includes(data.column.name)) {
           this._cancelOrderByClick(data.column.name, data.item);
         }

@@ -117,8 +117,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     new CellClickDataGridHandler<OrderItem>({
       column: 'checkbox',
       handleHeaderClick: true,
-      handler: (data) => {
-        data.item ? data.item.toggleSelect(data.event) : this.handleHeaderCheckboxClick(data.event);
+      handler: (data, event) => {
+        data.item ? data.item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
         this.selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
       },
     })

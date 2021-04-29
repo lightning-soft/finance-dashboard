@@ -1,13 +1,12 @@
 import { Column } from "../types";
 
-export type HandlerEventData<T = any, E = Event> = {
+export interface HandlerEventData<T = any> {
   item: T,
-  event: E,
   column: Column
 };
 
 export interface IDataGridHandlerConfig<T, E = Event> {
-  handler: (data: HandlerEventData<T, E>) => void;
+  handler: (data: HandlerEventData<T>, event: E) => void;
   handleHeaderClick?: boolean;
 }
 export enum Events {
@@ -35,16 +34,16 @@ const enum TableNodes {
 export abstract class DataGridHandler<T = any, E = Event> {
   event: Events;
   handleHeaderClick = false;
-  protected handler: (data: HandlerEventData<T, E>) => void;
+  protected handler: (data: HandlerEventData<T>, event: E) => void;
 
   constructor(config: IDataGridHandlerConfig<T, E>) {
     this.handler = config.handler;
     this.handleHeaderClick = config.handleHeaderClick ?? false;
   }
 
-  notify(data: HandlerEventData<T, E>) {
+  notify(data: HandlerEventData<T>, event: E) {
     if ((data.item || this.handleHeaderClick) && typeof this.handler === 'function')
-      this.handler(data);
+      this.handler(data, event);
   }
 }
 export interface DataClickHandlerConfig {

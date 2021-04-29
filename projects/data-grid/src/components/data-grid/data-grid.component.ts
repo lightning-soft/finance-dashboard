@@ -326,7 +326,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify({event: e.e, column: e.column, item} as HandlerEventData);
+        handler.notify({column: e.column, item} as HandlerEventData, e.e);
     }
   }
 
