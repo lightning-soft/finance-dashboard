@@ -8,7 +8,7 @@ import {
   Cell,
   CellClickDataGridHandler,
   Column, ContextMenuClickDataGridHandler,
-  DataGrid,
+  DataGrid, DataGridHandler,
   ICellChangedEvent, IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
@@ -53,36 +53,6 @@ const historyParams = {
   BarSize: 1,
   Skip: 0,
 };
-
-const headers: HeaderItem[] = [
-    { name: 'orders', tableViewName: 'Orders' },
-    { name: 'buyOrders', title: 'buy Orders', tableViewName: 'Buy Orders' },
-    { name: 'sellOrders', title: 'sell Orders', tableViewName: 'Sell Orders' },
-    { name: 'volume', tableViewName: 'Volume', type: 'histogram' },
-    'price',
-    { name: 'delta', tableViewName: 'Delta' },
-    { name: 'bidDelta', title: 'delta', tableViewName: 'Bid Delta' },
-    { name: 'bid', tableViewName: 'Bid', type: 'histogram' },
-    { name: 'ltq', tableViewName: 'LTQ' },
-    { name: 'currentBid', title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
-    { name: 'currentAsk', title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
-    { name: 'ask', title: 'ask', tableViewName: 'Ask', type: 'histogram' },
-    { name: 'askDelta', title: 'delta', tableViewName: 'Ask Delta' },
-    { name: 'totalBid', title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
-    { name: 'totalAsk', title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
-    // 'tradeColumn',
-    // 'askDepth',
-
-    // {
-    //   name: 'notes',
-    //   style: {
-    //     textOverflow: true,
-    //     textAlign: 'left',
-    //   },
-    //   title: 'NOTES',
-    //   visible: true
-    // }
-];
 
 export class DomItemMax {
   ask: number;
@@ -145,6 +115,7 @@ const directionsHints = {
 const topDirectionIndex = 1;
 
 enum Columns {
+  ID = '_id',
   LTQ = 'ltq',
   Bid = 'bid',
   Ask = 'ask',
@@ -159,8 +130,39 @@ enum Columns {
   Volume = 'volume',
   TotalBid = 'totalBid',
   TotalAsk = 'totalAsk',
+  Price = 'price',
   All = 'all',
 }
+
+const headers: HeaderItem[] = [
+  { name: Columns.Orders, tableViewName: 'Orders' },
+  { name: Columns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
+  { name: Columns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
+  { name: Columns.Volume, tableViewName: 'Volume', type: 'histogram' },
+  Columns.Price,
+  { name: Columns.Delta, tableViewName: 'Delta' },
+  { name: Columns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
+  { name: Columns.Bid, tableViewName: 'Bid', type: 'histogram' },
+  { name: Columns.LTQ, tableViewName: 'LTQ' },
+  { name: Columns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
+  { name: Columns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
+  { name: Columns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
+  { name: Columns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
+  { name: Columns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
+  { name: Columns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+  // 'tradeColumn',
+  // 'askDepth',
+
+  // {
+  //   name: 'notes',
+  //   style: {
+  //     textOverflow: true,
+  //     textAlign: 'left',
+  //   },
+  //   title: 'NOTES',
+  //   visible: true
+  // }
+];
 
 export enum QuantityPositions {
   FIRST = 0,
@@ -170,7 +172,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
+const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -381,38 +383,40 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     showColumnHeaders: true,
   };
 
-  handlers = [
-    ...[Columns.Ask, Columns.Bid].map(column => (
-      new CellClickDataGridHandler<DomItem>({
-        column, handler: (item) => this._createOrderByClick(column, item),
-      })
-    )),
-    ...OrderColumns.map(column => (
-      new ContextMenuClickDataGridHandler<DomItem>({
-        column, handler: (item) => this._cancelOrderByClick(column, item),
-      })
-    )),
-    ...OrderColumns.map(column =>
-      new MouseDownDataGridHandler<DomItem>({
-        column,
-        handler: (item) => {
-          const orders = item.orders.orders;
-          console.log(item, orders);
-          if (orders.length) {
-            this.draggingDomItemId = item.index;
-            this.draggingOrders = orders;
-          }
-        },
-      })),
-    ...OrderColumns.map(column => new MouseUpDataGridHandler<DomItem>({
-      column, handler: (item) => {
-        if (this.draggingDomItemId && this.draggingDomItemId !== item.index) {
-          this._setPriceForOrders(this.draggingOrders, +item.price.value);
+  handlers: DataGridHandler[] = [
+    new ContextMenuClickDataGridHandler<DomItem>({
+      handleHeaderClick: true,
+      handler: (data, event) => {
+        if (!data.item) {
+          this.dataGrid.createComponentModal(event);
+        } else if (OrderColumns.includes(data.column.name)) {
+          this._cancelOrderByClick(data.column.name, data.item);
+        }
+      }
+    }),
+    new CellClickDataGridHandler<DomItem>({
+      column: [Columns.Ask, Columns.Bid],
+      handler: (data) => this._createOrderByClick(data.column.name, data.item),
+    }),
+    new MouseDownDataGridHandler<DomItem>({
+      column: [Columns.Ask, Columns.Bid],
+      handler: (data) => {
+        const orders = data.item.orders.orders;
+        if (orders.length) {
+          this.draggingDomItemId = data.item.index;
+          this.draggingOrders = orders;
+        }},
+    }),
+    new MouseUpDataGridHandler<DomItem>({
+      column: OrderColumns,
+      handler: (data) => {
+        if (this.draggingDomItemId && this.draggingDomItemId !== data.item.index) {
+          this._setPriceForOrders(this.draggingOrders, +data.item.price.value);
         }
         this.draggingDomItemId = null;
         this.draggingOrders = [];
       }
-    }))
+    })
   ];
 
   private _accountId: string;
