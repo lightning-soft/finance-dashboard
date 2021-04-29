@@ -7,11 +7,13 @@ import { TextAlign } from 'dynamic-form';
 
 const allFields: Partial<keyof OrderItem>[] = [
   'checkbox',
+  'accountId',
   'averageFillPrice',
   'description',
   'duration',
   'filledQuantity',
   'quantity',
+  'quantityRemain',
   'side',
   'status',
   'type',
@@ -24,24 +26,26 @@ const allFields: Partial<keyof OrderItem>[] = [
 ];
 
 export class OrderItem implements IViewItem<IOrder> {
-  accountId = new DataCell();
-  exchange = new DataCell();
-  symbol = new DataCell();
-  fcmId = new DataCell();
-  identifier = new DataCell();
-  ibId = new DataCell();
-  averageFillPrice = new DataCell();
-  description = new DataCell();
-  duration = new DataCell();
-  filledQuantity = new DataCell();
-  quantityRemain = new DataCell();
-  quantity = new DataCell();
-  side = new DataCell();
-  status = new DataCell();
-  type = new DataCell();
-  close = new IconCell();
-  checkbox = new CheckboxCell();
+  accountId = new DataCell({ withHoverStatus: true });
+  exchange = new DataCell({ withHoverStatus: true });
+  symbol = new DataCell({ withHoverStatus: true });
+  fcmId = new DataCell({ withHoverStatus: true });
+  identifier = new DataCell({ withHoverStatus: true });
+  ibId = new DataCell({ withHoverStatus: true });
+  averageFillPrice = new DataCell({ withHoverStatus: true });
+  description = new DataCell({ withHoverStatus: true });
+  duration = new DataCell({ withHoverStatus: true });
+  filledQuantity = new DataCell({ withHoverStatus: true });
+  quantityRemain = new DataCell({ withHoverStatus: true });
+  quantity = new DataCell({ withHoverStatus: true });
+  side = new DataCell({ withHoverStatus: true });
+  status = new DataCell({ withHoverStatus: true });
+  type = new DataCell({ withHoverStatus: true });
+  close = new IconCell({ withHoverStatus: true });
+  checkbox = new CheckboxCell({ withHoverStatus: true });
   order: IOrder;
+
+  private _hovered: boolean = false;
 
   get id(): Id {
     return this.order.id;
@@ -49,6 +53,21 @@ export class OrderItem implements IViewItem<IOrder> {
 
   get isSelected(): boolean {
     return this.checkbox.checked;
+  }
+
+  set hovered(value: boolean) {
+    this._hovered = value;
+
+    allFields.forEach((field) => {
+      const cell: Cell = this[field] as Cell;
+      if (cell) {
+        cell.hovered = this._hovered;
+      }
+    });
+  }
+
+  get hovered() {
+    return this._hovered;
   }
 
   constructor(order: IOrder) {
@@ -60,7 +79,7 @@ export class OrderItem implements IViewItem<IOrder> {
 
     ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type']
       .forEach((item) => {
-        this[item].updateValue(order[item]);
+        this[item]?.updateValue(order[item]);
       });
 
     this.accountId.updateValue(order.account.id);
@@ -85,7 +104,7 @@ export class OrderItem implements IViewItem<IOrder> {
   changeStatus() {
     ['averageFillPrice', 'description', 'quantityRemain', 'duration', 'accountId', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
       .forEach((item) => {
-        this[item].changeStatus(this.side.value.toLowerCase());
+        this[item]?.changeStatus(this.side.value.toLowerCase());
       });
   }
 

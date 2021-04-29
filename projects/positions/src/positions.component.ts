@@ -16,7 +16,7 @@ import {
   TradeDataFeed,
   TradePrint
 } from 'trading';
-import { PositionItem } from './models/position.item';
+import { PositionColumn, PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
 
 const profitStyles = {
@@ -25,16 +25,16 @@ const profitStyles = {
 };
 
 const headers: HeaderItem[] = [
-  'account',
-  'price',
-  'side',
-  'size',
-  { name: 'realized', style: profitStyles },
-  { name: 'unrealized', style: profitStyles },
-  'total',
-  { name: 'instrumentName', title: 'instrument' },
-  'exchange',
-  { name: 'close', hidden: false }
+  PositionColumn.account,
+  PositionColumn.price,
+  PositionColumn.side,
+  PositionColumn.size,
+  { name: PositionColumn.realized, style: profitStyles },
+  { name: PositionColumn.unrealized, style: profitStyles },
+  PositionColumn.total,
+  { name:PositionColumn.instrumentName, title: 'instrument' },
+  PositionColumn.exchange,
+  { name:PositionColumn.close, hidden: false }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -136,7 +136,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
-    this._columns = headers.map(convertToColumn);
+    this._columns = headers.map((i) => convertToColumn(i, {
+      hoverBackgroundColor: '#2B2D33',
+    }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
       this.items.map(i => i.updateUnrealized(trade));
