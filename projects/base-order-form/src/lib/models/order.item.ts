@@ -121,6 +121,7 @@ export class OrderItem implements IViewItem<IOrder> {
   private _updateSelectedStatus(): void {
     const selectedStatusName = this.isSelected ? 'selected' : '';
     allFields.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
+    console.log(this);
   }
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {
