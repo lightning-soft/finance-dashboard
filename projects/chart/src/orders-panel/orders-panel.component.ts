@@ -24,8 +24,8 @@ export class OrdersPanelComponent implements OnInit {
 
   readonly headers: HeaderItem[] = [
     {
-      name: 'chechbox',
-      title: ' ',
+      name: 'checkbox',
+      title: '',
       width: 30,
       draw: this.headerCheckboxCell.draw.bind(this.headerCheckboxCell),
       canHide: false

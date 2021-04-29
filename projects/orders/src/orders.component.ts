@@ -51,6 +51,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   readonly headers: (HeaderItem | string)[] = [
     {
       name: 'checkbox',
+      title: '',
       width: 30,
       draw: this._headerCheckboxCell.draw.bind(this._headerCheckboxCell),
       hidden: true
