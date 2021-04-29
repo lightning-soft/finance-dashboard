@@ -171,8 +171,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const AllColumns = Object.keys(Columns).map(key => Columns[key]);
-const OrderColumns = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
+const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -299,44 +298,39 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   };
 
   handlers: DataGridHandler[] = [
-    ...AllColumns.map(column => {
-      return new ContextMenuClickDataGridHandler<DomItem>({
-        handleHeaderClick: true,
-        column,
-        handler: (item, event) => {
-         if (!item) {
-            this.dataGrid.createComponentModal(event);
-         } else if (OrderColumns.includes(column)) {
-           this._cancelOrderByClick(column, item);
-         }
+    new ContextMenuClickDataGridHandler<DomItem>({
+      handleHeaderClick: true,
+      handler: (item, event) => {
+        if (!item) {
+          this.dataGrid.createComponentModal(event.event);
+        } else if (OrderColumns.includes(event.column.name)) {
+          this._cancelOrderByClick(event.column.name, item);
         }
-      });
+      }
     }),
-    ...[Columns.Ask, Columns.Bid].map(column => (
-      new CellClickDataGridHandler<DomItem>({
-        column, handler: (item) => this._createOrderByClick(column, item),
-      })
-    )),
-    ...OrderColumns.map(column =>
-      new MouseDownDataGridHandler<DomItem>({
-        column,
-        handler: (item) => {
-          const orders = item.orders.orders;
-          if (orders.length) {
-            this.draggingDomItemId = item.index;
-            this.draggingOrders = orders;
-          }
-        },
-      })),
-    ...OrderColumns.map(column => new MouseUpDataGridHandler<DomItem>({
-      column, handler: (item) => {
+    new CellClickDataGridHandler<DomItem>({
+      column: [Columns.Ask, Columns.Bid],
+      handler: (item, eventData) => this._createOrderByClick(eventData.column.name, item),
+    }),
+    new MouseDownDataGridHandler<DomItem>({
+      column: [Columns.Ask, Columns.Bid],
+      handler: (item) => {
+        const orders = item.orders.orders;
+        if (orders.length) {
+          this.draggingDomItemId = item.index;
+          this.draggingOrders = orders;
+        }},
+    }),
+    new MouseUpDataGridHandler<DomItem>({
+      column: OrderColumns,
+      handler: (item) => {
         if (this.draggingDomItemId && this.draggingDomItemId !== item.index) {
           this._setPriceForOrders(this.draggingOrders, +item.price.value);
         }
         this.draggingDomItemId = null;
         this.draggingOrders = [];
       }
-    }))
+    })
   ];
 
   private _accountId: string;

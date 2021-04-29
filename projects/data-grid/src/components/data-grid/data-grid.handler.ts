@@ -1,5 +1,12 @@
+import { Column } from "../types";
+
+export type HandlerEventData<E = Event> = {
+  event: E,
+  column: Column
+};
+
 export interface IDataGridHandlerConfig<T, E = Event> {
-  handler: (item: T, event: E) => void;
+  handler: (item: T, event: HandlerEventData<E>) => void;
   handleHeaderClick?: boolean;
 }
 export enum Events {
@@ -27,14 +34,14 @@ const enum TableNodes {
 export abstract class DataGridHandler<T = any, E = Event> {
   event: Events;
   handleHeaderClick = false;
-  protected handler: (item: T, event: E) => void;
+  protected handler: (item: T, event: HandlerEventData<E>) => void;
 
   constructor(config: IDataGridHandlerConfig<T, E>) {
     this.handler = config.handler;
     this.handleHeaderClick = config.handleHeaderClick ?? false;
   }
 
-  notify(item: T, event: E) {
+  notify(item: T, event: HandlerEventData<E>) {
     if ((item || this.handleHeaderClick) && typeof this.handler === 'function')
       this.handler(item, event);
   }
@@ -104,12 +111,12 @@ export interface CellClickData {
 }
 
 export interface CellClickDataGridHandlerConfig<T, E = MouseEvent> extends IDataGridHandlerConfig<T, E> {
-  column: string;
+  column?: string | string[];
 }
 
 export class CellClickDataGridHandler<T> extends DataGridHandler<T, MouseEvent> {
   event = Events.Click;
-  column = '';
+  column: string | string[];
 
   constructor(config: CellClickDataGridHandlerConfig<T, MouseEvent>) {
     super(config);

@@ -48,7 +48,7 @@ export class OrdersPanelComponent implements OnInit {
       column: 'checkbox',
       handleHeaderClick: true,
       handler: (item, event) => {
-        item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+        item ? item.toggleSelect(event.event) : this.handleHeaderCheckboxClick(event.event);
       },
     })
   ];

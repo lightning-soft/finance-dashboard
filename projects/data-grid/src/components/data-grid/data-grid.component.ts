@@ -17,7 +17,7 @@ import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { Cell, ICell } from '../../models';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
+import { CellClickDataGridHandler, DataGridHandler, Events, HandlerEventData } from './data-grid.handler';
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
@@ -280,7 +280,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     };
   }
 
-  createComponentModal($event): void {
+  createComponentModal($event: MouseEvent): void {
     $event.preventDefault();
     this.nzContextMenuService.create($event, this.contextMenuComponent);
   }
@@ -319,13 +319,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       return;
 
     for (const handler of _handlers as any[]) {
-      if (handler.event != event || handler.column != e.column?.name)
+      const columns: string[] = Array.isArray(handler.column) ? handler.column : [handler.column];
+      if (handler.event != event || (handler.column && columns.every(i => i !== e.column?.name)))
         continue;
 
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify(item, e.e);
+        handler.notify(item, {event: e.e, column: e.column} as HandlerEventData);
     }
   }
 
