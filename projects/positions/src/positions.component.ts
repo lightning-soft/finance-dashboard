@@ -34,7 +34,7 @@ const headers: HeaderItem[] = [
   'total',
   { name: 'instrumentName', title: 'instrument' },
   'exchange',
-  { name: 'close', canHide: false }
+  { name: 'close', hidden: false }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {

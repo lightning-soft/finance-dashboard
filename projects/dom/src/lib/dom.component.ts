@@ -42,7 +42,8 @@ import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
-import { HeaderItem } from "../../../base-components/src/components/realtime-grid.component";
+import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { HeaderItem } from 'base-components';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -180,13 +181,98 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+
+  get accountId() {
+    return this._accountId;
+  }
+
+  get currentPosition(): IPosition {
+    return this.positions.find(e => e.instrument.symbol == this.instrument.symbol && e.instrument.exchange == this.instrument.exchange);
+  }
+
+  public get instrument(): IInstrument {
+    return this._instrument;
+  }
+
+  public set instrument(value: IInstrument) {
+    if (this._instrument?.id == value.id)
+      return;
+    const prevInstrument = this._instrument;
+    this._unsubscribeFromInstrument();
+    this._instrument = value;
+    this._onInstrumentChange(prevInstrument);
+  }
+
+  get isFormOnTop() {
+    return this.currentDirection === this.directions[topDirectionIndex];
+  }
+
+  @HostBinding('class.hide-header-panel')
+  get showHeaderPanel() {
+    return !this.dataGridMenuState?.showHeaderPanel;
+  }
+
+  get items() {
+    return this.dataGrid.items ?? [];
+  }
+
+  set items(value) {
+    this.dataGrid.items = value;
+  }
+
+  private get _lastPrice(): number {
+    return this._lastChangesItem.ltq?.lastPrice;
+  }
+
+  get trade() {
+    return this._lastTrade;
+  }
+
+  get domFormSettings() {
+    return this._settings.orderArea;
+  }
+
+  get _tickSize() {
+    return this.instrument?.tickSize ?? 0.25;
+  }
+
+  constructor(
+    private _ordersRepository: OrdersRepository,
+    private _positionsRepository: PositionsRepository,
+    private _orderBooksRepository: OrderBooksRepository,
+    private _ordersFeed: OrdersFeed,
+    private _positionsFeed: PositionsFeed,
+    private _levelOneDatafeed: Level1DataFeed,
+    private _tradeDatafeed: TradeDataFeed,
+    protected _accountsManager: AccountsManager,
+    private _volumeHistoryRepository: VolumeHistoryRepository,
+    protected _injector: Injector,
+    private _historyRepository: HistoryRepository,
+  ) {
+    super();
+    this.componentInstanceId = Date.now();
+    this.setTabIcon('icon-widget-dom');
+    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+
+    (window as any).dom = this;
+
+    setInterval(() => {
+      console.log(this._counter);
+      this._counter = 0;
+    }, 1000 * 60);
+
+    this.columns = headers.map(convertToColumn);
+
+    if (!environment.production) {
+      this.columns.unshift(convertToColumn('_id'));
+    }
+  }
   columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
   positions: IPosition[] = [];
-  showColumnTitleOnHover = (item: Column) => false;
   private currentRow: DomItem;
 
   domKeyHandlers = {
@@ -340,14 +426,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _upadateInterval: number;
   private _customTickSize: number;
 
-  get accountId() {
-    return this._accountId;
-  }
-
-  get currentPosition(): IPosition {
-    return this.positions.find(e => e.instrument.symbol == this.instrument.symbol && e.instrument.exchange == this.instrument.exchange);
-  }
-
   directions = ['window-left', 'full-screen-window', 'window-right'];
   currentDirection = this.directions[this.directions.length - 1];
 
@@ -367,62 +445,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _instrument: IInstrument;
   private _priceFormatter: IFormatter;
 
-  public get instrument(): IInstrument {
-    return this._instrument;
-  }
-
-  public set instrument(value: IInstrument) {
-    if (this._instrument?.id == value.id)
-      return;
-    const prevInstrument = this._instrument;
-    this._unsubscribeFromInstrument();
-    this._instrument = value;
-    this._onInstrumentChange(prevInstrument);
-  }
-
-  get isFormOnTop() {
-    return this.currentDirection === this.directions[topDirectionIndex];
-  }
-
   visibleRows = 0;
-
-  @HostBinding('class.hide-header-panel')
-  get showHeaderPanel() {
-    return !this.dataGridMenuState?.showHeaderPanel;
-  }
-
-  get items() {
-    return this.dataGrid.items ?? [];
-  }
-
-  set items(value) {
-    this.dataGrid.items = value;
-  }
 
   private _max = new DomItemMax();
   private _lastChangesItem: { [key: string]: DomItem } = {};
 
   private _map = new Map<number, DomItem>();
 
-  private get _lastPrice(): number {
-    return this._lastChangesItem.ltq?.lastPrice;
-  }
-
   private _lastTrade: TradePrint;
 
-  get trade() {
-    return this._lastTrade;
-  }
-
   private _settings: DomSettings = new DomSettings();
-
-  get domFormSettings() {
-    return this._settings.orderArea;
-  }
-
-  get _tickSize() {
-    return this.instrument?.tickSize ?? 0.25;
-  }
 
   private _bestBidPrice: number;
   private _bestAskPrice: number;
@@ -431,38 +463,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dailyInfo: Partial<IHistoryItem>;
 
   private _counter = 0;
-
-  constructor(
-    private _ordersRepository: OrdersRepository,
-    private _positionsRepository: PositionsRepository,
-    private _orderBooksRepository: OrderBooksRepository,
-    private _ordersFeed: OrdersFeed,
-    private _positionsFeed: PositionsFeed,
-    private _levelOneDatafeed: Level1DataFeed,
-    private _tradeDatafeed: TradeDataFeed,
-    protected _accountsManager: AccountsManager,
-    private _volumeHistoryRepository: VolumeHistoryRepository,
-    protected _injector: Injector,
-    private _historyRepository: HistoryRepository,
-  ) {
-    super();
-    this.componentInstanceId = Date.now();
-    this.setTabIcon('icon-widget-dom');
-    this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
-
-    (window as any).dom = this;
-
-    setInterval(() => {
-      console.log(this._counter);
-      this._counter = 0;
-    }, 1000 * 60);
-
-    this.columns = headers.map(convertToColumn);
-
-    if (!environment.production) {
-      this.columns.unshift(convertToColumn(Columns.ID));
-    }
-  }
+  showColumnTitleOnHover = (item: Column) => false;
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -748,10 +749,23 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handlePosition(pos) {
-    const newPosition = RealPositionsRepository.transformPosition(pos);
+    const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
 
-    if (pos.instrument.symbol == this.instrument.symbol) {
+    if (oldPosition) {
+      const index = this.positions.findIndex(item => item.id === newPosition.id);
+      this.positions[index] = newPosition;
+    } else {
+      this.positions.push(newPosition);
+    }
+
+    if (pos.instrument.symbol === this.instrument?.symbol
+       && pos.instrument.exchange === this.instrument?.exchange) {
+      if (oldPosition &&  oldPosition.side !== Side.Closed) {
+        const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
+        oldItem.revertPriceStatus();
+      }
+      this._applyPositionStatus();
       this._applyPositionSetting(oldPosition, newPosition);
     }
   }
@@ -766,12 +780,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const isNewPosition = !isOldPositionOpened && isNewPositionOpened;
 
-    if (oldPosition) {
-      const index = this.positions.findIndex(item => item.id === newPosition.id);
-      this.positions[index] = newPosition;
-    } else {
-      this.positions.push(newPosition);
-    }
 
     if (isNewPosition) {
       // #TODO test all windows
@@ -1015,8 +1023,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .subscribe(items => {
         this.positions = items.data;
         const i = this.instrument;
+        this._applyPositionStatus();
         this._fillPL();
       });
+  }
+
+  private _applyPositionStatus() {
+    if (this.currentPosition.side === Side.Closed)
+      return;
+
+    const prefix = this.currentPosition.side.toLowerCase();
+    const newItem = this._getItem(roundToTickSize(this.currentPosition.price, this._tickSize));
+    newItem.changePriceStatus(prefix + openPositionSuffix);
   }
 
   broadcastHotkeyCommand(commandName: string) {
@@ -1125,12 +1143,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (this._lastPrice) {
+      const items = this.items;
       const _item = this._getItem(this._lastPrice);
-      centerIndex = (ROWS / 2);
-
-      if (_item) {
-        centerIndex = _item?.index ?? (ROWS / 2);
-        _item.isCenter = true;
+      centerIndex = _item?.index ?? (ROWS / 2);
+      for (let i = 0; i < this.items.length; i++) {
+        items[i].isCenter = i === centerIndex;
       }
     }
 
@@ -1158,6 +1175,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
+
+      const pos = this.currentPosition;
+      if (price != null && price === pos?.price && pos?.side !== Side.Closed) {
+        item.changePriceStatus(pos.side === Side.Long ? OpenPositionStatus.LongPositionOpen : OpenPositionStatus.ShortPositionOpen);
+      }
     }
 
     return item;
@@ -1186,7 +1208,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // }
 
   protected _handleTrade(trade: TradePrint) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol) return;
+    if (trade.instrument?.symbol !== this.instrument?.symbol ||
+      trade.instrument?.exchange !== this.instrument?.exchange)
+      return;
+
     this._counter++;
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
@@ -1268,7 +1293,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let priceSum = 0;
     let maxCurrentAsk = 0;
     let maxCurrentBid = 0;
-    let items = this.items;
+    const items = this.items;
 
     for (let i = 0; i < items.length; i++) {
       item = items[i];
@@ -1472,7 +1497,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 
   protected _handleQuote(trade: IQuote) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol) return;
+    if (trade.instrument?.symbol !== this.instrument?.symbol
+      || trade.instrument?.exchange !== this.instrument?.exchange) return;
 
     this._counter++;
     let item = this._getItem(trade.price);
@@ -2062,4 +2088,9 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
   }
 
   return pl;
+}
+
+function roundToTickSize(price, tickSize) {
+  const multiplier = 1 / tickSize;
+  return (Math.ceil(price * multiplier) / multiplier);
 }
