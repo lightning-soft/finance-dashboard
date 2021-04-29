@@ -20,16 +20,18 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
+  HistoryRepository,
   IHistoryItem,
   IOrder,
   IQuote,
   Level1DataFeed,
   OrderSide,
   OrdersRepository,
-  OrderType,
+  OrderType, Periodicity,
   PositionsRepository,
   QuoteSide, TradePrint,
-  UpdateType
+  UpdateType,
+  OHLVFeed
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -79,7 +81,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(SideOrderFormComponent)
   private _sideForm: SideOrderFormComponent;
 
-  lastHistoryItem: Partial<IHistoryItem> = {};
+  lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
   incomePercentage: number;
 
@@ -106,7 +108,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     if (this.chart.instrument) {
-      this._tradeDataFeed.unsubscribe(this.chart.instrument);
+      this._ohlvFeed.unsubscribe(this.chart.instrument);
       this._levelOneDatafeed.unsubscribe(this.chart.instrument);
     }
 
@@ -119,7 +121,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.refresh();
 
-    this._tradeDataFeed.subscribe(this.chart.instrument);
+    this.lastHistoryItem = null;
+    this.income = null;
+    this.incomePercentage = null;
+    this._updateOHLVData();
+    this._ohlvFeed.subscribe(this.chart.instrument);
+
     this._levelOneDatafeed.subscribe(this.chart.instrument);
   }
 
@@ -144,12 +151,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
+    private _historyRepository: HistoryRepository,
     protected datafeed: Datafeed,
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager,
     private _tradeDataFeed: TradeDataFeed,
+    private _ohlvFeed: OHLVFeed,
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
@@ -162,45 +171,29 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.onRemove(
       this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
-      this._tradeDataFeed.on((trade: TradePrint) => {
-        if (trade.instrument.symbol !== this.instrument?.symbol)
-          return;
-        this.lastHistoryItem.close = trade.price;
-        if (trade.price > this.lastHistoryItem.high || this.lastHistoryItem.high == null) {
-          this.lastHistoryItem.high = trade.price;
-        }
-        if (this.lastHistoryItem.open == null) {
-          this.lastHistoryItem.open = trade.price;
-        }
-        if (trade.price < this.lastHistoryItem.low || this.lastHistoryItem.low == null) {
-          this.lastHistoryItem.low = trade.price;
-        }
-        if (this.lastHistoryItem.volume == null)
-          this.lastHistoryItem.volume = 0;
-        this.lastHistoryItem.volume += trade.volume;
-        this._updateOHLVData();
-      })
-    );
+      this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)
+      ));
 
     this._accountsManager.activeConnection
       .pipe(untilDestroyed(this))
       .subscribe((connection) => {
         this._ordersRepository = this._ordersRepository.forConnection(connection);
         this._positionsRepository = this._positionsRepository.forConnection(connection);
+        this._historyRepository = this._historyRepository.forConnection(connection);
       });
   }
 
   private _updateOHLVData() {
-    if (this.lastHistoryItem.open != null) {
+    if (this.lastHistoryItem?.open != null) {
       this.income = this.lastHistoryItem.close - this.lastHistoryItem.open;
       const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
       this.incomePercentage = incomePercentage != null ? +incomePercentage.toFixed(2) : null;
     }
     this.chart.updateOHLVData({
-      volume: this.lastHistoryItem.volume,
-      high: this.lastHistoryItem.high,
-      low: this.lastHistoryItem.low,
-      open: this.lastHistoryItem.open,
+      volume: this.lastHistoryItem?.volume,
+      high: this.lastHistoryItem?.high,
+      low: this.lastHistoryItem?.low,
+      open: this.lastHistoryItem?.open,
       income: this.income,
       incomePercentage: this.incomePercentage,
     });
@@ -208,6 +201,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   protected loadFiles(): Promise<any> {
     return this._lazyLoaderService.load();
+  }
+
+  private _handleOHLV(historyItem) {
+    if (!this.instrument || historyItem.instrument.symbol !== this.instrument.symbol ||
+        historyItem.instrument.exchange !== this.instrument.exchange)
+      return;
+
+    this.lastHistoryItem = historyItem;
+    this._updateOHLVData();
+
   }
 
   private _handleQuote(quote: IQuote) {
@@ -288,7 +291,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.showInstrumentWatermark = false;
 
-    this._tradeDataFeed.subscribe(this.chart.instrument);
+    this._ohlvFeed.subscribe(this.chart.instrument);
     this._levelOneDatafeed.subscribe(this.chart.instrument);
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
@@ -417,11 +420,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.lastHistoryItem = {};
-    this.income = null;
-    this.incomePercentage = null;
-    this._updateOHLVData();
-
     if (chart.reload) {
       chart.reload();
     }
@@ -438,6 +436,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   handleAccountChange(accountId: Id) {
     this.accountId = accountId;
+
+    if (this.instrument)
+        this._ohlvFeed.unsubscribe(this.instrument);
+
+    this._ohlvFeed.subscribe(this.instrument);
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {
@@ -492,8 +495,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   destroy() {
     this._positions.destroy();
     this._orders.destroy();
+
     if (this.chart) {
-      this._tradeDataFeed.unsubscribe(this.instrument);
+      this._ohlvFeed.unsubscribe(this.instrument);
       this._levelOneDatafeed.unsubscribe(this.instrument);
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);

@@ -17,7 +17,6 @@ import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
-  HistoryRepository,
   IConnection,
   IInstrument,
   IOrder,
@@ -44,15 +43,10 @@ import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.ite
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { HeaderItem } from 'base-components';
+import { OHLVFeed } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
-
-const historyParams = {
-  Periodicity: Periodicity.Hourly,
-  BarSize: 1,
-  Skip: 0,
-};
 
 export class DomItemMax {
   ask: number;
@@ -247,7 +241,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _accountsManager: AccountsManager,
     private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector,
-    private _historyRepository: HistoryRepository,
+    private _ohlvFeed: OHLVFeed,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -267,6 +261,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.columns.unshift(convertToColumn('_id'));
     }
   }
+
   columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
@@ -474,18 +469,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
         this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
-        this._historyRepository = this._historyRepository.forConnection(connection);
         if (connection)
           this._onInstrumentChange(this.instrument);
       });
+
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
+
     this.onRemove(
       this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
       this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
       this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
       this._positionsFeed.on((pos) => this.handlePosition(pos)),
+      this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
     );
 
     // setInterval(() => {
@@ -748,6 +745,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.domKeyHandlers[key]();
   }
 
+  handleOHLV(ohlv) {
+    if (this.instrument?.symbol !== ohlv.instrument.symbol ||
+        this.instrument.exchange !== ohlv.instrument.exchange)
+      return;
+
+    this.dailyInfo = ohlv;
+  }
+
   handlePosition(pos) {
     const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.positions.find(item => item.id === newPosition.id);
@@ -760,8 +765,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (pos.instrument.symbol === this.instrument?.symbol
-       && pos.instrument.exchange === this.instrument?.exchange) {
-      if (oldPosition &&  oldPosition.side !== Side.Closed) {
+      && pos.instrument.exchange === this.instrument?.exchange) {
+      if (oldPosition && oldPosition.side !== Side.Closed) {
         const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
         oldItem.revertPriceStatus();
       }
@@ -880,6 +885,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (instrument) {
       this._levelOneDatafeed.unsubscribe(instrument);
       this._tradeDatafeed.unsubscribe(instrument);
+      this._ohlvFeed.unsubscribe(instrument);
     }
   }
 
@@ -1013,8 +1019,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _loadData() {
     if (!this._accountId || !this._instrument)
       return;
+
     this._loadPositions();
     this._loadOrderBook();
+    this._ohlvFeed.subscribe(this.instrument);
   }
 
   protected _loadPositions() {
@@ -1216,27 +1224,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const changes = this._lastChangesItem;
     const prevltqItem = changes.ltq;
     let needCentralize = false;
-    if (!this.dailyInfo) {
-      this.dailyInfo = {
-        open: trade.price,
-        close: trade.price,
-        high: trade.price,
-        low: trade.price,
-        date: new Date(trade.timestamp),
-        volume: trade.volume,
-      };
-    } else {
-      this.dailyInfo.close = trade.price;
-      if (trade.price < this.dailyInfo.low) {
-        this.dailyInfo.low = trade.price;
-      }
-      if (trade.price > this.dailyInfo.high) {
-        this.dailyInfo.high = trade.price;
-      }
-      this.dailyInfo.date = new Date(trade.timestamp);
-      this.dailyInfo.volume += trade.volume;
-      this.dailyInfo = { ...this.dailyInfo };
-    }
     // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 

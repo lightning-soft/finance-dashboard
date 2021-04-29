@@ -1,5 +1,4 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
-import { FakeTradeDatafeed } from 'fake-communication';
 import {
   TradeDataFeed,
   AccountRepository, BrokersRepository,
@@ -14,6 +13,7 @@ import {
   OrderBooksRepository,
   VolumeHistoryRepository,
   BarDataFeed,
+  OHLVFeed,
 } from 'trading';
 import {
   RealAccountRepository,
@@ -26,9 +26,8 @@ import {
   RealOrderBooksRepository,
   RealTradeDataFeed,
   RealVolumeHistoryRepository,
-  RealBarDataFeed
+  RealBarDataFeed, RealOHLVFeed
 } from './trading/repositories';
-
 
 @NgModule({})
 export class RealTradingModule {
@@ -110,6 +109,10 @@ export class RealTradingModule {
         {
           provide: OrderBooksRepository,
           useClass: RealOrderBooksRepository,
+        },
+        {
+          provide: OHLVFeed,
+          useClass: RealOHLVFeed,
         },
       ]
     };
