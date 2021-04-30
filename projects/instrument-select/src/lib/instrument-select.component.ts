@@ -9,8 +9,19 @@ import { untilDestroyed } from '@ngneat/until-destroy';
   styleUrls: ['./instrument-select.component.scss']
 })
 export class InstrumentSelectComponent extends ItemsComponent<IInstrument> implements OnInit {
+  private _instrument: IInstrument = null;
 
-  @Input() instrument: IInstrument = null;
+  get instrument() {
+    return this._instrument;
+  }
+
+  @Input() set instrument(value) {
+    if (value?.id !== this._instrument?.id) {
+      this._instrument = value;
+      this.value = value.id as string;
+    }
+  }
+
   @Input() placeholder = 'Select instrument';
   @Input() className = '';
   @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
@@ -27,14 +38,6 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   ) {
     super();
     this.autoLoadData = false;
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-
-    if (this.instrument) {
-      this.value = this.instrument?.id as string;
-    }
   }
 
   search(criteria = '') {
