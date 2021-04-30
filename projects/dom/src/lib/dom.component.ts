@@ -2,7 +2,14 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, Vi
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import {
+  BaseOrderForm, DomFormSettings,
+  FormActions,
+  getPriceSpecs,
+  OcoStep,
+  SideOrderForm,
+  SideOrderFormComponent
+} from 'base-order-form';
 import { Id, RealtimeActionData } from 'communication';
 import {
   Cell,
@@ -99,6 +106,7 @@ interface IDomState {
   componentInstanceId: number;
   columns: any;
   contextMenuState: any;
+  orderForm: Partial<SideOrderForm>;
 }
 
 const directionsHints = {
@@ -175,6 +183,7 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 })
 @LayoutNode()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+  @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   get accountId() {
     return this._accountId;
@@ -268,6 +277,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
   positions: IPosition[] = [];
+  orderFormState: Partial<SideOrderForm>;
   private currentRow: DomItem;
 
   domKeyHandlers = {
@@ -1771,6 +1781,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
+      orderForm: {
+        quantity: (this.domForm.form.controls as SideOrderForm).quantity.value
+      }
     };
   }
 
@@ -1807,6 +1820,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.instrument = state.instrument;
+    this.orderFormState = state.orderForm;
   }
 
   openSettings(hidden = false) {

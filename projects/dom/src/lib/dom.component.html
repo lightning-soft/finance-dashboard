@@ -60,6 +60,7 @@
       [domSettings]="domFormSettings"
       [isExtended]="isExtended"
       (actions)="handleFormAction($event)"
+      [defaultFormState]="orderFormState"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}">
 
       <ng-container headerContent>
