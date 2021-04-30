@@ -18,3 +18,4 @@ export * from './real-feed';
 export * from './real-settings.repository';
 export * from './real-order-books.repository';
 export * from './real-volume-history.repository';
+export * from './real-ohlv.data-feed';
