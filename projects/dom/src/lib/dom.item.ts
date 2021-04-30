@@ -718,6 +718,10 @@ export class DomItem implements IBaseItem {
     this.price.changeStatus(status);
   }
 
+  revertPriceStatus() {
+    this.price.revertStatus();
+  }
+
   private _updatePriceStatus() {
     if (this.ltq._value > 0) {
       this.price.hightlight();

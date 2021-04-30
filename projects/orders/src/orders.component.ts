@@ -51,6 +51,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   readonly headers: (HeaderItem | string)[] = [
     {
       name: 'checkbox',
+      title: '',
       width: 30,
       draw: this._headerCheckboxCell.draw.bind(this._headerCheckboxCell),
       hidden: true
@@ -112,13 +113,13 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   handlers = [
     new CellClickDataGridHandler<OrderItem>({
       column: 'close',
-      handler: (item) => this.deleteItem(item.order),
+      handler: (data) => this.deleteItem(data.item.order),
     }),
     new CellClickDataGridHandler<OrderItem>({
       column: 'checkbox',
       handleHeaderClick: true,
-      handler: (item, event) => {
-        item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+      handler: (data, event) => {
+        data.item ? data.item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
         this.selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
       },
     })

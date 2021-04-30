@@ -24,8 +24,8 @@ export class OrdersPanelComponent implements OnInit {
 
   readonly headers: HeaderItem[] = [
     {
-      name: 'chechbox',
-      title: ' ',
+      name: 'checkbox',
+      title: '',
       width: 30,
       draw: this.headerCheckboxCell.draw.bind(this.headerCheckboxCell),
       canHide: false
@@ -47,8 +47,8 @@ export class OrdersPanelComponent implements OnInit {
     new CellClickDataGridHandler<OrderItem>({
       column: 'checkbox',
       handleHeaderClick: true,
-      handler: (item, event) => {
-        item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+      handler: (data, event) => {
+        data.item ? data.item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
       },
     })
   ];
