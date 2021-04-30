@@ -31,6 +31,7 @@ export class IndicatorListComponent implements OnInit {
       this.fetchIndicators();
     this.addLinkObserver({
       link: this.link,
+      layoutContainer: this.layoutContainer,
       handleLinkData: (chart: IChart) => {
         this.chart = chart;
         this.fetchIndicators();

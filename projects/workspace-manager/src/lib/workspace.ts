@@ -33,5 +33,6 @@ export class WorkspaceWindow {
 function generateConfig(config) {
   if (!config)
     return [];
-  return config.map(item => ({ ...item, id: Date.now() }));
+
+  return config.map(item => ({ ...item, id: `${Date.now()}_${Math.random()}` }));
 }
