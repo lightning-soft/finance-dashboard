@@ -23,8 +23,8 @@ export class PositionItem {
   exchange = new DataCell();
   price = new NumberCell();
   size = new NumberCell();
-  unrealized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
-  realized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
+  unrealized = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false });
+  realized = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false });
   total = new NumberCell();
   close = new IconCell();
   side = new DataCell();
@@ -48,7 +48,8 @@ export class PositionItem {
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
-    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
+    this.price.updateValue(this.position.averagePrice);
+    const fields = ['size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -62,27 +63,13 @@ export class PositionItem {
   public updateUnrealized(trade: TradePrint) {
     if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
       return;
-    const currentPrice = +this.price.value;
-    const { volume, price } = trade;
-    switch (this.side.value) {
-      case Side.Long:
-        this.unrealized.updateValue(this._calculateLongUnrealized(currentPrice, volume, price));
-        break;
 
-      case Side.Short:
-        this.unrealized.updateValue(this._calculateShortUnrealized(currentPrice, volume, price));
-        break;
-    }
+    const currentPrice = this.price._value;
+    const volume = this.size._value;
+    const { price } = trade;
+    this.unrealized.updateValue((price - currentPrice) * volume);
 
     this._updateCellProfitStatus(this.unrealized);
-  }
-
-  private _calculateLongUnrealized(currentPrice: number, volume: number, price: number): number {
-    return ((currentPrice * volume) - (price * volume));
-  }
-
-  private _calculateShortUnrealized(currentPrice: number, volume: number, price: number): number {
-    return ((price * volume) - (currentPrice * volume));
   }
 
   private _updateCellProfitStatus(cell: Cell): void {

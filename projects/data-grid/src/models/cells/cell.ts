@@ -34,6 +34,7 @@ export interface ICellConfig {
 
 export enum CellStatus {
   Highlight = 'highlight',
+  Hover = 'hover',
   None = '',
 }
 

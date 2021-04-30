@@ -10,7 +10,7 @@ export enum Side {
 
 export interface IPosition extends IBaseItem {
   accountId: Id;
-  price: number;
+  averagePrice: number;
   size: number;
   realized: number;
   unrealized: number;
