@@ -16,7 +16,7 @@ interface IIconCellConfig extends ICellConfig {
 export class IconCell extends Cell {
   private _icon: Icon;
 
-  constructor(private config?: IIconCellConfig) {
+  constructor(config?: IIconCellConfig) {
     super(config);
     this._icon = config?.icon ?? Icon.Close;
   }

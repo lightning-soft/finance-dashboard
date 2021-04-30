@@ -10,6 +10,7 @@ import {
   RoundFormatter
 } from 'data-grid';
 import { IPosition, Side, TradePrint } from 'trading';
+import { HoverableItem } from "../../../base-components/src/components/hoverable.item";
 
 export enum PositionColumn {
   account = 'account',
@@ -30,9 +31,8 @@ type IPositionItem = {
   [key in PositionColumn]: Cell;
 };
 
-export class PositionItem implements IPositionItem {
+export class PositionItem extends HoverableItem implements IPositionItem {
   private _priceFormatter: IFormatter;
-  private _hovered = false;
 
   account = new DataCell({ withHoverStatus: true });
   instrumentName = new DataCell({ withHoverStatus: true });
@@ -58,19 +58,8 @@ export class PositionItem implements IPositionItem {
     return this.position && this.position.id;
   }
 
-  set hovered(value: boolean) {
-    this._hovered = value;
-
-    allColumns.forEach((field) => {
-      this[field].hovered = this._hovered;
-    });
-  }
-
-  get hovered() {
-    return this._hovered;
-  }
-
   constructor(position?: IPosition) {
+    super();
     if (!position) {
       return;
     }
@@ -141,6 +130,10 @@ export class PositionItem implements IPositionItem {
     else if (cell.class === ProfitClass.UP)
       status = 'inProfit';
     cell.changeStatus(status);
+  }
+
+  protected _getCellsToHover(): Cell[] {
+    return allColumns.map((field) => this[field]);
   }
 }
 

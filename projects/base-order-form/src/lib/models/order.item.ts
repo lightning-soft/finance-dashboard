@@ -1,9 +1,10 @@
 import { IViewItem } from 'base-components';
 import { Id } from 'communication';
-import { DataCell, IconCell, CheckboxCell, Column, Cell } from 'data-grid';
+import { DataCell, IconCell, CheckboxCell, Cell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
 import { TextAlign } from 'dynamic-form';
+import { HoverableItem } from "../../../../base-components/src/components/hoverable.item";
 
 const allFields: Partial<keyof OrderItem>[] = [
   'checkbox',
@@ -25,7 +26,7 @@ const allFields: Partial<keyof OrderItem>[] = [
   'close',
 ];
 
-export class OrderItem implements IViewItem<IOrder> {
+export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
   accountId = new DataCell({ withHoverStatus: true });
   exchange = new DataCell({ withHoverStatus: true });
   symbol = new DataCell({ withHoverStatus: true });
@@ -45,8 +46,6 @@ export class OrderItem implements IViewItem<IOrder> {
   checkbox = new CheckboxCell({ withHoverStatus: true });
   order: IOrder;
 
-  private _hovered: boolean = false;
-
   get id(): Id {
     return this.order.id;
   }
@@ -55,22 +54,8 @@ export class OrderItem implements IViewItem<IOrder> {
     return this.checkbox.checked;
   }
 
-  set hovered(value: boolean) {
-    this._hovered = value;
-
-    allFields.forEach((field) => {
-      const cell: Cell = this[field] as Cell;
-      if (cell) {
-        cell.hovered = this._hovered;
-      }
-    });
-  }
-
-  get hovered() {
-    return this._hovered;
-  }
-
   constructor(order: IOrder) {
+    super();
     this.update(order);
   }
 
@@ -121,10 +106,13 @@ export class OrderItem implements IViewItem<IOrder> {
   private _updateSelectedStatus(): void {
     const selectedStatusName = this.isSelected ? 'selected' : '';
     allFields.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
-    console.log(this);
   }
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {
     this.checkbox.horizontalAlign = align;
+  }
+
+  protected _getCellsToHover(): Cell[] {
+    return allFields.map((field) => this[field] as Cell);
   }
 }

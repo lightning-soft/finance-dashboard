@@ -19,10 +19,10 @@ export class CheckboxCell extends Cell {
     return this._checked;
   }
 
-  constructor(private config?: ICheckboxCellConfig) {
+  constructor(config?: ICheckboxCellConfig) {
     super(config);
-    this._checked = this.config?.checked ?? false;
-    this._size = this.config?.size ?? 10;
+    this._checked = config?.checked ?? false;
+    this._size = config?.size ?? 10;
   }
 
   updateValue(checked: boolean): void {
