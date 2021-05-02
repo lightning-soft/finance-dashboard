@@ -1,7 +1,7 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
@@ -24,7 +24,7 @@ const profitStyles = {
   inProfitBackgroundColor: '#4895F5'
 };
 
-const headers: HeaderItem[] = [
+const headers: HeaderItem<PositionColumn>[] = [
   PositionColumn.account,
   PositionColumn.price,
   PositionColumn.side,
@@ -73,9 +73,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   private _accountId;
 
-  handlers = [
+  handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
-      column: 'close',
+      column: PositionColumn.close,
       handler: (data) => this.delete(data.item),
     }),
   ];

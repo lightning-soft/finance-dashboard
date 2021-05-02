@@ -6,27 +6,33 @@ import { PriceStatus } from 'trading-ui';
 import { TextAlign } from 'dynamic-form';
 import { HoverableItem } from "../../../../base-components/src/components/hoverable.item";
 
-const allFields: Partial<keyof OrderItem>[] = [
-  'checkbox',
-  'accountId',
-  'averageFillPrice',
-  'description',
-  'duration',
-  'filledQuantity',
-  'quantity',
-  'quantityRemain',
-  'side',
-  'status',
-  'type',
-  'exchange',
-  'symbol',
-  'fcmId',
-  'ibId',
-  'identifier',
-  'close',
-];
+export enum OrderColumn {
+  checkbox = 'checkbox',
+  accountId = 'accountId',
+  averageFillPrice = 'averageFillPrice',
+  description = 'description',
+  duration = 'duration',
+  filledQuantity = 'filledQuantity',
+  quantity = 'quantity',
+  quantityRemain = 'quantityRemain',
+  side = 'side',
+  status = 'status',
+  type = 'type',
+  exchange = 'exchange',
+  symbol = 'symbol',
+  fcmId = 'fcmId',
+  ibId = 'ibId',
+  identifier = 'identifier',
+  close = 'close',
+}
 
-export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
+type IOrderItem = IViewItem<IOrder> & {
+  [key in OrderColumn]: Cell;
+}
+
+const allColumns = Object.keys(OrderColumn) as OrderColumn[];
+
+export class OrderItem extends HoverableItem implements IOrderItem {
   accountId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   symbol = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
@@ -61,8 +67,16 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
 
   update(order: IOrder) {
     this.order = { ...this.order, ...order };
-
-    ['averageFillPrice', 'description', 'duration', 'filledQuantity', 'quantity', 'side', 'status', 'type']
+    [
+      OrderColumn.averageFillPrice,
+      OrderColumn.description,
+      OrderColumn.duration,
+      OrderColumn.filledQuantity,
+      OrderColumn.quantity,
+      OrderColumn.side,
+      OrderColumn.status,
+      OrderColumn.type
+    ]
       .forEach((item) => {
         this[item]?.updateValue(order[item]);
       });
@@ -70,12 +84,12 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
     this.accountId.updateValue(order.account.id);
     this.quantityRemain.updateValue(order.quantity - order.filledQuantity);
 
-    ['exchange', 'symbol']
+    [OrderColumn.exchange, OrderColumn.symbol]
       .forEach((item) => {
         this[item].updateValue(order.instrument[item]);
       });
 
-    ['fcmId', 'ibId']
+    [OrderColumn.fcmId, OrderColumn.ibId]
       .forEach((item) => {
         this[item].updateValue(order.account[item]);
       });
@@ -87,10 +101,9 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
   }
 
   changeStatus() {
-    ['averageFillPrice', 'description', 'quantityRemain', 'duration', 'accountId', 'filledQuantity', 'quantity', 'side', 'status', 'type', 'exchange', 'symbol', 'fcmId', 'ibId', 'identifier']
-      .forEach((item) => {
-        this[item]?.changeStatus(this.side.value.toLowerCase());
-      });
+    allColumns.forEach((item) => {
+      this[item]?.changeStatus(this.side.value.toLowerCase());
+    });
   }
 
   toggleSelect(event: MouseEvent): void {
@@ -101,12 +114,11 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
   updateSelect(selected: boolean): void {
     this.checkbox.updateValue(selected);
     this._updateSelectedStatus();
-    console.log(this);
   }
 
   private _updateSelectedStatus(): void {
     const selectedStatusName = this.isSelected ? CellStatus.Selected : CellStatus.None;
-    allFields.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
+    allColumns.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
   }
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {
@@ -114,7 +126,7 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
   }
 
   protected _getCellsToHover(): Cell[] {
-    return allFields.map((field) => this[field] as Cell);
+    return allColumns.map((field) => this[field]);
   }
 }
 
