@@ -150,6 +150,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       sellColor: 'rgba(220, 50, 47, 1)',
       selectedbuyColor: 'rgba(72, 149, 245, 1)',
       selectedsellColor: 'rgba(220, 50, 47, 1)',
+      selectedBackgroundColor: '#383A40',
       selectedbuyBackgroundColor: '#383A40',
       selectedsellBackgroundColor: '#383A40',
       hoveredBackgroundColor: '#2B2D33',

@@ -101,6 +101,7 @@ export class OrderItem extends HoverableItem implements IViewItem<IOrder> {
   updateSelect(selected: boolean): void {
     this.checkbox.updateValue(selected);
     this._updateSelectedStatus();
+    console.log(this);
   }
 
   private _updateSelectedStatus(): void {
