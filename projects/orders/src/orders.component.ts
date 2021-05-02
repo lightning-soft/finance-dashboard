@@ -148,12 +148,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.columns = this.headers.map(i => convertToColumn(i, {
       buyColor: 'rgba(72, 149, 245, 1)',
       sellColor: 'rgba(220, 50, 47, 1)',
-      selectedsellColor: 'rgba(72, 149, 245, 1)',
-      selectedbuyColor: 'rgba(220, 50, 47, 1)',
-      hoverBackgroundColor: '#2B2D33',
-      selectedBackgroundColor: '#2B2D33',
-      selectedbuyBackgroundColor: '#2B2D33',
-      selectedsellBackgroundColor: '#2B2D33',
+      selectedbuyColor: 'rgba(72, 149, 245, 1)',
+      selectedsellColor: 'rgba(220, 50, 47, 1)',
+      selectedbuyBackgroundColor: '#383A40',
+      selectedsellBackgroundColor: '#383A40',
+      hoveredBackgroundColor: '#2B2D33',
       textOverflow: true,
       textAlign: 'left',
     }));
