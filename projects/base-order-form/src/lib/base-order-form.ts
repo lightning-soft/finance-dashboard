@@ -3,29 +3,56 @@ import { IOrder, OrderType } from 'trading';
 import { IPosition, PositionsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { OrderDuration } from 'trading';
+import { Directive, Input } from '@angular/core';
+import { compareInstruments } from 'trading';
 
+const placeholder = '-';
+
+@Directive()
 export abstract class BaseOrderForm extends FormComponent<IOrder> {
   protected positionsRepository: PositionsRepository;
   protected accountId;
   protected instrument;
-  positions: IPosition[] = [];
-  isPositionsNegative: boolean;
+  private _position: IPosition;
+  canClickPosButton = false;
 
-  get positionSum() {
-    if (!this.instrument) {
-      return '-';
+  @Input()
+  set position(pos: IPosition) {
+    this._position = pos;
+
+    if (!this.instrument || !this._position) {
+      this._positionsSum = null;
+      this.canClickPosButton = false;
+      return;
     }
-    const posSum = this.positions.filter(item => item.instrument.symbol === this.instrument.symbol)
-      .reduce((total: number, item) => {
-        return (item.buyVolume - item.sellVolume) + (total || 0);
-      }, null);
+
+    const posSum = this._position.buyVolume - this._position.sellVolume;
     this.isPositionsNegative = posSum < 0;
-    return posSum != null ? posSum : '-';
+    this._positionsSum = posSum;
+    this.canClickPosButton = !!posSum;
+  }
+
+  get position() {
+    return this._position;
+  }
+
+  isPositionsNegative: boolean;
+  protected _positionsSum: number;
+
+  get positionsSum() {
+    return this._positionsSum ?? placeholder;
   }
 
   loadPositions() {
+    if (!this.accountId)
+      return;
+
     this.positionsRepository.getItems({ accountId: this.accountId })
-      .pipe(untilDestroyed(this)).subscribe(res => this.positions = res.data);
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        this.position = res.data
+          .find(item => compareInstruments(item.instrument, this.instrument));
+      });
   }
 
   get isIce() {
@@ -37,7 +64,7 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
   }
 
   get iceAmount() {
-    return this.formValue['iceQuantity'];
+    return this.formValue.iceQuantity;
   }
 
   toggleIce() {
@@ -53,6 +80,13 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
       this.form.controls.iceQuantity.disable();
     } else {
       this.form.controls.iceQuantity.enable();
+    }
+  }
+
+  setPositionQuantity() {
+    if (this._positionsSum) {
+      const quantity = Math.abs(this._positionsSum);
+      this.form.patchValue({ quantity });
     }
   }
 

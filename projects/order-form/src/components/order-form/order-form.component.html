@@ -14,7 +14,9 @@
   <form class="h-100 order-form-wrapper main-grid grid" [formGroup]="form">
     <div class="position-container">
       <span class="pos-title">Pos</span>
-      <button class="position-button" [class.pos-negative]="isPositionsNegative">{{positionSum}}</button>
+      <button
+        [class.pos-cursor-not-allowed]="!canClickPosButton"
+        (click)="setPositionQuantity()" class="position-button" [class.pos-negative]="isPositionsNegative">{{positionsSum}}</button>
     </div>
     <div>
       <button (click)="closePositions()" class="close-position" nz-button>Close Position</button>

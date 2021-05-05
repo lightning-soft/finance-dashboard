@@ -135,10 +135,14 @@ button.top-position-btn {
   margin-top: 3px;
   color: white;
   height: 24px;
+  cursor: pointer;
   line-height: 1;
-  cursor: default;
   font-size: 0.65rem;
   border: 1px solid transparent;
+
+  &.cursor-not-allowed {
+    cursor: not-allowed;
+  }
 }
 
 .pos-negative {

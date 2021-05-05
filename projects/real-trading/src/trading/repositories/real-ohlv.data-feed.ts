@@ -72,11 +72,11 @@ export class RealOHLVFeed extends OHLVFeed {
       };
 
       data.forEach(item => {
-        if (dailyInfo.low == null || dailyInfo.low > item.low) {
+        if (dailyInfo.low == null || item.low < dailyInfo.low) {
           dailyInfo.low = item.low;
         }
         if (dailyInfo.high == null || dailyInfo.high < item.high) {
-          dailyInfo.low = item.high;
+          dailyInfo.high = item.high;
         }
         dailyInfo.volume += item.volume;
         });
