@@ -34,7 +34,7 @@ const headers: HeaderItem<PositionColumn>[] = [
   PositionColumn.total,
   { name:PositionColumn.instrumentName, title: 'instrument' },
   PositionColumn.exchange,
-  { name:PositionColumn.close, hidden: false }
+  { name:PositionColumn.close, hidden: true }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {

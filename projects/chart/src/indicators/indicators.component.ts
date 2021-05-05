@@ -64,6 +64,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
     this.addLinkObserver({
       link: this.link,
+      layoutContainer: this.layoutContainer,
       handleLinkData: (chart: IChart) => {
         this.chart = chart;
         this._handleChart(this.chart);

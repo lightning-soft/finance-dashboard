@@ -510,7 +510,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   onWindowClose() {
     this.layout.removeComponents((item) => {
       const isIndicatorComponent = [Components.Indicators, Components.IndicatorList].includes(item.type);
-      return isIndicatorComponent && item.options.componentState()?.state?.link === this.link;
+      return item.visible && isIndicatorComponent && (item.options.componentState()?.state?.link === this.link);
     });
   }
 

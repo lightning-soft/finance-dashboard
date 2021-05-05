@@ -109,16 +109,16 @@ export class WindowsComponent implements OnInit {
         return;
 
       let config = [];
+      this.updateWindow();
 
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
-
-      this.updateWindow();
 
       const workspaceWindow = this._workspacesService.createWindow(new WorkspaceWindow({
         name: result.name,
         config,
       }));
+
       this.selectWindow(workspaceWindow.id);
     });
   }

@@ -44,7 +44,7 @@ export class DockDesktopLayout extends Layout {
   }
 
   getWidgets() {
-    return this._windowManagerService.windows.getValue();
+    return this._windowManagerService.windows.getValue().slice();
   }
 
   async addComponent(componentNameOrConfig: ComponentOptions | any) {

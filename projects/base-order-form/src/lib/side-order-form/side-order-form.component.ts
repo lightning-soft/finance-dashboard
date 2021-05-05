@@ -14,7 +14,6 @@ import {
   Periodicity,
   PositionsRepository
 } from 'trading';
-import { Side } from 'trading';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
@@ -64,6 +63,12 @@ export interface DomFormSettings {
   };
 }
 
+export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
+  stopLoss: FormControl;
+  isIce: FormControl;
+  takeProfit: FormControl;
+}
+
 @Component({
   selector: 'side-form',
   templateUrl: './side-order-form.component.html',
@@ -76,6 +81,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   dailyInfo: IHistoryItem;
   prevItem: IHistoryItem;
   private _ocoStep = OcoStep.None;
+  private _defaultFormState: Partial<SideOrderForm>;
 
   get isOcoSelected() {
     return this._ocoStep !== OcoStep.None;
@@ -98,6 +104,16 @@ export class SideOrderFormComponent extends BaseOrderForm {
     } else {
       this.typeButtons = this._typeButtons;
     }
+  }
+
+  @Input() set defaultFormState(state: Partial<SideOrderForm>) {
+    this._defaultFormState = state;
+    if (state && this.form)
+      this.form.patchValue(state);
+  }
+
+  get defaultFormState() {
+    return this._defaultFormState;
   }
 
   @ViewChild('quantity')
@@ -219,7 +235,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
     return this.formValue.amount;
   }
 
-
   constructor(
     protected _injector: Injector,
     private _historyRepository: HistoryRepository,
@@ -227,6 +242,13 @@ export class SideOrderFormComponent extends BaseOrderForm {
   ) {
     super();
     this.autoLoadData = false;
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    if (this.defaultFormState) {
+      this.form.patchValue(this.defaultFormState);
+    }
   }
 
   protected _handleConnection(connection: IConnection) {
@@ -242,7 +264,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     }
   }
 
-  createForm() {
+  createForm(): FormGroup {
     const type = this.typeButtons.find(i => i.black);
     const duration = OrderDuration.DAY;
 
@@ -266,9 +288,8 @@ export class SideOrderFormComponent extends BaseOrderForm {
       amount: new FormControl(1),
       isIce: new FormControl(false),
       iceQuantity: new FormControl(10),
-    });
+    } as SideOrderForm);
   }
-
 
   increaseQuantity(value: number) {
     this.quantitySelect.currentItem.value += value;
