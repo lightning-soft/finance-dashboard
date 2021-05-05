@@ -137,6 +137,15 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     this.indicators.push(this._createIndicator(instance));
   }
 
+  removeAll(){
+    const { chart } = this;
+
+    this.indicators.forEach((item) => {
+      chart.removeIndicators(item.instance);
+    });
+    chart.setNeedsUpdate();
+  }
+
   private _removeIndicator(instance: any) {
     this.indicators = this.indicators.filter(indicator => indicator.instance !== instance);
 
