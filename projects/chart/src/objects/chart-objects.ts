@@ -66,6 +66,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
         this.items[index] = model;
       orderBar.update(false);
     }
+
     if (!this._isValid(model)) {
       this.delete(model.id);
     }
@@ -117,8 +118,12 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
         this.items = res.data;
         res.data.forEach(item => {
           this.handle(item);
+          this._onDataLoaded();
         });
       });
+  }
+
+  protected _onDataLoaded() {
   }
 
   protected _deleteItems() {

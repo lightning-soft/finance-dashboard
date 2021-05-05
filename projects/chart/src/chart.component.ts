@@ -27,11 +27,11 @@ import {
   Level1DataFeed,
   OrderSide,
   OrdersRepository,
-  OrderType, Periodicity,
+  OrderType,
   PositionsRepository,
-  QuoteSide, TradePrint,
+  QuoteSide,
   UpdateType,
-  OHLVFeed
+  OHLVFeed, IPosition, compareInstruments
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -112,6 +112,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this._levelOneDatafeed.unsubscribe(this.chart.instrument);
     }
 
+    this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
 
@@ -141,8 +142,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   bidSize: number;
   askSize: number;
 
+  position: IPosition;
   private _orders: Orders;
   private _positions: Positions;
+
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
@@ -204,8 +207,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleOHLV(historyItem) {
-    if (!this.instrument || historyItem.instrument.symbol !== this.instrument.symbol ||
-        historyItem.instrument.exchange !== this.instrument.exchange)
+    if (!this.instrument || !compareInstruments(historyItem.instrument, this.instrument))
       return;
 
     this.lastHistoryItem = historyItem;
@@ -438,9 +440,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.accountId = accountId;
 
     if (this.instrument)
-        this._ohlvFeed.unsubscribe(this.instrument);
+      this._ohlvFeed.unsubscribe(this.instrument);
 
     this._ohlvFeed.subscribe(this.instrument);
+    this.refresh();
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {
@@ -512,10 +515,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const isIndicatorComponent = [Components.Indicators, Components.IndicatorList].includes(item.type);
       return item.visible && isIndicatorComponent && (item.options.componentState()?.state?.link === this.link);
     });
-  }
-
-  get positions() {
-    return this._positions.items;
   }
 
   handleFormAction($event: FormActions) {

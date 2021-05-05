@@ -2,6 +2,7 @@
 
 :host {
   height: 100%;
+
   .order-form-wrapper {
     background: $inputBackground;
     padding: 8px 8px 12px;
@@ -38,6 +39,7 @@
   font-weight: 600;
   height: 24px;
   width: 100%;
+  text-transform: uppercase;
 }
 
 .position-button, {
@@ -46,7 +48,7 @@
   width: auto;
   font-size: 0.8rem;
   color: white;
-  cursor: default;
+  cursor: pointer;
   height: 24px;
   outline: none;
 }
@@ -213,6 +215,10 @@
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.pos-cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 .cursor-not-allowed {

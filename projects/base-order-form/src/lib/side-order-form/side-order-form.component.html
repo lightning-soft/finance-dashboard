@@ -2,9 +2,11 @@
   <form [formGroup]="form" class="form-layout">
     <ng-content select="[headerContent]"></ng-content>
 
-    <button title="Positions" class="top-position-btn"
+    <button
+      [class.cursor-not-allowed]="!canClickPosButton"
+      (click)="setPositionQuantity()" title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"
-    >{{positionSum}}</button>
+    >{{positionsSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select [nzOptionHeightPx]="23" formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeSelectOptions"

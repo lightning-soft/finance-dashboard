@@ -12,8 +12,9 @@ import {
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, QuoteSide, UpdateType
+  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments
 } from 'trading';
+import { RealPositionsRepository } from 'real-trading';
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -75,6 +76,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
 
+    this.loadPositions();
+
     this.bidPrice = null;
     this.askPrice = null;
     this.askVolume = null;
@@ -86,7 +89,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   get accountId() {
-    return this.formValue.accountId;
+    return this.formValue?.accountId;
   }
 
   amountButtons = [
@@ -101,6 +104,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     protected positionsRepository: PositionsRepository,
     // protected _levelOneDatafeedService: Level1DataFeed,
     private _levelOneDatafeed: Level1DataFeed,
+    private _positionDatafeed: PositionsFeed,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -162,17 +166,25 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
 
-    this.onRemove(this._levelOneDatafeed.on((quote: IQuote) => {
-      if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-        if (quote.side === QuoteSide.Ask) {
-          this.askPrice = quote.price;
-          this.askVolume = quote.volume;
-        } else {
-          this.bidVolume = quote.volume;
-          this.bidPrice = quote.price;
+    this.onRemove(
+      this._levelOneDatafeed.on((quote: IQuote) => {
+        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price;
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price;
+          }
         }
-      }
-    }));
+      }),
+      this._positionDatafeed.on((pos) => {
+        const position = RealPositionsRepository.transformPosition(pos);
+        if (compareInstruments(position.instrument, this.instrument))
+          this.position = position;
+
+      })
+    );
   }
 
   closePositions() {
@@ -191,7 +203,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   createForm() {
     return this.fb.group({
       accountId: [null],
-      type: [OrderType.Market],
+      type: [OrderType.Limit],
       quantity: [1],
       exchange: this.instrument?.exchange,
       stopLoss: {
