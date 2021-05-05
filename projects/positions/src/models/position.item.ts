@@ -1,4 +1,4 @@
-import { Id } from 'base-components';
+import { Id, HoverableItem } from 'base-components';
 import {
   AddClassStrategy,
   Cell,
@@ -10,7 +10,6 @@ import {
   RoundFormatter
 } from 'data-grid';
 import { IPosition, Side, TradePrint } from 'trading';
-import { HoverableItem } from "../../../base-components/src/components/hoverable.item";
 
 export enum PositionColumn {
   account = 'account',

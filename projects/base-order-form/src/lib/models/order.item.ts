@@ -1,10 +1,9 @@
-import { IViewItem } from 'base-components';
+import { IViewItem, HoverableItem } from 'base-components';
 import { Id } from 'communication';
 import { Cell, CellStatus, CellStatusGetter, CheckboxCell, DataCell, IconCell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
 import { TextAlign } from 'dynamic-form';
-import { HoverableItem } from "../../../../base-components/src/components/hoverable.item";
 
 export enum OrderColumn {
   checkbox = 'checkbox',
