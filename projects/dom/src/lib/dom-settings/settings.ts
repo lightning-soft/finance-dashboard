@@ -151,7 +151,7 @@ export class DomSettings {
   price: any = {
     color: 'rgba(208, 208, 210, 1)',
     backgroundColor: 'rgba(131, 148, 150, 1)',
-    hoverBackgroundColor: '#383A40',
+    hoveredBackgroundColor: '#383A40',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
@@ -175,7 +175,7 @@ export class DomSettings {
     color: 'white',
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
-    hoverBackgroundColor: '#4895F5',
+    hoveredBackgroundColor: '#4895F5',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
     largeSize: 14,
@@ -188,7 +188,7 @@ export class DomSettings {
   ask: any = {
     color: 'white',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
-    hoverBackgroundColor: '#C93B3B',
+    hoveredBackgroundColor: '#C93B3B',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
