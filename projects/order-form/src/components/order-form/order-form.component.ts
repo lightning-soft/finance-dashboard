@@ -141,10 +141,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   onTypeUpdated() {
     super.onTypeUpdated();
     if (this.isStopLimit) {
-      this.layoutContainer.height = 340;
+      this.layoutContainer.height = 348;
     }
     else {
-      this.layoutContainer.height = 300;
+      this.layoutContainer.height = 308;
     }
   }
 
