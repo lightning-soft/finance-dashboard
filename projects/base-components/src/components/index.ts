@@ -7,4 +7,3 @@ export * from './items.builder';
 export * from './group-items.builder';
 export * from './view-items.builder';
 export * from './realtime-grid.component';
-export * from './hoverable.item';

@@ -1,8 +1,9 @@
-import { Id, HoverableItem } from 'base-components';
+import { Id } from 'base-components';
 import {
   AddClassStrategy,
   Cell,
   DataCell,
+  HoverableItem,
   IconCell,
   IFormatter,
   NumberCell,

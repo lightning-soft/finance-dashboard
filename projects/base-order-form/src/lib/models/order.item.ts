@@ -1,6 +1,6 @@
-import { IViewItem, HoverableItem } from 'base-components';
+import { IViewItem } from 'base-components';
 import { Id } from 'communication';
-import { Cell, CellStatus, CellStatusGetter, CheckboxCell, DataCell, IconCell } from 'data-grid';
+import { Cell, CellStatus, CellStatusGetter, CheckboxCell, DataCell, HoverableItem, IconCell } from 'data-grid';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
 import { TextAlign } from 'dynamic-form';
