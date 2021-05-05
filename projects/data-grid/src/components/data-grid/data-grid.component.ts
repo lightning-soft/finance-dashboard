@@ -120,7 +120,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   set scrollTop(value: number) {
-    this._grid.scrollTop = value;
+    if (this._grid) {
+      this._grid.scrollTop = value;
+    }
   }
 
   private _contextMenuState = {

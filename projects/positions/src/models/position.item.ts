@@ -3,6 +3,7 @@ import {
   AddClassStrategy,
   Cell,
   DataCell,
+  HoverableItem,
   IconCell,
   IFormatter,
   NumberCell,
@@ -11,27 +12,54 @@ import {
 } from 'data-grid';
 import { IPosition, Side, TradePrint } from 'trading';
 
-export class PositionItem {
+export enum PositionColumn {
+  account = 'account',
+  instrumentName = 'instrumentName',
+  exchange = 'exchange',
+  price = 'price',
+  size = 'size',
+  unrealized = 'unrealized',
+  realized = 'realized',
+  total = 'total',
+  close = 'close',
+  side = 'side',
+}
+
+const allColumns = Object.keys(PositionColumn) as PositionColumn[];
+
+type IPositionItem = {
+  [key in PositionColumn]: Cell;
+};
+
+export class PositionItem extends HoverableItem implements IPositionItem {
   private _priceFormatter: IFormatter;
+
+  account = new DataCell({ withHoverStatus: true });
+  instrumentName = new DataCell({ withHoverStatus: true });
+  exchange = new DataCell({ withHoverStatus: true });
+  price = new NumberCell({ withHoverStatus: true });
+  size = new NumberCell({ withHoverStatus: true });
+  unrealized = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    hightlightOnChange: false,
+    withHoverStatus: true
+  });
+  realized = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    hightlightOnChange: false,
+    withHoverStatus: true
+  });
+  total = new NumberCell({ withHoverStatus: true });
+  close = new IconCell({ withHoverStatus: true });
+  side = new DataCell({ withHoverStatus: true });
+  position: IPosition;
 
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
 
-  account = new DataCell();
-  instrumentName = new DataCell();
-  exchange = new DataCell();
-  price = new NumberCell();
-  size = new NumberCell();
-  unrealized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
-  realized = new NumberCell({strategy: AddClassStrategy.RELATIVE_ZERO, hightlightOnChange: false});
-  total = new NumberCell();
-  close = new IconCell();
-  side = new DataCell();
-  position: IPosition;
-
-
   constructor(position?: IPosition) {
+    super();
     if (!position) {
       return;
     }
@@ -48,7 +76,16 @@ export class PositionItem {
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
-    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
+
+    const fields: PositionColumn[] = [
+      PositionColumn.price,
+      PositionColumn.size,
+      PositionColumn.instrumentName,
+      PositionColumn.unrealized,
+      PositionColumn.realized,
+      PositionColumn.total,
+      PositionColumn.side
+    ];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -93,6 +130,10 @@ export class PositionItem {
     else if (cell.class === ProfitClass.UP)
       status = 'inProfit';
     cell.changeStatus(status);
+  }
+
+  protected _getCellsToHover(): Cell[] {
+    return allColumns.map((field) => this[field]);
   }
 }
 
