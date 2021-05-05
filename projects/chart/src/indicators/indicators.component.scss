@@ -552,8 +552,26 @@ formly-form {
 .menu-list {
   background: $inputBackground;
   margin-top: 3px;
-  height: calc(100% - 25px);
+  height: calc(100% - 46px);
 
+}
+
+.remove-all {
+  font-size: 0.75rem;
+  height: 20px;
+  text-align: right;
+
+  &-text {
+    height: 100%;
+    display: inline-block;
+    padding: 3px;
+    padding-left: 6px;
+    color: $light2;
+    &.is-removable{
+      color: $red;
+      cursor: pointer;
+    }
+  }
 }
 
 .menu-title {
