@@ -137,7 +137,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       unwrap: (item: PositionItem) => item.position,
     });
     this._columns = headers.map((i) => convertToColumn(i, {
-      hoverBackgroundColor: '#2B2D33',
+      hoveredBackgroundColor: '#2B2D33',
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
