@@ -117,7 +117,7 @@ export class ToolbarComponent {
   drawingInstruments = [
     {
       icon: 'text',
-      name: 'General-drawings',
+      name: 'General drawings',
       items: ['text']
     },
     {
