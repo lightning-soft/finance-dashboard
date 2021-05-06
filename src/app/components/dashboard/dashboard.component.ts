@@ -278,7 +278,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _handleEvent(event) {
-    if (isInput(event && event.srcElement))
+    if (needToSkipEventHandling(event?.target))
       return;
 
     if (!this.layout.handleEvent(event))
@@ -353,6 +353,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 }
 
-function isInput(element: Element): boolean {
-  return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
+function needToSkipEventHandling(element: Element): boolean {
+  if (!element)
+    return false;
+
+  const isCheckbox = element.getAttribute('type') === 'checkbox';
+
+  return (element.tagName === 'INPUT' && !isCheckbox) || element.classList.contains('hotkey-input');
 }
