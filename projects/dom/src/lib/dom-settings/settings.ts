@@ -94,7 +94,7 @@ export class DomSettings {
     fontSize: 12,
     fontWeight: '',
     generalColors: {
-      centerLineColor: 'grey',
+      centerLineColor: '#808080',
       gridLineColor: '#24262C',
       orderGridLineColor: 'rgba(88, 110, 117, 1)',
       simulationModeWarningClr: 'rgba(4, 63, 128, 1)',
@@ -162,7 +162,7 @@ export class DomSettings {
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: '#2b486e',
-    color: 'white',
+    color: '#fff',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
@@ -223,7 +223,7 @@ export class DomSettings {
     highlightBackgroundColor: '#9D0A0A',
     textAlign: TextAlign.Center,
     backgroundColor: 'transparent',
-    lastTradingBackgroundColor: 'white',
+    lastTradingBackgroundColor: '#fff',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     valueAreaHistogramColor: 'rgba(109, 112, 196, 1)',
     color: 'white',
