@@ -401,7 +401,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       handler: (data) => this._createOrderByClick(data.column.name, data.item),
     }),
     new MouseDownDataGridHandler<DomItem>({
-      column: [Columns.Ask, Columns.Bid],
+      column: OrderColumns,
       handler: (data) => {
         const orders = data.item.orders.orders;
         if (orders.length) {
