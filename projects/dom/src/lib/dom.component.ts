@@ -24,6 +24,7 @@ import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
+  compareInstruments,
   IConnection,
   IInstrument,
   IOrder,
@@ -189,10 +190,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._accountId;
   }
 
-  get currentPosition(): IPosition {
-    return this.positions.find(e => e.instrument.symbol == this.instrument.symbol && e.instrument.exchange == this.instrument.exchange);
-  }
-
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -276,7 +273,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
-  positions: IPosition[] = [];
+  position: IPosition;
   orderFormState: Partial<SideOrderForm>;
   private currentRow: DomItem;
 
@@ -404,7 +401,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       handler: (data) => this._createOrderByClick(data.column.name, data.item),
     }),
     new MouseDownDataGridHandler<DomItem>({
-      column: [Columns.Ask, Columns.Bid],
+      column: OrderColumns,
       handler: (data) => {
         const orders = data.item.orders.orders;
         if (orders.length) {
@@ -711,7 +708,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   getPl(): string {
-    const position = this.currentPosition;
+    const position = this.position;
 
     if (!position || position.side === Side.Closed) {
       return '-';
@@ -765,14 +762,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handlePosition(pos) {
     const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
-    const oldPosition = this.positions.find(item => item.id === newPosition.id);
-
-    if (oldPosition) {
-      const index = this.positions.findIndex(item => item.id === newPosition.id);
-      this.positions[index] = newPosition;
-    } else {
-      this.positions.push(newPosition);
-    }
+    const oldPosition = this.position;
 
     if (pos.instrument.symbol === this.instrument?.symbol
       && pos.instrument.exchange === this.instrument?.exchange) {
@@ -782,6 +772,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
       this._applyPositionStatus();
       this._applyPositionSetting(oldPosition, newPosition);
+      this.position = newPosition;
     }
   }
 
@@ -817,7 +808,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillPL() {
-    const position = this.currentPosition;
+    const position = this.position;
     const includePnl = this._settings[SettingTab.Orders].includePnl;
     const contractSize = this._instrument?.contractSize;
 
@@ -1039,19 +1030,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._positionsRepository.getItems({ accountId: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(items => {
-        this.positions = items.data;
-        const i = this.instrument;
+        this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
         this._applyPositionStatus();
         this._fillPL();
       });
   }
 
   private _applyPositionStatus() {
-    if (this.currentPosition.side === Side.Closed)
+    if (this.position == null || this.position.side === Side.Closed)
       return;
 
-    const prefix = this.currentPosition.side.toLowerCase();
-    const newItem = this._getItem(roundToTickSize(this.currentPosition.price, this._tickSize));
+    const prefix = this.position.side.toLowerCase();
+    const newItem = this._getItem(roundToTickSize(this.position.price, this._tickSize));
     newItem.changePriceStatus(prefix + openPositionSuffix);
   }
 
@@ -1194,7 +1184,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._map.set(price, item);
       item.setPrice(price);
 
-      const pos = this.currentPosition;
+      const pos = this.position;
       if (price != null && price === pos?.price && pos?.side !== Side.Closed) {
         item.changePriceStatus(pos.side === Side.Long ? OpenPositionStatus.LongPositionOpen : OpenPositionStatus.ShortPositionOpen);
       }

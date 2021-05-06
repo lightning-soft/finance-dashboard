@@ -1,7 +1,7 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { RealInstrumentsRepository, RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
@@ -17,7 +17,7 @@ import {
   TradeDataFeed,
   TradePrint
 } from 'trading';
-import { PositionItem } from './models/position.item';
+import { PositionColumn, PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
 
 const profitStyles = {
@@ -25,17 +25,17 @@ const profitStyles = {
   inProfitBackgroundColor: '#4895F5'
 };
 
-const headers: HeaderItem[] = [
-  'account',
-  'price',
-  'side',
-  'size',
-  { name: 'realized', style: profitStyles },
-  { name: 'unrealized', style: profitStyles },
-  'total',
-  { name: 'instrumentName', title: 'instrument' },
-  'exchange',
-  { name: 'close', hidden: false }
+const headers: HeaderItem<PositionColumn>[] = [
+  PositionColumn.account,
+  PositionColumn.price,
+  PositionColumn.side,
+  PositionColumn.size,
+  { name: PositionColumn.realized, style: profitStyles },
+  { name: PositionColumn.unrealized, style: profitStyles },
+  PositionColumn.total,
+  { name:PositionColumn.instrumentName, title: 'instrument' },
+  PositionColumn.exchange,
+  { name:PositionColumn.close, hidden: true }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -74,9 +74,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   private _accountId;
 
-  handlers = [
+  handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
-      column: 'close',
+      column: PositionColumn.close,
       handler: (data) => this.delete(data.item),
     }),
   ];
@@ -138,7 +138,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
-    this._columns = headers.map(convertToColumn);
+    this._columns = headers.map((i) => convertToColumn(i, {
+      hoveredBackgroundColor: '#2B2D33',
+    }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
       const instrument = await (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(trade.instrument);

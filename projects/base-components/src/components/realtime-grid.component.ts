@@ -7,8 +7,8 @@ import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 import { StringHelper } from '../helpers';
 
-type HeaderItemOptions = (Partial<Column> & { name: string });
-export type HeaderItem = string | HeaderItemOptions;
+type HeaderItemOptions<ColumnName = string> = (Partial<Column> & { name: ColumnName });
+export type HeaderItem<ColumnName = string> = ColumnName | HeaderItemOptions<ColumnName>;
 
 const DefaultStyles: any = {
   textOverflow: false,

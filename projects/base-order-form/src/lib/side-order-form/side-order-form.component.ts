@@ -11,19 +11,11 @@ import {
   IInstrument,
   OrderDuration,
   OrderType,
-  Periodicity,
   PositionsRepository
 } from 'trading';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
-
-const historyParams = {
-  Periodicity: Periodicity.Hourly,
-  BarSize: 1,
-  Skip: 0,
-  BarCount: 10
-};
 
 export enum FormActions {
   ClosePositions,
@@ -122,8 +114,8 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() showUnits = true;
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
-  @Input() positions: IPosition[] = [];
   @Input() tickSize: number;
+  
   _accountId;
   get accountId() {
     return this._accountId;
@@ -259,8 +251,8 @@ export class SideOrderFormComponent extends BaseOrderForm {
 
 
   positionsToQuantity() {
-    if (typeof this.positionSum === 'number' && this.positionSum != 0) {
-      this.form.patchValue({ quantity: Math.abs(this.positionSum) });
+    if (this._positionsSum) {
+      this.form.patchValue({ quantity: Math.abs(this._positionsSum) });
     }
   }
 

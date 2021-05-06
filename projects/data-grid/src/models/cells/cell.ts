@@ -1,5 +1,6 @@
 const textBoldClass = ' text-bold';
-const hoverStatus = 'hover';
+
+export type CellStatusGetter = (cell: Cell, style: 'BackgroundColor' | 'Color') => string;
 
 enum TextAlign {
   Left = 'left',
@@ -21,6 +22,8 @@ export interface ICell {
   class?: string;
   colSpan?: number;
   settings?: ICellSettings;
+  hoverStatusEnabled: boolean;
+  getStatusByStyleProp?: CellStatusGetter;
 
   updateValue(...args: any[]);
 
@@ -30,11 +33,13 @@ export interface ICell {
 export interface ICellConfig {
   settings?: ICellSettings;
   withHoverStatus?: boolean;
+  getStatusByStyleProp?: CellStatusGetter;
 }
 
 export enum CellStatus {
   Highlight = 'highlight',
-  Hover = 'hover',
+  Selected = 'selected',
+  Hovered = 'hovered',
   None = '',
 }
 
@@ -48,7 +53,7 @@ export abstract class Cell implements ICell {
 
   protected _statses: string[];
   protected _statusPrefix: string;
-  protected _hoverStatusEnabled: boolean;
+
   protected _hovered = false;
 
   name: string = '';
@@ -59,6 +64,8 @@ export abstract class Cell implements ICell {
   settings: ICellSettings = {};
   drawed = false; // performance solution
   status: string = '';
+  getStatusByStyleProp: CellStatusGetter;
+  hoverStatusEnabled: boolean;
   private _prevStatus = '';
 
   protected _visibility = true;
@@ -90,12 +97,11 @@ export abstract class Cell implements ICell {
   }
 
   set hovered(hovered: boolean) {
-    if (!this._hoverStatusEnabled || hovered === this._hovered) {
+    if (!this.hoverStatusEnabled || hovered === this._hovered) {
       return;
     }
 
     this._hovered = hovered;
-    this.changeStatus(hovered ? hoverStatus : this._prevStatus, !hovered);
   }
 
   get hovered(): boolean {
@@ -104,7 +110,8 @@ export abstract class Cell implements ICell {
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
-    this._hoverStatusEnabled = config?.withHoverStatus ?? false;
+    this.hoverStatusEnabled = config?.withHoverStatus ?? false;
+    this.getStatusByStyleProp = config?.getStatusByStyleProp;
   }
 
   abstract updateValue(...args: any[]);
@@ -163,21 +170,6 @@ export abstract class Cell implements ICell {
 
   toString() {
     return this.value;
-  }
-}
-
-export class ReadonlyCell implements ICell {
-  value = '';
-
-  constructor(value?: string) {
-    this.value = value || '';
-  }
-
-  updateValue(...args: any[]) {
-
-  }
-
-  clear() {
   }
 }
 

@@ -1,5 +1,5 @@
 import { StringHelper } from 'base-components';
-import { IPosition, PositionsFeed, PositionsRepository, Side } from 'trading';
+import { compareInstruments, IPosition, PositionsFeed, PositionsRepository, Side } from 'trading';
 import { ChartObjects } from './chart-objects';
 import { RealPositionsRepository } from 'real-trading';
 
@@ -19,6 +19,12 @@ export class Positions extends ChartObjects<IPosition> {
   handle(model: IPosition) {
     const position = model.id ? model : RealPositionsRepository.transformPosition(model);
     super.handle(position);
+    this._onDataLoaded();
+  }
+
+  protected _onDataLoaded() {
+    super._onDataLoaded();
+    this._instance.position = this.items.find(item => compareInstruments(item.instrument, this._instance.instrument));
   }
 
   createBar(model) {

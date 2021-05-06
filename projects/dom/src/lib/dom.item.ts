@@ -1,5 +1,14 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, CellStatus, DataCell, IFormatter, NumberCell, ProfitClass } from 'data-grid';
+import {
+  AddClassStrategy,
+  Cell,
+  CellStatus,
+  CellStatusGetter,
+  DataCell,
+  IFormatter,
+  NumberCell,
+  ProfitClass
+} from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
@@ -522,19 +531,22 @@ export class DomItem implements IBaseItem {
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
       settings: settings.price,
-      withHoverStatus: true
+      withHoverStatus: true,
+      getStatusByStyleProp
     });
     this.bid = new SumHistogramCell({
       settings: settings.bid,
       ignoreZero: false,
       hightlightOnChange: false,
-      withHoverStatus: true
+      withHoverStatus: true,
+      getStatusByStyleProp
     });
     this.ask = new SumHistogramCell({
       settings: settings.ask,
       ignoreZero: false,
       hightlightOnChange: false,
-      withHoverStatus: true
+      withHoverStatus: true,
+      getStatusByStyleProp
     });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
@@ -712,7 +724,7 @@ export class DomItem implements IBaseItem {
   }
 
   changePriceStatus(status: string) {
-    if (this.price.status == CellStatus.Highlight || this.price.status == CellStatus.Hover)
+    if (this.price.status == CellStatus.Highlight || this.price.status == CellStatus.Hovered)
       return;
 
     this.price.changeStatus(status);
@@ -1044,4 +1056,12 @@ export class CustomDomItem extends DomItem {
 
   //   return this.bidDelta.updateValue(sum);
   // }
+}
+
+const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
+  if (cell.hovered && cell.hoverStatusEnabled  && style === 'BackgroundColor') {
+    return CellStatus.Hovered;
+  }
+
+  return cell.status;
 }

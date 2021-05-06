@@ -1,4 +1,4 @@
-import { Cell } from './cell';
+import { Cell, ICellConfig } from './cell';
 
 export enum Icon {
   Close = 'close',
@@ -8,10 +8,17 @@ export enum Icon {
   Play = 'play',
 }
 
-export class IconCell extends Cell {
+interface IIconCellConfig extends ICellConfig {
+  icon?: Icon;
 
-  constructor(private _icon: Icon = Icon.Close) {
-    super();
+}
+
+export class IconCell extends Cell {
+  private _icon: Icon;
+
+  constructor(config?: IIconCellConfig) {
+    super(config);
+    this._icon = config?.icon ?? Icon.Close;
   }
 
   updateValue(...args: any[]) {

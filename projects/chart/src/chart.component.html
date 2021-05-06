@@ -2,8 +2,7 @@
   <instrument-select
     class="mr-2"
     placeholder="Symbol"
-    [instrument]="instrument"
-    (instrumentChange)="instrument = $event"
+    [(instrument)]="instrument"
   ></instrument-select>
   <account-select
     (accountChange)="handleAccountChange($event)"
@@ -38,7 +37,7 @@
   <side-form
     [class.d-none]="!showChartForm || !enableOrderForm"
     [accountId]="accountId"
-    [positions]="positions"
+    [position]="position"
     [ocoStep]="ocoStep"
     (actions)="handleFormAction($event)"
     [instrument]="instrument">
