@@ -249,11 +249,17 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   incrementQuantity() {
+    if (typeof this.quantity === 'string')
+      return;
+
     const quantity = this.quantity + 1;
     this.form.patchValue({ quantity });
   }
 
   decrementQuantity() {
+    if (typeof this.quantity === 'string')
+      return;
+
     const quantity = this.quantity - 1;
     if (quantity >= 1)
       this.form.patchValue({ quantity });
@@ -272,6 +278,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   increasePrice() {
     if (this.shouldDisablePrice)
       return;
+
     const newPrice = this.price || 0;
     this.price = newPrice + (this.instrument?.tickSize || 0.1);
   }
@@ -279,6 +286,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   decreasePrice() {
     if (this.shouldDisablePrice)
       return;
+
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
     if (newPrice >= 0)
       this.price = newPrice;
