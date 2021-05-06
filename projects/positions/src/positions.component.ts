@@ -3,11 +3,12 @@ import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuild
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { RealPositionsRepository } from 'real-trading';
+import { RealInstrumentsRepository, RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   AccountRepository,
+  InstrumentsRepository,
   IPosition,
   IPositionParams,
   PositionsFeed,
@@ -124,6 +125,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _dataFeed: PositionsFeed,
     protected _notifier: NotifierService,
     private _accountRepository: AccountRepository,
+    private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
@@ -138,8 +140,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
     this._columns = headers.map(convertToColumn);
 
-    this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
-      this.items.map(i => i.updateUnrealized(trade));
+    this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
+      const instrument = await (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(trade.instrument);
+
+      this.items.map(i => i.updateUnrealized(trade, instrument));
       this.dataGrid?.detectChanges();
       this.updatePl();
     }));
@@ -167,6 +171,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   protected _handleConnection(connection) {
     super._handleConnection(connection);
     this._accountRepository = this._accountRepository.forConnection(connection);
+    this._instrumentsRepository = this._instrumentsRepository.forConnection(connection);
     if (!connection?.connected) {
       this.accountId = null;
     } else {
@@ -174,10 +179,18 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 
-  private updatePl(): void {
+  private async updatePl() {
+    const instrumentsPromises = this.positions.map(position => {
+      return (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(position.instrument);
+    });
+
+    const precision = await Promise.all(instrumentsPromises).then(instruments => {
+      return instruments.reduce((accum, instrument) => Math.max(accum, instrument.precision), 0);
+    });
+
     this.open = +this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
-    this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(4);
+      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
+    this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
     this.totalPl = this.open + this.realized;
   }
 

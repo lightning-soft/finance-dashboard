@@ -9,7 +9,8 @@ import {
   ProfitClass,
   RoundFormatter
 } from 'data-grid';
-import { IPosition, Side, TradePrint } from 'trading';
+import { calculatePL } from 'dom';
+import { IInstrument, IPosition, Side, TradePrint } from 'trading';
 
 export class PositionItem {
   private _priceFormatter: IFormatter;
@@ -48,8 +49,8 @@ export class PositionItem {
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
-    this.price.updateValue(this.position.averagePrice);
-    const fields = ['size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
+    this.price.updateValue(this.position.price);
+    const fields = ['price', 'size', 'instrumentName', 'unrealized', 'realized', 'total', 'side'];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -60,14 +61,15 @@ export class PositionItem {
     this._updateCellProfitStatus(this.realized);
   }
 
-  public updateUnrealized(trade: TradePrint) {
-    if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
+  public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
+    const position = this.position;
+
+    if (position == null || trade.instrument.symbol != instrument.symbol)
       return;
 
-    const currentPrice = this.price._value;
-    const volume = this.size._value;
-    const { price } = trade;
-    this.unrealized.updateValue((price - currentPrice) * volume);
+    const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
+
+    this.unrealized.updateValue(unrealized ?? 0);
 
     this._updateCellProfitStatus(this.unrealized);
   }
