@@ -681,6 +681,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateDepth();
     this._updateVolumeColumn();
     this._applyOffset(this._lastPrice);
+    this._fillPL();
     this.items.forEach(i => i.refresh());
     this.detectChanges(true);
   }
@@ -809,11 +810,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _fillPL() {
     const position = this.position;
-    const includePnl = this._settings[SettingTab.Orders].includePnl;
+    const ordersSettings = this._settings[SettingTab.Orders];
     const contractSize = this._instrument?.contractSize;
 
     for (const i of this.items) {
-      const pl = calculatePL(position, i.price.value, this._tickSize, contractSize, includePnl);
+      const pl = ordersSettings.showPnl ?
+        calculatePL(position, i.price.value, this._tickSize, contractSize, ordersSettings.includePnl) : null;
       i.setPL(pl);
     }
   }

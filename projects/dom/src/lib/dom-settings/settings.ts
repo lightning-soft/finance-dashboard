@@ -257,7 +257,7 @@ export class DomSettings {
     sellOrdersBackgroundColor: 'rgba(255, 255, 255, 0.5)',
     buyOrdersBackgroundColor: 'rgba(22, 140, 213, 0.5)',
     // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
-    showPnl: false,
+    showPnl: true,
     split: false,
     includePnl: false,
     overlay: false,
