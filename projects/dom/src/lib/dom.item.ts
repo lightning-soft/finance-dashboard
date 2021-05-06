@@ -724,7 +724,7 @@ export class DomItem implements IBaseItem {
   }
 
   changePriceStatus(status: string) {
-    if (this.price.status == CellStatus.Highlight)
+    if (this.price.status == CellStatus.Highlight || this.price.status == CellStatus.Hovered)
       return;
 
     this.price.changeStatus(status);

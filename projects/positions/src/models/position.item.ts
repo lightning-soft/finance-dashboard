@@ -10,7 +10,8 @@ import {
   ProfitClass,
   RoundFormatter
 } from 'data-grid';
-import { IPosition, Side, TradePrint } from 'trading';
+import { calculatePL } from 'dom';
+import { IInstrument, IPosition, Side, TradePrint } from 'trading';
 
 export enum PositionColumn {
   account = 'account',
@@ -84,6 +85,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument.symbol);
     this.exchange.updateValue(this.position.instrument.exchange);
+    this.price.updateValue(this.position.price);
 
     const fields: PositionColumn[] = [
       PositionColumn.price,
@@ -104,30 +106,17 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this._updateCellProfitStatus(this.realized);
   }
 
-  public updateUnrealized(trade: TradePrint) {
-    if (this.position == null || trade.instrument.symbol != this.position.instrument.symbol)
-      return;
-    const currentPrice = +this.price.value;
-    const { volume, price } = trade;
-    switch (this.side.value) {
-      case Side.Long:
-        this.unrealized.updateValue(this._calculateLongUnrealized(currentPrice, volume, price));
-        break;
+  public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
+    const position = this.position;
 
-      case Side.Short:
-        this.unrealized.updateValue(this._calculateShortUnrealized(currentPrice, volume, price));
-        break;
-    }
+    if (position == null || trade.instrument.symbol != instrument.symbol)
+      return;
+
+    const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
+
+    this.unrealized.updateValue(unrealized ?? 0);
 
     this._updateCellProfitStatus(this.unrealized);
-  }
-
-  private _calculateLongUnrealized(currentPrice: number, volume: number, price: number): number {
-    return ((currentPrice * volume) - (price * volume));
-  }
-
-  private _calculateShortUnrealized(currentPrice: number, volume: number, price: number): number {
-    return ((price * volume) - (currentPrice * volume));
   }
 
   private _updateCellProfitStatus(cell: Cell): void {
