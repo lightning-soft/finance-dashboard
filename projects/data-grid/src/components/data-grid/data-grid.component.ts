@@ -212,6 +212,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.style.height = '100%';
     grid.style.width = '100%';
     grid.data = this._items;
+    grid.scale = 2;
     grid.attributes.allowSorting = false;
     grid.attributes.showRowHeaders = false;
     grid.attributes.showColumnHeaders = this.contextMenuState.showColumnHeaders;
