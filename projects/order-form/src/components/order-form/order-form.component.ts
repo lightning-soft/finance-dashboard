@@ -280,7 +280,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const newPrice = this.price || 0;
-    this.price = newPrice + (this.instrument?.tickSize || 0.1);
+    const tickSize = (this.instrument?.tickSize || 0.1);
+    const precision = (this.instrument?.precision ?? 1);
+
+    this.price = precisionRound(newPrice + tickSize, precision);
   }
 
   decreasePrice() {
@@ -288,8 +291,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
+    const precision = (this.instrument?.precision ?? 1);
+
     if (newPrice >= 0)
-      this.price = newPrice;
+      this.price = precisionRound(newPrice, precision);
   }
 
   private _getNavbarTitle(): string {
@@ -297,4 +302,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
+}
+function precisionRound(num, precision) {
+  const factor = Math.pow(10, precision);
+  return Math.round(num * factor) / factor;
 }
