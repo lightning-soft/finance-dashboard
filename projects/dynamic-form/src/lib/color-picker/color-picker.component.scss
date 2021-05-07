@@ -33,3 +33,20 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.color-picker {
+  width: 155px;
+  padding: 8px;
+  background-color: #1B1D22;
+
+  .palette {
+    display: flex;
+    flex-direction: column;
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+  }
+}

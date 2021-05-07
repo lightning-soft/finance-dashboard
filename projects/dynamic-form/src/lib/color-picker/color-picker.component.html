@@ -1,15 +1,26 @@
 <span
-  [formlyAttributes]="field"
+  nz-dropdown
+  [nzTrigger]="'click'"
+  [nzDropdownMenu]="menu"
   class="color-wrapper"
-  [cpWidth]="'200px'"
-  [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-  (colorPickerChange)="updateValue($event)" [colorPicker]="formControl?.value"
+  [formlyAttributes]="field"
   [class.disabled]="formControl.disabled"
  >
   <span>
-    <input
-      class="color-input" disabled [style.background]="formControl?.value"/>
+    <input class="color-input" disabled [style.background]="formControl?.value"/>
     </span>
   <span class="color-label">{{field.templateOptions?.label}}</span>
 </span>
 
+<nz-dropdown-menu #menu>
+  <div class="color-picker">
+    <div class="palette">
+      <div class="row" *ngFor="let paletteRow of palette">
+        <div *ngFor="let color of paletteRow"
+               class="color-input"
+               (click)="changeColor(color)"
+             [style.background]="color"></div>
+      </div>
+    </div>
+  </div>
+</nz-dropdown-menu>

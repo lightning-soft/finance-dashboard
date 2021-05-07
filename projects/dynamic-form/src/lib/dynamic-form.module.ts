@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  NzDatePickerModule,
-  NzDividerModule,
-  NzInputModule,
-  NzInputNumberModule,
-  NzSelectModule,
-  NzSwitchModule
+    NzDatePickerModule,
+    NzDividerModule, NzDropDownModule,
+    NzInputModule,
+    NzInputNumberModule,
+    NzSelectModule,
+    NzSwitchModule
 } from 'ng-zorro-antd';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormlyModule } from '@ngx-formly/core';
@@ -57,23 +57,24 @@ const formlyComponents = [
 @NgModule({
   declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent, LineSelectorComponent, DatepickerComponent],
-  imports: [
-    CommonModule,
-    ColorPickerModule,
-    ReactiveFormsModule,
-    FormsModule,
-    FormlyModule.forRoot({
-      types: formlyComponents,
-    }),
-    HotkeyInputModule,
-    FormlyNgZorroAntdModule,
-    NzInputModule,
-    NzSwitchModule,
-    NzSelectModule,
-    NzDividerModule,
-    NzInputNumberModule,
-    NzDatePickerModule,
-  ],
+    imports: [
+        CommonModule,
+        ColorPickerModule,
+        ReactiveFormsModule,
+        FormsModule,
+        FormlyModule.forRoot({
+            types: formlyComponents,
+        }),
+        HotkeyInputModule,
+        FormlyNgZorroAntdModule,
+        NzInputModule,
+        NzSwitchModule,
+        NzSelectModule,
+        NzDividerModule,
+        NzInputNumberModule,
+        NzDatePickerModule,
+        NzDropDownModule,
+    ],
   exports: [FormlyModule]
 })
 export class DynamicFormModule {
