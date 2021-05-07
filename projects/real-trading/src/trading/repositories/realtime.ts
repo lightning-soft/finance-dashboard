@@ -5,6 +5,7 @@ export enum RealtimeType {
   Quote = 'Quote',
   TradePrint = 'TradePrint',
   Level2 = 'Level2',
+  VolumePrint = 'VolumePrint',
   Connect = 'Connect',
   Message = 'Message',
   Error = 'Error',

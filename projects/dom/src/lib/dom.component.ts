@@ -1,9 +1,8 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { convertToColumn, LoadingComponent } from 'base-components';
+import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
 import {
-  BaseOrderForm, DomFormSettings,
   FormActions,
   getPriceSpecs,
   OcoStep,
@@ -30,13 +29,12 @@ import {
   IOrder,
   IPosition,
   IQuote,
-  Level1DataFeed,
-  OrderBooksRepository,
+  Level1DataFeed, OHLVFeed, OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, Periodicity,
+  OrderType,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
@@ -50,8 +48,6 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { HeaderItem } from 'base-components';
-import { OHLVFeed } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -754,19 +750,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleOHLV(ohlv) {
-    if (this.instrument?.symbol !== ohlv.instrument.symbol ||
-      this.instrument.exchange !== ohlv.instrument.exchange)
-      return;
-
-    this.dailyInfo = ohlv;
+    if (compareInstruments(this.instrument, ohlv.instrument))
+      this.dailyInfo = { ...ohlv };
   }
 
   handlePosition(pos) {
     const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.position;
 
-    if (pos.instrument.symbol === this.instrument?.symbol
-      && pos.instrument.exchange === this.instrument?.exchange) {
+    if (compareInstruments(this.instrument, pos.instrument)) {
       if (oldPosition && oldPosition.side !== Side.Closed) {
         const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
         oldItem.revertPriceStatus();
