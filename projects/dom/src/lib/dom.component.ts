@@ -1798,12 +1798,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
-    this._settings.columns = this.columns;
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
     if (state?.columns)
       this.columns = state.columns;
+    this._settings.columns = this.columns;
     // for debug purposes
     if (state && state.contextMenuState) {
       this.dataGridMenuState = state.contextMenuState;
