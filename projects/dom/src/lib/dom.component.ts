@@ -716,12 +716,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
-    const pl = this._lastChangesItem[Columns.LTQ]?.orders.getPl() ?? 0;
-    const value = includeRealizedPl ? pl + position.realized : pl;
+    const price = Number(this._lastChangesItem[Columns.LTQ]?.price.value) ?? 0;
     const i = this.instrument;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
 
-    return value.toFixed(precision);
+    return calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl).toFixed(precision);
   }
 
   _setPriceForOrders(orders, price) {
