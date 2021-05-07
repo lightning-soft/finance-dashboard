@@ -50,10 +50,11 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     if (instrument == null || model?.instrument?.symbol !== instrument?.symbol) {
       return;
     }
+
     if (!this._barsMap[model.id]) {
       const bar = this.createBar(model);
       if (!this.items.some((item) => item.id === model.id))
-        this.items.push(model);
+        this.items = [...this.items, model];
       bar.visible = this.shouldBarBeVisible();
       bar.chartPanel = this._chart.mainPanel;
       this._chart.mainPanel.addObjects(bar);
