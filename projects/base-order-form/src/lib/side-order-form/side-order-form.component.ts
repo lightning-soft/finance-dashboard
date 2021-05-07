@@ -11,7 +11,8 @@ import {
   OrderSide,
   OrderStatus,
   OrderType,
-  PositionsRepository
+  PositionsRepository,
+  isForbiddenOrder, compareInstruments
 } from 'trading';
 import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
@@ -32,7 +33,6 @@ export enum FormActions {
   CancelOcoOrder
 }
 
-const forbiddenOrders = [OrderStatus.Filled, OrderStatus.Canceled, OrderStatus.Rejected];
 
 export enum OcoStep {
   Fist, Second, None
@@ -110,13 +110,15 @@ export class SideOrderFormComponent extends BaseOrderForm {
     this.buyQuantity = 0;
     this.sellQuantity = 0;
 
-    value.filter(item => !forbiddenOrders.includes(item.status))
-      .forEach((item) => {
-        if (item.side === OrderSide.Buy)
-          this.buyQuantity += item.quantity;
-        if (item.side === OrderSide.Sell)
-          this.sellQuantity += item.quantity;
-      });
+    value.forEach((item) => {
+      if (isForbiddenOrder(item))
+        return;
+
+      if (item.side === OrderSide.Buy)
+        this.buyQuantity += item.quantity;
+      else if (item.side === OrderSide.Sell)
+        this.sellQuantity += item.quantity;
+    });
 
     this.totalQuantity = this.buyQuantity + this.sellQuantity;
   }
@@ -185,7 +187,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (value?.id != null && this.instrument$.getValue()?.id !== value?.id) {
+    if (value != null && compareInstruments(this.instrument$.getValue(), value)) {
       this.instrument$.next(value);
       this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
     }

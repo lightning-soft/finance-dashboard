@@ -3,7 +3,6 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, LoadingComponent } from 'base-components';
 import {
-  BaseOrderForm, DomFormSettings,
   FormActions,
   getPriceSpecs,
   OcoStep,
@@ -36,7 +35,7 @@ import {
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, Periodicity,
+  OrderType, isForbiddenOrder,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
@@ -195,8 +194,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   public set instrument(value: IInstrument) {
-    if (this._instrument?.id == value.id)
+    if (compareInstruments(this._instrument, value))
       return;
+
     const prevInstrument = this._instrument;
     this._unsubscribeFromInstrument();
     this._instrument = value;
@@ -2098,8 +2098,4 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
   }
 
   return pl;
-}
-
-function isForbiddenOrder(order){
-  return [OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled].includes(order.status);
 }

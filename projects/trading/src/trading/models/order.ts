@@ -67,3 +67,9 @@ export interface IOrderParams extends IPaginationParams {
   accountId: Id;
   status: OrderStatus;
 }
+
+const forbiddenOrders = [OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled];
+
+export function isForbiddenOrder(order){
+  return forbiddenOrders.includes(order.status);
+}
