@@ -2,21 +2,22 @@ import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
-import { IOrder, IPosition, OrderSide } from 'trading';
-import { IHistoryItem } from 'real-trading';
-import { BehaviorSubject } from 'rxjs';
 import {
   HistoryRepository,
   IConnection,
   IInstrument,
+  IOrder,
   OrderDuration,
+  OrderSide,
+  OrderStatus,
   OrderType,
   PositionsRepository
 } from 'trading';
+import { IHistoryItem } from 'real-trading';
+import { BehaviorSubject } from 'rxjs';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
-import { OrderStatus } from 'trading';
 
 export enum FormActions {
   ClosePositions,
@@ -30,7 +31,9 @@ export enum FormActions {
   CreateOcoOrder,
   CancelOcoOrder
 }
+
 const forbiddenOrders = [OrderStatus.Filled, OrderStatus.Canceled, OrderStatus.Rejected];
+
 export enum OcoStep {
   Fist, Second, None
 }
@@ -104,12 +107,16 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   @Input() set orders(value: IOrder[]) {
-    const orders = value.filter(item => !forbiddenOrders.includes(item.status));
+    this.buyQuantity = 0;
+    this.sellQuantity = 0;
 
-    this.buyQuantity = orders.filter(item => item.side === OrderSide.Buy)
-      .reduce((total, current) => total + current.quantity, 0);
-    this.sellQuantity = orders.filter(item => item.side === OrderSide.Sell)
-      .reduce((total, current) => total + current.quantity, 0);
+    value.filter(item => !forbiddenOrders.includes(item.status))
+      .forEach((item) => {
+        if (item.side === OrderSide.Buy)
+          this.buyQuantity += item.quantity;
+        if (item.side === OrderSide.Sell)
+          this.sellQuantity += item.quantity;
+      });
 
     this.totalQuantity = this.buyQuantity + this.sellQuantity;
   }
