@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { IHistoryItem } from 'trading';
-import { TradePrint } from 'trading';
 
 @Component({
   selector: 'daily-info',
@@ -47,9 +46,4 @@ export class DailyInfoComponent {
   getInfo(data: number | string) {
     return data ?? '-';
   }
-}
-
-function isSameDay(date, secondDate) {
-  return date.getDate() == secondDate.getDate() && date.getMonth() == secondDate.getMonth()
-    && date.getFullYear() == secondDate.getFullYear();
 }
