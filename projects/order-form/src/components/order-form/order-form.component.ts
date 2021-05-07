@@ -280,8 +280,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const newPrice = this.price || 0;
-    const tickSize = (this.instrument?.tickSize || 0.1);
-    const precision = (this.instrument?.precision ?? 1);
+    const tickSize = this.instrument?.tickSize || 0.1;
+    const precision = this.instrument?.precision ?? 1;
 
     this.price = precisionRound(newPrice + tickSize, precision);
   }
@@ -291,7 +291,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
-    const precision = (this.instrument?.precision ?? 1);
+    const precision = this.instrument?.precision ?? 1;
 
     if (newPrice >= 0)
       this.price = precisionRound(newPrice, precision);

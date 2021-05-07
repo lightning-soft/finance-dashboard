@@ -236,6 +236,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.instrument?.tickSize ?? 0.25;
   }
 
+  orders: IOrder[] = [];
+
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -407,7 +409,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (orders.length) {
           this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
-        }},
+        }
+      },
     }),
     new MouseUpDataGridHandler<DomItem>({
       column: OrderColumns,
@@ -755,7 +758,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleOHLV(ohlv) {
     if (this.instrument?.symbol !== ohlv.instrument.symbol ||
-        this.instrument.exchange !== ohlv.instrument.exchange)
+      this.instrument.exchange !== ohlv.instrument.exchange)
       return;
 
     this.dailyInfo = ohlv;
@@ -986,6 +989,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
+    this.orders = [];
     this._ordersRepository.getItems({ id: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -1004,14 +1008,31 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
+
       this.items.forEach(item => item.removeOrder(order));
+      this._fillOrders(order);
+
       const item = this._getItem(order.limitPrice || order.stopPrice);
       if (!item)
         continue;
+
       item.handleOrder(order);
     }
 
     this.detectChanges(true);
+  }
+
+  private _fillOrders(order) {
+    if ([OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled].includes(order.status)) {
+      this.orders = this.orders.filter(item => item.id !== order.id);
+    }
+
+    const index = this.orders.findIndex(item => item.id === order.id);
+
+    if (!this.orders.length || index == -1)
+      this.orders = [...this.orders, order];
+    else
+      this.orders[index] = order;
   }
 
   handleAccountChange(account: string) {

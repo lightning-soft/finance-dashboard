@@ -16,6 +16,7 @@ import {
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
+import { OrderStatus } from 'trading';
 
 export enum FormActions {
   ClosePositions,
@@ -29,7 +30,7 @@ export enum FormActions {
   CreateOcoOrder,
   CancelOcoOrder
 }
-
+const forbiddenOrders = [OrderStatus.Filled, OrderStatus.Canceled, OrderStatus.Rejected];
 export enum OcoStep {
   Fist, Second, None
 }
@@ -59,7 +60,7 @@ export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   stopLoss: FormControl;
   isIce: FormControl;
   takeProfit: FormControl;
-}
+};
 
 @Component({
   selector: 'side-form',
@@ -74,6 +75,10 @@ export class SideOrderFormComponent extends BaseOrderForm {
   prevItem: IHistoryItem;
   private _ocoStep = OcoStep.None;
   private _defaultFormState: Partial<SideOrderForm>;
+
+  totalQuantity: number;
+  buyQuantity: number;
+  sellQuantity: number;
 
   get isOcoSelected() {
     return this._ocoStep !== OcoStep.None;
@@ -98,6 +103,17 @@ export class SideOrderFormComponent extends BaseOrderForm {
     }
   }
 
+  @Input() set orders(value: IOrder[]) {
+    const orders = value.filter(item => !forbiddenOrders.includes(item.status));
+
+    this.buyQuantity = orders.filter(item => item.side === OrderSide.Buy)
+      .reduce((total, current) => total + current.quantity, 0);
+    this.sellQuantity = orders.filter(item => item.side === OrderSide.Sell)
+      .reduce((total, current) => total + current.quantity, 0);
+
+    this.totalQuantity = this.buyQuantity + this.sellQuantity;
+  }
+
   @Input() set defaultFormState(state: Partial<SideOrderForm>) {
     this._defaultFormState = state;
     if (state && this.form)
@@ -115,7 +131,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
   @Input() tickSize: number;
-  
+
   _accountId;
   get accountId() {
     return this._accountId;
