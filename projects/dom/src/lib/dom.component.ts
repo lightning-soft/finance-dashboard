@@ -719,12 +719,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
-    const pl = this._lastChangesItem[Columns.LTQ]?.orders.getPl() ?? 0;
-    const value = includeRealizedPl ? pl + position.realized : pl;
+    const price = Number(this._lastChangesItem[Columns.LTQ]?.price.value) ?? 0;
     const i = this.instrument;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
 
-    return value.toFixed(precision);
+    return calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl).toFixed(precision);
   }
 
   _setPriceForOrders(orders, price) {
@@ -757,19 +756,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleOHLV(ohlv) {
-    if (this.instrument?.symbol !== ohlv.instrument.symbol ||
-      this.instrument.exchange !== ohlv.instrument.exchange)
-      return;
-
-    this.dailyInfo = ohlv;
+    if (compareInstruments(this.instrument, ohlv.instrument))
+      this.dailyInfo = { ...ohlv };
   }
 
   handlePosition(pos) {
     const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.position;
 
-    if (pos.instrument.symbol === this.instrument?.symbol
-      && pos.instrument.exchange === this.instrument?.exchange) {
+    if (compareInstruments(this.instrument, pos.instrument)) {
       if (oldPosition && oldPosition.side !== Side.Closed) {
         const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
         oldItem.revertPriceStatus();
