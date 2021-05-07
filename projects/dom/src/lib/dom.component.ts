@@ -41,7 +41,7 @@ import {
   PositionsRepository,
   QuoteSide,
   Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository
+  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
 } from 'trading';
 import { IWindow } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
@@ -1018,8 +1018,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _fillOrders(order) {
-    if ([OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled].includes(order.status)) {
+    if (isForbiddenOrder(order)) {
       this.orders = this.orders.filter(item => item.id !== order.id);
+      return;
     }
 
     const index = this.orders.findIndex(item => item.id === order.id);
@@ -2099,7 +2100,6 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
   return pl;
 }
 
-function roundToTickSize(price, tickSize) {
-  const multiplier = 1 / tickSize;
-  return (Math.ceil(price * multiplier) / multiplier);
+function isForbiddenOrder(order){
+  return [OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled].includes(order.status);
 }

@@ -12,7 +12,7 @@ import {
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments
+  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
 } from 'trading';
 import { RealPositionsRepository } from 'real-trading';
 
@@ -73,6 +73,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this._levelOneDatafeed.unsubscribe(this._instrument);
     this._levelOneDatafeed.subscribe(value);
     this._instrument = value;
+
+    if (this.price)
+      this.price = roundToTickSize(this.price, this._instrument.tickSize);
+
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
 
@@ -146,8 +150,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     super.onTypeUpdated();
     if (this.isStopLimit) {
       this.layoutContainer.height = 348;
-    }
-    else {
+    } else {
       this.layoutContainer.height = 308;
     }
   }
@@ -270,11 +273,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this._levelOneDatafeed.unsubscribe(this.instrument);
   }
 
-  addToSelectedQuantity(count: number) {
-    const currentButton = this.quantityInput.currentItem;
-    currentButton.value = count + currentButton.value;
-  }
-
   increasePrice() {
     if (this.shouldDisablePrice)
       return;
@@ -283,7 +281,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const tickSize = this.instrument?.tickSize || 0.1;
     const precision = this.instrument?.precision ?? 1;
 
-    this.price = precisionRound(newPrice + tickSize, precision);
+    this.price = +(newPrice + tickSize).toFixed(precision);
   }
 
   decreasePrice() {
@@ -294,7 +292,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const precision = this.instrument?.precision ?? 1;
 
     if (newPrice >= 0)
-      this.price = precisionRound(newPrice, precision);
+      this.price = +newPrice.toFixed(precision);
   }
 
   private _getNavbarTitle(): string {
@@ -302,8 +300,4 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
-}
-function precisionRound(num, precision) {
-  const factor = Math.pow(10, precision);
-  return Math.round(num * factor) / factor;
 }
