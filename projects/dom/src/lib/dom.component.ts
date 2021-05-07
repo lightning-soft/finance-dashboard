@@ -407,7 +407,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (orders.length) {
           this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
-        }},
+        }
+      },
     }),
     new MouseUpDataGridHandler<DomItem>({
       column: OrderColumns,
@@ -753,19 +754,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleOHLV(ohlv) {
-    if (this.instrument?.symbol !== ohlv.instrument.symbol ||
-        this.instrument.exchange !== ohlv.instrument.exchange)
-      return;
-
-    this.dailyInfo = ohlv;
+    if (compareInstruments(this.instrument, ohlv.instrument))
+      this.dailyInfo = { ...ohlv };
   }
 
   handlePosition(pos) {
     const newPosition: IPosition = RealPositionsRepository.transformPosition(pos);
     const oldPosition = this.position;
 
-    if (pos.instrument.symbol === this.instrument?.symbol
-      && pos.instrument.exchange === this.instrument?.exchange) {
+    if (compareInstruments(this.instrument, pos.instrument)) {
       if (oldPosition && oldPosition.side !== Side.Closed) {
         const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
         oldItem.revertPriceStatus();
