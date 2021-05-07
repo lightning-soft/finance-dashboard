@@ -7,14 +7,24 @@
 <div class="indicator-container">
   <cdk-virtual-scroll-viewport itemSize="">
     <div class="indicator-inner-container">
-      <div nz-tooltip [nzTooltipTitle]="showTooltips && getTitle(item)"
-           nzPlacement="rightTop"
-           [nzTooltipOverlayClassName]="'indicator-tooltip'"
-           (click)="addIndicator(item)" class="chart-indicator"
-           *ngFor="let item of chartIndicators">
-        <span class="indicator-name">{{item}}</span>
-        <i class="icon-add"></i>
-      </div>
+      <ng-container *ngFor="let item of chartIndicators">
+        <div nz-tooltip [nzTooltipTitle]="showTooltips && description"
+            nzPlacement="rightTop"
+            [nzTooltipOverlayClassName]="'indicator-tooltip'"
+            (click)="addIndicator(item)" class="chart-indicator"
+            (mouseenter)="fetchDescription(item)">
+          <span class="indicator-name">{{item}}</span>
+          <i class="icon-add"></i>
+        </div>
+        <ng-template #description>
+          <ng-container *ngFor="let section of indicatorsDescriptions[item]">
+            <ng-container *ngIf="section.content.length">
+              <h5>{{ section.title }}</h5>
+              <p *ngFor="let paragraph of section.content">{{ paragraph }}</p>
+            </ng-container>
+          </ng-container>
+        </ng-template>
+      </ng-container>
     </div>
   </cdk-virtual-scroll-viewport>
 </div>
