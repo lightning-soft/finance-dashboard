@@ -407,7 +407,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (orders.length) {
           this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
-        }},
+        }
+      },
     }),
     new MouseUpDataGridHandler<DomItem>({
       column: OrderColumns,
@@ -755,7 +756,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleOHLV(ohlv) {
     if (this.instrument?.symbol !== ohlv.instrument.symbol ||
-        this.instrument.exchange !== ohlv.instrument.exchange)
+      this.instrument.exchange !== ohlv.instrument.exchange)
       return;
 
     this.dailyInfo = ohlv;
@@ -1166,7 +1167,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.detectChanges();
   }
-
 
   detectChanges(force = false) {
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
