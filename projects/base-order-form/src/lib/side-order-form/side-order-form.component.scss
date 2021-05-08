@@ -244,7 +244,22 @@ button.top-position-btn {
 
 .cxl-btn, .cxl-btn:hover {
   width: 100%;
+  padding-left: 6px;
+  padding-right: 2px;
   border: none;
+  position: relative;
+  display: inline-flex;
+  justify-content: space-between;
+
+  span {
+    display: inline-block;
+  }
+
+  .cxl-quantity {
+    position: absolute;
+    top: 1px;
+    right: 2px;
+  }
 }
 
 .cxl-sell, .cxl-sell:focus, .cxl-sell:hover, .cxl-sell:focus-within {

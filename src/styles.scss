@@ -72,7 +72,21 @@ body {
   }
 }
 
-.ant-checkbox-input:focus + .ant-checkbox-inner {
+
+.ant-click-animating-node, [ant-click-animating-without-extra-node=true]::after {
+  animation: none;
+}
+.ant-switch:hover, .ant-switch:focus:hover:not(.ant-switch-checked) {
+  box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
+}
+
+.ant-switch:focus {
+  box-shadow: none;
+}
+
+
+
+.ant-checkbox-input:focus:not(:hover) + .ant-checkbox-inner {
   border-color: $checkboxBorderColor;
 }
 
@@ -98,7 +112,7 @@ body {
 
 .ant-checkbox-disabled {
   .ant-checkbox-inner {
-      border: 1px solid $light3 !important;
+    border: 1px solid $light3 !important;
   }
 }
 

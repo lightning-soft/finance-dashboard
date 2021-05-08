@@ -34,12 +34,12 @@ import {
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType,
+  OrderType, isForbiddenOrder,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
   Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository
+  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
 } from 'trading';
 import { IWindow } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
@@ -191,8 +191,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   public set instrument(value: IInstrument) {
-    if (this._instrument?.id == value.id)
+    if (compareInstruments(this._instrument, value))
       return;
+
     const prevInstrument = this._instrument;
     this._unsubscribeFromInstrument();
     this._instrument = value;
@@ -231,6 +232,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   get _tickSize() {
     return this.instrument?.tickSize ?? 0.25;
   }
+
+  orders: IOrder[] = [];
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -978,6 +981,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!this._accountId)
       return;
 
+    this.orders = [];
     this._ordersRepository.getItems({ id: this._accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -996,14 +1000,32 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     for (const order of orders) {
       if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
         continue;
+
       this.items.forEach(item => item.removeOrder(order));
+      this._fillOrders(order);
+
       const item = this._getItem(order.limitPrice || order.stopPrice);
       if (!item)
         continue;
+
       item.handleOrder(order);
     }
 
     this.detectChanges(true);
+  }
+
+  private _fillOrders(order) {
+    if (isForbiddenOrder(order)) {
+      this.orders = this.orders.filter(item => item.id !== order.id);
+      return;
+    }
+
+    const index = this.orders.findIndex(item => item.id === order.id);
+
+    if (!this.orders.length || index == -1)
+      this.orders = [...this.orders, order];
+    else
+      this.orders[index] = order;
   }
 
   handleAccountChange(account: string) {
@@ -1772,12 +1794,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   loadState?(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
-    this._settings.columns = this.columns;
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)
       this.componentInstanceId = state.componentInstanceId;
     if (state?.columns)
       this.columns = state.columns;
+    this._settings.columns = this.columns;
     // for debug purposes
     if (state && state.contextMenuState) {
       this.dataGridMenuState = state.contextMenuState;
@@ -2072,9 +2094,4 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
   }
 
   return pl;
-}
-
-function roundToTickSize(price, tickSize) {
-  const multiplier = 1 / tickSize;
-  return (Math.ceil(price * multiplier) / multiplier);
 }

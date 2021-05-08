@@ -745,8 +745,10 @@ export class DomItem implements IBaseItem {
   }
 
   private _changeLtq(volume: number, side: string) {
+    const prevValue = this.ltq.value;
+
     if (this.ltq.updateValue(volume)) {
-      this.ltq.changeStatus(side);
+      this.ltq.changeStatus(!prevValue ? side : '');
 
       this.volume.updateValue(volume);
       this._updatePriceStatus();

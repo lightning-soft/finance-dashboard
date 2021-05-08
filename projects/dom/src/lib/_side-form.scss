@@ -3,6 +3,12 @@ side-form.full-screen-window {
   margin-bottom: 8px;
   min-height: 40px;
 
+  .cxl-btn {
+    padding-left: 4px !important;
+    padding-right: 2px !important;
+    width: 62px;
+  }
+
   &.extended {
     min-height: 60px;
 

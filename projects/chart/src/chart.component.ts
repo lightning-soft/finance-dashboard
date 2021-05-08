@@ -146,6 +146,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _orders: Orders;
   private _positions: Positions;
 
+  get orders() {
+    return this._orders.items;
+  }
+
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
