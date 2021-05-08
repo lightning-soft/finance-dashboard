@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { convertToColumn, LoadingComponent } from 'base-components';
+import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
 import {
   FormActions,
   getPriceSpecs,
@@ -29,8 +29,7 @@ import {
   IOrder,
   IPosition,
   IQuote,
-  Level1DataFeed,
-  OrderBooksRepository,
+  Level1DataFeed, OHLVFeed, OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
@@ -49,8 +48,6 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { HeaderItem } from 'base-components';
-import { OHLVFeed } from 'trading';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -1183,7 +1180,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.detectChanges();
   }
-
 
   detectChanges(force = false) {
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
