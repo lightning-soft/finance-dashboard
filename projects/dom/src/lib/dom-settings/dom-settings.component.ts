@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { SettingsConfig, SettingTab } from './settings-fields';
-import { clone } from 'underscore';
 import { DomSettings } from './settings';
 
 export interface DomSettingsComponent extends ILayoutNode {
@@ -33,7 +32,7 @@ export const receiveSettingsKey = 'receiveSettings_';
   providers: []
 })
 @LayoutNode()
-export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
+export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, OnDestroy {
   link = DomSettingsSelector;
   formValueChangesSubscription: Subscription;
   list = [
@@ -98,7 +97,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
 
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
-    this.form.valueChanges
+    this.formValueChangesSubscription = this.form.valueChanges
       .pipe(
         debounceTime(10),
         untilDestroyed(this))
@@ -151,5 +150,16 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState> {
     } else {
       this.select(item);
     }
+  }
+// need for correct work of untilDestroyed
+  ngOnDestroy() {
+  }
+}
+
+function clone(data) {
+  try {
+    return JSON.parse(JSON.stringify(data));
+  } catch (error) {
+    console.error(error);
   }
 }

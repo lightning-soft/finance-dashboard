@@ -1,5 +1,6 @@
 const textBoldClass = ' text-bold';
 
+export type CellStatusGetter = (cell: Cell, style: 'BackgroundColor' | 'Color') => string;
 
 enum TextAlign {
   Left = 'left',
@@ -21,6 +22,8 @@ export interface ICell {
   class?: string;
   colSpan?: number;
   settings?: ICellSettings;
+  hoverStatusEnabled: boolean;
+  getStatusByStyleProp?: CellStatusGetter;
 
   updateValue(...args: any[]);
 
@@ -29,10 +32,14 @@ export interface ICell {
 
 export interface ICellConfig {
   settings?: ICellSettings;
+  withHoverStatus?: boolean;
+  getStatusByStyleProp?: CellStatusGetter;
 }
 
 export enum CellStatus {
   Highlight = 'highlight',
+  Selected = 'selected',
+  Hovered = 'hovered',
   None = '',
 }
 
@@ -47,14 +54,18 @@ export abstract class Cell implements ICell {
   protected _statses: string[];
   protected _statusPrefix: string;
 
+  protected _hovered = false;
+
   name: string = '';
   value = '';
   class = '';
   colSpan = 0;
   _bold: boolean;
-  settings = {};
+  settings: ICellSettings = {};
   drawed = false; // performance solution
   status: string = '';
+  getStatusByStyleProp: CellStatusGetter;
+  hoverStatusEnabled: boolean;
   private _prevStatus = '';
 
   protected _visibility = true;
@@ -72,10 +83,6 @@ export abstract class Cell implements ICell {
     this._visibilityChange();
   }
 
-  constructor(config?: ICellConfig) {
-    this.settings = config?.settings ?? {};
-  }
-
   set bold(value: boolean) {
     if (this._bold === value) {
       return;
@@ -87,6 +94,24 @@ export abstract class Cell implements ICell {
     } else if (this.class.includes(textBoldClass)) {
       this.class.replace(textBoldClass, '');
     }
+  }
+
+  set hovered(hovered: boolean) {
+    if (!this.hoverStatusEnabled || hovered === this._hovered) {
+      return;
+    }
+
+    this._hovered = hovered;
+  }
+
+  get hovered(): boolean {
+    return this._hovered;
+  }
+
+  constructor(config?: ICellConfig) {
+    this.settings = config?.settings ?? {};
+    this.hoverStatusEnabled = config?.withHoverStatus ?? false;
+    this.getStatusByStyleProp = config?.getStatusByStyleProp;
   }
 
   abstract updateValue(...args: any[]);
@@ -102,12 +127,12 @@ export abstract class Cell implements ICell {
     this.drawed = false;
   }
 
-  protected _getStatus(status) {
-    return Cell.mergeStatuses(this._statusPrefix, status);
+  protected _getStatus(status: string, usePrefix = true) {
+    return usePrefix ? Cell.mergeStatuses(this._statusPrefix, status) : status;
   }
 
-  changeStatus(status: string) {
-    status = this._getStatus(status);
+  changeStatus(status: string, usePrefix = true): void {
+    status = this._getStatus(status, usePrefix);
 
     if (status == this.status)
       return;
@@ -141,26 +166,10 @@ export abstract class Cell implements ICell {
   }
 
   refresh() {
-
   }
 
   toString() {
     return this.value;
-  }
-}
-
-export class ReadonlyCell implements ICell {
-  value = '';
-
-  constructor(value?: string) {
-    this.value = value || '';
-  }
-
-  updateValue(...args: any[]) {
-
-  }
-
-  clear() {
   }
 }
 

@@ -6,7 +6,7 @@
 body.#{$themeName} :host {
   background-color: $tabFrameColor;
 
-  .icon-container{
+  .icon-container {
     background: $lightBackground;
     color: $textColorSecondary;
   }
@@ -52,6 +52,8 @@ body.#{$themeName} :host {
 
 
 ::ng-deep #{$themeName} {
+
+
   .scxFullWindow {
     background-color: $fullScreenBackgroundColor;
   }
@@ -68,7 +70,7 @@ body.#{$themeName} :host {
       background-color: $waitingBarDotColor;
     }
   }
-
+/*
   .scxInstrumentSearchInputField {
     border-color: $toolbarButtonsBorderColor;
     background-color: transparent;
@@ -286,7 +288,7 @@ body.#{$themeName} :host {
         color: $textColorOnHover;
       }
 
-      @include dropdownMenu();
+      // @include dropdownMenu();
     }
   }
 
@@ -369,6 +371,6 @@ body.#{$themeName} :host {
         color: $instrumentSearchResultsHighlightedTextColor;
       }
     }
-  }
+  }*/
 
 }

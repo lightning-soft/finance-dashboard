@@ -38,11 +38,11 @@ export class Timezone implements ITimezone {
     this.text = timezone.text;
     this.utc = timezone.utc;
     this.enabled = false;
-    Timezone.setDefaultName(this);
+    this.name = Timezone.getDefaultName(this);
   }
 
-  static setDefaultName(timezone: ITimezone): void {
-    timezone.name = utcPipe.transform(timezone.offset);
+  static getDefaultName(timezone: ITimezone): string {
+    return utcPipe.transform(timezone.offset);
   }
 }
 
@@ -1565,4 +1565,5 @@ export const TIMEZONES: IDefaultTimezone[] = [
       "Pacific/Apia"
     ]
   }
-]
+];
+

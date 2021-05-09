@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CreateModalComponent } from '../workspace/create-modal/create-modal.component';
 import { NzModalService } from 'ng-zorro-antd';
 import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -8,6 +8,7 @@ import { LayoutComponent, WindowPopupManager } from 'layout';
 import { RenameModalComponent } from '../workspace/rename-modal/rename-modal.component';
 import { ConfirmModalComponent } from '../workspace/confirm-modal/confirm-modal.component';
 import { SettingsService } from 'settings';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'windows',
@@ -19,7 +20,10 @@ export class WindowsComponent implements OnInit {
   windows: WorkspaceWindow[] = [];
   currentWorkspace: Workspace;
   currentWindowId;
+  formControl = new FormControl();
+  isSelectOpened = false;
   @Input() layout: LayoutComponent;
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
   constructor(private _modalService: NzModalService,
               private _settingsService: SettingsService,
@@ -37,6 +41,7 @@ export class WindowsComponent implements OnInit {
 
   updateCurrentWindow() {
     this.currentWindowId = this._workspacesService.getCurrentWindow()?.id;
+    this.formControl.patchValue(this.currentWindowId);
   }
 
   ngOnInit(): void {
@@ -49,6 +54,7 @@ export class WindowsComponent implements OnInit {
       nzTitle: 'Rename window',
       nzContent: RenameModalComponent,
       nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
         workspaceName: window.name,
@@ -65,20 +71,24 @@ export class WindowsComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Delete window',
       nzContent: ConfirmModalComponent,
-      nzWrapClassName: 'modal-workspace vertical-center-modal',
+      nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the window?'
+        message: 'Do you want delete the window?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 
     modal.afterClose.subscribe(result => {
-      if (result)
+      if (result && result.confirmed)
         this._workspacesService.deleteWindow(id);
     });
   }
 
   duplicate(id: any) {
-    this._workspacesService.duplicateWindow(id);
+    this.updateWindow();
+    const window = this._workspacesService.duplicateWindow(id);
+    this.selectWindow(window.id);
   }
 
   createWindow() {
@@ -90,57 +100,43 @@ export class WindowsComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new window',
         blankOption: 'Blank window',
-        options: [...this.windows.map(item => ({ value: item.id, label: item.name }))],
+        options: this.windows.map(item => ({ value: item.id, label: item.name })),
       },
     });
 
     modal.afterClose.subscribe(result => {
       if (!result)
         return;
+
       let config = [];
+      this.updateWindow();
+
       if (result.base)
         config = this.windows.find(item => item.id === result.base)?.config;
-      this._workspacesService.createWindow(new WorkspaceWindow({
+
+      const workspaceWindow = this._workspacesService.createWindow(new WorkspaceWindow({
         name: result.name,
         config,
       }));
+
+      this.selectWindow(workspaceWindow.id);
     });
   }
 
   selectWindow(windowId: Id) {
     if (this.currentWindowId !== windowId) {
-      if (this._settingsService.settings.value.autoSave) {
-        this._saveAndSwitchWindow(windowId, false);
-      } else {
-        const modal = this._modalService.create({
-          nzTitle: 'Saving window',
-          nzContent: ConfirmModalComponent,
-          nzWrapClassName: 'modal-workspace vertical-center-modal',
-          nzComponentParams: {
-            message: 'Do you want save changes in window?',
-            confirmText: 'Yes',
-            cancelText: 'No'
-          },
-        });
-        modal.afterClose.subscribe(async (res) => {
-          if (res) {
-            this._saveAndSwitchWindow(windowId);
-          } else {
-            this._saveAndSwitchWindow(windowId, false);
-          }
-        });
-      }
-
+      this.updateWindow();
+      this._workspacesService.switchWindow(windowId);
+      this.isSelectOpened = false;
     }
   }
 
-  private _saveAndSwitchWindow(windowId, saveInStorage = true) {
-    this._workspacesService.switchWindow(windowId, saveInStorage);
-    this.currentWindowId = windowId;
+  updateWindow() {
+    this._workspacesService.updateWindow(this._workspacesService.getActiveWorkspace().id, this.currentWindowId, this.layout.getState());
   }
 
   save() {
-    this._workspacesService.save.next();
+    this._workspacesService.save();
   }
 
   loadOnStartUp(id) {

@@ -1,13 +1,12 @@
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
-  <account-select
+  <instrument-select
     class="mr-2"
+    placeholder="Symbol"
+    [(instrument)]="instrument"
+  ></instrument-select>
+  <account-select
     (accountChange)="handleAccountChange($event)"
   ></account-select>
-  <instrument-select
-    placeholder="Symbol"
-    [instrument]="instrument"
-    (instrumentChange)="instrument = $event"
-  ></instrument-select>
   <!--  <app-window-toolbar class="wm-draggable"></app-window-toolbar>-->
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item"
@@ -38,8 +37,9 @@
   <side-form
     [class.d-none]="!showChartForm || !enableOrderForm"
     [accountId]="accountId"
-    [positions]="positions"
+    [position]="position"
     [ocoStep]="ocoStep"
+    [orders]="orders"
     (actions)="handleFormAction($event)"
     [instrument]="instrument">
     <div class="form-header" headerContent>

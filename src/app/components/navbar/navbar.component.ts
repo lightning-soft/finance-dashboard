@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Input } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NotificationService } from 'notification';
 import { Themes, ThemesHandler } from 'themes';
@@ -15,16 +15,21 @@ import { Bounds, WindowManagerService } from 'window-manager';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent {
+export class NavbarComponent implements AfterViewInit {
   @Input() layout: LayoutComponent;
 
-  public isNewNotification: boolean;
   public readonly navbarPosition = NavbarPosition;
-
+  public isNewNotification: boolean;
   public isNavbarHidden = false;
   private navbarActive = false;
+  private isInsideDropdownOpened = false;
 
+  @HostBinding('class.is-electron') public isElectron: boolean;
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
+
+  @HostBinding('class.hidden') get hidden() {
+    return this.isNavbarHidden && !this.navbarActive && !this.isInsideDropdownOpened;
+  }
 
   get isDark() {
     return this.themeHandler.theme === Themes.Dark;
@@ -83,8 +88,12 @@ export class NavbarComponent {
     });
   }
 
-  @HostBinding('class.hidden') get hidden() {
-    return this.isNavbarHidden && !this.navbarActive;
+  ngAfterViewInit(): void {
+    this.isElectron = isElectron();
+  }
+
+  handleInsideDropdownToggle(opened: boolean): void {
+    this.isInsideDropdownOpened = opened;
   }
 
   switchTheme() {
@@ -111,7 +120,7 @@ export class NavbarComponent {
     this.windowManagerService.setBounds(bounds);
   }
 
-  openNotificationsList() {
+  openNotificationsList(): void {
     this.layout.addComponent({
       component: {
         name: 'notification-list'
@@ -130,7 +139,7 @@ export class NavbarComponent {
     });
   }
 
-  openSettings() {
+  openSettings(): void {
     this.layout.addComponent({
       component: {
         name: 'settings',
@@ -171,4 +180,24 @@ export class NavbarComponent {
   //     maximizeBtn: false,
   //   });
   // }
+}
+declare var process;
+
+function isElectron(): boolean {
+  // Renderer process
+  if (typeof window !== 'undefined' && typeof window['process'] === 'object' && window['process'].type === 'renderer') {
+    return true;
+  }
+
+  // Main process
+  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+    return true;
+  }
+
+  // Detect the user agent when the `nodeIntegration` option is set to true
+  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+    return true;
+  }
+
+  return false;
 }

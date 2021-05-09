@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { Components } from '../../../modules';
@@ -49,7 +49,8 @@ export const widgetList = [
       name: 'DOM',
       component: Components.Dom,
       options: {
-        minWidth: 1200,
+        width: 500,
+        minWidth: 470,
       }
     },
     {
@@ -75,8 +76,9 @@ export const widgetList = [
 })
 export class DragDrawerComponent {
   @Input() layout: LayoutComponent;
-  opened = false;
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
+  opened = false;
   items = widgetList;
 
   create(item) {
@@ -86,5 +88,10 @@ export class DragDrawerComponent {
       },
       ...item.options
     });
+  }
+
+  handleDropdownToggle(opened: boolean): void {
+    this.opened = opened;
+    this.handleToggleDropdown.emit(opened);
   }
 }

@@ -1,17 +1,14 @@
 <div class="grid" #tableContainer></div>
-
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="columns-items column-main-menu">
     <li *ngIf="showHeaderPanelInContextMenu" nz-menu-item>
-      <label [nzChecked]="showHeaderPanel"
-             (click)="$event.preventDefault()"
-             [nzIndeterminate]="showHeaderPanel"
+      <label [(nzChecked)]="contextMenuState.showHeaderPanel"
+             (click)="$event.preventDefault(); $event.stopPropagation();"
              (nzCheckedChange)="changeShowPanel($event)" nz-checkbox
       >Header Panel</label></li>
-    <li nz-menu-item><label (click)="$event.preventDefault()"
-                            [nzIndeterminate]="showColumnHeaders"
+    <li nz-menu-item><label (click)="$event.preventDefault(); $event.stopPropagation();"
                             (nzCheckedChange)="toggleColumns()" nz-checkbox
-                            [nzChecked]="showColumnHeaders"
+                            [(nzChecked)]="contextMenuState.showColumnHeaders"
     >Column Headers</label></li>
     <li nz-menu-divider></li>
     <li nz-menu-item (click)="setFitColumnsWidth()">Best Fit Columns</li>
@@ -19,13 +16,19 @@
     <li nz-submenu nzMenuClassName="columns-items" nzTitle="Table View">
       <ul>
         <li *ngFor="let item of getShownColumns()" nz-menu-item>
-          <label nz-checkbox
+          <label *ngIf="item.canHide; else nameTemplate"
+                 nz-checkbox
                  (click)="$event.stopPropagation();"
                  (nzCheckedChange)="changeColumnVisibility(item, $event)"
-                 [nzIndeterminate]="item.visible"
-                 [nzChecked]="item.visible"
-          >{{getColumnName(item)}}</label> <span (click)="$event.stopPropagation(); changeAlign(item)"
-                                                                 class="align">
+                 [nzChecked]="item.visible">
+            <ng-template [ngTemplateOutlet]="nameTemplate"></ng-template>
+          </label>
+
+          <ng-template #nameTemplate>
+            <span>{{getColumnName(item)}}</span>
+          </ng-template>
+
+          <span (click)="$event.stopPropagation(); changeAlign(item)" class="align">
           <i class="icon-align-{{item.style.textAlign.toLowerCase()}}"></i></span>
         </li>
       </ul>

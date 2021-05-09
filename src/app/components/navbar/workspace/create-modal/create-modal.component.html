@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
 >
-  <div class="mt-2 text-left">
+  <div class="text-left">
     <small class="text-muted px-2 mb-1">Start with</small>
     <nz-select [nzOptionHeightPx]="23" class="custom-form-control" [(ngModel)]="base" formControlName="base">
       <nz-option nzValue="blank" [nzLabel]="blankOption" [nzCustomContent]="true">
@@ -12,7 +12,7 @@
       </nz-option>
     </nz-select>
   </div>
-  <div class="mb-1 mt-3 text-left">
+  <div class="mt-3 text-left">
     <small class="text-muted px-2 mb-1">{{name}}</small>
     <input nzSize="small" class="custom-form-control ant-input" type="text" nz-input formControlName="name">
   </div>
@@ -20,6 +20,6 @@
 </form>
 
 <div *nzModalFooter>
-  <button nz-button nzType="default" class="ant-btn text-uppercase modal-btn" (click)="handleCancel()">Cancel</button>
-  <button nz-button nzType="primary" class="ant-btn ant-btn-primary text-uppercase" (click)="handleOk()">Save</button>
+  <button nz-button nzType="default" class="ant-btn  modal-btn" (click)="handleCancel()">Cancel</button>
+  <button nz-button nzType="primary" class="ant-btn ant-btn-primary " (click)="handleOk()">Save</button>
 </div>

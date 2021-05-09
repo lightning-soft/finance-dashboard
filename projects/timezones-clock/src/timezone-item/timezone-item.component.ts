@@ -10,14 +10,15 @@ export class TimezoneItemComponent {
   editing = false;
 
   @Input() @HostBinding('class.editable') editable = true;
-  @Input() canToggle = true;
+  @Input() showCheckbox = true;
+  @Input() checkboxDisabled = false;
   @Input() canDelete = true;
   @Input() timezone: ITimezone;
   @Input() subtitleFontSize = 10;
 
   @Output() reset = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
-  @Output() toggleEnabled = new EventEmitter<boolean>();
+  @Output() checkbox = new EventEmitter<boolean>();
   @Output() rename = new EventEmitter<string>();
 
   handleInputBlur(inputValue: string): void {

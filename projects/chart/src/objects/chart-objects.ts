@@ -50,10 +50,11 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     if (instrument == null || model?.instrument?.symbol !== instrument?.symbol) {
       return;
     }
+
     if (!this._barsMap[model.id]) {
       const bar = this.createBar(model);
       if (!this.items.some((item) => item.id === model.id))
-        this.items.push(model);
+        this.items = [...this.items, model];
       bar.visible = this.shouldBarBeVisible();
       bar.chartPanel = this._chart.mainPanel;
       this._chart.mainPanel.addObjects(bar);
@@ -66,6 +67,7 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
         this.items[index] = model;
       orderBar.update(false);
     }
+
     if (!this._isValid(model)) {
       this.delete(model.id);
     }
@@ -88,11 +90,9 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   }
 
   protected _subscribeToConnections() {
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(untilDestroyed(this._instance))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+      .subscribe((connection) => {
         this._repositorySubscription?.unsubscribe();
 
         if (connection) {
@@ -119,8 +119,12 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
         this.items = res.data;
         res.data.forEach(item => {
           this.handle(item);
+          this._onDataLoaded();
         });
       });
+  }
+
+  protected _onDataLoaded() {
   }
 
   protected _deleteItems() {

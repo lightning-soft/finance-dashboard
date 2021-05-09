@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
-import { map, takeUntil, tap, catchError } from 'rxjs/operators';
+import { map, takeUntil, tap, catchError, filter } from 'rxjs/operators';
 import {
   HistoryRepository,
   InstrumentsRepository,
   TradeDataFeed, TradePrint,
+  BarDataFeed, Bar, IInstrument,
 } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity } from './TimeFrame';
-import { IBar } from "../models";
+import { IBar } from '../models';
 
 declare let StockChartX: any;
 
@@ -29,11 +30,9 @@ export class RithmicDatafeed extends Datafeed {
   ) {
     super();
 
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(takeUntil(this._destroy))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
-
+      .subscribe((connection) => {
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
   }
@@ -132,9 +131,7 @@ export class RithmicDatafeed extends Datafeed {
 
   cancel(request: IRequest) {
     super.cancel(request);
-    const instrument = this._getInstrument(request);
     const subscription = this.requestSubscriptions.get(request.id);
-    this._tradeDataFeed.unsubscribe(instrument);
     if (subscription && !subscription.closed)
       subscription.unsubscribe();
     this.requestSubscriptions.delete(request.id);
@@ -162,24 +159,29 @@ export class RithmicDatafeed extends Datafeed {
 
   subscribeToRealtime(request: IBarsRequest) {
     const instrument = this._getInstrument(request);
-    this._tradeDataFeed.subscribe(instrument);
+    const instrumentId = `${instrument.exchange}.${instrument.symbol}`;
 
     this._unsubscribe();
 
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
-      const _quote: ChartQuote = {
-        // Ask: quote.volume;
-        // AskSize: number;
-        // Bid: number;
-        // BidSize: number;
-        instrument: quote.instrument,
-        price: quote.price,
-        date: new Date(quote.timestamp),
-        volume: quote.volume,
-        side: quote.side,
-      } as any;
+      const quoteInstrument = quote.instrument;
+      const quoteInstrumentId = `${quoteInstrument.exchange}.${quoteInstrument.symbol}`;
 
-      this.processQuote(request, _quote);
+      if (instrumentId === quoteInstrumentId) {
+        const _quote: ChartQuote = {
+          // Ask: quote.volume;
+          // AskSize: number;
+          // Bid: number;
+          // BidSize: number;
+          instrument: quoteInstrument,
+          price: quote.price,
+          date: new Date(quote.timestamp),
+          volume: quote.volume,
+          side: quote.side,
+        } as any;
+
+        this.processQuote(request, _quote);
+      }
     }));
   }
 

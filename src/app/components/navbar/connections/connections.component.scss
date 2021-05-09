@@ -12,10 +12,6 @@ $horizontal-padding: 8px;
 
 }
 
-.navigation-button {
-  cursor: pointer;
-}
-
 .dropdown-connection-name, .connection-name {
   max-width: 170px;
   min-width: 60px;
@@ -33,6 +29,7 @@ $horizontal-padding: 8px;
   line-height: 1;
   color: $text-60;
   transition: all 0.3s;
+  user-select: none;
 }
 
 .transition {
@@ -60,16 +57,22 @@ $horizontal-padding: 8px;
   left: unset;
 }*/
 .menu-indicator {
-  height: 9px;
-  width: 9px;
+  height: 8px;
+  width: 8px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   margin-right: 4px;
   margin-top: 6px;
+
   &:after {
     content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -2px 0 0 -2px;
     height: 4px;
     width: 4px;
     border-radius: 50%;
@@ -89,6 +92,7 @@ $horizontal-padding: 8px;
   height: 36px;
   width: 36px;
   cursor: pointer;
+  background-color: transparent;
 
   &:hover {
     background-color: $inputBackground;
@@ -135,4 +139,8 @@ $horizontal-padding: 8px;
   &.opened {
     transform: rotateZ(0);
   }
+}
+
+.dropdown {
+  height: auto;
 }

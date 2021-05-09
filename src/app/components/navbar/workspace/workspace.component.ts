@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { LayoutComponent } from 'layout';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -7,6 +7,8 @@ import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 import { CreateModalComponent } from './create-modal/create-modal.component';
 import { RenameModalComponent } from './rename-modal/rename-modal.component';
 import { SettingsService } from 'settings';
+import { FormControl } from '@angular/forms';
+import { Id } from 'communication';
 
 @Component({
   selector: 'app-workspace',
@@ -17,7 +19,10 @@ export class WorkspaceComponent implements OnInit {
   @Input() layout: LayoutComponent;
   @Input() dropdownPlacement: NzPlacementType;
 
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
+
   activeWorkspaceId: WorkspaceId;
+  formControl = new FormControl();
 
   workspaces: Workspace[] = [];
   isMenuVisible: boolean;
@@ -35,8 +40,10 @@ export class WorkspaceComponent implements OnInit {
       this.workspaces = [...workspaces];
 
       const activeWorkspace = workspaces.find(w => w.isActive);
-      if (activeWorkspace)
+      if (activeWorkspace) {
         this.activeWorkspaceId = activeWorkspace.id;
+        this.formControl.patchValue(activeWorkspace.id);
+      }
     });
   }
 
@@ -47,6 +54,7 @@ export class WorkspaceComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Rename workspace',
       nzContent: RenameModalComponent,
+      nzWidth: 438,
       nzClassName: 'modal-dialog-workspace',
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
@@ -64,14 +72,16 @@ export class WorkspaceComponent implements OnInit {
     const modal = this._modalService.create({
       nzTitle: 'Delete workspace',
       nzContent: ConfirmModalComponent,
-      nzWrapClassName: 'modal-workspace vertical-center-modal',
+      nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
       nzComponentParams: {
-        message: 'Do you want delete the workspace?'
+        message: 'Do you want delete the workspace?',
+        confirmText: 'Yes',
+        cancelText: 'No',
       },
     });
 
     modal.afterClose.subscribe(result => {
-      if (result)
+      if (result && result.confirmed)
         this._workspacesService.deleteWorkspace(id);
     });
   }
@@ -84,24 +94,34 @@ export class WorkspaceComponent implements OnInit {
     console.log('Share workspace');
   }
 
-  switchWorkspace($event) {
+  switchWorkspace($event: Id) {
+    if (this.activeWorkspaceId === $event)
+      return;
     if (this._settingsService.settings.value.autoSave) {
       this.activeWorkspaceId = $event;
+      this.formControl.patchValue($event);
       this._workspacesService.switchWorkspace(this.activeWorkspaceId);
     } else {
       const modal = this._modalService.create({
         nzTitle: 'Saving workspace',
         nzContent: ConfirmModalComponent,
-        nzWrapClassName: 'modal-workspace vertical-center-modal',
+        nzWrapClassName: 'modal-workspace confirm-modal-workspace vertical-center-modal',
         nzComponentParams: {
           message: 'Do you want save changes in workspace?',
           confirmText: 'Yes',
           cancelText: 'No'
         },
       });
-      modal.afterClose.subscribe((needSave) => {
+      modal.afterClose.subscribe((result: any) => {
+        if (!result) {
+          this.formControl.patchValue(this.activeWorkspaceId);
+          return;
+        }
+        if (result) {
           this.activeWorkspaceId = $event;
-          this._workspacesService.switchWorkspace(this.activeWorkspaceId, needSave);
+          this.formControl.patchValue($event);
+          this._workspacesService.switchWorkspace(this.activeWorkspaceId, result.confirmed);
+        }
       });
     }
   }
@@ -115,7 +135,7 @@ export class WorkspaceComponent implements OnInit {
       nzComponentParams: {
         name: 'Name new workspace',
         blankOption: 'Blank workspace',
-        options: [...this.workspaces.map(item => ({value: item.id, label: item.name}))],
+        options: this.workspaces.map(item => ({ value: item.id, label: item.name })),
       },
     });
 
@@ -130,9 +150,12 @@ export class WorkspaceComponent implements OnInit {
   }
 
   saveWorkspace() {
-    this._workspacesService.save.next();
+    this._workspacesService.save$.next();
     this._notificationService.showSuccess('Workspace was saved');
   }
 
-
+  handleDropdownToggle(opened: boolean): void {
+    this.isMenuVisible = opened;
+    this.handleToggleDropdown.emit(opened);
+  }
 }

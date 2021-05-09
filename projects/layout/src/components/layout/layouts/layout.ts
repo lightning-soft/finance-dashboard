@@ -40,7 +40,7 @@ export abstract class Layout implements IDropable {
   ) {
   }
 
-  abstract removeComponent(componentName: string);
+  abstract removeComponents(callback: (item) => boolean);
 
   abstract addComponent(componentOptions: ComponentOptions | string);
 

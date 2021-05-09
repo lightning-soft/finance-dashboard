@@ -10,20 +10,20 @@ $cell-background: #1b1d22;
   }
 
   window-header {
-    margin-bottom: 2px;
+    margin-bottom: 0px;
   }
 
-  &.header-panel {
+  &.hide-header-panel {
     window-header {
-      margin-bottom: 0px;
+      margin-bottom: 2px;
     }
 
     .window-header-button {
-      display: flex;
+      display: none;
     }
 
     .dom-layout {
-      height: calc(100% - 47px);
+      height: calc(100% - 22px);
     }
   }
 
@@ -58,12 +58,12 @@ $cell-background: #1b1d22;
 
 
 .window-header-button {
+  display: flex;
   margin-left: 4px;
   width: 100%;
   align-items: center;
   padding-bottom: 3px;
   padding-top: 2px;
-  display: none;
 }
 
 daily-info {
@@ -260,7 +260,7 @@ side-form {
 }
 
 .dom-layout {
-  height: calc(100% - 22px);
+  height: calc(100% - 47px);
   width: 100%;
 
   &.window-left {

@@ -1,17 +1,22 @@
-import { Component, HostBinding, Injector, OnChanges, SimpleChanges } from '@angular/core';
-import { RealtimeGridComponent, StringHelper } from 'base-components';
+import { Component, HostBinding, Injector, ViewChild } from '@angular/core';
+import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, CheckboxCell, Column } from 'data-grid';
+import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { finalize } from 'rxjs/operators';
-import { HeaderItem, OrderItem, transformHeaderColumn } from 'base-order-form';
+import { OrderColumn, OrderItem } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
-
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
+}
+
+enum Tab {
+  Working,
+  Filled,
+  All
 }
 
 const allTypes = 'All';
@@ -24,32 +29,49 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
 })
 @LayoutNode()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
-  headerCheckboxCell = new CheckboxCell();
+  @ViewChild('grid', { static: false }) dataGrid: DataGrid;
+
   columns: Column[];
   orderTypes = ['All', ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   cancelMenuOpened = false;
   allTypes = allTypes;
   builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
+  activeTab: Tab = Tab.All;
   selectedOrders: IOrder[] = [];
+  contextMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
+
+  private _headerCheckboxCell = new CheckboxCell();
 
   readonly orderType = OrderType;
-  readonly headers: (HeaderItem | string)[] = [
-    ['checkbox', ' ', { width: 30, drawObject: this.headerCheckboxCell, style: { textAlign: 'center' } }],
-    ['averageFillPrice', 'Average Fill Price'],
-    'description',
-    'duration',
-    ['filledQuantity', 'Filled Quantity'],
-    'quantity',
-    'side',
-    'status',
-    'type',
-    'exchange',
-    'symbol',
-    'fcmId',
-    'ibId',
-    'identifier',
-    'close',
+  readonly tab = Tab;
+  readonly headers: HeaderItem<OrderColumn>[] = [
+    {
+      name: OrderColumn.checkbox,
+      title: '',
+      width: 30,
+      draw: this._headerCheckboxCell.draw.bind(this._headerCheckboxCell),
+      hidden: true
+    },
+    { name: OrderColumn.accountId, title: 'ACCOUNT', tableViewName: 'Account' },
+    OrderColumn.symbol,
+    OrderColumn.exchange,
+    OrderColumn.description,
+    OrderColumn.side,
+    OrderColumn.type,
+    { name: OrderColumn.quantity, title: 'Quantity' },
+    { name: OrderColumn.filledQuantity, title: 'QTY FILLED', tableViewName: 'Quantity Filled' },
+    { name: OrderColumn.quantityRemain, title: 'QTY REMAIN', tableViewName: 'Quantity Remaining' },
+    { name: OrderColumn.averageFillPrice, title: 'Average Fill Price' },
+    { name: OrderColumn.duration, title: 'tif', tableViewName: 'TIF' },
+    OrderColumn.status,
+    // OrderColumn.fcmId,
+    // OrderColumn.ibId,
+    { name: OrderColumn.identifier, title: 'ORDER ID', tableViewName: 'Order ID' },
+    // OrderColumn.close,
   ];
 
   get orders(): IOrder[] {
@@ -88,22 +110,25 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     };
   }
 
-  handlers = [
+  handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<OrderItem>({
-      column: 'close',
-      handler: (item) => this.deleteItem(item.order),
+      column: OrderColumn.close,
+      handler: (data) => this.deleteItem(data.item.order),
     }),
     new CellClickDataGridHandler<OrderItem>({
-      column: 'checkbox',
+      column: OrderColumn.checkbox,
       handleHeaderClick: true,
-      handler: (item, event) => {
-        item ? item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
+      handler: (data, event) => {
+        data.item ? data.item.toggleSelect(event) : this.handleHeaderCheckboxClick(event);
         this.selectedOrders = this.items.filter(i => i.isSelected).map(i => i.order);
       },
     })
   ];
-  @HostBinding('class.show-header')
-  showHeaderPanel = true;
+
+  @HostBinding('class.hide-header')
+  get hideHeaderPanel() {
+    return !this.contextMenuState?.showHeaderPanel;
+  }
 
   constructor(
     protected _repository: OrdersRepository,
@@ -120,25 +145,37 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       addNewItems: 'start',
     });
 
-    this.columns = this.headers.map(transformHeaderColumn);
-    const column = this.columns.find(i => i.name == 'description');
+    this.columns = this.headers.map(i => convertToColumn(i, {
+      buyColor: 'rgba(72, 149, 245, 1)',
+      sellColor: 'rgba(220, 50, 47, 1)',
+      selectedbuyColor: 'rgba(72, 149, 245, 1)',
+      selectedsellColor: 'rgba(220, 50, 47, 1)',
+      selectedbuyBackgroundColor: '#383A40',
+      selectedsellBackgroundColor: '#383A40',
+      hoveredBackgroundColor: '#2B2D33',
+      textOverflow: true,
+      textAlign: 'left',
+    }));
+    const column = this.columns.find(i => i.name == OrderColumn.description);
     column.style = { ...column.style, textOverflow: true };
-    const checkboxColumn = this.columns.find((item) => item.name === 'checkbox');
+    const checkboxColumn = this.columns.find((item) => item.name === OrderColumn.checkbox);
     checkboxColumn.tableViewName = 'Checkbox';
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
   }
 
 
-  changeActiveTab(tab: 'Working' | 'Filled' | 'All'): void {
+  changeActiveTab(tab: Tab): void {
+    this.activeTab = tab;
+
     switch (tab) {
-      case 'All':
+      case Tab.All:
         this.builder.setParams({ viewItemsFilter: null });
         break;
-      case 'Filled':
+      case Tab.Filled:
         this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
         break;
-      case 'Working':
+      case Tab.Working:
         this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
         break;
     }
@@ -172,8 +209,16 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   loadState(state): void {
     this._subscribeToConnections();
 
-    if (state && state.columns)
+    if (state && state.columns) {
       this.columns = state.columns;
+      const checkboxColumn = state.columns.find(i => i.name === OrderColumn.checkbox);
+      checkboxColumn.draw = this._headerCheckboxCell.draw.bind(this._headerCheckboxCell);
+    }
+
+    if (state) {
+      const { contextMenuState } = state;
+      this.contextMenuState = contextMenuState;
+    }
   }
 
   openOrderForm() {
@@ -192,8 +237,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {
-    if (this.headerCheckboxCell.toggleSelect(event)) {
-      this.items.forEach(item => item.updateSelect(this.headerCheckboxCell.checked));
+    if (this._headerCheckboxCell.toggleSelect(event)) {
+      this.items.forEach(item => item.updateSelect(this._headerCheckboxCell.checked));
     }
   }
 

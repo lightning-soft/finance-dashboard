@@ -1,25 +1,41 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { convertToColumn, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGrid } from 'data-grid';
+import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
+import { IPaginationResponse } from 'communication';
+import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { RealPositionsRepository } from 'real-trading';
+import { RealInstrumentsRepository, RealPositionsRepository } from 'real-trading';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IPosition, IPositionParams, IQuote, PositionsFeed, PositionsRepository, PositionStatus } from 'trading';
-import { PositionItem } from './models/position.item';
+import {
+  AccountRepository,
+  InstrumentsRepository,
+  IPosition,
+  IPositionParams,
+  PositionsFeed,
+  PositionsRepository,
+  PositionStatus,
+  TradeDataFeed,
+  TradePrint
+} from 'trading';
+import { PositionColumn, PositionItem } from './models/position.item';
+import { NotifierService } from 'notifier';
 
-const headers = [
-  'account',
-  'price',
-  'side',
-  'size',
-  'realized',
-  'unrealized',
-  'total',
-  ['instrumentName', 'instrument'],
-  'exchange',
-  'close'
+const profitStyles = {
+  lossBackgroundColor: '#C93B3B',
+  inProfitBackgroundColor: '#4895F5'
+};
+
+const headers: HeaderItem<PositionColumn>[] = [
+  PositionColumn.account,
+  PositionColumn.price,
+  PositionColumn.side,
+  PositionColumn.size,
+  { name: PositionColumn.realized, style: profitStyles },
+  { name: PositionColumn.unrealized, style: profitStyles },
+  PositionColumn.total,
+  { name:PositionColumn.instrumentName, title: 'instrument' },
+  PositionColumn.exchange,
+  { name:PositionColumn.close, hidden: true }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -47,24 +63,31 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
+  contextMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
 
   @ViewChild('grid') dataGrid: DataGrid;
+
+  private _status: PositionStatus = PositionStatus.Open;
+
+  private _accountId;
+
+  handlers: DataGridHandler[] = [
+    new CellClickDataGridHandler<PositionItem>({
+      column: PositionColumn.close,
+      handler: (data) => this.delete(data.item),
+    }),
+  ];
 
   get columns() {
     return this._columns;
   }
 
-  protected _levelOneDataFeedHandler = (quote: IQuote) => {
-    this.items.map(i => i.updateUnrealized(quote));
-    this.dataGrid?.detectChanges();
-    this.updatePl();
-  }
-
   private get positions(): IPosition[] {
     return this.items.filter(item => item.position).map(item => item.position);
   }
-
-  private _status: PositionStatus = PositionStatus.Open;
 
   get status() {
     return this._status;
@@ -73,7 +96,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
   }
-
 
 
   set status(value: PositionStatus) {
@@ -88,8 +110,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return { ...this._params, status: this.status };
   }
 
-  private _accountId;
-
   set accountId(accountId) {
     this._accountId = accountId;
     this.loadData({ accountId });
@@ -99,20 +119,18 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return this._accountId;
   }
 
-  handlers = [
-    new CellClickDataGridHandler<PositionItem>({
-      column: 'close',
-      handler: (item) => this.delete(item),
-    }),
-  ];
-
   constructor(
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
+    protected _notifier: NotifierService,
+    private _accountRepository: AccountRepository,
+    private _instrumentsRepository: InstrumentsRepository,
+    private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
     this.autoLoadData = false;
+    this.subscribeToConnections = false;
 
     this.builder.setParams({
       groupBy: ['accountId', 'instrumentName'],
@@ -120,15 +138,31 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
     });
-    this._columns = headers.map(convertToColumn);
+    this._columns = headers.map((i) => convertToColumn(i, {
+      hoveredBackgroundColor: '#2B2D33',
+    }));
+
+    this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
+      const instrument = await (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(trade.instrument);
+
+      this.items.map(i => i.updateUnrealized(trade, instrument));
+      this.dataGrid?.detectChanges();
+      this.updatePl();
+    }));
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
   }
 
+
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
     this.updatePl();
+  }
+
+  protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
+    super._handleResponse(response, params);
+    response.data.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
@@ -136,14 +170,33 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.updatePl();
   }
 
-  private updatePl() {
+  protected _handleConnection(connection) {
+    super._handleConnection(connection);
+    this._accountRepository = this._accountRepository.forConnection(connection);
+    this._instrumentsRepository = this._instrumentsRepository.forConnection(connection);
+    if (!connection?.connected) {
+      this.accountId = null;
+    } else {
+      this._loadAccount();
+    }
+  }
+
+  private async updatePl() {
+    const instrumentsPromises = this.positions.map(position => {
+      return (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(position.instrument);
+    });
+
+    const precision = await Promise.all(instrumentsPromises).then(instruments => {
+      return instruments.reduce((accum, instrument) => Math.max(accum, instrument.precision), 0);
+    });
+
     this.open = +this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(4);
-    this.realized = +this.positions.reduce((total, current) => total + (current.realized * current.price), 0).toFixed(4);
+      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
+    this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
     this.totalPl = this.open + this.realized;
   }
 
-  _transformDataFeedItem(item) {
+  protected _transformDataFeedItem(item) {
     return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
   }
 
@@ -214,12 +267,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 
-  protected _deleteItem(item: IPosition) {
-    return this.repository.deleteItem(item);
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.positions.forEach(item => {
+      this._levelOneDataFeed.unsubscribe(item.instrument);
+    });
   }
 
-  handleAccountChange(accountId: Id): void {
-    this.accountId = accountId;
+  protected _deleteItem(item: IPosition) {
+    return this.repository.deleteItem(item);
   }
 
   protected _handleDeleteItems(items: IPosition[]) {
@@ -235,9 +291,22 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     if (state && state.columns)
       this._columns = state.columns;
+
+    if (state) {
+      const { contextMenuState } = state;
+      this.contextMenuState = contextMenuState;
+    }
   }
 
-  isEmpty(number: number): boolean {
-    return number === 0;
+  isEmpty(numberInput: number): boolean {
+    return numberInput === 0;
+  }
+
+  private _loadAccount(): void {
+    this._accountRepository.getItems({ status: 'Active', criteria: '', limit: 1 })
+      .subscribe({
+        next: (res) => this.accountId = res?.data?.length && res.data[0].id,
+        error: err => this._notifier.showError(err, 'Failed to load account')
+      });
   }
 }

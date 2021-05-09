@@ -135,10 +135,14 @@ button.top-position-btn {
   margin-top: 3px;
   color: white;
   height: 24px;
+  cursor: pointer;
   line-height: 1;
-  cursor: default;
   font-size: 0.65rem;
   border: 1px solid transparent;
+
+  &.cursor-not-allowed {
+    cursor: not-allowed;
+  }
 }
 
 .pos-negative {
@@ -240,7 +244,22 @@ button.top-position-btn {
 
 .cxl-btn, .cxl-btn:hover {
   width: 100%;
+  padding-left: 6px;
+  padding-right: 2px;
   border: none;
+  position: relative;
+  display: inline-flex;
+  justify-content: space-between;
+
+  span {
+    display: inline-block;
+  }
+
+  .cxl-quantity {
+    position: absolute;
+    top: 1px;
+    right: 2px;
+  }
 }
 
 .cxl-sell, .cxl-sell:focus, .cxl-sell:hover, .cxl-sell:focus-within {

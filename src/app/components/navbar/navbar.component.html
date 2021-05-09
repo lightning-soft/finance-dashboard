@@ -1,5 +1,9 @@
 <nav class="navigation-bar">
-  <button class="position-settings-button" nz-dropdown [nzDropdownMenu]="menu" [nzTrigger]="'click'">
+  <button class="position-settings-button"
+          nz-dropdown
+          (nzVisibleChange)="handleInsideDropdownToggle($event)"
+          [nzDropdownMenu]="menu"
+          [nzTrigger]="'click'">
     <i class=" icon-settings-points"></i>
   </button>
 
@@ -17,7 +21,7 @@
       </li>
       <li nz-menu-item *ngIf="!isNavbarHidden"
           (click)="changeNavbarVisibility(true)">
-        <i class="icon-hide"></i> Hide
+        <i class="icon-hide"></i> Auto-hide
       </li>
       <li nz-menu-item *ngIf="isNavbarHidden"
           (click)="changeNavbarVisibility(false)">
@@ -32,37 +36,53 @@
   <div class="logo">
   </div>
   <div class="create-frame">
-    <app-drag-drawer *ngIf="layout" [layout]="layout"></app-drag-drawer>
+    <app-drag-drawer *ngIf="layout"
+                     [layout]="layout"
+                     (handleToggleDropdown)="handleInsideDropdownToggle($event)"
+    ></app-drag-drawer>
   </div>
+
   <app-frames-manager [dropdownPlacement]="dropdownPlacementLeftSide"></app-frames-manager>
   <!-- <div class="search">
     <button class="icon-search"></button>
   </div> -->
   <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
-  <windows [layout]="layout"></windows>
-  <app-connections [layout]="layout"></app-connections>
+  <windows [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></windows>
+
+  <app-connections [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-connections>
+
   <div class="preferences">
     <app-trade-lock></app-trade-lock>
-    <app-workspace [layout]="layout" [dropdownPlacement]="dropdownPlacementRightSide"></app-workspace>
+
+    <app-workspace
+      (handleToggleDropdown)="handleInsideDropdownToggle($event)"
+      [layout]="layout"
+      [dropdownPlacement]="dropdownPlacementRightSide"
+    ></app-workspace>
+
     <button
-      #settingsButton
       [title]="'Settings'"
-      (click)="openSettings(); settingsButton.blur()" class="icon-setting-gear navbar-button"></button>
+      (click)="openSettings(); $event.target.blur()" class="icon-setting-gear navbar-button"
+    ></button>
+
     <button
-      #notificationsButton
       [title]="'Notifications'"
-      (click)="openNotificationsList(); notificationsButton.blur()" class="icon-notification  navbar-button">
+      (click)="openNotificationsList(); $event.target.blur()" class="icon-notification  navbar-button">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
-    <app-account></app-account>
+
+    <app-account (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-account>
   </div>
   <div class="time">
-    <app-clock [dropdownPlacement]="dropdownPlacementRightSide"></app-clock>
+    <app-clock [dropdownPlacement]="dropdownPlacementRightSide"
+               (handleToggleDropdown)="handleInsideDropdownToggle($event)"
+    ></app-clock>
   </div>
 
   <div class="control">
-    <button class="icon-minimize-window native-minimize-button"
+    <button
+      class="icon-minimize-window native-minimize-button"
             onclick="window.nativeMinimize && window.nativeMinimize()"></button>
     <button class="icon-full-screen-window native-maximize-button"
             onclick="window.nativeMaximize && window.nativeMaximize()"></button>

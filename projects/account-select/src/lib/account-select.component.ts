@@ -11,14 +11,14 @@ import { IPaginationResponse } from 'communication';
   styleUrls: ['account-select.component.scss'],
 })
 export class AccountSelectComponent extends ItemsComponent<IAccount> {
-
   @Input() placeholder = 'Select account';
   @Input() className = '';
   @Input() nzDropdownClassName = '';
   @Output() accountChange: EventEmitter<Id> = new EventEmitter();
-  @Input() labelTransformer = (label) => label;
 
   activeAccountId: Id;
+
+  @Input() labelTransformer = (label) => label;
 
   constructor(
     protected _repository: AccountRepository,

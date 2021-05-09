@@ -1,41 +1,60 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { NzModalService, NzPlacementType } from "ng-zorro-antd";
-import { AddTimezoneModalComponent } from "../add-timezone-modal/add-timezone-modal.component";
-import { TimezonesService } from "../timezones.service";
-import { ITimezone, Timezone, TIMEZONES } from "../timezones";
-import { interval } from "rxjs";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
+import { interval } from 'rxjs';
+import { AddTimezoneModalComponent } from '../add-timezone-modal/add-timezone-modal.component';
+import { ITimezone, Timezone, TIMEZONES } from '../timezones';
+import { TimezonesService } from '../timezones.service';
 
 @UntilDestroy()
 @Component({
   selector: 'app-clock',
   templateUrl: './clock.component.html',
-  styleUrls: ['./clock.component.scss']
+  styleUrls: ['./clock.component.scss'],
 })
 export class ClockComponent implements OnInit {
   time: number;
   timezones: ITimezone[] = [];
+  enabledTimezones: ITimezone[] = [];
   localTimezone: ITimezone;
-  enabledTimezone: ITimezone;
 
   @Input() dropdownPlacement: NzPlacementType;
+  @Input() maxAdditionalTimezonesCount = 2;
+
+  @Output() handleToggleDropdown = new EventEmitter<boolean>();
+
+  get canEnableTimezone(): boolean {
+    return this.timezonesService.canEnableTimezone;
+  }
 
   constructor(private modalService: NzModalService,
-              private timezonesService: TimezonesService) {
+    private _changeDetectionRef: ChangeDetectorRef,
+    private _ngZone: NgZone,
+    private timezonesService: TimezonesService) {
+    this.timezonesService.maxEnabledTimezonesCount = this.maxAdditionalTimezonesCount;
 
-    interval(1000)
-      .pipe(untilDestroyed(this))
-      .subscribe(() => this.time = Date.now())
+    this._changeDetectionRef.detach();
+    this._ngZone.runOutsideAngular(() => {
+      interval(1000)
+        .pipe(untilDestroyed(this))
+        .subscribe(() => {
+          this.time = Date.now();
+          this._detectChanges();
+        });
+    });
   }
 
   ngOnInit(): void {
     this.localTimezone = this._getLocalTimezone();
 
-    this.timezonesService.timezonesData$.subscribe((data) => {
-      this.timezones = data.timezones
-      this.enabledTimezone = this.timezonesService.enabledTimezone;
-      this.localTimezone.name = data.localTimezoneTitle;
-    })
+    this.timezonesService.timezonesData$
+      .pipe(untilDestroyed(this))
+      .subscribe((data) => {
+        this.timezones = data.timezones;
+        this.enabledTimezones = this.timezonesService.enabledTimezones;
+        this.localTimezone.name = data.localTimezoneTitle;
+        this._detectChanges();
+      });
   }
 
   addTimezone(): void {
@@ -74,14 +93,18 @@ export class ClockComponent implements OnInit {
   private _getLocalTimezone(): ITimezone {
     const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const foundTimezones = TIMEZONES.filter(timezone => {
+    const matchedTimezones = TIMEZONES.filter(timezone => {
       return timezone.utc.some(i => i === timezoneName);
-    })
+    });
 
-    const supposedTimezone = (foundTimezones || []).reduce((acc, item) => {
+    const supposedTimezone = matchedTimezones.reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
     });
 
     return supposedTimezone ? new Timezone(supposedTimezone) : null;
+  }
+
+  _detectChanges() {
+    this._changeDetectionRef.detectChanges();
   }
 }

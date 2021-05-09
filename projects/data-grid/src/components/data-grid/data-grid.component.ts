@@ -15,9 +15,9 @@ import {
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
-import { ICell } from '../../models';
+import { Cell, ICell } from '../../models';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
-import { CellClickDataGridHandler, DataGridHandler, Events } from './data-grid.handler';
+import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from './data-grid.handler';
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
@@ -40,6 +40,19 @@ interface GridStyles {
 
 export interface DataGridState {
   columns: any;
+  contextMenuState: {
+    showColumnHeaders: boolean;
+    showHeaderPanel: boolean;
+  };
+}
+
+export interface ICellChangedEvent<T> {
+  column: Column;
+  row: T;
+  item: Cell;
+  context: string;
+  ctx: CanvasRenderingContext2D;
+  dragContext: "cell"
 }
 
 @Component({
@@ -52,6 +65,43 @@ export interface DataGridState {
   }]
 })
 export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, OnDestroy, OnInit {
+  @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
+  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
+
+  @HostBinding('attr.title') title: string;
+
+  @Output() currentCellChanged = new EventEmitter<ICellChangedEvent<T>>();
+  @Output() settingsClicked = new EventEmitter();
+  @Output() columnUpdate = new EventEmitter<Column>();
+
+  @Input() handlers: DataGridHandler[] = [];
+  @Input() showContextMenuSettings = true;
+  @Input() showHeaderPanelInContextMenu = false;
+  @Input() showHeaderPanel = true;
+  @Input() columns: Column[] = [];
+  @Input() showSettingsInContextMenu = false;
+  @Input() detach = false;
+  @Input() afterDraw = (e, grid) => null;
+  @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
+
+  private _items: T[] = [];
+  private _styles: GridStyles;
+  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
+  private _prevActiveCell: Cell;
+
+  // private _subscribedEvents = [];
+
+  public rowHeight = 19;
+  public list: TransferItem[] = [];
+  public onDestroy$ = new Subject();
+  _grid: any;
+
+  @Input()
+  set items(value: T[]) {
+    this._items = value;
+    if (this._grid)
+      this._grid.data = value;
+  }
 
   get items(): T[] {
     if (!this._grid)
@@ -60,12 +110,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     return this._grid.data;
   }
 
-  @Input()
-  set items(value: T[]) {
-    this._items = value;
-    if (this._grid)
-      this._grid.data = value;
-  }
 
   get scrollHeight() {
     return this._grid.scrollHeight;
@@ -76,8 +120,27 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   set scrollTop(value: number) {
-    this._grid.scrollTop = value;
+    if (this._grid) {
+      this._grid.scrollTop = value;
+    }
   }
+
+  private _contextMenuState = {
+    showHeaderPanel: true,
+    showColumnHeaders: true,
+  };
+
+  @Input() set contextMenuState(value) {
+    if (value)
+      this._contextMenuState = value;
+  }
+
+  get contextMenuState() {
+    return this._contextMenuState;
+  }
+
+  @Output()
+  contextMenuStateChange = new EventEmitter<any>();
 
   constructor(
     private modalService: NzModalService,
@@ -87,48 +150,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private nzContextMenuService: NzContextMenuService,
   ) {
   }
-
-  @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
-
-  @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
-
-  @Output() currentCellChanged = new EventEmitter();
-  @Output() settingsClicked = new EventEmitter();
-
-  @Input()
-  handlers: DataGridHandler[] = [];
-  @Input() showContextMenuSettings = true;
-  @Input() showHeaderPanelInContextMenu = false;
-  @Input() showHeaderPanel = true;
-  @Output() showHeaderPanelChange = new EventEmitter<boolean>();
-
-  @Output() columnUpdate = new EventEmitter<Column>();
-  @Input() columns: Column[] = [];
-  @Input() showSettingsInContextMenu = false;
-
-  private _items: T[] = [];
-  private _styles: GridStyles;
-
-  private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
-
-  @Input() detach = false;
-
-  @HostBinding('attr.title')
-  title: string;
-
-  // private _subscribedEvents = [];
-
-  public isVisible = false;
-  showColumnHeaders = true;
-
-  public rowHeight = 19;
-
-  public list: TransferItem[] = [];
-
-  public onDestroy$ = new Subject();
-
-  _grid: any;
-  @Input() afterDraw = (e, grid) => null;
 
   ngOnInit(): void {
     // this.activeColumns = this.columns.filter((column: Column) => column.visible);
@@ -191,9 +212,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.style.height = '100%';
     grid.style.width = '100%';
     grid.data = this._items;
+    grid.scale = 2;
     grid.attributes.allowSorting = false;
     grid.attributes.showRowHeaders = false;
-    grid.attributes.showColumnHeaders = true;
+    grid.attributes.showColumnHeaders = this.contextMenuState.showColumnHeaders;
     grid.attributes.snapToRow = true;
     grid.attributes.columnHeaderClickBehavior = 'none';
     // grid.applyComponentStyle();
@@ -255,10 +277,13 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   //   ];
   // }
   saveState(): DataGridState {
-    return { columns: this._grid.schema };
+    return {
+      columns: this._grid.schema,
+      contextMenuState: this.contextMenuState,
+    };
   }
 
-  createComponentModal($event): void {
+  createComponentModal($event: MouseEvent): void {
     $event.preventDefault();
     this.nzContextMenuService.create($event, this.contextMenuComponent);
   }
@@ -297,19 +322,20 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       return;
 
     for (const handler of _handlers as any[]) {
-      if (handler.event != event || handler.column != e.column?.name)
+      const columns: string[] = Array.isArray(handler.column) ? handler.column : [handler.column];
+      if (handler.event != event || (handler.column && columns.every(i => i !== e.column?.name)))
         continue;
 
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify(item, e.e);
+        handler.notify({column: e.column, item} as IHandlerData, e.e);
     }
   }
 
-  private _currentCellChanged = (e) => {
-    this.currentCellChanged.emit(e);
-    this.title = e?.item?.toString() ?? '';
+  private _currentCellChanged = (event: ICellChangedEvent<T>) => {
+    this.title = this.showColumnTitleOnHover(event.column) ? (event?.item?.toString() ?? '') : null;
+    this.currentCellChanged.emit(event);
   }
 
   private _afterDraw = (e) => {
@@ -368,10 +394,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.onDestroy$.complete();
   }
 
-  toggleColumns() {
-    this.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
+  toggleColumns(): void {
+    this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
-    this.detectChanges();
+    this.detectChanges(true);
   }
 
   setFitColumnsWidth(): void {
@@ -381,8 +407,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   changeShowPanel($event: boolean) {
-    this.showHeaderPanel = $event;
-    this.showHeaderPanelChange.emit($event);
+    this.contextMenuState.showHeaderPanel = $event;
   }
 
   onSettingsClicked() {

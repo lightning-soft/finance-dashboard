@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, WebSocketService } from 'communication';
+import { IBaseItem, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
 
@@ -14,7 +14,12 @@ export enum WSMessageTypes {
 @Injectable()
 export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
-  private _subscriptions = {};
+  private _subscriptions: {
+    [hash: string]: {
+      count: number,
+      payload: object,
+    }
+  } = {};
   private _unsubscribeFns = {};
   private _executors: OnTradeFn<T>[] = [];
 
@@ -22,29 +27,28 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   unsubscribeType: WSMessageTypes;
 
   private get _sucessfullyConected() {
-    return this._webSocketService.sucessfulyConnected;
+    return this._accountsManager.getActiveConnection()?.connected && this._webSocketService.sucessfulyConnected;
   }
 
   private _pendingRequests = [];
 
   constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
-    @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
-    this._webSocketService.on(this._handleTrade.bind(this));
-    this._webSocketService.connection$.subscribe(conected => !conected && this._clearSubscription());
-    this._accountsManager.connections.subscribe(() => {
-      const connection = this._accountsManager.getActiveConnection();
+              @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
+    this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
+    this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
+    this._accountsManager.activeConnection.subscribe((connection) => {
       if (!connection || !connection.connected)
-        this._clearSubscription();
+        this._onConnectionLost();
     });
   }
 
-  protected _clearSubscription() {
+  protected _onConnectionLost() {
     for (const key in this._unsubscribeFns)
       this._unsubscribeFns[key]();
-
-    this._subscriptions = {};
-    this._unsubscribeFns = {};
     this._pendingRequests = [];
+    Object.values(this._subscriptions).forEach(item =>
+      this.createPendingRequest(this.subscribeType, item.payload));
+    this._unsubscribeFns = {};
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -75,18 +79,23 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       const hash = this._getHash(item);
 
       if (type === this.subscribeType) {
-        subscriptions[hash] = (subscriptions[hash] || 0) + 1;
-        if (subscriptions[hash] === 1) {
+        if (!subscriptions[hash]?.hasOwnProperty('count'))
+          subscriptions[hash] = {} as any;
+        subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
+        if (subscriptions[hash].count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
+          subscriptions[hash].payload = dto;
           if (this._sucessfullyConected)
             this._webSocketService.send({ Type: type, ...dto });
           else
-            this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...dto }));
+            this.createPendingRequest(type, dto);
         }
       } else {
-        subscriptions[hash] = (subscriptions[hash] || 1) - 1;
-        if (subscriptions[hash] === 0) {
+        if (!subscriptions[hash])
+          return;
+        subscriptions[hash].count = (subscriptions[hash]?.count || 1) - 1;
+        if (subscriptions[hash].count === 0) {
           if (this._unsubscribeFns[hash]) {
             this._unsubscribeFns[hash]();
             delete this._unsubscribeFns[hash];
@@ -94,6 +103,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         }
       }
     });
+  }
+
+  private createPendingRequest(type, payload) {
+    this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...payload }));
   }
 
   protected _getHash(instrument: I) {

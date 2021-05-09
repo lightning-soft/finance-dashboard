@@ -6,15 +6,20 @@ import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
-import { WorkspacesManager } from 'workspace-manager';
+import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { Components } from '../../modules';
 import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
-import { environment } from 'environment';
 import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
-import { NzConfigService } from "ng-zorro-antd";
+import { NzConfigService } from 'ng-zorro-antd';
+import { environment } from 'environment';
+import { SaveLayoutConfigService } from '../save-layout-config.service';
+import { SaveLoaderService } from 'ui';
 
+enum WindowEvents {
+  Message = 'message'
+}
 
 @Component({
   selector: 'dashboard',
@@ -47,6 +52,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private trade: TradeHandler,
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
+    private saverService: SaveLayoutConfigService,
+    private loaderService: SaveLoaderService,
   ) {
   }
 
@@ -55,9 +62,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this._websocketService.connect();
 
-    this._accountsManager.connections.subscribe(() => {
-      const connection = this._accountsManager.getActiveConnection();
-
+    this._accountsManager.activeConnection.subscribe((connection) => {
       if (connection)
         this._websocketService.send({ type: 'Id', value: connection.connectionData.apiKey });
     });
@@ -71,7 +76,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     / For performance reason avoiding ng zone in some cases
     */
     const zone = this._zone;
-    Element.prototype.addEventListener = function (...args) {
+    Element.prototype.addEventListener = function(...args) {
       const _this = this;
 
       if (['wm-container'].some(i => this.classList.contains(i)) ||
@@ -87,17 +92,50 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    this._themesHandler.themeChange$.subscribe((theme) => {
+      $('body').removeClass('scxThemeLight scxThemeDark');
+      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
+    });
     if (this.isPopup())
       this._loadPopupState();
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
+
+      window.addEventListener(WindowEvents.Message, (event) => {
+        try {
+          const data = event.data;
+          if (typeof data !== 'string')
+            return;
+          const { workspaceId, windowId, state } = JSON.parse(data);
+          this._workspaceService.saveWindow(+workspaceId, +windowId, state);
+        } catch (err) {
+          console.error(err);
+        }
+      });
     }
+
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
+
+    window.onbeforeunload = (e) => {
+      for (const fn of this._subscriptions)
+        fn();
+      if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
+        return;
+      e = e || window.event;
+
+      // For IE and Firefox prior to version 4
+      if (e) {
+        e.returnValue = true;
+      }
+      // For Safari
+      return true;
+    };
   }
+
 
   isPopup() {
     return this._windowPopupManager.isPopup();
@@ -131,29 +169,66 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   _loadPopupWindow() {
     this._subscribeOnKeys();
-    this._setupWorkspaces();
     this.layout.loadEmptyState();
+    this.setupReloadWindows();
     this._workspaceService.workspaceInit
       .pipe(
         filter(item => item),
         first(),
-        untilDestroyed(this)
-      ).subscribe(() => {
-      const workspaceId = +this._windowPopupManager.workspaceId;
-      this._workspaceService.switchWorkspace(workspaceId);
-      const windowId = +this._windowPopupManager.windowId;
-      this._workspaceService.switchWindow(windowId);
-    });
+        untilDestroyed(this))
+      .subscribe(() => {
+        const workspaceId = +this._windowPopupManager.workspaceId;
+        this._workspaceService.switchWorkspace(workspaceId, false);
+        const windowId = +this._windowPopupManager.windowId;
+        this._workspaceService.switchWindow(windowId);
+      });
   }
 
   private _setupWorkspaces() {
-    this._workspaceService.save
+    this._workspaceService.deletedWindow$
+      .pipe(untilDestroyed(this))
+      .subscribe((workspaceWindow: WorkspaceWindow) => {
+        if (!workspaceWindow)
+          return;
+        this.layout.removeComponent((item) => {
+          return workspaceWindow.config.some(config => item.id === config.id);
+        });
+      });
+    this._workspaceService.save$
       .pipe(untilDestroyed(this))
       .subscribe(() => {
         this._save();
       });
 
-    this._workspaceService.reload
+    this._setupReloadWorkspaces();
+  }
+
+  private _setupReloadWorkspaces() {
+    this._workspaceService.reloadWorkspace$
+      .pipe(
+        untilDestroyed(this)
+      )
+      .subscribe(async () => {
+        const workspaces = this._workspaceService.workspaces.value;
+        const activeWorkspace = workspaces.find(w => w.isActive);
+
+        if (!activeWorkspace)
+          return;
+
+        const config = this._workspaceService.getWorkspaceConfig().map(item => {
+          item.visible = false;
+          return item;
+        });
+        await this.layout.loadState(config, true);
+        const windowId = this._workspaceService.getCurrentWindow()?.id;
+        if (windowId != null)
+          this._workspaceService.switchWindow(windowId);
+      });
+    this.setupReloadWindows();
+  }
+
+  setupReloadWindows() {
+    this._workspaceService.reloadWindows$
       .pipe(
         untilDestroyed(this)
       )
@@ -164,14 +239,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         if (!activeWorkspace)
           return;
 
-        const config = this._workspaceService.getWorkspaceConfig();
-        this.layout.loadState(config);
+        const config = this._workspaceService.getConfig();
+        this.layout.loadState(config, false);
       });
-
-    this._themesHandler.themeChange$.subscribe((theme) => {
-      $('body').removeClass('scxThemeLight scxThemeDark');
-      $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
-    });
   }
 
   private _setupSettings(): void {
@@ -208,7 +278,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _handleEvent(event) {
-    if (isInput(event && event.srcElement))
+    if (needToSkipEventHandling(event?.target))
       return;
 
     if (!this.layout.handleEvent(event))
@@ -278,29 +348,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private async _save() {
-    if (this._workspaceService.getActiveWorkspace()) {
-      await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, this.layout.saveState());
-      this.hasBeenSaved = true;
-    }
-  }
-
-  @HostListener('window:beforeunload', ['$event'])
-  async beforeUnloadHandler(e) {
-    for (const fn of this._subscriptions)
-      fn();
-    if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
-      return;
-    e = e || window.event;
-
-    // For IE and Firefox prior to version 4
-    if (e) {
-      e.returnValue = true;
-    }
-    // For Safari
-    return true;
+    await this.saverService.save(this.layout.getState());
+    this.hasBeenSaved = true;
   }
 }
 
-function isInput(element: Element): boolean {
-  return element && element.tagName === 'INPUT' || element.classList.contains('hotkey-input');
+function needToSkipEventHandling(element: Element): boolean {
+  if (!element)
+    return false;
+
+  const isCheckbox = element.getAttribute('type') === 'checkbox';
+
+  return (element.tagName === 'INPUT' && !isCheckbox) || element.classList.contains('hotkey-input');
 }

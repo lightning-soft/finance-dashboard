@@ -66,7 +66,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   ngOnInit() {
     this.builder.setParams({
       groupBy: ['broker'],
-      sort: (a, b) => a.name > b.name ? 1 : -1
     });
 
     this._brokersRepository.getItems()
@@ -92,17 +91,17 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.connections
       .pipe(
         untilDestroyed(this))
-      .subscribe((items: any) => {
-        if (items) {
-          this.builder.replaceItems(items);
+      .subscribe((data) => {
+        if (data) {
+          this.builder.replaceItems(data);
           this.expandBrokers();
           this._updateSelectedItem();
         }
       });
 
     this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
-      .subscribe((items) => {
-        const item = items.find(item => item.connected && item.connectOnStartUp);
+      .subscribe((data) => {
+        const item = data.find(item => item.connected && item.connectOnStartUp);
         if (!this.selectedItem) {
           this.selectItem(item);
         }

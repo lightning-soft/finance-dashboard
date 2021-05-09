@@ -21,7 +21,9 @@ export class DomSettings {
   }
 
   general: any = {
-    allWindows: false,
+    currentTradesAllWindows: false,
+    currentTotalAllWindows: false,
+    recenterTotalAllWindows: false,
     clearCurrentTrades: false,
     clearTotalTrades: false,
     closeOutstandingOrders: false,
@@ -42,8 +44,8 @@ export class DomSettings {
       bidAskDeltaFilter: 0
     },
     digitsToHide: 4,
-    hideAccountName: true,
-    hideFromLeft: true,
+    hideAccountName: false,
+    hideFromLeft: false,
     hideFromRight: false,
     intervals: {
       clearTradersTimer: DefaultClearInterval,
@@ -87,13 +89,12 @@ export class DomSettings {
     clearTotalTradesUpAllWindows:
       getKeyBindings([KeyCode.KEY_U, KeyCode.KEY_W]),
   };
-  // columns: any = {};
   common: any = {
-    fontFamily: 'Open Sans',
+    fontFamily:  '\"Open Sans\", sans-serif',
     fontSize: 12,
     fontWeight: '',
     generalColors: {
-      centerLineColor: 'grey',
+      centerLineColor: '#808080',
       gridLineColor: '#24262C',
       orderGridLineColor: 'rgba(88, 110, 117, 1)',
       simulationModeWarningClr: 'rgba(4, 63, 128, 1)',
@@ -150,15 +151,18 @@ export class DomSettings {
   price: any = {
     color: 'rgba(208, 208, 210, 1)',
     backgroundColor: 'rgba(131, 148, 150, 1)',
+    hoveredBackgroundColor: '#383A40',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     highlightColor: 'rgba(0, 0, 0, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
+    longPositionOpenBackgroundColor: '#2A8AD2',
+    shortPositionOpenBackgroundColor: '#DC322F',
     textAlign: TextAlign.Center,
   };
   bidDelta: any = {
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: '#2b486e',
-    color: 'white',
+    color: '#fff',
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
@@ -171,6 +175,7 @@ export class DomSettings {
     color: 'white',
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
+    hoveredBackgroundColor: '#4895F5',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
     largeSize: 14,
@@ -183,6 +188,7 @@ export class DomSettings {
   ask: any = {
     color: 'white',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
+    hoveredBackgroundColor: '#C93B3B',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
@@ -198,6 +204,7 @@ export class DomSettings {
     textAlign: TextAlign.Right,
     color: 'rgba(72, 149, 245, 1)',
     backgroundColor: 'transparent',
+    histogramEnabled: true,
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
     histogramOrientation: HistogramOrientation.Left,
@@ -207,6 +214,7 @@ export class DomSettings {
     textAlign: TextAlign.Left,
     color: 'rgba(235, 90, 90, 1)',
     backgroundColor: 'transparent',
+    histogramEnabled: true,
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
     histogramOrientation: HistogramOrientation.Right,
@@ -215,7 +223,7 @@ export class DomSettings {
     highlightBackgroundColor: '#9D0A0A',
     textAlign: TextAlign.Center,
     backgroundColor: 'transparent',
-    lastTradingBackgroundColor: 'white',
+    lastTradingBackgroundColor: '#fff',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     valueAreaHistogramColor: 'rgba(109, 112, 196, 1)',
     color: 'white',
@@ -234,20 +242,22 @@ export class DomSettings {
     textAlign: TextAlign.Center,
     // 'break-evenBackground': 'rgba(0, 44, 55, 1)',
     // 'break-evenForeground': 'rgba(255, 255, 255, 1)',
-    buyOrderBackgroundColor: 'rgba(22, 140, 213, 1)',
-    buyOrderColor: 'rgba(242, 242, 242, 1)',
+    buyOrderBackgroundColor: 'rgba(72, 149, 245, 0.7)',
+    buyOrderColor: '#fff',
+    buyOrderBorderColor: '#4895f5',
     // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
     highlightColor: 'rgba(29, 73, 127, 1)',
     inProfitBackgroundColor: 'rgba(0, 44, 55, 1)',
     inProfitColor: 'rgba(72, 149, 245, 1)',
     lossBackgroundColor: 'rgba(0, 44, 55, 1)',
     lossColor: 'rgba(201, 59, 59, 1)',
-    sellOrderBackgroundColor: 'rgba(201, 59, 59, 1)',
-    sellOrderColor: 'rgba(255, 255, 255, 1)',
+    sellOrderBackgroundColor: 'rgba(201, 59, 59, 0.7)',
+    sellOrderColor: '#fff',
+    sellOrderBorderColor: '#C93B3B',
     sellOrdersBackgroundColor: 'rgba(255, 255, 255, 0.5)',
     buyOrdersBackgroundColor: 'rgba(22, 140, 213, 0.5)',
     // sellOrdersColumn: 'rgba(72, 149, 245, 1)',
-    showPnl: false,
+    showPnl: true,
     split: false,
     includePnl: false,
     overlay: false,

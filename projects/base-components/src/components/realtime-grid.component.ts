@@ -1,30 +1,36 @@
 import { Directive, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
-import { DataGrid } from 'data-grid';
+import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
 import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
 import { ItemsComponent } from './items.component';
 import { StringHelper } from '../helpers';
 
-export function convertToColumn(nameOrArr: any) {
-  nameOrArr = Array.isArray(nameOrArr) ? nameOrArr : ([nameOrArr, nameOrArr]);
-  let [name, title, tableViewName, type] = nameOrArr;
-  if (!tableViewName) {
-    tableViewName = StringHelper.capitalize(title);
-  }
+type HeaderItemOptions<ColumnName = string> = (Partial<Column> & { name: ColumnName });
+export type HeaderItem<ColumnName = string> = ColumnName | HeaderItemOptions<ColumnName>;
+
+const DefaultStyles: any = {
+  textOverflow: false,
+  textAlign: 'left',
+};
+
+export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultStyles): Column {
+  const options: HeaderItemOptions = typeof item === 'string' ? { name: item } : item;
+  const title = options.title ?? options.name;
+  const style = {
+    ...defaultStyles,
+    ...options.style,
+  };
+
   return {
-    name,
-    type,
-    tableViewName,
-    style: {
-      textOverflow: false,
-      textAlign: 'left',
-    },
-    title: title?.toUpperCase() ?? '',
-    visible: true,
-    // not shown in tableView
-    hidden: false,
+    ...options,
+    style,
+    visible: options.visible ?? true,
+    hidden: options.hidden ?? false, // not shown in tableView
+    canHide: options.canHide ?? true,
+    title: title.toUpperCase(),
+    tableViewName: options.tableViewName ?? StringHelper.capitalize(title),
   };
 }
 
@@ -64,7 +70,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
 
   // @SynchronizeFrames()
   private _handleResize() {
-    this.dataGrid.resize();
+    this.dataGrid?.resize();
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -74,6 +80,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
       case LayoutNodeEvent.Open:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
+      case LayoutNodeEvent.MakeVisible:
         this._handleResize();
         break;
       case LayoutNodeEvent.Event:

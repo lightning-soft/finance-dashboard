@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AlertType, WebSocketService } from 'communication';
+import { AlertType, WebSocketService, WSEventType } from 'communication';
+import { NotificationService } from 'notification';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, take, tap } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
@@ -10,22 +11,45 @@ import { HttpErrorInterceptor } from './interceptor';
 @Injectable()
 @UntilDestroy()
 export class AccountsManager {
-  connections = new BehaviorSubject<IConnection[]>([]);
+  private _activeConnection = new BehaviorSubject<IConnection>(null);
+  private _connections = new BehaviorSubject<IConnection[]>([]);
+  public activeConnection: Observable<IConnection> = this._activeConnection.asObservable();
+  public connections: Observable<IConnection[]> = this._connections.asObservable();
+
+  private _wsIsOpened = false;
+  private _wsHasError = false;
 
   constructor(
     protected _connectionsRepository: ConnectionsRepository,
     private _webSocketService: WebSocketService,
-    private _interceptor: HttpErrorInterceptor
+    private _interceptor: HttpErrorInterceptor,
+    private _notificationService: NotificationService,
   ) {
   }
 
-  getActiveConnection() {
-    return this.connections.value.find(i => i.connected);
+  get items(): IConnection[] {
+    return this._connections.value;
   }
 
-  async init() {
-    this._webSocketService.on(this._handleStream.bind(this));
+  getActiveConnection(): IConnection {
+    return this.items.find(i => i.connected);
+  }
+
+  async init(): Promise<IConnection[]> {
+    this._webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
+    this._webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
+    this._webSocketService.on(WSEventType.Error, this._wsHandleError.bind(this));
+
     this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
+
+    this._fetchConnections();
+
+    return this.connections.pipe(
+      take(2), // first default value
+    ).toPromise();
+  }
+
+  private _fetchConnections() {
     this._connectionsRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(res => {
@@ -36,15 +60,12 @@ export class AccountsManager {
           }
           return item;
         });
-        this.connections.next(connections);
+        this._connections.next(connections);
+        this._activeConnection.next(this.getActiveConnection());
       });
-
-    return this.connections.pipe(
-      take(2), // first default value
-    ).toPromise();
   }
 
-  private _handleStream(msg: any): void {
+  private _wsHandleMessage(msg: any): void {
     if (msg?.type === 'Connect' && (
       msg.result.type === AlertType.ConnectionClosed ||
       msg.result.type === AlertType.ConnectionBroken ||
@@ -57,7 +78,40 @@ export class AccountsManager {
     }
   }
 
-  private _deactivateConnection() {
+  private _wsHandleOpen() {
+    if (!this._wsIsOpened) {
+      this._wsIsOpened = true;
+      return;
+    }
+
+    this._wsHasError = false;
+
+    this._notificationService.showSuccess('Connection restored.');
+
+    this._fetchConnections();
+  }
+
+  private _wsHandleError() {
+    if (this._wsHasError) {
+      return;
+    }
+
+    this._wsHasError = true;
+
+    this._notificationService.showError('Connection lost.');
+
+    const connection = this.getActiveConnection();
+
+    if (connection?.connected) {
+      this.onUpdated({
+        ...connection,
+        connected: false,
+        error: true,
+      });
+    }
+  }
+
+  private _deactivateConnection(): void {
     const connection = this.getActiveConnection();
     if (connection) {
       this._connectionsRepository.updateItem({ ...connection, connected: false })
@@ -66,17 +120,17 @@ export class AccountsManager {
     }
   }
 
-  createConnection(connection: IConnection) {
+  createConnection(connection: IConnection): Observable<IConnection> {
     return this._connectionsRepository.createItem(connection)
       .pipe(tap((conn) => this.onCreated(conn)));
   }
 
-  rename(name, connection: IConnection) {
+  rename(name, connection: IConnection): Observable<IConnection> {
     return this._connectionsRepository.updateItem({ ...connection, name })
-      .pipe(tap(() => this.onUpdated({ ...connection, name })));
+      .pipe(tap(() => this.onUpdated({ ...connection, name }, false)));
   }
 
-  connect(connection: IConnection) {
+  connect(connection: IConnection): Observable<IConnection> {
     const oldConnection = this.getActiveConnection();
     return this._connectionsRepository.connect(connection)
       .pipe(
@@ -92,7 +146,7 @@ export class AccountsManager {
           return this._connectionsRepository.updateItem(item)
             .pipe(map(_ => item));
         }),
-        tap((conn) => this.onUpdated(conn)));
+        tap((conn) => this.onUpdated(conn, !conn.error)));
   }
 
   disconnect(connection: IConnection): Observable<void> {
@@ -111,7 +165,7 @@ export class AccountsManager {
       );
   }
 
-  deleteConnection(connection: IConnection) {
+  deleteConnection(connection: IConnection): Observable<any> {
     const { id } = connection;
 
     return this._connectionsRepository.deleteItem(id)
@@ -120,31 +174,39 @@ export class AccountsManager {
       );
   }
 
-  toggleFavourite(connection: IConnection) {
+  toggleFavourite(connection: IConnection): Observable<IConnection> {
     return this._connectionsRepository.updateItem({ ...connection, favourite: !connection.favourite })
       .pipe(
-        tap(() => this.onUpdated({ ...connection, favourite: !connection.favourite })),
+        tap(() => this.onUpdated({ ...connection, favourite: !connection.favourite }, false)),
       );
   }
 
-  protected onCreated(connection: IConnection) {
-    const connections = this.connections.value;
+  protected onCreated(connection: IConnection): void {
     if (!connection.name) {
       connection.name = `${connection.server}(${connection.gateway})`;
     }
-    connections.push(connection);
-    this.connections.next(connections);
+    this._connections.next([...this.items, connection]);
+    if (connection.connected) {
+      this._activeConnection.next(connection);
+    }
   }
 
-  protected onDeleted(connection: IConnection) {
-    const connections = this.connections.value;
-    this.connections.next(connections.filter(item => item.id !== connection.id));
+  protected onDeleted(connection: IConnection): void {
+    const connections = this.items.filter(i => i.id !== connection.id);
+    this._connections.next(connections);
+    if (connection.id === this.getActiveConnection().id) {
+      this._activeConnection.next(null);
+    }
   }
 
-  protected onUpdated(connection: IConnection) {
-    const connections = this.connections.value;
+  protected onUpdated(connection: IConnection, emitActiveConnectionChange = true): void {
+    const connections = this.items;
     const index = connections.findIndex(item => item.id === connection.id);
     connections[index] = connection;
-    this.connections.next(connections);
+    this._connections.next(connections);
+
+    if (emitActiveConnectionChange) {
+      this._activeConnection.next(connection.connected ? connection : null);
+    }
   }
 }

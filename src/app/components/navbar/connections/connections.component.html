@@ -19,11 +19,11 @@
     >{{ connection.name }}</div>
   </div>
 </div>
-<div
+<button
   nz-dropdown
   nzTrigger="click"
   nzPlacement="bottomRight"
-  (nzVisibleChange)="isConnectionsDropdownOpened = $event"
+  (nzVisibleChange)="handleDropdownToggle($event)"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
   *ngIf="favourites.length > 2"
@@ -32,7 +32,7 @@
   <i [ngClass]="{
     'text-active': activeConnection
   }" class="icon-signal"></i>
-</div>
+</button>
 <div
   class="d-flex align-items-center justify-content-center navigation-button"
   (click)="openAccounts()"
@@ -46,8 +46,8 @@
 </div>
 <nz-dropdown-menu #connectionsDropdown="nzDropdownMenu">
   <div class="dropdown">
-    <cdk-virtual-scroll-viewport [itemSize]>
-      <ul nz-menu>
+    <cdk-virtual-scroll-viewport [itemSize] [style.height.px]="connectionsListHeight">
+      <ul nz-menu #connectionsList>
         <li
           nz-menu-item
           class="d-flex transition align-items-center"

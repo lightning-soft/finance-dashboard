@@ -23,6 +23,9 @@ export class DockDesktopLayout extends Layout {
 
   hasChild(options: ComponentOptions) {
     return this._windowManagerService.windows.getValue()
+      .filter(item => {
+        return item.visible;
+      })
       .map(item => item.options.componentState())
       .some(item => item.name === options.component.name);
   }
@@ -32,17 +35,19 @@ export class DockDesktopLayout extends Layout {
       .find(callback);
   }
 
-  removeComponent(componentName) {
-    const window = this._windowManagerService.windows.getValue()
-      .find(item => item.options.componentState().name === componentName);
-    window?.close();
+  removeComponents(callback: (item) => boolean) {
+    this._windowManagerService.windows.getValue()
+      .forEach(item => {
+        if (callback(item))
+            item.close();
+      });
   }
 
   getWidgets() {
-    return this._windowManagerService.windows.getValue();
+    return this._windowManagerService.windows.getValue().slice();
   }
 
-  addComponent(componentNameOrConfig: ComponentOptions | any) {
+  async addComponent(componentNameOrConfig: ComponentOptions | any) {
     let componentName: string;
     let componentState: any;
     let config: any;
@@ -77,7 +82,7 @@ export class DockDesktopLayout extends Layout {
     // }
 
     try {
-      this._ngZone.runOutsideAngular(async () => {
+      await this._ngZone.runOutsideAngular(async () => {
         try {
           const comp = await this._creationsService.getComponentRef(componentName);
           const componentRef = this.viewContainer.insert(comp.hostView);
@@ -89,6 +94,7 @@ export class DockDesktopLayout extends Layout {
             width: 500,
             allowPopup: true,
             height: 500,
+            visible: true,
             minWidth: 320,
             minHeight: 150,
             ...config
@@ -184,13 +190,21 @@ export class DockDesktopLayout extends Layout {
     return activeWindow && activeWindow.emit('event', event);
   }
 
-  _load(config: any[]) {
+  async _load(config: any[]) {
     if (!Array.isArray(config))
       return;
-
+    const widgets = this.getWidgets();
+    const promises = [];
     for (let i = config.length - 1; i >= 0; i--) {
-      this.addComponent(config[i]);
+      const widget = widgets.find(item => item.id === config[i].id);
+      if (widget) {
+        widget.visible = true;
+      } else {
+        promises.push(this.addComponent(config[i]));
+      }
     }
+    await Promise.all(promises);
+    this._windowManagerService.updateWindows();
   }
 
   async loadState(config: any) {
@@ -211,8 +225,8 @@ export class DockDesktopLayout extends Layout {
       //   // (window as any).wm = manager;
       // }
 
-      if (config)
-        this._load(config);
+      if (Array.isArray(config))
+        await this._load(config);
     } catch (e) {
       console.error(e);
       throw e;

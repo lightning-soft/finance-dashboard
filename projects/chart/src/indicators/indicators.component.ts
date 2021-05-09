@@ -64,6 +64,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
     this.addLinkObserver({
       link: this.link,
+      layoutContainer: this.layoutContainer,
       handleLinkData: (chart: IChart) => {
         this.chart = chart;
         this._handleChart(this.chart);
@@ -134,6 +135,15 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
   private _addIndicator(instance: any) {
     this.indicators.push(this._createIndicator(instance));
+  }
+
+  removeAll(){
+    const { chart } = this;
+
+    this.indicators.forEach((item) => {
+      chart.removeIndicators(item.instance);
+    });
+    chart.setNeedsUpdate();
   }
 
   private _removeIndicator(instance: any) {

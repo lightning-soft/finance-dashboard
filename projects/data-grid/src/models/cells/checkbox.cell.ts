@@ -1,18 +1,28 @@
-import { Cell } from './cell';
+import { Cell, ICellConfig } from './cell';
+import { TextAlign } from "dynamic-form";
+
+interface ICheckboxCellConfig extends ICellConfig {
+  checked?: boolean;
+  size?: number;
+}
 
 export class CheckboxCell extends Cell {
-  public horizontalAlign: 'left' | 'center' | 'right' = 'center';
+  public horizontalAlign: TextAlign = TextAlign.Center;
   private readonly rectOffset = 2.2;
   private readonly minWidthFromEdge = 4;
   private x: number;
   private y: number;
+  private _checked: boolean;
+  private _size: number;
 
   get checked(): boolean {
     return this._checked;
   }
 
-  constructor(private _checked = false, private _size: number = 10) {
-    super();
+  constructor(config?: ICheckboxCellConfig) {
+    super(config);
+    this._checked = config?.checked ?? false;
+    this._size = config?.size ?? 10;
   }
 
   updateValue(checked: boolean): void {
@@ -60,13 +70,13 @@ export class CheckboxCell extends Cell {
 
   private _setHorizontalPosition(context): void {
     switch (this.horizontalAlign) {
-      case 'center':
+      case TextAlign.Center:
         this.x = context.x + context.width / 2 - (this._size / 2);
         break;
-      case 'left':
+      case TextAlign.Left:
         this.x = context.x + this.minWidthFromEdge;
         break;
-      case 'right':
+      case TextAlign.Right:
         this.x = context.x + context.width - this._size - this.minWidthFromEdge;
         break;
     }

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { IHistoryItem } from 'trading';
-import { TradePrint } from 'trading';
 
 @Component({
   selector: 'daily-info',
@@ -10,7 +9,7 @@ import { TradePrint } from 'trading';
 export class DailyInfoComponent {
   _dailyInfo: IHistoryItem;
   @Input() set dailyInfo(value: IHistoryItem) {
-    this._dailyInfo = value;
+    this.historyItem = value;
     this.updateIncome();
   }
 
@@ -18,7 +17,6 @@ export class DailyInfoComponent {
     return this._dailyInfo;
   }
 
-  @Input() prevItem: IHistoryItem;
   @Input() instrument;
   @Input() showInstrumentChange: boolean;
   @Input() showOHLVInfo: boolean;
@@ -26,43 +24,26 @@ export class DailyInfoComponent {
   income: number | string;
   incomePercentage: string | number;
 
-  @Input() set trade(value: TradePrint) {
-    if (this.dailyInfo && this.shouldUpdateCurrentItem(value)) {
-
-      this.dailyInfo.close = value.price;
-      if (value.price > this.dailyInfo.high) {
-        this.dailyInfo.high = value.price;
-      }
-      if (value.price < this.dailyInfo.low) {
-        this.dailyInfo.low = value.price;
-      }
-
-      this.dailyInfo.volume = this.dailyInfo.volume + value.volume;
-      this.dailyInfo = { ...this.dailyInfo };
-     // this.updateIncome();
-    }
+  @Input() set historyItem(value: IHistoryItem) {
+    if (this._dailyInfo === value)
+      return;
+    this._dailyInfo = value;
+    this.updateIncome();
   }
 
   updateIncome() {
     if (this.dailyInfo) {
       const precision = this.instrument?.precision ?? 4;
-      const income = this.dailyInfo.close - this.prevItem.close;
+      const income = this.dailyInfo.close - this.dailyInfo.open;
       this.incomePercentage = ((income / this.dailyInfo.close) * 100).toFixed(precision);
       this.income = income.toFixed(precision);
+    } else {
+      this.income = null;
+      this.incomePercentage = null;
     }
-  }
-
-  shouldUpdateCurrentItem(trade) {
-    const date = new Date(trade.timestamp);
-    return isSameDay(date, this.dailyInfo.date) && date > this.dailyInfo.date;
   }
 
   getInfo(data: number | string) {
     return data ?? '-';
   }
-}
-
-function isSameDay(date, secondDate) {
-  return date.getDate() == secondDate.getDate() && date.getMonth() == secondDate.getMonth()
-    && date.getFullYear() == secondDate.getFullYear();
 }

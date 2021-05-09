@@ -1,15 +1,19 @@
-<nz-radio-group (ngModelChange)="selectWindow($event)" [ngModel]="currentWindowId">
+<nz-radio-group [formControl]="formControl">
   <nz-select
     [nzDropdownRender]="renderTemplate"
     nzDropdownClassName="window-dropdown-menu"
-    [nzOptionHeightPx]="24"
-    [ngModel]="currentWindowId"
+    [nzOptionHeightPx]="25"
+    [formControl]="formControl"
+    [(nzOpen)]="isSelectOpened"
+    (nzOpenChange)="handleToggleDropdown.emit($event)"
     nzPlaceHolder="Select a window">
-    <nz-option [nzLabel]="window.name" class="options" [nzValue]="window.id" *ngFor="let window of windows"
+    <nz-option [nzLabel]="window.name" class="options"
+               [nzValue]="window.id"
+               *ngFor="let window of windows"
                nzCustomContent>
       <div (click)="selectWindow(window.id)" class="workspace">
         <div class="title">
-          <label class="radio-btn" nz-radio [nzValue]="window.id">{{ window.name }}</label>
+          <label (click)="selectWindow(window.id)" class="radio-btn" nz-radio [nzValue]="window.id">{{ window.name }}</label>
         </div>
         <div class="actions">
           <button [title]="'Open In New Window'"
@@ -30,7 +34,7 @@
     <div (click)="createWindow()" class="add-window">
       <i class="icon-add"></i>Add Window
     </div>
-    <nz-divider></nz-divider>
-    <button (click)="save()" class="create-btn">Save active window</button>
+<!--
+    <button (click)="save()" class="create-btn">Save active window</button>-->
   </ng-template>
 </nz-radio-group>

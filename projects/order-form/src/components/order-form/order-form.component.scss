@@ -1,5 +1,14 @@
 @import "~src/scss/variables";
 
+:host {
+  height: 100%;
+
+  .order-form-wrapper {
+    background: $inputBackground;
+    padding: 8px 8px 12px;
+  }
+}
+
 .order-button {
   height: 48px;
   border-radius: 0;
@@ -30,6 +39,7 @@
   font-weight: 600;
   height: 24px;
   width: 100%;
+  text-transform: uppercase;
 }
 
 .position-button, {
@@ -38,7 +48,7 @@
   width: auto;
   font-size: 0.8rem;
   color: white;
-  cursor: default;
+  cursor: pointer;
   height: 24px;
   outline: none;
 }
@@ -58,9 +68,10 @@
 
 .buy-button, .sell-button {
   width: 100%;
+  height: 40px;
   color: white;
   font-size: 1.3rem;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,6 +124,12 @@
   }
 
   ::ng-deep {
+    account-select {
+      nz-select-top-control {
+        align-items: center;
+      }
+    }
+
     nz-select {
       height: 24px !important;
 
@@ -198,6 +215,10 @@
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.pos-cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 .cursor-not-allowed {
@@ -307,10 +328,5 @@
   }
 }
 
-:host {
-  .order-form-wrapper {
-    background: $inputBackground;
-    padding: 8px 8px 12px;
-  }
-}
+
 

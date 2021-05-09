@@ -65,7 +65,7 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   handlers = [
     new CellClickDataGridHandler<WatchlistItem>({
       column: 'close',
-      handler: (item) => this.delete(item),
+      handler: (data) => this.delete(data.item),
     }),
   ];
 
@@ -81,7 +81,7 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     super();
     this.autoLoadData = false;
 
-    this.columns = headers.map(name => ({ name, tableViewName: StringHelper.capitalize(name), visible: true }));
+    this.columns = headers.map(name => ({ name, tableViewName: StringHelper.capitalize(name), visible: true, canHide: true }));
 
     this.setTabIcon('icon-widget-watchlist');
     this.setTabTitle('Watchlist');

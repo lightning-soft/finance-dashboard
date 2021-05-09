@@ -1,4 +1,4 @@
-import { Component, Injector, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
@@ -7,13 +7,14 @@ import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
   IInstrument,
-  IOrder,
+  IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, TradeDataFeed, TradePrint
+  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
 } from 'trading';
+import { RealPositionsRepository } from 'real-trading';
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -29,7 +30,7 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
-export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateProvider<OrderFormState> {
+export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
   orderDurations = orderDurations;
   orderTypes = orderTypes;
   step = 1;
@@ -69,11 +70,17 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     if (value?.id === this.instrument?.id)
       return;
 
-    this._tradeDataFeed.unsubscribe(this._instrument);
-    this._tradeDataFeed.subscribe(value);
+    this._levelOneDatafeed.unsubscribe(this._instrument);
+    this._levelOneDatafeed.subscribe(value);
     this._instrument = value;
+
+    if (this.price)
+      this.price = roundToTickSize(this.price, this._instrument.tickSize);
+
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
+
+    this.loadPositions();
 
     this.bidPrice = null;
     this.askPrice = null;
@@ -86,7 +93,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   }
 
   get accountId() {
-    return this.formValue.accountId;
+    return this.formValue?.accountId;
   }
 
   amountButtons = [
@@ -100,7 +107,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
     protected _repository: OrdersRepository,
     protected positionsRepository: PositionsRepository,
     // protected _levelOneDatafeedService: Level1DataFeed,
-    private _tradeDataFeed: TradeDataFeed,
+    private _levelOneDatafeed: Level1DataFeed,
+    private _positionDatafeed: PositionsFeed,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -141,10 +149,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   onTypeUpdated() {
     super.onTypeUpdated();
     if (this.isStopLimit) {
-      this.layoutContainer.height = 340;
-    }
-    else {
-      this.layoutContainer.height = 300;
+      this.layoutContainer.height = 348;
+    } else {
+      this.layoutContainer.height = 308;
     }
   }
 
@@ -155,25 +162,32 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   ngOnInit() {
     super.ngOnInit();
     this.onTypeUpdated();
-    this._accountsManager.connections
+    this._accountsManager.activeConnection
       .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        const connection = this._accountsManager.getActiveConnection();
+      .subscribe((connection) => {
         this._repository = this._repository.forConnection(connection);
         this.positionsRepository = this.positionsRepository.forConnection(connection);
       });
 
-    this.onRemove(this._tradeDataFeed.on((trade: TradePrint) => {
-      if (trade.instrument?.symbol === this.instrument?.symbol) {
-        if (trade.side === OrderSide.Buy) {
-          this.askPrice = trade.price;
-          this.askVolume = trade.volumeBuy;
-        } else {
-          this.bidVolume = trade.volumeSell;
-          this.bidPrice = trade.price;
+    this.onRemove(
+      this._levelOneDatafeed.on((quote: IQuote) => {
+        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price;
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price;
+          }
         }
-      }
-    }));
+      }),
+      this._positionDatafeed.on((pos) => {
+        const position = RealPositionsRepository.transformPosition(pos);
+        if (compareInstruments(position.instrument, this.instrument))
+          this.position = position;
+
+      })
+    );
   }
 
   closePositions() {
@@ -192,7 +206,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   createForm() {
     return this.fb.group({
       accountId: [null],
-      type: [OrderType.Market],
+      type: [OrderType.Limit],
       quantity: [1],
       exchange: this.instrument?.exchange,
       stopLoss: {
@@ -238,34 +252,47 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, IStateP
   }
 
   incrementQuantity() {
+    if (typeof this.quantity === 'string')
+      return;
+
     const quantity = this.quantity + 1;
     this.form.patchValue({ quantity });
   }
 
   decrementQuantity() {
+    if (typeof this.quantity === 'string')
+      return;
+
     const quantity = this.quantity - 1;
     if (quantity >= 1)
       this.form.patchValue({ quantity });
   }
 
-  addToSelectedQuantity(count: number) {
-    const currentButton = this.quantityInput.currentItem;
-    currentButton.value = count + currentButton.value;
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this._levelOneDatafeed.unsubscribe(this.instrument);
   }
 
   increasePrice() {
     if (this.shouldDisablePrice)
       return;
+
     const newPrice = this.price || 0;
-    this.price = newPrice + (this.instrument?.tickSize || 0.1);
+    const tickSize = this.instrument?.tickSize || 0.1;
+    const precision = this.instrument?.precision ?? 1;
+
+    this.price = +(newPrice + tickSize).toFixed(precision);
   }
 
   decreasePrice() {
     if (this.shouldDisablePrice)
       return;
+
     const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
+    const precision = this.instrument?.precision ?? 1;
+
     if (newPrice >= 0)
-      this.price = newPrice;
+      this.price = +newPrice.toFixed(precision);
   }
 
   private _getNavbarTitle(): string {

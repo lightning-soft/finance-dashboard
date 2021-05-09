@@ -11,17 +11,6 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
-    nz-tabs-nav {
-      display: none;
-    }
-
-    &.show-header {
-
-    }
-
-    .ant-tabs-top-content {
-      height: 100%;
-    }
 
     window-header {
       .title {
@@ -43,14 +32,15 @@ $selectMarginBottom: 15px;
     }
 
     .ant-tabs-nav .ant-tabs-tab {
-      margin-right: 26px;
-      padding: 6px 0;
+      margin-right: 3px;
+      padding: 4px 10px;
       font-size: 0.8rem;
       line-height: 1.2rem;
     }
 
     .ant-tabs-ink-bar {
       background: $primary;
+      height: 1px;
     }
 
     .ant-tabs-nav .ant-tabs-tab-active {
@@ -61,9 +51,7 @@ $selectMarginBottom: 15px;
       height: 100%;
       text-align: right;
     }
-  }
 
-  &.show-header ::ng-deep {
     nz-tabs-nav {
       display: block;
     }
@@ -78,6 +66,17 @@ $selectMarginBottom: 15px;
       padding-top: 4px;
     }
   }
+
+  &.hide-header ::ng-deep {
+    nz-tabs-nav {
+      display: none;
+    }
+
+    .ant-tabs-top-content {
+      height: 100%;
+    }
+  }
+
 
   .select-container {
     position: relative;

@@ -1,11 +1,9 @@
 <button
-  *ngIf="enabledTimezone"
+  *ngFor="let enabledTimezone of enabledTimezones"
   nz-dropdown
   nzTrigger="click"
   class="clock-container"
-  [nzDropdownMenu]="menu"
-  [nzPlacement]="dropdownPlacement"
-  [nzClickHide]="false"
+  (click)="timezonesDropdownTriggerButton.click()"
 >
   <span class="zone">{{enabledTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">
@@ -14,12 +12,14 @@
 </button>
 
 <button
+  #timezonesDropdownTriggerButton
   nz-dropdown
   nzTrigger="click"
   class="clock-container"
   [nzDropdownMenu]="menu"
   [nzPlacement]="dropdownPlacement"
   [nzClickHide]="false"
+  (nzVisibleChange)="handleToggleDropdown.emit($event)"
 >
   <span class="zone">{{localTimezone.name}}</span>
   <span class="time" *ngIf="time; else emptyTime">
@@ -32,7 +32,7 @@
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <div class="timezones-list custom-scroll">
     <timezone-item [timezone]="localTimezone"
-                   [canToggle]="false"
+                   [showCheckbox]="false"
                    [canDelete]="false"
                    (rename)="renameLocalTitle($event)"
                    (reset)="resetLocalTitle()"
@@ -44,10 +44,11 @@
     <timezone-item *ngFor="let timezone of timezones"
                    [timezone]="timezone"
                    [subtitleFontSize]="timezone.enabled ? 11 : 10"
+                   [checkboxDisabled]="!timezone.enabled && !canEnableTimezone"
                    (delete)="deleteTimezone(timezone)"
                    (reset)="resetTimezone(timezone)"
                    (rename)="updateTimezoneName(timezone, $event)"
-                   (toggleEnabled)="toggleTimezone(timezone, $event)"
+                   (checkbox)="toggleTimezone(timezone, $event)"
     ></timezone-item>
 
     <button class="add-timezone-button" (click)="addTimezone()">Add timezone</button>

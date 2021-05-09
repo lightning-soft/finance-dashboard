@@ -2,9 +2,11 @@
   <form [formGroup]="form" class="form-layout">
     <ng-content select="[headerContent]"></ng-content>
 
-    <button title="Positions" class="top-position-btn"
+    <button
+      [class.cursor-not-allowed]="!canClickPosButton"
+      (click)="setPositionQuantity()" title="Positions" class="top-position-btn"
             [class.pos-negative]="isPositionsNegative"
-    >{{positionSum}}</button>
+    >{{positionsSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select [nzOptionHeightPx]="23" formControlName="type" class="type-select">
       <nz-option *ngFor="let item of typeSelectOptions"
@@ -83,13 +85,13 @@
       <button
         [style.color]="setting.sellButtonsFontColor"
         [style.background]="setting.sellButtonsBackgroundColor"
-        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL</button>
+        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL <span class="cxl-quantity">{{sellQuantity}}</span></button>
       <button
         [style.color]="setting.cancelButtonFontColor"
         [style.background]="setting.cancelButtonBackgroundColor"
-        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL</button>
+        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL <span class="cxl-quantity">{{totalQuantity}}</span></button>
       <button [style.color]="setting.buyButtonsFontColor"
-              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY</button>
+              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY <span class="cxl-quantity">{{buyQuantity}}</span></button>
     </div>
     <div class="bottom-btns">
       <button (click)="emit(FormActions.ClosePositions)" [class.d-none]="!setting.formSettings.closePositionButton" nz-button>CLOSE
