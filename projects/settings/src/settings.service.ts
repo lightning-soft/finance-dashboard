@@ -56,6 +56,7 @@ const defaultSettings: SettingsData = {
   localTimezoneTitle: 'Local',
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
+  lastPickedColors: [],
 };
 
 @Injectable()
@@ -97,8 +98,12 @@ export class SettingsService {
     this._updateState({ theme });
   }
 
-  updateTradingLock(tradingEnabled: boolean) {
+  updateTradingLock(tradingEnabled: boolean): void {
     this._updateState({ tradingEnabled });
+  }
+
+  updateLastPickedColors(colors: string[]): void {
+    this._updateState({ lastPickedColors: colors });
   }
 
   saveState(): void {

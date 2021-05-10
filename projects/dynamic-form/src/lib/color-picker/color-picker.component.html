@@ -18,9 +18,35 @@
       <div class="row" *ngFor="let paletteRow of palette">
         <div *ngFor="let color of paletteRow"
                class="color-input"
-               (click)="changeColor(color)"
+               (click)="updateValue(color)"
              [style.background]="color"></div>
       </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <nz-select nzOptionHeightPx="23" (ngModelChange)="handleColorTypeChange($event)"
+               [(ngModel)]="selectedColorType">
+      <nz-option [nzValue]="colorType.HEX" [nzLabel]="colorType.HEX"></nz-option>
+      <nz-option [nzValue]="colorType.RGB" [nzLabel]="colorType.RGB"></nz-option>
+    </nz-select>
+
+    <input nz-input #colorInput type="text" [value]="inputValue" (blur)="handleInputValueChange(colorInput.value)">
+
+    <nz-slider [(ngModel)]="opacity"
+               (nzOnAfterChange)="updateOpacity()"
+               [nzMin]="0"
+               [nzMax]="100"
+               [nzDisabled]="selectedColorType === colorType.HEX"
+    ></nz-slider>
+
+    <div class="divider"></div>
+
+    <div class="d-flex">
+      <input *ngFor="let lastColor of lastPickedColors"
+             class="color-input"
+             disabled
+             [style.background]="lastColor"/>
     </div>
   </div>
 </nz-dropdown-menu>
