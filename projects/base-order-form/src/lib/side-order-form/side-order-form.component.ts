@@ -2,17 +2,20 @@ import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
-import { IOrder, IPosition, OrderSide } from 'trading';
-import { IHistoryItem } from 'real-trading';
-import { BehaviorSubject } from 'rxjs';
 import {
   HistoryRepository,
   IConnection,
   IInstrument,
+  IOrder,
   OrderDuration,
+  OrderSide,
+  OrderStatus,
   OrderType,
-  PositionsRepository
+  PositionsRepository,
+  isForbiddenOrder, compareInstruments
 } from 'trading';
+import { IHistoryItem } from 'real-trading';
+import { BehaviorSubject } from 'rxjs';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
@@ -29,6 +32,7 @@ export enum FormActions {
   CreateOcoOrder,
   CancelOcoOrder
 }
+
 
 export enum OcoStep {
   Fist, Second, None
@@ -59,7 +63,7 @@ export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   stopLoss: FormControl;
   isIce: FormControl;
   takeProfit: FormControl;
-}
+};
 
 @Component({
   selector: 'side-form',
@@ -74,6 +78,10 @@ export class SideOrderFormComponent extends BaseOrderForm {
   prevItem: IHistoryItem;
   private _ocoStep = OcoStep.None;
   private _defaultFormState: Partial<SideOrderForm>;
+
+  totalQuantity: number;
+  buyQuantity: number;
+  sellQuantity: number;
 
   get isOcoSelected() {
     return this._ocoStep !== OcoStep.None;
@@ -98,6 +106,23 @@ export class SideOrderFormComponent extends BaseOrderForm {
     }
   }
 
+  @Input() set orders(value: IOrder[]) {
+    this.buyQuantity = 0;
+    this.sellQuantity = 0;
+
+    value.forEach((item) => {
+      if (isForbiddenOrder(item))
+        return;
+
+      if (item.side === OrderSide.Buy)
+        this.buyQuantity += item.quantity;
+      else if (item.side === OrderSide.Sell)
+        this.sellQuantity += item.quantity;
+    });
+
+    this.totalQuantity = this.buyQuantity + this.sellQuantity;
+  }
+
   @Input() set defaultFormState(state: Partial<SideOrderForm>) {
     this._defaultFormState = state;
     if (state && this.form)
@@ -115,7 +140,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
   @Input() tickSize: number;
-  
+
   _accountId;
   get accountId() {
     return this._accountId;
@@ -162,7 +187,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (value?.id != null && this.instrument$.getValue()?.id !== value?.id) {
+    if (value != null && compareInstruments(this.instrument$.getValue(), value)) {
       this.instrument$.next(value);
       this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
     }

@@ -1,6 +1,8 @@
 import { Periodicity, IInstrument, HistoryRepository, TradeDataFeed, OHLVData, OHLVFeed, OnTradeFn } from 'trading';
 import { Inject, Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
+import { VolumeData, VolumeDataFeed } from 'trading';
+import { Subject } from 'rxjs';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -11,20 +13,28 @@ const historyParams = {
 @Injectable()
 export class RealOHLVFeed extends OHLVFeed {
   private _executors: OnTradeFn<OHLVData>[] = [];
+  private _ohlvData$ = new Subject<OHLVData>();
 
   constructor(
     private _historyRepository: HistoryRepository,
     private _tradeDatafeed: TradeDataFeed,
+    private _volumeDatafeed: VolumeDataFeed,
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
     super();
     this._tradeDatafeed.on(this.handleTrade);
+    this._volumeDatafeed.on(this.handleVolume);
+    this._ohlvData$.pipe(
+      // throttleTime(500)
+      ).subscribe((historyItem) =>
+        this._sendToSubscribers(historyItem)
+      );
   }
 
   private _ohlv: {
     [instrumentId: string]: {
       count: number,
-      historyItem: OHLVData
+      historyItem: OHLVData,
     }
   } = {};
 
@@ -50,7 +60,7 @@ export class RealOHLVFeed extends OHLVFeed {
     }
 
     const now = new Date();
-    const barCount = Math.ceil(now.getHours() - getStartOfDay().getHours());
+    const barCount = now.getHours();
 
     this._historyRepository = this._historyRepository.forConnection(connection);
     this._historyRepository.getItems({
@@ -89,7 +99,7 @@ export class RealOHLVFeed extends OHLVFeed {
       ohlv.count += 1;
       ohlv.historyItem = dailyInfo as OHLVData;
       ohlv.historyItem.instrument = instrument;
-      this._sendToSubscribers(this._ohlv[instrument.symbol].historyItem);
+      this._ohlvData$.next(ohlv.historyItem);
       },
     );
   }
@@ -101,10 +111,10 @@ export class RealOHLVFeed extends OHLVFeed {
 
     if ((this._ohlv[instrument.symbol].count - 1) <= 0) {
       this._tradeDatafeed.unsubscribe(instrument);
+      this._volumeDatafeed.unsubscribe(instrument);
     }
 
     this._ohlv[instrument.symbol].count -= 1;
-
   }
 
   handleTrade = (trade) => {
@@ -123,11 +133,21 @@ export class RealOHLVFeed extends OHLVFeed {
     if (trade.price > historyItem.high) {
       historyItem.high = trade.price;
     }
-
     historyItem.date = new Date(trade.timestamp);
-    historyItem.volume += trade.volume;
     historyItem.instrument = trade.instrument;
-    this._sendToSubscribers(historyItem);
+    this._ohlvData$.next(historyItem);
+  }
+
+  handleVolume = (data: VolumeData) => {
+    const ohlvHandler = this._ohlv[data.instrument.symbol];
+    if (!ohlvHandler?.count) {
+      return;
+    }
+
+    ohlvHandler.historyItem.volume = data.volume;
+    const historyItem = ohlvHandler.historyItem;
+    historyItem.instrument = data.instrument;
+    this._ohlvData$.next(historyItem);
   }
 
   private _sendToSubscribers(historyItem: OHLVData) {
@@ -135,10 +155,4 @@ export class RealOHLVFeed extends OHLVFeed {
       fn(historyItem);
     });
   }
-}
-
-function getStartOfDay() {
-  const beginningOfDay = new Date();
-  beginningOfDay.setHours(0, 0, 0);
-  return beginningOfDay;
 }
