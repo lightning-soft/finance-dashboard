@@ -766,9 +766,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
         oldItem.revertPriceStatus();
       }
-      this._applyPositionStatus();
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
+      this._applyPositionStatus();
     }
   }
 
