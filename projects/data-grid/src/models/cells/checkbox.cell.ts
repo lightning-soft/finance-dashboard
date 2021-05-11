@@ -1,5 +1,5 @@
 import { Cell, ICellConfig } from './cell';
-import { TextAlign } from "dynamic-form";
+import { TextAlign } from 'dynamic-form';
 
 interface ICheckboxCellConfig extends ICellConfig {
   checked?: boolean;
@@ -14,9 +14,14 @@ export class CheckboxCell extends Cell {
   private y: number;
   private _checked: boolean;
   private _size: number;
+  private _showColumnPanel = true;
 
   get checked(): boolean {
     return this._checked;
+  }
+
+  set showColumnPanel(value: boolean) {
+    this._showColumnPanel = value;
   }
 
   constructor(config?: ICheckboxCellConfig) {
@@ -44,6 +49,12 @@ export class CheckboxCell extends Cell {
 
     ctx.strokeStyle = '#51535A';
     ctx.strokeRect(this.x, this.y, this._size, this._size);
+
+    if (context.y === 0 && this._showColumnPanel) {
+      ctx.strokeStyle = '#24262C';
+      ctx.strokeRect(context.x, context.y, context.width, context.height);
+      ctx.strokeStyle = '#51535A';
+    }
 
     if (this._checked) {
       const size = this._size - 2 * this.rectOffset;

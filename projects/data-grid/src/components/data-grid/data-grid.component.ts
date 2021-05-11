@@ -35,6 +35,8 @@ interface GridStyles {
   color?: string;
   background?: string;
   gridBorderColor?: string;
+  gridBorderWidth?: number;
+  columnHeaderBorderColor?: string;
   scrollSensetive?: number;
 }
 
@@ -83,9 +85,9 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() detach = false;
   @Input() afterDraw = (e, grid) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
+  @Input() styles: GridStyles;
 
   private _items: T[] = [];
-  private _styles: GridStyles;
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
   private _prevActiveCell: Cell;
 
@@ -202,7 +204,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         overflowY: 'hidden',
         overflowX: 'hidden',
         scrollSensetive: DefaultScrollSensetive,
-        ...this._styles,
+        ...this.styles,
       },
       data: [],
     });
@@ -237,7 +239,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
-    this._styles = styles;
+    this.styles = styles;
 
     if (!grid)
       return;
@@ -396,6 +398,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   toggleColumns(): void {
     this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
+    this.contextMenuStateChange.emit(this.contextMenuState);
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges(true);
   }
@@ -408,6 +411,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   changeShowPanel($event: boolean) {
     this.contextMenuState.showHeaderPanel = $event;
+    this.contextMenuStateChange.emit(this.contextMenuState);
   }
 
   onSettingsClicked() {
