@@ -18,6 +18,14 @@ type RGBA = {
 const Palette: string[][] = [
   ['#FFE8E8', '#F68E8E', '#F16E6E', '#E95050', '#EA3939', '#DD2121', '#CB1212', '#BC0606', '#9D0A0A', '#820303'],
   ['#FFE0CF', '#FFBB96', '#FFA16D', '#FF8440', '#FF6C1C', '#FF5A00', '#E04F00', '#C04400', '#9C3700', '#802D00'],
+  ['#FFFAEA', '#FFF6D7', '#FFEEB4', '#FFE68E', '#FFDF6F', '#FFD43E', '#FFC700', '#D3A500', '#AD8700', '#8B6D00'],
+  ['#BCFFDF', '#75FFBD', '#00FF85', '#00F27E', '#00DC72', '#00BD62', '#009950', '#007A40', '#006534', '#004A27'],
+  ['#CAFFFD', '#B0F0EE', '#70EAE6', '#3AEAE4', '#1CE4DD', '#00E5DD', '#00CFC8', '#00B2AC', '#009691', '#007A76'],
+  ['#F0F9FF', '#CEEAFF', '#9FD7FF', '#78C6FF', '#59B9FF', '#29A5FF', '#0094FF', '#0083E2', '#006FBF', '#005B9C'],
+  ['#BBD6FF', '#8DBBFF', '#4895F5', '#2669ED', '#1E4EF6', '#0E43FF', '#0033E9', '#0029BC', '#00239E', '#00208F'],
+  ['#E4CFFF', '#C597FF', '#8F37FF', '#7A11FF', '#6900EF', '#6000DA', '#5600C5', '#4B00AB', '#400090', '#3E008B'],
+  ['#FFDCFB', '#FF8AF3', '#FF42EC', '#FE00E5', '#DE00C8', '#BE00AB', '#9D008E', '#7C0070', '#600056', '#5A0051'],
+  ['#FFFFFF', '#E5E5E5', '#CCCCCC', '#B8B8B8', '#999999', '#7F7F7F', '#666666', '#4C4C4C', '#3F3F3F', '#000000'],
 ];
 
 @UntilDestroy()
@@ -32,7 +40,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   readonly palette: string[][] = Palette;
   readonly colorType = ColorType;
 
-  lastPickedColors: string[] = [];
+  lastPickedColors: { withOpacity: boolean, colorWithoutOpacity: string, color: string }[] = [];
   selectedColorType: ColorType;
   opacity = 100;
   inputValue: string;
@@ -47,17 +55,29 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     this.settingsService.settings
       .pipe(untilDestroyed(this))
       .subscribe((settings) => {
-        this.lastPickedColors = settings.lastPickedColors;
+        this.lastPickedColors = settings.lastPickedColors.map(color => {
+          if (isHex(color)) {
+            return  {withOpacity: false, color: color, colorWithoutOpacity: color}
+          }
+
+          const rgb = parseRgbString(color);
+          const withOpacity = rgb.a !== 1;
+          let withoutOpacity = color;
+          if (withOpacity) {
+            withoutOpacity = rgbToString({...rgb, a: 1});
+          }
+
+          return {withOpacity, color, colorWithoutOpacity: withoutOpacity};
+        });
       });
   }
 
-  updateValue(color: string): void {
+  updateValue(color: string, updateHistory = true): void {
     const startColor = this.formControl.value;
 
     if (this.formControl.disabled)
       return;
 
-    console.log(this.selectedColorType, isHex(color));
     if (this.selectedColorType === ColorType.HEX) {
       if (isHex(color)) {
         this.formControl.patchValue(color);
@@ -77,8 +97,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
       }
     }
 
-    if (color !== startColor) {
-      console.log(color, startColor);
+    if (color !== startColor && updateHistory) {
       this._updatePickedColors(color);
     }
     this._setInputValue();
@@ -101,11 +120,10 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   }
 
   private _updatePickedColors(color: string): void {
-    console.log(color);
     if (this.lastPickedColors.length < 10) {
-      this.settingsService.updateLastPickedColors([...this.lastPickedColors, color]);
+      this.settingsService.updateLastPickedColors([...this.lastPickedColors.map(i => i.color), color]);
     } else {
-      this.settingsService.updateLastPickedColors([...this.lastPickedColors.slice(1), color]);
+      this.settingsService.updateLastPickedColors([...this.lastPickedColors.slice(1).map(i => i.color), color]);
     }
   }
 
@@ -131,7 +149,6 @@ export class ColorPickerComponent extends FieldType implements OnInit {
       }
     } else {
       const rgbColors = color.split(',');
-      console.log(color, rgbColors);
       if (rgbColors.length === 3 && rgbColors.every(c => +c <= 255 && +c >= 0)) {
         this.updateValue( `rgb(${color},${this.opacity / 100})`);
       } else {
@@ -160,13 +177,18 @@ function rgbToString(rgb: RGBA): string {
 }
 
 function parseRgbString(color: string): RGBA {
-  const arr = color.substring(4, color.length - 1)
+  const startDeleteIndex = color.startsWith('rgba') ? 5 : 4;
+  const arr = color.substring(startDeleteIndex, color.length - 1)
     .replace(/ /g, '')
     .split(',');
 
   return {r: +arr[0], g: +arr[1], b: +arr[2], a: +arr[3] ?? 1};
 }
 
-function isHex(hex): boolean {
-  return /^#([0-9A-F]{3}){1,2}$/i.test(hex);
+function isHex(color: string): boolean {
+  return /^#([0-9A-F]{3}){1,2}$/i.test(color);
+}
+
+function isRGB(color: string): boolean {
+  return color.startsWith('rgb');
 }

@@ -5,9 +5,9 @@
   class="color-wrapper"
   [formlyAttributes]="field"
   [class.disabled]="formControl.disabled"
- >
+>
   <span>
-    <input class="color-input" disabled [style.background]="formControl?.value"/>
+    <input class="color with-border" disabled [style.background]="formControl?.value"/>
     </span>
   <span class="color-label">{{field.templateOptions?.label}}</span>
 </span>
@@ -15,25 +15,40 @@
 <nz-dropdown-menu #menu>
   <div class="color-picker">
     <div class="palette">
-      <div class="row" *ngFor="let paletteRow of palette">
+      <div class="colors-row" *ngFor="let paletteRow of palette">
         <div *ngFor="let color of paletteRow"
-               class="color-input"
-               (click)="updateValue(color)"
-             [style.background]="color"></div>
+             class="color"
+             (click)="updateValue(color)"
+             [style.background]="color"
+        ></div>
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <nz-select nzOptionHeightPx="23" (ngModelChange)="handleColorTypeChange($event)"
-               [(ngModel)]="selectedColorType">
-      <nz-option [nzValue]="colorType.HEX" [nzLabel]="colorType.HEX"></nz-option>
-      <nz-option [nzValue]="colorType.RGB" [nzLabel]="colorType.RGB"></nz-option>
-    </nz-select>
+    <div class="d-flex">
+      <nz-select nzOptionHeightPx="23"
+                 class="color-type-selection"
+                 [nzSize]="'small'"
+                 (ngModelChange)="handleColorTypeChange($event)"
+                 [(ngModel)]="selectedColorType">
+        <nz-option [nzValue]="colorType.HEX" [nzLabel]="colorType.HEX"></nz-option>
+        <nz-option [nzValue]="colorType.RGB" [nzLabel]="colorType.RGB"></nz-option>
+      </nz-select>
 
-    <input nz-input #colorInput type="text" [value]="inputValue" (blur)="handleInputValueChange(colorInput.value)">
+      <input #colorInput nz-input type="text" class="color-input"
+             [nzSize]="'small'"
+             [value]="inputValue"
+             (blur)="handleInputValueChange(colorInput.value)">
 
-    <nz-slider [(ngModel)]="opacity"
+      <div class="opacity-block">
+        <i class="icon-opacity"></i>
+        {{opacity}}%
+      </div>
+    </div>
+
+    <nz-slider class="color-opacity-slider"
+               [(ngModel)]="opacity"
                (nzOnAfterChange)="updateOpacity()"
                [nzMin]="0"
                [nzMax]="100"
@@ -42,11 +57,16 @@
 
     <div class="divider"></div>
 
-    <div class="d-flex">
-      <input *ngFor="let lastColor of lastPickedColors"
-             class="color-input"
-             disabled
-             [style.background]="lastColor"/>
+    <div class="last-colors colors-row">
+      <div *ngFor="let lastColor of lastPickedColors"
+           class="color"
+           (click)="updateValue(lastColor.color, false)"
+      >
+        <div class="color-bg" [style.background]="lastColor.colorWithoutOpacity"
+             [class.half]="lastColor.withOpacity"></div>
+
+        <i class="icon-opacity" [style.color]="lastColor.color"></i>
+      </div>
     </div>
   </div>
 </nz-dropdown-menu>
