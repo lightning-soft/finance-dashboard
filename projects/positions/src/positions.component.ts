@@ -1,4 +1,4 @@
-import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
@@ -53,7 +53,7 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
+export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
   builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
 
   private _columns: Column[] = [];
@@ -154,6 +154,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this.setTabTitle('Positions');
   }
 
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.dataGrid.applyStyles({
+      columnHeaderBorderColor: '#24262C',
+      gridBorderColor: 'transparent',
+      gridBorderWidth: 0,
+    });
+  }
 
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
