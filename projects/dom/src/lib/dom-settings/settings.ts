@@ -122,7 +122,7 @@ export class DomSettings {
     highlightColor: 'rgba(56, 58, 64, 1)',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
-    color: 'white',
+    color: '#fff',
     accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
     // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
@@ -172,7 +172,7 @@ export class DomSettings {
     color: '#ffffff',
   };
   bid: any = {
-    color: 'white',
+    color: '#fff',
     backgroundColor: 'rgba(72, 149, 245, 0.2)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
     hoveredBackgroundColor: '#4895F5',
@@ -186,7 +186,7 @@ export class DomSettings {
     clearInterval: DefaultClearInterval,
   };
   ask: any = {
-    color: 'white',
+    color: '#fff',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     hoveredBackgroundColor: '#C93B3B',
     histogramColor: 'rgba(201, 59, 59, 0.2)',
@@ -226,7 +226,7 @@ export class DomSettings {
     lastTradingBackgroundColor: '#fff',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
     valueAreaHistogramColor: 'rgba(109, 112, 196, 1)',
-    color: 'white',
+    color: '#fff',
     histogramColor: 'rgba(73, 187, 169, 0.5)',
     histogramOrientation: HistogramOrientation.Right,
     pointOfControlHistogramColor: 'rgba(211, 53, 130, 1)',
@@ -288,7 +288,7 @@ export class DomSettings {
     backgroundColor: 'transparent',
     // backgroundColor: 'rgba(1, 43, 54, 1)'
     // bidVolumeColor: 'rgba(53, 104, 147, 1)',
-    color: 'white',
+    color: '#fff',
     // highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     pulledOrdersColor: 'rgba(143, 60, 65, 1)',
   };

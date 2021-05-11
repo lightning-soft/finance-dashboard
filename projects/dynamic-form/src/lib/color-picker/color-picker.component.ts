@@ -58,7 +58,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedColorType = isHex(this.formControl.value) ? ColorType.HEX : ColorType.RGB;
+    this._setColorTypeByColor(this.currentColor);
     this._setInputValue();
 
     this.settingsService.settings
@@ -72,11 +72,10 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     if (this.formControl.disabled)
       return;
 
-    const isColorRgb = isRGB(color);
-    this.selectedColorType = isColorRgb ? ColorType.RGB : ColorType.HEX;
-    this.opacity = isColorRgb ? (parseRgbString(color).a ?? 1) * 100 : 100;
+    this._setColorTypeByColor(color);
+    this.opacity = isRGB(color) ? (parseRgbString(color).a ?? 1) * 100 : 100;
 
-    if (color !== this.formControl.value && updateHistory) {
+    if (color !== this.currentColor && updateHistory) {
       this._updatePickedColors(color);
     }
 
@@ -131,6 +130,16 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     }
   }
 
+  private _setColorTypeByColor(color: string): void {
+    if (isHex(color)) {
+      this.selectedColorType = ColorType.HEX;
+    } else if (isRGB(color)) {
+      this.selectedColorType = ColorType.RGB;
+    } else {
+      this.selectedColorType = null;
+    }
+  }
+
   private _updatePickedColors(color: string): void {
     const sliceStartIndex = this.pickedColorsHistory.length < 10 ? 0 : 1;
     this.settingsService.updateLastPickedColors([
@@ -142,9 +151,11 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   private _setInputValue(): void {
     if (this.selectedColorType === ColorType.HEX) {
       this.inputText = this.currentColor.replace('#', '');
-    } else {
+    } else if (this.selectedColorType === ColorType.RGB) {
       const rgb = parseRgbString(this.currentColor);
       this.inputText = `${rgb.r},${rgb.g},${rgb.b}`;
+    } else {
+      this.inputText = this.currentColor;
     }
   }
 
@@ -184,6 +195,9 @@ function RGBToString(rgb: RGB): string {
 }
 
 function parseRgbString(color: string): RGB {
+  if (!color)
+    return null;
+
   const startDeleteIndex = color.startsWith('rgba') ? 5 : 4;
   const arr = color.substring(startDeleteIndex, color.length - 1)
     .replace(/ /g, '')
@@ -197,7 +211,7 @@ function isHex(color: string): boolean {
 }
 
 function isRGB(color: string): boolean {
-  return color.startsWith('rgb');
+  return color?.startsWith('rgb');
 }
 
 function RGBStringToHex(color: string): string {
