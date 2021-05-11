@@ -1,19 +1,25 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {FieldType} from '@ngx-formly/core';
-import {SettingsService} from 'settings';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import { Component, OnInit } from '@angular/core';
+import { FieldType } from '@ngx-formly/core';
+import { SettingsService } from 'settings';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 enum ColorType {
   HEX = 'HEX',
   RGB = 'RGB'
 }
 
-type RGBA = {
+type RGB = {
   r: number;
   g: number;
   b: number;
   a?: number;
 };
+
+interface IPickedColor {
+  hasTransparency: boolean;
+  color: string;
+  opaqueColor: string;
+}
 
 const Palette: string[][] = [
   ['#FFE8E8', '#F68E8E', '#F16E6E', '#E95050', '#EA3939', '#DD2121', '#CB1212', '#BC0606', '#9D0A0A', '#820303'],
@@ -35,15 +41,17 @@ const Palette: string[][] = [
   styleUrls: ['./color-picker.component.scss']
 })
 export class ColorPickerComponent extends FieldType implements OnInit {
-  @ViewChild('colorInput') colorInput: ElementRef<HTMLInputElement>;
-
   readonly palette: string[][] = Palette;
   readonly colorType = ColorType;
 
-  lastPickedColors: { withOpacity: boolean, colorWithoutOpacity: string, color: string }[] = [];
+  pickedColorsHistory: IPickedColor[] = [];
   selectedColorType: ColorType;
   opacity = 100;
-  inputValue: string;
+  inputText: string;
+
+  get currentColor(): string {
+    return this.formControl?.value;
+  }
 
   constructor(private settingsService: SettingsService) {
     super();
@@ -52,109 +60,103 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   ngOnInit() {
     this.selectedColorType = isHex(this.formControl.value) ? ColorType.HEX : ColorType.RGB;
     this._setInputValue();
+
     this.settingsService.settings
       .pipe(untilDestroyed(this))
       .subscribe((settings) => {
-        this.lastPickedColors = settings.lastPickedColors.map(color => {
-          if (isHex(color)) {
-            return  {withOpacity: false, color: color, colorWithoutOpacity: color}
-          }
-
-          const rgb = parseRgbString(color);
-          const withOpacity = rgb.a !== 1;
-          let withoutOpacity = color;
-          if (withOpacity) {
-            withoutOpacity = rgbToString({...rgb, a: 1});
-          }
-
-          return {withOpacity, color, colorWithoutOpacity: withoutOpacity};
-        });
+        this.pickedColorsHistory = this._transformHistoryColors(settings.lastPickedColors);
       });
   }
 
   updateValue(color: string, updateHistory = true): void {
-    const startColor = this.formControl.value;
-
     if (this.formControl.disabled)
       return;
 
-    if (this.selectedColorType === ColorType.HEX) {
-      if (isHex(color)) {
-        this.formControl.patchValue(color);
-      } else {
-        const rgb = parseRgbString(color);
-        this.formControl.patchValue(rgbToHex(rgb));
-      }
-      this.opacity = 100;
-    } else {
-      if (!isHex(color)) {
-        this.formControl.patchValue(color);
-        this.opacity = parseRgbString(color).a * 100;
-      } else {
-        const rgb = hexToRgb(color);
-        this.formControl.patchValue(rgbToString(rgb));
-        this.opacity = 100;
-      }
-    }
+    const isColorRgb = isRGB(color);
+    this.selectedColorType = isColorRgb ? ColorType.RGB : ColorType.HEX;
+    this.opacity = isColorRgb ? (parseRgbString(color).a * 100) ?? 100 : 100;
 
-    if (color !== startColor && updateHistory) {
+    if (color !== this.formControl.value && updateHistory) {
       this._updatePickedColors(color);
     }
+
+    this.formControl.patchValue(color);
     this._setInputValue();
+  }
+
+  handleSelectPaletteColor(color: string): void {
+    const isColorHex = isHex(color);
+    if (this.selectedColorType === ColorType.HEX) {
+      color = isColorHex ? color : RGBStringToHexString(color);
+    } else {
+      color = isColorHex ? HexStringToRGBString(color) : color;
+    }
+
+    this.updateValue(color);
   }
 
   handleColorTypeChange(type: ColorType): void {
     this.selectedColorType = type;
-    this.updateValue(this.formControl.value);
+    const color = type === ColorType.RGB ? HexStringToRGBString(this.currentColor) : RGBStringToHexString(this.currentColor);
+    this.updateValue(color, false);
   }
 
   updateOpacity(): void {
     if (this.selectedColorType === ColorType.RGB) {
       const rgb = parseRgbString(this.formControl.value);
       rgb.a = this.opacity / 100;
-      const color = rgbToString(rgb);
+      const color = RGBToString(rgb);
       this.formControl.patchValue(color);
       this._setInputValue();
       this._updatePickedColors(color);
     }
   }
 
-  private _updatePickedColors(color: string): void {
-    if (this.lastPickedColors.length < 10) {
-      this.settingsService.updateLastPickedColors([...this.lastPickedColors.map(i => i.color), color]);
+  handleInputTextSubmit(): void {
+    let text = this.inputText;
+    if (this.selectedColorType === ColorType.HEX) {
+      text = '#' + text;
+      if (isHex(text)) {
+        this.updateValue(text);
+      } else {
+        this._setInputValue();
+      }
     } else {
-      this.settingsService.updateLastPickedColors([...this.lastPickedColors.slice(1).map(i => i.color), color]);
+      const rgbColors = text.split(',');
+      if (rgbColors.length === 3 && rgbColors.every(c => +c <= 255 && +c >= 0)) {
+        this.updateValue(`rgb(${text},${this.opacity / 100})`);
+      } else {
+        this._setInputValue();
+      }
     }
+  }
+
+  private _updatePickedColors(color: string): void {
+    const sliceStartIndex = this.pickedColorsHistory.length < 10 ? 0 : 1;
+    this.settingsService.updateLastPickedColors([
+      ...this.pickedColorsHistory.slice(sliceStartIndex).map(i => i.color),
+      color
+    ]);
   }
 
   private _setInputValue(): void {
     if (this.selectedColorType === ColorType.HEX) {
-      this.inputValue = this.formControl.value.replace('#', '');
+      this.inputText = this.currentColor.replace('#', '');
     } else {
-      const rgb = parseRgbString(this.formControl.value);
-      this.inputValue = `${rgb.r},${rgb.g},${rgb.b}`;
-    }
-
-    if (this.colorInput) {
-      this.colorInput.nativeElement.value = this.inputValue;
+      const rgb = parseRgbString(this.currentColor);
+      this.inputText = `${rgb.r},${rgb.g},${rgb.b}`;
     }
   }
 
-  handleInputValueChange(color: string): void {
-    if (this.selectedColorType === ColorType.HEX) {
-      if (isHex('#' + color)) {
-        this.updateValue('#' + color);
-      } else {
-        this._setInputValue();
-      }
-    } else {
-      const rgbColors = color.split(',');
-      if (rgbColors.length === 3 && rgbColors.every(c => +c <= 255 && +c >= 0)) {
-        this.updateValue( `rgb(${color},${this.opacity / 100})`);
-      } else {
-        this._setInputValue();
-      }
-    }
+  private _transformHistoryColors(colors: string[]): IPickedColor[] {
+    return colors.map(color => {
+      if (isHex(color))
+        return { hasTransparency: false, color: color, opaqueColor: color }
+
+      const rgb = parseRgbString(color);
+      const hasTransparency = rgb.a !== 1;
+      return { hasTransparency, color, opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color };
+    });
   }
 }
 
@@ -168,21 +170,21 @@ function hexToRgb(hex: string): { r: number, g: number, b: number, a: number } {
   } : null;
 }
 
-function rgbToHex(rgb: RGBA): string {
+function RGBToHex(rgb: RGB): string {
   return '#' + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
 }
 
-function rgbToString(rgb: RGBA): string {
+function RGBToString(rgb: RGB): string {
   return `rgb(${rgb.r},${rgb.g},${rgb.b},${rgb.a ?? 1})`;
 }
 
-function parseRgbString(color: string): RGBA {
+function parseRgbString(color: string): RGB {
   const startDeleteIndex = color.startsWith('rgba') ? 5 : 4;
   const arr = color.substring(startDeleteIndex, color.length - 1)
     .replace(/ /g, '')
     .split(',');
 
-  return {r: +arr[0], g: +arr[1], b: +arr[2], a: +arr[3] ?? 1};
+  return { r: +arr[0], g: +arr[1], b: +arr[2], a: +arr[3] ?? 1 };
 }
 
 function isHex(color: string): boolean {
@@ -191,4 +193,12 @@ function isHex(color: string): boolean {
 
 function isRGB(color: string): boolean {
   return color.startsWith('rgb');
+}
+
+function RGBStringToHexString(color: string): string {
+  return RGBToHex(parseRgbString(color));
+}
+
+function HexStringToRGBString(color: string): string {
+  return RGBToString(hexToRgb(color));
 }

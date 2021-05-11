@@ -1,3 +1,5 @@
+@import "~src/scss/variables";
+
 :host {
   height: 20px;
 }
@@ -8,7 +10,7 @@
     margin-right: 2px;
 
     .ant-select-selector {
-      background-color: #101114 !important;
+      background-color: $darkBackground !important;
       padding: 0 3px !important;
 
       nz-select-item {
@@ -44,13 +46,14 @@
   border-radius: 2px;
 
   &.with-border {
-    border: 1px solid #51535A;
+    border: 1px solid $light2;
   }
 }
 
 .color-wrapper {
   background: #24262C;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 2px;
   padding-left: 6px;
   width: 100%;
@@ -75,7 +78,7 @@
 .color-picker {
   width: 155px;
   padding: 8px;
-  background-color: #1B1D22;
+  background-color: $secondary;
   box-shadow: 0 0 10px #15161D;
   border-radius: 2px;
 
@@ -107,14 +110,14 @@
   font-size: 9px;
   margin-right: 2px;
   border: none;
-  background: #101114;
+  background: $darkBackground;
 }
 
 .opacity-block {
   display: flex;
   align-items: center;
   padding: 2px 3px;
-  background-color: #101114;
+  background-color: $darkBackground;
   border-radius: 2px;
   white-space: nowrap;
   font-size: 9px;
