@@ -361,7 +361,7 @@ function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
 
   const keysAlwaysToHandle: number[][] = [
     [17, 83] // CTRL + S:
-  ]
+  ];
 
   return (element.tagName !== 'INPUT' && !element.classList.contains('hotkey-input')) ||
     keysAlwaysToHandle.some(i => isEqual(i, keys));
