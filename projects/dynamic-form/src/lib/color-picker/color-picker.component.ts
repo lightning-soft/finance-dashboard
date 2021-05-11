@@ -74,7 +74,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
 
     const isColorRgb = isRGB(color);
     this.selectedColorType = isColorRgb ? ColorType.RGB : ColorType.HEX;
-    this.opacity = isColorRgb ? (parseRgbString(color).a * 100) ?? 100 : 100;
+    this.opacity = isColorRgb ? (parseRgbString(color).a ?? 1) * 100 : 100;
 
     if (color !== this.formControl.value && updateHistory) {
       this._updatePickedColors(color);
@@ -87,9 +87,9 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   handleSelectPaletteColor(color: string): void {
     const isColorHex = isHex(color);
     if (this.selectedColorType === ColorType.HEX) {
-      color = isColorHex ? color : RGBStringToHexString(color);
+      color = isColorHex ? color : RGBStringToHex(color);
     } else {
-      color = isColorHex ? HexStringToRGBString(color) : color;
+      color = isColorHex ? HexToRGBString(color) : color;
     }
 
     this.updateValue(color);
@@ -97,7 +97,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
 
   handleColorTypeChange(type: ColorType): void {
     this.selectedColorType = type;
-    const color = type === ColorType.RGB ? HexStringToRGBString(this.currentColor) : RGBStringToHexString(this.currentColor);
+    const color = type === ColorType.RGB ? HexToRGBString(this.currentColor) : RGBStringToHex(this.currentColor);
     this.updateValue(color, false);
   }
 
@@ -151,16 +151,20 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   private _transformHistoryColors(colors: string[]): IPickedColor[] {
     return colors.map(color => {
       if (isHex(color))
-        return { hasTransparency: false, color: color, opaqueColor: color }
+        return { hasTransparency: false, color: color, opaqueColor: color };
 
       const rgb = parseRgbString(color);
       const hasTransparency = rgb.a !== 1;
-      return { hasTransparency, color, opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color };
+      return {
+        hasTransparency,
+        color,
+        opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color
+      };
     });
   }
 }
 
-function hexToRgb(hex: string): { r: number, g: number, b: number, a: number } {
+function hexToRGB(hex: string): RGB {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
     r: parseInt(result[1], 16),
@@ -175,7 +179,8 @@ function RGBToHex(rgb: RGB): string {
 }
 
 function RGBToString(rgb: RGB): string {
-  return `rgb(${rgb.r},${rgb.g},${rgb.b},${rgb.a ?? 1})`;
+  const a = rgb.a ?? 1;
+  return `rgb(${rgb.r},${rgb.g},${rgb.b},${a})`;
 }
 
 function parseRgbString(color: string): RGB {
@@ -195,10 +200,10 @@ function isRGB(color: string): boolean {
   return color.startsWith('rgb');
 }
 
-function RGBStringToHexString(color: string): string {
+function RGBStringToHex(color: string): string {
   return RGBToHex(parseRgbString(color));
 }
 
-function HexStringToRGBString(color: string): string {
-  return RGBToString(hexToRgb(color));
+function HexToRGBString(color: string): string {
+  return RGBToString(hexToRGB(color));
 }
