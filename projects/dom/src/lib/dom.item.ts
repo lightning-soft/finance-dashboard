@@ -221,7 +221,7 @@ class OrdersCell extends HistogramCell {
     ctx.textAlign = isOrderColumn ? 'end' : isAsk ? 'start' : 'end';
     const textColor = this.side === QuoteSide.Ask ? settings.sellOrderColor :
       settings.buyOrderColor;
-    ctx.fillStyle = textColor ?? 'white';
+    ctx.fillStyle = textColor ?? '#fff';
 
     ctx.fillText(this._text, px + (isOrderColumn ? pwidth : isAsk ? 0 : pwidth), (py + pheight / 2), pwidth);
 
