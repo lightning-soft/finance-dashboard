@@ -353,15 +353,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 }
 
+const keysAlwaysToHandle: number[][] = [
+  [17, 83] // CTRL + S:
+];
+
 function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
   const element = <HTMLElement>event?.target;
 
   if (!element)
     return true;
-
-  const keysAlwaysToHandle: number[][] = [
-    [17, 83] // CTRL + S:
-  ];
 
   return (element.tagName !== 'INPUT' && !element.classList.contains('hotkey-input')) ||
     keysAlwaysToHandle.some(i => isEqual(i, keys));
