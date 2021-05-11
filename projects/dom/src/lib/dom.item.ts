@@ -555,14 +555,14 @@ export class DomItem implements IBaseItem {
     this.volume = new TotalCell({ settings: settings.volume });
     this.askDelta = new OrdersCell({
       strategy: AddClassStrategy.NONE,
-      ignoreZero: false,
+      ignoreZero: true,
       settings: settings.askDelta,
       hightlightOnChange: false,
       side: QuoteSide.Ask,
     });
     this.bidDelta = new OrdersCell({
       strategy: AddClassStrategy.NONE,
-      ignoreZero: false,
+      ignoreZero: true,
       settings: settings.bidDelta,
       hightlightOnChange: false,
       side: QuoteSide.Bid,

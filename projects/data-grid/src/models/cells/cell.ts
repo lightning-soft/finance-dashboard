@@ -44,11 +44,8 @@ export enum CellStatus {
 }
 
 export abstract class Cell implements ICell {
-  static mergeStatuses(prefix: string, status: string) {
-    return [prefix, status]
-      .filter(Boolean)
-      // .map((item, i) => i > 0 ? capitalizeFirstLetter(item) : item)
-      .join('');
+  static mergeStatuses(prefix: string = '', status: string = '') {
+    return `${prefix}${status}`;
   }
 
   protected _statses: string[];
