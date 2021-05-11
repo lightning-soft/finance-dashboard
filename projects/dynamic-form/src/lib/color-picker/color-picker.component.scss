@@ -1,18 +1,59 @@
+@import "~src/scss/variables";
+
 :host {
   height: 20px;
 }
 
-.color-input {
-  height: 12px;
-  width: 12px;
+::ng-deep {
+  .color-type-selection {
+    width: 40px;
+    margin-right: 2px;
+
+    .ant-select-selector {
+      background-color: $darkBackground !important;
+      padding: 0 3px !important;
+
+      nz-select-item {
+        font-size: 9px;
+        padding-right: 12px !important;
+      }
+    }
+
+    .ant-select-arrow {
+      right: 3px;
+    }
+  }
+
+  .color-opacity-slider {
+    .ant-slider-rail {
+      background: linear-gradient(270deg, #DCDEE3 0%, rgba(220, 222, 227, 0) 100%);
+    }
+
+    .ant-slider-track {
+      background: transparent;
+    }
+
+    .ant-slider-handle {
+      border-color: #fff;
+    }
+  }
+}
+
+.color {
+  height: 10px;
+  width: 10px;
   border: none;
   border-radius: 2px;
-  border: 1px solid #51535A;
+
+  &.with-border {
+    border: 1px solid $light2;
+  }
 }
 
 .color-wrapper {
   background: #24262C;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 2px;
   padding-left: 6px;
   width: 100%;
@@ -32,4 +73,84 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.color-picker {
+  width: 155px;
+  padding: 8px;
+  background-color: $secondary;
+  box-shadow: 0 0 10px #15161D;
+  border-radius: 2px;
+
+  .palette {
+    display: flex;
+    flex-direction: column;
+
+    .colors-row {
+      margin-top: 3px;
+    }
+  }
+
+  .colors-row {
+    display: flex;
+
+    .color {
+      margin-right: 4px;
+      position: relative;
+      overflow: hidden;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.color-input {
+  font-size: 9px;
+  margin-right: 2px;
+  border: none;
+  background: $darkBackground;
+}
+
+.opacity-block {
+  display: flex;
+  align-items: center;
+  padding: 2px 3px;
+  background-color: $darkBackground;
+  border-radius: 2px;
+  white-space: nowrap;
+  font-size: 9px;
+  line-height: 12px;
+
+  .icon-opacity {
+    font-size: 9px;
+    margin-right: 3px;
+  }
+}
+
+.last-colors {
+  display: flex;
+
+  .color-bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    &.half {
+      width: 50%;
+    }
+  }
+
+  .icon-opacity {
+    display: block;
+    font-size: 10px;
+    line-height: 1;
+  }
+}
+
+.divider {
+  margin: 8px 0;
 }

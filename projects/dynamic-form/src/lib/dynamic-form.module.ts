@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   NzDatePickerModule,
-  NzDividerModule,
+  NzDividerModule, NzDropDownModule,
   NzInputModule,
   NzInputNumberModule,
-  NzSelectModule,
+  NzSelectModule, NzSliderModule,
   NzSwitchModule
 } from 'ng-zorro-antd';
 import { ColorPickerModule } from 'ngx-color-picker';
@@ -73,6 +73,8 @@ const formlyComponents = [
     NzDividerModule,
     NzInputNumberModule,
     NzDatePickerModule,
+    NzDropDownModule,
+    NzSliderModule,
   ],
   exports: [FormlyModule]
 })
