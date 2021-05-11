@@ -809,8 +809,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const contractSize = this._instrument?.contractSize;
 
     for (const i of this.items) {
-      const pl = ordersSettings.showPnl ?
-        calculatePL(position, i.price.value, this._tickSize, contractSize, ordersSettings.includePnl) : null;
+      const pl = ordersSettings.showPL ?
+        calculatePL(position, i.price.value, this._tickSize, contractSize, ordersSettings.includeRealizedPL) : null;
       i.setPL(pl);
     }
   }
@@ -2083,13 +2083,13 @@ export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includePnl = false): number {
+export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includeRealizedPL = false): number {
   if (!position || position.side === Side.Closed)
     return null;
 
   const priceDiff = position.side === Side.Short ? position.price - price : price - position.price;
   let pl = position.size * (tickSize * contractSize * (priceDiff / tickSize));
-  if (includePnl) {
+  if (includeRealizedPL) {
     pl += position.realized;
   }
 

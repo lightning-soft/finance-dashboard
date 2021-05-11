@@ -439,7 +439,7 @@ export const orderAreaFields: IFieldConfig[] = [
               { key: 'roundPL', label: 'Round PL to whole numbers' },
             ]
           }), 'm-0'),
-          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized Pl',
+          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized PL',
             { hideExpression: '!model.showPLInfo' }
           ), 'ml-4'),
         ],
@@ -627,8 +627,8 @@ export const orderColumnFields: IFieldConfig[] = [
         fieldGroup: [
           {
             ...getCheckboxes({
-              checkboxes: [{ key: 'showPnl', label: 'Show PnL in Column' },
-                { key: 'includePnl', label: 'Include Closed PnL' }]
+              checkboxes: [{ key: 'showPL', label: 'Show PL in Column' },
+                { key: 'includeRealizedPL', label: 'Include Realized PL' }]
             }),
             fieldGroupClassName: '',
             className: 'pl-1',
