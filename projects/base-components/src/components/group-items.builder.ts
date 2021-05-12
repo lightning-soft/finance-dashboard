@@ -99,6 +99,11 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
     this._buildGroups(this.items as any);
   }
 
+  addItems(items: T[]) {
+    const filteredItems = items.filter(item => !this.items.map(i => i.id).includes(item.id));
+    super.addItems(filteredItems);
+  }
+
   protected _handle(items: T[]): any[] {
     let _items = items;
 
