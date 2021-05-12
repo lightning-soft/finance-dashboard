@@ -120,12 +120,14 @@ export class DomSettings {
   };
   ltq: any = {
     highlightColor: 'rgba(56, 58, 64, 1)',
-    // backgroundColor: 'rgba(1, 43, 54, 1)',
+    backgroundColor: 'transparent',
     // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
+    buyBackgroundColor: 'transparent',
     color: '#fff',
     accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
     // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
+    sellBackgroundColor: 'transparent',
     textAlign: TextAlign.Center,
   };
   orderArea = {
@@ -154,6 +156,7 @@ export class DomSettings {
     hoveredBackgroundColor: '#383A40',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
     highlightColor: 'rgba(0, 0, 0, 1)',
+    tradedPriceColor: 'rgba(208, 208, 210, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
     longPositionOpenBackgroundColor: '#2A8AD2',
     shortPositionOpenBackgroundColor: '#DC322F',
@@ -183,6 +186,7 @@ export class DomSettings {
     histogramColor: 'rgba(72,149,245,0,3)',
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
+    totalFontColor: 'transparent',
     clearInterval: DefaultClearInterval,
   };
   ask: any = {
@@ -197,6 +201,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
+    totalFontColor: 'transparent',
     clearInterval: DefaultClearInterval,
   };
   totalAsk: any = {
@@ -265,7 +270,6 @@ export class DomSettings {
   currentBid: any = {
     color: '#EB5A5A',
     histogramColor: 'rgba(201, 59, 59, 0.4)',
-    // backgroundColor: 'rgba(1, 43, 54, 1)',
     backgroundColor: 'transparent',
     highlightBackgroundColor: 'rgba(201, 59, 59, 0.4)',
     histogramEnabled: false,
@@ -296,7 +300,6 @@ export class DomSettings {
     color: '#4895F5',
     histogramColor: 'rgba(4, 63, 128, 1)',
     backgroundColor: 'transparent',
-    // backgroundColor: 'rgba(1, 43, 54, 1)'
     histogramEnabled: false,
     insideBackgroundColor: 'rgba(0, 0, 0, 1)',
     highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
