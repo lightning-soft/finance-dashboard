@@ -43,7 +43,7 @@ const Palette: string[][] = [
 export class ColorPickerComponent extends FieldType implements OnInit {
   readonly palette: string[][] = Palette;
   readonly colorType = ColorType;
-  readonly opacityInputFormatter = (opacity: number) => opacity + '%';
+  readonly opacityInputFormatter = (opacity: number) => `${opacity}%`;
 
   pickedColorsHistory: IPickedColor[] = [];
   selectedColorType: ColorType;
