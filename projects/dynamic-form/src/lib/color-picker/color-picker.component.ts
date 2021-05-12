@@ -188,9 +188,11 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   }
 }
 
-const convertHexUnitTo256 = (hex: string) => parseInt(hex.repeat(2 / hex.length), 16);
+function convertHexUnitTo256(hex: string): number {
+  return parseInt(hex.repeat(2 / hex.length), 16);
+}
 
-const getAlphaFloat = (a: number, alpha: number): number => {
+function getAlphaFloat(a: number, alpha: number): number {
   if (typeof a !== 'undefined') {
     return a / 255;
   }
@@ -207,10 +209,12 @@ function hexToRGB(hex: string, alpha?: number): RGB {
   const chunkSize = Math.floor((hex.length - 1) / 3);
   const hexArr = hex.slice(1).match(new RegExp(`.{${chunkSize}}`, 'g'));
   const [r, g, b, a] = hexArr.map(convertHexUnitTo256);
-  return { r, g, b, a: Math.round(getAlphaFloat(a, alpha) * 100) / 100};
+  return { r, g, b, a: Math.round(getAlphaFloat(a, alpha) * 100) / 100 };
 }
 
-const alphaToHexSuffix = (alpha: number): string => (((alpha ?? 1) * 255) | 1 << 8).toString(16).slice(1);
+function alphaToHexSuffix(alpha: number): string {
+  return (((alpha ?? 1) * 255) | 1 << 8).toString(16).slice(1);
+}
 
 function RGBToHex(rgb: RGB): string {
   const hex =
