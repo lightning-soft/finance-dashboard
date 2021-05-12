@@ -87,7 +87,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
       OrderColumn.type
     ]
       .forEach((item) => {
-        this[item]?.updateValue(order[item]);
+        (<DataCell | NumberCell>this[item]).updateValue(order[item]);
       });
 
     this.accountId.updateValue(order.account.id);
@@ -95,12 +95,12 @@ export class OrderItem extends HoverableItem implements IOrderItem {
 
     [OrderColumn.exchange, OrderColumn.symbol]
       .forEach((item) => {
-        this[item].updateValue(order.instrument[item]);
+        (<DataCell>this[item]).updateValue(order.instrument[item]);
       });
 
     [OrderColumn.fcmId, OrderColumn.ibId]
       .forEach((item) => {
-        this[item].updateValue(order.account[item]);
+        (<DataCell>this[item]).updateValue(order.account[item]);
       });
 
     this.changeStatus();
