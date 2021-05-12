@@ -48,10 +48,12 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
 
   addItems(items: T[]) {
     let data;
+    const filteredItems = items.filter(item => !this.items.some(i => i.id === item.id));
+
     if (this._params.addNewItems === 'start') {
-      data = [this._handle(items), this._items];
+      data = [this._handle(filteredItems), this._items];
     } else {
-      data = [this._items, this._handle(items)];
+      data = [this._items, this._handle(filteredItems)];
     }
     this._items = this._order(data);
   }
