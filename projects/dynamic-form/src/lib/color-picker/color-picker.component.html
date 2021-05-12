@@ -40,7 +40,15 @@
 
       <div class="opacity-block">
         <i class="icon-opacity"></i>
-        {{opacity}}%
+        <nz-input-number class="color-opacity-input"
+                         [(ngModel)]="opacity"
+                         [nzSize]="'small'"
+                         (ngModelChange)="updateOpacity()"
+                         [nzFormatter]="opacityInputFormatter"
+                         [nzMin]="0"
+                         [nzMax]="100"
+                         [nzPrecision]="0"
+        ></nz-input-number>
       </div>
     </div>
 
@@ -49,7 +57,6 @@
                (nzOnAfterChange)="updateOpacity()"
                [nzMin]="0"
                [nzMax]="100"
-               [nzDisabled]="selectedColorType === colorType.HEX"
     ></nz-slider>
 
     <div class="divider"></div>
