@@ -53,13 +53,13 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
   }
 
   groupItems(groupBy: string, groupItemMap: (item: string) => any) {
-    this._groupItemsParams = {groupBy, groupItemMap};
+    this._groupItemsParams = { groupBy, groupItemMap };
     this.updateGroupedItems();
   }
 
 
   updateGroupedItems() {
-    const {groupBy, groupItemMap} = this._groupItemsParams;
+    const { groupBy, groupItemMap } = this._groupItemsParams;
     const group = this._groups[groupBy];
 
     if (!group) {
@@ -113,7 +113,7 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
   }
 
   protected _buildGroups(items: T[]) {
-    const {groupBy} = this._params;
+    const { groupBy } = this._params;
 
     if (!groupBy.length) {
       return;
@@ -124,11 +124,21 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
 
       items.forEach((item) => {
         const value = item[key];
+        const prevGroup = group[value] || [];
 
-        group[value] = this._order([
-          ...(group[value] || []),
-          this.wrap(item),
-        ]);
+        const searchedIndex = prevGroup.findIndex(groupItem => item.id === groupItem.id);
+        const shouldAddToGroup = !prevGroup.length || searchedIndex === -1;
+
+        if (shouldAddToGroup) {
+          group[value] = this._order([
+            ...prevGroup,
+            this.wrap(item),
+          ]);
+        }
+
+        if (searchedIndex !== -1) {
+          group[value][searchedIndex] = this.wrap(item);
+        }
       });
 
       this._groups[key] = group;
