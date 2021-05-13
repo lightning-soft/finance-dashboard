@@ -77,6 +77,12 @@ side-form {
 }
 
 ::ng-deep {
+  .chart-menu-dropdown {
+    .ant-dropdown-menu-item {
+      padding: 1px 6px;
+    }
+  }
+
   .scxThemeDark {
     label {
       margin-bottom: 0;
@@ -738,6 +744,7 @@ instrument-select {
       .scxIndicatorTitle {
         margin-left: 3px;
         display: none !important;
+
         .scxPanelTitleCaption {
           display: inline-block !important;
         }

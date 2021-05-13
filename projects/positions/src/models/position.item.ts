@@ -12,6 +12,7 @@ import {
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { IInstrument, IPosition, Side, TradePrint } from 'trading';
+const PLHoverStatus = 'PLHovered';
 
 export enum PositionColumn {
   account = 'account',
@@ -140,5 +141,10 @@ const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
       ? cell.status : CellStatus.Hovered;
   }
 
+  if (cell.hovered && cell.hoverStatusEnabled && style === 'BorderColor') {
+    return ([PositionStatus.InProfit, PositionStatus.Loss] as string[]).includes(cell.status)
+      ? PLHoverStatus : CellStatus.Hovered;
+  }
+
   return cell.status;
-}
+};

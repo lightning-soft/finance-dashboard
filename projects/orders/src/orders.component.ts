@@ -48,6 +48,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     columnHeaderBorderColor: '#24262C',
     gridBorderColor: 'transparent',
     gridBorderWidth: 0,
+    rowHeight: 25,
+    verticalGap: 1,
   };
 
   private _headerCheckboxCell = new CheckboxCell();

@@ -22,7 +22,10 @@ import { NotifierService } from 'notifier';
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
-  inProfitBackgroundColor: '#4895F5'
+  inProfitBackgroundColor: '#4895F5',
+  lossBorderColor: '#101114',
+  inProfitBorderColor: '#101114',
+  PLHovered: '#2B2D33',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -160,6 +163,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       columnHeaderBorderColor: '#24262C',
       gridBorderColor: 'transparent',
       gridBorderWidth: 0,
+      verticalGap: 1,
+      horizontalGap: 0,
+      rowHeight: 25,
     });
   }
 
@@ -304,10 +310,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
     }
-  }
-
-  isEmpty(numberInput: number): boolean {
-    return numberInput === 0;
   }
 
   private _loadAccount(): void {

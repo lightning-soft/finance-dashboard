@@ -1,6 +1,6 @@
 const textBoldClass = ' text-bold';
 
-export type CellStatusGetter = (cell: Cell, style: 'BackgroundColor' | 'Color') => string;
+export type CellStatusGetter = (cell: Cell, style: 'BackgroundColor' | 'Color' | 'BorderColor') => string;
 
 enum TextAlign {
   Left = 'left',
