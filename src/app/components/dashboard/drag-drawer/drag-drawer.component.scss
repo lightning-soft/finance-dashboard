@@ -50,21 +50,25 @@ button {
 
 .side-navigation {
   position: relative;
-  width: 40px;
-  padding: 4px 0;
+  width: auto;
+  min-width: 140px;
+  padding: 3px;
+  border: 1px solid $lightBackground;
   border-radius: 2px;
   z-index: 41;
   transition: transform 0.3s ease-out;
-  background-color: $lightBackground !important;
+  background-color: $tabFrameColor !important;
 
   &__item {
-    width: 32px;
-    height: 32px;
-    margin: 0 auto 4px;
-    padding: 0;
-    font-size: 0.7rem;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 3px 5px;
+    font-size: 12px;
     text-align: center;
-    line-height: 32px;
+    line-height: 16px;
     border-radius: 2px;
     background-color: $tabFrameColor !important;
 
@@ -74,11 +78,17 @@ button {
 
     &:hover {
       color: $titleColor !important;
-      background-color: $bodyBackground !important;
+      background-color: $light3 !important;
+    }
+
+    [class*=icon-] {
+      font-size: 12px;
+      margin-right: 10px;
     }
   }
 }
 
-.icon-widget-market-watch {
-  font-size: 12px;
+.divider {
+  background-color: $light2;
+  margin: 5px;
 }
