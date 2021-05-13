@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
-import { SettingsService } from 'settings';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { Storage } from 'storage';
+
+const colorsHistoryKey = 'colorsHistory';
 
 enum ColorType {
   HEX = 'HEX',
@@ -45,7 +47,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   readonly colorType = ColorType;
   readonly opacityInputFormatter = (opacity: number) => `${opacity}%`;
 
-  pickedColorsHistory: IPickedColor[] = [];
+  pickedColorsHistory: IPickedColor[];
   selectedColorType: ColorType;
   opacity = 100;
   inputText: string;
@@ -54,19 +56,15 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     return this.formControl?.value;
   }
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private storage: Storage) {
     super();
   }
 
   ngOnInit() {
     this._setColorTypeByColor(this.currentColor);
     this._setInputValue();
-
-    this.settingsService.settings
-      .pipe(untilDestroyed(this))
-      .subscribe((settings) => {
-        this.pickedColorsHistory = this._transformHistoryColors(settings.lastPickedColors);
-      });
+    const colors = this.storage.getItem(colorsHistoryKey) ?? [];
+    this.pickedColorsHistory = colors.map(this._transformToHistoryColor);
   }
 
   updateValue(color: string, updateHistory = true): void {
@@ -150,10 +148,8 @@ export class ColorPickerComponent extends FieldType implements OnInit {
 
   private _updatePickedColors(color: string): void {
     const sliceStartIndex = this.pickedColorsHistory.length < 10 ? 0 : 1;
-    this.settingsService.updateLastPickedColors([
-      ...this.pickedColorsHistory.slice(sliceStartIndex).map(i => i.color),
-      color
-    ]);
+    this.pickedColorsHistory = [...this.pickedColorsHistory.slice(sliceStartIndex), this._transformToHistoryColor(color)];
+    this.storage.setItem(colorsHistoryKey, this.pickedColorsHistory.map(i => i.color));
   }
 
   private _setInputValue(): void {
@@ -167,16 +163,15 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     }
   }
 
-  private _transformHistoryColors(colors: string[]): IPickedColor[] {
-    return colors.map(color => {
-      const rgb = isHex(color) ? hexToRGB(color) : parseRgbString(color);
-      const hasTransparency = rgb.a !== 1;
-      return {
-        hasTransparency,
-        color,
-        opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color
-      };
-    });
+  private _transformToHistoryColor(color: string): IPickedColor {
+    const rgb = isHex(color) ? hexToRGB(color) : parseRgbString(color);
+    const hasTransparency = rgb.a !== 1;
+    return {
+      hasTransparency,
+      color,
+      opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color
+    };
+
   }
 
   private _getAlphaByOpacity(opacity: number): number {
