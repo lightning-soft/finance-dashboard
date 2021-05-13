@@ -1,5 +1,8 @@
 @import "themes/index";
 
+$header-height: 21px;
+$footer-height: 28px;
+
 :host {
   display: block;
   height: 100%;
@@ -9,7 +12,7 @@
 
 
   ::ng-deep data-grid {
-    height: calc(100% - 43px);
+    height: calc(100% - #{$header-height} - #{$footer-height});
   }
 }
 
@@ -40,6 +43,7 @@
 
 .bottom-info {
   display: flex;
+  height: $footer-height;
   font-size: 0.8rem;
   line-height: 1.1rem;
   align-items: center;
@@ -61,12 +65,14 @@
 }
 
 .bottom-data {
+  height: 100%;
   min-width: 80px;
   background: rgba($primary, 0.8);
   margin-left: 6px;
   border-radius: 2px;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   padding-left: 6px;
   padding-right: 6px;
 
