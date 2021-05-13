@@ -15,7 +15,18 @@ export const compareInstruments = (a: IInstrument, b: IInstrument) => {
     && a?.exchange === b?.exchange;
 };
 
-export function roundToTickSize(price: number, tickSize: number) {
+export function roundToTickSize(price: number, tickSize: number, strategy: 'ceil' | 'round' | 'floor' = 'ceil') {
   const multiplier = 1 / tickSize;
-  return (Math.ceil(price * multiplier) / multiplier);
+  price = (price * multiplier) / multiplier;
+  switch (strategy) {
+    case 'ceil':
+      return Math.ceil(price);
+    case 'round':
+      return Math.round(price);
+    case 'floor':
+      return Math.floor(price);
+    default:
+      throw new Error('Invalid strategy to round price');
+  }
 }
+

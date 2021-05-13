@@ -15,6 +15,9 @@ import {
   PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
 } from 'trading';
 import { RealPositionsRepository } from 'real-trading';
+import { Storage } from "storage";
+
+const orderLastPriceKey = 'orderLastPrice';
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -109,6 +112,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     // protected _levelOneDatafeedService: Level1DataFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _positionDatafeed: PositionsFeed,
+    private _storage: Storage,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -117,6 +121,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     this.setTabIcon('icon-widget-create-orders');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+    this.price = this._storage.getItem(orderLastPriceKey) ?? 1;
   }
 
   getDto(): any {
@@ -277,22 +282,32 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.shouldDisablePrice)
       return;
 
-    const newPrice = this.price || 0;
+    const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
     const precision = this.instrument?.precision ?? 1;
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice + tickSize : roundToTickSize(currentPrice, tickSize);
 
-    this.price = +(newPrice + tickSize).toFixed(precision);
+    this.price = +newPrice.toFixed(precision);
+    this.handlePriceChange();
   }
 
   decreasePrice() {
     if (this.shouldDisablePrice)
       return;
 
-    const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
+    const tickSize = this.instrument?.tickSize || 0.1;
+    const currentPrice = this.price || 0;
     const precision = this.instrument?.precision ?? 1;
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice - tickSize : roundToTickSize(currentPrice, tickSize, 'floor');
 
     if (newPrice >= 0)
       this.price = +newPrice.toFixed(precision);
+
+    this.handlePriceChange();
+  }
+
+  handlePriceChange(): void {
+    this._storage.setItem(orderLastPriceKey, this.price);
   }
 
   private _getNavbarTitle(): string {
