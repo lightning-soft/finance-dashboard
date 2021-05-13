@@ -13,7 +13,7 @@ import {
 function getTradingSelect() {
   return getSelect({
     key: 'tradingHours',
-    className: 'select full-width',
+    className: 'select full-width session-template',
     label: 'Session Template',
     // wrappers: [],
     options: [
@@ -49,7 +49,7 @@ function getProfileConfig(key, _config = {}) {
       getSelect({
         key: 'type',
         label: 'Profile Type',
-        className: 'regular-label label-400 hide-border-bottom',
+        className: 'regular-label label-400 hide-border-bottom profile-type',
         options: [
           { icon: 'icon-hollow-block', value: 'hollowBlocks', label: 'Hollow Blocks' },
           { icon: 'icon-dots-indicator', value: 'dots', label: 'Dots' },
@@ -91,7 +91,7 @@ function getProfileConfig(key, _config = {}) {
             key: 'extendNakedPocs'
           },
         ],
-        extraConfig: { className: 'extend-naked-poc' }
+        extraConfig: { className: 'extend-naked-poc', }
       }),
       {
         key: 'extendNaked',
@@ -100,7 +100,8 @@ function getProfileConfig(key, _config = {}) {
         fieldGroup: [
           getCheckboxes({
             extraConfig: {
-              className: ''
+              className: '',
+              fieldGroupClassName: 'p-0'
             },
             checkboxes: [
               {
@@ -143,8 +144,8 @@ function getProfileConfig(key, _config = {}) {
   };
 }
 
-function getValueArea(key, _config = {}) {
-  const defaultConfig = { extraGroupClass: '', };
+function getValueArea(key, _config: any = {}) {
+  const defaultConfig: any = { extraGroupClass: '', };
   Object.assign(defaultConfig, _config);
   const { extraGroupClass, ...config } = defaultConfig;
 
@@ -153,7 +154,7 @@ function getValueArea(key, _config = {}) {
     fieldGroupClassName: `d-grid three-rows align-items-center ${extraGroupClass}`,
     wrappers: ['form-field'],
     templateOptions: {
-      label: config['label']
+      label: config.label
     },
     fieldGroup: [
       {
@@ -524,7 +525,7 @@ export const footprintConfig: IFieldConfig[] = [
         className: 'split-input'
       }),
       new FieldConfig({
-        fieldGroupClassName: 'd-grid two-rows mt-1',
+        fieldGroupClassName: 'd-grid two-rows p-0 mt-1',
         fieldGroup: [
           getColor({ key: 'strongBidVolumeColor', label: 'Strong Bid Volume' }),
           getColor({ key: 'strongAskVolumeColor', label: 'Strong Ask Volume' }),
@@ -551,11 +552,11 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'pullback',
     label: 'Pullback',
     className: 'pb-1 d-block',
-    fieldGroupClassName: 'inline-fields regular-label',
+    fieldGroupClassName: 'inline-fields p-0 regular-label',
     fieldGroup: [
       getSwitch('enabled', 'Enable Pullback'),
       new FieldConfig({
-        fieldGroupClassName: 'd-grid two-rows mt-2',
+        fieldGroupClassName: 'd-grid two-rows p-0 mt-2',
         fieldGroup: [
           getColor({ key: 'textColor', label: 'Font' }),
           getColor({ key: 'fillColor', label: 'Background' }),
@@ -743,7 +744,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'profile',
     label: 'Profile Settings',
     className: 'mt-4 d-block',
-    fieldGroupClassName: '',
+    fieldGroupClassName: 'field-container',
     fieldGroup: [
       {
         fieldGroupClassName: 'd-flex align-items-center',
@@ -803,7 +804,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'lines',
     label: 'POC and Value Area Lines',
     className: 'mt-4 d-block',
-    fieldGroupClassName: '',
+    fieldGroupClassName: 'field-container',
     fieldGroup: [
       wrapWithConfig(getValueArea('rth'), {
         hideExpression: (model, formState, config) => {
@@ -828,7 +829,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'graphics',
     label: 'Graphics',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows ',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [
@@ -839,17 +840,17 @@ export const volumeProfileConfig: IFieldConfig[] = [
         ],
         extraConfig: {
           className: 'full-width',
-          fieldGroupClassName: 'd-grid two-rows'
+          fieldGroupClassName: 'd-grid two-rows p-0'
         },
       }),
       new FieldConfig({
         key: 'summaryFont',
         label: 'Summary Font',
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid two-rows p-0',
         className: 'hide-border-bottom regular-label full-width label-400',
         fieldGroup: [
           {
-            fieldGroupClassName: 'd-grid two-rows',
+            fieldGroupClassName: 'd-grid two-rows p-0',
             fieldGroup: [
               getSelect({
                 key: 'fontFamily',

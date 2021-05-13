@@ -3,6 +3,7 @@
   <nz-select
     class="custom-form-control w-auto flex-grow-1"
     [nzLoading]="loading"
+    [nzOptionHeightPx]="24"
     (nzOpenChange)="handleToggle($event)"
     [(ngModel)]="value"
     (ngModelChange)="handleValueChange()"

@@ -25,7 +25,7 @@ const profitStyles = {
   inProfitBackgroundColor: '#4895F5',
   lossBorderColor: '#101114',
   inProfitBorderColor: '#101114',
-  PLHovered: '#2B2D33',
+  PLHoveredBorderColor: '#2B2D33',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -143,6 +143,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
     this._columns = headers.map((i) => convertToColumn(i, {
       hoveredBackgroundColor: '#2B2D33',
+      hoveredBorderColor: '#2b2d33',
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
@@ -163,8 +164,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       columnHeaderBorderColor: '#24262C',
       gridBorderColor: 'transparent',
       gridBorderWidth: 0,
-      verticalGap: 1,
-      horizontalGap: 0,
       rowHeight: 25,
     });
   }

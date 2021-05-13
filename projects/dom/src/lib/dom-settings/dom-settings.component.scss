@@ -100,7 +100,8 @@ cdk-virtual-scroll-viewport {
         margin-bottom: 0px;
         line-height: 1;
         padding-bottom: 7px;
-        padding-left: 6px;
+        padding-left: 3px;
+        color: $text-40;
 
         &:after {
           display: none;
