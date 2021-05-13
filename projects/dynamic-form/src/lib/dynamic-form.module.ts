@@ -9,7 +9,6 @@ import {
   NzSelectModule, NzSliderModule,
   NzSwitchModule
 } from 'ng-zorro-antd';
-import { ColorPickerModule } from 'ngx-color-picker';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
 import { FieldType } from './field';
@@ -23,6 +22,7 @@ import { SelectComponent } from './select/select.component';
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { LineSelectorComponent } from './line-selector/line-selector.component';
 import { DatepickerComponent } from './datepicker/datepicker.component';
+import { StorageModule } from "storage";
 
 const formlyComponents = [
   {
@@ -59,7 +59,6 @@ const formlyComponents = [
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent, LineSelectorComponent, DatepickerComponent],
   imports: [
     CommonModule,
-    ColorPickerModule,
     ReactiveFormsModule,
     FormsModule,
     FormlyModule.forRoot({
@@ -75,6 +74,7 @@ const formlyComponents = [
     NzDatePickerModule,
     NzDropDownModule,
     NzSliderModule,
+    StorageModule
   ],
   exports: [FormlyModule]
 })
