@@ -53,20 +53,23 @@ export const widgetList = [
         minWidth: 470,
       }
     },
-    {
-      icon: 'icon-clock',
-      name: 'Session Manager',
-      component: Components.SessionManager,
-      options: {
-        minWidth: 600,
-      },
-    },
-    // {
-    //   icon: 'icon-scripting',
-    //   name: 'Scripting',
-    //   component: Components.Scripting
-    // }
   ];
+
+const bottomWidgetList = [
+  {
+    icon: 'icon-clock',
+    name: 'Session Manager',
+    component: Components.SessionManager,
+    options: {
+      minWidth: 600,
+    },
+  },
+  // {
+  //   icon: 'icon-scripting',
+  //   name: 'Scripting',
+  //   component: Components.Scripting
+  // }
+];
 
 @UntilDestroy()
 @Component({
@@ -80,6 +83,7 @@ export class DragDrawerComponent {
 
   opened = false;
   items = widgetList;
+  bottomItems = bottomWidgetList;
 
   create(item) {
     this.layout.addComponent({
