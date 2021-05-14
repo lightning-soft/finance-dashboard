@@ -50,12 +50,14 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
+    ignoreZero: false,
     getStatusByStyleProp
   });
   realized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
+    ignoreZero: false,
     getStatusByStyleProp
   });
   total = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
