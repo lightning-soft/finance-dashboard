@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { IHistoryItem, IInstrument } from 'trading';
 import { RoundFormatter } from "data-grid";
 
-interface IFormattedHistoryItem extends Omit<IHistoryItem, 'high' | 'low' | 'open' | 'close' | 'volume'> {
+interface IFormattedHistoryItem {
   high: string;
   low: string;
   open: string;
@@ -65,12 +65,11 @@ export class DailyInfoComponent {
     this._formatter.updateDigits(this.instrument?.precision ?? 2);
 
     return  {
-      ...item,
       high: this._formatter.format(item?.high) || '-',
       low: this._formatter.format(item?.low) || '-',
       open: this._formatter.format(item?.open) || '-',
       close: this._formatter.format(item?.close) || '-',
       volume: item?.volume ?? '-'
-    }
+    };
   }
 }

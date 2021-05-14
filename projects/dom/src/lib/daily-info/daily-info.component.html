@@ -1,7 +1,7 @@
 <div class="chart-data">
   <div *ngIf="showInstrumentChange" class="income">
     <ng-container *ngIf="income != null; else emptySpace">
-    {{ income}} ({{getInfo(incomePercentage)}}%)
+    {{income}} ({{getInfo(incomePercentage)}}%)
   </ng-container>
     <ng-template #emptySpace>
       --
