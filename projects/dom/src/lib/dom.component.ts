@@ -591,6 +591,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
+      columnHeaderBorderColor: common.generalColors.gridLineColor,
       scrollSensetive: general.intervals.scrollWheelSensitivity,
     });
 
