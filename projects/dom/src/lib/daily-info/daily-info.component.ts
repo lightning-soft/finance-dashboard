@@ -1,5 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { IHistoryItem } from 'trading';
+import { IHistoryItem, IInstrument } from 'trading';
+import { RoundFormatter } from "data-grid";
+
+interface IFormattedHistoryItem extends Omit<IHistoryItem, 'high' | 'low' | 'open' | 'close' | 'volume'> {
+  high: string;
+  low: string;
+  open: string;
+  close: string;
+  volume: string | number;
+}
 
 @Component({
   selector: 'daily-info',
@@ -7,17 +16,21 @@ import { IHistoryItem } from 'trading';
   styleUrls: ['./daily-info.component.scss']
 })
 export class DailyInfoComponent {
-  _dailyInfo: IHistoryItem;
+  private _formatter = new RoundFormatter(2);
+  private _dailyInfo: IHistoryItem;
+
+  public formattedDailyInfo: IFormattedHistoryItem;
+
   @Input() set dailyInfo(value: IHistoryItem) {
     this.historyItem = value;
     this.updateIncome();
   }
 
-  get dailyInfo() {
+  get dailyInfo(): IHistoryItem {
     return this._dailyInfo;
   }
 
-  @Input() instrument;
+  @Input() instrument: IInstrument;
   @Input() showInstrumentChange: boolean;
   @Input() showOHLVInfo: boolean;
   volume: number | string;
@@ -28,10 +41,11 @@ export class DailyInfoComponent {
     if (this._dailyInfo === value)
       return;
     this._dailyInfo = value;
+    this.formattedDailyInfo = this._getFormattedDailyInfo(value);
     this.updateIncome();
   }
 
-  updateIncome() {
+  updateIncome(): void {
     if (this.dailyInfo) {
       const precision = this.instrument?.precision ?? 4;
       const income = this.dailyInfo.close - this.dailyInfo.open;
@@ -43,7 +57,20 @@ export class DailyInfoComponent {
     }
   }
 
-  getInfo(data: number | string) {
+  getInfo(data: number | string): number | string {
     return data ?? '-';
+  }
+
+  private _getFormattedDailyInfo(item: IHistoryItem): IFormattedHistoryItem {
+    this._formatter.updateDigits(this.instrument?.precision ?? 2);
+
+    return  {
+      ...item,
+      high: this._formatter.format(item?.high) || '-',
+      low: this._formatter.format(item?.low) || '-',
+      open: this._formatter.format(item?.open) || '-',
+      close: this._formatter.format(item?.close) || '-',
+      volume: item?.volume ?? '-'
+    }
   }
 }

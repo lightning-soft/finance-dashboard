@@ -8,9 +8,9 @@
     </ng-template>
   </div>
   <ng-container *ngIf="showOHLVInfo">
-    <div class="chart-info">H: {{getInfo(dailyInfo?.high)}}</div>
-    <div class="chart-info">L: {{getInfo(dailyInfo?.low) }}</div>
-    <div class="chart-info">O: {{getInfo(dailyInfo?.open)}}</div>
-    <div class="chart-info">V: {{getInfo(dailyInfo?.volume)}}</div>
+    <div class="chart-info">H: {{formattedDailyInfo?.high}}</div>
+    <div class="chart-info">L: {{formattedDailyInfo?.low }}</div>
+    <div class="chart-info">O: {{formattedDailyInfo?.open}}</div>
+    <div class="chart-info">V: {{formattedDailyInfo?.volume}}</div>
   </ng-container>
 </div>
