@@ -172,6 +172,16 @@
     }
   }
 
+  .color {
+    &:last-child {
+      margin-right: 4px !important;
+    }
+
+    &:first-child {
+      margin-right: 0 !important;
+    }
+  }
+
   .icon-opacity {
     display: block;
     font-size: 10px;
