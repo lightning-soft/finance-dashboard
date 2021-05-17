@@ -18,6 +18,7 @@ import { RealPositionsRepository } from 'real-trading';
 import { Storage } from "storage";
 
 const orderLastPriceKey = 'orderLastPrice';
+const orderLastLimitKey = 'orderLastLimitKey';
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -122,6 +123,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.setTabIcon('icon-widget-create-orders');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
     this.price = this._storage.getItem(orderLastPriceKey) ?? 1;
+    this.limitPrice = this._storage.getItem(orderLastLimitKey) ?? 1;
   }
 
   getDto(): any {
@@ -308,6 +310,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   handlePriceChange(): void {
     this._storage.setItem(orderLastPriceKey, this.price);
+  }
+
+
+  handleLimitPriceChange(): void {
+    this._storage.setItem(orderLastLimitKey, this.limitPrice);
   }
 
   private _getNavbarTitle(): string {
