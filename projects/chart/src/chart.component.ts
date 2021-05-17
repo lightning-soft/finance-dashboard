@@ -85,7 +85,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   income: number;
   incomePercentage: number;
 
-  showOHLC = true;
+  showOHLV = true;
   showChanges = true;
   private _accountId: Id;
 
@@ -248,7 +248,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     return {
-      showOHLC: this.showOHLC,
+      showOHLC: this.showOHLV,
       showChanges: this.showChanges,
       showChartForm: this.showChartForm,
       enableOrderForm: this.enableOrderForm,
@@ -276,7 +276,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const state = loadedState && loadedState.value;
     const chart = this.chart = this._initChart(state);
     this.showChanges = state?.showChanges;
-    this.showOHLC = state?.showOHLC;
+    this.showOHLV = state?.showOHLC;
     this.enableOrderForm = state?.enableOrderForm;
     this.showChartForm = state?.showChartForm;
     if (state?.hasOwnProperty('showOrderConfirm'))
@@ -285,7 +285,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (state?.hasOwnProperty('showChanges'))
       this.showChanges = state?.showChanges;
     if (state?.hasOwnProperty('showOHLC'))
-      this.showOHLC = state?.showOHLC;
+      this.showOHLV = state?.showOHLC;
     this._setUnavaliableIfNeed();
 
     if (!chart) {

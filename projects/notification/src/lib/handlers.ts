@@ -13,21 +13,24 @@ const connectionsErrors = [
   AlertType.ConnectionBroken,
   AlertType.ForcedLogout,
 ];
+const connectedAlerts = [AlertType.ConnectionOpened, AlertType.LoginComplete];
+
 export const handlers = {
   DEFAULT: (msg) => {
   },
 
   [MessageTypes.CONNECT]: (msg) => {
-    if (msg.result.connectionId !== ConnectionId.TradingSystem)
+    if (msg?.result?.connectionId !== ConnectionId.TradingSystem)
       return;
 
     let icon;
     let message;
+
     if (errorAlerts.includes(msg?.result?.type)) {
       icon = 'notifcation-error';
       message = 'Failed to connect';
     } else if (
-      [AlertType.ConnectionOpened, AlertType.LoginComplete].includes(msg?.result?.type)
+      connectedAlerts.includes(msg?.result?.type)
     ) {
       icon = 'notication-connected';
       message = 'Login Complete';
@@ -36,7 +39,7 @@ export const handlers = {
       message = 'Connection Closed';
     } else {
       icon = 'notication-default';
-      message = msg.result.message;
+      message = msg?.result?.message ?? '';
     }
 
     return new Notification({
