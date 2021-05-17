@@ -33,10 +33,10 @@ class OrdersCell extends HistogramCell {
     if (!this._order)
       return false;
 
-    return this.shouldDisplayOrders;
+    return this._shouldDisplayOrders;
   }
 
-  private get shouldDisplayOrders() {
+  private get _shouldDisplayOrders() {
     const overlayOrders = (this.settings as any).overlayOrders;
     return this._isOrderColumn ? !overlayOrders : overlayOrders;
   }
@@ -180,7 +180,7 @@ class OrdersCell extends HistogramCell {
   }
 
   draw(context) {
-    if (!this._order || !this.shouldDisplayOrders)
+    if (!this._order || !this._shouldDisplayOrders)
       return;
 
     const ctx = context?.ctx;
