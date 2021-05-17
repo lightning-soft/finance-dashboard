@@ -23,13 +23,13 @@
 
 </window-header>
 <div class="component-container {{currentDirection}}">
-  <div [class.hide-oclc]="!showOHLC"
+  <div [class.hide-oclc]="!showOHLV"
        [class.hide-changes]="!showChanges"
        class="chart-container">
     <app-toolbar
       [(enableOrderForm)]="enableOrderForm"
       (enableOrderFormChange)="checkIfTradingEnabled()"
-      [class.location-up]="!showChanges && !showOHLC" [layout]="layout" [chart]="chart"
+      [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart"
       [link]="link"></app-toolbar>
     <div class="chart" #chartContainer></div>
   </div>
@@ -54,7 +54,7 @@
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul class="chart-menu-dropdown" nz-menu>
-    <li (click)="showOHLC = !showOHLC" nz-menu-item>{{showOHLC ? 'Hide' : 'Show'}} OHLC</li>
+    <li (click)="showOHLV = !showOHLV" nz-menu-item>{{showOHLV ? 'Hide' : 'Show'}} OHLV</li>
     <li (click)="showChanges = !showChanges" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
     <!--  <li nz-menu-divider></li>
       <li nz-menu-item>Reset PB</li>

@@ -1,6 +1,6 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
-import { AlertType } from 'communication';
+import { AlertType, ConnectionId } from 'communication';
 import { OrderStatus } from 'trading';
 
 
@@ -13,29 +13,40 @@ const connectionsErrors = [
   AlertType.ConnectionBroken,
   AlertType.ForcedLogout,
 ];
+const connectedAlerts = [AlertType.ConnectionOpened, AlertType.LoginComplete];
+
 export const handlers = {
   DEFAULT: (msg) => {
   },
 
   [MessageTypes.CONNECT]: (msg) => {
+    if (msg?.result?.connectionId !== ConnectionId.TradingSystem)
+      return;
+
+    const { type, timestamp } = msg.result;
+
     let icon;
-    if (errorAlerts.includes(msg?.result?.type))
+    let message;
+
+    if (errorAlerts.includes(type)) {
       icon = 'notifcation-error';
-    else if (
-      [AlertType.ConnectionOpened, AlertType.LoginComplete].includes(msg?.result?.type)
-    ) {
+      message = 'Failed to connect';
+    } else if (connectedAlerts.includes(type)) {
       icon = 'notication-connected';
-    } else if (connectionsErrors.includes(msg?.result?.type)) {
+      message = 'Login Complete';
+    } else if (connectionsErrors.includes(type)) {
       icon = 'notication-disconnected';
+      message = 'Connection Closed';
     } else {
       icon = 'notication-default';
+      message = msg.result.message ?? '';
     }
 
     return new Notification({
-      body: msg.result.message,
-      type: msg.type,
+      body: message,
+      type,
       title: 'Connection',
-      timestamp: msg.result.timestamp,
+      timestamp,
       icon,
     });
   },
