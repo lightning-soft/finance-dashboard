@@ -1,6 +1,6 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
-import { AlertType } from 'communication';
+import { AlertType, ConnectionId } from 'communication';
 import { OrderStatus } from 'trading';
 
 
@@ -18,21 +18,29 @@ export const handlers = {
   },
 
   [MessageTypes.CONNECT]: (msg) => {
+    if (msg.result.connectionId !== ConnectionId.TradingSystem)
+      return;
+
     let icon;
-    if (errorAlerts.includes(msg?.result?.type))
+    let message;
+    if (errorAlerts.includes(msg?.result?.type)) {
       icon = 'notifcation-error';
-    else if (
+      message = 'Failed to connect';
+    } else if (
       [AlertType.ConnectionOpened, AlertType.LoginComplete].includes(msg?.result?.type)
     ) {
       icon = 'notication-connected';
+      message = 'Login Complete';
     } else if (connectionsErrors.includes(msg?.result?.type)) {
       icon = 'notication-disconnected';
+      message = 'Connection Closed';
     } else {
       icon = 'notication-default';
+      message = msg.result.message;
     }
 
     return new Notification({
-      body: msg.result.message,
+      body: message,
       type: msg.type,
       title: 'Connection',
       timestamp: msg.result.timestamp,

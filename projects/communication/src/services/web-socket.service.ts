@@ -9,6 +9,13 @@ export interface IWebSocketConfig {
   protocols?: string;
 }
 
+export enum ConnectionId {
+  TradingSystem = 'TradingSystem',
+  PnL = 'PnL',
+  History = 'History',
+  MarketData = 'MarketData'
+}
+
 export enum AlertType {
   Undefined = 'Undefined',
   ConnectionOpened = 'ConnectionOpened',
