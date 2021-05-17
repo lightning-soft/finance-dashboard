@@ -679,12 +679,12 @@ export class DomItem implements IBaseItem {
       this.currentBid.update(trade.volume, trade.timestamp, forceAdd);
       this.totalBid.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, 'buy');
+      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
     } else {
       this.currentAsk.update(trade.volume, trade.timestamp, forceAdd);
       this.totalAsk.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, 'sell');
+      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
     }
 
     this.calculateLevel();
