@@ -453,16 +453,48 @@ class LevelCell extends HistogramCell {
 export const SumStatus = 'sum';
 
 class SumHistogramCell extends HistogramCell {
+  private _hiddenValue: number;
+
+  get size() {
+    return this.status === SumStatus ? this._hiddenValue : this._value;
+  }
+
   changeStatus(status: string) {
     super.changeStatus(status);
-    if (status == SumStatus) {
+    if (status === SumStatus) {
       this.visible = true;
       this.hist = null;
+    } else {
+      this.updateValue(this._hiddenValue);
     }
   }
 
+  update(value: number, status?: string | false): boolean {
+    if (this.status === SumStatus && ((status === false) || (status !== SumStatus && this.status === status))) {
+      const isChanged = this._hiddenValue !== value;
+      this._hiddenValue = value;
+      return isChanged;
+    }
+
+    if (this.status !== status) {
+      if (this.status === SumStatus) {
+        this.updateValue(this._hiddenValue);
+        this._hiddenValue = null;
+      }
+
+      if (status !== false)
+        this.changeStatus(status);
+    }
+
+    return this.updateValue(value);
+  }
+
+  // updateValue(value: number, time?: number) {
+  //   return super.updateValue(value, time);
+  // }
+
   calcHist(value: number) {
-    if (this.status == SumStatus) {
+    if (this.status === SumStatus) {
       this.hist = 0;
     } else {
       super.calcHist(value);
@@ -482,8 +514,8 @@ export class DomItem implements IBaseItem {
   sellOrders: OrdersCell;
   buyOrders: OrdersCell;
   ltq: LtqCell;
-  bid: HistogramCell;
-  ask: HistogramCell;
+  bid: SumHistogramCell;
+  ask: SumHistogramCell;
   currentAsk: LevelCell;
   currentBid: LevelCell;
   totalAsk: HistogramCell;
@@ -603,14 +635,12 @@ export class DomItem implements IBaseItem {
 
   clearAskDelta() {
     this.askDelta.clear();
-    if (this.ask.status !== SumStatus)
-      this._ask = this.ask._value;
+    this._ask = this.ask.size;
   }
 
   clearBidDelta() {
     this.bidDelta.clear();
-    if (this.bid.status !== SumStatus)
-      this._bid = this.bid._value;
+    this._bid = this.bid.size;
   }
 
   clearLTQ() {
@@ -631,7 +661,7 @@ export class DomItem implements IBaseItem {
 
     const forceAdd = this.ltq._value > 0;
 
-    if (trade.side == OrderSide.Sell) {
+    if (trade.side === OrderSide.Sell) {
       if (this.currentBid.update(trade.volume, trade.timestamp, forceAdd))
         res.currentBid = this.currentBid._value;
 
@@ -667,52 +697,39 @@ export class DomItem implements IBaseItem {
   }
 
   private _handleAsk(data: IQuote) {
-    const res: any = {};
-
-    if (data.updateType == UpdateType.Undefined) {
+    if (data.updateType === UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
-      this.askDelta.changeStatus(CellStatus.Highlight);
     }
 
-    if (this.ask.updateValue(data.volume)) {
-      res.ask = this.ask._value;
-
+    if (this.ask.update(data.volume, false)) {
       if (this._ask == null)
         this._ask = data.volume;
       else
         this._calculateAskDelta();
-      res.askDelta = this.askDelta.value;
+
+      this.orders.changeAskQuantity(data.volume);
     }
-    if (this.ask.value != null && this.ask.value !== '')
-      this.orders.changeAskQuantity(+this.ask.value);
+
     if (this.clearCross)
       this.clearBid();
-    return this._getAskValues();
   }
 
   private _handleBid(data: IQuote) {
-    const res: any = {};
-
-    if (data.updateType == UpdateType.Undefined) {
+    if (data.updateType === UpdateType.Undefined) {
       this.currentBid.changeBest(QuoteSide.Bid);
-      this.bidDelta.changeStatus(CellStatus.Highlight);
     }
 
-    if (this.bid.updateValue(data.volume)) {
-      res.bid = this.bid._value;
-
+    if (this.bid.update(data.volume, false)) {
       if (this._bid == null)
         this._bid = data.volume;
       else
         this._calculateBidDelta();
 
-      res.bidDelta = this.bidDelta._value;
+      this.orders.changeAskQuantity(data.volume);
     }
-    if (this.bid.value != null && this.bid.value !== '')
-      this.orders.changeBidQuantity(+this.bid.value);
+
     if (this.clearCross)
       this.clearAsk();
-    return this._getBidValues();
   }
 
   protected _calculateAskDelta() {
@@ -782,33 +799,21 @@ export class DomItem implements IBaseItem {
   }
 
   clearCurrentBidBest() {
-    // if (this.ltq._value)
-    //   return;
-
     this.currentBid.changeBest();
-    // this.bidDelta.changeStatus('');
+    this.bidDelta.changeStatus('');
   }
 
-  clearСurrentAskBest() {
-    // if (this.ltq._value)
-    //   return;
-
+  clearCurrentAskBest() {
     this.currentAsk.changeBest();
-    // this.askDelta.changeStatus('');
+    this.askDelta.changeStatus('');
   }
 
-  setBidSum(value) {
-    this.bid.changeStatus(value == null ? '' : SumStatus);
-    this.bid.updateValue(value == null ? this._bid : value);
-    this.orders.changeBidQuantity(+this.bid.value);
-    this.clearBidDelta();
+  setBidSum(value: number) {
+    this.bid.update(value == null ? this._bid : value, value == null ? '' : SumStatus);
   }
 
-  setAskSum(value) {
-    this.ask.changeStatus(value == null ? '' : SumStatus);
-    this.ask.updateValue(value == null ? this._ask : value);
-    this.orders.changeAskQuantity(+this.ask.value);
-    this.clearAskDelta();
+  setAskSum(value: number) {
+    this.ask.update(value == null ? this._ask : value, value == null ? '' : SumStatus);
   }
 
   refresh() {
@@ -818,46 +823,11 @@ export class DomItem implements IBaseItem {
   setBidVisibility(isBidOut: boolean, isBidDeltaOut: boolean) {
     this.bidDelta.visible = isBidDeltaOut !== true;
     this.bid.visible = isBidOut !== true;
-
-    return this._getBidValues();
-  }
-
-  changeBestStatus() {
-    this.askDelta.changeStatus(this.currentAsk.best == QuoteSide.Ask ? CellStatus.Highlight : '');
-    this.bidDelta.changeStatus(this.currentBid.best == QuoteSide.Bid ? CellStatus.Highlight : '');
-  }
-
-  private _getBidValues() {
-    const res: any = {};
-
-    if (this.bid.visible) {
-      res.bid = this.bid._value;
-    }
-    if (this.bidDelta.visible) {
-      res.bidDelta = this.bidDelta._value;
-    }
-
-    return this.isBidSideVisible ? res : true;
   }
 
   setAskVisibility(isAskOut: boolean, isAskDeltaOut: boolean) {
     this.askDelta.visible = isAskDeltaOut !== true;
     this.ask.visible = isAskOut !== true;
-
-    return this._getAskValues();
-  }
-
-  private _getAskValues() {
-    const res: any = {};
-
-    if (this.ask.visible) {
-      res.ask = this.ask._value;
-    }
-    if (this.askDelta.visible) {
-      res.askDelta = this.askDelta._value;
-    }
-
-    return this.isAskSideVisible ? res : true;
   }
 
   handleOrder(order: IOrder) {
@@ -987,8 +957,8 @@ export class CustomDomItem extends DomItem {
 
   calculateFromItems() {
     const snapshot = this._domItems;
-    this.bid.updateValue(0);
-    this.ask.updateValue(0);
+    this.bid.update(0);
+    this.ask.update(0);
     this.totalAsk.updateValue(0);
     this.totalBid.updateValue(0);
     this.volume.updateValue(0);
@@ -997,8 +967,8 @@ export class CustomDomItem extends DomItem {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
 
-        this.bid.updateValue((this.bid._value ?? 0) + (data.bid._value ?? 0));
-        this.ask.updateValue((this.ask._value ?? 0) + (data.ask._value ?? 0));
+        this.bid.update((this.bid._value ?? 0) + (data.bid._value ?? 0));
+        this.ask.update((this.ask._value ?? 0) + (data.ask._value ?? 0));
         this.totalAsk.updateValue(data.totalAsk._value);
         this.totalBid.updateValue(data.totalBid._value);
         this.volume.updateValue(data.volume._value);
@@ -1061,7 +1031,7 @@ export class CustomDomItem extends DomItem {
 }
 
 const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled  && style === 'BackgroundColor') {
+  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
     return CellStatus.Hovered;
   }
 
