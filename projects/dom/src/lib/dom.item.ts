@@ -502,6 +502,14 @@ class SumHistogramCell extends HistogramCell {
   }
 }
 
+export enum VolumeStatus {
+  Empty = '',
+  TradedPrice = 'tradedPrice',
+  ValueArea = 'valueArea',
+  VWAP = 'VWAP',
+}
+
+
 export class DomItem implements IBaseItem {
   id: Id;
   index: number;

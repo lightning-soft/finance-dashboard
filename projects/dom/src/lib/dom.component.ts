@@ -46,7 +46,7 @@ import { IWindow } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
-import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside } from './dom.item';
+import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 
@@ -59,8 +59,8 @@ export class DomItemMax {
   // askDelta: number;
   // bidDelta: number;
   volume: number;
-  // totalAsk: number;
-  // totalBid: number;
+  totalAsk: number;
+  totalBid: number;
   // currentAsk: number;
   // currentBid: number;
 
@@ -90,8 +90,8 @@ export class DomItemMax {
     this.ask = -Infinity;
     this.bid = -Infinity;
     this.volume = null;
-    // this.totalAsk = null;
-    // this.totalBid = null;
+    this.totalAsk = null;
+    this.totalBid = null;
     // this.currentAsk = null;
     // this.currentBid = null;
     // this.askDelta = -Infinity;
@@ -233,6 +233,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   askSumItem: DomItem;
   bidSumItem: DomItem;
 
+  _lastAskItem: DomItem;
+  _lastBidItem: DomItem;
+
   private _marketDepth = 9;
   private _marketDeltaDepth = 9;
 
@@ -263,7 +266,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.askSumItem = this._getItem(-1);
     this.bidSumItem = this._getItem(-2);
-    this._lastTradeItem = this._getItem(-3);
+    this._lastAskItem = this._getItem(-3);
+    this._lastBidItem = this._getItem(-4);
+    this._lastTradeItem = this._getItem(-5);
 
     this.columns = headers.map(convertToColumn);
 
@@ -1232,6 +1237,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._counter++;
     const prevltqItem = this._lastTradeItem;
     let needCentralize = false;
+    const max = this._max;
     // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
     const _item = this._getItem(trade.price);
 
@@ -1262,17 +1268,39 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     _item.handleTrade(trade);
 
+    if (trade.side === OrderSide.Sell) {
+      if (_item.totalBid._value > max.totalBid) {
+        max.totalBid = _item.totalBid._value;
+      }
+    } else {
+      if (_item.totalAsk._value > max.totalAsk) {
+        max.totalAsk = _item.totalAsk._value;
+      }
+    }
+
     if (!prevltqItem || needCentralize)
       this.centralize();
 
     this._lastTrade = trade;
     this._lastTradeItem = _item;
+
+    if (trade.side === OrderSide.Sell) {
+      this._lastBidItem.totalBid.dehightlight();
+      _item.totalBid.hightlight();
+      this._lastBidItem = _item;
+    } else {
+      this._lastAskItem.totalAsk.dehightlight();
+      _item.totalAsk.hightlight();
+      this._lastAskItem = _item;
+    }
+
     this._calculateLevels();
     this._updateVolumeColumn();
     this.detectChanges();
   }
 
   private _updateVolumeColumn() {
+    const _max = this._max;
     const settings: any = this._settings.volume;
 
     const VWAP = settings.VWAP;
@@ -1289,8 +1317,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let priceSum = 0;
     let maxCurrentAsk = 0;
     let maxCurrentBid = 0;
-    let maxTotalBid = 0;
-    let maxTotalAsk = 0;
 
     const items = this.items;
 
@@ -1298,12 +1324,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       item = items[i];
       const value = item.volume._value;
 
-      if (item.totalAsk._value > maxCurrentAsk) {
-        maxTotalAsk = item.totalAsk._value;
-      }
-      if (item.totalBid._value > maxCurrentBid) {
-        maxTotalBid = item.totalAsk._value;
-      }
       if (item.currentAsk._value > maxCurrentAsk)
         maxCurrentAsk = item.currentAsk._value;
 
@@ -1352,41 +1372,43 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (item1) {
         item1.currentBid.calcHist(maxCurrentBid);
         item1.currentAsk.calcHist(maxCurrentAsk);
-        item1.totalBid.calcHist(maxTotalBid);
-        item1.totalAsk.calcHist(maxTotalAsk);
+
+        item1.totalBid.calcHist(_max.totalBid);
+        item1.totalAsk.calcHist(_max.totalAsk);
       }
       if (item2) {
         item2.currentBid.calcHist(maxCurrentBid);
         item2.currentAsk.calcHist(maxCurrentAsk);
-        item2.totalBid.calcHist(maxTotalBid);
-        item2.totalAsk.calcHist(maxTotalAsk);
+
+        item2.totalBid.calcHist(_max.totalBid);
+        item2.totalAsk.calcHist(_max.totalAsk);
       }
 
-      volume1?.changeStatus('');
-      volume2?.changeStatus('');
+      volume1?.changeStatus(VolumeStatus.Empty);
+      volume2?.changeStatus(VolumeStatus.Empty);
 
       if (!volume1 && !volume2)
         break;
 
       if (pointOfControlIndex + i <= endTradedPriceIndex)
-        items[pointOfControlIndex + i].changePriceStatus('tradedPrice');
+        items[pointOfControlIndex + i].changePriceStatus(VolumeStatus.TradedPrice);
 
       if (pointOfControlIndex - i >= startTradedPriceIndex)
-        items[pointOfControlIndex - i].changePriceStatus('tradedPrice');
+        items[pointOfControlIndex - i].changePriceStatus(VolumeStatus.TradedPrice);
 
       valueAreaSum += (volume1?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)
-        volume1?.changeStatus('valueArea');
+        volume1?.changeStatus(VolumeStatus.ValueArea);
 
       valueAreaSum += (volume2?._value || 0);
       if (valueArea && valueAreaSum <= valueAreaNum)
-        volume2?.changeStatus('valueArea');
+        volume2?.changeStatus(VolumeStatus.ValueArea);
 
       if (VWAP) {
         if (volume1 && vwap === items[pointOfControlIndex + i]?.lastPrice) {
-          volume1.changeStatus('VWAP');
+          volume1.changeStatus(VolumeStatus.VWAP);
         } else if (volume2 && vwap === items[pointOfControlIndex - i].lastPrice) {
-          volume2.changeStatus('VWAP');
+          volume2.changeStatus(VolumeStatus.VWAP);
         }
       }
 
@@ -1473,8 +1495,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._counter++;
     const item = this._getItem(trade.price);
-    const askSize = item.ask._value;
-    const bidSize = item.bid._value;
 
     if (this._ttt++ > 1000) {
       console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
@@ -1486,7 +1506,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.fillData(trade.price);
 
     const isBid = trade.side === QuoteSide.Bid;
-    const size = isBid ? item.bid._value : item.ask._value;
+    const size = (isBid ? item.bid._value : item.ask._value) ?? 0;
 
     item.handleQuote(trade);
 
@@ -1503,18 +1523,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         max.bid = item.bid.size;
         if (!needRecalculate) {
           this._calculateBidHist();
+          this.bidSumItem.setBidSum(this.bidSumItem.bid._value - (item.bid._value ?? 0) + size);
         }
       }
-      const bidItem = this.items.find(domItem => domItem.isBidSum());
-      bidItem?.bid.updateValue(bidItem.bid._value - item.bid._value + bidSize);
     } else {
       if (item.ask.visible && (max.bid === size || max.ask < item.ask.size)) {
         max.ask = item.ask.size;
         if (!needRecalculate) {
           this._calculateAskHist();
+          this.askSumItem.ask.updateValue(this.askSumItem.ask._value - (item.ask._value ?? 0) + size);
         }
-        const askItem = this.items.find(domItem => domItem.isAskSum());
-        askItem?.ask.updateValue(askItem.ask._value - item.ask._value + askSize);
       }
     }
 
@@ -1606,7 +1624,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           max = item.bid._value;
         }
 
-        sum += item.bid._value;
+        sum += (item.bid._value ?? 0);
       }
 
       item = items[++index];
@@ -1664,7 +1682,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           max = item.ask._value;
         }
 
-        sum += item.ask._value;
+        sum += (item.ask._value ?? 0);
       }
 
       item = items[--index];
