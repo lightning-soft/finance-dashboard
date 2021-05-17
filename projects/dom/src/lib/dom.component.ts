@@ -1470,9 +1470,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!items.length)
       this.fillData(trade.price);
 
-    item.handleQuote(trade);
-
     const isBid = trade.side === QuoteSide.Bid;
+    const size = isBid ? item.bid._value : item.ask._value;
+
+    item.handleQuote(trade);
 
     if ((isBid && item.bid.status === SumStatus) || (!isBid && item.ask.status === SumStatus)) {
       return;
@@ -1483,14 +1484,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const needClear = trade.volume === 0;
 
     if (isBid) {
-      if (item.bid.visible && max.bid < item.bid.size) {
+      if (item.bid.visible && (max.bid === size || max.bid < item.bid.size)) {
         max.bid = item.bid.size;
         if (!needRecalculate) {
           this._calculateBidHist();
         }
       }
     } else {
-      if (item.ask.visible && max.ask < item.ask.size) {
+      if (item.ask.visible && (max.bid === size || max.ask < item.ask.size)) {
         max.ask = item.ask.size;
         if (!needRecalculate) {
           this._calculateAskHist();
