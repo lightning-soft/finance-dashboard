@@ -1289,12 +1289,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let priceSum = 0;
     let maxCurrentAsk = 0;
     let maxCurrentBid = 0;
+    let maxTotalBid = 0;
+    let maxTotalAsk = 0;
+
     const items = this.items;
 
     for (let i = 0; i < items.length; i++) {
       item = items[i];
       const value = item.volume._value;
 
+      if (item.totalAsk._value > maxCurrentAsk) {
+        maxTotalAsk = item.totalAsk._value;
+      }
+      if (item.totalBid._value > maxCurrentBid) {
+        maxTotalBid = item.totalAsk._value;
+      }
       if (item.currentAsk._value > maxCurrentAsk)
         maxCurrentAsk = item.currentAsk._value;
 
@@ -1343,10 +1352,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (item1) {
         item1.currentBid.calcHist(maxCurrentBid);
         item1.currentAsk.calcHist(maxCurrentAsk);
+        item1.totalBid.calcHist(maxTotalBid);
+        item1.totalAsk.calcHist(maxTotalAsk);
       }
       if (item2) {
         item2.currentBid.calcHist(maxCurrentBid);
         item2.currentAsk.calcHist(maxCurrentAsk);
+        item2.totalBid.calcHist(maxTotalBid);
+        item2.totalAsk.calcHist(maxTotalAsk);
       }
 
       volume1?.changeStatus('');
@@ -1460,6 +1473,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._counter++;
     const item = this._getItem(trade.price);
+    const askSize = item.ask._value;
+    const bidSize = item.bid._value;
 
     if (this._ttt++ > 1000) {
       console.log('_handleQuote', trade.side, Date.now() - trade.timestamp, trade.updateType, trade.price, trade.volume);
@@ -1490,12 +1505,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._calculateBidHist();
         }
       }
+      const bidItem = this.items.find(domItem => domItem.isBidSum());
+      bidItem?.bid.updateValue(bidItem.bid._value - item.bid._value + bidSize);
     } else {
       if (item.ask.visible && (max.bid === size || max.ask < item.ask.size)) {
         max.ask = item.ask.size;
         if (!needRecalculate) {
           this._calculateAskHist();
         }
+        const askItem = this.items.find(domItem => domItem.isAskSum());
+        askItem?.ask.updateValue(askItem.ask._value - item.ask._value + askSize);
       }
     }
 

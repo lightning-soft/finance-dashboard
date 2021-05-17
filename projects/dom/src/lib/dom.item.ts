@@ -643,6 +643,14 @@ export class DomItem implements IBaseItem {
     this._bid = this.bid.size;
   }
 
+  isAskSum() {
+    return this.ask.status === SumStatus;
+  }
+
+  isBidSum() {
+    return this.bid.status === SumStatus;
+  }
+
   clearLTQ() {
     this.ltq.changeStatus('');
     this.ltq.clear();
