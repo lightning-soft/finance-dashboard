@@ -23,30 +23,30 @@ export const handlers = {
     if (msg?.result?.connectionId !== ConnectionId.TradingSystem)
       return;
 
+    const { type, timestamp } = msg.result;
+
     let icon;
     let message;
 
-    if (errorAlerts.includes(msg?.result?.type)) {
+    if (errorAlerts.includes(type)) {
       icon = 'notifcation-error';
       message = 'Failed to connect';
-    } else if (
-      connectedAlerts.includes(msg?.result?.type)
-    ) {
+    } else if (connectedAlerts.includes(type)) {
       icon = 'notication-connected';
       message = 'Login Complete';
-    } else if (connectionsErrors.includes(msg?.result?.type)) {
+    } else if (connectionsErrors.includes(type)) {
       icon = 'notication-disconnected';
       message = 'Connection Closed';
     } else {
       icon = 'notication-default';
-      message = msg?.result?.message ?? '';
+      message = msg.result.message ?? '';
     }
 
     return new Notification({
       body: message,
-      type: msg.type,
+      type,
       title: 'Connection',
-      timestamp: msg.result.timestamp,
+      timestamp,
       icon,
     });
   },
