@@ -657,36 +657,21 @@ export class DomItem implements IBaseItem {
   }
 
   handleTrade(trade: TradePrint) {
-    const res: any = {};
-
     const forceAdd = this.ltq._value > 0;
 
     if (trade.side === OrderSide.Sell) {
-      if (this.currentBid.update(trade.volume, trade.timestamp, forceAdd))
-        res.currentBid = this.currentBid._value;
+      this.currentBid.update(trade.volume, trade.timestamp, forceAdd);
+      this.totalBid.updateValue(trade.volume);
 
-      if (this.totalBid.updateValue(trade.volume))
-        res.totalBid = this.totalBid._value;
-
-      if (this._changeLtq(trade.volume, 'buy')) {
-        res.ltq = this.ltq._value;
-        res.volume = this.volume._value;
-      }
+      this._changeLtq(trade.volume, 'buy');
     } else {
-      if (this.currentAsk.update(trade.volume, trade.timestamp, forceAdd))
-        res.currentAsk = this.currentAsk._value;
+      this.currentAsk.update(trade.volume, trade.timestamp, forceAdd);
+      this.totalAsk.updateValue(trade.volume);
 
-      if (this.totalAsk.updateValue(trade.volume))
-        res.totalAsk = this.totalAsk._value;
-
-      if (this._changeLtq(trade.volume, 'sell')) {
-        res.ltq = this.ltq._value;
-        res.volume = this.volume._value;
-      }
+      this._changeLtq(trade.volume, 'sell');
     }
 
     this.calculateLevel();
-    return res;
   }
 
   handleQuote(data: IQuote) {
