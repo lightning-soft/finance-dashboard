@@ -648,7 +648,7 @@ export const orderColumnFields: IFieldConfig[] = [
           {
             ...getCheckboxes({
               checkboxes: [
-                { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
+                { key: 'overlayOrders', label: 'Overlay orders on the Bid/Ask Delta Column' },
                 { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
               ]
             }),

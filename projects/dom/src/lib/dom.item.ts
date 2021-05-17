@@ -33,7 +33,12 @@ class OrdersCell extends HistogramCell {
     if (!this._order)
       return false;
 
-    return this._isOrderColumn || (this.settings as any).overlayOrders == false;
+    return this.shouldDisplayOrders;
+  }
+
+  private get shouldDisplayOrders() {
+    const overlayOrders = (this.settings as any).overlayOrders;
+    return this._isOrderColumn ? !overlayOrders : overlayOrders;
   }
 
   private _isOrderColumn = false;
@@ -98,7 +103,7 @@ class OrdersCell extends HistogramCell {
               quantity: item.quantity,
             } as IOrder;
           } else {
-            res.quantity += res.quantity;
+            res.quantity += item.quantity;
           }
           return res;
         }, null);
@@ -175,7 +180,7 @@ class OrdersCell extends HistogramCell {
   }
 
   draw(context) {
-    if (!this._order || (this.settings as any).overlayOrders == false)
+    if (!this._order || !this.shouldDisplayOrders)
       return;
 
     const ctx = context?.ctx;
@@ -317,6 +322,10 @@ class DeltaCell extends CompositeCell<OrdersCell> {
   }
 
   set status(value: string) {
+  }
+
+  get canCancelOrder() {
+    return this._getCell().canCancelOrder;
   }
 }
 
@@ -1061,9 +1070,9 @@ export class CustomDomItem extends DomItem {
 }
 
 const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled  && style === 'BackgroundColor') {
+  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
     return CellStatus.Hovered;
   }
 
   return cell.status;
-}
+};
