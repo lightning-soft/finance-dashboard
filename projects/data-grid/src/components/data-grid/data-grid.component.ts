@@ -38,6 +38,9 @@ interface GridStyles {
   gridBorderWidth?: number;
   columnHeaderBorderColor?: string;
   scrollSensetive?: number;
+  verticalGap?: number;
+  horizontalGap?: number;
+  rowHeight?: number;
 }
 
 export interface DataGridState {
@@ -95,7 +98,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   // private _subscribedEvents = [];
 
-  public rowHeight = 19;
+  @Input() public rowHeight = 19;
   public list: TransferItem[] = [];
   public onDestroy$ = new Subject();
   _grid: any;

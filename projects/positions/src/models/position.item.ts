@@ -13,6 +13,8 @@ import {
 import { calculatePL } from 'dom';
 import { IInstrument, IPosition, Side, TradePrint } from 'trading';
 
+const PLHoverStatus = 'PLHovered';
+
 export enum PositionColumn {
   account = 'account',
   instrumentName = 'instrumentName',
@@ -31,6 +33,9 @@ enum PositionStatus {
   Loss = 'loss',
   None = ''
 }
+
+const plStatuses = [PositionStatus.InProfit, PositionStatus.Loss];
+
 
 const allColumns = Object.keys(PositionColumn) as PositionColumn[];
 
@@ -137,10 +142,19 @@ export class PositionItem extends HoverableItem implements IPositionItem {
 }
 
 const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return ([PositionStatus.InProfit, PositionStatus.Loss] as string[]).includes(cell.status)
+  if (isHovered(cell) && style === 'BackgroundColor') {
+    return (plStatuses as string[]).includes(cell.status)
       ? cell.status : CellStatus.Hovered;
   }
 
+  if (isHovered(cell) && style === 'BorderColor') {
+    return (plStatuses as string[]).includes(cell.status)
+      ? PLHoverStatus : CellStatus.Hovered;
+  }
+
   return cell.status;
+};
+
+function isHovered(cell) {
+  return cell.hovered && cell.hoverStatusEnabled;
 }

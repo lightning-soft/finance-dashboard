@@ -302,7 +302,7 @@ export class ToolbarComponent {
           chart: this.chart,
         },
       },
-      width: 600,
+      width: 605,
       resizable: false,
       maximizable: false,
       allowPopup: false,
