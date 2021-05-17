@@ -38,8 +38,6 @@ interface GridStyles {
   gridBorderWidth?: number;
   columnHeaderBorderColor?: string;
   scrollSensetive?: number;
-  verticalGap?: number;
-  horizontalGap?: number;
   rowHeight?: number;
 }
 
