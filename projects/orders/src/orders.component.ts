@@ -45,7 +45,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   };
 
   gridStyles = {
-    columnHeaderBorderColor: '#24262C',
+    gridHeaderBorderColor: '#24262C',
     gridBorderColor: 'transparent',
     gridBorderWidth: 0,
     rowHeight: 25,
