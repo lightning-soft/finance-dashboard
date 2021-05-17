@@ -36,7 +36,7 @@ interface GridStyles {
   background?: string;
   gridBorderColor?: string;
   gridBorderWidth?: number;
-  columnHeaderBorderColor?: string;
+  gridHeaderBorderColor?: string;
   scrollSensetive?: number;
 }
 

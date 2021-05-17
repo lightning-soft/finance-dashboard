@@ -157,7 +157,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   ngAfterViewInit() {
     super.ngAfterViewInit();
     this.dataGrid.applyStyles({
-      columnHeaderBorderColor: '#24262C',
+      gridHeaderBorderColor: '#24262C',
       gridBorderColor: 'transparent',
       gridBorderWidth: 0,
     });

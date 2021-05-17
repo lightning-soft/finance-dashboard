@@ -37,11 +37,8 @@ class OrdersCell extends HistogramCell {
   }
 
   private get shouldDisplayOrders() {
-    if (this._isOrderColumn) {
-      return !(this.settings as any).overlayOrders;
-    } else {
-      return (this.settings as any).overlayOrders;
-    }
+    const overlayOrders = (this.settings as any).overlayOrders;
+    return this._isOrderColumn ? !overlayOrders : overlayOrders;
   }
 
   private _isOrderColumn = false;
