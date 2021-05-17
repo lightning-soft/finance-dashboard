@@ -78,6 +78,7 @@
       <nz-input-number [ngModelOptions]="{standalone: true}"
                        [nzMin]="0"
                        [nzDisabled]="shouldDisablePrice"
+                       (nzBlur)="handlePriceChange()"
                        [(ngModel)]="price" class="number"></nz-input-number>
       <div (click)="decreasePrice()" class="cursor-pointer count-down">
         <i class="icon-arrow-down"></i>

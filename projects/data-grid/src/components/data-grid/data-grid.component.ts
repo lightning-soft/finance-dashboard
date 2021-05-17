@@ -57,6 +57,8 @@ export interface ICellChangedEvent<T> {
   dragContext: "cell"
 }
 
+let closePrevContextMenu: () => void;
+
 @Component({
   selector: 'data-grid',
   templateUrl: 'data-grid.component.html',
@@ -286,8 +288,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   createComponentModal($event: MouseEvent): void {
-    $event.preventDefault();
+    if (closePrevContextMenu) {
+      closePrevContextMenu();
+    }
     this.nzContextMenuService.create($event, this.contextMenuComponent);
+    closePrevContextMenu = this.nzContextMenuService.close.bind(this.nzContextMenuService);
   }
 
   _handleMouseUp = (e) => {
@@ -331,7 +336,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify({column: e.column, item} as IHandlerData, e.e);
+        handler.notify({ column: e.column, item } as IHandlerData, e.e);
     }
   }
 

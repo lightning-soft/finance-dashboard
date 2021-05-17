@@ -530,6 +530,10 @@ side-form {
 
 .chart-menu-dropdown {
   min-width: 110px;
+
+  li {
+    line-height: 16px;
+  }
 }
 
 :host ::ng-deep {

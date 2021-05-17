@@ -12,4 +12,8 @@ export class RoundFormatter implements IFormatter {
 
     return value.toFixed(this._digits);
   }
+
+  updateDigits(digits: number): void {
+    this._digits = digits;
+  }
 }

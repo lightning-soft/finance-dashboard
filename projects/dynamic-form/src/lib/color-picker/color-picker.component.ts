@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
-import { SettingsService } from 'settings';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { Storage } from 'storage';
+
+const colorsHistoryKey = 'colorsHistory';
 
 enum ColorType {
   HEX = 'HEX',
@@ -43,8 +45,9 @@ const Palette: string[][] = [
 export class ColorPickerComponent extends FieldType implements OnInit {
   readonly palette: string[][] = Palette;
   readonly colorType = ColorType;
+  readonly opacityInputFormatter = (opacity: number) => `${opacity}%`;
 
-  pickedColorsHistory: IPickedColor[] = [];
+  pickedColorsHistory: IPickedColor[];
   selectedColorType: ColorType;
   opacity = 100;
   inputText: string;
@@ -53,19 +56,15 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     return this.formControl?.value;
   }
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private storage: Storage) {
     super();
   }
 
   ngOnInit() {
     this._setColorTypeByColor(this.currentColor);
     this._setInputValue();
-
-    this.settingsService.settings
-      .pipe(untilDestroyed(this))
-      .subscribe((settings) => {
-        this.pickedColorsHistory = this._transformHistoryColors(settings.lastPickedColors);
-      });
+    const colors = this.storage.getItem(colorsHistoryKey) ?? [];
+    this.pickedColorsHistory = colors.map(this._transformToHistoryColor);
   }
 
   updateValue(color: string, updateHistory = true): void {
@@ -73,7 +72,8 @@ export class ColorPickerComponent extends FieldType implements OnInit {
       return;
 
     this._setColorTypeByColor(color);
-    this.opacity = isRGB(color) ? (parseRgbString(color).a ?? 1) * 100 : 100;
+    const alpha = this.selectedColorType === ColorType.RGB ? parseRgbString(color).a : hexToRGB(color).a;
+    this.opacity = this._getOpacityByAlpha(alpha);
 
     if (color !== this.currentColor && updateHistory) {
       this._updatePickedColors(color);
@@ -101,14 +101,19 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   }
 
   updateOpacity(): void {
+    const alpha = this._getAlphaByOpacity(this.opacity);
+    let color: string;
     if (this.selectedColorType === ColorType.RGB) {
-      const rgb = parseRgbString(this.formControl.value);
-      rgb.a = this.opacity / 100;
-      const color = RGBToString(rgb);
-      this.formControl.patchValue(color);
-      this._setInputValue();
-      this._updatePickedColors(color);
+      const rgb = parseRgbString(this.currentColor);
+      rgb.a = alpha;
+      color = RGBToString(rgb);
+    } else {
+      color = this.currentColor.slice(0, 7) + alphaToHexSuffix(alpha);
     }
+
+    this.formControl.patchValue(color);
+    this._setInputValue();
+    this._updatePickedColors(color);
   }
 
   handleInputTextSubmit(): void {
@@ -123,7 +128,8 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     } else {
       const rgbColors = text.split(',');
       if (rgbColors.length === 3 && rgbColors.every(c => +c <= 255 && +c >= 0)) {
-        this.updateValue(`rgb(${text},${this.opacity / 100})`);
+        const alpha = this._getAlphaByOpacity(this.opacity);
+        this.updateValue(`rgb(${text},${alpha})`);
       } else {
         this._setInputValue();
       }
@@ -142,10 +148,8 @@ export class ColorPickerComponent extends FieldType implements OnInit {
 
   private _updatePickedColors(color: string): void {
     const sliceStartIndex = this.pickedColorsHistory.length < 10 ? 0 : 1;
-    this.settingsService.updateLastPickedColors([
-      ...this.pickedColorsHistory.slice(sliceStartIndex).map(i => i.color),
-      color
-    ]);
+    this.pickedColorsHistory = [...this.pickedColorsHistory.slice(sliceStartIndex), this._transformToHistoryColor(color)];
+    this.storage.setItem(colorsHistoryKey, this.pickedColorsHistory.map(i => i.color));
   }
 
   private _setInputValue(): void {
@@ -159,34 +163,61 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     }
   }
 
-  private _transformHistoryColors(colors: string[]): IPickedColor[] {
-    return colors.map(color => {
-      if (isHex(color))
-        return { hasTransparency: false, color: color, opaqueColor: color };
+  private _transformToHistoryColor(color: string): IPickedColor {
+    const rgb = isHex(color) ? hexToRGB(color) : parseRgbString(color);
+    const hasTransparency = rgb.a !== 1;
+    return {
+      hasTransparency,
+      color,
+      opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color
+    };
 
-      const rgb = parseRgbString(color);
-      const hasTransparency = rgb.a !== 1;
-      return {
-        hasTransparency,
-        color,
-        opaqueColor: hasTransparency ? RGBToString({ ...rgb, a: 1 }) : color
-      };
-    });
+  }
+
+  private _getAlphaByOpacity(opacity: number): number {
+    return +(opacity / 100).toFixed(2);
+  }
+
+  private _getOpacityByAlpha(alpha: number): number {
+    return Math.round((alpha ?? 1) * 100);
   }
 }
 
-function hexToRGB(hex: string): RGB {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-    a: 1
-  } : null;
+function convertHexUnitTo256(hex: string): number {
+  return parseInt(hex.repeat(2 / hex.length), 16);
+}
+
+function getAlphaFloat(a: number, alpha: number): number {
+  if (typeof a !== 'undefined') {
+    return a / 255;
+  }
+  if ((typeof alpha != 'number') || alpha < 0 || alpha > 1) {
+    return 1;
+  }
+  return alpha;
+}
+
+function hexToRGB(hex: string, alpha?: number): RGB {
+  if (!isHex(hex))
+    throw new Error('Invalid HEX');
+
+  const chunkSize = Math.floor((hex.length - 1) / 3);
+  const hexArr = hex.slice(1).match(new RegExp(`.{${chunkSize}}`, 'g'));
+  const [r, g, b, a] = hexArr.map(convertHexUnitTo256);
+  return { r, g, b, a: Math.round(getAlphaFloat(a, alpha) * 100) / 100 };
+}
+
+function alphaToHexSuffix(alpha: number): string {
+  return (((alpha ?? 1) * 255) | 1 << 8).toString(16).slice(1);
 }
 
 function RGBToHex(rgb: RGB): string {
-  return '#' + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
+  const hex =
+    (rgb.r | 1 << 8).toString(16).slice(1) +
+    (rgb.g | 1 << 8).toString(16).slice(1) +
+    (rgb.b | 1 << 8).toString(16).slice(1);
+
+  return '#' + hex + alphaToHexSuffix(rgb.a);
 }
 
 function RGBToString(rgb: RGB): string {
@@ -207,7 +238,7 @@ function parseRgbString(color: string): RGB {
 }
 
 function isHex(color: string): boolean {
-  return /^#([0-9A-F]{3}){1,2}$/i.test(color);
+  return /^#([A-Fa-f0-9]{3,4}){1,2}$/.test(color);
 }
 
 function isRGB(color: string): boolean {

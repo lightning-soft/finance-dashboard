@@ -22,5 +22,4 @@ export type SettingsData = {
   isNavbarHidden: boolean;
   timezones: ITimezone[];
   localTimezoneTitle: string;
-  lastPickedColors: string[];
 };
