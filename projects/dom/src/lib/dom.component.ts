@@ -725,7 +725,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   _setPriceForOrders(orders, price) {
+    const amount = this.domForm.getDto().amount;
+
     orders.map(item => {
+      item.amount = amount;
       const priceTypes = this._getPriceSpecs(item, price);
 
       return {
@@ -1005,7 +1008,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.items.forEach(item => item.removeOrder(order));
       this._fillOrders(order);
 
-      const item = this._getItem(order.limitPrice || order.stopPrice);
+      const item = this._getItem(order.price);
       if (!item)
         continue;
 

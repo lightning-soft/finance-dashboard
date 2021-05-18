@@ -18,6 +18,8 @@ export enum OrderColumn {
   checkbox = 'checkbox',
   accountId = 'accountId',
   averageFillPrice = 'averageFillPrice',
+  price = 'price',
+  triggerPrice = 'triggerPrice',
   description = 'description',
   duration = 'duration',
   filledQuantity = 'filledQuantity',
@@ -49,6 +51,8 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   fcmId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   identifier = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   ibId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
+  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
+  triggerPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
   averageFillPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
   description = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   duration = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
@@ -78,6 +82,8 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this.order = { ...this.order, ...order };
     [
       OrderColumn.averageFillPrice,
+      OrderColumn.price,
+      OrderColumn.triggerPrice,
       OrderColumn.description,
       OrderColumn.duration,
       OrderColumn.filledQuantity,

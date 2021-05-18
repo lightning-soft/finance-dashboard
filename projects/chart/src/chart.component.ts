@@ -232,6 +232,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   getQuoteInfo(info: number) {
+    return info?.toFixed(this.instrument?.precision ?? 2) ?? '-';
+  }
+
+  getQuoteSize(info: number) {
     return info ?? '-';
   }
 
