@@ -256,6 +256,11 @@ class TotalCell extends HistogramCell {
 
     super.hightlight();
   }
+
+  refresh() {
+    console.log('refresh')
+    super.refresh();
+  }
 }
 
 class LtqCell extends HistogramCell {
@@ -408,8 +413,8 @@ class LevelCell extends HistogramCell {
   best: QuoteSide = null;
 
   update(value: number, timestamp: number, forceAdd: boolean) {
-    // const result = this.updateValue(forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0))
-    const result = this.updateValue(forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0))
+    const result = this.updateValue((forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0)))
+    // const result = this.updateValue((forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0)))
       ? (this._value || 0) + value : value, timestamp);
 
     if (result && (this.settings as any).momentumTails)
@@ -585,14 +590,14 @@ export class DomItem implements IBaseItem {
     });
     this.bid = new SumHistogramCell({
       settings: settings.bid,
-      ignoreZero: false,
+      ignoreZero: true,
       hightlightOnChange: false,
       withHoverStatus: true,
       getStatusByStyleProp
     });
     this.ask = new SumHistogramCell({
       settings: settings.ask,
-      ignoreZero: false,
+      ignoreZero: true,
       hightlightOnChange: false,
       withHoverStatus: true,
       getStatusByStyleProp
@@ -647,7 +652,7 @@ export class DomItem implements IBaseItem {
         this[key].updateValue(state[key]);
       }
     }
-    this.dehighlight('all');
+    this.dehighlight();
   }
 
   clearAskDelta() {
@@ -885,16 +890,8 @@ export class DomItem implements IBaseItem {
     this.askDelta.clearOcoOrder();
   }
 
-  dehighlight(key: string) {
-    if (key === 'all')
-      return Object.keys(this).forEach(i => this.dehighlight(i));
-
-    if (key == 'ltq')
-      this._updatePriceStatus();
-
-    if (this[key] && this[key].dehightlight) {
-      this[key].dehightlight();
-    }
+  dehighlight() {
+    return Object.keys(this).forEach(key => this[key] && this[key].dehightlight && this[key].dehightlight());
   }
 
   setVolume(volume: number) {
@@ -928,7 +925,7 @@ export class CustomDomItem extends DomItem {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();
-    this.dehighlight('all');
+    this.dehighlight();
   }
 
   handleTrade(trade: TradePrint) {

@@ -135,7 +135,6 @@ enum Columns {
   TotalBid = 'totalBid',
   TotalAsk = 'totalAsk',
   Price = 'price',
-  All = 'all',
 }
 
 const headers: HeaderItem[] = [
@@ -264,11 +263,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._counter = 0;
     }, 1000 * 60);
 
-    this.askSumItem = this._getItem(-1);
-    this.bidSumItem = this._getItem(-2);
-    this._lastAskItem = this._getItem(-3);
-    this._lastBidItem = this._getItem(-4);
-    this._lastTradeItem = this._getItem(-5);
+    this.askSumItem = this._getItem(null);
+    this.bidSumItem = this._getItem(null);
+    this._lastAskItem = this._getItem(null);
+    this._lastBidItem = this._getItem(null);
+    this._lastTradeItem = this._getItem(null);
 
     this.columns = headers.map(convertToColumn);
 
@@ -509,7 +508,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //   const volume = Math.random() > 0.5 ? 2 : 4;
     //   let price = this.items[this.items.length - 1].lastPrice;
     //   const high = this.items[0].lastPrice;
-    //   const centerPrice = this._normalizePrice((price + high) / 2);
+    //   const centerPrice = this.items[Math.floor(this.items.length / 2)].lastPrice;
 
     //   while (price <= high) {
     //     if (price !== centerPrice) {
@@ -522,15 +521,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //       //   volumeBuy: 1,
     //       //   volumeSell: 1,
     //       // });
+    //       const isBid = price < centerPrice;
 
     //       this._handleQuote({
     //         price,
     //         instrument: this._instrument,
-    //         side: QuoteSide.Bid,
+    //         side: isBid ? QuoteSide.Bid : QuoteSide.Ask,
+    //         // side: QuoteSide.Bid,
     //         timestamp: Date.now(),
     //         volume,
     //         orderCount: 1,
-    //         updateType: UpdateType.Solo,
+    //         updateType: ((isBid && this._normalizePrice(price + this._tickSize) === centerPrice) || (!isBid && this._normalizePrice(price - this._tickSize) === centerPrice)) ? UpdateType.Undefined : UpdateType.Solo,
     //       });
     //     }
 
@@ -540,22 +541,23 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //   this._handleTrade({
     //     price: centerPrice,
     //     instrument: this._instrument,
-    //     side: OrderSide.Sell,
+    //     // side: OrderSide.Sell,
+    //     side: Math.random() > 0.5 ? OrderSide.Sell : OrderSide.Buy,
     //     timestamp: Date.now(),
     //     volume: 1,
     //     volumeBuy: 1,
     //     volumeSell: 1,
     //   });
 
-    //   this._handleQuote({
-    //     price: centerPrice,
-    //     instrument: this._instrument,
-    //     side: QuoteSide.Bid,
-    //     timestamp: Date.now(),
-    //     volume,
-    //     orderCount: 1,
-    //     updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
-    //   });
+    //   // this._handleQuote({
+    //   //   price: centerPrice,
+    //   //   instrument: this._instrument,
+    //   //   side: QuoteSide.Bid,
+    //   //   timestamp: Date.now(),
+    //   //   volume,
+    //   //   orderCount: 1,
+    //   //   updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
+    //   // });
     // }, 1000);
   }
 
@@ -968,7 +970,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
             for (const i of this.items) {
               i.clearDelta();
-              i.dehighlight(Columns.All);
+              i.dehighlight();
             }
           }
 
@@ -1272,10 +1274,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (trade.side === OrderSide.Sell) {
       if (_item.totalBid._value > max.totalBid) {
         max.totalBid = _item.totalBid._value;
+        // this._updateVolumeColumn();
       }
     } else {
       if (_item.totalAsk._value > max.totalAsk) {
         max.totalAsk = _item.totalAsk._value;
+        // this._updateVolumeColumn();
       }
     }
 
@@ -1284,6 +1288,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._lastTrade = trade;
     this._lastTradeItem = _item;
+
+    this._calculateLevels();
+    this._updateVolumeColumn();
 
     if (trade.side === OrderSide.Sell) {
       this._lastBidItem.totalBid.dehightlight();
@@ -1295,8 +1302,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._lastAskItem = _item;
     }
 
-    this._calculateLevels();
-    this._updateVolumeColumn();
     this.detectChanges();
   }
 
@@ -1520,20 +1525,30 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const needClear = trade.volume === 0;
 
     if (isBid) {
-      if (item.bid.visible && (max.bid === size || max.bid < item.bid.size)) {
-        max.bid = item.bid.size;
+      if (item.bid.visible) {
         if (!needRecalculate) {
-          this._calculateBidHist();
-          this.bidSumItem.setBidSum(this.bidSumItem.bid._value - (item.bid._value ?? 0) + size);
+          if (max.bid === size) {
+            this._calculateBidHist(true);
+          } else if (max.bid < item.bid.size) {
+            max.bid = item.bid.size;
+            this._calculateBidHist();
+          }
         }
+
+        this.bidSumItem.setBidSum(this.bidSumItem.bid._value - size + (item.bid._value ?? 0));
       }
     } else {
-      if (item.ask.visible && (max.bid === size || max.ask < item.ask.size)) {
-        max.ask = item.ask.size;
+      if (item.ask.visible) {
         if (!needRecalculate) {
-          this._calculateAskHist();
-          this.askSumItem.ask.updateValue(this.askSumItem.ask._value - (item.ask._value ?? 0) + size);
+          if (max.ask === size) {
+            this._calculateAskHist(true);
+          } else if (max.ask < item.ask.size) {
+            max.ask = item.ask.size;
+            this._calculateAskHist();
+          }
         }
+
+        this.askSumItem.ask.updateValue(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
       }
     }
 
@@ -1541,45 +1556,82 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const price = trade.price;
 
       if (isBid || (needClear && !isBid)) {
-        if (this._bestBidPrice !== price || needClear) {
-          if (!needClear)
-            this._bestBidPrice = price;
+        // if (this._bestBidPrice !== price || needClear) {
+        if (!needClear)
+          this._bestBidPrice = price;
 
-          this._handleNewBestBid(price);
-        }
-      }
+        this._handleNewBestBid(price);
+        // }
+      } else if (!isBid || (needClear && isBid)) {
+        // if (this._bestAskPrice !== price || needClear) {
+        if (!needClear)
+          this._bestAskPrice = price;
 
-      if (!isBid || (needClear && isBid)) {
-        if (this._bestAskPrice !== price || needClear) {
-          if (!needClear)
-            this._bestAskPrice = price;
-
-          this._handleNewBestAsk(price);
-        }
+        this._handleNewBestAsk(price);
+        // }
       }
     }
 
     this.detectChanges();
   }
 
-  _calculateAskHist() {
+  _calculateAskHist(recalculateMax = false) {
     const items = this.items;
     const max = this._max;
+    const startIndex = this._getItem(this._bestAskPrice).index;
+
+    if (recalculateMax) {
+      let _max = 0;
+      let index = startIndex;
+      let _item = items[index];
+
+      while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
+        if (_item.ask._value > _max)
+          _max = _item.ask._value;
+
+        _item = items[--index];
+      }
+
+      if (max.ask === _max)
+        return;
+
+      max.ask = _max
+    }
 
     let index = this._getItem(this._bestAskPrice).index;
     let _item = items[index];
+
     while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
       _item.ask.calcHist(max.ask);
       _item = items[--index];
     }
   }
 
-  _calculateBidHist() {
+  _calculateBidHist(recalculateMax = false) {
     const items = this.items;
     const max = this._max;
+    const startIndex = this._getItem(this._bestBidPrice).index;
 
-    let index = this._getItem(this._bestBidPrice).index;
+    if (recalculateMax) {
+      let _max = 0;
+      let index = startIndex;
+      let _item = items[index];
+
+      while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
+        if (_item.bid._value > _max)
+          _max = _item.bid._value;
+        _item = items[++index];
+      }
+
+      if (max.bid === _max)
+        return;
+
+      max.bid = _max
+    }
+
+    let index = startIndex;
     let _item = items[index];
+
     while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
       _item.bid.calcHist(max.bid);
       _item = items[++index];
