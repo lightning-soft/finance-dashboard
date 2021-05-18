@@ -2,25 +2,15 @@ import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IInstrument } from 'trading';
+import { IInstrument, InstrumentsRepository } from 'trading';
 import { BaseRepository } from './base-repository';
 
 @Injectable()
-export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
+export class RealInstrumentsRepository extends BaseRepository<IInstrument> implements InstrumentsRepository {
+  protected _cacheEnabled = true;
+
   protected get suffix(): string {
     return 'Instrument';
-  }
-
-  private _store: { [key: string]: IInstrument } = {};
-
-  async getStoredItem(item: IInstrument): Promise<IInstrument> {
-    const id = this._getId(item);
-
-    if (this._store[id]) {
-      return this._store[id];
-    }
-
-    return this.getItemById(item.symbol, { exchange: item.exchange }).toPromise();
   }
 
   _getRepository() {
@@ -34,15 +24,11 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
   getItemById(id, query?): Observable<IInstrument> {
     return super.getItemById(id, query).pipe(
       map(({ result }: any) => {
-        const item = {
+        return {
           ...result,
           id: result.symbol,
           tickSize: result.increment,
         };
-
-        this._storeItem(item);
-
-        return item;
       }),
     );
   }
@@ -56,16 +42,12 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
     return super.getItems(_params).pipe(
       map((res: any) => {
         const data = res.result.map(({ symbol, exchange }) => {
-          const item = {
+          return {
             id: symbol,
             symbol,
             exchange,
             tickSize: 0.01,
           };
-
-          this._storeItem(item);
-
-          return item;
         });
 
         return { data, } as IPaginationResponse<IInstrument>;
@@ -80,15 +62,5 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> {
 
     // return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
     return forkJoin(ids.map(id => this.getItemById(id)));
-  }
-
-  private _storeItem(item: IInstrument) {
-    const id = this._getId(item);
-
-    this._store[id] = item;
-  }
-
-  private _getId(item: IInstrument): string {
-    return `${item.exchange}.${item.symbol}`;
   }
 }

@@ -5,9 +5,13 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ExcludeId, IBaseItem, IPaginationResponse, Repository } from '../common';
 import { CommunicationConfig } from './communication.config';
+import { ObservableCacheService } from 'cache';
 
 @Injectable()
 export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> {
+  protected _cacheEnabled = false;
+  protected _cache = new ObservableCacheService();
+
   protected get _baseUrl(): string {
     throw new Error(`Implement baseUrl for ${this}`);
   }
@@ -16,7 +20,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     return {};
   }
 
-  onInit() { }
+  onInit() {
+  }
 
   constructor(
     @Inject(HttpClient) protected _http: HttpClient,
@@ -29,7 +34,13 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   getItemById(id: number | string, query?: any): Observable<T> {
-    return this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, params: query });
+    const request = this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, params: query });
+    if (!this._cacheEnabled) {
+      return request;
+    }
+
+    const cacheKey = `${id}${JSON.stringify(query)}`;
+    return this._cache.get(cacheKey, request);
   }
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
@@ -50,7 +61,9 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
       params = new HttpParams({ fromObject: query });
     }
 
-    return this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, params });
+    const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, params });
+
+    return this._cacheEnabled ? this._cache.get(JSON.stringify(query), request) : request;
   }
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
@@ -97,3 +110,4 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 function toString(i) {
   return i.toString();
 }
+

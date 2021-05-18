@@ -45,7 +45,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,

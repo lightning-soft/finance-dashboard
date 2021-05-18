@@ -3,9 +3,9 @@ import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuild
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { RealInstrumentsRepository, RealPositionsRepository } from 'real-trading';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { RealPositionsRepository } from 'real-trading';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
   AccountRepository,
   InstrumentsRepository,
@@ -19,6 +19,7 @@ import {
 } from 'trading';
 import { PositionColumn, PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
+import { untilDestroyed } from "@ngneat/until-destroy";
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
@@ -143,11 +144,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
-      const instrument = await (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(trade.instrument);
-
-      this.items.map(i => i.updateUnrealized(trade, instrument));
-      this.dataGrid?.detectChanges();
-      this.updatePl();
+      this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
+        .pipe(untilDestroyed(this))
+        .subscribe((instrument) => {
+          this.items.map(i => i.updateUnrealized(trade, instrument));
+          this.dataGrid?.detectChanges();
+          this.updatePl();
+        }, error => this._notifier.showError(error, 'Failed to load instrument'));
     }));
 
     this.setTabIcon('icon-widget-positions');
@@ -164,8 +167,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   protected _handleCreateItems(items: IPosition[]) {
-    super._handleCreateItems(items);
-    this.updatePl();
+    this._combinePositionsWithInstruments(items)
+      .pipe(
+        untilDestroyed(this),
+        catchError(error => of(items))
+      )
+      .subscribe((combinedPositions) => {
+        super._handleCreateItems(combinedPositions);
+        this.updatePl();
+      });
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
@@ -189,15 +199,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 
-  private async updatePl() {
-    const instrumentsPromises = this.positions.map(position => {
-      return (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(position.instrument);
-    });
-
-    const precision = await Promise.all(instrumentsPromises).then(instruments => {
-      return instruments.reduce((accum, instrument) => Math.max(accum, instrument.precision), 0);
-    });
-
+  private updatePl(): void {
+    const precision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
     this.open = +this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
     this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
@@ -210,13 +213,32 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   // need for group by InstrumentName
   protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
-    return this.repository.getItems(params)
-      .pipe(map(response => {
-        response.data = response.data.map(item => {
+    return this.repository.getItems(params).pipe(
+      map(res => {
+        res.data = res.data.map(item => {
           return this._addInstrumentName(item);
         });
-        return response;
-      }));
+        return res;
+      }),
+      mergeMap(res => {
+        return this._combinePositionsWithInstruments(res.data).pipe(
+          map(positions => ({...res, data: positions}))
+        );
+      })
+    );
+  }
+
+  private _combinePositionsWithInstruments(positions: IPosition[]): Observable<IPosition[]> {
+    const instrumentsRequests = positions.map(p => {
+      return this._instrumentsRepository.getItemById(p.instrument.symbol, {exchange: p.instrument.exchange});
+    });
+
+    return forkJoin(instrumentsRequests).pipe(
+      map(instruments => positions.map((p, index) => {
+        p.instrument = instruments[index];
+        return p;
+      }))
+    );
   }
 
   private _addInstrumentName(item) {
