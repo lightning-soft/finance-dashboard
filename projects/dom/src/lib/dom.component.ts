@@ -601,6 +601,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.applyStyles({
       font: getFont(common.fontWeight),
       gridBorderColor: common.generalColors.gridLineColor,
+      gridHeaderBorderColor: common.generalColors.gridLineColor,
       scrollSensetive: general.intervals.scrollWheelSensitivity,
     });
 
@@ -608,7 +609,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const minToVisible = general?.marketDepth?.bidAskDeltaFilter ?? 0;
     const clearTradersTimer = general.intervals.clearTradersTimer ?? 0;
-    const overlayOrders = settings.orders.overlay;
+    const overlayOrders = settings.orders.overlayOrders;
     const levelInterval = general.intervals.momentumIntervalMs;
     const momentumTails = general.intervals.momentumTails;
 

@@ -57,7 +57,9 @@
       class="limit-number-input"
       nzMin="1"
       [ngModelOptions]="{standalone: true}"
-      [(ngModel)]="limitPrice"></nz-input-number>
+      (nzBlur)="handleLimitPriceChange()"
+      [(ngModel)]="limitPrice"
+    ></nz-input-number>
     <div *ngIf="isStopLimit" class="form-divider"></div>
 
     <div class="count">

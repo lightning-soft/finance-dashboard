@@ -265,7 +265,7 @@ export class DomSettings {
     showPL: true,
     split: false,
     includeRealizedPL: false,
-    overlay: false,
+    overlayOrders: false,
   };
   currentBid: any = {
     color: '#EB5A5A',

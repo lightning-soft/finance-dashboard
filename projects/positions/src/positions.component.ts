@@ -22,7 +22,7 @@ import { NotifierService } from 'notifier';
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
-  inProfitBackgroundColor: '#4895F5'
+  inProfitBackgroundColor: '#4895F5',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -157,9 +157,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   ngAfterViewInit() {
     super.ngAfterViewInit();
     this.dataGrid.applyStyles({
-      columnHeaderBorderColor: '#24262C',
+      gridHeaderBorderColor: '#24262C',
       gridBorderColor: 'transparent',
       gridBorderWidth: 0,
+      rowHeight: 25,
     });
   }
 
@@ -304,10 +305,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
     }
-  }
-
-  isEmpty(numberInput: number): boolean {
-    return numberInput === 0;
   }
 
   private _loadAccount(): void {
