@@ -269,6 +269,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'font',
     label: 'Font',
+    className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows',
     fieldGroup: [
       getSelect({
@@ -301,6 +302,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'intraBar',
     label: 'IntaBar',
+    className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows hide-border-bottom',
     fieldGroup: [
       getCheckboxes({
@@ -366,7 +368,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'text',
     label: 'Text',
     fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
-    className: '',
+    className: 'mt-4 d-block',
     fieldGroup: [
       getSelect({
         label: 'Text Style',
@@ -428,6 +430,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'profile',
     label: 'Profile',
+    className: 'mt-4 d-block',
     fieldGroupClassName: 'inline-fields hide-border-bottom',
     fieldGroup: [
       getSelect({
@@ -493,7 +496,7 @@ export const footprintConfig: IFieldConfig[] = [
   }),
   new FieldConfig({
     key: 'volumeFilter',
-    className: 'mt-2 d-block',
+    className: 'mt-4 d-block',
     label: 'Volume Filter',
     fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
     fieldGroup: [
@@ -516,6 +519,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'deltaImbalance',
     label: 'Delta Imbalance',
+    className: 'mt-4 d-block',
     fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
     fieldGroup: [
       getSwitch('enabled', 'Enabled'),
@@ -551,7 +555,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'pullback',
     label: 'Pullback',
-    className: 'pb-1 d-block',
+    className: 'pb-1 mt-4 d-block',
     fieldGroupClassName: 'inline-fields p-0 regular-label',
     fieldGroup: [
       getSwitch('enabled', 'Enable Pullback'),
@@ -568,9 +572,6 @@ export const footprintConfig: IFieldConfig[] = [
 ];
 
 export const volumeProfileConfig: IFieldConfig[] = [
-  new FieldConfig({
-    fieldGroup: []
-  }),
   new FieldConfig({
     key: 'general',
     label: 'General',

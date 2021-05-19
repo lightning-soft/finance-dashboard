@@ -27,6 +27,7 @@ import {
   IConnection,
   IInstrument,
   IOrder,
+  getPrice,
   IPosition,
   IQuote,
   Level1DataFeed, OHLVFeed, OrderBooksRepository,
@@ -1008,7 +1009,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.items.forEach(item => item.removeOrder(order));
       this._fillOrders(order);
 
-      const item = this._getItem(order.price);
+      const item = this._getItem(getPrice(order));
       if (!item)
         continue;
 
@@ -2082,6 +2083,7 @@ function extractStyles(settings: any, status: string) {
 function isStartFromUpperCase(key) {
   return /[A-Z]/.test((key ?? '')[0]);
 }
+
 
 export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
