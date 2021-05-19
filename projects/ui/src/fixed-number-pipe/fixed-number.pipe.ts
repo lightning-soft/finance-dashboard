@@ -1,9 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'precision',
+  name: 'fixedNumber',
 })
-export class PrecisionPipe implements PipeTransform {
+export class FixedNumberPipe implements PipeTransform {
   transform(value: number, precision: number): any {
     return Number(value).toFixed(precision);
   }
