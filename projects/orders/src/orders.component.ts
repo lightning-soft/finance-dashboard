@@ -191,7 +191,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
     super._handleResponse(response, params);
-    this.updateTitle();
     this.updateCheckboxState(this.contextMenuState);
   }
 
@@ -239,10 +238,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       width: 369,
       maximizable: false,
     });
-  }
-
-  updateTitle() {
-    setTimeout(() => this.setTabTitle(`Orders (${this.items.length})`));
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {
@@ -299,7 +294,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _getRepricedOrderByTickSize(order: IOrder, up: boolean): IOrder {
     const updatedOrder = { ...order };
-    const tickSize = order.instrument.tickSize ?? 0.25;
+    const tickSize = order.instrument.increment ?? 0.25;
 
     if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
       updatedOrder.limitPrice += up ? tickSize : -tickSize;
