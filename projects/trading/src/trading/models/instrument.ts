@@ -21,9 +21,9 @@ export function roundToTickSize(price: number, tickSize: number, strategy: 'ceil
     case 'ceil':
       return Math.ceil(price * multiplier) / multiplier;
     case 'round':
-      return Math.ceil(price * multiplier) / multiplier;
+      return Math.round(price * multiplier) / multiplier;
     case 'floor':
-      return Math.ceil(price * multiplier) / multiplier;
+      return Math.floor(price * multiplier) / multiplier;
     default:
       throw new Error('Invalid strategy to round price');
   }
