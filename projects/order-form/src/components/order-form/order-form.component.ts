@@ -290,9 +290,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
-    const newPrice = (currentPrice % tickSize === 0) ? currentPrice + tickSize : roundToTickSize(currentPrice, tickSize);
-
-    this.price = +newPrice.toFixed(this.precision);
+    const roundedPrice = +roundToTickSize(currentPrice, tickSize).toFixed(this.precision);
+    this.price = (+currentPrice.toFixed(this.precision) === roundedPrice) ? +(currentPrice + tickSize).toFixed(this.precision) : roundedPrice;
     this.handlePriceChange();
   }
 
