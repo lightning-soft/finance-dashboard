@@ -188,7 +188,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
-    super._handleUpdateItems(items);
+    super._handleUpdateItems(items.map(i => {
+      delete i.instrument; // instrument data from realtime is not full and correct
+      return i;
+    }));
     this.updatePl();
   }
 

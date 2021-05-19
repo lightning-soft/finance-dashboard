@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'fixedNumber',
 })
 export class FixedNumberPipe implements PipeTransform {
-  transform(value: number, precision: number): any {
+  transform(value: number, precision: number): string {
     return Number(value).toFixed(precision);
   }
 }
