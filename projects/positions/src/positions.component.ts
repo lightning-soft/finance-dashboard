@@ -61,9 +61,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
   menuVisible = false;
-  open: number;
-  realized: number;
-  totalPl: number;
+  open: string;
+  realized: string;
+  totalPl: string;
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
@@ -202,10 +202,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   private updatePl(): void {
     const precision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
-    this.open = +this.builder.items.filter(item => item.position)
+    this.open = this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
-    this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
-    this.totalPl = this.open + this.realized;
+    this.realized = this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
+    this.totalPl = (Number(this.open) + Number(this.realized)).toFixed(precision);
   }
 
   protected _transformDataFeedItem(item) {
@@ -311,6 +311,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleDeleteItems(items: IPosition[]) {
     // handle by realtime
+  }
+
+  isNegative(value: string | number): boolean {
+    return Number(value) < 0;
   }
 
   saveState() {
