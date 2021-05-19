@@ -829,7 +829,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'graphics',
     label: 'Graphics',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows ',
+    fieldGroupClassName: 'd-grid two-rows',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [

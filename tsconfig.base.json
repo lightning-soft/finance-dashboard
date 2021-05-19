@@ -160,6 +160,9 @@
       "time-select": [
         "projects/time-select/index"
       ],
+      "cache": [
+        "projects/cache/index"
+      ],
       "environment": [
         "src/environments/environment"
       ]

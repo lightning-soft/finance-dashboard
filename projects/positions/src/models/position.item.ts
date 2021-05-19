@@ -11,7 +11,7 @@ import {
   RoundFormatter
 } from 'data-grid';
 import { calculatePL } from 'dom';
-import { IInstrument, IPosition, Side, TradePrint } from 'trading';
+import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
 
 export enum PositionColumn {
   account = 'account',
@@ -45,7 +45,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
@@ -111,11 +111,10 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
     const position = this.position;
 
-    if (position == null || trade.instrument.symbol != instrument.symbol)
+    if (position == null || !compareInstruments(trade.instrument, position.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
-
     this.unrealized.updateValue(unrealized ?? 0);
 
     this._updateCellProfitStatus(this.unrealized);

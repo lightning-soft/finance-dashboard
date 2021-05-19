@@ -179,25 +179,9 @@ export class Orders extends ChartObjects<IOrder> {
     const kindMap = {
       [OrderType.StopMarket]: 'stop',
     };
-    let price;
-    switch (item.type) {
-      case OrderType.Limit:
-        price = item.limitPrice;
-        break;
-      case OrderType.StopMarket:
-        price = item.stopPrice;
-        break;
-      case OrderType.StopLimit:
-        price = item.limitPrice;
-        break;
-      default:
-        price = _price ? _price : item.averageFillPrice;
-
-    }
 
     return {
       ...item,
-      price,
       action: uncapitalize(item.side),
       kind: kindMap[item.type] || uncapitalize(item.type),
       state: statusMap[item.status],

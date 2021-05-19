@@ -339,7 +339,7 @@ export function getPriceSpecs(item: IOrder & { amount: number }, price: number, 
   }
   if (item.type === OrderType.StopLimit) {
     const offset = tickSize * item.amount;
-    priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset :  -offset);
   }
   return priceSpecs;
 }
