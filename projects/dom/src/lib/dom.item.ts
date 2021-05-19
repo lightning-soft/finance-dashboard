@@ -197,7 +197,6 @@ class OrdersCell extends HistogramCell {
     const height = context.height - 2;
     const pwidth = context.width - padding * 2;
     const pheight = context.height - padding * 2;
-    const sequenceNumber = this._order.currentSequenceNumber;
     const isAsk = this.orderStyle === 'ask';
     const isOrderColumn = this._isOrderColumn;
     const settings: any = this.settings || {};
@@ -255,6 +254,11 @@ class TotalCell extends HistogramCell {
     }
 
     super.hightlight();
+  }
+  clear() {
+    this.hist = 0;
+    this._histValue = 0;
+    super.clear();
   }
 
   refresh() {

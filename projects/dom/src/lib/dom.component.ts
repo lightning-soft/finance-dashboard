@@ -97,6 +97,11 @@ export class DomItemMax {
     // this.askDelta = -Infinity;
     // this.bidDelta = -Infinity;
   }
+
+  clearTotal(){
+    this.totalAsk = null;
+    this.totalBid = null;
+  }
 }
 
 const ROWS = 400;
@@ -330,12 +335,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         item.totalBid.clear();
         item.totalAsk.clear();
       }
+      this._max.clearTotal();
+      this.recalculateMax();
     },
     clearCurrentTrades: () => {
       for (const item of this.items) {
         item.currentBid.clear();
         item.currentAsk.clear();
       }
+      this.recalculateMax();
     },
     clearCurrentTradesAllWindows: () => {
       this.broadcastHotkeyCommand('clearCurrentTrades');
@@ -345,6 +353,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         item.currentAsk.clear();
         item.currentBid.clear();
       });
+      this.recalculateMax();
     },
     clearCurrentTradesDownAllWindows: () => {
       this.broadcastHotkeyCommand('clearCurrentTradesDown');
@@ -354,6 +363,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         item.currentAsk.clear();
         item.currentBid.clear();
       });
+      this._calculateAskHist(true);
     },
     clearCurrentTradesUpAllWindows: () => {
       this.broadcastHotkeyCommand('clearCurrentTradesUp');
@@ -363,6 +373,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         item.totalAsk.clear();
         item.totalBid.clear();
       });
+      this._calculateAskHist(true);
     },
     clearTotalTradesDownAllWindows: () => {
       this.broadcastHotkeyCommand('clearTotalTradesDown');
@@ -372,6 +383,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         item.totalAsk.clear();
         item.totalBid.clear();
       });
+      this.recalculateMax();
     },
     clearTotalTradesUpAllWindows: () => {
       this.broadcastHotkeyCommand('clearTotalTradesUp');
@@ -380,6 +392,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       for (const item of this.items) {
         item.volume.clear();
       }
+      this.recalculateMax();
     }
   };
 
@@ -830,7 +843,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const contractSize = this._instrument?.contractSize;
 
     for (const i of this.items) {
-      const pl = ordersSettings.showPnl ?
+      const pl = ordersSettings.showPL ?
         calculatePL(position, i.price._value, this._tickSize, contractSize, ordersSettings.includePnl) : null;
       i.setPL(pl);
     }
@@ -1576,6 +1589,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.detectChanges();
+  }
+
+  recalculateMax(){
+    this._calculateAskHist(true);
+    this._calculateBidHist(true);
   }
 
   _calculateAskHist(recalculateMax = false) {
