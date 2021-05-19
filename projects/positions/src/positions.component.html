@@ -20,12 +20,12 @@
            [columns]="columns"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total PL</span>
-  <div [class.empty]="!totalPl" [class.negative]="isNegative(totalPl)"
-       class="bottom-data">{{totalPl}}</div>
+  <div [class.empty]="!totalPl" [class.negative]="totalPl < 0"
+       class="bottom-data">{{totalPl | precision: maxPrecision}}</div>
   <span class="bottom-title">Open</span>
-  <div  [class.empty]="!open" [class.negative]="isNegative(open)" class="bottom-data">{{open}}</div>
+  <div  [class.empty]="!open" [class.negative]="open < 0" class="bottom-data">{{open | precision: maxPrecision}}</div>
   <span class="bottom-title">Realized</span>
-  <div [class.empty]="!realized" [class.negative]="isNegative(realized)" class="bottom-data">{{realized}}</div>
+  <div [class.empty]="!realized" [class.negative]="realized < 0" class="bottom-data">{{realized | precision: maxPrecision}}</div>
   <!--  <nz-select
       class="select"
       [nzOptionHeightPx]="22"

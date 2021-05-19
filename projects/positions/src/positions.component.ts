@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
@@ -61,9 +61,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
   menuVisible = false;
-  open: string;
-  realized: string;
-  totalPl: string;
+  open: number;
+  realized: number;
+  totalPl: number;
+  maxPrecision: number;
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
@@ -125,6 +126,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
     protected _notifier: NotifierService,
+    protected _changeDetectorRef: ChangeDetectorRef,
     private _accountRepository: AccountRepository,
     private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
@@ -147,7 +149,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
         .pipe(untilDestroyed(this))
         .subscribe((instrument) => {
-          this.items.map(i => i.updateUnrealized(trade, instrument));
+          this.items.forEach(i => i.updateUnrealized(trade, instrument));
           this.dataGrid?.detectChanges();
           this.updatePl();
         }, error => this._notifier.showError(error, 'Failed to load instrument'));
@@ -182,6 +184,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
     super._handleResponse(response, params);
     response.data.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
+    this.updatePl();
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
@@ -193,6 +196,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     super._handleConnection(connection);
     this._accountRepository = this._accountRepository.forConnection(connection);
     this._instrumentsRepository = this._instrumentsRepository.forConnection(connection);
+    this.updatePl();
     if (!connection?.connected) {
       this.accountId = null;
     } else {
@@ -201,11 +205,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   private updatePl(): void {
-    const precision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
+    this.maxPrecision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
     this.open = this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
-    this.realized = this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
-    this.totalPl = (Number(this.open) + Number(this.realized)).toFixed(precision);
+      .reduce((total, current) => total + (+current.unrealized.value), 0);
+    this.realized = this.positions.reduce((total, current) => total + current.realized, 0);
+    this.totalPl = this.open + this.realized;
+    this.detectChanges();
   }
 
   protected _transformDataFeedItem(item) {
@@ -311,10 +316,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleDeleteItems(items: IPosition[]) {
     // handle by realtime
-  }
-
-  isNegative(value: string | number): boolean {
-    return Number(value) < 0;
   }
 
   saveState() {
