@@ -19,7 +19,7 @@ export class ClockComponent implements OnInit {
   localTimezone: ITimezone;
 
   @Input() dropdownPlacement: NzPlacementType;
-  @Input() maxAdditionalTimezonesCount = 2;
+  @Input() maxAdditionalTimezonesCount = 1;
 
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
