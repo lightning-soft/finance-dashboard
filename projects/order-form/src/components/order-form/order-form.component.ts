@@ -290,8 +290,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
-    const roundedPrice = +roundToTickSize(currentPrice, tickSize).toFixed(this.precision);
-    this.price = (+currentPrice.toFixed(this.precision) === roundedPrice) ? +(currentPrice + tickSize).toFixed(this.precision) : roundedPrice;
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice + tickSize : roundToTickSize(currentPrice + tickSize, tickSize);
+
+    this.price = +newPrice.toFixed(this.precision);
     this.handlePriceChange();
   }
 
@@ -301,7 +302,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     const tickSize = this.instrument?.tickSize || 0.1;
     const currentPrice = this.price || 0;
-    const newPrice = (currentPrice % tickSize === 0) ? currentPrice - tickSize : roundToTickSize(currentPrice, tickSize, 'floor');
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice - tickSize :
+      roundToTickSize(currentPrice - tickSize, tickSize, 'floor');
 
     if (newPrice >= 0)
       this.price = +newPrice.toFixed(this.precision);
