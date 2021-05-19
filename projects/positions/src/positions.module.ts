@@ -7,7 +7,7 @@ import { NzDropDownModule, NzRadioModule, NzSelectModule } from 'ng-zorro-antd';
 import { PositionsComponent } from './positions.component';
 import { LayoutModule } from 'layout';
 import { WindowHeaderModule } from 'window-header';
-import { FixedNumberModule } from "ui";
+import { BaseComponentsModule } from "base-components";
 
 @NgModule({
   imports: [
@@ -20,7 +20,7 @@ import { FixedNumberModule } from "ui";
     NzDropDownModule,
     NzRadioModule,
     FormsModule,
-    FixedNumberModule,
+    BaseComponentsModule,
   ],
   exports: [
     PositionsComponent
