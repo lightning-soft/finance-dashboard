@@ -1178,7 +1178,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData[price].setPrice(price);
         }
 
-        const item = new CustomDomItem(offset, this._settings, this._priceFormatter, customItemData);
+        const item = multiplier === 1 ? customItemData[prices[0]] :
+          new CustomDomItem(offset, this._settings, this._priceFormatter, customItemData);
         item.setPrice(prices[0]);
         this.items[offset] = item;
         prices.forEach(p => this._map.set(p, item));
