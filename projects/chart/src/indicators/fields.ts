@@ -42,7 +42,7 @@ function getProfileConfig(key, _config = {}) {
   const { additionalElements, ...extraConfig } = config;
   return {
     key,
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
     className: 'profile-settings',
     fieldGroup: [
       ...additionalElements,
@@ -229,7 +229,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'main',
     label: 'Main Properties',
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
     fieldGroup: [
       getColor({ key: 'fillColor', label: 'Background Color' }),
       wrapWithClass(getColor({ key: 'strokeColor', label: 'Background Outline Color' }), 'background-outline'),
@@ -270,7 +270,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'font',
     label: 'Font',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
     fieldGroup: [
       getSelect({
         key: 'fontFamily', options: [{
@@ -303,7 +303,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'intraBar',
     label: 'IntaBar',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows hide-border-bottom',
+    fieldGroupClassName: 'd-grid two-rows hide-border-bottom p-x-10',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [{
@@ -367,7 +367,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'text',
     label: 'Text',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
     className: 'mt-4 d-block',
     fieldGroup: [
       getSelect({
@@ -431,7 +431,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'profile',
     label: 'Profile',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'inline-fields hide-border-bottom',
+    fieldGroupClassName: 'inline-fields hide-border-bottom p-x-10',
     fieldGroup: [
       getSelect({
         label: 'Profile Filter',
@@ -498,7 +498,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'volumeFilter',
     className: 'mt-4 d-block',
     label: 'Volume Filter',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
     fieldGroup: [
       getSwitch('enabled', 'Enabled'),
       getSelect({
@@ -520,7 +520,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'deltaImbalance',
     label: 'Delta Imbalance',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
     fieldGroup: [
       getSwitch('enabled', 'Enabled'),
       getInput({
@@ -556,7 +556,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'pullback',
     label: 'Pullback',
     className: 'pb-1 mt-4 d-block',
-    fieldGroupClassName: 'inline-fields p-0 regular-label',
+    fieldGroupClassName: 'inline-fields p-0 regular-label p-x-10',
     fieldGroup: [
       getSwitch('enabled', 'Enable Pullback'),
       new FieldConfig({
@@ -575,7 +575,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'general',
     label: 'General',
-    fieldGroupClassName: 'd-grid two-rows inline-fields  hide-border-bottom regular-label',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
     fieldGroup: [
       {
         key: 'period',
@@ -805,7 +805,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'lines',
     label: 'POC and Value Area Lines',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'field-container',
+    fieldGroupClassName: 'field-container py-0 p-x-10',
     fieldGroup: [
       wrapWithConfig(getValueArea('rth'), {
         hideExpression: (model, formState, config) => {
@@ -830,7 +830,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
     key: 'graphics',
     label: 'Graphics',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [
@@ -1006,7 +1006,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Colors',
     className: 'block mt-2',
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
     fieldGroup: [
       getColor('Up Color'),
       getColor('Down Color'),
@@ -1030,7 +1030,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Setup',
     className: 'block mt-2',
-    fieldGroupClassName: 'regular-label hide-border-bottom',
+    fieldGroupClassName: 'regular-label hide-border-bottom p-x-10',
     fieldGroup: [
       getSelect({
         className: 'select',
