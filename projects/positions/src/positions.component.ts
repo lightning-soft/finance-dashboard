@@ -33,7 +33,7 @@ const headers: HeaderItem<PositionColumn>[] = [
   PositionColumn.size,
   { name: PositionColumn.realized, style: profitStyles },
   { name: PositionColumn.unrealized, style: profitStyles },
-  PositionColumn.total,
+  { name: PositionColumn.total, style: profitStyles },
   { name: PositionColumn.instrumentName, title: 'instrument' },
   PositionColumn.exchange,
   { name: PositionColumn.close, hidden: true }

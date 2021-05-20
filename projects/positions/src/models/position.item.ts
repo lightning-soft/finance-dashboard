@@ -59,8 +59,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     ignoreZero: false,
     getStatusByStyleProp
   });
-  total = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp });
+  total = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    withHoverStatus: true,
+    getStatusByStyleProp,
+    ignoreZero: false
+  });
+  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
   side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   position: IPosition;
 
@@ -94,17 +99,18 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.instrumentName,
       PositionColumn.unrealized,
       PositionColumn.realized,
-      PositionColumn.total,
       PositionColumn.side
     ];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
 
+    this._updateTotal();
     const iconClass = position.side !== Side.Closed ? 'icon-close-window' : 'd-none';
     this.close.updateClass(iconClass);
     this._updateCellProfitStatus(this.unrealized);
     this._updateCellProfitStatus(this.realized);
+    this._updateCellProfitStatus(this.total);
   }
 
   public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
@@ -115,8 +121,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
     this.unrealized.updateValue(unrealized ?? 0);
-
+    this._updateTotal();
     this._updateCellProfitStatus(this.unrealized);
+    this._updateCellProfitStatus(this.total);
+  }
+
+  private _updateTotal(): void {
+    this.total.updateValue(this.realized.numberValue + this.unrealized.numberValue);
   }
 
   private _updateCellProfitStatus(cell: Cell): void {

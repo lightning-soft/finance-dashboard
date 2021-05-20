@@ -10,15 +10,17 @@ export enum Icon {
 
 interface IIconCellConfig extends ICellConfig {
   icon?: Icon;
-
+  size?: number;
 }
 
 export class IconCell extends Cell {
   private _icon: Icon;
+  private _size: number;
 
   constructor(config?: IIconCellConfig) {
     super(config);
     this._icon = config?.icon ?? Icon.Close;
+    this._size = config?.size;
   }
 
   updateValue(...args: any[]) {
@@ -35,7 +37,7 @@ export class IconCell extends Cell {
 
     switch (this._icon) {
       case Icon.Close:
-        drawClose(context);
+        drawClose(context, this._size);
         break;
       case Icon.MoveDown:
         drawMoveDown(context);
@@ -56,11 +58,11 @@ export class IconCell extends Cell {
   }
 }
 
-function drawClose(context) {
+function drawClose(context, size?: number) {
   const ctx = context.ctx;
   const x = context.x + context.width / 2;
   const y = context.y + context.height / 2;
-  const offset = (context.height * 0.6) / 2;
+  const offset = (size ?? context.height * 0.6) / 2;
 
   ctx.save();
   ctx.strokeStyle = '#fff';
