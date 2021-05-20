@@ -75,6 +75,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _status: PositionStatus = PositionStatus.Open;
 
   private _accountId;
+  private _lastTrade: TradePrint;
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
@@ -146,6 +147,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
+      this._lastTrade = trade;
       this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
         .pipe(untilDestroyed(this))
         .subscribe((instrument) => {
@@ -192,6 +194,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       delete i.instrument; // instrument data from realtime is not full and correct
       return i;
     }));
+    this.items.forEach(i => i.updateUnrealized(this._lastTrade, i.position?.instrument));
     this.updatePl();
   }
 
@@ -210,7 +213,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private updatePl(): void {
     this.maxPrecision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
     this.open = this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0);
+      .reduce((total, current) => total + (+current?.unrealized.numberValue ?? 0), 0);
     this.realized = this.positions.reduce((total, current) => total + current.realized, 0);
     this.totalPl = this.open + this.realized;
     this.detectChanges();
