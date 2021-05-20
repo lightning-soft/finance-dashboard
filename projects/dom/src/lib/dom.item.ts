@@ -418,7 +418,7 @@ class LevelCell extends HistogramCell {
 
   update(value: number, timestamp: number, forceAdd: boolean) {
     const result = this.updateValue((forceAdd || (timestamp || Date.now()) <= (this.time + ((this.settings as any).clearTradersTimer || 0)))
-    // const result = this.updateValue((forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0)))
+      // const result = this.updateValue((forceAdd || Date.now() <= (this.time + ((this.settings as any).clearTradersTimer || 0)))
       ? (this._value || 0) + value : value, timestamp);
 
     if (result && (this.settings as any).momentumTails)
@@ -451,7 +451,7 @@ class LevelCell extends HistogramCell {
   }
 
   changeBest(best?: QuoteSide) {
-    if (best == this.best)
+    if (best === this.best)
       return;
 
     this.best = best;
@@ -752,15 +752,15 @@ export class DomItem implements IBaseItem {
   }
 
   protected _calculateAskDelta() {
-    return this.askDelta.updateValue(this.ask._value - this._ask);
+    return this.askDelta.updateValue(this.ask.size - this._ask);
   }
 
   protected _calculateBidDelta() {
-    return this.bidDelta.updateValue(this.bid._value - this._bid);
+    return this.bidDelta.updateValue(this.bid.size - this._bid);
   }
 
   changePriceStatus(status: string) {
-    if (this.price.status == CellStatus.Highlight || this.price.status == CellStatus.Hovered)
+    if (this.price.status === CellStatus.Highlight || this.price.status === CellStatus.Hovered)
       return;
 
     this.price.changeStatus(status);
@@ -968,18 +968,18 @@ export class CustomDomItem extends DomItem {
 
   calculateFromItems() {
     const snapshot = this._domItems;
-    this.bid.update(0);
-    this.ask.update(0);
-    this.totalAsk.updateValue(0);
-    this.totalBid.updateValue(0);
-    this.volume.updateValue(0);
+    this.bid.clear();
+    this.ask.clear();
+    this.totalAsk.clear();
+    this.totalBid.clear();
+    this.volume.clear();
 
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
 
-        this.bid.update((this.bid._value ?? 0) + (data.bid._value ?? 0));
-        this.ask.update((this.ask._value ?? 0) + (data.ask._value ?? 0));
+        this.bid.update((this.bid.size ?? 0) + (data.bid.size ?? 0));
+        this.ask.update((this.ask.size ?? 0) + (data.ask.size ?? 0));
         this.totalAsk.updateValue(data.totalAsk._value);
         this.totalBid.updateValue(data.totalBid._value);
         this.volume.updateValue(data.volume._value);
@@ -990,15 +990,15 @@ export class CustomDomItem extends DomItem {
   setBidSum(value) {
     super.setBidSum(value);
     this._bid = 0;
-    if (value == null)
-      this.calculateFromItems();
+    // if (value == null)
+    //   this.calculateFromItems();
   }
 
   setAskSum(value) {
     super.setAskSum(value);
     this._ask = 0;
-    if (value == null)
-      this.calculateFromItems();
+    // if (value == null)
+    //   this.calculateFromItems();
   }
 
   getDomItems() {

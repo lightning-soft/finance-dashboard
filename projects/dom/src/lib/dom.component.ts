@@ -1616,7 +1616,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (max.ask === _max)
         return;
 
-      max.ask = _max
+      max.ask = _max;
     }
 
     let index = this._getItem(this._bestAskPrice).index;
