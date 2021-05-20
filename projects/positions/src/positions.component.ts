@@ -7,7 +7,7 @@ import { RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
-  AccountRepository,
+  AccountRepository, IInstrument,
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -75,7 +75,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _status: PositionStatus = PositionStatus.Open;
 
   private _accountId;
-  private _lastTrade: TradePrint;
+  private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
@@ -147,7 +147,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
-      this._lastTrade = trade;
+      this._lastTrades[getInstrumentKey(trade.instrument)] = trade;
       this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
         .pipe(untilDestroyed(this))
         .subscribe((instrument) => {
@@ -194,7 +194,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       delete i.instrument; // instrument data from realtime is not full and correct
       return i;
     }));
-    this.items.forEach(i => i.updateUnrealized(this._lastTrade, i.position?.instrument));
+    this.items.forEach(i => i.updateUnrealized(this._lastTrades[getInstrumentKey(i.position?.instrument)], i.position?.instrument));
     this.updatePl();
   }
 
@@ -347,4 +347,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
         error: err => this._notifier.showError(err, 'Failed to load account')
       });
   }
+}
+
+function getInstrumentKey(instrument: IInstrument): string {
+  return `${instrument.symbol}-${instrument.exchange}`;
 }
