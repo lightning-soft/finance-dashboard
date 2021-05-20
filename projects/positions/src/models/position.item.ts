@@ -110,7 +110,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
     const position = this.position;
 
-    if (position == null || !compareInstruments(trade.instrument, position.instrument))
+    if (position == null || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);

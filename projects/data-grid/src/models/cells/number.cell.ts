@@ -53,6 +53,10 @@ export class NumberCell extends Cell {
 
   protected strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
 
+  get numberValue(): number {
+    return this._value;
+  }
+
   constructor(config?: INumberConfig) {
     super(config);
     if (typeof config === 'object') {
