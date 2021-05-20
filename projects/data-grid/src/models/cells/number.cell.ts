@@ -89,7 +89,7 @@ export class NumberCell extends Cell {
     return true;
   }
 
-  _setValue(value) {
+  protected _setValue(value: number) {
     const settings: any = this.settings;
 
     if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && Math.abs(value) < settings.minToVisible))
