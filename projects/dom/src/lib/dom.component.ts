@@ -98,7 +98,7 @@ export class DomItemMax {
     // this.bidDelta = -Infinity;
   }
 
-  clearTotal(){
+  clearTotal() {
     this.totalAsk = null;
     this.totalBid = null;
   }
@@ -710,11 +710,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
 
     // this._calculateDepth();
-    this._updateVolumeColumn();
-    this._applyOffset();
-    this._fillPL();
-    this.items.forEach(i => i.refresh());
+    this.refresh();
     this.detectChanges(true);
+  }
+
+  refresh() {
+    this._updateVolumeColumn();
+    this._fillPL();
+    if (this._bestAskPrice == null) {
+      this._bestAskPrice = this._lastPrice;
+    }
+    if (this._bestBidPrice == null) {
+      this._bestBidPrice = this._lastPrice;
+    }
+
+    this.items.forEach((i, index) => {
+      i.side = this._bestAskPrice <= i.price._value ? QuoteSide.Ask : QuoteSide.Bid;
+      i.refresh();
+      i.setAskVisibility(true, true);
+      i.setBidVisibility(true, true);
+      i.index = index;
+    });
+    this._applyOffset();
   }
 
   allStopsToPrice() {
@@ -990,6 +1007,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             }
           }
 
+          this.refresh();
           this._fillPL();
           this._loadOrders();
           this._loadVolumeHistory();
@@ -1499,7 +1517,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       data.unshift(this._getItem(price, ROWS - index));
     }
 
-    requestAnimationFrame(() => this.centralize());
+    requestAnimationFrame(() => {
+      this.refresh();
+      this.centralize();
+    });
   }
 
   private _applyOffset() {
@@ -1592,7 +1613,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  recalculateMax(){
+  recalculateMax() {
     this._calculateAskHist(true);
     this._calculateBidHist(true);
   }
@@ -1682,6 +1703,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     while (item) {
+      item.side = QuoteSide.Bid;
+
       if (item.lastPrice !== price) {
         item.clearBidDelta();
         item.clearCurrentBidBest();
@@ -1740,6 +1763,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     while (item) {
+      item.side = QuoteSide.Ask;
+
       if (item.lastPrice !== price) {
         item.clearAskDelta();
         item.clearCurrentAskBest();
@@ -1903,6 +1928,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     // for debug purposes
 
     this._observe();
+    this.refresh();
 
     if (!state?.instrument)
       return;
