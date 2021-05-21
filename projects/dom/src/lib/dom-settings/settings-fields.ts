@@ -78,7 +78,7 @@ export const commonFields: IFieldConfig[] = [
             if (value)
               return { ' .center-price td': { 'border-bottom-color': value } };
           }),
-          getColor('Simulation Mode Warning Clr'),
+         // getColor('Simulation Mode Warning Clr'),
         ]
       }),
       {
@@ -359,7 +359,7 @@ export const ltqFields: IFieldConfig[] = [
             getFontColor(),
             getColor('Sell Background Color'),
             getColor('Background Color'),
-            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+            getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
             //  getHistogramColor(),
             getColor('Buy Background Color'),
           ]
