@@ -255,15 +255,11 @@ class TotalCell extends HistogramCell {
 
     super.hightlight();
   }
+
   clear() {
     this.hist = 0;
     this._histValue = 0;
     super.clear();
-  }
-
-  refresh() {
-    console.log('refresh')
-    super.refresh();
   }
 }
 
@@ -784,7 +780,7 @@ export class DomItem implements IBaseItem {
     const prevValue = this.ltq.value;
 
     if (this.ltq.updateValue(volume)) {
-      this.ltq.changeStatus(!prevValue ? side : '');
+      this.ltq.changeStatus(!prevValue ? side : CellStatus.Highlight);
 
       this.volume.updateValue(volume);
       this._updatePriceStatus();
@@ -980,9 +976,9 @@ export class CustomDomItem extends DomItem {
 
         bid += (data.bid.size ?? 0);
         ask += (data.ask.size ?? 0);
-        totalAsk += (data.totalAsk._value);
-        totalBid += (data.totalBid._value);
-        volume += (data.volume._value);
+        totalAsk += (data.totalAsk._value ?? 0);
+        totalBid += (data.totalBid._value ?? 0);
+        volume += (data.volume._value ?? 0);
 
         if (this.bid._value < 0)
           console.log('negative');
