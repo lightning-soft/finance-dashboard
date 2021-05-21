@@ -255,15 +255,11 @@ class TotalCell extends HistogramCell {
 
     super.hightlight();
   }
+
   clear() {
     this.hist = 0;
     this._histValue = 0;
     super.clear();
-  }
-
-  refresh() {
-    console.log('refresh')
-    super.refresh();
   }
 }
 
@@ -784,7 +780,7 @@ export class DomItem implements IBaseItem {
     const prevValue = this.ltq.value;
 
     if (this.ltq.updateValue(volume)) {
-      this.ltq.changeStatus(!prevValue ? side : '');
+      this.ltq.changeStatus(!prevValue ? side : CellStatus.Highlight);
 
       this.volume.updateValue(volume);
       this._updatePriceStatus();
@@ -968,37 +964,46 @@ export class CustomDomItem extends DomItem {
 
   calculateFromItems() {
     const snapshot = this._domItems;
-    this.bid.clear();
-    this.ask.clear();
-    this.totalAsk.clear();
-    this.totalBid.clear();
-    this.volume.clear();
+    let bid = 0;
+    let ask = 0;
+    let totalAsk = 0;
+    let totalBid = 0;
+    let volume = 0;
 
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
         const data = snapshot[price];
 
-        this.bid.update((this.bid.size ?? 0) + (data.bid.size ?? 0));
-        this.ask.update((this.ask.size ?? 0) + (data.ask.size ?? 0));
-        this.totalAsk.updateValue(data.totalAsk._value);
-        this.totalBid.updateValue(data.totalBid._value);
-        this.volume.updateValue(data.volume._value);
+        bid += (data.bid.size ?? 0);
+        ask += (data.ask.size ?? 0);
+        totalAsk += (data.totalAsk._value ?? 0);
+        totalBid += (data.totalBid._value ?? 0);
+        volume += (data.volume._value ?? 0);
+
+        if (this.bid._value < 0)
+          console.log('negative');
       }
     }
+
+    this.bid.reset(bid);
+    this.ask.reset(ask);
+    this.totalAsk.reset(totalAsk);
+    this.totalBid.reset(totalBid);
+    this.volume.reset(volume);
   }
 
   setBidSum(value) {
     super.setBidSum(value);
     this._bid = 0;
-    // if (value == null)
-    //   this.calculateFromItems();
+    if (value == null)
+      this.calculateFromItems();
   }
 
   setAskSum(value) {
     super.setAskSum(value);
     this._ask = 0;
-    // if (value == null)
-    //   this.calculateFromItems();
+    if (value == null)
+      this.calculateFromItems();
   }
 
   getDomItems() {

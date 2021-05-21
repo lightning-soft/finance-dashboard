@@ -59,4 +59,10 @@ export class HistogramCell extends NumberCell {
     if (this._histValue != null)
       this.calcHist(this._histValue);
   }
+
+  reset(value) {
+    this._setValue(value);
+    if (this._histValue != null)
+      this.calcHist(this._histValue);
+  }
 }
