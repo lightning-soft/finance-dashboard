@@ -386,7 +386,7 @@ module.exports = {
   "dropdown-vertical-padding": "5px",
   "dropdown-edge-child-vertical-padding": "4px",
   "dropdown-font-size": baseFontSize,
-  "dropdown-line-height": "22px",
+  "dropdown-line-height": "16px",
   "label-required-color": "@highlight-color",
   "label-color": "@heading-color",
   "form-warning-input-bg": "@input-bg",

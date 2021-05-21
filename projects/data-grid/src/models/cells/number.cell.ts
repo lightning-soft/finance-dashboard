@@ -53,6 +53,10 @@ export class NumberCell extends Cell {
 
   protected strategy = AddClassStrategy.RELATIVE_PREV_VALUE;
 
+  get numberValue(): number {
+    return this._value;
+  }
+
   constructor(config?: INumberConfig) {
     super(config);
     if (typeof config === 'object') {
@@ -90,7 +94,7 @@ export class NumberCell extends Cell {
     return true;
   }
 
-  _setValue(value) {
+  protected _setValue(value: number) {
     const settings: any = this.settings;
 
     if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && Math.abs(value) < settings.minToVisible))

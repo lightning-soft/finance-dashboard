@@ -352,7 +352,6 @@ export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Last Traded Quantity (LTQ)',
     key: 'ltq',
-    fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
           fieldGroup: [

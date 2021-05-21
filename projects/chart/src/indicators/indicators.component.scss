@@ -36,6 +36,7 @@
           font-size: 0.75rem;
           font-weight: 400;
           padding-bottom: 0;
+          margin-left: 0 !important;
         }
       }
     }
@@ -182,6 +183,7 @@
 
     .right-switch {
       margin-left: auto;
+      margin-right: 10px;
       height: 32px;
 
       switch nz-switch, switch .switch-label {
@@ -242,7 +244,7 @@
 
       label {
         margin-bottom: 0;
-        margin-left: 3px;
+        margin-left: 10px;
       }
     }
 
@@ -432,9 +434,9 @@
     .wm-draggable.title {
       margin-left: 13px;
       font-weight: 600;
-      font-size: 1.15rem;
+      font-size: 14px;
       line-height: 150%;
-      color: #FFFFFF;
+      color: $text-60;
     }
 
     .cdk-virtual-scroll-content-wrapper {
@@ -454,6 +456,11 @@
       grid-row-gap: 6px;
       padding-left: 2px;
       padding-right: 2px;
+    }
+
+    .p-x-10 {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
     }
 
     .three-rows {
@@ -503,6 +510,7 @@
         > label {
           font-weight: 600;
           font-size: 0.8rem;
+          margin-left: 0;
           line-height: 1.1rem;
           color: #D0D0D2;
           margin-bottom: 0;

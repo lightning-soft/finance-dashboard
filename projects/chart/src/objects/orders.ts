@@ -1,5 +1,5 @@
 import { StringHelper } from 'base-components';
-import { IOrder, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { getPrice, IOrder, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -182,6 +182,7 @@ export class Orders extends ChartObjects<IOrder> {
 
     return {
       ...item,
+      price: getPrice(item),
       action: uncapitalize(item.side),
       kind: kindMap[item.type] || uncapitalize(item.type),
       state: statusMap[item.status],
