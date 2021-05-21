@@ -157,15 +157,25 @@ export class WebSocketService {
           return;
         }
 
-        const { type, result } = payload;
-
-        if (type == 'Message' && result.value == 'Api-key accepted!') {
-          this.sucessfulyConnected = true;
+        if (Array.isArray(payload)) {
+          for (const item of payload) {
+            this._processMessage(item);
+          }
+        } else {
+          this._processMessage(payload);
         }
-
-        this._executeListeners(WSEventType.Message, payload);
       },
     };
+  }
+
+  _processMessage(payload) {
+    const { type, result } = payload;
+
+    if (type == 'Message' && result.value == 'Api-key accepted!') {
+      this.sucessfulyConnected = true;
+    }
+
+    this._executeListeners(WSEventType.Message, payload);
   }
 
   private _addEventListeners() {

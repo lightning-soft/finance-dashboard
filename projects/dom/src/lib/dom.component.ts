@@ -927,7 +927,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
 
-
     this._loadData();
   }
 
@@ -1079,6 +1078,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._loadPositions();
     this._loadOrderBook();
+    this.refresh();
+
     this._ohlvFeed.subscribe(this.instrument);
   }
 
