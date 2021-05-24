@@ -151,13 +151,13 @@ export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
   }
 
   _settings: DomFormSettings = {
-    buyButtonsBackgroundColor: '#2A8AD2',
-    flatButtonsBackgroundColor: '#383A40',
-    buyButtonsFontColor: '#F2F2F2',
-    flatButtonFontColor: '#fff',
-    sellButtonsBackgroundColor: '#DC322F',
+    buyButtonsBackgroundColor: '#4895F5',
+    flatButtonsBackgroundColor: '#51535A',
+    buyButtonsFontColor: '#fff',
+    flatButtonFontColor: '#D0D0D2',
+    sellButtonsBackgroundColor: '#C93B3B',
     cancelButtonBackgroundColor: '#51535A',
-    sellButtonsFontColor: '#F2F2F2',
+    sellButtonsFontColor: '#fff',
     cancelButtonFontColor: '#fff',
     formSettings: {
       showInstrumentChange: true,
