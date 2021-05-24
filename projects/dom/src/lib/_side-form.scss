@@ -24,9 +24,11 @@ side-form.full-screen-window {
       margin-left: 12px;
 
       button {
-        width: 56px;
-        padding-left: 8px;
-        padding-right: 8px;
+        &, &:hover, &:focus-within {
+          width: 56px;
+          padding-left: 6px;
+          padding-right: 6px;
+        }
 
         &:first-child {
           margin-top: 0;

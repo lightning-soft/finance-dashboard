@@ -91,13 +91,13 @@ export class DomSettings {
   };
   common: any = {
     fontFamily:  '\"Open Sans\", sans-serif',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '',
     generalColors: {
-      centerLineColor: '#808080',
+      centerLineColor: '#A1A2A5',
       gridLineColor: '#24262C',
       orderGridLineColor: 'rgba(88, 110, 117, 1)',
-      simulationModeWarningClr: 'rgba(4, 63, 128, 1)',
+      // simulationModeWarningClr: 'rgba(4, 63, 128, 1)',
     },
     askDelta: true,
     ask: true,
@@ -119,7 +119,7 @@ export class DomSettings {
     volume: true,
   };
   ltq: any = {
-    highlightColor: 'rgba(56, 58, 64, 1)',
+    highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
     backgroundColor: 'transparent',
     // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
     buyBackgroundColor: 'transparent',
@@ -131,13 +131,13 @@ export class DomSettings {
     textAlign: TextAlign.Center,
   };
   orderArea = {
-    buyButtonsBackgroundColor: '#2A8AD2',
-    flatButtonsBackgroundColor: '#383A40',
-    buyButtonsFontColor: '#F2F2F2',
-    flatButtonFontColor: '#fff',
-    sellButtonsBackgroundColor: '#DC322F',
+    buyButtonsBackgroundColor: '#4895F5',
+    flatButtonsBackgroundColor: '#51535A',
+    buyButtonsFontColor: '#fff',
+    flatButtonFontColor: '#D0D0D2',
+    sellButtonsBackgroundColor: '#C93B3B',
     cancelButtonBackgroundColor: '#51535A',
-    sellButtonsFontColor: '#F2F2F2',
+    sellButtonsFontColor: '#fff',
     cancelButtonFontColor: '#fff',
     formSettings: {
       showInstrumentChange: true,
@@ -152,10 +152,11 @@ export class DomSettings {
   };
   price: any = {
     color: 'rgba(208, 208, 210, 1)',
-    backgroundColor: 'rgba(131, 148, 150, 1)',
+    backgroundColor: 'transparent',
     hoveredBackgroundColor: '#383A40',
-    highlightBackgroundColor: 'rgba(88, 110, 117, 1)',
-    highlightColor: 'rgba(0, 0, 0, 1)',
+    hoveredColor: '#fff',
+    highlightBackgroundColor: '#383A40',
+    highlightColor: '#fff',
     tradedPriceColor: 'rgba(208, 208, 210, 1)',
     tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
     longPositionOpenBackgroundColor: '#2A8AD2',
@@ -169,15 +170,15 @@ export class DomSettings {
     textAlign: TextAlign.Center,
   };
   askDelta: any = {
-    backgroundColor: 'rgba(201, 59, 59, 0.3)',
+    backgroundColor: 'rgba(201, 59, 59, 0.2)',
     textAlign: TextAlign.Center,
     highlightBackgroundColor: '#682a2d',
     color: '#ffffff',
   };
   bid: any = {
     color: '#fff',
-    backgroundColor: 'rgba(72, 149, 245, 0.2)',
-    highlightBackgroundColor: 'rgba(72, 149, 245, 1)',
+    backgroundColor: 'rgba(72, 149, 245, 0.3)',
+    highlightBackgroundColor: 'rgba(72, 149, 245, 0.4)',
     hoveredBackgroundColor: '#4895F5',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
@@ -193,7 +194,7 @@ export class DomSettings {
     color: '#fff',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     hoveredBackgroundColor: '#C93B3B',
-    histogramColor: 'rgba(201, 59, 59, 0.2)',
+    histogramColor: 'rgba(201, 59, 59, 0.4)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
@@ -226,7 +227,7 @@ export class DomSettings {
   };
   volume: any = {
     highlightBackgroundColor: '#9D0A0A',
-    textAlign: TextAlign.Center,
+    textAlign: TextAlign.Right,
     backgroundColor: 'transparent',
     lastTradingBackgroundColor: '#fff',
     // backgroundColor: 'rgba(1, 43, 54, 1)',
@@ -243,7 +244,7 @@ export class DomSettings {
     valueArea: true,
   };
   orders: any = {
-    backgroundColor: 'rgba(0, 44, 55, 1)',
+    backgroundColor: 'transparent',
     textAlign: TextAlign.Center,
     // 'break-evenBackground': 'rgba(0, 44, 55, 1)',
     // 'break-evenForeground': 'rgba(255, 255, 255, 1)',
@@ -252,9 +253,9 @@ export class DomSettings {
     buyOrderBorderColor: '#4895f5',
     // buyOrdersColumn: 'rgba(0, 44, 55, 1)',
     highlightColor: 'rgba(29, 73, 127, 1)',
-    inProfitBackgroundColor: 'rgba(0, 44, 55, 1)',
+    inProfitBackgroundColor: 'transparent',
     inProfitColor: 'rgba(72, 149, 245, 1)',
-    lossBackgroundColor: 'rgba(0, 44, 55, 1)',
+    lossBackgroundColor: 'transparent',
     lossColor: 'rgba(201, 59, 59, 1)',
     sellOrderBackgroundColor: 'rgba(201, 59, 59, 0.7)',
     sellOrderColor: '#fff',

@@ -171,6 +171,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
   }
 
+  loadData(params) {
+    if (params.accountId == null) {
+      this.builder.replaceItems([]);
+    } else {
+      super.loadData(params);
+    }
+  }
+
   protected _handleCreateItems(items: IPosition[]) {
     this._combinePositionsWithInstruments(items)
       .pipe(
@@ -234,7 +242,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       }),
       mergeMap(res => {
         return this._combinePositionsWithInstruments(res.data).pipe(
-          map(positions => ({...res, data: positions}))
+          map(positions => ({ ...res, data: positions }))
         );
       })
     );
@@ -242,7 +250,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   private _combinePositionsWithInstruments(positions: IPosition[]): Observable<IPosition[]> {
     const instrumentsRequests = positions.map(p => {
-      return this._instrumentsRepository.getItemById(p.instrument.symbol, {exchange: p.instrument.exchange});
+      return this._instrumentsRepository.getItemById(p.instrument.symbol, { exchange: p.instrument.exchange });
     });
 
     return forkJoin(instrumentsRequests).pipe(
