@@ -38,18 +38,19 @@ type IPositionItem = {
 };
 
 export class PositionItem extends HoverableItem implements IPositionItem {
-  private _priceFormatter: IFormatter;
+  private _priceFormatter: IFormatter = new PriceFormatter(2);
 
   account = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
   size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
+    formatter: this._priceFormatter,
     getStatusByStyleProp
   });
   realized = new NumberCell({
@@ -57,12 +58,14 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
+    formatter: this._priceFormatter,
     getStatusByStyleProp
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     withHoverStatus: true,
     getStatusByStyleProp,
+    formatter: this._priceFormatter,
     ignoreZero: false
   });
   close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
@@ -78,11 +81,6 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     if (!position) {
       return;
     }
-    this._priceFormatter = new PriceFormatter(position.instrument?.precision ?? 2);
-    this.price.formatter = this._priceFormatter;
-    this.unrealized.formatter = this._priceFormatter;
-    this.realized.formatter = this._priceFormatter;
-    this.total.formatter = this._priceFormatter;
     this.update(position);
   }
 
