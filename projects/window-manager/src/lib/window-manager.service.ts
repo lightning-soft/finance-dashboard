@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { WindowManager } from 'simple-window-manager';
 import { EVENTS, Position } from './enums';
 import { IWindow, IWindowManager } from './interfaces';
 import { Bounds, Options, saveData } from './types';
+import { ILayoutNode } from "layout";
 
 const Shift = 30;
 const StartShiftY = 36;
@@ -96,14 +97,18 @@ export class WindowManagerService {
     this.wm.updateGlobalOffset();
   }
 
+  public getWindowByComponent(component: ILayoutNode): IWindow {
+    return this.windows.value.find(i => i.component === component);
+  }
+
   setBounds(bounds: Bounds): void {
     this.bounds = bounds;
     this.wm.setCustomBounds(bounds);
   }
 
   private calculatePosition(options: Options): Cords {
-    const width = options.width || parseInt(options.minWidth, 10);
-    const height = options.height || parseInt(options.minHeight, 10);
+    const width = options.width || options.minWidth;
+    const height = options.height || options.minHeight;
 
     const containerWidth = this.wm.container.clientWidth;
     const containerHeight = this.wm.container.clientHeight;
