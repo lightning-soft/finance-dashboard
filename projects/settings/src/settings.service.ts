@@ -97,7 +97,7 @@ export class SettingsService {
     this._updateState({ theme });
   }
 
-  updateTradingLock(tradingEnabled: boolean) {
+  updateTradingLock(tradingEnabled: boolean): void {
     this._updateState({ tradingEnabled });
   }
 

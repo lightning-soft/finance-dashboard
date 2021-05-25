@@ -1,15 +1,77 @@
 <span
-  [formlyAttributes]="field"
+  nz-dropdown
+  [nzTrigger]="'click'"
+  [nzDropdownMenu]="menu"
   class="color-wrapper"
-  [cpWidth]="'200px'"
-  [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-  (colorPickerChange)="updateValue($event)" [colorPicker]="formControl?.value"
+  [formlyAttributes]="field"
   [class.disabled]="formControl.disabled"
- >
-  <span>
-    <input
-      class="color-input" disabled [style.background]="formControl?.value"/>
-    </span>
+>
+  <div class="color with-border" disabled [style.background]="formControl?.value"></div>
   <span class="color-label">{{field.templateOptions?.label}}</span>
 </span>
 
+<nz-dropdown-menu #menu>
+  <div class="color-picker">
+    <div class="palette">
+      <div class="colors-row" *ngFor="let paletteRow of palette">
+        <div *ngFor="let color of paletteRow"
+             class="color"
+             (click)="handleSelectPaletteColor(color)"
+             [style.background]="color"
+        ></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="d-flex">
+      <nz-select nzOptionHeightPx="23"
+                 class="color-type-selection"
+                 [nzSize]="'small'"
+                 (ngModelChange)="handleColorTypeChange($event)"
+                 [(ngModel)]="selectedColorType">
+        <nz-option [nzValue]="colorType.HEX" [nzLabel]="colorType.HEX"></nz-option>
+        <nz-option [nzValue]="colorType.RGB" [nzLabel]="colorType.RGB"></nz-option>
+      </nz-select>
+
+      <input [(ngModel)]="inputText" nz-input type="text" class="color-input"
+             [nzSize]="'small'"
+             (blur)="handleInputTextSubmit()">
+
+      <div class="opacity-block">
+        <i class="icon-opacity"></i>
+        <nz-input-number class="color-opacity-input"
+                         [(ngModel)]="opacity"
+                         [nzSize]="'small'"
+                         (ngModelChange)="updateOpacity()"
+                         [nzFormatter]="opacityInputFormatter"
+                         [nzMin]="0"
+                         [nzMax]="100"
+                         [nzPrecision]="0"
+        ></nz-input-number>
+      </div>
+    </div>
+
+    <nz-slider class="color-opacity-slider"
+               [(ngModel)]="opacity"
+               (nzOnAfterChange)="updateOpacity()"
+               [nzMin]="0"
+               [nzMax]="100"
+    ></nz-slider>
+
+    <div class="divider"></div>
+
+    <div class="colors-row colors-history">
+      <div *ngFor="let lastColor of pickedColorsHistory"
+           class="color"
+           (click)="updateValue(lastColor.color, false)"
+      >
+        <div class="color-bg"
+             [style.background]="lastColor.opaqueColor"
+             [class.half]="lastColor.hasTransparency"
+        ></div>
+        <i class="icon-opacity" [style.color]="lastColor.color"></i>
+      </div>
+    </div>
+  </div>
+</nz-dropdown-menu>

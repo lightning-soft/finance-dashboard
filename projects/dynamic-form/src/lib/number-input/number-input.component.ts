@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 import { NzInputNumberComponent } from "ng-zorro-antd";
 
@@ -7,7 +7,7 @@ import { NzInputNumberComponent } from "ng-zorro-antd";
   templateUrl: './number-input.component.html',
   styleUrls: ['./number-input.component.scss']
 })
-export class NumberInputComponent extends FieldType implements AfterViewInit {
+export class NumberInputComponent extends FieldType {
   @ViewChild(NzInputNumberComponent) input: NzInputNumberComponent;
 
   get value() {
@@ -19,9 +19,6 @@ export class NumberInputComponent extends FieldType implements AfterViewInit {
       this.formControl.patchValue(value);
   }
 
-  ngAfterViewInit() {
-    this._decorateFunctions();
-  }
 
   isAboveMin(value): boolean {
     return this.field.templateOptions?.min == null || value >= this.field.templateOptions.min;
@@ -29,20 +26,5 @@ export class NumberInputComponent extends FieldType implements AfterViewInit {
 
   isBelowMax(value): boolean {
     return this.field.templateOptions?.max == null || value <= this.field.templateOptions.max;
-  }
-
-  private _decorateFunctions(): void {
-    const originalUpFunc = this.input.up.bind(this.input);
-    const originalDownFunc = this.input.down.bind(this.input);
-
-    this.input.up = (event, ration) => {
-      originalUpFunc(event, ration);
-      this.input.blur();
-    }
-
-    this.input.down = (event, ration) => {
-      originalDownFunc(event, ration);
-      this.input.blur();
-    }
   }
 }

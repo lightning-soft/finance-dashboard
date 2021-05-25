@@ -1,13 +1,13 @@
-import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
-import { RealInstrumentsRepository, RealPositionsRepository } from 'real-trading';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { RealPositionsRepository } from 'real-trading';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
-  AccountRepository,
+  AccountRepository, IInstrument,
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -19,10 +19,11 @@ import {
 } from 'trading';
 import { PositionColumn, PositionItem } from './models/position.item';
 import { NotifierService } from 'notifier';
+import { untilDestroyed } from "@ngneat/until-destroy";
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
-  inProfitBackgroundColor: '#4895F5'
+  inProfitBackgroundColor: '#4895F5',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -32,10 +33,10 @@ const headers: HeaderItem<PositionColumn>[] = [
   PositionColumn.size,
   { name: PositionColumn.realized, style: profitStyles },
   { name: PositionColumn.unrealized, style: profitStyles },
-  PositionColumn.total,
-  { name:PositionColumn.instrumentName, title: 'instrument' },
+  { name: PositionColumn.total, style: profitStyles },
+  { name: PositionColumn.instrumentName, title: 'instrument' },
   PositionColumn.exchange,
-  { name:PositionColumn.close, hidden: true }
+  { name: PositionColumn.close, hidden: true }
 ];
 
 export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
@@ -53,7 +54,7 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
-export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy {
+export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
   builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
 
   private _columns: Column[] = [];
@@ -63,6 +64,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
+  maxPrecision: number;
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
@@ -73,6 +75,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _status: PositionStatus = PositionStatus.Open;
 
   private _accountId;
+  private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
@@ -124,6 +127,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
     protected _notifier: NotifierService,
+    protected _changeDetectorRef: ChangeDetectorRef,
     private _accountRepository: AccountRepository,
     private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
@@ -143,30 +147,62 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
-      const instrument = await (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(trade.instrument);
-
-      this.items.map(i => i.updateUnrealized(trade, instrument));
-      this.dataGrid?.detectChanges();
-      this.updatePl();
+      this._lastTrades[getInstrumentKey(trade.instrument)] = trade;
+      this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
+        .pipe(untilDestroyed(this))
+        .subscribe((instrument) => {
+          this.items.forEach(i => i.updateUnrealized(trade, instrument));
+          this.dataGrid?.detectChanges();
+          this.updatePl();
+        }, error => this._notifier.showError(error, 'Failed to load instrument'));
     }));
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
   }
 
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.dataGrid.applyStyles({
+      gridHeaderBorderColor: '#24262C',
+      gridBorderColor: 'transparent',
+      gridBorderWidth: 0,
+      rowHeight: 25,
+    });
+  }
+
+  loadData(params) {
+    if (params.accountId == null) {
+      this.builder.replaceItems([]);
+    } else {
+      super.loadData(params);
+    }
+  }
 
   protected _handleCreateItems(items: IPosition[]) {
-    super._handleCreateItems(items);
-    this.updatePl();
+    this._combinePositionsWithInstruments(items)
+      .pipe(
+        untilDestroyed(this),
+        catchError(error => of(items))
+      )
+      .subscribe((combinedPositions) => {
+        super._handleCreateItems(combinedPositions);
+        this.updatePl();
+      });
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
     super._handleResponse(response, params);
     response.data.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
+    this.updatePl();
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
-    super._handleUpdateItems(items);
+    super._handleUpdateItems(items.map(i => {
+      delete i.instrument; // instrument data from realtime is not full and correct
+      return i;
+    }));
+    this.items.forEach(i => i.updateUnrealized(this._lastTrades[getInstrumentKey(i.position?.instrument)], i.position?.instrument));
     this.updatePl();
   }
 
@@ -174,6 +210,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     super._handleConnection(connection);
     this._accountRepository = this._accountRepository.forConnection(connection);
     this._instrumentsRepository = this._instrumentsRepository.forConnection(connection);
+    this.updatePl();
     if (!connection?.connected) {
       this.accountId = null;
     } else {
@@ -181,19 +218,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 
-  private async updatePl() {
-    const instrumentsPromises = this.positions.map(position => {
-      return (this._instrumentsRepository as RealInstrumentsRepository).getStoredItem(position.instrument);
-    });
-
-    const precision = await Promise.all(instrumentsPromises).then(instruments => {
-      return instruments.reduce((accum, instrument) => Math.max(accum, instrument.precision), 0);
-    });
-
-    this.open = +this.builder.items.filter(item => item.position)
-      .reduce((total, current) => total + (+current.unrealized.value), 0).toFixed(precision);
-    this.realized = +this.positions.reduce((total, current) => total + current.realized, 0).toFixed(precision);
+  private updatePl(): void {
+    this.maxPrecision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
+    this.open = this.builder.items.filter(item => item.position)
+      .reduce((total, current) => total + (+current?.unrealized.numberValue ?? 0), 0);
+    this.realized = this.positions.reduce((total, current) => total + current.realized, 0);
     this.totalPl = this.open + this.realized;
+    this.detectChanges();
   }
 
   protected _transformDataFeedItem(item) {
@@ -202,13 +233,32 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   // need for group by InstrumentName
   protected _getItems(params?): Observable<IPaginationResponse<IPosition>> {
-    return this.repository.getItems(params)
-      .pipe(map(response => {
-        response.data = response.data.map(item => {
+    return this.repository.getItems(params).pipe(
+      map(res => {
+        res.data = res.data.map(item => {
           return this._addInstrumentName(item);
         });
-        return response;
-      }));
+        return res;
+      }),
+      mergeMap(res => {
+        return this._combinePositionsWithInstruments(res.data).pipe(
+          map(positions => ({ ...res, data: positions }))
+        );
+      })
+    );
+  }
+
+  private _combinePositionsWithInstruments(positions: IPosition[]): Observable<IPosition[]> {
+    const instrumentsRequests = positions.map(p => {
+      return this._instrumentsRepository.getItemById(p.instrument.symbol, { exchange: p.instrument.exchange });
+    });
+
+    return forkJoin(instrumentsRequests).pipe(
+      map(instruments => positions.map((p, index) => {
+        p.instrument = instruments[index];
+        return p;
+      }))
+    );
   }
 
   private _addInstrumentName(item) {
@@ -298,10 +348,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 
-  isEmpty(numberInput: number): boolean {
-    return numberInput === 0;
-  }
-
   private _loadAccount(): void {
     this._accountRepository.getItems({ status: 'Active', criteria: '', limit: 1 })
       .subscribe({
@@ -309,4 +355,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
         error: err => this._notifier.showError(err, 'Failed to load account')
       });
   }
+}
+
+function getInstrumentKey(instrument: IInstrument): string {
+  return `${instrument.symbol}-${instrument.exchange}`;
 }

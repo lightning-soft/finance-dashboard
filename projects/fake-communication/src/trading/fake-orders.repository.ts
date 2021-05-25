@@ -79,6 +79,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
       exchange: null,
       side: (id % 2 === 0) ? OrderSide.Buy : OrderSide.Sell,
       quantity: 0.1,
+      triggerPrice: randomFixedNumber(100),
       averageFillPrice: randomFixedNumber(100),
       filledQuantity: randomFixedNumber(100),
       instrument: {id} as any,

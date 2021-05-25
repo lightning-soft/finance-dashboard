@@ -19,6 +19,10 @@
       "time-select": [
         "dist/time-select/time-select",
         "dist/time-select"
+      ],
+      "cache": [
+        "dist/cache/cache",
+        "dist/cache"
       ]
     }
   },
@@ -250,6 +254,12 @@
     },
     {
       "path": "./projects/time-select/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/cache/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/cache/tsconfig.spec.json"
     }
   ]
 }

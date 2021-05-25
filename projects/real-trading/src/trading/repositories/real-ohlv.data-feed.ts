@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { VolumeData, VolumeDataFeed } from 'trading';
 import { Subject } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -25,10 +26,10 @@ export class RealOHLVFeed extends OHLVFeed {
     this._tradeDatafeed.on(this.handleTrade);
     this._volumeDatafeed.on(this.handleVolume);
     this._ohlvData$.pipe(
-      // throttleTime(500)
-      ).subscribe((historyItem) =>
+      auditTime(500)
+    ).subscribe(historyItem =>
         this._sendToSubscribers(historyItem)
-      );
+    );
   }
 
   private _ohlv: {

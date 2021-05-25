@@ -15,6 +15,10 @@ import {
   PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
 } from 'trading';
 import { RealPositionsRepository } from 'real-trading';
+import { Storage } from "storage";
+
+const orderLastPriceKey = 'orderLastPrice';
+const orderLastLimitKey = 'orderLastLimitKey';
 
 interface OrderFormState {
   instrument: IInstrument;
@@ -37,16 +41,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   OrderSide = OrderSide;
   editIceAmount: boolean;
 
-  bidPrice: number;
-  askPrice: number;
+  bidPrice: string;
+  askPrice: string;
 
   askVolume: number;
   bidVolume: number;
 
   limitPrice: number;
-
-
   price: number;
+
+  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
 
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
@@ -92,6 +96,10 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     return this._instrument;
   }
 
+  get precision(): number {
+    return this.instrument?.precision ?? 2;
+  }
+
   get accountId() {
     return this.formValue?.accountId;
   }
@@ -109,6 +117,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     // protected _levelOneDatafeedService: Level1DataFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _positionDatafeed: PositionsFeed,
+    private _storage: Storage,
     protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
@@ -117,6 +126,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     this.setTabIcon('icon-widget-create-orders');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
+    this.price = this._storage.getItem(orderLastPriceKey) ?? 1;
+    this.limitPrice = this._storage.getItem(orderLastLimitKey) ?? 1;
   }
 
   getDto(): any {
@@ -173,11 +184,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this._levelOneDatafeed.on((quote: IQuote) => {
         if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
           if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price;
+            this.askPrice = quote.price.toFixed(this.precision);
             this.askVolume = quote.volume;
           } else {
             this.bidVolume = quote.volume;
-            this.bidPrice = quote.price;
+            this.bidPrice = quote.price.toFixed(this.precision);
           }
         }
       }),
@@ -277,22 +288,36 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.shouldDisablePrice)
       return;
 
-    const newPrice = this.price || 0;
+    const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
-    const precision = this.instrument?.precision ?? 1;
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice + tickSize : roundToTickSize(currentPrice + tickSize, tickSize);
 
-    this.price = +(newPrice + tickSize).toFixed(precision);
+    this.price = +newPrice.toFixed(this.precision);
+    this.handlePriceChange();
   }
 
   decreasePrice() {
     if (this.shouldDisablePrice)
       return;
 
-    const newPrice = (this.price || 0) - (this.instrument?.tickSize || 0.1);
-    const precision = this.instrument?.precision ?? 1;
+    const tickSize = this.instrument?.tickSize || 0.1;
+    const currentPrice = this.price || 0;
+    const newPrice = (currentPrice % tickSize === 0) ? currentPrice - tickSize :
+      roundToTickSize(currentPrice - tickSize, tickSize, 'floor');
 
     if (newPrice >= 0)
-      this.price = +newPrice.toFixed(precision);
+      this.price = +newPrice.toFixed(this.precision);
+
+    this.handlePriceChange();
+  }
+
+  handlePriceChange(): void {
+    this._storage.setItem(orderLastPriceKey, this.price);
+  }
+
+
+  handleLimitPriceChange(): void {
+    this._storage.setItem(orderLastLimitKey, this.limitPrice);
   }
 
   private _getNavbarTitle(): string {

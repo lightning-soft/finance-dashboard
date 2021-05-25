@@ -105,8 +105,11 @@
 
 <ng-template #gridTemplate>
   <data-grid #grid
+             [styles]="gridStyles"
+             [rowHeight]="24"
              (columnUpdate)="handleUpdateColumn($event)"
              [(contextMenuState)]="contextMenuState"
+             (contextMenuStateChange)="updateCheckboxState($event)"
              [showHeaderPanelInContextMenu]="true"
              [items]="items"
              [handlers]="handlers"

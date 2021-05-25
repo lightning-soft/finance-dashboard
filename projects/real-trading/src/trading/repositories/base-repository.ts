@@ -2,6 +2,7 @@ import { HttpRepository, IBaseItem } from 'communication';
 import { IConnection } from 'trading';
 
 export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository<T> {
+  protected _needRefreshCache = false;
   private _connection: IConnection;
 
   protected abstract get suffix();
@@ -29,6 +30,10 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
     const repository = this._getRepository();
 
     repository._connection = connection;
+
+    if (!this._needRefreshCache) {
+      repository._cache = this._cache;
+    }
 
     return repository;
   }

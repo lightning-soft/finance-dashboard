@@ -18,11 +18,7 @@ export enum Events {
   ContextMenu = 'contextmenu',
   MouseUp = 'mouseup',
   MouseDown = 'mousedown',
-}
-const enum TableNodes {
-  Table = 'TABLE',
-  TD = 'TD',
-  TR = 'TR',
+
 }
 
 // export interface IHandler {
@@ -46,6 +42,7 @@ export abstract class DataGridHandler<T = any, E = Event> {
       this.handler(data, event);
   }
 }
+
 export interface DataClickHandlerConfig {
   column?: string;
   events?: Events[];

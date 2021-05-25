@@ -11,6 +11,7 @@ export type OrderAccount = {
 export interface IOrder extends IBaseItem {
   account: OrderAccount;
   averageFillPrice: number;
+  triggerPrice: number;
   description: string;
   quantity: number;
   filledQuantity: number;
@@ -72,4 +73,8 @@ const forbiddenOrders = [OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.C
 
 export function isForbiddenOrder(order){
   return forbiddenOrders.includes(order.status);
+}
+
+export function getPrice(order: IOrder) {
+  return isNaN(order.price) ? order.triggerPrice : order.price;
 }

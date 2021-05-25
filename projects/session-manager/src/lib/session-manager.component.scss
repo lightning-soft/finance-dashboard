@@ -1,5 +1,14 @@
 :host {
   font-size: 11px;
+
+  ::ng-deep {
+    .ant-select {
+      nz-select-top-control {
+        padding-left: 6px !important;
+        padding-right: 3px !important;
+      }
+    }
+  }
 }
 
 .session-select {

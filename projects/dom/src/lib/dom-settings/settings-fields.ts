@@ -78,7 +78,7 @@ export const commonFields: IFieldConfig[] = [
             if (value)
               return { ' .center-price td': { 'border-bottom-color': value } };
           }),
-          getColor('Simulation Mode Warning Clr'),
+         // getColor('Simulation Mode Warning Clr'),
         ]
       }),
       {
@@ -352,14 +352,13 @@ export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Last Traded Quantity (LTQ)',
     key: 'ltq',
-    fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
           fieldGroup: [
             getFontColor(),
             getColor('Sell Background Color'),
             getColor('Background Color'),
-            getColor({ label: 'Highlight Color', key: 'highlightColor' }),
+            getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
             //  getHistogramColor(),
             getColor('Buy Background Color'),
           ]
@@ -439,7 +438,7 @@ export const orderAreaFields: IFieldConfig[] = [
               { key: 'roundPL', label: 'Round PL to whole numbers' },
             ]
           }), 'm-0'),
-          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized Pl',
+          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized PL',
             { hideExpression: '!model.showPLInfo' }
           ), 'ml-4'),
         ],
@@ -627,8 +626,8 @@ export const orderColumnFields: IFieldConfig[] = [
         fieldGroup: [
           {
             ...getCheckboxes({
-              checkboxes: [{ key: 'showPnl', label: 'Show PnL in Column' },
-                { key: 'includePnl', label: 'Include Closed PnL' }]
+              checkboxes: [{ key: 'showPL', label: 'Show PL in Column' },
+                { key: 'includeRealizedPL', label: 'Include Realized PL' }]
             }),
             fieldGroupClassName: '',
             className: 'pl-1',
@@ -648,7 +647,7 @@ export const orderColumnFields: IFieldConfig[] = [
           {
             ...getCheckboxes({
               checkboxes: [
-                { key: 'overlay', label: 'Overlay orders on the Bid/Ask Delta Column' },
+                { key: 'overlayOrders', label: 'Overlay orders on the Bid/Ask Delta Column' },
                 { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
               ]
             }),

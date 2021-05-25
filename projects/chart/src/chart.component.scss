@@ -77,6 +77,12 @@ side-form {
 }
 
 ::ng-deep {
+  .chart-menu-dropdown {
+    .ant-dropdown-menu-item {
+      padding: 1px 6px;
+    }
+  }
+
   .scxThemeDark {
     label {
       margin-bottom: 0;
@@ -530,6 +536,10 @@ side-form {
 
 .chart-menu-dropdown {
   min-width: 110px;
+
+  li {
+    line-height: 16px;
+  }
 }
 
 :host ::ng-deep {
@@ -541,6 +551,57 @@ side-form {
 
   .scxPanelTitleValue {
     margin-left: 2px;
+  }
+
+  .scxPanelOptions {
+    padding-top: 4px;
+
+    & > span {
+      &:not(:first-child) {
+        margin-left: 2px;
+      }
+    }
+  }
+
+  .scxPanelSettings, .scxPanelMaximize, .scxPanelRestore, .scxPanelMoveUp, .scxPanelMoveDown, .scxPanelClose {
+    height: 16px;
+    width: 16px;
+    background: $light !important;
+    position: relative;
+    color: #fff !important;
+    border-radius: 1px;
+
+    &:before {
+      position: absolute;
+      top: 0;
+      mask-size: 9px;
+      mask-position: center;
+      left: 0;
+      content: "";
+      height: 100%;
+      width: 100%;
+      color: #fff !important;
+      background: #FFFFFF !important;
+      mask-repeat: no-repeat;
+    }
+  }
+
+  $chartPanelButtons:
+    (scxPanelSettings: "setting-gear", scxPanelClose: "close",
+    scxPanelMoveDown: "arrow-down-general", scxPanelMoveUp: "arrow-up-general",
+    scxPanelMaximize: "maximize-indicator", scxPanelRestore: "minimize-indicator");
+
+  @each $name, $icon in $chartPanelButtons {
+    .#{$name}:before {
+      mask-image: url("~src/assets/img/svg/#{$icon}.svg");
+    }
+  }
+
+  .scxPanelScrollToLast, .scxPanelScrollToLast:hover {
+    color: #fff !important;
+    background: $light !important;
+    border-radius: 1px;
+    line-height: 1;
   }
 
   .scxControl-open, .scxControl-high, .scxControl-low, .scxControl-close {
@@ -738,6 +799,7 @@ instrument-select {
       .scxIndicatorTitle {
         margin-left: 3px;
         display: none !important;
+
         .scxPanelTitleCaption {
           display: inline-block !important;
         }

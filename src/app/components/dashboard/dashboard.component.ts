@@ -16,6 +16,7 @@ import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
 import { SaveLayoutConfigService } from '../save-layout-config.service';
 import { SaveLoaderService } from 'ui';
+import { isEqual } from 'underscore';
 
 enum WindowEvents {
   Message = 'message'
@@ -76,7 +77,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     / For performance reason avoiding ng zone in some cases
     */
     const zone = this._zone;
-    Element.prototype.addEventListener = function(...args) {
+    Element.prototype.addEventListener = function (...args) {
       const _this = this;
 
       if (['wm-container'].some(i => this.classList.contains(i)) ||
@@ -278,9 +279,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   private _handleEvent(event) {
-    if (needToSkipEventHandling(event?.target))
-      return;
-
     if (!this.layout.handleEvent(event))
       this._handleKey(event);
   }
@@ -293,8 +291,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         return KeyBinding.fromDTO(bindingDTO).equals(this.keysStack);
     });
     if (key) {
-      event.preventDefault();
-      this.handleCommand(key[0]);
+      if (needHandleCommand(event, key[1]?.parts?.map(i => i.keyCode))) {
+        event.preventDefault();
+        this.handleCommand(key[0]);
+      }
     }
   }
 
@@ -353,11 +353,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 }
 
-function needToSkipEventHandling(element: Element): boolean {
+const keysAlwaysToHandle: number[][] = [
+  [17, 83] // CTRL + S:
+];
+
+function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
+  const element = <HTMLElement>event?.target;
+
   if (!element)
-    return false;
+    return true;
 
-  const isCheckbox = element.getAttribute('type') === 'checkbox';
-
-  return (element.tagName === 'INPUT' && !isCheckbox) || element.classList.contains('hotkey-input');
+  return (element.tagName !== 'INPUT' && !element.classList.contains('hotkey-input')) ||
+    keysAlwaysToHandle.some(i => isEqual(i, keys));
 }

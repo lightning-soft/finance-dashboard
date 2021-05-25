@@ -35,7 +35,10 @@ interface GridStyles {
   color?: string;
   background?: string;
   gridBorderColor?: string;
+  gridBorderWidth?: number;
+  gridHeaderBorderColor?: string;
   scrollSensetive?: number;
+  rowHeight?: number;
 }
 
 export interface DataGridState {
@@ -54,6 +57,8 @@ export interface ICellChangedEvent<T> {
   ctx: CanvasRenderingContext2D;
   dragContext: "cell"
 }
+
+let closePrevContextMenu: () => void;
 
 @Component({
   selector: 'data-grid',
@@ -82,16 +87,18 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showSettingsInContextMenu = false;
   @Input() detach = false;
   @Input() afterDraw = (e, grid) => null;
+  @Input() onResize = (e) => null;
+  @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
+  @Input() styles: GridStyles;
 
   private _items: T[] = [];
-  private _styles: GridStyles;
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
   private _prevActiveCell: Cell;
 
   // private _subscribedEvents = [];
 
-  public rowHeight = 19;
+  @Input() public rowHeight = 19;
   public list: TransferItem[] = [];
   public onDestroy$ = new Subject();
   _grid: any;
@@ -113,6 +120,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   get scrollHeight() {
     return this._grid.scrollHeight;
+  }
+
+  get scrollWidth() {
+    return this._grid.scrollWidth;
   }
 
   get scrollTop() {
@@ -202,7 +213,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
         overflowY: 'hidden',
         overflowX: 'hidden',
         scrollSensetive: DefaultScrollSensetive,
-        ...this._styles,
+        ...this.styles,
       },
       data: [],
     });
@@ -229,6 +240,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('contextmenu', this._handleContextmenu);
     grid.addEventListener('mousedown', this._handleMouseDown);
     grid.addEventListener('mouseup', this._handleMouseUp);
+    grid.addEventListener('resize', this._handleResize);
+    grid.addEventListener('resizecolumn', this._handleColumnResize);
 
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
@@ -237,7 +250,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
-    this._styles = styles;
+    this.styles = styles;
 
     if (!grid)
       return;
@@ -284,12 +297,25 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   createComponentModal($event: MouseEvent): void {
-    $event.preventDefault();
+    if (closePrevContextMenu) {
+      closePrevContextMenu();
+    }
     this.nzContextMenuService.create($event, this.contextMenuComponent);
+    closePrevContextMenu = this.nzContextMenuService.close.bind(this.nzContextMenuService);
   }
 
   _handleMouseUp = (e) => {
     this._triggerHandler(Events.MouseUp, { ...e, column: e.cell?.column, row: e.cell?.row });
+  }
+
+  _handleResize = (e) => {
+    if (this.onResize)
+      this.onResize(e);
+  }
+
+  _handleColumnResize = (e) => {
+    if (this.onColumnResize)
+      this.onColumnResize(e);
   }
 
   private _handleMouseDown = (e) => {
@@ -329,7 +355,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       const item = e.row;
 
       if (item || handler.handleHeaderClick)
-        handler.notify({column: e.column, item} as IHandlerData, e.e);
+        handler.notify({ column: e.column, item } as IHandlerData, e.e);
     }
   }
 
@@ -389,6 +415,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('contextmenu', this._handleContextmenu);
       grid.removeEventListener('mousedown', this._handleMouseDown);
       grid.removeEventListener('mouseup', this._handleMouseUp);
+      grid.removeEventListener('resize', this._handleResize);
+      grid.removeEventListener('resizecolumn', this._handleColumnResize);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();
@@ -396,6 +424,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   toggleColumns(): void {
     this.contextMenuState.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
+    this.contextMenuStateChange.emit(this.contextMenuState);
     this._grid.attributes.showColumnHeaders = !this._grid.attributes.showColumnHeaders;
     this.detectChanges(true);
   }
@@ -408,6 +437,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   changeShowPanel($event: boolean) {
     this.contextMenuState.showHeaderPanel = $event;
+    this.contextMenuStateChange.emit(this.contextMenuState);
   }
 
   onSettingsClicked() {

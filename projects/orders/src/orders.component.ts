@@ -1,4 +1,4 @@
-import { Component, HostBinding, Injector, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
@@ -28,20 +28,27 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
   columns: Column[];
-  orderTypes = ['All', ...Object.values(OrderType)];
+  orderTypes = [allTypes, ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   cancelMenuOpened = false;
-  allTypes = allTypes;
+
   builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
   activeTab: Tab = Tab.All;
   selectedOrders: IOrder[] = [];
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
+  };
+
+  gridStyles = {
+    gridHeaderBorderColor: '#24262C',
+    gridBorderColor: 'transparent',
+    gridBorderWidth: 0,
+    rowHeight: 25,
   };
 
   private _headerCheckboxCell = new CheckboxCell();
@@ -51,7 +58,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   readonly headers: HeaderItem<OrderColumn>[] = [
     {
       name: OrderColumn.checkbox,
-      title: '',
+      title: ' ',
       width: 30,
       draw: this._headerCheckboxCell.draw.bind(this._headerCheckboxCell),
       hidden: true
@@ -65,8 +72,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     { name: OrderColumn.quantity, title: 'Quantity' },
     { name: OrderColumn.filledQuantity, title: 'QTY FILLED', tableViewName: 'Quantity Filled' },
     { name: OrderColumn.quantityRemain, title: 'QTY REMAIN', tableViewName: 'Quantity Remaining' },
-    { name: OrderColumn.averageFillPrice, title: 'Average Fill Price' },
+    { name: OrderColumn.price, title: 'Price' },
+    { name: OrderColumn.triggerPrice, title: 'TRIG Price', tableViewName: 'Trigger Price' },
     { name: OrderColumn.duration, title: 'tif', tableViewName: 'TIF' },
+    { name: OrderColumn.averageFillPrice, title: 'Cur Price', tableViewName: 'Current Price' },
     OrderColumn.status,
     // OrderColumn.fcmId,
     // OrderColumn.ibId,
@@ -164,7 +173,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
-
   changeActiveTab(tab: Tab): void {
     this.activeTab = tab;
 
@@ -183,7 +191,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
     super._handleResponse(response, params);
-    this.updateTitle();
+    this.updateCheckboxState(this.contextMenuState);
   }
 
   handleAccountChange(accountId: Id): void {
@@ -230,10 +238,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       width: 369,
       maximizable: false,
     });
-  }
-
-  updateTitle() {
-    setTimeout(() => this.setTabTitle(`Orders (${this.items.length})`));
   }
 
   handleHeaderCheckboxClick(event: MouseEvent): void {
@@ -290,7 +294,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _getRepricedOrderByTickSize(order: IOrder, up: boolean): IOrder {
     const updatedOrder = { ...order };
-    const tickSize = order.instrument.tickSize ?? 0.25;
+    const tickSize = order.instrument.increment ?? 0.25;
 
     if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
       updatedOrder.limitPrice += up ? tickSize : -tickSize;
@@ -334,5 +338,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
           error: (error) => this._handleDeleteError(error)
         }
       );
+  }
+
+  updateCheckboxState(value) {
+    this.items.forEach(item => {
+      item.checkbox.showColumnPanel = value.showColumnHeaders;
+    });
   }
 }

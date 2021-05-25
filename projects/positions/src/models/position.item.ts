@@ -6,12 +6,11 @@ import {
   HoverableItem,
   IconCell,
   IFormatter,
-  NumberCell,
+  NumberCell, PriceFormatter,
   ProfitClass,
-  RoundFormatter
 } from 'data-grid';
 import { calculatePL } from 'dom';
-import { IInstrument, IPosition, Side, TradePrint } from 'trading';
+import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
 
 export enum PositionColumn {
   account = 'account',
@@ -45,21 +44,28 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
+    ignoreZero: false,
     getStatusByStyleProp
   });
   realized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
+    ignoreZero: false,
     getStatusByStyleProp
   });
-  total = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp });
+  total = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    withHoverStatus: true,
+    getStatusByStyleProp,
+    ignoreZero: false
+  });
+  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
   side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   position: IPosition;
 
@@ -72,7 +78,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     if (!position) {
       return;
     }
-    this._priceFormatter = new RoundFormatter(position.instrument?.precision ?? 2);
+    this._priceFormatter = new PriceFormatter(position.instrument?.precision ?? 2);
     this.price.formatter = this._priceFormatter;
     this.unrealized.formatter = this._priceFormatter;
     this.realized.formatter = this._priceFormatter;
@@ -83,8 +89,8 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   update(position: IPosition) {
     this.position = { ...this.position, ...position };
     this.account.updateValue(position.accountId);
-    this.instrumentName.updateValue(this.position.instrument.symbol);
-    this.exchange.updateValue(this.position.instrument.exchange);
+    this.instrumentName.updateValue(this.position.instrument?.symbol);
+    this.exchange.updateValue(this.position.instrument?.exchange);
     this.price.updateValue(this.position.price);
 
     const fields: PositionColumn[] = [
@@ -93,30 +99,35 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.instrumentName,
       PositionColumn.unrealized,
       PositionColumn.realized,
-      PositionColumn.total,
       PositionColumn.side
     ];
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
 
+    this._updateTotal();
     const iconClass = position.side !== Side.Closed ? 'icon-close-window' : 'd-none';
     this.close.updateClass(iconClass);
     this._updateCellProfitStatus(this.unrealized);
     this._updateCellProfitStatus(this.realized);
+    this._updateCellProfitStatus(this.total);
   }
 
   public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
     const position = this.position;
 
-    if (position == null || trade.instrument.symbol != instrument.symbol)
+    if (position == null || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
-
     this.unrealized.updateValue(unrealized ?? 0);
-
+    this._updateTotal();
     this._updateCellProfitStatus(this.unrealized);
+    this._updateCellProfitStatus(this.total);
+  }
+
+  private _updateTotal(): void {
+    this.total.updateValue(this.realized.numberValue + this.unrealized.numberValue);
   }
 
   private _updateCellProfitStatus(cell: Cell): void {

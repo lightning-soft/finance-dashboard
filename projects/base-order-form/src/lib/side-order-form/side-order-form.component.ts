@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
@@ -14,7 +14,6 @@ import {
   PositionsRepository,
   isForbiddenOrder, compareInstruments
 } from 'trading';
-import { IHistoryItem } from 'real-trading';
 import { BehaviorSubject } from 'rxjs';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
@@ -71,11 +70,9 @@ export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   styleUrls: ['./side-order-form.component.scss']
 })
 @UntilDestroy()
-export class SideOrderFormComponent extends BaseOrderForm {
+export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
-  dailyInfo: IHistoryItem;
-  prevItem: IHistoryItem;
   private _ocoStep = OcoStep.None;
   private _defaultFormState: Partial<SideOrderForm>;
 
@@ -154,13 +151,13 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   _settings: DomFormSettings = {
-    buyButtonsBackgroundColor: '#2A8AD2',
-    flatButtonsBackgroundColor: '#383A40',
-    buyButtonsFontColor: '#F2F2F2',
-    flatButtonFontColor: '#fff',
-    sellButtonsBackgroundColor: '#DC322F',
+    buyButtonsBackgroundColor: '#4895F5',
+    flatButtonsBackgroundColor: '#51535A',
+    buyButtonsFontColor: '#fff',
+    flatButtonFontColor: '#D0D0D2',
+    sellButtonsBackgroundColor: '#C93B3B',
     cancelButtonBackgroundColor: '#51535A',
-    sellButtonsFontColor: '#F2F2F2',
+    sellButtonsFontColor: '#fff',
     cancelButtonFontColor: '#fff',
     formSettings: {
       showInstrumentChange: true,
@@ -187,7 +184,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   @Input() set instrument(value: IInstrument) {
-    if (value != null && compareInstruments(this.instrument$.getValue(), value)) {
+    if (value != null && !compareInstruments(this.instrument$.getValue(), value)) {
       this.instrument$.next(value);
       this.form?.patchValue({ symbol: value.symbol, exchange: value.exchange });
     }
@@ -342,7 +339,7 @@ export function getPriceSpecs(item: IOrder & { amount: number }, price: number, 
   }
   if (item.type === OrderType.StopLimit) {
     const offset = tickSize * item.amount;
-    priceSpecs.limitPrice = price + (item.side === OrderSide.Sell ? -offset : offset);
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset :  -offset);
   }
   return priceSpecs;
 }

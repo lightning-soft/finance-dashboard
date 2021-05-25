@@ -11,9 +11,24 @@
       (click)="create(item)"
       [title]="item.name"
       class="side-navigation__item"
-      data-name="{{item.name}}"
     >
       <i class="{{item.icon}}"></i>
+
+      <span>{{item.name}}</span>
+    </li>
+
+    <li nz-menu-divider class="divider"></li>
+
+    <li
+      nz-menu-item
+      *ngFor="let item of bottomItems"
+      (click)="create(item)"
+      [title]="item.name"
+      class="side-navigation__item"
+    >
+      <i class="{{item.icon}}"></i>
+
+      <span>{{item.name}}</span>
     </li>
   </ul>
 </nz-dropdown-menu>
