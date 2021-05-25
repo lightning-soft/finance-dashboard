@@ -1904,7 +1904,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = this.dataGrid.scrollWidth;
     const window = this._windowManagerService.getWindowByComponent(this);
-    const minWindowWidth = minGridWidth + (window.width - currentGridWidth);
+    // const minWindowWidth = minGridWidth + (window.width - currentGridWidth);
+    const minWindowWidth = 1000;
+    // console.log(minWindowWidth, minGridWidth, window.width, currentGridWidth);
     window.options.minWidth = minWindowWidth;
 
     if (minGridWidth > currentGridWidth) {
