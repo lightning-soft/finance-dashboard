@@ -74,6 +74,7 @@ export class WebSocketService {
     startTime: new Date(),
     maxTime: -Infinity,
     minTime: +Infinity,
+    time: {},
   };
 
   constructor(private _config: CommunicationConfig) {
@@ -189,6 +190,11 @@ export class WebSocketService {
           }
           const t1 = window.performance.now();
           const performance = t1 - t0;
+          const time = performance.toFixed(0);
+          if (!this._statistic.time[time])
+            this._statistic.time[time] = 1;
+          else
+            this._statistic.time[time]++;
           if (performance > this._statistic.maxTime)
             this._statistic.maxTime = performance;
           else if (performance < this._statistic.minTime)
