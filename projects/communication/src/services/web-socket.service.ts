@@ -68,15 +68,38 @@ export class WebSocketService {
   private _listeners: IWSListeners;
   private _eventListeners: IWSEventListeners;
 
+  private _statistic = {
+    messages: 0,
+    events: 0,
+    startTime: new Date(),
+    maxTime: -Infinity,
+    minTime: +Infinity,
+  };
+
   constructor(private _config: CommunicationConfig) {
     this._setListeners();
     this._setEventListeners();
+
+    (window as any).getStats = () => {
+      const _statistic = this._statistic;
+      const upTime = (Date.now() - _statistic.startTime.getTime()) / 1000;
+
+      return {
+        ..._statistic,
+        upTime: `${upTime} sec`,
+        avarageMessages: `${(_statistic.messages / upTime).toFixed(2)} messages/sec`,
+        avarageEvents: `${(_statistic.events / upTime).toFixed(2)} events/sec`,
+        eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
+      };
+    };
   }
 
   connect() {
     if (this.connection$.value) {
       return;
     }
+
+    this._statistic.startTime = new Date();
 
     const url = this._config.rithmic.ws.url;
 
@@ -149,6 +172,7 @@ export class WebSocketService {
       },
       message: (event: MessageEvent) => {
         let payload: any;
+        this._statistic.messages++;
 
         try {
           payload = JSON.parse(event.data);
@@ -158,17 +182,29 @@ export class WebSocketService {
         }
 
         if (Array.isArray(payload)) {
+          this._statistic.events += payload.length;
+          const t0 = window.performance.now();
           for (const item of payload) {
             this._processMessage(item);
           }
+          const t1 = window.performance.now();
+          const performance = t1 - t0;
+          if (performance > this._statistic.maxTime)
+            this._statistic.maxTime = performance;
+          else if (performance < this._statistic.minTime)
+            this._statistic.minTime = performance;
         } else {
           this._processMessage(payload);
+          this._statistic.events++;
         }
       },
     };
   }
 
   _processMessage(payload) {
+    // if (!payload)
+    //   return;
+
     const { type, result } = payload;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
