@@ -87,6 +87,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showSettingsInContextMenu = false;
   @Input() detach = false;
   @Input() afterDraw = (e, grid) => null;
+  @Input() onResize = (e) => null;
+  @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
 
@@ -118,6 +120,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   get scrollHeight() {
     return this._grid.scrollHeight;
+  }
+
+  get scrollWidth() {
+    return this._grid.scrollWidth;
   }
 
   get scrollTop() {
@@ -234,6 +240,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('contextmenu', this._handleContextmenu);
     grid.addEventListener('mousedown', this._handleMouseDown);
     grid.addEventListener('mouseup', this._handleMouseUp);
+    grid.addEventListener('resize', this._handleResize);
+    grid.addEventListener('resizecolumn', this._handleColumnResize);
 
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
@@ -298,6 +306,16 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   _handleMouseUp = (e) => {
     this._triggerHandler(Events.MouseUp, { ...e, column: e.cell?.column, row: e.cell?.row });
+  }
+
+  _handleResize = (e) => {
+    if (this.onResize)
+      this.onResize(e);
+  }
+
+  _handleColumnResize = (e) => {
+    if (this.onColumnResize)
+      this.onColumnResize(e);
   }
 
   private _handleMouseDown = (e) => {
@@ -397,6 +415,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('contextmenu', this._handleContextmenu);
       grid.removeEventListener('mousedown', this._handleMouseDown);
       grid.removeEventListener('mouseup', this._handleMouseUp);
+      grid.removeEventListener('resize', this._handleResize);
+      grid.removeEventListener('resizecolumn', this._handleColumnResize);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();

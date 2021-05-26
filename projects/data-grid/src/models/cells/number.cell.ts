@@ -87,8 +87,10 @@ export class NumberCell extends Cell {
     this._setValue(value);
     this.time = time ?? Date.now();
 
-    const valueChanged = this.ignoreZero ? value !== 0 : true;
-    if (this.hightlightOnChange && valueChanged)
+    // Todo: Test without it
+    // const valueChanged = this.ignoreZero ? value !== 0 : true;
+    // if (this.hightlightOnChange && valueChanged)
+    if (this.hightlightOnChange)
       this.hightlight();
 
     return true;

@@ -34,7 +34,7 @@
 
       </span>
     </span>
-    <i *ngFor="let item of directions" (click)="currentDirection = item" [title]="directionsHints[item]"
+    <i *ngFor="let item of directions" (click)="handleChangeFormPosition(item)" [title]="directionsHints[item]"
        [class.d-none]="!isFormOpen" [class.active]="currentDirection === item"
        class="icon-{{item}} direction window-icon"></i>
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
@@ -89,6 +89,8 @@
                (currentCellChanged)="onCurrentCellChanged($event)"
                [showColumnTitleOnHover]="showColumnTitleOnHover"
                [afterDraw]="afterDraw"
+               [onResize]="onResize.bind(this)"
+               [onColumnResize]="onColumnResize.bind(this)"
                [handlers]="handlers">
     </data-grid>
   </div>

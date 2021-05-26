@@ -22,6 +22,8 @@ export interface IWindow {
   y: number;
   height: number;
   width: number;
+  minWidth: number;
+  minHeight: number;
   active: boolean;
   visible: boolean;
   bounds: Bounds;

@@ -16,8 +16,8 @@ export type Options = {
   type: string,
   width: number,
   height: number,
-  minHeight: string
-  minWidth: string
+  minHeight: number,
+  minWidth: number,
   title: string
   closable: boolean
   minimizable: boolean

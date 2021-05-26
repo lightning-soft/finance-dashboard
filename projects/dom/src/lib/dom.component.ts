@@ -43,7 +43,7 @@ import {
   Side, TradeDataFeed,
   TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
 } from 'trading';
-import { IWindow } from 'window-manager';
+import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
@@ -117,12 +117,17 @@ interface IDomState {
   orderForm: Partial<SideOrderForm>;
 }
 
-const directionsHints = {
-  'window-left': 'Left View',
-  'full-screen-window': 'Horizontal View',
-  'window-right': 'Right View',
+enum FormDirection {
+  Left = 'window-left',
+  Right = 'window-right',
+  Top = 'full-screen-window'
+}
+
+const directionsHints: {[key in FormDirection]: string} = {
+  [FormDirection.Left]: 'Left View',
+  [FormDirection.Top]: 'Horizontal View',
+  [FormDirection.Right]: 'Right View',
 };
-const topDirectionIndex = 1;
 
 enum Columns {
   ID = '_id',
@@ -199,7 +204,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get isFormOnTop() {
-    return this.currentDirection === this.directions[topDirectionIndex];
+    return this.currentDirection === FormDirection.Top;
   }
 
   @HostBinding('class.hide-header-panel')
@@ -256,6 +261,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
+    private _windowManagerService: WindowManagerService,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -441,7 +447,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.draggingDomItemId = null;
         this.draggingOrders = [];
       }
-    })
+    }),
   ];
 
   private _accountId: string;
@@ -451,8 +457,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _upadateInterval: number;
   private _customTickSize: number;
 
-  directions = ['window-left', 'full-screen-window', 'window-right'];
-  currentDirection = this.directions[this.directions.length - 1];
+  readonly directionsHints = directionsHints;
+  directions: FormDirection[] = Object.keys(FormDirection).map(key => FormDirection[key]);
+  currentDirection = FormDirection.Right;
 
   @ViewChild(DataGrid, { static: true })
   dataGrid: DataGrid;
@@ -464,8 +471,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
-
-  directionsHints = directionsHints;
 
   private _instrument: IInstrument;
   private _priceFormatter: IFormatter;
@@ -1881,9 +1886,34 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  handleChangeFormPosition(position: FormDirection): void {
+    this.currentDirection = position;
+    this._validateComponentWidth();
+  }
+
+  onResize(data): void {
+    this._validateComponentWidth();
+  }
+
+  onColumnResize(data): void {
+    this._validateComponentWidth();
+  }
+
+  private _validateComponentWidth(): void {
+    const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
+    const minGridWidth = this.dataGrid.scrollWidth;
+    const window = this._windowManagerService.getWindowByComponent(this);
+    const minWindowWidth = minGridWidth + (window._container.offsetWidth - currentGridWidth);
+    window.options.minWidth = minWindowWidth;
+
+    if (minGridWidth > currentGridWidth) {
+      window.width = minWindowWidth;
+      this.dataGrid.resize();
+    }
+  }
+
   private _handleResize(afterResize?: Function) {
-    const visibleRows = this.dataGrid.getVisibleRows();
-    this.visibleRows = visibleRows;
+    this.visibleRows = this.dataGrid.getVisibleRows();
 
     this.dataGrid.resize();
     if (afterResize)
