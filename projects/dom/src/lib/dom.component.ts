@@ -25,29 +25,28 @@ import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   compareInstruments,
-  IConnection,
+  getPrice, IConnection,
   IInstrument,
   IOrder,
-  getPrice,
   IPosition,
   IQuote,
-  Level1DataFeed, OHLVFeed, OrderBooksRepository,
+  isForbiddenOrder, Level1DataFeed, OHLVFeed, OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, isForbiddenOrder,
+  OrderType,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
-  Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
+  roundToTickSize, Side, TradeDataFeed,
+  TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
-import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
+import { CustomDomItem, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 
@@ -124,7 +123,7 @@ enum FormDirection {
   Top = 'full-screen-window'
 }
 
-const directionsHints: {[key in FormDirection]: string} = {
+const directionsHints: { [key in FormDirection]: string } = {
   [FormDirection.Left]: 'Left View',
   [FormDirection.Top]: 'Horizontal View',
   [FormDirection.Right]: 'Right View',
@@ -1182,7 +1181,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const startPrice = _lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
 
       while (offset <= ROWS) {
-        const customItemData = {};
+        const customItemData: { [key: number]: DomItem } = {};
         const prices = [];
 
         for (let m = 0; m < multiplier; m++) {
@@ -1192,10 +1191,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData[price] = map[price] ?? new DomItem(null, this._settings, this._priceFormatter, customItemData);
           const _item = customItemData[price];
 
-          if (_item.ask.status === SumStatus) {
+          if (_item.isAskSum) {
             _item.setAskSum(null);
           }
-          if (_item.bid.status === SumStatus) {
+          if (_item.isBidSum) {
             _item.setBidSum(null);
           }
 
@@ -1240,6 +1239,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _getItem(price: number, index?: number): DomItem {
     let item = this._map.get(price);
     if (!item) {
+      // if (index == null)
+      //   console.warn('Omit index', index);
+
       item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
@@ -1562,13 +1564,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     item.handleQuote(trade);
 
-    if ((isBid && item.bid.status === SumStatus) || (!isBid && item.ask.status === SumStatus)) {
+    if ((isBid && item.isBidSum) || (!isBid && item.isAskSum)) {
       return;
     }
 
     const max = this._max;
     const needRecalculate = trade.updateType === UpdateType.Undefined;
     const needClear = trade.volume === 0;
+    const price = trade.price;
 
     if (isBid) {
       if (item.bid.visible) {
@@ -1579,6 +1582,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             max.bid = item.bid.size;
             this._calculateBidHist();
           }
+        } else {
+          this._bestBidPrice = price;
         }
 
         this.bidSumItem.setBidSum(this.bidSumItem.bid._value - size + (item.bid._value ?? 0));
@@ -1592,6 +1597,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             max.ask = item.ask.size;
             this._calculateAskHist();
           }
+        } else {
+          this._bestAskPrice = price;
         }
 
         this.askSumItem.ask.updateValue(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
@@ -1603,15 +1610,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       if (isBid || (needClear && !isBid)) {
         // if (this._bestBidPrice !== price || needClear) {
-        if (!needClear)
-          this._bestBidPrice = price;
+        // if (!needClear)
+        //   this._bestBidPrice = price;
 
         this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
-        if (!needClear)
-          this._bestAskPrice = price;
+        // if (!needClear)
+        //   this._bestAskPrice = price;
 
         this._handleNewBestAsk(price);
         // }
@@ -1636,7 +1643,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let index = startIndex;
       let _item = items[index];
 
-      while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
+      while (_item && _item.ask.visible && !_item.isAskSum) {
         if (_item.ask._value > _max)
           _max = _item.ask._value;
 
@@ -1652,7 +1659,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let index = this._getItem(this._bestAskPrice).index;
     let _item = items[index];
 
-    while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
+    while (_item && _item.ask.visible && !_item.isAskSum) {
       _item.ask.calcHist(max.ask);
       _item = items[--index];
     }
@@ -1668,7 +1675,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let index = startIndex;
       let _item = items[index];
 
-      while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
+      while (_item && _item.bid.visible && !_item.isBidSum) {
         if (_item.bid._value > _max)
           _max = _item.bid._value;
         _item = items[++index];
@@ -1683,7 +1690,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let index = startIndex;
     let _item = items[index];
 
-    while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
+    while (_item && _item.bid.visible && !_item.isBidSum) {
       _item.bid.calcHist(max.bid);
       _item = items[++index];
     }
@@ -1901,16 +1908,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _validateComponentWidth(): void {
-    const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
-    const minGridWidth = this.dataGrid.scrollWidth;
-    const window = this._windowManagerService.getWindowByComponent(this);
-    const minWindowWidth = minGridWidth + (window.width - currentGridWidth);
-    window.options.minWidth = minWindowWidth;
+    // const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
+    // const minGridWidth = this.dataGrid.scrollWidth;
+    // const window = this._windowManagerService.getWindowByComponent(this);
+    // const minWindowWidth = minGridWidth + (window.width - currentGridWidth);
+    // window.options.minWidth = minWindowWidth;
 
-    if (minGridWidth > currentGridWidth) {
-      window.width = minWindowWidth;
-      this.dataGrid.resize();
-    }
+    // if (minGridWidth > currentGridWidth) {
+    //   window.width = minWindowWidth;
+    //   this.dataGrid.resize();
+    // }
   }
 
   private _handleResize(afterResize?: Function) {

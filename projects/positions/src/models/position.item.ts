@@ -1,13 +1,13 @@
 import { Id } from 'base-components';
 import {
   AddClassStrategy,
-  Cell, CellStatus, CellStatusGetter,
+  Cell,
   DataCell,
   HoverableItem,
   IconCell,
   IFormatter,
   NumberCell, PriceFormatter,
-  ProfitClass,
+  ProfitClass
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
@@ -40,33 +40,30 @@ type IPositionItem = {
 export class PositionItem extends HoverableItem implements IPositionItem {
   private _priceFormatter: IFormatter;
 
-  account = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
+  account = new DataCell({ withHoverStatus: true });
+  instrumentName = new DataCell({ withHoverStatus: true });
+  exchange = new DataCell({ withHoverStatus: true });
+  price = new NumberCell({ withHoverStatus: true });
+  size = new NumberCell({ withHoverStatus: true, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
-    getStatusByStyleProp
   });
   realized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
-    getStatusByStyleProp
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     withHoverStatus: true,
-    getStatusByStyleProp,
     ignoreZero: false
   });
-  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
-  side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
+  close = new IconCell({ withHoverStatus: true, size: 10 });
+  side = new DataCell({ withHoverStatus: true });
   position: IPosition;
 
   get id(): Id | undefined {
@@ -140,16 +137,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     cell.changeStatus(status);
   }
 
-  protected _getCellsToHover(): Cell[] {
-    return allColumns.map((field) => this[field]);
+  protected _getPropertiesForHover(): string[] {
+    return allColumns;
   }
-}
-
-const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return ([PositionStatus.InProfit, PositionStatus.Loss] as string[]).includes(cell.status)
-      ? cell.status : CellStatus.Hovered;
-  }
-
-  return cell.status;
 }
