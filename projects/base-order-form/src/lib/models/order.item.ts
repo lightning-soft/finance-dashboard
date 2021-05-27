@@ -51,9 +51,9 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   fcmId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   identifier = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   ibId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
-  triggerPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
-  averageFillPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
+  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  triggerPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  averageFillPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
   description = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   duration = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   filledQuantity = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
@@ -80,6 +80,11 @@ export class OrderItem extends HoverableItem implements IOrderItem {
 
   update(order: IOrder) {
     this.order = { ...this.order, ...order };
+    this._priceFormatter.updateDigits(this.order.instrument.precision ?? 2);
+    this.price.formatter = this._priceFormatter;
+    this.triggerPrice.formatter = this._priceFormatter;
+    this.averageFillPrice.formatter = this._priceFormatter;
+
     [
       OrderColumn.averageFillPrice,
       OrderColumn.price,

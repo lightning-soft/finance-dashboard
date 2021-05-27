@@ -5,7 +5,6 @@ import {
   DataCell,
   HoverableItem,
   IconCell,
-  IFormatter,
   NumberCell, PriceFormatter,
   ProfitClass,
 } from 'data-grid';
@@ -38,7 +37,8 @@ type IPositionItem = {
 };
 
 export class PositionItem extends HoverableItem implements IPositionItem {
-  private _priceFormatter: IFormatter = new PriceFormatter(2);
+  private _PLFormatter = new PriceFormatter(2);
+  private _priceFormatter = new PriceFormatter(this.position.instrument?.precision ?? 2);
 
   account = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
@@ -50,7 +50,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
-    formatter: this._priceFormatter,
+    formatter: this._PLFormatter,
     getStatusByStyleProp
   });
   realized = new NumberCell({
@@ -58,25 +58,24 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
-    formatter: this._priceFormatter,
+    formatter: this._PLFormatter,
     getStatusByStyleProp
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     withHoverStatus: true,
+    formatter: this._PLFormatter,
+    ignoreZero: false,
     getStatusByStyleProp,
-    formatter: this._priceFormatter,
-    ignoreZero: false
   });
   close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
   side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  position: IPosition;
 
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
 
-  constructor(position?: IPosition) {
+  constructor(public position?: IPosition) {
     super();
     if (!position) {
       return;
@@ -86,6 +85,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
 
   update(position: IPosition) {
     this.position = { ...this.position, ...position };
+    this._priceFormatter.updateDigits(this.position.instrument?.precision ?? 2);
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument?.symbol);
     this.exchange.updateValue(this.position.instrument?.exchange);
