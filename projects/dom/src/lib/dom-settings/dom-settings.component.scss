@@ -23,8 +23,8 @@ cdk-virtual-scroll-viewport {
 
   .reset-settings {
     grid-template-columns: 265px 1fr;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .close-current-orders {
@@ -33,6 +33,21 @@ cdk-virtual-scroll-viewport {
 
   .d-grid {
     display: grid !important;
+  }
+
+  .p-x-10 {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .p-x-7 {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+
+  .p-x-4 {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 
   .field-item {
@@ -100,7 +115,7 @@ cdk-virtual-scroll-viewport {
         margin-bottom: 0px;
         line-height: 1;
         padding-bottom: 7px;
-        padding-left: 3px;
+        padding-left: 10px;
         color: $text-40;
 
         &:after {
