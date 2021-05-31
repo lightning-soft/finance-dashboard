@@ -11,7 +11,7 @@ export interface IWindowManager {
 
   createWindow(option: object): IWindow;
   load(config);
-  save(): saveData;
+  save(): saveData[];
   updateGlobalOffset(): void;
   setCustomBounds(bounds: Bounds): void;
 }
@@ -20,6 +20,7 @@ export interface IWindow {
   id: number;
   x: number;
   y: number;
+  z: number;
   height: number;
   width: number;
   minWidth: number;
@@ -39,6 +40,7 @@ export interface IWindow {
   component: ILayoutNode;
 
   on(event: EVENTS, fn: Executor): void;
+  save(): saveData;
   setTitle(title: string);
   minimize();
   maximize();

@@ -1920,7 +1920,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       afterResize();
   }
 
-  saveState?(): IDomState {
+  saveState(): IDomState {
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
@@ -1932,7 +1932,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     };
   }
 
-  loadState?(state: IDomState) {
+  loadState(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)

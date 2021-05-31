@@ -35,6 +35,7 @@
   </div>
 
   <side-form
+    #domForm
     [class.d-none]="!showChartForm || !enableOrderForm"
     [accountId]="accountId"
     [position]="position"
@@ -56,6 +57,9 @@
   <ul class="chart-menu-dropdown" nz-menu>
     <li (click)="showOHLV = !showOHLV" nz-menu-item>{{showOHLV ? 'Hide' : 'Show'}} OHLV</li>
     <li (click)="showChanges = !showChanges" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
+    <li nz-menu-divider></li>
+    <li (click)="saveTemplate()" [nzDisabled]="!loadedTemplate" nz-menu-item>Save</li>
+    <li (click)="createTemplate()" nz-menu-item>Save as ...</li>
     <!--  <li nz-menu-divider></li>
       <li nz-menu-item>Reset PB</li>
       <li nz-menu-divider></li>

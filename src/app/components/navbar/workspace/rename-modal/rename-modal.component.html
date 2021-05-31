@@ -1,9 +1,9 @@
 <div class="text-left">
-  <small class="text-muted px-2 mb-1">Name workspace</small>
-  <input class="custom-form-control ant-input" type="text" nz-input [(ngModel)]="workspaceName">
+  <small class="text-muted px-2 mb-1">{{label}}</small>
+  <input class="custom-form-control ant-input" type="text" nz-input [(ngModel)]="name">
 </div>
 
 <div *nzModalFooter>
-  <button nz-button nzType="default" class="ant-btn modal-btn" (click)="handleCancel()">Cancel</button>
-  <button nz-button nzType="primary" class="ant-btn ant-btn-primary" (click)="handleOk()">Save</button>
+  <button  class="ant-btn modal-btn" (click)="handleCancel()">Cancel</button>
+  <button [disabled]="!name" class="ant-btn ant-btn-primary" (click)="handleOk()">Save</button>
 </div>

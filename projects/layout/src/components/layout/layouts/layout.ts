@@ -2,12 +2,14 @@ import { ComponentFactoryResolver, ComponentRef, ElementRef, ViewContainerRef } 
 import { LoadingService } from 'lazy-modules';
 import { IDropable } from './dropable';
 import { LoaderComponent } from 'ui';
-import { IWindow } from 'window-manager';
+import { IWindow, saveData } from 'window-manager';
+import { ILayoutNode } from "../../layout.node";
 
 export type ComponentOptions = {
   component: {
     name: string;
     state?: any;
+    template?: any;
   },
   x?: number | string;
   y?: number | string;
@@ -75,7 +77,7 @@ export abstract class Layout implements IDropable {
 
   abstract getWidgets(): IWindow[];
 
-  abstract getState(): any;
+  abstract getState(): saveData[];
 
   abstract async loadState(state: any);
 

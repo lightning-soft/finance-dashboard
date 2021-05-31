@@ -265,6 +265,16 @@ export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
     }
   }
 
+  loadState(state: Partial<SideOrderForm>): void {
+    this.form.patchValue(state ?? {});
+  }
+
+  getState(): Partial<SideOrderForm> {
+    return {
+      quantity: (this.form.controls as SideOrderForm).quantity.value,
+    };
+  }
+
   protected _handleConnection(connection: IConnection) {
     super._handleConnection(connection);
     this._historyRepository = this._historyRepository.forConnection(connection);

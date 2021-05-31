@@ -22,6 +22,21 @@ button {
     &__item {
       display: list-item;
     }
+
+    .chart-submenu {
+      padding: 0 !important;
+
+      .ant-dropdown-menu-submenu-title {
+        width: 100%;
+        padding: 3px 5px;
+        text-align: left;
+        font-size: 11px;
+      }
+
+      .ant-dropdown-menu-submenu-arrow {
+        display: none;
+      }
+    }
   }
 }
 
@@ -66,7 +81,7 @@ button {
     justify-content: flex-start;
     margin: 0;
     padding: 3px 5px;
-    font-size: 12px;
+    font-size: 11px;
     text-align: center;
     line-height: 16px;
     border-radius: 2px;
@@ -91,4 +106,47 @@ button {
 .divider {
   background-color: $light2;
   margin: 5px;
+}
+
+.submenu-item {
+  position: relative;
+  height: 22px;
+  width: 150px;
+  overflow: hidden;
+
+  .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    padding-left: 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    button {
+      width: auto;
+      padding: 0;
+      margin-right: 4px;
+      background-color: transparent;
+      font-size: 0.8rem;
+      font-weight: 400;
+
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
+
+  &:hover {
+    .actions {
+      opacity: 1;
+      background: linear-gradient(270deg, #383A40 77.08%, rgba(56, 58, 64, 0) 100%);
+    }
+  }
 }

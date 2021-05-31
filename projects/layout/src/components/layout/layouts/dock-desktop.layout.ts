@@ -1,9 +1,11 @@
 import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
-import { IWindow, Options, WindowManagerService } from 'window-manager';
+import { IWindow, Options, saveData, WindowManagerService } from 'window-manager';
 import { EmptyLayout } from '../empty-layout';
 import { ComponentOptions, Layout } from './layout';
+import { IBaseTemplate } from "templates";
+import { ILayoutNode } from "layout";
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
@@ -50,6 +52,7 @@ export class DockDesktopLayout extends Layout {
   async addComponent(componentNameOrConfig: ComponentOptions | any) {
     let componentName: string;
     let componentState: any;
+    let componentTemplate: IBaseTemplate;
     let config: any;
 
     if (typeof componentNameOrConfig === 'string') {
@@ -59,6 +62,7 @@ export class DockDesktopLayout extends Layout {
       const { component, ..._config } = componentNameOrConfig;
       config = _config;
       componentState = component?.state;
+      componentTemplate = component?.template;
       componentName = component?.name;
     }
     if (!this.canAddComponent(componentNameOrConfig)) {
@@ -117,6 +121,7 @@ export class DockDesktopLayout extends Layout {
               left: true,
             },
             ...configData,
+            ...componentTemplate?.tabState,
             componentState: () => ({
               state: instance.saveState && instance.saveState(),
               name: componentName,
@@ -131,7 +136,9 @@ export class DockDesktopLayout extends Layout {
           if (config.hidden)
             instance.minimize();
 
-          if (instance.loadState) {
+          if (componentTemplate && instance.loadTemplate) {
+            instance.loadTemplate(componentTemplate);
+          } else if (instance.loadState) {
             instance.loadState(componentState);
           }
 
@@ -233,7 +240,7 @@ export class DockDesktopLayout extends Layout {
     }
   }
 
-  getState(): any {
+  getState(): saveData[] {
     return this._windowManagerService.saveState();
   }
 
