@@ -76,20 +76,20 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     /*
     / For performance reason avoiding ng zone in some cases
     */
-    const zone = this._zone;
-    Element.prototype.addEventListener = function (...args) {
-      const _this = this;
+    // const zone = this._zone;
+    // Element.prototype.addEventListener = function (...args) {
+    //   const _this = this;
 
-      if (['wm-container'].some(i => this.classList.contains(i)) ||
-        ['CANVAS'].includes(this.tagName)
-      ) {
-        const fn = args[1];
-        if (typeof fn == 'function')
-          args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
-      }
+    //   if (['wm-container'].some(i => this.classList.contains(i)) ||
+    //     ['CANVAS'].includes(this.tagName)
+    //   ) {
+    //     const fn = args[1];
+    //     if (typeof fn == 'function')
+    //       args[1] = (...params) => zone.runOutsideAngular(() => fn.apply(_this, params));
+    //   }
 
-      return addEventListener.apply(_this, args);
-    };
+    //   return addEventListener.apply(_this, args);
+    // };
   }
 
   ngAfterViewInit() {

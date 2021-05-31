@@ -5,7 +5,6 @@ import {
   DataCell,
   HoverableItem,
   IconCell,
-  IFormatter,
   NumberCell, PriceFormatter,
   ProfitClass,
 } from 'data-grid';
@@ -38,18 +37,20 @@ type IPositionItem = {
 };
 
 export class PositionItem extends HoverableItem implements IPositionItem {
-  private _priceFormatter: IFormatter;
+  private _PLFormatter = new PriceFormatter(2);
+  private _priceFormatter = new PriceFormatter(this.position.instrument?.precision ?? 2);
 
   account = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
   size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
+    formatter: this._PLFormatter,
     getStatusByStyleProp
   });
   realized = new NumberCell({
@@ -57,37 +58,34 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
+    formatter: this._PLFormatter,
     getStatusByStyleProp
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     withHoverStatus: true,
+    formatter: this._PLFormatter,
+    ignoreZero: false,
     getStatusByStyleProp,
-    ignoreZero: false
   });
   close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
   side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  position: IPosition;
 
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
 
-  constructor(position?: IPosition) {
+  constructor(public position?: IPosition) {
     super();
     if (!position) {
       return;
     }
-    this._priceFormatter = new PriceFormatter(position.instrument?.precision ?? 2);
-    this.price.formatter = this._priceFormatter;
-    this.unrealized.formatter = this._priceFormatter;
-    this.realized.formatter = this._priceFormatter;
-    this.total.formatter = this._priceFormatter;
     this.update(position);
   }
 
   update(position: IPosition) {
     this.position = { ...this.position, ...position };
+    this._priceFormatter.updateDigits(this.position.instrument?.precision ?? 2);
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument?.symbol);
     this.exchange.updateValue(this.position.instrument?.exchange);

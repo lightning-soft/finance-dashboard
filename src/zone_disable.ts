@@ -61,4 +61,9 @@
 // (window as any).__Zone_disable_timers = true; // animation ngzorro depends
 (window as any).__Zone_disable_defineProperty = true;
 (window as any).__Zone_disable_toString = true;
-(window as any).__zone_symbol__UNPATCHED_EVENTS = ['close', 'error', 'open', 'message']; // ws events
+(window as any).__zone_symbol__UNPATCHED_EVENTS = [
+  'close', 'error', 'open', 'message', // ws events
+  'wheel', 'scroll',
+  'mousemove', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel',
+];
+

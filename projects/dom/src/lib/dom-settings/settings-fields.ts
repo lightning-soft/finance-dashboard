@@ -27,7 +27,6 @@ export const commonFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Font',
     key: 'common',
-    fieldGroupClassName: 'd-flex two-rows flex-wrap',
     fieldGroup: [
       {
         type: FieldType.Select,
@@ -66,7 +65,7 @@ export const commonFields: IFieldConfig[] = [
       new FieldConfig({
         label: 'General Color',
         key: 'generalColors',
-        fieldGroupClassName: 'd-flex two-rows flex-wrap',
+        fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         className: 'w-100 ml-0 field-item',
         fieldGroup: [
           getColor('Grid Line Color', (value) => {
@@ -105,7 +104,7 @@ export const commonFields: IFieldConfig[] = [
               { label: 'Сurrent Bid', key: 'currentBid' },
             ],
             label: 'Columns View',
-            extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows' }
+            extraConfig: { className: 'w-100', fieldGroupClassName: 'd-grid mt-2 grid-two-rows p-x-7' }
           }), className: 'w-100  field-item'
       }
     ]
@@ -210,10 +209,11 @@ export const generalFields: IFieldConfig[] = [
           key: 'digitsToHide',
           type: FieldType.Number,
         }],
-        extraConfig: { className: 'field-item' },
+        extraConfig: { className: 'field-item', fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7', },
       }),
       new FieldConfig({
         label: 'Common View',
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
@@ -248,7 +248,6 @@ export const generalFields: IFieldConfig[] = [
               config: { className: 'm-0' }
             }],
             extraConfig: {
-              fieldGroupClassName: '',
               className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
               wrappers: [],
             },
@@ -272,7 +271,7 @@ export const generalFields: IFieldConfig[] = [
       new FieldConfig({
         label: 'Depth & Market',
         key: 'marketDepth',
-        fieldGroupClassName: 'd-flex two-rows flex-wrap',
+        fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         fieldGroup: [
           {
             templateOptions: { label: 'Market Depth',  min: 1, },
@@ -301,7 +300,7 @@ export const generalFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         label: 'Intervals',
-        fieldGroupClassName: 'd-flex two-rows flex-wrap ',
+        fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         fieldGroup: [
           {
             templateOptions: { label: 'Clear Trades Timer Interval',  min: 1 },
@@ -352,6 +351,7 @@ export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Last Traded Quantity (LTQ)',
     key: 'ltq',
+    fieldGroupClassName: 'd-flex flex-wrap p-x-4',
     fieldGroup: [
       new FieldConfig({
           fieldGroup: [
@@ -365,7 +365,7 @@ export const ltqFields: IFieldConfig[] = [
         },
       ),
       {
-        fieldGroupClassName: 'd-flex flex-wrap two-rows',
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-4',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
@@ -389,6 +389,7 @@ function buttonApplier(selector, value) {
 
 export const orderAreaFields: IFieldConfig[] = [
   new FieldConfig({
+    fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     label: 'Order Area',
     fieldGroup: [
       getColor('Buy Buttons Background Color', (background) => {
@@ -448,6 +449,7 @@ export const orderAreaFields: IFieldConfig[] = [
 ];
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
+    fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     label: 'Price',
     fieldGroup: [
       getColor({ label: 'Highlight Background Color', key: 'highlightBackgroundColor' }),
@@ -464,6 +466,7 @@ export const priceFields: IFieldConfig[] = [
 function getDeltaFields(label: string) {
   return [
     new FieldConfig({
+      fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       label,
       fieldGroup: [
         getBackgroundColor(),
@@ -507,6 +510,7 @@ function getDepthConfig(label: string) {
   return new FieldConfig({
     label: `${label} Depth`,
     key: label.toLowerCase(),
+    fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     fieldGroup: [
       getColor('Background Color'),
       getFontColor(),
@@ -539,6 +543,7 @@ function getTotalFields(label: string, key: string) {
     new FieldConfig({
       label,
       key,
+      fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
         getBackgroundColor(),
         getHightlightColor(),
@@ -560,6 +565,7 @@ export const volumeFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Volume Profile',
     key: 'volume',
+    fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     // fieldGroupClassName: '',
     fieldGroup: [
       getColor('Background Color'),
@@ -613,6 +619,7 @@ export const orderColumnFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-4',
         fieldGroup: [
           getColor('Background Color'),
           getColor('Highlight Color'),
@@ -623,6 +630,7 @@ export const orderColumnFields: IFieldConfig[] = [
         ],
       }),
       new FieldConfig({
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-4',
         fieldGroup: [
           {
             ...getCheckboxes({
@@ -637,6 +645,7 @@ export const orderColumnFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         className: 'mb-0',
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
         fieldGroup: [
           getColor({ label: 'In Profit Background', key: 'inProfitBackgroundColor' }),
           getColor({ label: 'In Profit Foreground', key: 'inProfitColor' }),
@@ -657,6 +666,7 @@ export const orderColumnFields: IFieldConfig[] = [
         ]
       }),
       new FieldConfig({
+        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
         fieldGroup: [
           disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
           disableExpression(getColor({
@@ -682,6 +692,7 @@ function getCurrentFields(suffix: string) {
     new FieldConfig({
       label: `Current At ${suffix}`,
       key: `current${suffix}`,
+      fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
         getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }] }),
         getBackgroundColor(),

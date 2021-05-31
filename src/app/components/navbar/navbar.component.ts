@@ -1,12 +1,10 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Input } from '@angular/core';
-import { LayoutComponent } from 'layout';
-import { NotificationService } from 'notification';
-import { Themes, ThemesHandler } from 'themes';
-import { NavbarPosition, SettingsService } from 'settings';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { fromEvent, merge } from 'rxjs';
-import { debounceTime, map, tap } from 'rxjs/operators';
+import { LayoutComponent } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
+import { NotificationService } from 'notification';
+import { NavbarPosition, SettingsService } from 'settings';
+import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
 
 @UntilDestroy()
@@ -27,7 +25,8 @@ export class NavbarComponent implements AfterViewInit {
   @HostBinding('class.is-electron') public isElectron: boolean;
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
-  @HostBinding('class.hidden') get hidden() {
+  @HostBinding('class.hidden')
+  get hidden() {
     return this.isNavbarHidden && !this.navbarActive && !this.isInsideDropdownOpened;
   }
 
@@ -43,8 +42,11 @@ export class NavbarComponent implements AfterViewInit {
     return this.currentNavbarPosition === NavbarPosition.Top ? 'bottomLeft' : 'topLeft';
   }
 
+  timeout: number;
+
   constructor(
     private themeHandler: ThemesHandler,
+    private _ngZone: NgZone,
     private notificationService: NotificationService,
     private settingsService: SettingsService,
     private elementRef: ElementRef,
@@ -64,27 +66,30 @@ export class NavbarComponent implements AfterViewInit {
           this._updateWindowsBounds();
         }
       });
+  }
 
-    merge(
-      fromEvent(this.elementRef.nativeElement, 'mouseleave'),
-      fromEvent(this.elementRef.nativeElement, 'mouseover').pipe(tap(() => {
-        this.navbarActive = true;
-        this._updateWindowsBounds();
-      })),
-      fromEvent(document, 'click'),
-    ).pipe(
-      map((event: MouseEvent) => {
-        return event.type === 'mouseover' || this._isHostContainsElement(document.activeElement) || (
-          event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement)
-        );
-      }),
-      debounceTime(500),
-      untilDestroyed(this)
-    ).subscribe((active: boolean) => {
-      if (this.navbarActive !== active) {
-        this.navbarActive = active;
-        this._updateWindowsBounds();
-      }
+  @HostListener('mouseover', ['$event'])
+  @HostListener('mouseleave', ['$event'])
+  @HostListener('document:click', ['$event'])
+  mouseMove(event: any) {
+    const active = event.type === 'mouseover'
+      || this._isHostContainsElement(document.activeElement)
+      || (event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement));
+
+    if (this.navbarActive !== active) {
+      if (!active)
+        this.timeout = setTimeout(() => this.setNavBarActive(active), 500);
+      else
+        this.setNavBarActive(active);
+    } else if (this.timeout != null) {
+      clearTimeout(this.timeout);
+    }
+  }
+
+  setNavBarActive(active) {
+    this._ngZone.run(() => {
+      this.navbarActive = active;
+      this._updateWindowsBounds();
     });
   }
 

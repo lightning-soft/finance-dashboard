@@ -93,7 +93,6 @@ export class DomItemMax {
     this.volume = null;
     this.totalAsk = null;
     this.totalBid = null;
-
     // this.currentAsk = null;
     // this.currentBid = null;
     // this.askDelta = -Infinity;
@@ -263,7 +262,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
-    private _elementRef: ElementRef,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -934,7 +932,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
 
-
     this._loadData();
   }
 
@@ -1086,6 +1083,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._loadPositions();
     this._loadOrderBook();
+    this.refresh();
+
     this._ohlvFeed.subscribe(this.instrument);
   }
 
@@ -1904,7 +1903,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = this.dataGrid.scrollWidth;
     const window = this._windowManagerService.getWindowByComponent(this);
-    const minWindowWidth = minGridWidth + (window.width - currentGridWidth);
+    const minWindowWidth = minGridWidth + (window._container.offsetWidth - currentGridWidth);
     window.options.minWidth = minWindowWidth;
 
     if (minGridWidth > currentGridWidth) {

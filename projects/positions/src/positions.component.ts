@@ -64,7 +64,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
-  maxPrecision: number;
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
@@ -219,7 +218,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   private updatePl(): void {
-    this.maxPrecision = this.positions.reduce((accum, position) => Math.max(accum, position.instrument.precision), 0);
     this.open = this.builder.items.filter(item => item.position)
       .reduce((total, current) => total + (+current?.unrealized.numberValue ?? 0), 0);
     this.realized = this.positions.reduce((total, current) => total + current.realized, 0);
