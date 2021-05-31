@@ -58,7 +58,8 @@ export class WorkspaceComponent implements OnInit {
       nzClassName: 'modal-dialog-workspace',
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
-        workspaceName: workspace.name,
+        name: workspace.name,
+        label: 'Name workspace'
       },
     });
 

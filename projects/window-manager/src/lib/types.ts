@@ -18,16 +18,18 @@ export type Options = {
   height: number,
   minHeight: number,
   minWidth: number,
-  title: string
-  closable: boolean
-  minimizable: boolean
-  movable: boolean
-  maximizable: boolean
-  resizable: boolean
-  styles: object
+  title: string,
+  closable: boolean,
+  minimizable: boolean,
+  movable: boolean,
+  maximizable: boolean,
+  resizable: boolean,
+  allowPopup: boolean,
+  closableIfPopup: boolean,
+  styles: object,
   classNames: object,
-  draggableClass: string
-  order: number
+  draggableClass: string,
+  order: number,
   componentState: () => {name: string, state: any};
 };
 

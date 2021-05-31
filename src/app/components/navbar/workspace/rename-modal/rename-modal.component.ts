@@ -7,10 +7,11 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
   styleUrls: ['./rename-modal.component.scss'],
 })
 export class RenameModalComponent {
-  workspaceName: string;
+  name: string;
+  label = 'Name';
 
   constructor(private modal: NzModalRef) {
-    this.workspaceName = modal.getConfig().nzComponentParams.workspaceName;
+    this.name = modal.getConfig().nzComponentParams.name;
   }
 
   public handleCancel(): void {
@@ -18,7 +19,7 @@ export class RenameModalComponent {
   }
 
   public handleOk(): void {
-    this.modal.close(this.workspaceName);
+    this.modal.close(this.name);
   }
 
 }

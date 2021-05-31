@@ -260,6 +260,12 @@
     },
     {
       "path": "./projects/cache/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/templates/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/templates/tsconfig.spec.json"
     }
   ]
 }

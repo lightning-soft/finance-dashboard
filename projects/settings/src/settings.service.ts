@@ -9,6 +9,7 @@ import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
 import { catchError } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
+import { IBaseTemplate } from "templates";
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -56,6 +57,7 @@ const defaultSettings: SettingsData = {
   localTimezoneTitle: 'Local',
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
+  templates: [],
 };
 
 @Injectable()
@@ -135,6 +137,11 @@ export class SettingsService {
 
   saveLocalTimezoneTitle(localTimezoneTitle: string): void {
     this._updateState({ localTimezoneTitle });
+  }
+
+  saveTemplates(templates: IBaseTemplate[]): void {
+    console.log(templates);
+    this._updateState({ templates });
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {

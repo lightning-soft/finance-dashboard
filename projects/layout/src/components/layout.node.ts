@@ -1,28 +1,10 @@
-import { ComponentRef } from '@angular/core';
+import { ViewRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 import { Layout } from './layout/layouts/layout';
+import { IWindow, saveData } from "window-manager";
 
 declare const $: any;
-
-// To remove
-export interface IContainer {
-  maximized: object | boolean;
-  minimized: boolean;
-  maximazable: boolean;
-  minimazable: boolean;
-  options: any;
-  z: number;
-  component: ILayoutNode;
-
-  setTitle(title: string);
-
-  minimize();
-
-  maximize();
-
-  close();
-}
 
 export interface IStateProvider<T = any> {
   saveState?(): T;
@@ -31,7 +13,7 @@ export interface IStateProvider<T = any> {
 }
 
 export interface ILayoutNode {
-  layoutContainer?: any;
+  layoutContainer?: IWindow;
 
   layout?: Layout;
 
@@ -44,6 +26,8 @@ export interface ILayoutNode {
   getTabTitle?(): string;
 
   setTabTitle?(value: string);
+
+  getTabState?(): saveData;
 
   setNavbarTitleGetter?(value: () => string): void;
 
@@ -87,7 +71,7 @@ const linkDataObserver = new LinkDataObserver();
 // tslint:disable-next-line: class-name
 abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
-  private componentRef: ComponentRef<typeof _LayoutNode>;
+  private componentRef: ViewRef;
 
   private _tabTitle: string;
 
@@ -95,7 +79,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   private _tabIcon: string;
 
-  layoutContainer: IContainer;
+  layoutContainer: IWindow;
   layout: Layout;
 
   link: number;
@@ -258,6 +242,10 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   setZIndex(index: number) {
     this.layoutContainer.z = index;
+  }
+
+  getTabState(): saveData {
+    return this.layoutContainer.save();
   }
 
   _removeItself() {
