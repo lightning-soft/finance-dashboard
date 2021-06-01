@@ -291,8 +291,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
-    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice + tickSize :
-      roundToTickSize(currentPrice + tickSize, tickSize);
+    const _newPrice = currentPrice + tickSize;
+    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
+      roundToTickSize(_newPrice, tickSize);
 
     this.price = +newPrice.toFixed(this.precision);
     this.handlePriceChange();
@@ -304,8 +305,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     const tickSize = this.instrument?.tickSize || 0.1;
     const currentPrice = this.price || 0;
-    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice - tickSize :
-      roundToTickSize(currentPrice - tickSize, tickSize, 'floor');
+    const _newPrice = currentPrice - tickSize;
+    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
+      roundToTickSize(_newPrice, tickSize, 'floor');
 
     if (newPrice >= 0)
       this.price = +newPrice.toFixed(this.precision);
