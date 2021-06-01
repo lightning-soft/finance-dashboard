@@ -15,8 +15,8 @@ import {
   PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
 } from 'trading';
 import { RealPositionsRepository } from 'real-trading';
-import { Storage } from "storage";
-import { NumberHelper } from "base-components";
+import { Storage } from 'storage';
+import { NumberHelper } from 'base-components';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -292,7 +292,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice + tickSize :
-      roundToTickSize(currentPrice, tickSize);
+      roundToTickSize(currentPrice + tickSize, tickSize);
 
     this.price = +newPrice.toFixed(this.precision);
     this.handlePriceChange();
@@ -305,7 +305,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const tickSize = this.instrument?.tickSize || 0.1;
     const currentPrice = this.price || 0;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice - tickSize :
-      roundToTickSize(currentPrice, tickSize, 'floor');
+      roundToTickSize(currentPrice - tickSize, tickSize, 'floor');
 
     if (newPrice >= 0)
       this.price = +newPrice.toFixed(this.precision);
