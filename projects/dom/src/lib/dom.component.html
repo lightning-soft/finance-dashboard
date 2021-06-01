@@ -1,6 +1,12 @@
+<loader *ngIf="loading"></loader>
+
 <window-header (contextmenu)="grid.createComponentModal($event)" [window]="this">
   <instrument-select class="ml-1" [(instrument)]="instrument"></instrument-select>
-  <account-select [labelTransformer]="transformAccountLabel.bind(this)" class="ml-1" (accountChange)="handleAccountChange($event)"></account-select>
+  <account-select [labelTransformer]="transformAccountLabel.bind(this)"
+                  [loadingHandler]="loadingHandler"
+                  class="ml-1"
+                  (accountChange)="handleAccountChange($event)"
+  ></account-select>
 </window-header>
 <div (contextmenu)="grid.createComponentModal($event)" class="window-header-button">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">

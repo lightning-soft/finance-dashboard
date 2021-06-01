@@ -8,20 +8,22 @@ import { PositionsComponent } from './positions.component';
 import { LayoutModule } from 'layout';
 import { WindowHeaderModule } from 'window-header';
 import { BaseComponentsModule } from "base-components";
+import { LoaderModule } from "ui";
 
 @NgModule({
-  imports: [
-    CommonModule,
-    DataGridModule,
-    NzSelectModule,
-    ReactiveFormsModule,
-    LayoutModule,
-    WindowHeaderModule,
-    NzDropDownModule,
-    NzRadioModule,
-    FormsModule,
-    BaseComponentsModule,
-  ],
+    imports: [
+        CommonModule,
+        DataGridModule,
+        NzSelectModule,
+        ReactiveFormsModule,
+        LayoutModule,
+        WindowHeaderModule,
+        NzDropDownModule,
+        NzRadioModule,
+        FormsModule,
+        BaseComponentsModule,
+        LoaderModule,
+    ],
   exports: [
     PositionsComponent
   ],
