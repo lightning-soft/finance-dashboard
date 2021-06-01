@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
@@ -9,7 +9,6 @@ import {
   IOrder,
   OrderDuration,
   OrderSide,
-  OrderStatus,
   OrderType,
   PositionsRepository,
   isForbiddenOrder, compareInstruments
@@ -70,11 +69,10 @@ export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   styleUrls: ['./side-order-form.component.scss']
 })
 @UntilDestroy()
-export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
+export class SideOrderFormComponent extends BaseOrderForm {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   private _ocoStep = OcoStep.None;
-  private _defaultFormState: Partial<SideOrderForm>;
 
   totalQuantity: number;
   buyQuantity: number;
@@ -118,16 +116,6 @@ export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
     });
 
     this.totalQuantity = this.buyQuantity + this.sellQuantity;
-  }
-
-  @Input() set defaultFormState(state: Partial<SideOrderForm>) {
-    this._defaultFormState = state;
-    if (state && this.form)
-      this.form.patchValue(state);
-  }
-
-  get defaultFormState() {
-    return this._defaultFormState;
   }
 
   @ViewChild('quantity')
@@ -256,13 +244,6 @@ export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
   ) {
     super();
     this.autoLoadData = false;
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-    if (this.defaultFormState) {
-      this.form.patchValue(this.defaultFormState);
-    }
   }
 
   loadState(state: Partial<SideOrderForm>): void {

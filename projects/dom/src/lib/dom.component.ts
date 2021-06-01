@@ -1140,6 +1140,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngAfterViewInit() {
     this._handleResize();
+    this.domForm.loadState(this.orderFormState);
   }
 
   _getDomItemsMap() {
