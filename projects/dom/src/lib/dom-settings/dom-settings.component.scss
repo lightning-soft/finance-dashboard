@@ -35,21 +35,6 @@ cdk-virtual-scroll-viewport {
     display: grid !important;
   }
 
-  .p-x-10 {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
-
-  .p-x-7 {
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-  }
-
-  .p-x-4 {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
-  }
-
   .field-item {
     display: block;
 
@@ -84,10 +69,6 @@ cdk-virtual-scroll-viewport {
 
   .cdk-virtual-scroll-content-wrapper {
     contain: unset;
-  }
-
-  .ticks-per-price {
-    margin-left: calc(48% + 6px) !important;
   }
 
   .use-tick-size {
