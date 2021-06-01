@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy,
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
 import { Datafeed, RithmicDatafeed } from './datafeed';
@@ -11,16 +11,13 @@ import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { LoadingService } from 'lazy-modules';
-import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { Orders, Positions } from './objects';
-import { Id } from 'communication';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
+import { AccountNode, AccountsManager } from 'accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
-  HistoryRepository,
   IHistoryItem,
   IOrder,
   IQuote,
@@ -31,12 +28,12 @@ import {
   PositionsRepository,
   QuoteSide,
   UpdateType,
-  OHLVFeed, IPosition, compareInstruments
+  OHLVFeed, IPosition, compareInstruments, IConnection
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
-import { TradeDataFeed } from 'trading';
+import { InstrumentSelectComponent } from 'instrument-select';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -57,13 +54,14 @@ export interface ChartComponent extends ILayoutNode {
   ]
 })
 @LayoutNode()
-export class ChartComponent implements AfterViewInit, OnDestroy {
+export class ChartComponent extends AccountNode implements AfterViewInit, OnDestroy {
   loading: boolean;
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
+  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
   chart: IChart;
   link: any;
   directions = ['window-left', 'window-right'];
@@ -87,16 +85,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   showOHLV = true;
   showChanges = true;
-  private _accountId: Id;
-
-  get accountId(): Id {
-    return this._accountId;
-  }
-
-  set accountId(value: Id) {
-    this._accountId = value;
-    this.refresh();
-  }
 
   get instrument() {
     return this.chart?.instrument;
@@ -120,7 +108,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       value.company = this._getInstrumentCompany();
     }
 
-    this.refresh();
+    this.chart.reload();
 
     this.lastHistoryItem = null;
     this.income = null;
@@ -131,11 +119,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._levelOneDatafeed.subscribe(this.chart.instrument);
   }
 
-  private loadedState = new BehaviorSubject<IScxComponentState &
+  private _loadedState$ = new BehaviorSubject<IScxComponentState &
     {
       showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
       showOrderConfirm: boolean, enableOrderForm: boolean
     }>(null);
+
+  private _loadedChart$ = new ReplaySubject<IChart>(1);
+
+  loadedChart$ = this._loadedChart$.asObservable()
+    .pipe(untilDestroyed(this));
 
   bestAskPrice: number;
   bestBidPrice: number;
@@ -158,36 +151,59 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     protected _themesHandler: ThemesHandler,
     protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
-    private _historyRepository: HistoryRepository,
     protected datafeed: Datafeed,
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
     protected _accountsManager: AccountsManager,
-    private _tradeDataFeed: TradeDataFeed,
     private _ohlvFeed: OHLVFeed,
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
   ) {
+    super();
+
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
 
+    this._accountsManager.subscribe(this, this._orders, this._positions);
+  }
+
+  async ngAfterViewInit() {
+    this._accountsManager.subscribe(this, this._instrumentSelect);
+
+    this.loadFiles()
+      .then(() => this.loadChart())
+      .catch(e => console.error(e));
+  }
+
+  handleConnect(connection: IConnection) {
+    super.handleConnect(connection);
+
+    this._ohlvFeed.subscribe(this.instrument);
+
     this.onRemove(
       this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
-      this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)
-      ));
+      this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)),
+    );
 
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._ordersRepository = this._ordersRepository.forConnection(connection);
-        this._positionsRepository = this._positionsRepository.forConnection(connection);
-        this._historyRepository = this._historyRepository.forConnection(connection);
-      });
+    this.loadedChart$.subscribe(() => {
+      this.chart.datafeed = this.datafeed;
+      this.chart.reload();
+    });
+  }
+
+  handleDisconnect(connection: IConnection) {
+    super.handleDisconnect(connection);
+
+    this._ohlvFeed.unsubscribe(this.instrument);
+
+    this.loadedChart$.subscribe(() => {
+      delete this.chart.datafeed;
+    });
   }
 
   private _updateOHLVData() {
@@ -239,14 +255,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return info ?? '-';
   }
 
-  async ngAfterViewInit() {
-    this.loadFiles()
-      .then(() => this.loadChart())
-      .catch(e => console.error(e));
-  }
-
   saveState() {
     const { chart } = this;
+
     if (!chart) {
       return;
     }
@@ -276,8 +287,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadChart() {
-    const { loadedState } = this;
-    const state = loadedState && loadedState.value;
+    const state = this._loadedState$.value;
     const chart = this.chart = this._initChart(state);
     this.showChanges = state?.showChanges;
     this.showOHLV = state?.showOHLV;
@@ -295,8 +305,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+
     this._orders.init();
     this._positions.init();
+
     this.checkIfTradingEnabled();
 
     chart.showInstrumentWatermark = false;
@@ -310,7 +322,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(value => chart.theme = getScxTheme(value));
 
-    this.loadedState
+    this._loadedState$
       .pipe(untilDestroyed(this))
       .subscribe(value => {
         if (!value) {
@@ -334,6 +346,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
       });
+
+    this._loadedChart$.next(chart);
 
     this.broadcastData(this.link, chart);
 
@@ -385,7 +399,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return new StockChartX.Chart({
       container: $(chartContainer.nativeElement),
       keyboardEventsEnabled: false, // todo: handle key shortcut
-      datafeed: this.datafeed,
       showToolbar: false,
       showScrollbar: false,
       allowReadMoreHistory: true,
@@ -414,6 +427,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart || !data) {
       return;
     }
+
     const { instrument } = data;
 
     if (instrument) {
@@ -421,37 +435,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     chart.sendBarsRequest();
-  }
-
-  refresh() {
-    const { chart } = this;
-
-    if (!chart) {
-      return;
-    }
-
-    if (chart.reload) {
-      chart.reload();
-    }
-    this._positions.refresh();
-    this._orders.refresh();
-  }
-
-  async getToolbarComponent() {
-    const { domElement } = await this._loadingService
-      .getDynamicComponent(WindowToolbarComponent);
-
-    return domElement;
-  }
-
-  handleAccountChange(accountId: Id) {
-    this.accountId = accountId;
-
-    if (this.instrument)
-      this._ohlvFeed.unsubscribe(this.instrument);
-
-    this._ohlvFeed.subscribe(this.instrument);
-    this.refresh();
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {
@@ -474,9 +457,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _getInstrumentCompany() {
-    const connection = this._accountsManager.getActiveConnection();
-
-    return (connection && connection.name) ?? '';
+    return this.connection?.name ?? '';
   }
 
   private _getNavbarTitle(): string {
@@ -496,10 +477,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadState(state?: any) {
     this.link = state?.link ?? Math.random();
 
-    this.loadedState.next(state);
+    this._loadedState$.next(state);
   }
 
   ngOnDestroy(): void {
+    super.ngOnDestroy();
+
     this.destroy();
   }
 
@@ -603,7 +586,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       ...priceSpecs,
       exchange,
       symbol,
-      accountId: this._accountId,
+      accountId: this.accountId,
     };
     if (isOCO) {
       order.isOco = true;
@@ -661,7 +644,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _closePositions() {
     this._positionsRepository.deleteMany({
-      accountId: this._accountId as string,
+      accountId: this.accountId,
       ...this.instrument,
     }).pipe(untilDestroyed(this))
       .subscribe(

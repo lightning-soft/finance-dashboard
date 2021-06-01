@@ -4,10 +4,7 @@
     placeholder="Symbol"
     [(instrument)]="instrument"
   ></instrument-select>
-  <account-select
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
-  <!--  <app-window-toolbar class="wm-draggable"></app-window-toolbar>-->
+  <account-select [node]="this"></account-select>
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item"
        [class.active]="currentDirection === item"

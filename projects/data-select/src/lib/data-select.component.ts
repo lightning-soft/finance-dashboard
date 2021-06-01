@@ -21,6 +21,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnInit, 
   @Input('repository') protected _repository: Repository;
   @Output() handleChange = new EventEmitter<any>();
 
+  opened = false;
+
   constructor(
     protected _injector: Injector,
   ) {
@@ -41,19 +43,16 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnInit, 
     }
   }
 
-  handleToggle(isOpened: boolean) {
-    if (isOpened) {
-      this.builder.replaceItems([]);
-      this.loadData();
-    }
-  }
-
   handleValueChange() {
     const items = this.default ? [this.default].concat(this.items) : this.items;
 
     const item = items.find(i => i.id === this.value);
 
-    this.handleChange.emit(jQuery.extend(true, {}, item));
+    this.handleChange.emit(this.cloneItem(item));
+  }
+
+  cloneItem(item: any): any {
+    return jQuery.extend(true, {}, item);
   }
 
   protected _handleResponse(response, params) {
@@ -65,6 +64,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnInit, 
   private _setValueIfNeeded() {
     if (!this.default && this.value == null && this.items.length) {
       this.value = this.items[0].id;
+
+      this.handleValueChange();
     }
   }
 

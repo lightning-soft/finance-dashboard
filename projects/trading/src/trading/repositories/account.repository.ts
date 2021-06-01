@@ -1,6 +1,5 @@
 import { Repository } from 'communication';
-import { IAccount, IConnection } from 'trading';
+import { IAccount } from 'trading';
 
 export abstract class AccountRepository extends Repository<IAccount> {
-  abstract forConnection(connection: IConnection);
 }

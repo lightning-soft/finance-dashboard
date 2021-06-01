@@ -1,9 +1,7 @@
-import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { BaseOrderForm, orderTypes, QuantityInputComponent, orderDurations } from 'base-order-form';
-import { Id } from 'communication';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import {
   IInstrument,
@@ -12,11 +10,12 @@ import {
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
+  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize, IConnection
 } from 'trading';
 import { RealPositionsRepository } from 'real-trading';
 import { Storage } from "storage";
 import { NumberHelper } from "base-components";
+import { InstrumentSelectComponent } from 'instrument-select';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -35,7 +34,7 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
-export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
+export class OrderFormComponent extends BaseOrderForm implements OnInit, AfterViewInit, OnDestroy, IStateProvider<OrderFormState> {
   orderDurations = orderDurations;
   orderTypes = orderTypes;
   step = 1;
@@ -58,6 +57,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
 
   private _instrument: IInstrument;
 
@@ -115,11 +115,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected positionsRepository: PositionsRepository,
-    // protected _levelOneDatafeedService: Level1DataFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
     super();
@@ -129,6 +127,45 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
     this.price = this._storage.getItem(orderLastPriceKey) ?? 1;
     this.limitPrice = this._storage.getItem(orderLastLimitKey) ?? 1;
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this.onTypeUpdated();
+  }
+
+  ngAfterViewInit() {
+    this._accountsManager.subscribe(this, this._instrumentSelect);
+  }
+
+  handleConnect(connection: IConnection) {
+    super.handleConnect(connection);
+
+    this.onRemove(
+      this._levelOneDatafeed.on((quote: IQuote) => {
+        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price.toFixed(this.precision);
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price.toFixed(this.precision);
+          }
+        }
+      }),
+      this._positionDatafeed.on((pos) => {
+        const position = RealPositionsRepository.transformPosition(pos);
+
+        if (compareInstruments(position.instrument, this.instrument)) {
+          this.position = position;
+        }
+      })
+    );
+  }
+
+  handleAccountChange() {
+    this.form.patchValue({ accountId: this.accountId });
+    this.loadPositions();
   }
 
   getDto(): any {
@@ -169,37 +206,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   saveState(): OrderFormState {
     return { instrument: this.instrument };
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-    this.onTypeUpdated();
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._repository = this._repository.forConnection(connection);
-        this.positionsRepository = this.positionsRepository.forConnection(connection);
-      });
-
-    this.onRemove(
-      this._levelOneDatafeed.on((quote: IQuote) => {
-        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-          if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
-            this.askVolume = quote.volume;
-          } else {
-            this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
-          }
-        }
-      }),
-      this._positionDatafeed.on((pos) => {
-        const position = RealPositionsRepository.transformPosition(pos);
-        if (compareInstruments(position.instrument, this.instrument))
-          this.position = position;
-
-      })
-    );
   }
 
   closePositions() {
@@ -246,12 +252,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     this.apply();
   }
-
-  handleAccountChange(accountId: Id): void {
-    this.form.patchValue({ accountId });
-    this.loadPositions();
-  }
-
 
   protected handleItem(item: IOrder): void {
     super.handleItem(item);

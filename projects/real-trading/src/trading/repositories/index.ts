@@ -20,3 +20,6 @@ export * from './real-order-books.repository';
 export * from './real-volume-history.repository';
 export * from './real-ohlv.data-feed';
 export * from './real-volume-datafeed';
+export * from './real-sessions.repository';
+export * from './real-timezones.repository';
+export * from './connections.factory';

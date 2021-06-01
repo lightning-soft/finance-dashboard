@@ -1,10 +1,9 @@
 import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
+import { AccountsManager, IAccountNodeData } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { filter } from 'rxjs/operators';
 import { ConnectionsRepository, IConnection } from 'trading';
 
 export const accountsOptions = {
@@ -33,7 +32,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
   @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
 
   isLoading: { [key: number]: boolean } = {};
-  activeConnection: IConnection;
+  hasConnectedConnections: boolean;
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
   connectionsListHeight: number;
@@ -55,27 +54,31 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     private nzContextMenuService: NzContextMenuService,
   ) {
     super();
+
     this.builder.setParams({
       filter: (connection: IConnection) => connection.favourite,
     });
-    this._accountsManager.connections
-      .pipe(
-        filter(res => !!res),
-        untilDestroyed(this),
-      )
-      .subscribe((connections) => {
-          const value = connections.filter(item => item.favourite);
-          this.builder.replaceItems(value);
-        }
-      );
+  }
+
+  handleConnectionsChange(data: IAccountNodeData) {
+    const favouriteConnections = data.current.filter(item => item.favourite);
+    this.builder.replaceItems(favouriteConnections);
+  }
+
+  handleConnectedConnectionsChange(data: IAccountNodeData) {
+    const connections = data.current;
+
+    this.hasConnectedConnections = connections.length > 0;
+
+    if (this.hasConnectedConnections) {
+      const connection = connections[0];
+
+      this.connection = connection;
+      this.handleConnect(connection);
+    }
   }
 
   loadData(params?: any) {
-  }
-
-  protected _handleConnection(connection: IConnection) {
-    // super._handleConnection(connection);
-    this.activeConnection = connection;
   }
 
   openAccounts(selectedItem: IConnection = null) {
@@ -104,10 +107,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       .pipe(untilDestroyed(this))
       .subscribe(
         (item) => {
-          if (!item.error) {
-            this.activeConnection = item;
-            this.activeConnection.connected = true;
-          } else {
+          if (item.error) {
             this.contextMenuConnection.error = item.error;
           }
         },
@@ -125,7 +125,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
       .subscribe(
         () => {
           this.contextMenuConnection.connected = false;
-          this.activeConnection = null;
         },
         err => this._notifier.showError(err),
         () => {

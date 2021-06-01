@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { IBaseItem, Repository } from 'communication';
-import { IConnection } from '../models';
 
 // extends from IBaseItem only for types compability
 export interface VolumeHistoryItem extends IBaseItem {
@@ -10,5 +9,4 @@ export interface VolumeHistoryItem extends IBaseItem {
 
 @Injectable()
 export abstract class VolumeHistoryRepository extends Repository<VolumeHistoryItem> {
-  abstract forConnection(connection: IConnection);
 }

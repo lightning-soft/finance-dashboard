@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent, StringHelper } from 'base-components';
@@ -41,7 +41,7 @@ export type SubscribtionHandler = (data?: any) => void;
   styleUrls: ['./watchlist.component.scss'],
 })
 @LayoutNode()
-export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit {
+export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit, AfterViewInit {
   columns: Column[];
 
   isLoading = false;
@@ -87,13 +87,16 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     this.setTabTitle('Watchlist');
   }
 
-  closeMenu(): void {
-    this.nzContextMenuService.close();
-  }
-
-
   ngOnInit(): void {
     this.onRemove(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
+  }
+
+  ngAfterViewInit() {
+    this._accountsManager.subscribe(this, this._instrumentSelect);
+  }
+
+  closeMenu(): void {
+    this.nzContextMenuService.close();
   }
 
   selectInstrument(instrument: IInstrument) {
@@ -173,8 +176,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   }
 
   loadState(state?: IWatchlistState): void {
-    this._subscribeToConnections();
-
     if (state && state.items)
       this.loadInstruments(state.items);
 

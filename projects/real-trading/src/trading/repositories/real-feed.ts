@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
+import { ConnectionsFactory } from './connections.factory';
 import { RealtimeType } from './realtime';
 
 export enum WSMessageTypes {
@@ -12,7 +13,7 @@ export enum WSMessageTypes {
 }
 
 @Injectable()
-export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
+export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory implements Feed<T> {
   type: RealtimeType;
   private _subscriptions: {
     [hash: string]: {
@@ -26,29 +27,20 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
 
-  private get _sucessfullyConected() {
-    return this._accountsManager.getActiveConnection()?.connected && this._webSocketService.sucessfulyConnected;
-  }
-
   private _pendingRequests = [];
 
-  constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
-              @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
-    this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
-    this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
-    this._accountsManager.activeConnection.subscribe((connection) => {
-      if (!connection || !connection.connected)
-        this._onConnectionLost();
-    });
+  constructor(
+    protected _injector: Injector,
+    @Inject(WebSocketService) protected _webSocketService: WebSocketService,
+    @Inject(AccountsManager) protected _accountsManager: AccountsManager,
+  ) {
+    super();
   }
 
-  protected _onConnectionLost() {
-    for (const key in this._unsubscribeFns)
-      this._unsubscribeFns[key]();
-    this._pendingRequests = [];
-    Object.values(this._subscriptions).forEach(item =>
-      this.createPendingRequest(this.subscribeType, item.payload));
-    this._unsubscribeFns = {};
+  initConnectionDeps() {
+    super.initConnectionDeps();
+
+    this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
   }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
@@ -86,7 +78,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
           const dto = { Value: [item], Timestamp: new Date() };
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
           subscriptions[hash].payload = dto;
-          if (this._sucessfullyConected)
+          if (this.connection?.connected)
             this._webSocketService.send({ Type: type, ...dto });
           else
             this.createPendingRequest(type, dto);

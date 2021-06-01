@@ -7,6 +7,7 @@ export interface PaginationResponsePayload {
 
 export interface IPaginationResponse<T = any> extends PaginationResponsePayload {
   data: T[];
+  requestParams?: any;
 }
 
 export interface IPaginationParams {

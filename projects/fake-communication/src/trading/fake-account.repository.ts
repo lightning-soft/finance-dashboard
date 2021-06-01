@@ -23,6 +23,7 @@ export class FakeAccountRepository extends FakeRepository<IAccount> {
       connected: false,
       server: 'aaa',
       account: '+++++222',
+      connectionId: null,
     };
   }
 }

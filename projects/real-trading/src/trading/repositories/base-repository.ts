@@ -1,9 +1,7 @@
 import { HttpRepository, IBaseItem } from 'communication';
-import { IConnection } from 'trading';
 
 export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository<T> {
   protected _needRefreshCache = false;
-  private _connection: IConnection;
 
   protected abstract get suffix();
 
@@ -12,7 +10,7 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   }
 
   protected get _apiKey(): string {
-    return this._connection?.connectionData?.apiKey;
+    return this.connection?.connectionData?.apiKey;
   }
 
   protected get _httpOptions() {
@@ -22,21 +20,4 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
       },
     };
   }
-
-  forConnection(connection: IConnection) {
-    if (this._connection && this._connection?.id === connection?.id)
-      return this;
-
-    const repository = this._getRepository();
-
-    repository._connection = connection;
-
-    if (!this._needRefreshCache) {
-      repository._cache = this._cache;
-    }
-
-    return repository;
-  }
-
-  abstract _getRepository();
 }

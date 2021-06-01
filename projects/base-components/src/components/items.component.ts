@@ -3,6 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload } from 'communication';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
+import { IConnection } from 'trading';
 import { IItemsBuilder, ItemsBuilder } from './items.builder';
 import { LoadingComponent } from './loading.component';
 
@@ -64,12 +65,18 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     return this._total;
   }
 
-  protected _handleConnection(connection) {
-    if (connection) {
-      if ((this.config.autoLoadData || {}).onConnectionChange) {
-        this.refresh();
-      }
-    } else if (this._clearOnDisconnect) {
+  handleConnect(connection: IConnection) {
+    super.handleConnect(connection);
+
+    if ((this.config.autoLoadData || {}).onConnectionChange) {
+      this.refresh();
+    }
+  }
+
+  handleDisconnect(connection: IConnection) {
+    super.handleDisconnect(connection);
+
+    if (this._clearOnDisconnect) {
       this.builder.replaceItems([]);
     }
   }
@@ -87,7 +94,11 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
         finalize(() => hide())
       )
       .subscribe(
-        (response) => this._handleResponse(response, this.params),
+        (response) => {
+          if (!response.requestParams || JSON.stringify(response.requestParams) === JSON.stringify(this.params)) {
+            this._handleResponse(response, this.params);
+          }
+        },
         (error) => this._handleLoadingError(error),
       );
   }
@@ -169,6 +180,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   protected _handleLoadingError(error: any) {
+    console.error(error);
+
     this.showError(error, 'action.load-items-error');
   }
 

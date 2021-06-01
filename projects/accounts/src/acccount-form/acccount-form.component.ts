@@ -1,11 +1,10 @@
-import { Component, forwardRef, Injectable, Input, OnInit, Injector } from '@angular/core';
+import { Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { HttpRepository, IPaginationResponse } from 'communication';
+import { IPaginationResponse } from 'communication';
+import { Observable } from 'rxjs';
 import { ConnectionsRepository } from 'trading';
-import { Observable, pipe } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ItemsComponent } from '../../../base-components/src/components/items.component';
+import { ItemsComponent } from 'base-components';
 
 @Component({
   selector: 'acccount-form',
@@ -45,7 +44,10 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
 
   passwordVisible = true;
 
-  constructor(protected _repository: ServersRepository, protected _injector: Injector) {
+  constructor(
+    protected _repository: ConnectionsRepository,
+    protected _injector: Injector,
+  ) {
     super();
   }
 
@@ -68,8 +70,8 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
     return o?.name;
   }
 
-  _handleConnection() {
-
+  protected _getItems(): Observable<IPaginationResponse> {
+    return (this.repository as ConnectionsRepository).getServers();
   }
 
   onServerSwitch(gateways) {
@@ -105,30 +107,5 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
 
   isInvalid(name: any) {
     return this.form.controls[name].invalid;
-  }
-}
-
-@Injectable()
-export class ServersRepository extends HttpRepository<any> {
-  constructor(private connectionRepository: ConnectionsRepository) {
-    super(null, null, null);
-  }
-
-  getItems(obj?: any): Observable<IPaginationResponse<any>> {
-    return this.connectionRepository.getServers()
-      .pipe(
-        map((data) => {
-          const result = Object.keys(data.result)
-            .map((name) => ({ gateways: data.result[name], name }));
-
-          return {
-            data: result,
-            total: result.length,
-            page: 1,
-            skip: 0,
-            pageCount: 1,
-            count: result.length
-          } as IPaginationResponse;
-        }));
   }
 }

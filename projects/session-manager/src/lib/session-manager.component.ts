@@ -19,13 +19,14 @@ export interface SessionManagerComponent extends ILayoutNode, ItemComponent<ISes
 export class SessionManagerComponent extends ItemComponent<ISession> {
 
   @ViewChild('nameForm') nameForm: TemplateRef<any>;
+  @ViewChild('success') success: TemplateRef<any>;
 
   blankSession: ISession = {
     id: 0,
     name: 'New Session',
     exchange: 'CME',
     timezoneId: null,
-    workingTime: [],
+    workingTimesDto: [],
   };
 
   session: ISession = jQuery.extend(true, {}, this.blankSession);
@@ -34,27 +35,38 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   sessionActions: IDataSelectItemAction[] = [
     {
       icon: 'icon-edit',
-      callback: () => {},
+      callback: (session: ISession) => {
+        this.session = session;
+      },
     },
     {
       icon: 'icon-duplicate',
-      callback: () => {},
+      callback: (session: ISession) => {
+        this.session = {
+          ...session,
+          id: 0,
+        };
+      },
     },
     {
       icon: 'icon-delete',
-      callback: () => {},
+      callback: (session: ISession) => {
+        this.deleteItem(session);
+      },
     },
   ];
 
   days = [
+    'Sunday',
     'Monday',
     'Tuesday',
     'Wednesday',
     'Thursday',
     'Friday',
+    'Saturday',
   ];
 
-  utcStartTime = (9 * 3600 + 30 * 60) * 1000;
+  utcBeginTime = (9 * 3600 + 30 * 60) * 1000;
   utcEndTime = 16 * 3600 * 1000;
 
   constructor(
@@ -78,20 +90,20 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     this.session.timezoneId = timezone.id;
   }
 
-  createWorkingTime(startDay = 0, endDay = 0) {
-    this.session.workingTime.push({
-      startDay,
-      startTime: this.utcStartTime,
+  createWorkingTime(beginDay = 1, endDay = 1) {
+    this.session.workingTimesDto.push({
+      beginDay,
+      beginTime: this.utcBeginTime,
       endDay,
       endTime: this.utcEndTime,
     });
   }
 
   deleteWorkingTime(item: ISessionWorkingTime) {
-    this.session.workingTime = this.session.workingTime.filter(i => i !== item);
+    this.session.workingTimesDto = this.session.workingTimesDto.filter(i => i !== item);
   }
 
-  save(callback: (item: ISession) => void = () => {}) {
+  save(callback: (item: ISession) => void = () => this._showSuccess()) {
     const { session, repository } = this;
 
     const hide = this.showLoading(true);
@@ -133,6 +145,19 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
 
   ok() {
     this.save(() => this.close());
+  }
+
+  protected _showSuccess() {
+    this._modal.create({
+      nzTitle: 'Saving',
+      nzContent: this.success,
+      nzCancelText: null,
+      nzOkText: null,
+    });
+  }
+
+  protected _handleCreateItems(items: ISession[]) {
+    this.session = jQuery.extend(true, [], items[0]);
   }
 
 }

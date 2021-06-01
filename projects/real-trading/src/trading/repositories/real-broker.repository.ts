@@ -1,6 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, Injector } from '@angular/core';
-import { CommunicationConfig, HttpRepository, IBaseItem } from 'communication';
+import { Injectable } from '@angular/core';
+import { HttpRepository, IBaseItem } from 'communication';
 import { CookieService } from 'ngx-cookie-service';
 import { Broker } from 'trading';
 
@@ -10,7 +9,7 @@ export class RealBrokerRepository<T extends IBaseItem = any> extends HttpReposit
   protected _itemName: string;
 
   protected get _baseUrl(): string {
-    return this._config[this._key].http.url + this._itemName;
+    return this._communicationConfig[this._key].http.url + this._itemName;
   }
 
   protected get _apiKey(): string {
@@ -33,13 +32,10 @@ export class RealBrokerRepository<T extends IBaseItem = any> extends HttpReposit
     };
   }
 
-  constructor(
-    protected _http: HttpClient,
-    protected _config: CommunicationConfig,
-    protected _injector: Injector,
-    protected _cookieService: CookieService,
-  ) {
-    super(_http, _config, _injector);
+  private _cookieService: CookieService;
+
+  onInit() {
+    this._cookieService = this._injector.get(CookieService);
   }
 
   switch(key: Broker) {

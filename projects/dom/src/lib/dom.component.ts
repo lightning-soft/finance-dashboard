@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
 import {
   FormActions,
@@ -9,7 +8,7 @@ import {
   SideOrderForm,
   SideOrderFormComponent
 } from 'base-order-form';
-import { Id, RealtimeActionData } from 'communication';
+import { Id, RepositoryActionData } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
@@ -20,6 +19,7 @@ import {
   RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
+import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { IHistoryItem, RealPositionsRepository } from 'real-trading';
@@ -185,10 +185,6 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
-  get accountId() {
-    return this._accountId;
-  }
-
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -257,7 +253,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _positionsFeed: PositionsFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
-    protected _accountsManager: AccountsManager,
     private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
@@ -450,7 +445,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }),
   ];
 
-  private _accountId: string;
   private _updatedAt: number;
   private _levelsInterval: number;
   private _clearInterval: () => void;
@@ -471,6 +465,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
+
+  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
 
   private _instrument: IInstrument;
   private _priceFormatter: IFormatter;
@@ -497,28 +493,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngOnInit(): void {
     super.ngOnInit();
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._ordersRepository = this._ordersRepository.forConnection(connection);
-        this._positionsRepository = this._positionsRepository.forConnection(connection);
-        this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
-        this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
-        if (connection)
-          this._onInstrumentChange(this.instrument);
-      });
-
-    this._ordersRepository.actions
-      .pipe(untilDestroyed(this))
-      .subscribe((action) => this._handleOrdersRealtime(action));
-
-    this.onRemove(
-      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
-      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._positionsFeed.on((pos) => this.handlePosition(pos)),
-      this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
-    );
 
     // setInterval(() => {
     //   if (!this.items.length)
@@ -578,6 +552,34 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //   //   updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
     //   // });
     // }, 1000);
+  }
+
+  ngAfterViewInit() {
+    this._accountsManager.subscribe(this, this._instrumentSelect);
+
+    this._handleResize();
+  }
+
+  handleConnect(connection: IConnection) {
+    super.handleConnect(connection);
+
+    this._ordersRepository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe((action) => this._handleOrdersRealtime(action));
+
+    this.onRemove(
+      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
+      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
+      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
+      this._positionsFeed.on((pos) => this.handlePosition(pos)),
+      this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
+    );
+
+    this._onInstrumentChange(this.instrument);
+  }
+
+  handleAccountChange() {
+    this._loadData();
   }
 
   private _observe() {
@@ -916,7 +918,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }, (err) => this.notifier.showError(err));
   }
 
-  _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
+  _handleOrdersRealtime(action: RepositoryActionData<IOrder>) {
     if (action.items)
       this._handleOrders(action.items);
 
@@ -945,7 +947,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadVolumeHistory() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     const { symbol, exchange } = this._instrument;
@@ -965,7 +967,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrderBook() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     const { symbol, exchange } = this._instrument;
@@ -1022,11 +1024,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrders(): void {
-    if (!this._accountId)
+    if (!this.accountId)
       return;
 
     this.orders = [];
-    this._ordersRepository.getItems({ id: this._accountId })
+    this._ordersRepository.getItems({ id: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -1072,13 +1074,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.orders[index] = order;
   }
 
-  handleAccountChange(account: string) {
-    this._accountId = account;
-    this._loadData();
-  }
-
   protected _loadData() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     this._loadPositions();
@@ -1089,7 +1086,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
-    this._positionsRepository.getItems({ accountId: this._accountId })
+    this._positionsRepository.getItems({ accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(items => {
         this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
@@ -1131,15 +1128,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (emit)
         handler(item);
     }
-  }
-
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    this._ordersRepository = this._ordersRepository.forConnection(connection);
-  }
-
-  ngAfterViewInit() {
-    this._handleResize();
   }
 
   _getDomItemsMap() {
@@ -2014,7 +2002,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       exchange,
       side,
       symbol,
-      accountId: this._accountId,
+      accountId: this.accountId,
     }).pipe(untilDestroyed(this))
       .subscribe(
         (res) => console.log('Order successfully created'),
@@ -2127,7 +2115,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _closePositions() {
     this._positionsRepository.deleteMany({
-      accountId: this._accountId,
+      accountId: this.accountId,
       ...this._instrument,
     }).pipe(untilDestroyed(this))
       .subscribe(

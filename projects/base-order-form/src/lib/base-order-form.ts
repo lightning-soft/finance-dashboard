@@ -11,7 +11,6 @@ const placeholder = '-';
 @Directive()
 export abstract class BaseOrderForm extends FormComponent<IOrder> {
   protected positionsRepository: PositionsRepository;
-  protected accountId;
   protected instrument;
   private _position: IPosition;
   canClickPosButton = false;

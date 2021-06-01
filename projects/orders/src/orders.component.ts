@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
@@ -87,17 +87,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     return this.items.map(i => i.order);
   }
 
-  private _accountId;
-
-  set accountId(accountId: Id) {
-    this._accountId = accountId;
-    this.loadData({ ...this.params, accountId });
-  }
-
-  get accountId() {
-    return this._accountId;
-  }
-
   // private _status: OrderStatus = OrderStatus.Pending;
 
   // get status() {
@@ -173,6 +162,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
+  handleAccountChange() {
+    this.loadData({ ...this.params, accountId: this.accountId });
+  }
+
   changeActiveTab(tab: Tab): void {
     this.activeTab = tab;
 
@@ -194,10 +187,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.updateCheckboxState(this.contextMenuState);
   }
 
-  handleAccountChange(accountId: Id): void {
-    this.accountId = accountId;
-  }
-
   protected _deleteItem(item: IOrder) {
     return this.repository.deleteItem(item);
   }
@@ -215,8 +204,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   loadState(state): void {
-    this._subscribeToConnections();
-
     if (state && state.columns) {
       this.columns = state.columns;
       const checkboxColumn = state.columns.find(i => i.name === OrderColumn.checkbox);

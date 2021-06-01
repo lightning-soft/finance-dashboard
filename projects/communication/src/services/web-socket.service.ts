@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CommunicationConfig } from '../http';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { filter, take } from 'rxjs/operators';
+import { ConnectionsFactory } from '../../../real-trading/src/trading/repositories/connections.factory';
+import { IConnection } from 'trading';
 
 export interface IWebSocketConfig {
   url: string;
@@ -38,10 +40,10 @@ export enum WSEventType {
   Message = 'message',
 }
 
-export type IWSListener = (event?: Event) => void;
+export type IWSListener = (event?: Event, key?: any) => void;
 
 export type IWSListeners = {
-  [key in WSEventType]: IWSListener[];
+  [key in WSEventType]: Set<IWSListener>;
 };
 
 export type IWSEventListeners = {
@@ -54,17 +56,14 @@ export type IWSListenerUnsubscribe = () => void;
 @Injectable({
   providedIn: 'root'
 })
-export class WebSocketService {
-
-  private _websocket: ReconnectingWebSocket;
-
-  public connection$ = new BehaviorSubject<boolean>(false);
-  sucessfulyConnected: boolean;
+export class WebSocketService extends ConnectionsFactory {
+  connection$ = new BehaviorSubject<boolean>(false);
 
   get connected(): boolean {
     return this.connection$.value;
   }
 
+  private _websocket: ReconnectingWebSocket;
   private _listeners: IWSListeners;
   private _eventListeners: IWSEventListeners;
 
@@ -77,7 +76,12 @@ export class WebSocketService {
     time: {},
   };
 
-  constructor(private _config: CommunicationConfig) {
+  constructor(
+    protected _injector: Injector,
+    private _config: CommunicationConfig,
+  ) {
+    super();
+
     this._setListeners();
     this._setEventListeners();
 
@@ -93,6 +97,12 @@ export class WebSocketService {
         eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
       };
     };
+  }
+
+  destroy(connection: IConnection) {
+    this.get(connection).close();
+
+    super.destroy(connection);
   }
 
   connect() {
@@ -123,15 +133,15 @@ export class WebSocketService {
     }
 
     if (this.connected) {
-      this._websocket.send(payload);
+      // this._websocket.send(payload);
       return;
     }
 
     console.warn(`Message didn\'t send `, payload);
 
-    this.connection$
-      .pipe(filter(i => i), take(1))
-      .subscribe(() => this._websocket.send(payload));
+    // this.connection$
+    //   .pipe(filter(i => i), take(1))
+    //   .subscribe(() => this._websocket.send(payload));
   }
 
   close() {
@@ -141,16 +151,16 @@ export class WebSocketService {
   }
 
   on(type: WSEventType, listener: IWSListener): IWSListenerUnsubscribe {
-    this._listeners[type].push(listener);
+    this._listeners[type].add(listener);
 
     return () => {
-      this._listeners[type] = this._listeners[type].filter(l => l !== listener);
+      this._listeners[type].delete(listener);
     };
   }
 
   private _setListeners() {
     this._listeners = Object.values(WSEventType).reduce((accum, event) => {
-      accum[event] = [];
+      accum[event] = new Set();
       return accum;
     }, {}) as IWSListeners;
   }
@@ -166,7 +176,6 @@ export class WebSocketService {
         this._executeListeners(WSEventType.Close, event);
 
         this.connection$.next(false);
-        this.sucessfulyConnected = false;
       },
       error: (event: ErrorEvent) => {
         this._executeListeners(WSEventType.Error, event);
@@ -214,7 +223,7 @@ export class WebSocketService {
     const { type, result } = payload;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
-      this.sucessfulyConnected = true;
+      this.connection$.next(true);
     }
 
     this._executeListeners(WSEventType.Message, payload);
@@ -241,7 +250,7 @@ export class WebSocketService {
   private _executeListeners(type: WSEventType, data?: any) {
     this._listeners[type].forEach(listener => {
       try {
-        listener(data);
+        listener(data, this.connection);
       } catch (e) {
         console.error(e);
       }

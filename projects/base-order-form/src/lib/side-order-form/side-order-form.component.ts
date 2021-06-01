@@ -4,12 +4,10 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
 import {
   HistoryRepository,
-  IConnection,
   IInstrument,
   IOrder,
   OrderDuration,
   OrderSide,
-  OrderStatus,
   OrderType,
   PositionsRepository,
   isForbiddenOrder, compareInstruments
@@ -264,13 +262,6 @@ export class SideOrderFormComponent extends BaseOrderForm implements OnInit {
       this.form.patchValue(this.defaultFormState);
     }
   }
-
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    this._historyRepository = this._historyRepository.forConnection(connection);
-    this.positionsRepository = this.positionsRepository.forConnection(connection);
-  }
-
 
   positionsToQuantity() {
     if (this._positionsSum) {

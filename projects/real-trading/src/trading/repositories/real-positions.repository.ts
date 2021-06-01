@@ -27,13 +27,6 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       status: PositionStatus.Open,
     };
   }
-  _getRepository() {
-    return new RealPositionsRepository(
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
-  }
 
   getItems(params: any = {}) {
     const _params = { ...params };
@@ -45,7 +38,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     return super.getItems(_params).pipe(
       map((res: any) => {
-        const data = res.result
+        const data = res.data
           .filter((item: any) => this._filter(item, _params))
           .map((item: any) => {
             return RealPositionsRepository.transformPosition(item);

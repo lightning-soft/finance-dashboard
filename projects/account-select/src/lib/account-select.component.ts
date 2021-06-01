@@ -1,57 +1,53 @@
-import { Component, EventEmitter, Input, Output, Injector } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { Id, ItemsComponent } from 'base-components';
-import { AccountRepository, IAccount, IConnection } from 'trading';
-import { IPaginationResponse } from 'communication';
+import { Component, Input, OnInit } from '@angular/core';
+import { AccountNode, AccountNodeSubscriber, AccountsManager, IAccountNodeData } from 'accounts-manager';
+import { IAccount } from 'trading';
 
-@UntilDestroy()
 @Component({
   selector: 'account-select',
   templateUrl: './account-select.component.html',
   styleUrls: ['account-select.component.scss'],
 })
-export class AccountSelectComponent extends ItemsComponent<IAccount> {
+export class AccountSelectComponent extends AccountNodeSubscriber implements OnInit {
+  @Input() node: AccountNode;
   @Input() placeholder = 'Select account';
   @Input() className = '';
   @Input() nzDropdownClassName = '';
-  @Output() accountChange: EventEmitter<Id> = new EventEmitter();
 
-  activeAccountId: Id;
+  items: IAccount[] = [];
+
+  get activeAccount(): IAccount {
+    return this.node.account;
+  }
+
+  set activeAccount(value: IAccount) {
+    if (!this.compareAccounts(this.node.account, value)) {
+      this._accountsManager.changeNodeAccount(this.node, value);
+    }
+  }
 
   @Input() labelTransformer = (label) => label;
 
   constructor(
-    protected _repository: AccountRepository,
-    protected _injector: Injector,
+    private _accountsManager: AccountsManager,
   ) {
     super();
-    this.autoLoadData = {
-      onConnectionChange: true,
-    };
-
-    this._params = { status: 'Active', criteria: '' };
   }
 
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    if (!connection) {
-      this.activeAccountId = null;
+  ngOnInit() {
+    this._accountsManager.subscribe(this.node, this);
+  }
+
+  handleAccountsChange(data: IAccountNodeData<IAccount>) {
+    super.handleAccountsChange(data);
+
+    this.items = data.current;
+
+    if (!this.activeAccount || !this.items.find(i => this.compareAccounts(i, this.activeAccount))) {
+      this.activeAccount = this.items[0];
     }
   }
 
-  protected _handleResponse(response: IPaginationResponse<IAccount>, params: any) {
-    super._handleResponse(response, params);
-    if (this.items.every((item) => item.id !== this.activeAccountId)) {
-      const item = this.items[0];
-      this.select(item?.id);
-    }
-  }
-
-  select(id: Id): void {
-    if (this.activeAccountId === id)
-      return;
-
-    this.activeAccountId = id;
-    this.accountChange.emit(id);
+  compareAccounts(a: IAccount, b: IAccount): boolean {
+    return a?.id === b?.id;
   }
 }

@@ -14,7 +14,7 @@
      [class.active]="isGroupSelected" class="icon-group "></i>
     </span>
 </window-header>
-<data-grid #grid [items]="builder.items" [handlers]="handlers"
+<data-grid #grid [class.loading-block]="loading" [items]="builder.items" [handlers]="handlers"
            [rowHeight]="24"
            [(contextMenuState)]="contextMenuState"
            [columns]="columns"></data-grid>

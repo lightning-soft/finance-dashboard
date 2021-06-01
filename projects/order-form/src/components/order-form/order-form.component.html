@@ -7,7 +7,7 @@
   <div class="window-header-divider"></div>
   <account-select
     className=""
-    (accountChange)="handleAccountChange($event)"
+    [node]="this"
   ></account-select>
 </window-header>
 <cdk-virtual-scroll-viewport itemSize="">

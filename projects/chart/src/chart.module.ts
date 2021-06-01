@@ -19,7 +19,6 @@ import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IndicatorsComponent } from './indicators/indicators.component';
 import { DynamicFormModule } from 'dynamic-form';
@@ -90,7 +89,6 @@ import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.comp
   declarations: [
     ChartComponent,
     ToolbarComponent,
-    WindowToolbarComponent,
     IndicatorsComponent,
     IndicatorListComponent,
     OrdersPanelComponent,

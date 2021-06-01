@@ -35,12 +35,12 @@
         <th>End Time</th>
         <th></th>
       </tr>
-      <tr *ngFor="let item of session.workingTime">
+      <tr *ngFor="let item of session.workingTimesDto">
         <td>
           <nz-select
             class="custom-form-control"
             [nzOptionHeightPx]="24"
-            [(ngModel)]="item.startDay"
+            [(ngModel)]="item.beginDay"
           >
             <nz-option
               *ngFor="let day of days; let i = index"
@@ -50,7 +50,7 @@
           </nz-select>
         </td>
         <td>
-          <time-select [(value)]="item.startTime"></time-select>
+          <time-select [(value)]="item.beginTime"></time-select>
         </td>
         <td></td>
         <td>
@@ -89,7 +89,7 @@
         nzType="default"
         nzSize="small"
         class="px-4 mr-2 bg-lighter border-lighter text-white"
-        (click)="createWorkingTime(0, 4)"
+        (click)="createWorkingTime(1, 5)"
       >Add Monday through Friday</button>
     </div>
   </cdk-virtual-scroll-viewport>
@@ -131,5 +131,11 @@
     <nz-form-control class="custom-form-control">
       <input nz-input type="text" [(ngModel)]="sessionName">
     </nz-form-control>
+  </div>
+</ng-template>
+<ng-template #success>
+  <div class="text-white">
+    <i class="icon-check circle-icon text-success font-size-inherit mb-3"></i>
+    <div>Session was successfully saved</div>
   </div>
 </ng-template>

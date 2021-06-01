@@ -1,6 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, Injector, Optional } from '@angular/core';
-import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communication';
+import { Injectable } from '@angular/core';
+import { ExcludeId, Id } from 'communication';
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
@@ -11,7 +10,7 @@ interface IUpdateOrderRequestParams {
   orderId: Id;
   symbol: string;
   exchange: string;
-  accountId: string;
+  accountId: Id;
   duration: OrderDuration;
   type: OrderType;
   quantity: number;
@@ -25,24 +24,13 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     return 'Order';
   }
 
-  constructor(@Inject(TradeHandler) public tradeHandler: TradeHandler,
-              @Inject(HttpClient) protected _http: HttpClient,
-              @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
-              @Optional() @Inject(Injector) protected _injector: Injector
-  ) {
-    super(_http, _communicationConfig, _injector);
+  tradeHandler: TradeHandler;
+
+  onInit() {
+    this.tradeHandler = this._injector.get(TradeHandler);
   }
 
-  _getRepository() {
-    return new RealOrdersRepository(
-      this.tradeHandler,
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
-  }
-
-  getItems(params: any = {}) {
+  protected _mapItemsParams(params: any = {}) {
     const _params = { ...params };
 
     if (_params.accountId) {
@@ -53,14 +41,11 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     if (_params.StartDate == null) _params.StartDate = new Date(0).toUTCString();
     if (_params.EndDate == null) _params.EndDate = new Date(Date.now()).toUTCString();
 
-    return super.getItems(_params).pipe(
-      map((res: any) => {
-        const data = res.result
-          .filter((item: any) => this._filter(item, _params));
+    return _params;
+  }
 
-        return { data } as IPaginationResponse<IOrder>;
-      }),
-    );
+  protected _responseToItems(res: any, params: any) {
+    return res.result.filter((item: any) => this._filter(item, params));
   }
 
   deleteItem(item: IOrder | Id): Observable<any> {

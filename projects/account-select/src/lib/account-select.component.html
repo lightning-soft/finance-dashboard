@@ -3,9 +3,8 @@
   [nzDropdownClassName]="nzDropdownClassName"
   [nzPlaceHolder]="placeholder"
   [nzOptionHeightPx]="23"
-  [nzLoading]="loading"
-  [(ngModel)]="activeAccountId"
-  (ngModelChange)="select($event)"
+  [compareWith]="compareAccounts"
+  [(ngModel)]="activeAccount"
 >
-  <nz-option *ngFor="let item of items" [nzLabel]="labelTransformer(item.id)" [nzValue]="item.id"></nz-option>
+  <nz-option *ngFor="let item of items" [nzLabel]="labelTransformer(item.id)" [nzValue]="item"></nz-option>
 </nz-select>

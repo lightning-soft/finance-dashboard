@@ -1,5 +1,5 @@
 import { Periodicity, IInstrument, HistoryRepository, TradeDataFeed, OHLVData, OHLVFeed, OnTradeFn } from 'trading';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { VolumeData, VolumeDataFeed } from 'trading';
 import { Subject } from 'rxjs';
@@ -17,19 +17,26 @@ export class RealOHLVFeed extends OHLVFeed {
   private _ohlvData$ = new Subject<OHLVData>();
 
   constructor(
+    protected _injector: Injector,
     private _historyRepository: HistoryRepository,
     private _tradeDatafeed: TradeDataFeed,
     private _volumeDatafeed: VolumeDataFeed,
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
     super();
+  }
+
+  initConnectionDeps() {
+    super.initConnectionDeps();
+
     this._tradeDatafeed.on(this.handleTrade);
     this._volumeDatafeed.on(this.handleVolume);
+
     this._ohlvData$.pipe(
       auditTime(500)
-    ).subscribe(historyItem =>
-        this._sendToSubscribers(historyItem)
-    );
+    ).subscribe(historyItem => {
+      this._sendToSubscribers(historyItem);
+    });
   }
 
   private _ohlv: {
@@ -50,8 +57,7 @@ export class RealOHLVFeed extends OHLVFeed {
 
 
   subscribe(instrument: IInstrument) {
-    const connection = this._accountsManager.getActiveConnection();
-    if (!instrument || !connection)
+    if (!instrument || !this.connection)
       return;
 
     if (this._ohlv[instrument.id]?.count) {
@@ -63,7 +69,6 @@ export class RealOHLVFeed extends OHLVFeed {
     const now = new Date();
     const barCount = now.getHours();
 
-    this._historyRepository = this._historyRepository.forConnection(connection);
     this._historyRepository.getItems({
       id: instrument.id,
       Exchange: instrument.exchange,
@@ -90,19 +95,18 @@ export class RealOHLVFeed extends OHLVFeed {
           dailyInfo.high = item.high;
         }
         dailyInfo.volume += item.volume;
-        });
+      });
 
       if (!this._ohlv[instrument.symbol]) {
-          this._ohlv[instrument.symbol] = { count: 0 } as any;
-        }
+        this._ohlv[instrument.symbol] = { count: 0 } as any;
+      }
 
       const ohlv = this._ohlv[instrument.symbol];
       ohlv.count += 1;
       ohlv.historyItem = dailyInfo as OHLVData;
       ohlv.historyItem.instrument = instrument;
       this._ohlvData$.next(ohlv.historyItem);
-      },
-    );
+    });
   }
 
   unsubscribe(instrument: IInstrument) {
