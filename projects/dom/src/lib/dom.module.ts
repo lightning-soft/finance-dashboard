@@ -22,6 +22,7 @@ import { HistogramComponent } from './histogram';
 import { AccountSelectModule } from 'account-select';
 import { BaseOrderFormModule } from 'base-order-form';
 import { DailyInfoComponent } from './daily-info/daily-info.component';
+import { LoaderModule } from "ui";
 
 @NgModule({
   declarations: [
@@ -30,29 +31,30 @@ import { DailyInfoComponent } from './daily-info/daily-info.component';
     HistogramComponent,
     DailyInfoComponent,
   ],
-    imports: [
-        DataGridModule,
-        InstrumentSelectModule,
-        WindowHeaderModule,
-        AccountSelectModule,
-        NzInputModule,
-        BaseOrderFormModule,
-        NzButtonModule,
-        CommonModule,
-        NzPopoverModule,
-        NzCheckboxModule,
-        NzSelectModule,
-        NzMenuModule,
-        DynamicFormModule,
-        ScrollingModule,
-        StorageModule,
-        CommonModule,
-        FormsModule,
-        NzToolTipModule,
-        ReactiveFormsModule,
-        NzInputNumberModule,
-        NzDropDownModule,
-    ],
+  imports: [
+    DataGridModule,
+    InstrumentSelectModule,
+    WindowHeaderModule,
+    AccountSelectModule,
+    NzInputModule,
+    BaseOrderFormModule,
+    NzButtonModule,
+    CommonModule,
+    NzPopoverModule,
+    NzCheckboxModule,
+    NzSelectModule,
+    NzMenuModule,
+    DynamicFormModule,
+    ScrollingModule,
+    StorageModule,
+    CommonModule,
+    FormsModule,
+    NzToolTipModule,
+    ReactiveFormsModule,
+    NzInputNumberModule,
+    NzDropDownModule,
+    LoaderModule,
+  ],
   exports: [
     DomComponent,
   ]

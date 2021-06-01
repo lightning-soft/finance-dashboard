@@ -1,8 +1,11 @@
+<loader *ngIf="loading"></loader>
+
 <window-header
   (contextmenu)="dataGrid?.createComponentModal($event)"
   className="widget" [window]="this">
 
   <account-select
+    [loadingHandler]="loadingHandler"
     (accountChange)="handleAccountChange($event)"
   ></account-select>
   <!-- <nz-select class="ml-1 regular"

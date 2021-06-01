@@ -50,6 +50,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { finalize } from "rxjs/operators";
 import { TradeHandler } from "src/app/components";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -1094,8 +1095,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
+    const hide = this.showLoading();
     this._positionsRepository.getItems({ accountId: this._accountId })
-      .pipe(untilDestroyed(this))
+      .pipe(finalize(hide), untilDestroyed(this))
       .subscribe(items => {
         this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
         this._applyPositionStatus();

@@ -8,6 +8,7 @@ import { NzDropDownModule, NzSelectModule, NzTabsModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrdersComponent } from './orders.component';
+import { LoaderModule } from "ui";
 
 @NgModule({
     imports: [
@@ -19,6 +20,7 @@ import { OrdersComponent } from './orders.component';
         WindowHeaderModule,
         NzTabsModule,
         NzDropDownModule,
+        LoaderModule,
     ],
   exports: [
     OrdersComponent,

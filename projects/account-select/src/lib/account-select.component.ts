@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, Injector } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { Id, ItemsComponent } from 'base-components';
+import { Id, ILoadingHandler, ItemsComponent } from 'base-components';
 import { AccountRepository, IAccount, IConnection } from 'trading';
 import { IPaginationResponse } from 'communication';
 
@@ -14,6 +14,7 @@ export class AccountSelectComponent extends ItemsComponent<IAccount> {
   @Input() placeholder = 'Select account';
   @Input() className = '';
   @Input() nzDropdownClassName = '';
+  @Input() loadingHandler: ILoadingHandler;
   @Output() accountChange: EventEmitter<Id> = new EventEmitter();
 
   activeAccountId: Id;

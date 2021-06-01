@@ -5,7 +5,7 @@ import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler }
 import { LayoutNode } from 'layout';
 import { RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import {
   AccountRepository, IInstrument,
   InstrumentsRepository,
@@ -347,7 +347,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   private _loadAccount(): void {
+    const hide = this.showLoading();
     this._accountRepository.getItems({ status: 'Active', criteria: '', limit: 1 })
+      .pipe(finalize(hide), untilDestroyed(this))
       .subscribe({
         next: (res) => this.accountId = res?.data?.length && res.data[0].id,
         error: err => this._notifier.showError(err, 'Failed to load account')
