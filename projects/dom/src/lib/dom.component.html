@@ -39,7 +39,7 @@
        class="icon-{{item}} direction window-icon"></i>
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
        [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
-    <i (click)="isTradingLocked = !isTradingLocked"
+    <i (click)="toggleTrading()"
        [class.icon-lock]="isTradingLocked"
        [class.icon-unlock]="!isTradingLocked"
        [title]="isTradingLocked? 'Lock' : 'Unlock'"
@@ -49,11 +49,12 @@
 </div>
 <div class="d-flex dom-layout {{currentDirection}}">
   <div class="order-wrapper">
-    <side-form
+    <side-form #domForm
       [instrument]="instrument"
       [accountId]="accountId"
       [ocoStep]="ocoStep"
-      [trade]="trade" #domForm [class.d-none]="!isFormOpen"
+      [trade]="trade"
+      [class.d-none]="!isFormOpen"
       [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
       [position]="position"
