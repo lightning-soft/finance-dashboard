@@ -18,7 +18,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AccountsManager } from '../../accounts-manager/src/accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderForm, SideOrderFormComponent } from 'base-order-form';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
   HistoryRepository,
   IHistoryItem,
@@ -39,7 +39,7 @@ import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.comp
 import { TradeDataFeed } from 'trading';
 import { IChartState, IChartTemplate } from "chart/models";
 import { TemplatesService } from "templates";
-import { CreateModalComponent } from "src/app/components";
+import { CreateModalComponent, TradeHandler } from "src/app/components";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -72,7 +72,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   link: any;
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
-  isTradingLocked = false;
   showChartForm = true;
   enableOrderForm = false;
 
@@ -148,6 +147,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._orders.items;
   }
 
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
+
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
@@ -167,7 +170,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
-    private _templatesService: TemplatesService
+    private _templatesService: TemplatesService,
+    private _tradeHandler: TradeHandler,
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -228,6 +232,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.bidSize = quote.volume;
       }
     }
+  }
+
+  toggleTrading(): void {
+    this._tradeHandler.toggleTradingEnabled();
   }
 
   getQuoteInfo(info: number) {

@@ -50,6 +50,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { TradeHandler } from "src/app/components";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -262,6 +263,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
+    private _tradeHandler: TradeHandler
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -468,7 +470,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
 
@@ -494,6 +495,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _counter = 0;
   showColumnTitleOnHover = (item: Column) => false;
+
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -1911,6 +1916,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       window.width = minWindowWidth;
       this.dataGrid.resize();
     }
+  }
+
+  toggleTrading(): void {
+    this._tradeHandler.toggleTradingEnabled();
   }
 
   private _handleResize(afterResize?: Function) {
