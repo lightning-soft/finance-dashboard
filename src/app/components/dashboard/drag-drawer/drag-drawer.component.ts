@@ -4,8 +4,7 @@ import { LayoutComponent } from 'layout';
 import { Components } from '../../../modules';
 import { IBaseTemplate, TemplatesService } from "templates";
 import { NzModalService } from "ng-zorro-antd";
-import { RenameModalComponent } from '../../navbar/workspace/rename-modal/rename-modal.component';
-import { ConfirmModalComponent } from '../../navbar/workspace/confirm-modal/confirm-modal.component';
+import { RenameModalComponent, ConfirmModalComponent } from '../../navbar/workspace';
 import { Subscription } from "rxjs";
 
 export const widgetList = [
