@@ -42,13 +42,12 @@ export class WorkspacesManager {
       if (!workspaces.find(w => w.isActive))
         workspaces[0].isActive = true;
 
-      this.workspaces.next(workspaces);
-      const workspace = this.getActiveWorkspace();
+      const workspace = workspaces.find(item => item.isActive);
       workspace.windows = workspace.windows.map(item => {
         item.isSelected = item.isOnStartUp;
         return item;
       });
-      this.updateWorkspaces();
+      this.workspaces.next(workspaces);
       this.reloadWorkspace$.next();
     } else {
       this.createWorkspace(DEFAULT_NAME);
@@ -99,8 +98,10 @@ export class WorkspacesManager {
       if (workspace.isActive)
         workspace.isActive = false;
 
-      if (workspace.id === id)
+      if (workspace.id === id) {
         workspace.isActive = true;
+        workspace.windows = workspace.windows.map(w => ({ ...w, isSelected: w.isOnStartUp }));
+      }
     }
 
     return workspaces;
@@ -194,7 +195,7 @@ export class WorkspacesManager {
     return this.getActiveWorkspace()?.windows.find(item => item.isSelected);
   }
 
-  loadOnStartUp(id) {
+  loadOnStartUp(id): void {
     const workspace = this.getActiveWorkspace();
     workspace.windows = workspace.windows.map(item => {
       item.isOnStartUp = item.id === id;
@@ -233,7 +234,7 @@ export class WorkspacesManager {
 
   deleteWindow(id: any) {
     const workspace = this.getActiveWorkspace();
-    const deletedWindow =  workspace.windows.find(item => item.id === id);
+    const deletedWindow = workspace.windows.find(item => item.id === id);
     this.deletedWindow$.next(deletedWindow);
     workspace.windows = workspace.windows.filter(item => item.id !== id);
 
