@@ -702,7 +702,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       type: Components.Chart
     };
 
-    this._templatesService.updateItem(template).subscribe();
+    this._templatesService.updateItem(template).subscribe(() => {
+      this.loadedTemplate = template;
+    }, error => this._notifier.showError(error, 'Failed to save Template'));
   }
 
   createTemplate(): void {
@@ -726,7 +728,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         name: result.name,
         type: Components.Chart
       };
-      this._templatesService.createItem(template).subscribe();
+      this._templatesService.createItem(template).subscribe((template) => {
+        this.loadedTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 }
