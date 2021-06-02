@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostBinding,
+  Injector,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
@@ -125,7 +134,7 @@ enum FormDirection {
   Top = 'full-screen-window'
 }
 
-const directionsHints: {[key in FormDirection]: string} = {
+const directionsHints: { [key in FormDirection]: string } = {
   [FormDirection.Left]: 'Left View',
   [FormDirection.Top]: 'Horizontal View',
   [FormDirection.Right]: 'Right View',
@@ -264,7 +273,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
-    private _tradeHandler: TradeHandler
+    private _tradeHandler: TradeHandler,
+    protected _changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -783,12 +793,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl).toFixed(precision);
   }
 
-  _setPriceForOrders(orders, price) {
+  _setPriceForOrders(orders: IOrder[], price: number) {
     const amount = this.domForm.getDto().amount;
 
     orders.map(item => {
       item.amount = amount;
-      const priceTypes = this._getPriceSpecs(item, price);
+      const priceTypes = this._getPriceSpecs(<IOrder & { amount: number }>item, price);
 
       return {
         quantity: item.quantity,
@@ -802,7 +812,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         symbol: item.instrument.symbol,
         exchange: item.instrument.exchange,
       };
-    }).map(item => this._ordersRepository.updateItem(item).toPromise());
+    }).forEach(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
   // #TODO need test
@@ -1074,8 +1084,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!this.orders.length || index === -1)
       this.orders = [...this.orders, order];
-    else
+    else {
       this.orders[index] = order;
+      this.orders = [...this.orders];
+    }
   }
 
   handleAccountChange(account: string) {
@@ -1241,6 +1253,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.dataGrid.detectChanges(force);
+    this._changeDetectorRef.detectChanges();
     this._updatedAt = Date.now();
   }
 
