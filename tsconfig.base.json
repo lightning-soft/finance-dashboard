@@ -163,6 +163,9 @@
       "cache": [
         "projects/cache/index"
       ],
+      "templates": [
+        "projects/templates/index"
+      ],
       "environment": [
         "src/environments/environment"
       ]

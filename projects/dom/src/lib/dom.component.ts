@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostBinding,
+  Injector,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
 import {
@@ -50,6 +59,8 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { finalize } from "rxjs/operators";
+import { TradeHandler } from "src/app/components";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -123,7 +134,7 @@ enum FormDirection {
   Top = 'full-screen-window'
 }
 
-const directionsHints: {[key in FormDirection]: string} = {
+const directionsHints: { [key in FormDirection]: string } = {
   [FormDirection.Left]: 'Left View',
   [FormDirection.Top]: 'Horizontal View',
   [FormDirection.Right]: 'Right View',
@@ -257,6 +268,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
+    private _tradeHandler: TradeHandler,
+    protected _changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -462,7 +475,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  isTradingLocked = false;
   bracketActive = true;
   isExtended = true;
 
@@ -490,6 +502,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _counter = 0;
   showColumnTitleOnHover = (item: Column) => false;
+
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -779,12 +795,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl).toFixed(precision);
   }
 
-  _setPriceForOrders(orders, price) {
+  _setPriceForOrders(orders: IOrder[], price: number) {
     const amount = this.domForm.getDto().amount;
 
     orders.map(item => {
       item.amount = amount;
-      const priceTypes = this._getPriceSpecs(item, price);
+      const priceTypes = this._getPriceSpecs(<IOrder & { amount: number }>item, price);
 
       return {
         quantity: item.quantity,
@@ -798,7 +814,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         symbol: item.instrument.symbol,
         exchange: item.instrument.exchange,
       };
-    }).map(item => this._ordersRepository.updateItem(item).toPromise());
+    }).forEach(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
   // #TODO need test
@@ -1070,8 +1086,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!this.orders.length || index === -1)
       this.orders = [...this.orders, order];
-    else
+    else {
       this.orders[index] = order;
+      this.orders = [...this.orders];
+    }
   }
 
   protected _loadData() {
@@ -1086,13 +1104,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadPositions() {
-    this._positionsRepository.getItems({ accountId: this.accountId })
-      .pipe(untilDestroyed(this))
-      .subscribe(items => {
-        this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
-        this._applyPositionStatus();
-        this._fillPL();
-      });
+    const hide = this.showLoading();
+    // this._positionsRepository.getItems({ accountId: this._accountId })
+    //   .pipe(finalize(hide), untilDestroyed(this))
+    //   .subscribe(items => {
+    //     this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
+    //     this._applyPositionStatus();
+    //     this._fillPL();
+    //   });
   }
 
   private _applyPositionStatus() {
@@ -1221,6 +1240,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.dataGrid.detectChanges(force);
+    this._changeDetectorRef.detectChanges();
     this._updatedAt = Date.now();
   }
 
@@ -1889,7 +1909,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _validateComponentWidth(): void {
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
-    const minGridWidth = this.dataGrid.scrollWidth;
+    const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
     const minWindowWidth = minGridWidth + (window._container.offsetWidth - currentGridWidth);
     window.options.minWidth = minWindowWidth;
@@ -1900,6 +1920,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  toggleTrading(): void {
+    this._tradeHandler.toggleTradingEnabled();
+  }
+
   private _handleResize(afterResize?: Function) {
     this.visibleRows = this.dataGrid.getVisibleRows();
 
@@ -1908,7 +1932,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       afterResize();
   }
 
-  saveState?(): IDomState {
+  saveState(): IDomState {
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
@@ -1920,7 +1944,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     };
   }
 
-  loadState?(state: IDomState) {
+  loadState(state: IDomState) {
     this._settings = state?.settings ? DomSettings.fromJson(state.settings) : new DomSettings();
     this._linkSettings(this._settings);
     if (state?.componentInstanceId)

@@ -53,6 +53,7 @@ import { FramesManagerComponent } from './components/navbar/frames-manager/frame
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
 import { SaveLoaderModule } from 'ui';
+import { TemplatesModule } from "templates";
 
 /**
  *  Move declaration to enother file
@@ -146,6 +147,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     WindowManagerModule,
     TimezonesClockModule,
     SettingsModule.forRoot(),
+    TemplatesModule.forRoot(),
     ConfigModule.configure({
       path: environment.config || 'config/config.json',
       configClass: AppConfig,

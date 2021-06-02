@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Inject, Injectable, Injector, Optional } from '@angular/core';
 import { IConnection } from 'trading';
 
 export abstract class ConnectionDepNode {
@@ -28,8 +28,13 @@ export abstract class ConnectionDepNode {
 @Injectable()
 export abstract class ConnectionsFactory extends ConnectionDepNode {
   isSingleton = true;
-
-  protected _injector: Injector;
+  protected _injector?: Injector;
+  constructor(
+    // @Optional() @Inject(Injector) protected _injector?: Injector
+    ) {
+    super();
+    console.log(this.constructor.name, this._injector)
+  }
 
   get(connection: IConnection): any {
     if (!connection) {

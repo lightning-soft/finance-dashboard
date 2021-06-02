@@ -68,7 +68,7 @@ export class WindowManagerService {
     this.updateWindows();
   }
 
-  public saveState(): saveData {
+  public saveState(): saveData[] {
     return this.wm.save();
   }
 

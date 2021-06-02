@@ -1,6 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AccountNode, AccountNodeSubscriber, AccountsManager, IAccountNodeData } from 'accounts-manager';
+import { Id, ILoadingHandler } from 'base-components';
 import { IAccount } from 'trading';
+
 
 @Component({
   selector: 'account-select',
@@ -12,6 +14,8 @@ export class AccountSelectComponent extends AccountNodeSubscriber implements OnI
   @Input() placeholder = 'Select account';
   @Input() className = '';
   @Input() nzDropdownClassName = '';
+  @Input() loadingHandler: ILoadingHandler;
+  @Output() accountChange: EventEmitter<Id> = new EventEmitter();
 
   items: IAccount[] = [];
 

@@ -9,18 +9,20 @@ import { SearchSelectModule } from 'search-select';
 import { WatchlistComponent } from './watchlist.component';
 import { InstrumentSelectModule } from 'instrument-select';
 import { WindowHeaderModule } from 'window-header';
+import { LoaderModule } from "ui";
 
 @NgModule({
-  imports: [
-    CommonModule,
-    DataGridModule,
-    FormsModule,
-    SearchSelectModule,
-    NzDropDownModule,
-    ContextMenuModule,
-    InstrumentSelectModule,
-    WindowHeaderModule,
-  ],
+    imports: [
+        CommonModule,
+        DataGridModule,
+        FormsModule,
+        SearchSelectModule,
+        NzDropDownModule,
+        ContextMenuModule,
+        InstrumentSelectModule,
+        WindowHeaderModule,
+        LoaderModule,
+    ],
   exports: [
     WatchlistComponent,
   ],

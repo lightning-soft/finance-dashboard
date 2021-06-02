@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
-import { catchError, delay, map, tap } from 'rxjs/operators';
-import { Broker, ConnectionsRepository, IConnection } from 'trading';
+import { catchError, delay, map, mergeMap, tap } from 'rxjs/operators';
+import { AccountRepository, Broker, ConnectionsRepository, IConnection } from 'trading';
+import { RealAccountRepository } from '.';
 
 interface AccountSetting {
   id: string;
@@ -40,6 +41,7 @@ class Connection implements IConnection {
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> implements ConnectionsRepository {
   connections: IConnection[] = [];
+  accountsRepo: RealAccountRepository;
 
   protected get _baseUrl(): string {
     return `${this._communicationConfig.rithmic.http.url}Connection`;
@@ -47,6 +49,10 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   protected get _accountsSettings() {
     return `${this._communicationConfig.setting.url}api/AccountSettings`;
+  }
+
+  onInit() {
+    this.accountsRepo = this._injector.get(AccountRepository) as any;
   }
 
   getItems(params: any): Observable<IPaginationResponse<IConnection>> {
@@ -85,8 +91,9 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
-      tap(i => {
+      mergeMap(i => {
         this._onUpdate(item);
+        return this.accountsRepo._loadAccounts(item);
       }),
     );
   }

@@ -35,6 +35,7 @@ export const commonFields: IFieldConfig[] = [
             { label: 'Monospace', value: 'monospace' },
             { label: 'Sans Serif', value: 'sans-serif' }],
         },
+        className: 'p-l-7',
         key: 'fontFamily',
         getCss: (value) => {
           if (value && value.fontFamily)
@@ -47,6 +48,7 @@ export const commonFields: IFieldConfig[] = [
           options: [
             { label: 'Regular', value: '' }, { label: 'Bold', value: 'bold' }]
         },
+        className: 'p-r-7',
         key: 'fontWeight',
         getCss: (value) => {
           if (value && value.fontWeight)
@@ -56,6 +58,7 @@ export const commonFields: IFieldConfig[] = [
       {
         type: FieldType.Number,
         templateOptions: { label: 'Font size', min: 1 },
+        className: 'p-l-7',
         key: 'fontSize',
         getCss: (value) => {
           if (value && value.fontSize)
@@ -233,6 +236,10 @@ export const generalFields: IFieldConfig[] = [
                 label: 'Auto Center',
                 key: 'autoCenter',
               },
+              {
+                label: 'Use Custom Tick Size',
+                key: 'useCustomTickSize',
+              }
             ], extraConfig: { className: 'w-100' }
           }),
           {
@@ -241,17 +248,6 @@ export const generalFields: IFieldConfig[] = [
             className: 'ml-0 mr-0',
             type: FieldType.Number,
           },
-          getCheckboxes({
-            checkboxes: [{
-              label: 'Use Custom Tick Size',
-              key: 'useCustomTickSize',
-              config: { className: 'm-0' }
-            }],
-            extraConfig: {
-              className: 'mr-0 ml-2 custom-tick-size d-flex align-items-center',
-              wrappers: [],
-            },
-          }),
           {
             templateOptions: {
               min: 1,
@@ -261,7 +257,6 @@ export const generalFields: IFieldConfig[] = [
             // expressionProperties: {
             // 'templateOptions.disabled': '!model.useCustomTickSize',
             // },
-            className: 'ticks-per-price',
             key: 'ticksMultiplier',
             type: FieldType.Number,
           },

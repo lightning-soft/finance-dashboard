@@ -128,21 +128,23 @@ export class AccountsManager {
       criteria: '',
     };
 
-    const observables = connections.map(connection => {
-      return this._accountRepository.get(connection).getItems(params);
-    });
+    // const observables = connections.map(connection => {
+    //   return this._accountRepository.get(connection).getItems(params);
+    // });
 
-    return forkJoin(observables).toPromise().then((responses: IPaginationResponse<IAccount>[]) => {
-      return responses.reduce((accum, res) => {
-        res.data.forEach(item => {
-          if (!accum.some(i => i.id === item.id)) {
-            accum.push(item);
-          }
-        });
+    // return forkJoin(observables).toPromise().then((responses: IPaginationResponse<IAccount>[]) => {
+    //   return responses.reduce((accum, res) => {
+    //     res.data.forEach(item => {
+    //       if (!accum.some(i => i.id === item.id)) {
+    //         accum.push(item);
+    //       }
+    //     });
 
-        return accum;
-      }, []);
-    });
+    //     return accum;
+    //   }, []);
+    // });
+
+    return this._accountRepository.getItems(params).toPromise().then(i => i.data);
   }
 
   private _wsInit(connection: IConnection) {

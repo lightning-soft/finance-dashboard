@@ -5,7 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   HostBinding,
-  Input,
+  Input, NgZone,
   OnDestroy,
   OnInit,
   Output,
@@ -21,6 +21,7 @@ import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from 
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
+
 
 declare function canvasDatagrid(params: any);
 
@@ -157,6 +158,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     private modalService: NzModalService,
     private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
+    private _zone: NgZone,
     private container: ElementRef,
     private nzContextMenuService: NzContextMenuService,
   ) {
@@ -300,8 +302,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     if (closePrevContextMenu) {
       closePrevContextMenu();
     }
-    this.nzContextMenuService.create($event, this.contextMenuComponent);
-    closePrevContextMenu = this.nzContextMenuService.close.bind(this.nzContextMenuService);
+    this._zone.run(() => {
+      this.nzContextMenuService.create($event, this.contextMenuComponent);
+      closePrevContextMenu = this.nzContextMenuService.close.bind(this.nzContextMenuService);
+    });
   }
 
   _handleMouseUp = (e) => {

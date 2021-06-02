@@ -12,7 +12,7 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
   IAccount,
   IConnection,
-  IInstrument,
+
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -138,8 +138,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       hoveredBackgroundColor: '#2B2D33',
     }));
 
-    this.addUnsubscribeFn(this._tradeDataFeed.on(async (trade: TradePrint) => {
-      this._lastTrades[getInstrumentKey(trade.instrument)] = trade;
+    this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {
+      this._lastTrades[trade.instrument.id] = trade;
       this._instrumentsRepository.getItemById(trade.instrument.symbol, { exchange: trade.instrument.exchange })
         .pipe(untilDestroyed(this))
         .subscribe((instrument) => {
@@ -241,7 +241,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       delete i.instrument; // instrument data from realtime is not full and correct
       return i;
     }));
-    this.items.forEach(i => i.updateUnrealized(this._lastTrades[getInstrumentKey(i.position?.instrument)], i.position?.instrument));
+    this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.instrument));
     this.updatePl();
   }
 
@@ -271,7 +271,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     return forkJoin(instrumentsRequests).pipe(
       map(instruments => positions.map((p, index) => {
-        p.instrument = instruments[index];
+        // p.instrument = instruments[index];
         return p;
       }))
     );
@@ -363,6 +363,3 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 }
 
-function getInstrumentKey(instrument: IInstrument): string {
-  return `${instrument.symbol}-${instrument.exchange}`;
-}

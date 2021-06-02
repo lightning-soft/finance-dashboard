@@ -19,13 +19,20 @@ export interface RepositoryActionData<T> {
   items: T[];
 }
 
-export abstract class Repository<T extends IBaseItem = any> extends ConnectionsFactory {
+export abstract class Repository<T extends IBaseItem = any> {
 
   actions: Subject<RepositoryActionData<T>> = new Subject();
 
   protected _onCreate = this._bindEmit(RepositoryAction.Create);
   protected _onUpdate = this._bindEmit(RepositoryAction.Update);
   protected _onDelete = this._bindEmit(RepositoryAction.Delete);
+
+  connection;
+
+  get(connection: any) {
+    this.connection = connection;
+    return this;
+  }
 
   abstract getItemById(id, query?: any): Observable<T>;
 

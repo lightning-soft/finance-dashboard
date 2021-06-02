@@ -34,6 +34,10 @@ import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { InstrumentSelectComponent } from 'instrument-select';
+import { IChartState, IChartTemplate } from "chart/models";
+import { TemplatesService } from "templates";
+import { CreateModalComponent, TradeHandler } from "src/app/components";
+import { ExcludeId } from 'communication';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -62,11 +66,12 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
+  @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+
   chart: IChart;
   link: any;
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
-  isTradingLocked = false;
   showChartForm = true;
   enableOrderForm = false;
 
@@ -75,9 +80,6 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   ocoStep = OcoStep.None;
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
-
-  @ViewChild(SideOrderFormComponent)
-  private _sideForm: SideOrderFormComponent;
 
   lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
@@ -122,8 +124,9 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
     {
       showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-      showOrderConfirm: boolean, enableOrderForm: boolean
+      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
     }>(null);
+  loadedTemplate: IChartTemplate;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
@@ -143,6 +146,10 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     return this._orders.items;
   }
 
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
+
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   constructor(
@@ -160,6 +167,8 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
     private _modalService: NzModalService,
+    private _templatesService: TemplatesService,
+    private _tradeHandler: TradeHandler,
   ) {
     super();
 
@@ -247,6 +256,10 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     }
   }
 
+  toggleTrading(): void {
+    this._tradeHandler.toggleTradingEnabled();
+  }
+
   getQuoteInfo(info: number) {
     return info?.toFixed(this.instrument?.precision ?? 2) ?? '-';
   }
@@ -254,8 +267,8 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   getQuoteSize(info: number) {
     return info ?? '-';
   }
-
-  saveState() {
+  
+  saveState(): IChartState {
     const { chart } = this;
 
     if (!chart) {
@@ -271,10 +284,10 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
       showOrderConfirm: this.showOrderConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
-      stockChartXState: chart.saveState()
+      stockChartXState: chart.saveState(),
+      orderForm: this._sideForm.getState(),
     };
   }
-
 
   private _instrumentChangeHandler = (event) => {
     this._setUnavaliableIfNeed();
@@ -324,24 +337,26 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
 
     this._loadedState$
       .pipe(untilDestroyed(this))
-      .subscribe(value => {
-        if (!value) {
+      .subscribe(state => {
+        if (!state) {
           return;
         }
         this.checkIfTradingEnabled();
 
-        if (value.instrument && value.instrument.id != null) {
-          chart.instrument = value.instrument; // todo: test it
+        if (state.instrument && state.instrument.id != null) {
+          chart.instrument = state.instrument; // todo: test it
         }
 
-        if (value.timeFrame != null) {
-          chart.timeFrame = value.timeFrame;
+        if (state.timeFrame != null) {
+          chart.timeFrame = state.timeFrame;
         }
-        if (value.stockChartXState) {
-          chart.loadState(value.stockChartXState);
+        if (state.stockChartXState) {
+          chart.loadState(state.stockChartXState);
         } else if (StockChartX.Indicator.registeredIndicators.VOL) {
           chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
         }
+
+        this._sideForm.loadState(state?.orderForm);
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
@@ -473,11 +488,15 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     }
   }
 
-
-  loadState(state?: any) {
+  loadState(state?: IChartState): void {
     this.link = state?.link ?? Math.random();
-
     this._loadedState$.next(state);
+    this._sideForm?.loadState(state?.orderForm);
+  }
+
+  loadTemplate(template: IChartTemplate): void {
+    this.loadedTemplate = template;
+    this.loadState(template.state);
   }
 
   ngOnDestroy(): void {
@@ -658,6 +677,50 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
     this.setNeedUpdate();
+  }
+
+  saveTemplate(): void {
+    if (!this.loadedTemplate)
+      return;
+
+    const template: IChartTemplate = {
+      state: this.saveState(),
+      tabState: this.getTabState(),
+      id: this.loadedTemplate.id,
+      name: this.loadedTemplate.name,
+      type: Components.Chart
+    };
+
+    this._templatesService.updateItem(template).subscribe(() => {
+      this.loadedTemplate = template;
+    }, error => this._notifier.showError(error, 'Failed to save Template'));
+  }
+
+  createTemplate(): void {
+    const modal = this._modalService.create({
+      nzWidth: 440,
+      nzTitle: 'Save as',
+      nzContent: CreateModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        name: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (!result)
+        return;
+
+      const template: ExcludeId<IChartTemplate> = {
+        state: this.saveState(),
+        tabState: this.getTabState(),
+        name: result.name,
+        type: Components.Chart
+      };
+      this._templatesService.createItem(template).subscribe((template) => {
+        this.loadedTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to create Template'));
+    });
   }
 }
 

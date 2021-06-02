@@ -57,7 +57,8 @@ export class WindowsComponent implements OnInit {
       nzWidth: 438,
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
-        workspaceName: window.name,
+        name: window.name,
+        label: 'Name workspace'
       },
     });
 

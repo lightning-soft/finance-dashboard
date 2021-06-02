@@ -11,7 +11,7 @@ import { ObservableCacheService } from 'cache';
 export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> {
   protected _cacheEnabled = false;
   protected _cache = new ObservableCacheService();
-
+  
   protected get _baseUrl(): string {
     throw new Error(`Implement baseUrl for ${this}`);
   }

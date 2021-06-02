@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { blankBase, WorkspaceId } from 'workspace-manager';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 
 @Component({
@@ -10,11 +10,8 @@ import { FormControl, FormGroup } from '@angular/forms';
   styleUrls: ['./create-modal.component.scss'],
 })
 export class CreateModalComponent implements OnInit {
-
   options: { label: string, value: any }[];
-
   form: FormGroup;
-
   base: WorkspaceId = blankBase;
   name: string;
   blankOption: string;
@@ -26,7 +23,7 @@ export class CreateModalComponent implements OnInit {
   ngOnInit() {
     this.form = new FormGroup({
       base: new FormControl('blank'),
-      name: new FormControl()
+      name: new FormControl('', [Validators.required])
     });
   }
 

@@ -1,21 +1,21 @@
 import { AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { BaseOrderForm, orderTypes, QuantityInputComponent, orderDurations } from 'base-order-form';
+import { NumberHelper } from "base-components";
+import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
+import { InstrumentSelectComponent } from 'instrument-select';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
+import { RealPositionsRepository } from 'real-trading';
+import { Storage } from "storage";
 import {
-  IInstrument,
+  compareInstruments, IConnection, IInstrument,
   IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize, IConnection
+  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType
 } from 'trading';
-import { RealPositionsRepository } from 'real-trading';
-import { Storage } from "storage";
-import { NumberHelper } from "base-components";
-import { InstrumentSelectComponent } from 'instrument-select';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -291,8 +291,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, AfterVi
 
     const currentPrice = this.price || 0;
     const tickSize = this.instrument?.tickSize || 0.1;
-    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice + tickSize :
-      roundToTickSize(currentPrice, tickSize);
+    const _newPrice = currentPrice + tickSize;
+    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
+      roundToTickSize(_newPrice, tickSize);
 
     this.price = +newPrice.toFixed(this.precision);
     this.handlePriceChange();
@@ -304,8 +305,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, AfterVi
 
     const tickSize = this.instrument?.tickSize || 0.1;
     const currentPrice = this.price || 0;
-    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? currentPrice - tickSize :
-      roundToTickSize(currentPrice, tickSize, 'floor');
+    const _newPrice = currentPrice - tickSize;
+    const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
+      roundToTickSize(_newPrice, tickSize, 'floor');
 
     if (newPrice >= 0)
       this.price = +newPrice.toFixed(this.precision);
