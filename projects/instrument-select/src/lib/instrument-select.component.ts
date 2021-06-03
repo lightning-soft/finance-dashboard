@@ -23,16 +23,16 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   }
 
   @Input() placeholder = 'Select instrument';
-  
+
   private _account: IAccount;
 
-  @Input() 
+  @Input()
   set account(value: IAccount) {
     this._account = value;
   }
 
   get account() {
-    
+    return this._account;
   }
 
   @Input() className = '';

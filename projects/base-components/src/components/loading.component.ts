@@ -172,23 +172,23 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> extends Acc
         .pipe(untilDestroyed(this))
         .subscribe((params) => this._onQueryParamsChanged(params));
 
-    if (this.subscribeToConnections)
-      this._accountsManager.subscribe(this);
+    // if (this.subscribeToConnections)
+    //   this._accountsManager.subscribe(this);
 
     // this.subscribeToRealtime();
   }
 
-  handleConnect(connection: IConnection) {
-    super.handleConnect(connection);
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
 
-    this._repositorySubscription = this._subscribeToRepository();
-  }
+  //   this._repositorySubscription = this._subscribeToRepository();
+  // }
 
-  handleDisconnect(connection: IConnection) {
-    super.handleDisconnect(connection);
+  // handleDisconnect(connection: IConnection) {
+  //   super.handleDisconnect(connection);
 
-    this._repositorySubscription?.unsubscribe();
-  }
+  //   this._repositorySubscription?.unsubscribe();
+  // }
 
   protected _subscribeToRepository(): Subscription {
     if (!this._repository) {
@@ -375,8 +375,6 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> extends Acc
   }
 
   ngOnDestroy(): void {
-    super.ngOnDestroy();
-
     console.log('ngOnDestroy', this.constructor.name);
     if (this._repositorySubscription?.unsubscribe)
       this._repositorySubscription.unsubscribe();

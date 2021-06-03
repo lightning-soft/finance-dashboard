@@ -163,7 +163,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleAccountChange() {
-    this.loadData({ ...this.params, accountId: this.accountId });
+    // TODO
+    // this.loadData({ ...this.params, accountId: this.accountId });
   }
 
   changeActiveTab(tab: Tab): void {

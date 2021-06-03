@@ -28,7 +28,7 @@ import {
   PositionsRepository,
   QuoteSide,
   UpdateType,
-  OHLVFeed, IPosition, compareInstruments, IConnection
+  OHLVFeed, IPosition, compareInstruments
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -38,6 +38,7 @@ import { IChartState, IChartTemplate } from "chart/models";
 import { TemplatesService } from "templates";
 import { CreateModalComponent, TradeHandler } from "src/app/components";
 import { ExcludeId } from 'communication';
+import { AccountSelectComponent } from 'account-select';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -67,6 +68,11 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+
+  get accountId() {
+    return this._accountsSelect?.account?.id;
+  }
 
   chart: IChart;
   link: any;
@@ -122,10 +128,10 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   }
 
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
-    {
-      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-    }>(null);
+  {
+    showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
+    showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
+  }>(null);
   loadedTemplate: IChartTemplate;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
@@ -177,43 +183,39 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
-
-    this._accountsManager.subscribe(this, this._orders, this._positions);
   }
 
   async ngAfterViewInit() {
-    this._accountsManager.subscribe(this, this._instrumentSelect);
-
     this.loadFiles()
       .then(() => this.loadChart())
       .catch(e => console.error(e));
   }
 
-  handleConnect(connection: IConnection) {
-    super.handleConnect(connection);
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
 
-    this._ohlvFeed.subscribe(this.instrument);
+  //   this._ohlvFeed.subscribe(this.instrument);
 
-    this.onRemove(
-      this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
-      this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)),
-    );
+  //   this.onRemove(
+  //     this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
+  //     this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)),
+  //   );
 
-    this.loadedChart$.subscribe(() => {
-      this.chart.datafeed = this.datafeed;
-      this.chart.reload();
-    });
-  }
+  //   this.loadedChart$.subscribe(() => {
+  //     this.chart.datafeed = this.datafeed;
+  //     this.chart.reload();
+  //   });
+  // }
 
-  handleDisconnect(connection: IConnection) {
-    super.handleDisconnect(connection);
+  // handleDisconnect(connection: IConnection) {
+  //   super.handleDisconnect(connection);
 
-    this._ohlvFeed.unsubscribe(this.instrument);
+  //   this._ohlvFeed.unsubscribe(this.instrument);
 
-    this.loadedChart$.subscribe(() => {
-      delete this.chart.datafeed;
-    });
-  }
+  //   this.loadedChart$.subscribe(() => {
+  //     delete this.chart.datafeed;
+  //   });
+  // }
 
   private _updateOHLVData() {
     if (this.lastHistoryItem?.open != null) {
@@ -267,7 +269,7 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   getQuoteSize(info: number) {
     return info ?? '-';
   }
-  
+
   saveState(): IChartState {
     const { chart } = this;
 
@@ -472,7 +474,7 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   }
 
   private _getInstrumentCompany() {
-    return this.connection?.name ?? '';
+    return '';
   }
 
   private _getNavbarTitle(): string {
@@ -500,8 +502,6 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
   }
 
   ngOnDestroy(): void {
-    super.ngOnDestroy();
-
     this.destroy();
   }
 

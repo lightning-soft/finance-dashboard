@@ -90,8 +90,6 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
         },
         err => this._notifier.showError(err)
       );
-
-    this._accountsManager.subscribe(this);
   }
 
   ngAfterViewInit() {
@@ -103,8 +101,6 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
   }
 
   handleConnectionsChange(data: IAccountNodeData) {
-    super.handleConnectionsChange(data);
-
     this.builder.replaceItems(data.current);
     this.expandBrokers();
 

@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent, StringHelper } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
@@ -41,7 +40,7 @@ export type SubscribtionHandler = (data?: any) => void;
   styleUrls: ['./watchlist.component.scss'],
 })
 @LayoutNode()
-export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit, AfterViewInit {
+export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit {
   columns: Column[];
 
   isLoading = false;
@@ -75,7 +74,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     protected cd: ChangeDetectorRef,
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
     super();
@@ -89,10 +87,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
 
   ngOnInit(): void {
     this.onRemove(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
-  }
-
-  ngAfterViewInit() {
-    this._accountsManager.subscribe(this, this._instrumentSelect);
   }
 
   closeMenu(): void {

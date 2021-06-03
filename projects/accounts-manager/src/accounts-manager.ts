@@ -86,37 +86,37 @@ export class AccountsManager {
     repo.getItems().subscribe(console.log);
   }
 
-  subscribe(node: AccountNode, ...subscribers: AccountNodeSubscriber[]) {
-    subscribers.push(node);
+  // subscribe(node: AccountNode, ...subscribers: AccountNodeSubscriber[]) {
+  //   subscribers.push(node);
 
-    if (!this._subscribers.has(node)) {
-      this._subscribers.set(node, new Set());
-    }
+  //   if (!this._subscribers.has(node)) {
+  //     this._subscribers.set(node, new Set());
+  //   }
 
-    const _subscribers = this._subscribers.get(node);
+  //   const _subscribers = this._subscribers.get(node);
 
-    subscribers.forEach(subscriber => {
-      if (_subscribers.has(subscriber)) {
-        return;
-      }
+  //   subscribers.forEach(subscriber => {
+  //     if (_subscribers.has(subscriber)) {
+  //       return;
+  //     }
 
-      _subscribers.add(subscriber);
+  //     _subscribers.add(subscriber);
 
-      if (node.connection) {
-        this._emitConnectionToSubscriber(subscriber, node.connection, node.account);
-      }
+  //     if (node.connection) {
+  //       this._emitConnectionToSubscriber(subscriber, node.connection, node.account);
+  //     }
 
-      this._emitDataToSubscriber(subscriber);
-    });
-  }
+  //     this._emitDataToSubscriber(subscriber);
+  //   });
+  // }
 
-  changeNodeAccount(node: AccountNode, account: IAccount) {
-    const connection = account
-      ? this._connectedConnections.find(i => i.id === account.connectionId)
-      : undefined;
+  // changeNodeAccount(node: AccountNode, account: IAccount) {
+  //   const connection = account
+  //     ? this._connectedConnections.find(i => i.id === account.connectionId)
+  //     : undefined;
 
-    this._emitConnectionToNode(node, connection, account);
-  }
+  //   this._emitConnectionToNode(node, connection, account);
+  // }
 
   private async _fetchConnections(): Promise<void> {
     return this._connectionsRepository.getItems().toPromise().then(res => {
@@ -299,21 +299,21 @@ export class AccountsManager {
   }
 
   protected onCreated(connection: IConnection): void {
-    if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
-    }
+  //   if (!connection.name) {
+  //     connection.name = `${connection.server}(${connection.gateway})`;
+  //   }
 
     this._connections = this._connections.concat(connection);
 
     this._emitData();
-    this._emitConnection(connection);
+  //   this._emitConnection(connection);
   }
 
   protected onDeleted(connection: IConnection): void {
     this._connections = this._connections.filter(i => i.id !== connection.id);
 
     this._emitData();
-    this._emitConnection(connection);
+  //   this._emitConnection(connection);
   }
 
   protected onUpdated(connection: IConnection, emitConnection = true): void {
@@ -321,9 +321,9 @@ export class AccountsManager {
 
     this._emitData();
 
-    if (emitConnection) {
-      this._emitConnection(connection);
-    }
+  //   if (emitConnection) {
+  //     this._emitConnection(connection);
+  //   }
   }
 
   private async _emitData(): Promise<void> {
@@ -336,67 +336,67 @@ export class AccountsManager {
     this._accounts = accounts.concat(_accounts);
     accountsListeners.notifyAccountsConnected(_accounts, this._accounts);
 
-    this._forEachSubscriber(subscriber => {
-      this._emitDataToSubscriber(subscriber);
-    });
+    // this._forEachSubscriber(subscriber => {
+    //   this._emitDataToSubscriber(subscriber);
+    // });
   }
 
-  private _emitDataToSubscriber(subscriber: AccountNodeSubscriber) {
-    subscriber.handleConnectionsChange(this._connectionsData);
-    subscriber.handleConnectedConnectionsChange(this._connectedConnectionsData);
-    subscriber.handleAccountsChange(this._accountsData);
-  }
+  // private _emitDataToSubscriber(subscriber: AccountNodeSubscriber) {
+  //   subscriber.handleConnectionsChange(this._connectionsData);
+  //   subscriber.handleConnectedConnectionsChange(this._connectedConnectionsData);
+  //   subscriber.handleAccountsChange(this._accountsData);
+  // }
 
-  private _emitConnection(connection: IConnection, account?: IAccount) {
-    const nodes = this._subscribers.keys();
+  // private _emitConnection(connection: IConnection, account?: IAccount) {
+  //   const nodes = this._subscribers.keys();
 
-    for (let node of nodes) {
-      if (connection.id === node.connection?.id && connection.connected !== node.connection?.connected) {
-        const _connection = this._connections.find(i => i.id === connection.id);
+  //   for (let node of nodes) {
+  //     if (connection.id === node.connection?.id && connection.connected !== node.connection?.connected) {
+  //       const _connection = this._connections.find(i => i.id === connection.id);
 
-        this._emitConnectionToNode(node, _connection, account);
-      }
-    }
+  //       this._emitConnectionToNode(node, _connection, account);
+  //     }
+  //   }
 
-    if (!connection.connected) {
-      this._wsClose(connection);
-    }
-  }
+  //   if (!connection.connected) {
+  //     this._wsClose(connection);
+  //   }
+  // }
 
-  private _emitConnectionToNode(node: AccountNode, connection: IConnection, account?: IAccount) {
-    this._setConnectionToSubscriber(node, connection, account);
+  // private _emitConnectionToNode(node: AccountNode, connection: IConnection, account?: IAccount) {
+  //   this._setConnectionToSubscriber(node, connection, account);
 
-    this._subscribers.get(node).forEach(subscriber => {
-      this._emitConnectionToSubscriber(subscriber, connection, account);
-    });
-  }
+  //   this._subscribers.get(node).forEach(subscriber => {
+  //     this._emitConnectionToSubscriber(subscriber, connection, account);
+  //   });
+  // }
 
-  private _emitConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
-    this._setConnectionToSubscriber(subscriber, connection, account);
+  // private _emitConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
+  //   this._setConnectionToSubscriber(subscriber, connection, account);
 
-    subscriber.handleConnection(connection);
+  //   subscriber.handleConnection(connection);
 
-    if (connection?.connected) {
-      subscriber.handleConnect(connection);
-    } else {
-      subscriber.handleDisconnect(connection);
-    }
+  //   if (connection?.connected) {
+  //     subscriber.handleConnect(connection);
+  //   } else {
+  //     subscriber.handleDisconnect(connection);
+  //   }
 
-    subscriber.handleAccountChange(account);
-  }
+  //   subscriber.handleAccountChange(account);
+  // }
 
-  private _setConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
-    if (connection?.connected) {
-      subscriber.connection = connection;
+  // private _setConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
+  //   if (connection?.connected) {
+  //     subscriber.connection = connection;
 
-      if (account) {
-        subscriber.account = account;
-      }
-    } else {
-      subscriber.connection = undefined;
-      subscriber.account = undefined;
-    }
-  }
+  //     if (account) {
+  //       subscriber.account = account;
+  //     }
+  //   } else {
+  //     subscriber.connection = undefined;
+  //     subscriber.account = undefined;
+  //   }
+  // }
 
   private _getAccountNodeData<T extends IBaseItem = IConnection>(prev: T[] = [], current: T[] = []): IAccountNodeData<T> {
     const deleted = prev.filter(i => !current.some(_i => _i.id === i.id));

@@ -65,18 +65,18 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     this.builder.replaceItems(favouriteConnections);
   }
 
-  handleConnectedConnectionsChange(data: IAccountNodeData) {
-    const connections = data.current;
+  // handleConnectedConnectionsChange(data: IAccountNodeData) {
+  //   const connections = data.current;
 
-    this.hasConnectedConnections = connections.length > 0;
+  //   this.hasConnectedConnections = connections.length > 0;
 
-    if (this.hasConnectedConnections) {
-      const connection = connections[0];
+  //   if (this.hasConnectedConnections) {
+  //     const connection = connections[0];
 
-      this.connection = connection;
-      this.handleConnect(connection);
-    }
-  }
+  //     this.connection = connection;
+  //     this.handleConnect(connection);
+  //   }
+  // }
 
   loadData(params?: any) {
   }

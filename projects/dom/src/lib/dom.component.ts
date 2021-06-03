@@ -60,6 +60,7 @@ import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } f
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { TradeHandler } from "src/app/components";
+import { AccountSelectComponent } from 'account-select';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -194,6 +195,13 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 @LayoutNode()
 @AccountsListener()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+
+  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+
+  get accountId() {
+    return this._accountsSelect?.account?.id;
+  }
+  
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   public get instrument(): IInstrument {
@@ -571,28 +579,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngAfterViewInit() {
-    this._accountsManager.subscribe(this, this._instrumentSelect);
+    // this._accountsManager.subscribe(this, this._instrumentSelect);
 
     this._handleResize();
   }
 
-  handleConnect(connection: IConnection) {
-    super.handleConnect(connection);
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
 
-    this._ordersRepository.actions
-      .pipe(untilDestroyed(this))
-      .subscribe((action) => this._handleOrdersRealtime(action));
+  //   this._ordersRepository.actions
+  //     .pipe(untilDestroyed(this))
+  //     .subscribe((action) => this._handleOrdersRealtime(action));
 
-    this.onRemove(
-      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
-      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._positionsFeed.on((pos) => this.handlePosition(pos)),
-      this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
-    );
+  //   this.onRemove(
+  //     this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
+  //     this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
+  //     this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
+  //     this._positionsFeed.on((pos) => this.handlePosition(pos)),
+  //     this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
+  //   );
 
-    this._onInstrumentChange(this.instrument);
-  }
+  //   this._onInstrumentChange(this.instrument);
+  // }
 
   handleAccountChange() {
     this._loadData();

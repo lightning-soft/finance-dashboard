@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { untilDestroyed } from "@ngneat/until-destroy";
-import { IAccountNodeData } from 'accounts-manager';
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
@@ -163,28 +162,28 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
   }
 
-  handleConnectedConnectionsChange(data: IAccountNodeData) {
-    super.handleConnectedConnectionsChange(data);
+  // handleConnectedConnectionsChange(data: IAccountNodeData) {
+  //   super.handleConnectedConnectionsChange(data);
 
-    this._connections = data.created;
-  }
+  //   this._connections = data.created;
+  // }
 
-  handleAccountsChange(data: IAccountNodeData<IAccount>) {
-    super.handleAccountsChange(data);
+  // handleAccountsChange(data: IAccountNodeData<IAccount>) {
+  //   super.handleAccountsChange(data);
 
-    if (data.deleted.length) {
-      const itemsToDelete = this.items.filter(i => data.deleted.some(_i => _i.id === i.position.accountId));
+  //   if (data.deleted.length) {
+  //     const itemsToDelete = this.items.filter(i => data.deleted.some(_i => _i.id === i.position.accountId));
 
-      this.builder.handleDeleteItems(itemsToDelete);
-      this.updatePl();
-    }
+  //     this.builder.handleDeleteItems(itemsToDelete);
+  //     this.updatePl();
+  //   }
 
-    this._accounts = data.created;
+  //   this._accounts = data.created;
 
-    if (this._accounts.length) {
-      this.loadData();
-    }
-  }
+  //   if (this._accounts.length) {
+  //     this.loadData();
+  //   }
+  // }
 
   protected _getItems(params?: any): Observable<IPaginationResponse<IPosition>> {
     const observables = this._accounts.map(account => {

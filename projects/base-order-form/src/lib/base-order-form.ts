@@ -1,19 +1,26 @@
 import { FormComponent } from 'base-components';
-import { IOrder, OrderType } from 'trading';
+import { IInstrument, IOrder, OrderType } from 'trading';
 import { IPosition, PositionsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { OrderDuration } from 'trading';
-import { Directive, Input } from '@angular/core';
+import { Directive, Input, ViewChild } from '@angular/core';
 import { compareInstruments } from 'trading';
+import { AccountSelectComponent } from 'account-select';
 
 const placeholder = '-';
 
 @Directive()
 export abstract class BaseOrderForm extends FormComponent<IOrder> {
   protected positionsRepository: PositionsRepository;
-  protected instrument;
+  instrument: IInstrument;
   private _position: IPosition;
   canClickPosButton = false;
+
+  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+
+  get accountId() {
+    return this._accountsSelect?.account?.id;
+  }
 
   @Input()
   set position(pos: IPosition) {

@@ -34,7 +34,7 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
-export class OrderFormComponent extends BaseOrderForm implements OnInit, AfterViewInit, OnDestroy, IStateProvider<OrderFormState> {
+export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
   orderDurations = orderDurations;
   orderTypes = orderTypes;
   step = 1;
@@ -134,34 +134,30 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, AfterVi
     this.onTypeUpdated();
   }
 
-  ngAfterViewInit() {
-    this._accountsManager.subscribe(this, this._instrumentSelect);
-  }
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
 
-  handleConnect(connection: IConnection) {
-    super.handleConnect(connection);
+  //   this.onRemove(
+  //     this._levelOneDatafeed.on((quote: IQuote) => {
+  //       if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+  //         if (quote.side === QuoteSide.Ask) {
+  //           this.askPrice = quote.price.toFixed(this.precision);
+  //           this.askVolume = quote.volume;
+  //         } else {
+  //           this.bidVolume = quote.volume;
+  //           this.bidPrice = quote.price.toFixed(this.precision);
+  //         }
+  //       }
+  //     }),
+  //     this._positionDatafeed.on((pos) => {
+  //       const position = RealPositionsRepository.transformPosition(pos);
 
-    this.onRemove(
-      this._levelOneDatafeed.on((quote: IQuote) => {
-        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-          if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
-            this.askVolume = quote.volume;
-          } else {
-            this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
-          }
-        }
-      }),
-      this._positionDatafeed.on((pos) => {
-        const position = RealPositionsRepository.transformPosition(pos);
-
-        if (compareInstruments(position.instrument, this.instrument)) {
-          this.position = position;
-        }
-      })
-    );
-  }
+  //       if (compareInstruments(position.instrument, this.instrument)) {
+  //         this.position = position;
+  //       }
+  //     })
+  //   );
+  // }
 
   handleAccountChange() {
     this.form.patchValue({ accountId: this.accountId });

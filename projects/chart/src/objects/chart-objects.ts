@@ -1,13 +1,12 @@
 import { Injector } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountNodeSubscriber } from 'accounts-manager';
 import { IBaseItem, Id, IPaginationResponse, Repository } from 'communication';
 import { NotifierService } from 'notifier';
-import { Feed, IConnection, IInstrument } from 'trading';
+import { Feed, IInstrument } from 'trading';
 import { ChartComponent } from '../chart.component';
 import { IChart } from '../models';
 
-export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrument }> extends AccountNodeSubscriber {
+export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrument }> {
   protected _instance: ChartComponent;
   protected _repository: Repository<T>;
   protected _notifier: NotifierService;
@@ -31,34 +30,11 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   }
 
   constructor(instance: any) {
-    super();
-
     this._instance = instance;
     this._notifier = this._injector.get(NotifierService);
   }
 
   init() {}
-
-  handleConnect(connection: IConnection) {
-    super.handleConnect(connection);
-
-    this._instance.loadedChart$.subscribe(() => {
-      this.unsubscribeFn = this._dataFeed.on((model) => {
-        this.handle(model);
-      });
-  
-      this._loadItems();
-    });
-  }
-
-  handleDisconnect(connection: IConnection) {
-    super.handleDisconnect(connection);
-
-    this._instance.loadedChart$.subscribe(() => {
-      this.unsubscribeFn();
-      this._deleteItems();
-    });
-  }
 
   handle(model: T) {
     const instrument = this._instance?.instrument;
