@@ -257,11 +257,18 @@ export class AccountsManager {
       );
   }
 
+  private _onDisconnected(connection: IConnection) {
+    const disconectedAccounts = this._accounts.filter(account => account.connectionId === connection.id);
+    this._accounts = this._accounts.filter(account => account.connectionId === connection.id);
+    accountsListeners.notifyAccountsConnected(disconectedAccounts, this._accounts);
+  }
+
   disconnect(connection: IConnection): Observable<void> {
     return this._connectionsRepository.disconnect(connection)
       .pipe(
         map(() => ({ ...connection, connected: false })),
         tap((updatedConnection) => this.onUpdated(updatedConnection)),
+        tap((connection) => this._onDisconnected(connection)),
         concatMap((updatedConnection) => this._connectionsRepository.updateItem(updatedConnection)),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {

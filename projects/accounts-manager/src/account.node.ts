@@ -12,32 +12,32 @@ export interface IAccountNodeData<T = IConnection> {
 }
 
 @UntilDestroy()
-export abstract class AccountNodeSubscriber extends ConnectionDepNode implements OnDestroy {
-  account: IAccount;
+export abstract class AccountNodeSubscriber {
+  // account: IAccount;
 
-  get accountId(): Id {
-    return this.account?.id;
-  }
+  // get accountId(): Id {
+  //   return this.account?.id;
+  // }
 
-  handleConnectionsChange(data: IAccountNodeData): void {}
-  handleConnectedConnectionsChange(data: IAccountNodeData): void {}
+  // handleConnectionsChange(data: IAccountNodeData): void {}
+  // handleConnectedConnectionsChange(data: IAccountNodeData): void {}
 
-  handleConnection(connection: IConnection): void {}
+  // handleConnection(connection: IConnection): void {}
 
-  handleConnect(connection: IConnection) {
-    this.initConnectionDeps();
-  }
+  // handleConnect(connection: IConnection) {
+  //   this.initConnectionDeps();
+  // }
 
-  handleDisconnect(connection: IConnection) {
-    this.destroyConnectionDeps();
-  }
+  // handleDisconnect(connection: IConnection) {
+  //   this.destroyConnectionDeps();
+  // }
 
-  handleAccountsChange(data: IAccountNodeData<IAccount>): void {}
-  handleAccountChange(account: IAccount): void {}
+  // handleAccountsChange(data: IAccountNodeData<IAccount>): void {}
+  // handleAccountChange(account: IAccount): void {}
 
-  ngOnDestroy() {
-    this.destroyConnectionDeps();
-  }
+  // ngOnDestroy() {
+  //   this.destroyConnectionDeps();
+  // }
 }
 
 export class AccountNode extends AccountNodeSubscriber {

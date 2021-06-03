@@ -50,7 +50,7 @@ import {
   PositionsRepository,
   QuoteSide,
   Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
+  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize, IAccount
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
@@ -505,10 +505,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   get isTradingLocked(): boolean {
     return !this._tradeHandler.isTradingEnabled$.value;
-  }
-
-  handleAccountsConnect(accounts: Account[]) {
-    console.log('handleAccountsConnect', accounts);
   }
 
   ngOnInit(): void {

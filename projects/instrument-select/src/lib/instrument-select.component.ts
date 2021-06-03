@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { Id, ItemsComponent } from 'base-components';
-import { IInstrument, InstrumentsRepository } from 'trading';
+import { IAccount, IInstrument, InstrumentsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 
 @Component({
@@ -23,6 +23,18 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   }
 
   @Input() placeholder = 'Select instrument';
+  
+  private _account: IAccount;
+
+  @Input() 
+  set account(value: IAccount) {
+    this._account = value;
+  }
+
+  get account() {
+    
+  }
+
   @Input() className = '';
   @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
 
