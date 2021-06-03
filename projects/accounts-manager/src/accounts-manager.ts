@@ -1,13 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { IPaginationResponse } from 'base-components';
 import { AlertType, IBaseItem, WebSocketService, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
-import { forkJoin, Observable, of, throwError } from 'rxjs';
+// Todo: Make normal import
+// The problem now - circular dependency 
+import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionsRepository, IAccount, IConnection } from 'trading';
 import { AccountNode, AccountNodeSubscriber, IAccountNodeData } from './account.node';
-import { HttpErrorInterceptor } from './interceptor';
 
 @Injectable()
 export class AccountsManager {
@@ -58,9 +59,9 @@ export class AccountsManager {
     private _connectionsRepository: ConnectionsRepository,
     private _accountRepository: AccountRepository,
     private _webSocketService: WebSocketService,
-    private _interceptor: HttpErrorInterceptor,
     private _notificationService: NotificationService,
   ) {
+    (window as any).accounts = this;
   }
 
   async init(): Promise<IConnection[]> {
@@ -69,9 +70,20 @@ export class AccountsManager {
     await this._fetchConnections();
     await this._emitData();
 
-    this._connectedConnections.forEach(connection => this._wsInit(connection));
+    for (const connection of this._connections) {
+      if (!connection.connected)
+        continue;
+
+      this._wsInit(connection);
+      this._fetchAccounts(connection);
+    }
 
     return this._connections;
+  }
+
+  _fetchAccounts(connection) {
+    const repo = this._accountRepository.get(connection);
+    repo.getItems().subscribe(console.log);
   }
 
   subscribe(node: AccountNode, ...subscribers: AccountNodeSubscriber[]) {
@@ -118,8 +130,8 @@ export class AccountsManager {
     });
   }
 
-  private async _getAccountsByConnections(connections: IConnection[]): Promise<IAccount[]> {
-    if (!connections.length) {
+  private async _getAccountsByConnections(connection: IConnection): Promise<IAccount[]> {
+    if (!connection) {
       return [];
     }
 
@@ -144,7 +156,10 @@ export class AccountsManager {
     //   }, []);
     // });
 
-    return this._accountRepository.getItems(params).toPromise().then(i => i.data);
+    this._accountRepository.get(connection);
+    return this._accountRepository.getItems(params)
+      .pipe(catchError(e => of({ data: [] } as any)))
+      .toPromise().then((i) => i.data);
   }
 
   private _wsInit(connection: IConnection) {
@@ -233,7 +248,7 @@ export class AccountsManager {
             .pipe(map(_ => item));
         }),
         tap((conn) => {
-          if (!conn.error) {
+          if (conn.connected) {
             this._wsInit(conn);
           }
 
@@ -309,9 +324,10 @@ export class AccountsManager {
       return this._connectedConnections.some(i => i.id === account.connectionId);
     });
 
-    const _accounts = await this._getAccountsByConnections(this._connectedConnectionsData.created);
+    const _accounts = await this._getAccountsByConnections(this._connections.filter(i => i.connected)[0]);
 
     this._accounts = accounts.concat(_accounts);
+    accountsListeners.notifyAccountsConnected(_accounts, this._accounts);
 
     this._forEachSubscriber(subscriber => {
       this._emitDataToSubscriber(subscriber);

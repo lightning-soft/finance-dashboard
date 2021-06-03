@@ -31,7 +31,7 @@ import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IHistoryItem, RealPositionsRepository } from 'real-trading';
+import { AccountsListener, IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   compareInstruments,
   IConnection,
@@ -59,7 +59,6 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { finalize } from "rxjs/operators";
 import { TradeHandler } from "src/app/components";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
@@ -193,6 +192,7 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
   styleUrls: ['./dom.component.scss'],
 })
 @LayoutNode()
+@AccountsListener()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
@@ -505,6 +505,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   get isTradingLocked(): boolean {
     return !this._tradeHandler.isTradingEnabled$.value;
+  }
+
+  handleAccountsConnect(accounts: Account[]) {
+    console.log('handleAccountsConnect', accounts);
   }
 
   ngOnInit(): void {
