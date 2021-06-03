@@ -1,5 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IAccountNodeData } from 'accounts-manager';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Id, ILoadingHandler } from 'base-components';
 import { AccountsListener } from 'real-trading';
 import { IAccount } from 'trading';

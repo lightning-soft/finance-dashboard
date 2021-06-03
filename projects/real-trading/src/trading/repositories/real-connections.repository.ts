@@ -115,7 +115,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   protected _disconnect(item: IConnection): Observable<any> {
     const data = item.connectionData;
-    const apiKey = data.apiKey;
+    const apiKey = data?.apiKey;
 
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {

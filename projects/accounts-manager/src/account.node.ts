@@ -4,12 +4,6 @@ import { OnDestroy } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { Id } from 'communication';
 
-export interface IAccountNodeData<T = IConnection> {
-  current: T[];
-  prev: T[];
-  created: T[];
-  deleted: T[];
-}
 
 @UntilDestroy()
 export abstract class AccountNodeSubscriber {

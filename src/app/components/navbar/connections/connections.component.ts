@@ -1,6 +1,6 @@
-import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter } from '@angular/core';
+import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager, IAccountNodeData } from 'accounts-manager';
+import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
@@ -25,7 +25,7 @@ export const accountsOptions = {
   templateUrl: './connections.component.html',
   styleUrls: ['./connections.component.scss'],
 })
-export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
+export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements OnInit {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
@@ -60,10 +60,16 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> {
     });
   }
 
-  handleConnectionsChange(data: IAccountNodeData) {
-    const favouriteConnections = data.current.filter(item => item.favourite);
-    this.builder.replaceItems(favouriteConnections);
+  ngOnInit() {
+    super.ngOnInit();
+    this._accountsManager.connectionsChange
+      .pipe(untilDestroyed(this))
+      .subscribe(connections => this.builder.replaceItems(connections));
   }
+  // handleConnectionsChange(data: IAccountNodeData) {
+  //   const favouriteConnections = data.current.filter(item => item.favourite);
+  //   this.builder.replaceItems(favouriteConnections);
+  // }
 
   // handleConnectedConnectionsChange(data: IAccountNodeData) {
   //   const connections = data.current;

@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountNode, AccountsManager, IAccountNodeData } from 'accounts-manager';
+import { AccountNode, AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
@@ -37,7 +37,6 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
   splitConnections = false;
   @ViewChild('userData') userData: AcccountFormComponent;
   isSubmitted = false;
-  private _wasConnected = false;
 
   constructor(
     protected _accountsManager: AccountsManager,
@@ -71,6 +70,10 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
       groupBy: ['broker'],
     });
 
+    this._accountsManager.connectionsChange
+      .pipe(untilDestroyed(this))
+      .subscribe(connections => this.builder.replaceItems(connections));
+
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -100,22 +103,22 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
     })
   }
 
-  handleConnectionsChange(data: IAccountNodeData) {
-    this.builder.replaceItems(data.current);
-    this.expandBrokers();
+  // handleConnectionsChange(data: IAccountNodeData) {
+  //   this.builder.replaceItems(data.current);
+  //   this.expandBrokers();
 
-    if (!this._wasConnected) {
-      if (!this.selectedItem) {
-        const item = this.builder.items.find(item => item.connected && item.connectOnStartUp);
+  //   if (!this._wasConnected) {
+  //     if (!this.selectedItem) {
+  //       const item = this.builder.items.find(item => item.connected && item.connectOnStartUp);
 
-        this.selectItem(item);
-      }
+  //       this.selectItem(item);
+  //     }
 
-      this._wasConnected = true;
-    }
+  //     this._wasConnected = true;
+  //   }
 
-    this._updateSelectedItem();
-  }
+  //   this._updateSelectedItem();
+  // }
 
   contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
@@ -225,12 +228,12 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
         this.showItemLoader(item),
         untilDestroyed(this)
       ).subscribe(
-      (response: any) => {
-      },
-      err => {
-        this._notifier.showError(err);
-      },
-    );
+        (response: any) => {
+        },
+        err => {
+          this._notifier.showError(err);
+        },
+      );
   }
 
   connect() {
