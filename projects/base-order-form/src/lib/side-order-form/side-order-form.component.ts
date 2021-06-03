@@ -133,7 +133,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() set accountId(value) {
     if (this._accountId !== value) {
       this._accountId = value;
-      this.form.patchValue({ accountId: value });
+      this.form?.patchValue({ accountId: value });
     }
   }
 

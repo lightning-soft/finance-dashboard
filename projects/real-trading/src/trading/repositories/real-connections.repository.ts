@@ -41,7 +41,6 @@ class Connection implements IConnection {
 @Injectable()
 export class RealConnectionsRepository extends HttpRepository<IConnection> implements ConnectionsRepository {
   connections: IConnection[] = [];
-  accountsRepo: RealAccountRepository;
 
   protected get _baseUrl(): string {
     return `${this._communicationConfig.rithmic.http.url}Connection`;
@@ -49,10 +48,6 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   protected get _accountsSettings() {
     return `${this._communicationConfig.setting.url}api/AccountSettings`;
-  }
-
-  onInit() {
-    this.accountsRepo = this._injector.get(AccountRepository) as any;
   }
 
   getItems(params: any): Observable<IPaginationResponse<IConnection>> {
@@ -91,9 +86,8 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
-      mergeMap(i => {
+      tap(i => {
         this._onUpdate(item);
-        return this.accountsRepo._loadAccounts(item);
       }),
     );
   }
