@@ -49,6 +49,11 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
     protected _injector: Injector,
   ) {
     super();
+    this.config.autoLoadData = {
+      onInit: true,
+      onParamsChange: false,
+      onQueryParamsChange: false,
+    }
   }
 
   ngOnInit() {

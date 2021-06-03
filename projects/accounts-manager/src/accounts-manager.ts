@@ -53,14 +53,8 @@ export class AccountsManager {
     // this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
 
     await this._fetchConnections();
-
-    for (const connection of this._connections) {
-      if (!connection.connected)
-        continue;
-
-      this._initWS(connection);
-      this._fetchAccounts(connection);
-    }
+    for (const conn of this._connections.filter(i => i.connectOnStartUp))
+      this.connect(conn).subscribe(); // TODO: handleError
 
     return this._connections;
   }
@@ -239,7 +233,7 @@ export class AccountsManager {
         tap((conn) => {
           if (conn.connected) {
             this._initWS(conn);
-            this._fetchAccounts(connection);
+            this._fetchAccounts(conn);
           }
 
           this.onUpdated(conn);

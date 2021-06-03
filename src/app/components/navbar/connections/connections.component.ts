@@ -66,23 +66,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       .pipe(untilDestroyed(this))
       .subscribe(connections => this.builder.replaceItems(connections));
   }
-  // handleConnectionsChange(data: IAccountNodeData) {
-  //   const favouriteConnections = data.current.filter(item => item.favourite);
-  //   this.builder.replaceItems(favouriteConnections);
-  // }
 
-  // handleConnectedConnectionsChange(data: IAccountNodeData) {
-  //   const connections = data.current;
-
-  //   this.hasConnectedConnections = connections.length > 0;
-
-  //   if (this.hasConnectedConnections) {
-  //     const connection = connections[0];
-
-  //     this.connection = connection;
-  //     this.handleConnect(connection);
-  //   }
-  // }
 
   loadData(params?: any) {
   }
