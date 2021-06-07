@@ -2162,7 +2162,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _closeOrders(action: FormActions) {
-    let orders = this.items.reduce((acc, i) => ([...acc, ...i.orders.orders]), []);
+    let orders = [...this.orders];
 
     if (action === FormActions.CloseSellOrders)
       orders = orders.filter(i => i.side === OrderSide.Sell);
