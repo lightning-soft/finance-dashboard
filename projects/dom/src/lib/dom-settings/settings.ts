@@ -120,14 +120,12 @@ export class DomSettings {
   };
   ltq: any = {
     highlightBackgroundColor: 'rgba(56, 58, 64, 1)',
-    backgroundColor: 'transparent',
-    // buyBackgroundColor: 'rgba(72, 149, 245, 1)',
-    buyBackgroundColor: 'transparent',
+    backgroundColor: '#012B36',
+    buyBackgroundColor: '#4895F5',
     color: '#fff',
     accumulateTrades: true,
     histogramColor: 'rgba(56, 58, 64, 0.5)',
-    // sellBackgroundColor: 'rgba(220, 50, 47, 1)',
-    sellBackgroundColor: 'transparent',
+    sellBackgroundColor: '#DC322F',
     textAlign: TextAlign.Center,
   };
   orderArea = {
