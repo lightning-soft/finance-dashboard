@@ -1,6 +1,6 @@
 import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, WebSocketService, WSEventType } from 'communication';
+import { IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
 import { ConnectionsFactory } from './connections.factory';
 import { RealtimeType } from './realtime';
@@ -35,13 +35,14 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
     super();
-  }
-
-  initConnectionDeps() {
-    super.initConnectionDeps();
-
     this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
   }
+
+  // initConnectionDeps() {
+  //   super.initConnectionDeps();
+
+  //   this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
+  // }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
     this._executors.push(fn);
@@ -51,15 +52,15 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
     };
   }
 
-  subscribe(data: I | I[]) {
-    this._sendRequest(this.subscribeType, data);
+  subscribe(data: I | I[], connectionId: Id) {
+    this._sendRequest(this.subscribeType, data, connectionId);
   }
 
-  unsubscribe(data: I | I[]) {
-    this._sendRequest(this.unsubscribeType, data);
+  unsubscribe(data: I | I[], connectionId: Id) {
+    this._sendRequest(this.unsubscribeType, data, connectionId);
   }
 
-  private _sendRequest(type: WSMessageTypes, data: I | I[]) {
+  private _sendRequest(type: WSMessageTypes, data: I | I[], connectionId: Id) {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
@@ -76,12 +77,12 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
         subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
         if (subscriptions[hash].count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
-          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
+          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
           subscriptions[hash].payload = dto;
-          if (this.connection?.connected)
-            this._webSocketService.send({ Type: type, ...dto });
-          else
-            this.createPendingRequest(type, dto);
+          // if (this.connection?.connected)
+            this._webSocketService.send({ Type: type, ...dto }, connectionId);
+          // else
+          //   this.createPendingRequest(type, dto);
         }
       } else {
         if (!subscriptions[hash])
@@ -97,9 +98,9 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
     });
   }
 
-  private createPendingRequest(type, payload) {
-    this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...payload }));
-  }
+  // private createPendingRequest(type, payload) {
+  //   this._pendingRequests.push(() => this.send({ Type: type, ...payload }));
+  // }
 
   protected _getHash(instrument: I) {
     const { symbol, exchange } = instrument as any;

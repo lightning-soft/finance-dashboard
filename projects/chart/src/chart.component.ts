@@ -13,7 +13,7 @@ import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { LoadingService } from 'lazy-modules';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { AccountNode, AccountsManager } from 'accounts-manager';
+import { AccountsManager } from 'accounts-manager';
 import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
@@ -59,7 +59,7 @@ export interface ChartComponent extends ILayoutNode {
   ]
 })
 @LayoutNode()
-export class ChartComponent extends AccountNode implements AfterViewInit, OnDestroy {
+export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
@@ -176,8 +176,6 @@ export class ChartComponent extends AccountNode implements AfterViewInit, OnDest
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
   ) {
-    super();
-
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
 

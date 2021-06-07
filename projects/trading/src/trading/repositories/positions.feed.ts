@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { IOrder } from 'trading';
+import { IPosition } from '../models';
 import { Feed } from './feed';
 
 @Injectable()
-export abstract class PositionsFeed extends Feed<IOrder>{
+export abstract class PositionsFeed extends Feed<IPosition>{
 
 }
 

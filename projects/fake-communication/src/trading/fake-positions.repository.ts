@@ -85,6 +85,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
       unrealized: randomFixedNumber(),
       total: randomFixedNumber(),
       status: PositionStatus.Open,
+      instrument: { id: 'tt' } as any,
     };
   }
 }

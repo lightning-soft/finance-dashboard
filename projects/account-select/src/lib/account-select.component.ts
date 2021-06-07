@@ -15,11 +15,24 @@ export class AccountSelectComponent {
   @Input() className = '';
   @Input() nzDropdownClassName = '';
   @Input() loadingHandler: ILoadingHandler;
-  @Output() accountChange: EventEmitter<Id> = new EventEmitter();
+  @Output() accountChange: EventEmitter<IAccount> = new EventEmitter();
 
   items: IAccount[] = [];
 
-  account: IAccount;
+  private _account: IAccount;
+
+  public get account(): IAccount {
+    return this._account;
+  }
+
+  @Input()
+  public set account(value: IAccount) {
+    if (this._account?.id === value?.id)
+      return;
+
+    this.accountChange.emit(value);
+    this._account = value;
+  }
 
   @Input() labelTransformer = (label) => label;
 
@@ -30,10 +43,10 @@ export class AccountSelectComponent {
       this.account = allAccounts[0];
   }
 
-  handleAccountsDisconnect(accounts: IAccount[], allAccounts: IAccount[]) {
+  handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
     this.items = allAccounts;
 
-    if (accounts.some(account => this.account.id === account.id)) {
+    if (disconnectedAccounts.some(account => this.account.id === account.id)) {
       this.account = allAccounts[0];
     }
   }

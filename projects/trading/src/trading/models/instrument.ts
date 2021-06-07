@@ -11,8 +11,10 @@ export interface IInstrument extends IBaseItem {
 }
 
 export const compareInstruments = (a: IInstrument, b: IInstrument) => {
-  return a?.symbol === b?.symbol
-    && a?.exchange === b?.exchange;
+  // return a?.symbol === b?.symbol
+  //   && a?.exchange === b?.exchange;
+
+  return a?.id === b?.id;
 };
 
 export function roundToTickSize(price: number, tickSize: number, strategy: 'ceil' | 'round' | 'floor' = 'ceil') {

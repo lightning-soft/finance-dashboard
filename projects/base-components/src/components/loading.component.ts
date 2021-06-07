@@ -2,12 +2,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountNode, AccountsManager } from 'accounts-manager';
+import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, Repository, RepositoryAction } from 'communication';
 import { NotifierService } from 'notifier';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { IConnection } from 'trading';
 import { isEqual } from 'underscore';
 
 type HideLoader = () => void;
@@ -43,7 +42,7 @@ export function getDefaultLoadingItemConfig(): ILoadingComponentConfig {
 }
 
 @UntilDestroy()
-export abstract class LoadingComponent<T, I extends IBaseItem = any> extends AccountNode implements OnInit, OnDestroy, ILoadingHandler {
+export abstract class LoadingComponent<T, I extends IBaseItem = any> implements OnInit, OnDestroy, ILoadingHandler {
   private _loadingProcesses = 0;
   protected _loading;
   protected _initializing = false;

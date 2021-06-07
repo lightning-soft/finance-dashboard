@@ -89,6 +89,7 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
       status: OrderStatus.Pending,
       type: OrderType.Market,
       description: '',
+      accountId: '',
     };
   }
 

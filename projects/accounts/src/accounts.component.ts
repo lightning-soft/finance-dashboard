@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountNode, AccountsManager } from 'accounts-manager';
+import { AccountsManager } from 'accounts-manager';
 import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
@@ -26,8 +26,7 @@ const maxAccountsPerConnection = 4;
   styleUrls: ['./accounts.component.scss'],
 })
 @LayoutNode()
-export class AccountsComponent extends AccountNode implements IStateProvider<AccountsState>, OnInit, AfterViewInit {
-
+export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, AfterViewInit {
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
   isLoading: { [key: number]: boolean } = {};
@@ -47,8 +46,6 @@ export class AccountsComponent extends AccountNode implements IStateProvider<Acc
     private modal: NzModalService,
     protected nzContextMenuService: NzContextMenuService
   ) {
-    super();
-
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
     this.form = this.fb.group({

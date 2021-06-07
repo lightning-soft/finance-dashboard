@@ -31,7 +31,7 @@ import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { AccountsListener, IHistoryItem, RealPositionsRepository } from 'real-trading';
+import { AccountsListener, filterByAccountAndInstrument, filterByConnectionAndInstrument, IHistoryItem, RealPositionsRepository } from 'real-trading';
 import {
   compareInstruments,
   IConnection,
@@ -201,7 +201,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   get accountId() {
     return this._accountsSelect?.account?.id;
   }
-  
+
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   public get instrument(): IInstrument {
@@ -277,7 +277,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
     private _tradeHandler: TradeHandler,
-    protected _changeDetectorRef: ChangeDetectorRef,
+    protected _changeDetectorRef: ChangeDetectorRef
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -311,6 +311,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   ocoStep = OcoStep.None;
   position: IPosition;
   orderFormState: Partial<SideOrderForm>;
+
+  private _account: IAccount;
+
+  public get account(): IAccount {
+    return this._account;
+  }
+
+  public set account(value: IAccount) {
+    this._account = value;
+    this.handleAccountChange(value);
+  }
+
   private currentRow: DomItem;
 
   domKeyHandlers = {
@@ -579,31 +591,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngAfterViewInit() {
-    // this._accountsManager.subscribe(this, this._instrumentSelect);
-
     this._handleResize();
+    this._ordersRepository.actions
+      .pipe(untilDestroyed(this))
+      .subscribe((action) => this._handleOrdersRealtime(action));
+
+    this.onRemove(
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
+      this._tradeDatafeed.on(filterByConnectionAndInstrument(this, (item: TradePrint) => this._handleTrade(item))),
+      this._ordersFeed.on(filterByAccountAndInstrument(this, (order: IOrder) => this._handleOrders([order]))),
+      this._positionsFeed.on(filterByAccountAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
+      this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this.handleOHLV(ohlv)))
+    );
+
+    this._onInstrumentChange(this.instrument);
   }
 
-  // handleConnect(connection: IConnection) {
-  //   super.handleConnect(connection);
-
-  //   this._ordersRepository.actions
-  //     .pipe(untilDestroyed(this))
-  //     .subscribe((action) => this._handleOrdersRealtime(action));
-
-  //   this.onRemove(
-  //     this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-  //     this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
-  //     this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-  //     this._positionsFeed.on((pos) => this.handlePosition(pos)),
-  //     this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
-  //   );
-
-  //   this._onInstrumentChange(this.instrument);
-  // }
-
-  handleAccountChange() {
+  handleAccountChange(account: IAccount) {
     this._loadData();
+    this._onInstrumentChange(this.instrument);
   }
 
   private _observe() {
@@ -836,8 +842,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleOHLV(ohlv) {
-    if (compareInstruments(this.instrument, ohlv.instrument))
-      this.dailyInfo = { ...ohlv };
+    this.dailyInfo = { ...ohlv };
   }
 
   handlePosition(pos) {
@@ -951,11 +956,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _onInstrumentChange(prevInstrument: IInstrument) {
     const instrument = this.instrument;
+    if (!this.account)
+      return;
+
     if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
-      this._levelOneDatafeed.subscribe(instrument);
-      this._tradeDatafeed.subscribe(instrument);
+      this._levelOneDatafeed.subscribe(instrument, this.account.connectionId);
+      this._tradeDatafeed.subscribe(instrument, this.account.connectionId);
     }
+
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
 
     this._loadData();
@@ -1068,8 +1077,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
-        continue;
+      if (order.accountId != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
 
       this.items.forEach(item => item.removeOrder(order));
       this._fillOrders(order);
@@ -1291,10 +1299,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // }
 
   protected _handleTrade(trade: TradePrint) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol ||
-      trade.instrument?.exchange !== this.instrument?.exchange)
-      return;
-
     this._counter++;
     const prevltqItem = this._lastTradeItem;
     let needCentralize = false;
@@ -1557,9 +1561,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _ttt = 0;
 
   protected _handleQuote(trade: IQuote) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol
-      || trade.instrument?.exchange !== this.instrument?.exchange) return;
-
     this._counter++;
     const item = this._getItem(trade.price);
 

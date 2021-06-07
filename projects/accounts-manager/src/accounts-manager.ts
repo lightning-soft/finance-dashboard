@@ -29,10 +29,8 @@ export class AccountsManager {
   }
 
   private set _accounts(value: IAccount[]) {
-    this.__accounts = value;
+    this.__accounts = value.filter((a, index, arr) => arr.findIndex(i => i.id === a.id) === index);
   }
-
-
 
   private _wsIsOpened = false;
   private _wsHasError = false;
@@ -60,8 +58,6 @@ export class AccountsManager {
   }
 
   private _fetchAccounts(connection: IConnection) {
-    const repo = this._accountRepository.get(connection);
-
     this._getAccountsByConnections(connection).then(accounts => {
       this._accounts = this._accounts.concat(accounts);
       accountsListeners.notifyAccountsConnected(accounts, this._accounts);
@@ -123,24 +119,7 @@ export class AccountsManager {
       criteria: '',
     };
 
-    // const observables = connections.map(connection => {
-    //   return this._accountRepository.get(connection).getItems(params);
-    // });
-
-    // return forkJoin(observables).toPromise().then((responses: IPaginationResponse<IAccount>[]) => {
-    //   return responses.reduce((accum, res) => {
-    //     res.data.forEach(item => {
-    //       if (!accum.some(i => i.id === item.id)) {
-    //         accum.push(item);
-    //       }
-    //     });
-
-    //     return accum;
-    //   }, []);
-    // });
-
-    this._accountRepository.get(connection);
-    return this._accountRepository.getItems(params)
+    return this._accountRepository.get(connection).getItems(params)
       .pipe(catchError(e => of({ data: [] } as any)))
       .toPromise().then((i) => i.data);
   }
@@ -243,8 +222,8 @@ export class AccountsManager {
 
   private _onDisconnected(connection: IConnection) {
     const disconectedAccounts = this._accounts.filter(account => account.connectionId === connection.id);
-    this._accounts = this._accounts.filter(account => account.connectionId === connection.id);
-    accountsListeners.notifyAccountsConnected(disconectedAccounts, this._accounts);
+    this._accounts = this._accounts.filter(account => account.connectionId !== connection.id);
+    accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
     this._closeWS(connection);
   }
 

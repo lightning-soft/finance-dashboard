@@ -5,6 +5,7 @@
   <account-select #select
     [labelTransformer]="transformAccountLabel.bind(this)"
     class="ml-1"
+    [(account)]="account"
   ></account-select>
 </window-header>
 <div (contextmenu)="grid.createComponentModal($event)" class="window-header-button">

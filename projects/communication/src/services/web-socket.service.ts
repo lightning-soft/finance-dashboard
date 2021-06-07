@@ -5,6 +5,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import { filter, take } from 'rxjs/operators';
 import { ConnectionsFactory } from '../../../real-trading/src/trading/repositories/connections.factory';
 import { IConnection } from 'trading';
+import { Id } from 'communication';
 
 export interface IWebSocketConfig {
   url: string;
@@ -40,7 +41,7 @@ export enum WSEventType {
   Message = 'message',
 }
 
-export type IWSListener = (event?: Event, key?: any) => void;
+export type IWSListener = (event?: Event, connection?: IConnection) => void;
 
 export type IWSListeners = {
   [key in WSEventType]: Set<IWSListener>;
@@ -52,6 +53,7 @@ export type IWSEventListeners = {
 
 export type IWSListenerSubscribe = (type: WSEventType, listener: IWSListener) => void;
 export type IWSListenerUnsubscribe = () => void;
+
 
 @Injectable({
   providedIn: 'root'
@@ -101,8 +103,6 @@ export class WebSocketService extends ConnectionsFactory {
 
   destroy(connection: IConnection) {
     this.get(connection).close();
-
-    super.destroy(connection);
   }
 
   connect() {
@@ -125,7 +125,10 @@ export class WebSocketService extends ConnectionsFactory {
     this._addEventListeners();
   }
 
-  send(data: any = {}): void {
+  send(data: any = {}, connectionId: Id): void {
+    if (this.connection?.id != connectionId)
+      return;
+
     const payload = JSON.stringify(data);
 
     if (!payload) {
@@ -133,15 +136,15 @@ export class WebSocketService extends ConnectionsFactory {
     }
 
     if (this.connected) {
-      // this._websocket.send(payload);
+      this._websocket.send(payload);
       return;
     }
 
     console.warn(`Message didn\'t send `, payload);
 
-    // this.connection$
-    //   .pipe(filter(i => i), take(1))
-    //   .subscribe(() => this._websocket.send(payload));
+    this.connection$
+      .pipe(filter(i => i), take(1))
+      .subscribe(() => this._websocket.send(payload));
   }
 
   close() {
@@ -248,12 +251,14 @@ export class WebSocketService extends ConnectionsFactory {
   }
 
   private _executeListeners(type: WSEventType, data?: any) {
-    this._listeners[type].forEach(listener => {
+    const items = this._listeners[type];
+
+    for (const listener of items) {
       try {
         listener(data, this.connection);
       } catch (e) {
         console.error(e);
       }
-    });
+    };
   }
 }

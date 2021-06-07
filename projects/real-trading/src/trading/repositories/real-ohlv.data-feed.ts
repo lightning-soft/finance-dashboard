@@ -26,18 +26,18 @@ export class RealOHLVFeed extends OHLVFeed {
     super();
   }
 
-  initConnectionDeps() {
-    super.initConnectionDeps();
+  // initConnectionDeps() {
+  //   super.initConnectionDeps();
 
-    this._tradeDatafeed.on(this.handleTrade);
-    this._volumeDatafeed.on(this.handleVolume);
+  //   this._tradeDatafeed.on(this.handleTrade);
+  //   this._volumeDatafeed.on(this.handleVolume);
 
-    this._ohlvData$.pipe(
-      auditTime(500)
-    ).subscribe(historyItem => {
-      this._sendToSubscribers(historyItem);
-    });
-  }
+  //   this._ohlvData$.pipe(
+  //     auditTime(500)
+  //   ).subscribe(historyItem => {
+  //     this._sendToSubscribers(historyItem);
+  //   });
+  // }
 
   private _ohlv: {
     [instrumentId: string]: {
