@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy,
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
 import { Datafeed, RithmicDatafeed } from './datafeed';
@@ -88,6 +88,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showOHLV = true;
   showChanges = true;
   private _accountId: Id;
+  private _templatesSubscription: Subscription;
 
   get accountId(): Id {
     return this._accountId;
@@ -191,6 +192,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
+
+    this._templatesSubscription = this._templatesService.subscribe((data) => {
+      if (this.loadedTemplate)
+        this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
+    });
   }
 
   private _updateOHLVData() {
@@ -519,6 +525,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   destroy() {
     this._positions.destroy();
     this._orders.destroy();
+    this._templatesSubscription.unsubscribe();
 
     if (this.chart) {
       this._ohlvFeed.unsubscribe(this.instrument);
