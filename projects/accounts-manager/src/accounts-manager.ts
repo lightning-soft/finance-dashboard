@@ -1,13 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { AlertType, Id, WebSocketService, WSEventType } from 'communication';
+import { AlertType, ConenctionWebSocketService, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
-// Todo: Make normal import
-// The problem now - circular dependency 
-import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionsRepository, IAccount, IConnection } from 'trading';
+// Todo: Make normal import
+// The problem now - circular dependency
+import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
 
 @Injectable()
 export class AccountsManager {
@@ -41,7 +41,7 @@ export class AccountsManager {
     protected _injector: Injector,
     private _connectionsRepository: ConnectionsRepository,
     private _accountRepository: AccountRepository,
-    private _webSocketService: WebSocketService,
+    private _webSocketService: ConenctionWebSocketService,
     private _notificationService: NotificationService,
   ) {
     (window as any).accounts = this;
@@ -61,7 +61,7 @@ export class AccountsManager {
     this._getAccountsByConnections(connection).then(accounts => {
       this._accounts = this._accounts.concat(accounts);
       accountsListeners.notifyAccountsConnected(accounts, this._accounts);
-    })
+    });
   }
 
   // subscribe(node: AccountNode, ...subscribers: AccountNodeSubscriber[]) {
@@ -133,11 +133,13 @@ export class AccountsManager {
 
     webSocketService.connect();
 
-    webSocketService.send({ type: 'Id', value: connection.connectionData.apiKey });
+    webSocketService.send({ type: 'Id', value: connection.connectionData.apiKey }, connection.id);
   }
 
   private _closeWS(connection: IConnection) {
-    this._webSocketService.destroy(connection);
+    const webSocketService = this._webSocketService.get(connection);
+
+    webSocketService.destroy(connection);
   }
 
   private _wsHandleMessage(msg: any, connection: IConnection): void {

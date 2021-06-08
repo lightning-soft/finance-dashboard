@@ -23,4 +23,3 @@ export * from './real-volume-datafeed';
 export * from './real-sessions.repository';
 export * from './real-timezones.repository';
 export * from './connections.factory';
-export * from './ws-handlers';

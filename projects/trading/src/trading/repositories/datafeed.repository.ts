@@ -1,5 +1,4 @@
 import { Id } from "communication";
-import { ConnectionsFactory } from "../../../../real-trading/src/trading/repositories/connections.factory";
 import { IInstrument } from "../models";
 import { OnTradeFn } from "./feed";
 
@@ -17,7 +16,7 @@ class Subscription {
     }
 }
 
-export abstract class DatafeedRepository<T> extends ConnectionsFactory {
+export abstract class DatafeedRepository<T> {
     protected _subscribers = new Map<Id, Subscription[]>();
     protected _quoteSubscribers = [];
 

@@ -1,48 +1,38 @@
-import { Injectable, Injector } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { IConnection } from 'trading';
 
 @Injectable()
-export abstract class ConnectionsFactory {
-  isSingleton = true;
+export abstract class ConnectionsFactory<T> {
   connection: IConnection;
 
-  protected _injector?: Injector;
-
   constructor(
-    // @Optional() @Inject(Injector) protected _injector?: Injector
+    @Inject(Injector) protected _injector?: Injector
   ) {
-    console.log(this.constructor.name, this._injector)
   }
 
-  get(connection: IConnection): any {
+  get(connection: IConnection): T {
     if (!connection) {
-      return this;
+      throw new Error(`Please provide valid connection`);
     }
 
-    // const key = connection.id;
-    // const constructor = this.constructor as any;
+    const key = connection.id;
+    const constructor = this.constructor as any;
 
-    // if (this.isSingleton) {
-    //   if (!constructor.instances) {
-    //     constructor.instances = new Map<IConnection, any>();
-    //     constructor.instancesCounts = new Map<IConnection, number>();
-    //   } else if (constructor.instances.has(key)) {
-    //     return constructor.instances.get(key);
-    //   }
-    // }
+    if (!constructor.instances) {
+      constructor.instances = new Map<IConnection, any>();
+      constructor.instancesCounts = new Map<IConnection, number>();
+    }
 
-    // const args = constructor.ctorParameters().map((param: any) => this._injector.get(param.type));
-    // const instance: ConnectionsFactory = Reflect.construct(constructor,? args);
+    if (constructor.instances.has(key)) {
+      return constructor.instances.get(key);
+    }
 
-    // instance.connection = connection;
+    const args = constructor.ctorParameters().map((param: any) => this._injector.get(param.type));
+    const instance = Reflect.construct(constructor, args);
 
-    // if (this.isSingleton) {
-    //   const count = (constructor.instancesCounts.get(key) ?? 0) + 1;
+    instance.connection = connection;
+    constructor.instances.set(key, instance);
 
-    //   constructor.instances.set(key, instance);
-    //   constructor.instancesCounts.set(key, count);
-    // }
-
-    return this;
+    return instance;
   }
 }

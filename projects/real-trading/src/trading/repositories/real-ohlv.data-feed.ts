@@ -1,9 +1,8 @@
-import { Periodicity, IInstrument, HistoryRepository, TradeDataFeed, OHLVData, OHLVFeed, OnTradeFn } from 'trading';
 import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { VolumeData, VolumeDataFeed } from 'trading';
+import { Id } from 'communication';
 import { Subject } from 'rxjs';
-import { auditTime } from 'rxjs/operators';
+import { HistoryRepository, IInstrument, OHLVData, OHLVFeed, OnTradeFn, Periodicity, TradeDataFeed, VolumeData, VolumeDataFeed } from 'trading';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -24,6 +23,13 @@ export class RealOHLVFeed extends OHLVFeed {
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
     super();
+
+    // todo: Add connection id
+    // this._ohlvData$.pipe(
+    //   auditTime(500)
+    // ).subscribe(historyItem => {
+    //   this._sendToSubscribers(historyItem);
+    // });
   }
 
   // initConnectionDeps() {
@@ -56,13 +62,13 @@ export class RealOHLVFeed extends OHLVFeed {
   }
 
 
-  subscribe(instrument: IInstrument) {
-    if (!instrument || !this.connection)
+  subscribe(instrument: IInstrument, connectionId: Id) {
+    if (!instrument || !connectionId)
       return;
 
     if (this._ohlv[instrument.id]?.count) {
       this._ohlv[instrument.symbol].count += 1;
-      this._sendToSubscribers(this._ohlv[instrument.symbol].historyItem);
+      this._sendToSubscribers(this._ohlv[instrument.symbol].historyItem, connectionId);
       return;
     }
 
@@ -122,7 +128,7 @@ export class RealOHLVFeed extends OHLVFeed {
     this._ohlv[instrument.symbol].count -= 1;
   }
 
-  handleTrade = (trade) => {
+  handleTrade = (trade, connectionId: Id) => {
     const ohlvHandler = this._ohlv[trade.instrument.symbol];
     if (!ohlvHandler || !ohlvHandler.count) {
       return;
@@ -155,9 +161,9 @@ export class RealOHLVFeed extends OHLVFeed {
     this._ohlvData$.next(historyItem);
   }
 
-  private _sendToSubscribers(historyItem: OHLVData) {
+  private _sendToSubscribers(historyItem: OHLVData, connectionId: Id) {
     this._executors.forEach((fn) => {
-      fn(historyItem);
+      fn(historyItem, connectionId);
     });
   }
 }

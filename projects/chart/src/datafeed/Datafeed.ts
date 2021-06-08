@@ -22,7 +22,7 @@ declare let StockChartX: any;
 
 
 @Injectable()
-export abstract class Datafeed extends ConnectionsFactory implements IDatafeed {
+export abstract class Datafeed extends ConnectionsFactory<Datafeed> implements IDatafeed {
   /**
    * @internal
    */

@@ -19,7 +19,7 @@ export interface RepositoryActionData<T> {
   items: T[];
 }
 
-export abstract class Repository<T extends IBaseItem = any> {
+export abstract class Repository<T extends IBaseItem = any> extends ConnectionsFactory<Repository> {
 
   actions: Subject<RepositoryActionData<T>> = new Subject();
 

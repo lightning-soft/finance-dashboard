@@ -2,7 +2,6 @@ import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
-import { ConnectionsFactory } from './connections.factory';
 import { RealtimeType } from './realtime';
 
 export enum WSMessageTypes {
@@ -13,7 +12,7 @@ export enum WSMessageTypes {
 }
 
 @Injectable()
-export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory implements Feed<T> {
+export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
   private _subscriptions: {
     [hash: string]: {
@@ -34,7 +33,6 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
     @Inject(WebSocketService) protected _webSocketService: WebSocketService,
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
-    super();
     this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
   }
 
@@ -80,7 +78,7 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
           this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
           subscriptions[hash].payload = dto;
           // if (this.connection?.connected)
-            this._webSocketService.send({ Type: type, ...dto }, connectionId);
+          this._webSocketService.send({ Type: type, ...dto }, connectionId);
           // else
           //   this.createPendingRequest(type, dto);
         }
@@ -122,7 +120,7 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
     this._pendingRequests = [];
   }
 
-  protected _handleTrade(data) {
+  protected _handleTrade(data, connectionId: Id) {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
@@ -137,7 +135,7 @@ export class RealFeed<T, I extends IBaseItem = any> extends ConnectionsFactory i
 
     for (const executor of this._executors) {
       try {
-        executor(_result);
+        executor(_result, connectionId);
       } catch (error) {
         console.error('_handleTrade', error);
       }

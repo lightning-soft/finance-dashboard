@@ -61,6 +61,7 @@ import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { TradeHandler } from "src/app/components";
 import { AccountSelectComponent } from 'account-select';
+import { finalize } from 'rxjs/operators';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
 }
@@ -213,7 +214,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const prevInstrument = this._instrument;
-    this._unsubscribeFromInstrument();
     this._instrument = value;
     this._onInstrumentChange(prevInstrument);
   }
@@ -592,9 +592,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngAfterViewInit() {
     this._handleResize();
-    this._ordersRepository.actions
-      .pipe(untilDestroyed(this))
-      .subscribe((action) => this._handleOrdersRealtime(action));
+    // this._ordersRepository.actions
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((action) => this._handleOrdersRealtime(action));
 
     this.onRemove(
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
@@ -961,8 +961,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
+
+      this._unsubscribeFromInstrument(prevInstrument);
       this._levelOneDatafeed.subscribe(instrument, this.account.connectionId);
       this._tradeDatafeed.subscribe(instrument, this.account.connectionId);
+      this._ohlvFeed.subscribe(instrument, this.account.connectionId);
     }
 
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
@@ -970,8 +973,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._loadData();
   }
 
-  _unsubscribeFromInstrument() {
-    const instrument = this.instrument;
+  _unsubscribeFromInstrument(instrument: IInstrument) {
     if (instrument) {
       this._levelOneDatafeed.unsubscribe(instrument);
       this._tradeDatafeed.unsubscribe(instrument);
@@ -1121,13 +1123,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   protected _loadPositions() {
     const hide = this.showLoading();
-    // this._positionsRepository.getItems({ accountId: this._accountId })
-    //   .pipe(finalize(hide), untilDestroyed(this))
-    //   .subscribe(items => {
-    //     this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
-    //     this._applyPositionStatus();
-    //     this._fillPL();
-    //   });
+    this._positionsRepository.getItems({ accountId: this.accountId })
+      .pipe(finalize(hide), untilDestroyed(this))
+      .subscribe(items => {
+        this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
+        this._applyPositionStatus();
+        this._fillPL();
+      });
   }
 
   private _applyPositionStatus() {
@@ -1970,7 +1972,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1',
+        id: 'ESM1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
@@ -2196,7 +2198,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const instrument = this.instrument;
     if (!instrument)
       return;
-    this._unsubscribeFromInstrument();
+
+    this._unsubscribeFromInstrument(this.instrument);
   }
 
   onCurrentCellChanged(event: ICellChangedEvent<DomItem>) {
