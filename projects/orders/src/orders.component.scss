@@ -4,7 +4,7 @@ $selectHeightContainer: 32px;
 $selectMarginBottom: 15px;
 
 :host {
-  display: block;
+  display: block !important;
   height: 100%;
   overflow: auto;
 
