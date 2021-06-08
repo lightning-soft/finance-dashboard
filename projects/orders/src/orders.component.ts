@@ -4,7 +4,16 @@ import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
-import { IOrder, IOrderParams, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import {
+  IOrder,
+  IOrderParams,
+  OrdersFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderStatus,
+  OrderType,
+  TradeDataFeed, TradePrint
+} from 'trading';
 import { finalize } from 'rxjs/operators';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
@@ -75,7 +84,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     { name: OrderColumn.price, title: 'Price' },
     { name: OrderColumn.triggerPrice, title: 'TRIG Price', tableViewName: 'Trigger Price' },
     { name: OrderColumn.duration, title: 'tif', tableViewName: 'TIF' },
-    { name: OrderColumn.averageFillPrice, title: 'Cur Price', tableViewName: 'Current Price' },
+    { name: OrderColumn.currentPrice, title: 'Cur Price', tableViewName: 'Current Price' },
+    { name: OrderColumn.averageFillPrice, title: 'AVG FILL', tableViewName: 'Average Fill Price' },
     OrderColumn.status,
     // OrderColumn.fcmId,
     // OrderColumn.ibId,
@@ -143,6 +153,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     protected _repository: OrdersRepository,
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
+    private _tradeDataFeed: TradeDataFeed,
   ) {
     super();
     this.autoLoadData = false;
@@ -344,5 +355,16 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.items.forEach(item => {
       item.checkbox.showColumnPanel = value.showColumnHeaders;
     });
+  }
+
+  protected _subscribeToDataFeed() {
+    super._subscribeToDataFeed();
+
+    this.addUnsubscribeFn(this._tradeDataFeed.on((data: TradePrint) => {
+      this.items.forEach((item: OrderItem) => {
+        if (item.order.instrument.id === data.instrument.id)
+          item.setCurrentPrice(data.price);
+      });
+    }));
   }
 }

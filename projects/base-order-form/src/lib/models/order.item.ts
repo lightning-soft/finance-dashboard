@@ -20,6 +20,7 @@ export enum OrderColumn {
   averageFillPrice = 'averageFillPrice',
   price = 'price',
   triggerPrice = 'triggerPrice',
+  currentPrice = 'currentPrice',
   description = 'description',
   duration = 'duration',
   filledQuantity = 'filledQuantity',
@@ -53,6 +54,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   ibId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
   triggerPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
+  currentPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
   averageFillPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
   description = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
   duration = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
@@ -84,6 +86,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this.price.formatter = this._priceFormatter;
     this.triggerPrice.formatter = this._priceFormatter;
     this.averageFillPrice.formatter = this._priceFormatter;
+    this.currentPrice.formatter = this._priceFormatter;
 
     [
       OrderColumn.averageFillPrice,
@@ -120,10 +123,8 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
   }
 
-  changeStatus() {
-    allColumns.forEach((item) => {
-      this[item]?.changeStatus(this.side.value.toLowerCase());
-    });
+  changeStatus(): void {
+    allColumns.forEach((item) => this._updateCellStatus(this[item]));
   }
 
   toggleSelect(event: MouseEvent): void {
@@ -136,6 +137,10 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this._updateSelectedStatus();
   }
 
+  private _updateCellStatus(cell: Cell): void {
+    cell.changeStatus(this.side.value.toLowerCase());
+  }
+
   private _updateSelectedStatus(): void {
     const selectedStatusName = this.isSelected ? CellStatus.Selected : CellStatus.None;
     allColumns.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
@@ -143,6 +148,11 @@ export class OrderItem extends HoverableItem implements IOrderItem {
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {
     this.checkbox.horizontalAlign = align;
+  }
+
+  setCurrentPrice(price: number): void {
+    this.currentPrice.updateValue(price);
+    this._updateCellStatus(this.currentPrice);
   }
 
   protected _getCellsToHover(): Cell[] {
