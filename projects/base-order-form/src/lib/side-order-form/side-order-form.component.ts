@@ -230,7 +230,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
     { label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true },
     { label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true },
   ];
-  editAmount = false;
   editIceAmount = false;
 
   get amount() {

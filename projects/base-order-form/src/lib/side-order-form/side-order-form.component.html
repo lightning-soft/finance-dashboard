@@ -52,11 +52,11 @@
         <span class="amount-input">
 
       <nz-input-number
-        (keyup.enter)="$event.preventDefault();editAmount = false"
+
         formControlName="amount"
         nzMin="1"
         class="amount-number"
-        (focusout)="$event.stopPropagation();editAmount = false"
+        (focusout)="$event.stopPropagation();"
       >
       </nz-input-number>
         </span>

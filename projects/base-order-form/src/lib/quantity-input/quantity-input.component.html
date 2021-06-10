@@ -7,12 +7,16 @@
       *ngIf="!item.edit && !item.black"
       nz-button>{{item.value}}</button>
     <nz-input-number
+      #input
       [class.black-input]="item.black"
       [ngModel]="currentValue"
       [nzMin]="0"
-      (ngModelChange)="updateValue($event)"
-      *ngIf="item.black"></nz-input-number>
-    <nz-input-number *ngIf="item.edit "
+      (keydown.enter)="$event.preventDefault(); input.blur()"
+      (ngModelChange)="updateValue(currentValue)"
+      *ngIf="item.black">
+    </nz-input-number>
+
+    <nz-input-number *ngIf="item.edit"
                      [nzMin]="0"
                      (keyup.enter)="updateItem(item); item.edit = false"
                      (focusout)="updateItem(item); item.edit = false"
