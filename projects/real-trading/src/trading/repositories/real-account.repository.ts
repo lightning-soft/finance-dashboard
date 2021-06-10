@@ -1,4 +1,5 @@
 import { HttpRepository } from 'communication';
+import { map } from 'rxjs/operators';
 import { AccountRepository, IAccount } from 'trading';
 
 export class RealAccountRepository extends HttpRepository<IAccount> implements AccountRepository {
@@ -10,18 +11,13 @@ export class RealAccountRepository extends HttpRepository<IAccount> implements A
     return this._communicationConfig.rithmic.http.url + this.suffix;
   }
 
-  protected _mapResponseItem(item: any): IAccount {
-    return {
-      ...item,
-      connectionId: this.connection.id,
-    };
-  }
-
   getItems(params: any) {
     if (!params)
       params = {};
+    const connection = params.connection;
 
-    params.headers = { 'Api-Key': params.connection?.connectionData?.apiKey ?? '' };
-    return super.getItems(params);
+    params.headers = { 'Api-Key': connection?.connectionData?.apiKey ?? '' };
+    return super.getItems(params)
+      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: connection.id })) })));
   }
 }

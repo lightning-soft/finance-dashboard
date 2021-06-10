@@ -130,7 +130,10 @@ export class AccountsManager implements ConnectionContainer {
     };
 
     return this._accountRepository.getItems(params)
-      .pipe(catchError(e => of({ data: [] } as any)))
+      .pipe(catchError(e => {
+        console.error('_getAccountsByConnections', e);
+        return of({ data: [] } as any);
+      }))
       .toPromise().then((i) => i.data);
   }
 
