@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
-import { catchError, delay, map, mergeMap, tap } from 'rxjs/operators';
-import { AccountRepository, Broker, ConnectionsRepository, IConnection } from 'trading';
-import { RealAccountRepository } from '.';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Broker, ConnectionsRepository, IConnection } from 'trading';
 
 interface AccountSetting {
   id: string;

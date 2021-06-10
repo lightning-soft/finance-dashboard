@@ -1,16 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { AlertType, ConenctionWebSocketService, WSEventType } from 'communication';
+import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
-import { AccountRepository, ConnectionsRepository, IAccount, IConnection } from 'trading';
+import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
 import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
 
 @Injectable()
-export class AccountsManager {
+export class AccountsManager implements ConnectionContainer {
 
   // private __connections: IConnection[] = [];
 
@@ -34,6 +34,7 @@ export class AccountsManager {
 
   private _wsIsOpened = false;
   private _wsHasError = false;
+  private _accountsConnection = new Map();
 
   connectionsChange = new BehaviorSubject<IConnection[]>([]);
 
@@ -47,9 +48,14 @@ export class AccountsManager {
     (window as any).accounts = this;
   }
 
-  async init(): Promise<IConnection[]> {
-    // this._interceptor.disconnectError.subscribe(() => this._deactivateConnection());
+  getApiKeyByAccountId(accountId: Id): string {
+    if (!accountId)
+      return null;
 
+    return this._accountsConnection.get(accountId)?.id;
+  }
+
+  async init(): Promise<IConnection[]> {
     await this._fetchConnections();
     for (const conn of this._connections.filter(i => i.connectOnStartUp))
       this.connect(conn).subscribe(); // TODO: handleError
@@ -61,6 +67,9 @@ export class AccountsManager {
     this._getAccountsByConnections(connection).then(accounts => {
       this._accounts = this._accounts.concat(accounts);
       accountsListeners.notifyAccountsConnected(accounts, this._accounts);
+      for (const account of accounts) {
+        this._accountsConnection.set(account.id, connection);
+      }
     });
   }
 
@@ -117,9 +126,10 @@ export class AccountsManager {
     const params = {
       status: 'Active',
       criteria: '',
+      connection,
     };
 
-    return this._accountRepository.get(connection).getItems(params)
+    return this._accountRepository.getItems(params)
       .pipe(catchError(e => of({ data: [] } as any)))
       .toPromise().then((i) => i.data);
   }
@@ -225,6 +235,9 @@ export class AccountsManager {
   private _onDisconnected(connection: IConnection) {
     const disconectedAccounts = this._accounts.filter(account => account.connectionId === connection.id);
     this._accounts = this._accounts.filter(account => account.connectionId !== connection.id);
+    for (const account of disconectedAccounts) {
+      this._accountsConnection.delete(account.id);
+    }
     accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
     this._closeWS(connection);
   }

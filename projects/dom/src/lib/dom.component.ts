@@ -975,9 +975,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _unsubscribeFromInstrument(instrument: IInstrument) {
     if (instrument) {
-      this._levelOneDatafeed.unsubscribe(instrument);
-      this._tradeDatafeed.unsubscribe(instrument);
-      this._ohlvFeed.unsubscribe(instrument);
+      this._levelOneDatafeed.unsubscribe(instrument, this.account.connectionId);
+      this._tradeDatafeed.unsubscribe(instrument, this.account.connectionId);
+      this._ohlvFeed.unsubscribe(instrument, this.account.connectionId);
     }
   }
 

@@ -11,7 +11,7 @@ import { ObservableCacheService } from 'cache';
 export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> {
   protected _cacheEnabled = false;
   protected _cache = new ObservableCacheService();
-  
+
   protected get _baseUrl(): string {
     throw new Error(`Implement baseUrl for ${this}`);
   }
@@ -52,7 +52,11 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
     let params = {};
+    const paramsHeaders = obj?.headers ?? {};
+    const optionsHeaders = (this._httpOptions as any)?.headers ?? {};
+    const headers = { ...optionsHeaders, ...paramsHeaders };
     const { id = null, ...query } = this._mapItemsParams(obj ?? {});
+
 
     if (query) {
       if (query.skip != null) {
@@ -68,7 +72,7 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
       params = new HttpParams({ fromObject: query });
     }
 
-    const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, params })
+    const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
       .pipe(
         map(res => this._mapItemsResponse(res, obj)),
       );

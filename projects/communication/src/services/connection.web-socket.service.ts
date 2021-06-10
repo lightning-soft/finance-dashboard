@@ -6,7 +6,7 @@ import { filter, take } from 'rxjs/operators';
 import { IConnection } from 'trading';
 import { ConnectionsFactory } from '../../../real-trading/src/trading/repositories/connections.factory';
 import { CommunicationConfig } from '../http';
-import { IWSEventListeners, IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
+import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
 import { WebSocketService } from './web-socket.service';
 
 

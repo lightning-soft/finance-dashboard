@@ -1,4 +1,3 @@
-import { ConnectionsFactory } from '../../../real-trading/src/trading/repositories/connections.factory';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { IBaseItem } from './item';
 import { IPaginationResponse } from './pagination';
@@ -19,7 +18,7 @@ export interface RepositoryActionData<T> {
   items: T[];
 }
 
-export abstract class Repository<T extends IBaseItem = any> extends ConnectionsFactory<Repository> {
+export abstract class Repository<T extends IBaseItem = any> {
 
   actions: Subject<RepositoryActionData<T>> = new Subject();
 
@@ -36,7 +35,7 @@ export abstract class Repository<T extends IBaseItem = any> extends ConnectionsF
 
   abstract getItemById(id, query?: any): Observable<T>;
 
-  abstract createItem(item: ExcludeId<T>, options?: any, projectId?: number): Observable<T>;
+  abstract createItem(item: ExcludeId<T>, options?: any): Observable<T>;
 
   abstract updateItem(item: T, query?: any): Observable<T>;
 

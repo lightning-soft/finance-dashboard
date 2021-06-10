@@ -73,6 +73,7 @@ class AccountsListenerRegister {
 }
 
 export const accountsListeners = new AccountsListenerRegister();
+(window as any).accountsListeners = accountsListeners;
 
 interface AccountsListener {
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
@@ -114,8 +115,9 @@ abstract class _AccountListener extends _AccountsListener {
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (this.account == null)
+    if (this.account == null) {
       this.account = allAccounts[0];
+    }
   }
 
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {

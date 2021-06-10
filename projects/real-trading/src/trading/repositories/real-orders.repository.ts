@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ExcludeId, Id } from 'communication';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
-import { IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { ConnectionContainer, IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { BaseRepository } from './base-repository';
 
 interface IUpdateOrderRequestParams {
@@ -27,7 +27,8 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   tradeHandler: TradeHandler;
 
   onInit() {
-    this.tradeHandler = this._injector.get(TradeHandler);
+    super.onInit();
+    this._connectionContainer = this._injector.get(ConnectionContainer);
   }
 
   protected _mapItemsParams(params: any = {}) {
@@ -56,7 +57,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       this._getRESTURL(`${item.id}/cancel`),
       null,
       {
-        ...this._httpOptions,
+        ...this.getApiHeadersByAccount(item.accountId),
         params: {
           AccountId: item?.account?.id,
         } as any
@@ -73,7 +74,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       exchange: item.instrument.exchange
     };
 
-    return this._http.put<IOrder>(this._getRESTURL(), dto, { ...this._httpOptions, params: query })
+    return this._http.put<IOrder>(this._getRESTURL(), dto, { ...this.getApiHeadersByAccount(item.accountId), params: query })
       .pipe(tap(this._onUpdate));
   }
 
@@ -90,13 +91,35 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       return throwError('Please provide array of orders');
 
     orders = orders.filter(i => i.status == OrderStatus.Pending || i.status == OrderStatus.New || i.status == OrderStatus.PartialFilled);
+
     if (!orders.length)
       return of(null);
 
-    const orderIds = orders.map(i => i.id.toString());
-    const accountId: any = orders[0].accountId ?? orders[0].account?.id;
+    const map = new Map();
 
-    return this._http.post(this._getRESTURL(`cancel`), null, { ...this._httpOptions, params: { orderIds, accountId } });
+    for (const order of orders) {
+      const key = this.getApiKey(order);
+
+      if (!map.has(key)) {
+        map.set(key, [order]);
+      } else {
+        map.get(key).push(order);
+      }
+    }
+
+    return forkJoin(new Array(map.keys()).map((key: any) =>
+      this._http.post(
+        this._getRESTURL(`cancel`),
+        null,
+        {
+          ...this.getApiHeaders(key),
+          params: {
+            orderIds: map.get(key),
+            accountId: map.get(key)[0].accountId
+          }
+        },
+      ),
+    ));
   }
 
   protected _filter(item: IOrder, params: any = {}) {

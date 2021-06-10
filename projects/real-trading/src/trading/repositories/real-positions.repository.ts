@@ -57,7 +57,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       this._getRESTURL(item.accountId),
       null,
       {
-        ...this._httpOptions,
+        ...this.getApiHeadersByAccount(item.accountId),
         params: {
           Symbol: item.instrument.symbol,
           Exchange: item.instrument.exchange,
@@ -67,7 +67,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
   }
 
   deleteMany({ accountId, ...params }: IDeletePositionsParams | any): Observable<any> {
-    return this._http.post(this._getRESTURL(accountId), null, { ...this._httpOptions, params });
+    return this._http.post(this._getRESTURL(accountId), null, { ...this.getApiHeadersByAccount(accountId), params });
   }
 
   protected _filter(item: IPosition, params: any = {}) {

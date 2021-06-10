@@ -5,7 +5,6 @@ import { NzSelectModule } from 'ng-zorro-antd';
 import { AccountSelectComponent } from './account-select.component';
 
 
-
 @NgModule({
   declarations: [AccountSelectComponent],
   imports: [
