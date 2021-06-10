@@ -197,8 +197,8 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
 // Other solutions: modified library or create own menu component
 // If it happens in other components(places) think about return some event in zone detection
 function runZoneWhenSubmenuToggle(submenu: NzSubMenuComponent, zone: NgZone) {
-  const originalSetMouseEnterState = NzSubMenuComponent.prototype.setMouseEnterState.bind(submenu);
-  NzSubMenuComponent.prototype.setMouseEnterState = (...args) => {
+  const originalSetMouseEnterState = submenu.setMouseEnterState.bind(submenu);
+  submenu.setMouseEnterState = (...args) => {
     zone.run(() => originalSetMouseEnterState(...args));
-  }
+  };
 }

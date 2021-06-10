@@ -86,7 +86,6 @@ export class DockDesktopLayout extends Layout {
     // }
 
     try {
-      await this._ngZone.runOutsideAngular(async () => {
         try {
           const comp = await this._creationsService.getComponentRef(componentName);
           const componentRef = this.viewContainer.insert(comp.hostView);
@@ -149,7 +148,6 @@ export class DockDesktopLayout extends Layout {
           console.error(e);
           // container.close();
         }
-      });
     } catch (e) {
       console.log(e);
     }
