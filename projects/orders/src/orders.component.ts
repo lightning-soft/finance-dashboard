@@ -5,6 +5,7 @@ import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandl
 import { LayoutNode } from 'layout';
 import { Components } from 'src/app/modules';
 import {
+  IAccount,
   IOrder,
   IOrderParams,
   OrdersFeed,
@@ -18,6 +19,7 @@ import { finalize } from 'rxjs/operators';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
+import { AccountListener, AccountsListener, IAccountsListener } from 'real-trading';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -37,7 +39,8 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit {
+@AccountsListener()
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit, IAccountsListener {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
   columns: Column[];
@@ -171,6 +174,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     checkboxColumn.tableViewName = 'Checkbox';
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
+  }
+
+  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    // this.repository.getItems({ accounts }).subscribe(orders => this.builder.addItems(orders));
+  }
+
+  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    // this.builder.removeWhere(accounts);
   }
 
   handleAccountChange() {
@@ -330,12 +341,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this._repository.deleteMany(orders)
       .pipe(finalize(hide))
       .subscribe({
-          next: () => {
-            this._handleDeleteItems(orders);
-            this._showSuccessDelete();
-          },
-          error: (error) => this._handleDeleteError(error)
-        }
+        next: () => {
+          this._handleDeleteItems(orders);
+          this._showSuccessDelete();
+        },
+        error: (error) => this._handleDeleteError(error)
+      }
       );
   }
 

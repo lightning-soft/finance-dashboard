@@ -29,4 +29,16 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       })),
     };
   }
+
+  getItems(params: any) {
+    if (params?.Symbol) {
+      params.id = params.Symbol;
+    } else if (params?.id) {
+      const [symbol, exchange] = params.id.split('.');
+      params.id = symbol;
+      params.Exchange = exchange;
+    }
+
+    return super.getItems(params);
+  }
 }

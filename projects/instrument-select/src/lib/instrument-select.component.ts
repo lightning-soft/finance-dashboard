@@ -61,6 +61,10 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     });
   }
 
+  protected _getItems(params: any) {
+    return super._getItems({ ...params, accountId: this.account?.id });
+  }
+
   loadMore() {
     this.skip = this.items.length;
 

@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConnectionContainer, IConnection } from 'trading';
 
+const ApiKey = 'Api-Key';
+
 export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository<T> {
   protected _needRefreshCache = false;
 
@@ -42,6 +44,10 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
       params.headers = this.getApiHeadersByAccount(params.accountId).headers;
     else if (connection)
       params.headers = this.getApiHeaders(this._getApiKey(connection));
+
+    if (!params?.headers[ApiKey]) {
+      console.error(`Invalid ${ApiKey}, ${params?.headers[ApiKey]}`);
+    }
 
     if (connection) {
       delete params.connection;

@@ -76,10 +76,12 @@ export class AccountsManager implements ConnectionContainer {
   private _fetchAccounts(connection: IConnection) {
     this._getAccountsByConnections(connection).then(accounts => {
       this._accounts = this._accounts.concat(accounts);
-      accountsListeners.notifyAccountsConnected(accounts, this._accounts);
+
       for (const account of accounts) {
         this._accountsConnection.set(account.id, connection);
       }
+
+      accountsListeners.notifyAccountsConnected(accounts, this._accounts);
     });
   }
 

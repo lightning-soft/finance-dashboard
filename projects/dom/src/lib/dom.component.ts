@@ -615,7 +615,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleAccountChange(account: IAccount) {
     this._loadData();
-    this._onInstrumentChange(this.instrument);
+    this._onInstrumentChange(this.instrument, true);
   }
 
   private _observe() {
@@ -960,12 +960,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.detectChanges();
   }
 
-  _onInstrumentChange(prevInstrument: IInstrument) {
+  _onInstrumentChange(prevInstrument: IInstrument, force = false) {
     const instrument = this.instrument;
     if (!this.account)
       return;
 
-    if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
+    if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
 
       this._unsubscribeFromInstrument(prevInstrument);

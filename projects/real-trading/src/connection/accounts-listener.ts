@@ -46,13 +46,13 @@ class AccountsListenerRegister {
   private _listeners = [];
   private _accounts = [];
 
-  subscribe(listener: AccountsListener) {
+  subscribe(listener: IAccountsListener) {
     this._listeners.push(listener);
     if (listener.handleAccountsConnect)
       listener.handleAccountsConnect(this._accounts, this._accounts);
   }
 
-  unsubscribe(listener: AccountsListener) {
+  unsubscribe(listener: IAccountsListener) {
     this._listeners = this._listeners.filter(i => i != listener);
   }
 
@@ -76,12 +76,12 @@ class AccountsListenerRegister {
 export const accountsListeners = new AccountsListenerRegister();
 (window as any).accountsListeners = accountsListeners;
 
-interface AccountsListener {
+export interface IAccountsListener {
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
 }
 
-interface _AccountsListener extends AccountsListener { }
+interface _AccountsListener extends IAccountsListener { }
 
 
 @Injectable() // just to avoid error in console
