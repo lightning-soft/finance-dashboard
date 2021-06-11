@@ -1,17 +1,17 @@
 import { Inject, Injectable, Injector } from '@angular/core';
 import {
-  Periodicity,
-  IInstrument,
   HistoryRepository,
-  TradeDataFeed,
+  IInstrument,
   OHLVData,
   OHLVFeed,
   OnTradeFn,
+  Periodicity,
+  TradeDataFeed,
+  VolumeData,
+  VolumeDataFeed,
 } from 'trading';
-import { Inject, Injectable } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { Id } from 'communication';
-import { HistoryRepository, IInstrument, OHLVData, OHLVFeed, OnTradeFn, Periodicity, TradeDataFeed, VolumeData, VolumeDataFeed } from 'trading';
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,

@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { NumberHelper } from "base-components";
+import { NumberHelper } from 'base-components';
 import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { RealPositionsRepository } from 'real-trading';
-import { Storage } from "storage";
+import { Storage } from 'storage';
 import {
   compareInstruments, IConnection, IInstrument,
   IOrder, IQuote, Level1DataFeed,
@@ -108,10 +108,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   limitPrice: number;
   price: number;
-
-  @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
-
-  private _instrument: IInstrument;
 
   amountButtons = [
     { value: 1 }, { value: 2 },

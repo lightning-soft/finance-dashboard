@@ -1,9 +1,11 @@
 import {
   AfterViewInit,
   ChangeDetectorRef,
-  Component, ComponentFactoryResolver,
+  Component,
+  ComponentFactoryResolver,
   HostBinding,
-  Injector, NgZone,
+  Injector,
+  NgZone,
   OnDestroy,
   OnInit,
   ViewChild
@@ -12,55 +14,67 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
-import { Column, DataGrid } from 'data-grid';
-import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IInstrument, InstrumentsRepository, IQuote, Level1DataFeed, SettleData } from 'trading';
-import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent, blankBase } from 'ui';
-import { MarketWatchItem } from './models/market-watch.item';
 import {
-  NzContextMenuService,
-  NzDropdownMenuComponent,
-  NzModalService,
-} from 'ng-zorro-antd';
+  Cell,
+  CellClickDataGridHandler,
+  Column,
+  ContextMenuClickDataGridHandler,
+  DataGrid,
+  DataGridHandler
+} from 'data-grid';
+import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
+import {
+  IInstrument,
+  InstrumentsRepository,
+  IOrder,
+  IQuote,
+  isForbiddenOrder,
+  Level1DataFeed,
+  OHLVData,
+  OHLVFeed,
+  OrderDuration,
+  OrdersFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderType,
+  PositionsFeed,
+  PositionsRepository,
+  SettleData,
+  SettleDataFeed,
+  TradeDataFeed,
+  TradePrint
+} from 'trading';
+import { blankBase, ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
+import { MarketWatchItem } from './models/market-watch.item';
+import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, } from 'ng-zorro-antd';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
-import { CellClickDataGridHandler, DataGridHandler, ContextMenuClickDataGridHandler } from 'data-grid';
 import { Components } from '../../../src/app/modules';
 import { NotifierService } from 'notifier';
 import {
-  MarketWatchSettings,
   defaultSettings,
-  marketWatchReceiveKey
+  marketWatchReceiveKey,
+  MarketWatchSettings
 } from './market-watch-settings/market-watch-settings.component';
 import { IWindow } from 'window-manager';
 import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
 import { InstrumentDialogComponent } from 'instrument-dialog';
-import { Subject, zip } from 'rxjs';
+import { Subject } from 'rxjs';
 import { buffer, debounceTime, take } from 'rxjs/operators';
-import {
-  OrdersFeed, OrdersRepository, PositionsRepository, TradeDataFeed, PositionsFeed,
-  TradePrint, IConnection
-} from 'trading';
 import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
 import * as clone from 'lodash.clonedeep';
 import { noneValue } from 'dynamic-form';
 import { OrderColumn } from 'base-order-form';
-import { isForbiddenOrder } from 'trading';
 import { MarketWatchBuilder } from './market-watch.builder';
 import { IMarketWatchItem, ItemType } from './models/interface-market-watch.item';
-import { OHLVData, OHLVFeed } from 'trading';
 import { defaultInstruments } from './mocked-instruments';
 import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
-import { Cell } from 'data-grid';
 import { MarketWatchCreateOrderItem } from './models/market-watch-create-order.item';
-import { OrderDuration, OrderSide } from 'trading';
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { PerformedAction } from './models/actions.cell';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
 import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
-import { OrderType } from 'trading';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
-import { IOrder, SettleDataFeed } from 'trading';
 
 const labelText = 'Text label';
 
@@ -443,12 +457,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     });
   }
 
-  protected _handleConnection(connection: IConnection) {
-    this._repository = this._repository.forConnection(connection);
-    this._positionsRepository = this._positionsRepository.forConnection(connection);
-    this._ordersRepository = this._ordersRepository.forConnection(connection);
-  }
-
   ngAfterViewInit() {
     if (this.settings)
       this._applySettings();
@@ -636,7 +644,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   loadState(state?: IMarketWatchState): void {
-    this._subscribeToConnections();
 
     if (!state)
       state = {} as any;

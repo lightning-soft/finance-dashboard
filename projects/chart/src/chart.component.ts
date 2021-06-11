@@ -18,17 +18,19 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
+  compareInstruments,
   IHistoryItem,
   IOrder,
+  IPosition,
   IQuote,
   Level1DataFeed,
+  OHLVFeed,
   OrderSide,
   OrdersRepository,
   OrderType,
   PositionsRepository,
   QuoteSide,
-  UpdateType,
-  OHLVFeed, IPosition, compareInstruments, IInstrument
+  UpdateType
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -127,8 +129,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
 
-    this.refresh();
-
     this.lastHistoryItem = null;
     this.income = null;
     this.incomePercentage = null;
@@ -139,10 +139,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
-  {
-    showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-    showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-  }>(null);
+    {
+      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
+      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
+    }>(null);
   loadedTemplate: IChartTemplate;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
@@ -509,9 +509,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${this.instrument.description}`;
+        name += ` - ${ this.instrument.description }`;
       }
-      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
+      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
 
       return name;
     }

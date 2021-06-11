@@ -120,7 +120,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._pendingRequests = [];
   }
 
-  protected _handleTrade(data, connectionId: Id):  boolean {
+  protected _handleTrade(data, connectionId: Id): boolean {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {

@@ -11,7 +11,6 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
   IAccount,
   IConnection,
-
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -114,12 +113,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   set accountId(accountId) {
-    this._accountId = accountId;
+ //   this._accountId = accountId;
     this.loadData({ accountId });
   }
 
   get accountId() {
-    return this._accountId;
+    // return this._accountId;
+    return null;
   }
 
   constructor(
