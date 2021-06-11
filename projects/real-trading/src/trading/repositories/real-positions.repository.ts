@@ -33,7 +33,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     if (_params.accountId) {
       _params.id = _params.accountId;
-      delete _params.accountId;
+      // delete _params.accountId;
     }
 
     return super.getItems(_params).pipe(

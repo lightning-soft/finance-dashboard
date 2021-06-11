@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, Input, Output } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Id } from 'communication';
 // import { MixinHelper } from '../../../base-components/src/helpers/mixin.helper';
 // import { MixinHelper } from 'base-components';
@@ -7,11 +7,12 @@ import { IAccount, IInstrument } from 'trading';
 
 function mixinDecorator(
   constructor: any,
-  extendableMethods: string[] = [],
+  // extendableMethods: string[] = [],
 ): (constructor: any) => void {
   return (derivedCtor: any) => {
     Object.getOwnPropertyNames(constructor.prototype)
       .forEach(name => {
+        // console.log('mixinDecorator', name);
         if (name === 'constructor') {
           return;
         }
@@ -20,8 +21,8 @@ function mixinDecorator(
         const constructorProp = constructor.prototype[name];
 
         if (
-          extendableMethods.includes(name)
-          && typeof derivedCtorProp === 'function'
+          // extendableMethods.includes(name)
+          typeof derivedCtorProp === 'function'
           && typeof constructorProp === 'function'
         ) {
           derivedCtor.prototype[name] = function (...args: any[]) {

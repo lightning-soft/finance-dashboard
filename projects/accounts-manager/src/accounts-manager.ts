@@ -48,11 +48,21 @@ export class AccountsManager implements ConnectionContainer {
     (window as any).accounts = this;
   }
 
-  getApiKeyByAccountId(accountId: Id): string {
+  getConnectionByAccountId(accountId: Id): IConnection {
     if (!accountId)
       return null;
 
-    return this._accountsConnection.get(accountId)?.id;
+    return this._accountsConnection.get(accountId);
+  }
+
+  getConnection(connectionId: Id): IConnection {
+    if (!connectionId)
+      return null;
+
+    for (const connection of this._accountsConnection.values()) {
+      if (connection.id === connectionId)
+        return connection;
+    }
   }
 
   async init(): Promise<IConnection[]> {

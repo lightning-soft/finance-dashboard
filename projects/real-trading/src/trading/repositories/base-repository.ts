@@ -1,7 +1,7 @@
 import { HttpRepository, IBaseItem, Id, IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ConnectionContainer } from 'trading';
+import { ConnectionContainer, IConnection } from 'trading';
 
 export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository<T> {
   protected _needRefreshCache = false;
@@ -35,16 +35,20 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   getItems(params?: any): Observable<IPaginationResponse<T>> {
     if (!params)
       params = {};
-    const connection = params.connection;
 
-    params.headers = { 'Api-Key': connection?.connectionData?.apiKey ?? '' };
+    const connection = params.connectionId != null ? this.getConnection(params.connectionId) : params.connection;
+
+    if (!connection)
+      params.headers = this.getApiHeadersByAccount(params.accountId).headers;
+    else if (connection)
+      params.headers = this.getApiHeaders(this._getApiKey(connection));
 
     if (connection) {
       delete params.connection;
     }
 
     return super.getItems(params)
-      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: connection.id })) })));
+      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: connection?.id })) })));
   }
 
   // getApiKeys(items: { accountId: Id }[]): Id[] {
@@ -56,19 +60,27 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   //     .filter((item, index, arr) => arr.indexOf(item) === index);
   // }
 
+  private _getApiKey(connection: IConnection) {
+    return connection?.connectionData?.apiKey;
+  }
+
   getApiKey(item: { accountId: Id }): Id {
-    return this._connectionContainer.getApiKeyByAccountId(item.accountId);
+    return this._getApiKey(this._connectionContainer.getConnectionByAccountId(item.accountId));
+  }
+
+  getConnection(connectionId: Id): IConnection {
+    return this._connectionContainer.getConnection(connectionId);
   }
 
   getApiHeaders(apiKey: Id): any {
     return {
-      headers: {
-        'Api-Key': apiKey ?? '',
-      }
+      'Api-Key': apiKey ?? '',
     };
   }
 
   getApiHeadersByAccount(accountId: Id): any {
-    return this.getApiHeaders(this.getApiKey({ accountId }));
+    return {
+      headers: this.getApiHeaders(this.getApiKey({ accountId }))
+    };
   }
 }

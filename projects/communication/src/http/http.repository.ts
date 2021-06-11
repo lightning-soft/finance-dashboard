@@ -55,6 +55,12 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     const paramsHeaders = obj?.headers ?? {};
     const optionsHeaders = (this._httpOptions as any)?.headers ?? {};
     const headers = { ...optionsHeaders, ...paramsHeaders };
+
+    if ((obj as any)?.headers)
+      delete (obj as any).headers;
+    if ((obj as any)?.accountId)
+      delete (obj as any).accountId;
+
     const { id = null, ...query } = this._mapItemsParams(obj ?? {});
 
 
@@ -71,6 +77,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 
       params = new HttpParams({ fromObject: query });
     }
+
+    console.log('aaaa', this.constructor.name, JSON.stringify(headers));
 
     const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
       .pipe(

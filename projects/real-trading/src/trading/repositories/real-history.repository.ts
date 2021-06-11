@@ -6,7 +6,7 @@ import { HistoryRepository } from "trading";
 
 declare const moment: any;
 
-export interface IHistoryItem extends IBaseItem, IBar {}
+export interface IHistoryItem extends IBaseItem, IBar { }
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {

@@ -986,7 +986,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange })
+    this._volumeHistoryRepository.getItems({ symbol, exchange, accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -1006,7 +1006,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange })
+    this._orderBooksRepository.getItems({ symbol, exchange, accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {

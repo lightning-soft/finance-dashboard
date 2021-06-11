@@ -134,6 +134,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   }
 
   protected set notifier(value: NotifierService) {
+    console.log('notifier', value);
     this._notifier = value;
   }
 
@@ -152,7 +153,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
     this._route = injector.get(ActivatedRoute);
     this._router = injector.get(Router);
     this._accountsManager = injector.get(AccountsManager);
-    this._notifier = injector.get(NotifierService, null);
+    this.notifier = injector.get(NotifierService, null);
   }
 
   ngOnInit(): void {

@@ -2,20 +2,18 @@ import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
+import { BehaviorSubject } from 'rxjs';
 import {
-  HistoryRepository,
-  IInstrument,
+  compareInstruments, IInstrument,
   IOrder,
-  OrderDuration,
+  isForbiddenOrder, OrderDuration,
   OrderSide,
   OrderType,
-  PositionsRepository,
-  isForbiddenOrder, compareInstruments
+  PositionsRepository
 } from 'trading';
-import { BehaviorSubject } from 'rxjs';
-import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
+import { ITypeButton } from '../type-buttons/type-buttons.component';
 
 export enum FormActions {
   ClosePositions,
@@ -238,7 +236,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
 
   constructor(
     protected _injector: Injector,
-    private _historyRepository: HistoryRepository,
     protected positionsRepository: PositionsRepository,
   ) {
     super();
@@ -322,7 +319,7 @@ export function getPriceSpecs(item: IOrder & { amount: number }, price: number, 
   }
   if (item.type === OrderType.StopLimit) {
     const offset = tickSize * item.amount;
-    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset :  -offset);
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset : -offset);
   }
   return priceSpecs;
 }
