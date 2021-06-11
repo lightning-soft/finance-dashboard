@@ -6,6 +6,20 @@ export enum ProfitClass {
   NONE = '',
   DOWN = 'down'
 }
+export enum ProfitStatus {
+  InProfit = 'inProfit',
+  Loss = 'loss',
+  None = ''
+}
+export function getProfitStatus(cell){
+  let status = ProfitStatus.None;
+
+  if (cell.class === ProfitClass.DOWN)
+    status = ProfitStatus.Loss;
+  else if (cell.class === ProfitClass.UP)
+    status = ProfitStatus.InProfit;
+  return status;
+}
 
 export function getProfitLossClass(value: number): string {
   if (value < 0)

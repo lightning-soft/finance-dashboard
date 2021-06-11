@@ -22,6 +22,8 @@ const orderLastLimitKey = 'orderLastLimitKey';
 
 interface OrderFormState {
   instrument: IInstrument;
+  link: string | number;
+  orderLink?: string;
 }
 
 export interface OrderFormComponent extends ILayoutNode {
@@ -35,22 +37,6 @@ export interface OrderFormComponent extends ILayoutNode {
 @UntilDestroy()
 @LayoutNode()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
-  orderDurations = orderDurations;
-  orderTypes = orderTypes;
-  step = 1;
-  OrderSide = OrderSide;
-  editIceAmount: boolean;
-
-  bidPrice: string;
-  askPrice: string;
-
-  askVolume: number;
-  bidVolume: number;
-
-  limitPrice: number;
-  price: number;
-
-  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
 
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
@@ -70,6 +56,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     return this.formValue.quantity;
   }
 
+  private orderLink: string;
+
   @Input()
   set instrument(value: IInstrument) {
     if (value?.id === this.instrument?.id)
@@ -77,6 +65,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     this._levelOneDatafeed.unsubscribe(this._instrument);
     this._levelOneDatafeed.subscribe(value);
+
     this._instrument = value;
 
     if (this.price)
@@ -105,11 +94,32 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     return this.formValue?.accountId;
   }
 
+  orderDurations = orderDurations;
+  orderTypes = orderTypes;
+  step = 1;
+  OrderSide = OrderSide;
+  editIceAmount: boolean;
+
+  bidPrice: string;
+  askPrice: string;
+
+  askVolume: number;
+  bidVolume: number;
+
+  limitPrice: number;
+  price: number;
+
+  @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+
+  private _instrument: IInstrument;
+
   amountButtons = [
     { value: 1 }, { value: 2 },
     { value: 10 }, { value: 50 },
     { value: 100 },
   ];
+
+  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
 
   constructor(
     protected fb: FormBuilder,
@@ -178,6 +188,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   loadState(state: OrderFormState) {
+    if (state?.link != null) {
+      this.link = state.link;
+    }
+    if (state?.orderLink) {
+      this.orderLink = state.orderLink;
+    }
     if (state?.instrument)
       this.instrument = state.instrument;
     else
@@ -191,6 +207,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       };
   }
 
+  handleLinkData({ instrument }) {
+    if (instrument)
+      this.instrument = instrument;
+  }
+
   onTypeUpdated() {
     super.onTypeUpdated();
     if (this.isStopLimit) {
@@ -201,7 +222,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   saveState(): OrderFormState {
-    return { instrument: this.instrument };
+    return { instrument: this.instrument, link: this.link, orderLink: this.orderLink };
   }
 
   closePositions() {
@@ -251,8 +272,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   protected handleItem(item: IOrder): void {
     super.handleItem(item);
-
     this.needCreate = true;
+    if (this.orderLink)
+      this.broadcastData(this.orderLink, item);
   }
 
   updateQuantity(quantity: any) {
@@ -322,7 +344,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.instrument.description}`;
+      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
     }
   }
 }

@@ -127,6 +127,7 @@ interface IDomState {
   columns: any;
   contextMenuState: any;
   orderForm: Partial<SideOrderForm>;
+  link: string | number;
 }
 
 enum FormDirection {
@@ -263,6 +264,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _marketDepth = 9;
   private _marketDeltaDepth = 9;
+
+  handleLinkData( {instrument} ) {
+    if (instrument)
+      this.instrument = instrument;
+  }
 
   constructor(
     private _ordersRepository: OrdersRepository,
@@ -722,8 +728,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${key}${_key}`] = obj[_key];
-          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
+          deltaStyles[`${ key }${ _key }`] = obj[_key];
+          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
         }
       }
     }
@@ -1695,7 +1701,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if (max.bid === _max)
         return;
 
-      max.bid = _max
+      max.bid = _max;
     }
 
     let index = startIndex;
@@ -1949,6 +1955,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
+      link: this.link,
       orderForm: {
         quantity: (this.domForm.form.controls as SideOrderForm).quantity.value
       }
@@ -1967,8 +1974,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (state && state.contextMenuState) {
       this.dataGridMenuState = state.contextMenuState;
     }
+
     if (!state)
       state = {} as any;
+
+    if (state.link != null) {
+      this.link = state.link;
+    }
 
     if (!state?.instrument)
       state.instrument = {
@@ -2186,7 +2198,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.instrument.description}`;
+      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
     }
   }
 

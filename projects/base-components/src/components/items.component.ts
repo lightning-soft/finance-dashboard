@@ -1,6 +1,8 @@
-import { Directive, OnInit } from '@angular/core';
+
+import { Directive, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload } from 'communication';
+import { DataGrid } from 'data-grid';
 import { Observable, Subscription } from 'rxjs';
 import { finalize, first } from 'rxjs/operators';
 import { IItemsBuilder, ItemsBuilder } from './items.builder';
@@ -17,6 +19,12 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     page: 0,
     total: 1,
   };
+
+  @ViewChild('grid', { static: true })
+  protected _dataGrid: DataGrid;
+
+  protected _updatedAt: number;
+  protected _upadateInterval: number = 1000 / 60;
 
   builder: IItemsBuilder<T, any> = new ItemsBuilder<T>();
 
@@ -201,5 +209,15 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
       queryParamsHandling: merge ? 'merge' : '',
       replaceUrl: true,
     });
+  }
+
+  detectChanges(force = false) {
+    if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
+      return;
+
+    if (this._dataGrid)
+      this._dataGrid.detectChanges(force);
+
+    this._updatedAt = Date.now();
   }
 }

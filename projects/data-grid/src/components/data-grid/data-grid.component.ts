@@ -4,7 +4,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostBinding,
+  HostBinding, HostListener,
   Input, NgZone,
   OnDestroy,
   OnInit,
@@ -21,7 +21,6 @@ import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from 
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
-
 
 declare function canvasDatagrid(params: any);
 
@@ -60,6 +59,7 @@ export interface ICellChangedEvent<T> {
 }
 
 let closePrevContextMenu: () => void;
+export type CustomContextMenuItem = { title: string, action: () => void };
 
 @Component({
   selector: 'data-grid',
@@ -74,11 +74,15 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @ViewChild('tableContainer', { static: true }) tableContainer: ElementRef;
   @ViewChild('menu') contextMenuComponent: NzDropdownMenuComponent;
 
+  @ViewChild('tableContainer', { read: ViewContainerRef, static: true }) entry: ViewContainerRef;
+
+
   @HostBinding('attr.title') title: string;
 
   @Output() currentCellChanged = new EventEmitter<ICellChangedEvent<T>>();
   @Output() settingsClicked = new EventEmitter();
   @Output() columnUpdate = new EventEmitter<Column>();
+  @Output() editFinished = new EventEmitter<Cell>();
 
   @Input() handlers: DataGridHandler[] = [];
   @Input() showContextMenuSettings = true;
@@ -93,6 +97,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
 
+  @Input() editComponentsFactory: Function;
+
+  @Input() customMenuItems: CustomContextMenuItem[] = [];
+
   private _items: T[] = [];
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
   private _prevActiveCell: Cell;
@@ -103,6 +111,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   public list: TransferItem[] = [];
   public onDestroy$ = new Subject();
   _grid: any;
+
+  editComponent;
 
   @Input()
   set items(value: T[]) {
@@ -244,10 +254,18 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     grid.addEventListener('mouseup', this._handleMouseUp);
     grid.addEventListener('resize', this._handleResize);
     grid.addEventListener('resizecolumn', this._handleColumnResize);
+    grid.addEventListener('beginEdit', this._beginEdit);
+    grid.addEventListener('endEdit', this._endEdit);
+    grid.addEventListener('resizeEditCell', this._resizeEdit);
 
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
+  }
+
+  startEditingAt(x, y) {
+    const cell = this._grid.getCellAt(x, y);
+    this._grid.beginEditAt(cell);
   }
 
   applyStyles(styles: GridStyles) {
@@ -259,6 +277,17 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     grid.style = { ...styles };
 
+    this.detectChanges(true);
+  }
+
+  changeColumns(columns: Column[]) {
+    this.columns = columns.map(item => {
+      if (!item.width) {
+        item.width = 100;
+      }
+      return item;
+    });
+    this._grid.schema = this.columns;
     this.detectChanges(true);
   }
 
@@ -296,6 +325,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       columns: this._grid.schema,
       contextMenuState: this.contextMenuState,
     };
+  }
+
+  @HostListener('document:keydown.enter', ['$event'])
+  onEnterHandler(event: KeyboardEvent) {
+    this._grid.endEdit();
   }
 
   createComponentModal($event: MouseEvent): void {
@@ -344,6 +378,37 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _handleClick = (e) => {
     this._triggerHandler(Events.Click, e);
   }
+
+  private _beginEdit = (e) => {
+    const editPayload = this.editComponentsFactory(e);
+
+    if (!editPayload)
+      return;
+
+    const { factory, params } = editPayload;
+    const component = this.entry.createComponent(factory);
+    this.editComponent = component;
+    component.location.nativeElement.style.position = 'absolute';
+    for (let key in params) {
+      component.instance[key] = params[key];
+    }
+  };
+
+  private _resizeEdit = ({ position }) => {
+    const editView = this.tableContainer.nativeElement.parentNode.children[1];
+    for (let key in position) {
+      editView.style[key] = position[key];
+    }
+  }
+  private _endEdit = (e) => {
+    if (e.item.editValueSetter) {
+      e.item.editValueSetter(this.editComponent);
+    }
+    this.editFinished.emit(e);
+    this.editComponent = null;
+
+    this.entry.remove();
+  };
 
   private _triggerHandler(event: Events, e) {
     const _handlers: CellClickDataGridHandler<any>[] = this.handlers as any;
@@ -421,6 +486,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       grid.removeEventListener('mouseup', this._handleMouseUp);
       grid.removeEventListener('resize', this._handleResize);
       grid.removeEventListener('resizecolumn', this._handleColumnResize);
+      grid.removeEventListener('beginEdit', this._beginEdit);
+      grid.removeEventListener('endEdit', this._endEdit);
     }
     this.onDestroy$.next();
     this.onDestroy$.complete();

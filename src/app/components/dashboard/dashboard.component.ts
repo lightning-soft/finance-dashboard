@@ -6,7 +6,6 @@ import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'set
 import { Themes, ThemesHandler } from 'themes';
 import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { Components } from '../../modules';
-import { widgetList } from './drag-drawer/drag-drawer.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
@@ -15,6 +14,7 @@ import { environment } from 'environment';
 import { SaveLayoutConfigService } from '../save-layout-config.service';
 import { SaveLoaderService } from 'ui';
 import { isEqual } from 'underscore';
+import { widgetList } from './component-options';
 
 enum WindowEvents {
   Message = 'message'

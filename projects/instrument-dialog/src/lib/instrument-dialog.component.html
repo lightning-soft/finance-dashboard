@@ -1,0 +1,33 @@
+<span class="add-title">Add Symbol</span>
+<nz-form-control class="custom-form-control">
+  <nz-input-group [nzPrefix]="prefixTemplate">
+    <input [formControl]="formControl" nzSize="small" type="text" nz-input/>
+  </nz-input-group>
+</nz-form-control>
+<nz-tabset>
+  <nz-tab nzTitle="All">
+  </nz-tab>
+  <nz-tab nzTitle="Futures">
+  </nz-tab>
+  <!--
+  <nz-tab nzTitle="Stocks">
+  </nz-tab>
+  <nz-tab nzTitle="Option">
+  </nz-tab>
+  <nz-tab nzTitle="Crypto">
+  </nz-tab>-->
+</nz-tabset>
+<cdk-virtual-scroll-viewport (scrolledIndexChange)="onScroll($event)" [itemSize]="27">
+  <table>
+    <tr *cdkVirtualFor="let item of items; trackBy:trackByIdx"
+        (click)="selectInstrument(item)"
+        class="instrument-item">
+      <td [title]="item.symbol" class="symbol">{{item.symbol}}</td>
+      <td [title]="item.description" class="description">{{item.description}}</td>
+      <td class="exchange">{{item.exchange}}</td>
+    </tr>
+  </table>
+  <ng-template #prefixTemplate>
+    <i class="icon-search"></i>
+  </ng-template>
+</cdk-virtual-scroll-viewport>

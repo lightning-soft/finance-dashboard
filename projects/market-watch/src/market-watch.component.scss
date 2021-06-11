@@ -1,0 +1,104 @@
+$headerHeight: 21px;
+$tabHeight: 26px;
+@import "~src/scss/variables";
+
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+
+  ::ng-deep {
+    .market-watch-cell-input {
+      background-color: $darkBackground;
+      display: block;
+
+      .ant-input-number-handler-wrap {
+        opacity: 1;
+      }
+    }
+
+    .market-watch-cell-select {
+      width: 100%;
+      display: block;
+    }
+  }
+}
+
+data-grid {
+  height: calc(100% - #{$headerHeight});
+}
+
+.tabs {
+  height: $tabHeight;
+  display: none;
+  width: 100%;
+
+  .tab {
+    background-color: $darkBackground;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $text-40;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    padding-left: 4px;
+    cursor: pointer;
+    padding-right: 4px;
+
+    &:not(:first-child) {
+      margin-left: 1px;
+    }
+
+    &.active {
+      background-color: $secondary;
+      color: #fff;
+      cursor: default;
+    }
+  }
+
+  .icon-add {
+    margin-left: 4px;
+    font-size: 10px;
+    width: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: $text-80;
+  }
+}
+
+:host.show-tabs {
+  .tabs {
+    display: flex;
+  }
+
+  data-grid {
+    height: calc(100% - #{$headerHeight} - #{$tabHeight});
+  }
+}
+
+::ng-deep {
+  .market-watch-context-menu {
+    .ant-dropdown-menu-submenu-title {
+      padding: 3px;
+
+      .ant-dropdown-menu-submenu-arrow-icon.anticon {
+        font-size: 8px;
+      }
+    }
+
+    min-width: 140px;
+  }
+
+  .market-watch-submenu {
+    .widget-icon {
+      font-size: 10px;
+      margin-right: 6px;
+    }
+  }
+}

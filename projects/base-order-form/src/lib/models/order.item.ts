@@ -36,10 +36,11 @@ export enum OrderColumn {
   identifier = 'identifier',
   close = 'close',
 }
+export const OrderColumnsArray = Object.values(OrderColumn);
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
-}
+};
 
 const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 

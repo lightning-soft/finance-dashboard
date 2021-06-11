@@ -1,0 +1,21 @@
+.dark-btn {
+  height: 20px;
+  background: $darkBackground;
+  font-size: 0.7rem;
+  line-height: 1;
+  font-weight: 600;
+  min-width: 56px;
+  border: none;
+  color: $text-80;
+  box-shadow: none;
+  transition: color .2s ease;
+
+  &:hover, &:focus-within {
+    color: $primary;
+    background: $darkBackground;
+  }
+
+  &:after {
+    content: none;
+  }
+}

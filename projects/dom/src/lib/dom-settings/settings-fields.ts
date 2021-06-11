@@ -1,5 +1,5 @@
 import {
-  FieldType, getCheckboxes, getTextAlign, wrapWithClass, getSwitch, generateKeyFromLabel, getHistogramOrientation,
+  FieldType, getCheckboxes, getTextAlign, wrapWithClass, getSwitch, getHistogramOrientation,
   getColor, getHistogramColor, IFieldConfig, FieldConfig, getHotkey, getNumber
 } from 'dynamic-form';
 import { wrapWithConfig } from 'projects/dynamic-form';

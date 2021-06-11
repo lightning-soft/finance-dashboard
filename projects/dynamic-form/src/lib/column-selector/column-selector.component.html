@@ -1,0 +1,39 @@
+<div [formlyAttributes]="field" class="columns-container">
+  <nz-form-label>
+    {{field.templateOptions.label}}&nbsp;<span class="sub-label">{{field.templateOptions.subLabel}}</span>
+  </nz-form-label>
+  <div class="column-header">
+    <div class="primary-column-header">{{field.templateOptions.primaryColumnLabel}}</div>
+    <div class="secondary-column-header">{{field.templateOptions.secondaryColumnLabel}}</div>
+    <div class="primary-column-header">{{field.templateOptions.primaryColumnLabel}}</div>
+    <div class="secondary-column-header">{{field.templateOptions.secondaryColumnLabel}}</div>
+  </div>
+  <div cdkDropListGroup
+       class="columns-data">
+    <div *ngFor="let item of checkboxMainOptions;  let i = index;"
+         cdkDropList
+
+         (cdkDropListDropped)="entered($event)"
+         class="column-item"
+         [cdkDropListData]="i"
+    >
+      <label
+        class="primary-column-checkbox"
+        [disabled]="allowDisable && data[item.key].pair != nodeValue"
+        [(ngModel)]="data[item.key].enabled" (ngModelChange)="updateValue()" nz-checkbox>{{item.label}}</label>
+      <span>
+      <nz-select
+        [(ngModel)]="data[item.key].pair"
+        cdkDrag
+        cdkDragPreviewClass=""
+        [cdkDragData]="i"
+        (ngModelChange)="onItemChanged(item)"
+        class="secondary-column-select"
+        [nzOptionHeightPx]="24">
+        <nz-option *ngFor="let option of availableOptions" [nzValue]="option.value"
+                   [nzLabel]="option.label"></nz-option>
+      </nz-select>
+        </span>
+    </div>
+  </div>
+</div>

@@ -1,14 +1,12 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { CreateModalComponent } from '../workspace/create-modal/create-modal.component';
 import { NzModalService } from 'ng-zorro-antd';
 import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Id } from 'communication';
 import { LayoutComponent, WindowPopupManager } from 'layout';
-import { RenameModalComponent } from '../workspace/rename-modal/rename-modal.component';
-import { ConfirmModalComponent } from '../workspace/confirm-modal/confirm-modal.component';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
+import { RenameModalComponent, ConfirmModalComponent, CreateModalComponent } from 'ui';
 
 @Component({
   selector: 'windows',
@@ -58,7 +56,7 @@ export class WindowsComponent implements OnInit {
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
         name: window.name,
-        label: 'Name workspace'
+        label: 'Name of window',
       },
     });
 

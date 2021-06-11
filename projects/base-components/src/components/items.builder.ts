@@ -46,6 +46,33 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
     this._items = this._handle(items);
   }
 
+  replaceViewItems(items: VM[]) {
+    this._items = items;
+  }
+
+  replaceViewItem(newItem: VM, oldItem: VM) {
+    const index = this._items.findIndex((item) => item.id === oldItem.id);
+    if (index !== -1)
+      this._items.splice(index, 1, newItem);
+  }
+
+  addViewItems(items: VM[], index = this._items.length) {
+    if (!Array.isArray(items) || !items.length)
+      return;
+
+    items = items.filter(i => this.items.every(item => item.id !== i.id));
+    this._items.splice(index, 0, ...items);
+    this._items = [...this._items];
+  }
+
+  removeViewModel(item: VM) {
+    this._items = this._items.filter(vm => item.id !== vm.id);
+  }
+  removeViewModels(items: VM[]) {
+    this._items = this._items.filter(vm => !items.some(item => item.id === vm.id) );
+  }
+
+
   addItems(items: T[]) {
     let data;
     const filteredItems = items.filter(item => !this.items.some(i => i.id === item.id));
@@ -167,6 +194,18 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
 
       this._items = this._items.filter(item => ids.every(id => item.id !== id));
     });
+  }
+
+  deleteItems(items: VM | VM[]) {
+    if (Array.isArray(items))
+      return items.forEach(i => this.deleteItems(i));
+
+    const index = this.items.indexOf(items);
+
+    if (index === -1)
+      return;
+
+    this.items.splice(index, 1);
   }
 
   protected _handleItems(items: T[], fn: (items: T[]) => void) {

@@ -1,6 +1,6 @@
 import { Id, IPaginationResponse } from 'communication';
 import { map } from 'rxjs/operators';
-import { IPosition, PositionStatus } from 'trading';
+import { IInstrument, IInstrumentParams, IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 import { PositionsRepository, IDeletePositionsParams } from 'trading';
 import { Observable } from 'rxjs';

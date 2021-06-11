@@ -28,15 +28,16 @@ import {
   PositionsRepository,
   QuoteSide,
   UpdateType,
-  OHLVFeed, IPosition, compareInstruments
+  OHLVFeed, IPosition, compareInstruments, IInstrument
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { InstrumentSelectComponent } from 'instrument-select';
-import { IChartState, IChartTemplate } from "chart/models";
-import { TemplatesService } from "templates";
-import { CreateModalComponent, TradeHandler } from "src/app/components";
+import { IChartState, IChartTemplate } from 'chart/models';
+import { TemplatesService } from 'templates';
+import { TradeHandler } from 'src/app/components';
+import { CreateModalComponent } from 'ui';
 import { ExcludeId } from 'communication';
 import { AccountSelectComponent } from 'account-select';
 
@@ -80,7 +81,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
-
   showOrderConfirm = true;
 
   ocoStep = OcoStep.None;
@@ -127,11 +127,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
 
-    if (value) {
-      value.company = this._getInstrumentCompany();
-    }
-
-    this.chart.reload();
+    this.refresh();
 
     this.lastHistoryItem = null;
     this.income = null;

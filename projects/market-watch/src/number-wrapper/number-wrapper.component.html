@@ -1,0 +1,20 @@
+<nz-input-number [nzPlaceHolder]="placeholder"
+                 [nzMin]="min"
+                 (nzFocus)="openSelect()"
+                 class="price-input"
+                 [(ngModel)]="value" [nzStep]="step"></nz-input-number>
+<span
+  nzTrigger="click"
+  nzPlacement="bottomRight"
+  class="dropdown-archor"
+  [(nzVisible)]="dropdownVisible"
+  nz-dropdown [nzDropdownMenu]="menu"
+></span>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul *ngIf="value != null && shouldOpenSelect" nz-menu>
+    <cdk-virtual-scroll-viewport class="number-wrapper-scroller" [itemSize]="22">
+      <li (click)="value = option" *ngFor="let option of options" nz-menu-item>{{option}}</li>
+    </cdk-virtual-scroll-viewport>
+  </ul>
+</nz-dropdown-menu>

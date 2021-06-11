@@ -1,84 +1,13 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectorRef,
-  OnDestroy,
-  ViewChild,
-  NgZone,
-  AfterViewInit
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { Components } from '../../../modules';
-import { IBaseTemplate, TemplatesService } from "templates";
-import { NzModalService, NzSubMenuComponent } from "ng-zorro-antd";
-import { RenameModalComponent, ConfirmModalComponent } from '../../navbar/workspace';
-import { Subscription } from "rxjs";
+import { widgetList, bottomWidgetList } from '../component-options';
+import { IBaseTemplate, TemplatesService } from 'templates';
+import { NzModalService, NzSubMenuComponent } from 'ng-zorro-antd';
+import { Subscription } from 'rxjs';
+import { Components } from 'src/app/modules';
+import { RenameModalComponent, ConfirmModalComponent } from 'ui';
 
-export const widgetList = [
-  {
-    icon: 'icon-widget-positions',
-    name: 'Positions',
-    component: Components.Positions,
-    options: {
-      minWidth: 384,
-    }
-  },
-  {
-    icon: 'icon-widget-orders',
-    name: 'Orders',
-    component: Components.Orders
-  },
-  {
-    icon: 'icon-widget-create-orders',
-    name: 'Add orders',
-    component: Components.OrderForm,
-    options: {
-      minHeight: 300,
-      minWidth: 369,
-      height: 300,
-      width: 369,
-      resizable: false,
-      maximizable: false,
-    }
-  },
-  /*    {
-        icon: 'icon-widget-market-watch',
-        name: 'Market Watch',
-      },*/
-  {
-    icon: 'icon-widget-watchlist',
-    name: 'Watchlist',
-    component: Components.Watchlist
-  },
-  {
-    icon: 'icon-widget-dom',
-    name: 'DOM',
-    component: Components.Dom,
-    options: {
-      width: 500,
-      minWidth: 470,
-    }
-  },
-];
-
-const bottomWidgetList = [
-  {
-    icon: 'icon-clock',
-    name: 'Session Manager',
-    component: Components.SessionManager,
-    options: {
-      minWidth: 600,
-    },
-  },
-  // {
-  //   icon: 'icon-scripting',
-  //   name: 'Scripting',
-  //   component: Components.Scripting
-  // }
-];
 
 @UntilDestroy()
 @Component({

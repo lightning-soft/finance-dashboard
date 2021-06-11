@@ -9,4 +9,5 @@ export enum RealtimeType {
   Connect = 'Connect',
   Message = 'Message',
   Error = 'Error',
+  Settle = 'SettlementPrice',
 }
