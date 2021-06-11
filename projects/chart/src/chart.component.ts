@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy,
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Themes, ThemesHandler } from 'themes';
 import { Datafeed, RithmicDatafeed } from './datafeed';
@@ -93,6 +93,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   showOHLV = true;
   showChanges = true;
+  private _templatesSubscription: Subscription;
+  // TODO: Listen account select
+  // <<<<<<< HEAD
+  // =======
+  //   private _accountId: Id;
+
+  //   get accountId(): Id {
+  //     return this._accountId;
+  //   }
+
+  //   set accountId(value: Id) {
+  //     this._accountId = value;
+  //     this.refresh();
+  //   }
+  // >>>>>>> origin/develop
 
   get instrument() {
     return this.chart?.instrument;
@@ -187,6 +202,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadFiles()
       .then(() => this.loadChart())
       .catch(e => console.error(e));
+
+    this.onRemove(
+      this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
+      this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)
+      ));
+
+    // this._accountsManager.activeConnection
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((connection) => {
+    //     this._ordersRepository = this._ordersRepository.forConnection(connection);
+    //     this._positionsRepository = this._positionsRepository.forConnection(connection);
+    //     this._historyRepository = this._historyRepository.forConnection(connection);
+    //   });
+
+    this._templatesSubscription = this._templatesService.subscribe((data) => {
+      if (this.loadedTemplate)
+        this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
+    });
   }
 
   // handleConnect(connection: IConnection) {
@@ -506,6 +539,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   destroy() {
     this._positions.destroy();
     this._orders.destroy();
+    this._templatesSubscription.unsubscribe();
 
     if (this.chart) {
       this._ohlvFeed.unsubscribe(this.instrument);

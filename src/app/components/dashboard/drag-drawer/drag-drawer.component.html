@@ -1,30 +1,33 @@
-<button nz-dropdown (nzVisibleChange)="handleDropdownToggle($event)"
+<button class="add-container"
+        nz-dropdown
+        [nzTrigger]="'click'"
+        (nzVisibleChange)="handleDropdownToggle($event)"
         [class.opened]="opened"
-        class=add-container nzTrigger="click" [nzDropdownMenu]="menu">
+        [nzDropdownMenu]="menu">
   <i title="Add Widget" class="icon-add"></i>
 </button>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu class="side-navigation">
-    <li
-      nz-submenu
-      (nzOpenChange)="handleSubmenuOpenChange()"
-      (click)="openChart()"
-      [nzTitle]="chartSubmenuTemplate"
-      class="side-navigation__item chart-submenu"
-    >
+    <li nz-menu-item
+        nz-submenu
+        (nzOpenChange)="handleSubmenuOpenChange()"
+        (click)="openChart()"
+        [nzTitle]="chartSubmenuTemplate"
+        class="side-navigation__item chart-submenu">
       <ul *ngIf="templates[components.Chart]?.length">
         <li nz-menu-item
             class="side-navigation__item submenu-item"
             *ngFor="let template of templates[components.Chart]"
             (click)="openChart(template)">
-            <div class="title">
-              {{template.name}}
-            </div>
+          <div class="title">
+            {{template.name}}
+          </div>
 
-            <div class="actions">
-              <button [title]="'Edit'" (click)="editChartTemplate(template, $event)" class="icon-edit"></button>
-              <button [title]="'Delete'" (click)="deleteChartTemplate(template, $event)" class="icon-close-window"></button>
-            </div>
+          <div class="actions">
+            <button [title]="'Edit'" (click)="editChartTemplate(template, $event)" class="icon-edit"></button>
+            <button [title]="'Delete'" (click)="deleteChartTemplate(template, $event)"
+                    class="icon-close-window"></button>
+          </div>
         </li>
         <li nz-menu-divider class="divider"></li>
         <li nz-menu-item class="side-navigation__item" (click)="openChart()">New Chart</li>

@@ -1092,6 +1092,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.detectChanges(true);
+    this._changeDetectorRef.detectChanges();
   }
 
   private _fillOrders(order) {
@@ -1258,7 +1259,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.dataGrid.detectChanges(force);
-    this._changeDetectorRef.detectChanges();
     this._updatedAt = Date.now();
   }
 
@@ -2160,7 +2160,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _closeOrders(action: FormActions) {
-    let orders = this.items.reduce((acc, i) => ([...acc, ...i.orders.orders]), []);
+    let orders = [...this.orders];
 
     if (action === FormActions.CloseSellOrders)
       orders = orders.filter(i => i.side === OrderSide.Sell);

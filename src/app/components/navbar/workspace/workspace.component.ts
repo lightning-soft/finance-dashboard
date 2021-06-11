@@ -95,9 +95,10 @@ export class WorkspaceComponent implements OnInit {
     console.log('Share workspace');
   }
 
-  switchWorkspace($event: Id) {
+  switchWorkspace($event: Id): void {
     if (this.activeWorkspaceId === $event)
       return;
+
     if (this._settingsService.settings.value.autoSave) {
       this.activeWorkspaceId = $event;
       this.formControl.patchValue($event);
@@ -127,7 +128,7 @@ export class WorkspaceComponent implements OnInit {
     }
   }
 
-  createWorkspace() {
+  createWorkspace(): void {
     const modal = this._modalService.create({
       nzWidth: 440,
       nzTitle: 'New workspace',

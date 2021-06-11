@@ -1,9 +1,19 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectorRef,
+  OnDestroy,
+  ViewChild,
+  NgZone,
+  AfterViewInit
+} from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { Components } from '../../../modules';
 import { IBaseTemplate, TemplatesService } from "templates";
-import { NzModalService } from "ng-zorro-antd";
+import { NzModalService, NzSubMenuComponent } from "ng-zorro-antd";
 import { RenameModalComponent, ConfirmModalComponent } from '../../navbar/workspace';
 import { Subscription } from "rxjs";
 
@@ -76,21 +86,23 @@ const bottomWidgetList = [
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements OnDestroy {
+export class DragDrawerComponent implements OnDestroy, AfterViewInit {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
+  @ViewChild(NzSubMenuComponent) submenu: NzSubMenuComponent;
 
   opened = false;
   items = widgetList;
   bottomItems = bottomWidgetList;
-  templates: {[component: string]: IBaseTemplate[]} = {};
+  templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
   private _templatesSubscription: Subscription;
 
   constructor(
     private _templatesService: TemplatesService,
     private _modalService: NzModalService,
-    private _changeDetectorRef: ChangeDetectorRef
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _zone: NgZone
   ) {
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       this.templates = {};
@@ -99,6 +111,10 @@ export class DragDrawerComponent implements OnDestroy {
           [...this.templates[template.type], template] : [template];
       });
     });
+  }
+
+  ngAfterViewInit() {
+    runZoneWhenSubmenuToggle(this.submenu, this._zone);
   }
 
   create(item): void {
@@ -142,7 +158,7 @@ export class DragDrawerComponent implements OnDestroy {
       if (!name)
         return;
 
-      this._templatesService.updateItem( { ...template, name }).subscribe();
+      this._templatesService.updateItem({ ...template, name }).subscribe();
     });
   }
 
@@ -173,4 +189,16 @@ export class DragDrawerComponent implements OnDestroy {
   ngOnDestroy() {
     this._templatesSubscription.unsubscribe();
   }
+}
+
+// The problem which we are fixed here
+// Sub menu not opened in correct place
+// It is happened after we disable mouse events in zone
+// Other solutions: modified library or create own menu component
+// If it happens in other components(places) think about return some event in zone detection
+function runZoneWhenSubmenuToggle(submenu: NzSubMenuComponent, zone: NgZone) {
+  const originalSetMouseEnterState = submenu.setMouseEnterState.bind(submenu);
+  submenu.setMouseEnterState = (...args) => {
+    zone.run(() => originalSetMouseEnterState(...args));
+  };
 }
