@@ -57,6 +57,9 @@ export abstract class Cell implements ICell {
   value = '';
   class = '';
   colSpan = 0;
+  editable = false;
+  editType: string;
+  editValueSetter: Function;
   _bold: boolean;
   settings: ICellSettings = {};
   drawed = false; // performance solution

@@ -1,8 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { untilDestroyed } from "@ngneat/until-destroy";
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
+import { NotifierService } from 'notifier';
 import { RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
@@ -18,8 +20,6 @@ import {
   TradePrint
 } from 'trading';
 import { PositionColumn, PositionItem } from './models/position.item';
-import { NotifierService } from 'notifier';
-import { untilDestroyed } from "@ngneat/until-destroy";
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
@@ -69,12 +69,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     showColumnHeaders: true,
   };
 
-  @ViewChild('grid') dataGrid: DataGrid;
-
   private _status: PositionStatus = PositionStatus.Open;
 
   private _accountId;
-  private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
+  private _lastTrades: { [instrumentKey: string]: TradePrint } = {};
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({

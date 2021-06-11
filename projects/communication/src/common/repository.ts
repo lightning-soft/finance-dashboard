@@ -1,5 +1,5 @@
 import { Observable, of, Subject, throwError } from 'rxjs';
-import { IBaseItem } from './item';
+import { IBaseItem, Id } from './item';
 import { IPaginationResponse } from './pagination';
 
 export type ExcludeId<T> = {
@@ -39,7 +39,7 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   abstract getItems(params?): Observable<IPaginationResponse<T>>;
 
-  getItemsByIds(ids: number[] | string[]): Observable<T[]> {
+  getItemsByIds(ids: Id[]): Observable<T[]> {
     console.error('implement getItemsByIds');
     return of([]);
   }

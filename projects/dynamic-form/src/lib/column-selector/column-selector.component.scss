@@ -1,0 +1,38 @@
+@import "~src/scss/variables";
+
+.columns-data, {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  margin-bottom: 40px;
+}
+
+.column-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  font-size: 0.7rem;
+  grid-column-gap: 10px;
+  font-weight: 600;
+  color: $light2;
+}
+
+.column-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 10px;
+  align-items: center;
+}
+
+:host ::ng-deep {
+  nz-checkbox-wrapper {
+    label {
+      font-weight: 400;
+    }
+  }
+
+  .cdk-drag-placeholder {
+    display: none;
+  }
+}

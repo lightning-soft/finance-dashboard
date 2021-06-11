@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { blankBase, WorkspaceId } from 'workspace-manager';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Id } from 'communication';
+
+export const blankBase = 'blank';
 
 
 @Component({
@@ -12,7 +14,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class CreateModalComponent implements OnInit {
   options: { label: string, value: any }[];
   form: FormGroup;
-  base: WorkspaceId = blankBase;
+  base: Id = blankBase;
   name: string;
   blankOption: string;
 

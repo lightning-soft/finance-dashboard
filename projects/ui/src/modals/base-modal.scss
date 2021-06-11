@@ -1,4 +1,4 @@
-@import "~src/scss/variables";
+@import "../../../../src/scss/variables";
 
 small {
   font-size: 0.65rem;
@@ -6,6 +6,11 @@ small {
 }
 
 :host ::ng-deep {
+  .ant-modal .ant-modal-content .ant-modal-body {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
   .ant-input.custom-form-control {
     background: #101114;
     border: 1px solid transparent;
@@ -18,5 +23,8 @@ small {
     &:focus {
       border: 1px solid $primary;
     }
+  }
+  .ant-select.custom-form-control{
+    max-width: 255px;
   }
 }

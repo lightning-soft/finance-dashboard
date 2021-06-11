@@ -1,5 +1,5 @@
 import {
-  FieldConfig, FieldType,
+  FieldConfig,
   getCheckboxes,
   getColor, getColorSelect, getDatePicker,
   getInput, getLineSelector,

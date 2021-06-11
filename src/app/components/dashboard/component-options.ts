@@ -1,0 +1,75 @@
+import { Components } from '../../modules';
+
+export const orderFormOptions = {
+  minHeight: 300,
+  minWidth: 369,
+  height: 300,
+  width: 369,
+  resizable: false,
+  maximizable: false,
+};
+
+export const widgetList = [
+  {
+    icon: 'icon-widget-chart',
+    name: 'Chart',
+    component: Components.Chart,
+    hasInstrument: true,
+  },
+  {
+    icon: 'icon-widget-positions',
+    name: 'Positions',
+    component: Components.Positions,
+    options: {
+      minWidth: 384,
+    }
+  },
+  {
+    icon: 'icon-widget-orders',
+    name: 'Orders',
+    component: Components.Orders
+  },
+  {
+    icon: 'icon-widget-create-orders',
+    name: 'Add orders',
+    component: Components.OrderForm,
+    options: orderFormOptions,
+    hasInstrument: true,
+  },
+  {
+    icon: 'icon-widget-market-watch',
+    name: 'Market Watch',
+    component: Components.MarketWatch,
+  },
+  {
+    icon: 'icon-widget-watchlist',
+    name: 'Watchlist',
+    component: Components.Watchlist
+  },
+  {
+    icon: 'icon-widget-dom',
+    name: 'DOM',
+    component: Components.Dom,
+    hasInstrument: true,
+    options: {
+      width: 500,
+      minWidth: 470,
+    }
+  },
+];
+
+export const bottomWidgetList = [
+  {
+    icon: 'icon-clock',
+    name: 'Session Manager',
+    component: Components.SessionManager,
+    options: {
+      minWidth: 600,
+    },
+  },
+  // {
+  //   icon: 'icon-scripting',
+  //   name: 'Scripting',
+  //   component: Components.Scripting
+  // }
+];

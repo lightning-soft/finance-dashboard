@@ -1985,6 +1985,86 @@
         }
       }
     },
+    "market-watch": {
+      "projectType": "library",
+      "root": "projects/market-watch",
+      "sourceRoot": "projects/market-watch/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/market-watch/tsconfig.lib.json",
+            "project": "projects/market-watch/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/market-watch/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/market-watch/src/test.ts",
+            "tsConfig": "projects/market-watch/tsconfig.spec.json",
+            "karmaConfig": "projects/market-watch/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/market-watch/tsconfig.lib.json",
+              "projects/market-watch/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "instrument-dialog": {
+      "projectType": "library",
+      "root": "projects/instrument-dialog",
+      "sourceRoot": "projects/instrument-dialog/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/instrument-dialog/tsconfig.lib.json",
+            "project": "projects/instrument-dialog/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/instrument-dialog/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/instrument-dialog/src/test.ts",
+            "tsConfig": "projects/instrument-dialog/tsconfig.spec.json",
+            "karmaConfig": "projects/instrument-dialog/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/instrument-dialog/tsconfig.lib.json",
+              "projects/instrument-dialog/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
     "templates": {
       "projectType": "library",
       "root": "projects/templates",

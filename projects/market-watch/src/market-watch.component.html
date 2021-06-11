@@ -1,0 +1,68 @@
+<window-header (contextmenu)="grid.createComponentModal($event)" className="widget" [window]="this">
+  <account-select (accountChange)="handleAccountChange($event)"></account-select>
+</window-header>
+<data-grid
+  [items]="builder.items"
+  [columns]="columns"
+  [handlers]="handlers"
+  [customMenuItems]="menuItems"
+  (editFinished)="editFinished($event)"
+  [editComponentsFactory]="editComponentsFactory"
+  (columnUpdate)="onColumnUpdate($event)"
+  [styles]="gridStyles"
+  (currentCellChanged)="currentCell = $event"
+  [(contextMenuState)]="contextMenuState"
+  [class.loading-block]="isLoading"
+  #grid
+>
+</data-grid>
+<div class="tabs">
+  <div (click)="selectTab(tab)" *ngFor="let tab of tabs"
+       [class.active]="currentTab?.id === tab?.id"
+       (contextmenu)="contextMenu($event, menu, tab)"
+       class="tab">{{tab.name}}</div>
+  <i (click)="createTab()" class="icon-add"></i>
+</div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul class="market-watch-context-menu" nz-menu>
+    <li (click)="copyTab(contextTab)" nz-menu-item>Copy Tab</li>
+    <li (click)="renameTab()" nz-menu-item>Rename Tab</li>
+    <li nz-menu-divider></li>
+    <li (click)="deleteTab()" nz-menu-item>Delete Tab</li>
+  </ul>
+</nz-dropdown-menu>
+<nz-dropdown-menu #symbolMenu="nzDropdownMenu">
+  <ul class="market-watch-context-menu" nz-menu>
+    <li nz-submenu nzTitle="Open">
+      <ul class="market-watch-submenu">
+        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidget(item)" nz-menu-item>
+          <i class="{{item.icon}} widget-icon"></i>{{item.name}}</li>
+      </ul>
+    </li>
+    <li nz-submenu nzTitle="Open Linked">
+      <ul class="market-watch-submenu">
+        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidgetLinked(item)" nz-menu-item>
+          <i class="{{item.icon}} widget-icon"></i>{{item.name}}</li>
+      </ul>
+    </li>
+    <li nz-menu-divider></li>
+    <li (click)="currentTab && addSymbolBelow()" nz-menu-item>Add symbol below</li>
+    <li (click)="contextInstrument && deleteInstrument()" nz-menu-item>Remove Row</li>
+    <li (click)="addLabel()" nz-menu-item>Insert Label Row</li>
+    <li nz-menu-divider></li>
+    <li (click)="currentTab && copyToNewTab()" nz-menu-item>Copy to new Tab</li>
+    <li (click)="currentTab && moveToNewTab()" nz-menu-item>Move to new Tab</li>
+    <li nz-menu-divider></li>
+    <li nz-menu-item>Roll Symbol</li>
+    <li (click)="currentTab && changeInstrument()" nz-menu-item>Change Symbol</li>
+    <li nz-menu-divider></li>
+    <li (click)="openSettings()" nz-menu-item>Settings</li>
+  </ul>
+</nz-dropdown-menu>
+<nz-dropdown-menu #labelMenu="nzDropdownMenu">
+  <ul class="market-watch-context-menu" nz-menu>
+    <li (click)="renameLabel()" nz-menu-item>Rename label Row</li>
+    <li nz-menu-divider></li>
+    <li (click)="deleteLabel()" nz-menu-item>Delete label Row</li>
+  </ul>
+</nz-dropdown-menu>

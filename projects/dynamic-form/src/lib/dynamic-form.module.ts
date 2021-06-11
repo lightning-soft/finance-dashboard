@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  NzDatePickerModule,
-  NzDividerModule, NzDropDownModule,
-  NzInputModule,
-  NzInputNumberModule,
-  NzSelectModule, NzSliderModule,
-  NzSwitchModule
+    NzCheckboxModule,
+    NzDatePickerModule,
+    NzDividerModule, NzDropDownModule, NzFormModule,
+    NzInputModule,
+    NzInputNumberModule,
+    NzSelectModule, NzSliderModule,
+    NzSwitchModule
 } from 'ng-zorro-antd';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
@@ -17,12 +18,14 @@ import { NumberInputComponent } from './number-input/number-input.component';
 import { TextAlignComponent } from './text-align/text-align.component';
 import { SwitchComponent } from './switch/switch.component';
 import { HotkeyComponent } from './hotkey/hotkey.component';
-import { HotkeyInputModule } from '../../../hotkey-input';
+import { HotkeyInputModule } from 'hotkey-input';
 import { SelectComponent } from './select/select.component';
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { LineSelectorComponent } from './line-selector/line-selector.component';
 import { DatepickerComponent } from './datepicker/datepicker.component';
-import { StorageModule } from "storage";
+import { StorageModule } from 'storage';
+import { ColumnSelectorComponent } from './column-selector/column-selector.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 const formlyComponents = [
   {
@@ -51,31 +54,38 @@ const formlyComponents = [
   },
   {
     name: FieldType.LineSelector, component: LineSelectorComponent,
+  },
+  {
+    name: FieldType.ColumnSelector, component: ColumnSelectorComponent,
   }
 ];
 
 @NgModule({
   declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
-    SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent, LineSelectorComponent, DatepickerComponent],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    FormlyModule.forRoot({
-      types: formlyComponents,
-    }),
-    HotkeyInputModule,
-    FormlyNgZorroAntdModule,
-    NzInputModule,
-    NzSwitchModule,
-    NzSelectModule,
-    NzDividerModule,
-    NzInputNumberModule,
-    NzDatePickerModule,
-    NzDropDownModule,
-    NzSliderModule,
-    StorageModule
-  ],
+    SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent,
+    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule,
+        FormlyModule.forRoot({
+            types: formlyComponents,
+        }),
+        HotkeyInputModule,
+        FormlyNgZorroAntdModule,
+        NzInputModule,
+        NzSwitchModule,
+        NzSelectModule,
+        NzDividerModule,
+        NzInputNumberModule,
+        NzDatePickerModule,
+        NzDropDownModule,
+        NzSliderModule,
+        StorageModule,
+        NzCheckboxModule,
+        NzFormModule,
+        DragDropModule,
+    ],
   exports: [FormlyModule]
 })
 export class DynamicFormModule {

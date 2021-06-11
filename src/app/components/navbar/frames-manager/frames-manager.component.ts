@@ -22,6 +22,7 @@ export class FramesManagerComponent {
     [Components.Dom, new Set()],
     [Components.OrderForm, new Set()],
     [Components.SessionManager, new Set()],
+    [Components.MarketWatch, new Set()],
   ];
 
   @HostBinding('class.has-windows')
@@ -35,6 +36,7 @@ export class FramesManagerComponent {
     [Components.Dom]: 'icon-widget-dom',
     [Components.OrderForm]: 'icon-widget-create-orders',
     [Components.SessionManager]: 'icon-clock',
+    [Components.MarketWatch]: 'icon-widget-market-watch',
   };
 
   get windowAreaTopPosition(): number {

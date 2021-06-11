@@ -1,6 +1,6 @@
 import { Id, IPaginationResponse } from 'communication';
 import { map } from 'rxjs/operators';
-import { IPosition, PositionStatus } from 'trading';
+import { IInstrument, IInstrumentParams, IPosition, PositionStatus } from 'trading';
 import { BaseRepository } from './base-repository';
 import { PositionsRepository, IDeletePositionsParams } from 'trading';
 import { Observable } from 'rxjs';
@@ -32,6 +32,18 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       this._http,
       this._communicationConfig,
       this._injector
+    );
+  }
+  getItemByInstrument(instrument: IInstrument, params: IInstrumentParams): Observable<IPosition> {
+    return this._http.get<IPosition>(
+      this._getRESTURL(params.accountId),
+      {
+        ...this._httpOptions,
+        params: {
+          Symbol: instrument.symbol,
+          Exchange: instrument.exchange,
+        }
+      },
     );
   }
 
