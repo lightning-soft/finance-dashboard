@@ -21,7 +21,7 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
   @ViewChild(NzSubMenuComponent) submenu: NzSubMenuComponent;
 
   opened = false;
-  items = widgetList;
+  items = widgetList.filter(item => !item.hasTemplates);
   bottomItems = bottomWidgetList;
   templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
