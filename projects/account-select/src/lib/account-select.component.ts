@@ -39,21 +39,6 @@ export class AccountSelectComponent {
     return this.accounts ?? [];
   }
 
-  // private _account: IAccount;
-
-  // public get account(): IAccount {
-  //   return this._account;
-  // }
-
-  // @Input()
-  // public set account(value: IAccount) {
-  //   if (this._account?.id === value?.id)
-  //     return;
-
-  //   this.accountChange.emit(value);
-  //   this._account = value;
-  // }
-
   @Input() labelTransformer = (label) => label;
 
   compareAccounts(a: IAccount, b: IAccount): boolean {
