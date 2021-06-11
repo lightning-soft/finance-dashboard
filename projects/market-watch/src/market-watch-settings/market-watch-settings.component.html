@@ -1,0 +1,11 @@
+<window-header marginClass="" class="window-header" (close)="saveState()" [window]="this">
+  <button nz-button nzSize="small" (click)="reset()" class="dark-btn ml-auto">Reset</button>
+</window-header>
+<cdk-virtual-scroll-viewport [class.hide-market-watch-row]="settings.display.openIn !== openIn.marketWatchRow" [class.hide-orders]="!settings?.display.showOrders" itemSize="">
+  <formly-form
+    [form]="form"
+    [(model)]="settings"
+    [fields]="fields"
+  >
+  </formly-form>
+</cdk-virtual-scroll-viewport>

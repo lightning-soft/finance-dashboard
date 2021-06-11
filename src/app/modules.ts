@@ -12,6 +12,7 @@ export const Modules = {
   Dom: 'dom',
   NotificationList: 'notification-list',
   SessionManager: 'session-manager',
+  MarketWatch: 'market-watch',
 };
 
 export const Components = {
@@ -29,7 +30,9 @@ export const Components = {
   NotificationList: 'notification-list',
   SessionManager: 'session-manager',
   IndicatorList: 'indicatorList',
-  OrdersPanel: 'ordersPanel'
+  OrdersPanel: 'ordersPanel',
+  MarketWatch: 'marketWatch',
+  MarketWatchSettings: 'market-watch-settings',
 };
 
 export const modulesStore: IModules[] = [
@@ -102,6 +105,13 @@ export const modulesStore: IModules[] = [
     module: Modules.SessionManager,
     components: [
       Components.SessionManager,
+    ]
+  },
+  {
+    module: Modules.MarketWatch,
+    components: [
+      Components.MarketWatch,
+      Components.MarketWatchSettings,
     ]
   }
 ];

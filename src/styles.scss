@@ -8,6 +8,10 @@
 // @import "~ng-zorro-antd/style/index.min.css";
 @import "assets/icon-font/icon.css";
 
+.ant-btn, .ant-collapse {
+  font-size: $baseFontSize;
+}
+
 @import "scss/utilities";
 @import "scss/colors";
 @import "scss/fonts";
@@ -30,6 +34,20 @@ html {
   margin: 0;
   padding: 0;
   font-size: $baseFontSize;
+}
+
+.ant-modal.instrument-dialog .ant-modal-content {
+  .ant-modal-body {
+    padding: 0;
+    background-color: $light;
+  }
+  .ant-modal-close-x {
+    width: 19px;
+    height: 19px;
+    color: $text-60;
+    line-height: 20px;
+    font-size: 12px;
+  }
 }
 
 .col-resize {
@@ -76,6 +94,7 @@ body {
 .ant-click-animating-node, [ant-click-animating-without-extra-node=true]::after {
   animation: none;
 }
+
 .ant-switch:hover, .ant-switch:focus:hover:not(.ant-switch-checked) {
   box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
 }
@@ -83,7 +102,6 @@ body {
 .ant-switch:focus {
   box-shadow: none;
 }
-
 
 
 .ant-checkbox-input:focus:not(:hover) + .ant-checkbox-inner {
@@ -203,9 +221,6 @@ body.navbarBottom {
   }
 }
 
-.ant-btn, .ant-collapse {
-  font-size: $baseFontSize;
-}
 
 .text-ellipsis {
   white-space: nowrap;

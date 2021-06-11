@@ -38,7 +38,7 @@ export class FieldConfig implements IFieldConfig {
 
     if (this.key && value) {
       return {
-        [` .${this.key}`]: this.fieldGroup
+        [` .${ this.key }`]: this.fieldGroup
           .map(i => i.getCss && i.getCss(value[this.key]))
           .filter(Boolean)
           .reduce((acc, k) => merge(acc, k), {}),
@@ -75,6 +75,22 @@ export function getSelect(_config: any) {
     },
     type: FieldType.Select,
     ...config
+  };
+}
+
+export function getColumnSelector(config) {
+  const { key, primaryColumnLabel, label, subLabel, secondaryColumnLabel, columns, secondaryOptions, ..._config } = config;
+  return {
+    key,
+    type: FieldType.ColumnSelector,
+    templateOptions: {
+      columns,
+      label,
+      subLabel,
+      primaryColumnLabel,
+      secondaryColumnLabel, secondaryOptions,
+    },
+    ..._config
   };
 }
 
@@ -145,12 +161,13 @@ export function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn)
   };
 }
 
-export function getDatePicker(key){
+export function getDatePicker(key) {
   return {
     type: FieldType.DatePicker,
     key,
   };
 }
+
 export function lowerFirstLetter(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
@@ -277,6 +294,7 @@ export function getColorSelect(_config) {
     ...config
   };
 }
+
 export function getLineSelector(_config) {
 
   let config = {
@@ -285,8 +303,7 @@ export function getLineSelector(_config) {
   config = Object.assign(config, _config);
   return {
     type: FieldType.LineSelector,
-    templateOptions: {
-    },
+    templateOptions: {},
     ...config,
   };
 }

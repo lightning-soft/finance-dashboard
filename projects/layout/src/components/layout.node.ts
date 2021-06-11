@@ -15,6 +15,8 @@ export interface IStateProvider<T = any> {
 export interface ILayoutNode {
   layoutContainer?: IWindow;
 
+  link: number | string;
+
   layout?: Layout;
 
   getNavbarTitle?: () => string;
@@ -32,6 +34,8 @@ export interface ILayoutNode {
   setNavbarTitleGetter?(value: () => string): void;
 
   handleNodeEvent(name: LayoutNodeEvent, event: any);
+
+  handleLinkData?(data: any);
 
   broadcastLinkData?(data: any);
 

@@ -1,0 +1,174 @@
+@import "~src/scss/variables";
+
+cdk-virtual-scroll-viewport {
+  height: 100%;
+  background-color: $secondary;
+}
+
+:host ::ng-deep {
+  .order-selects {
+    margin-bottom: 16px;
+    display: block;
+
+    nz-select {
+      width: 120px;
+    }
+
+    .ant-form-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .ant-form-item-label > label {
+      font-size: 0.75rem;
+      font-weight: 400;
+      margin-right: 4px;
+      margin-bottom: 0;
+
+      &:after {
+        content: none;
+      }
+    }
+  }
+
+  color-picker {
+    display: block;
+    width: 119px;
+  }
+
+  .form-control-no-paddings {
+    .ant-form-item-control {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
+  column-selector {
+    .column-header, .columns-data {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+  }
+
+  .hide-orders {
+
+    .secondary-column-header {
+      visibility: hidden;
+    }
+
+    .secondary-column-select {
+      display: none;
+    }
+
+    .sub-label {
+      display: none;
+    }
+  }
+
+  .hide-orders, .hide-market-watch-row {
+    .order-selects {
+      display: none;
+    }
+  }
+
+  window-header.window-header {
+    .content {
+      max-width: calc(100% - 30px);
+      overflow: hidden;
+    }
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    padding: 0 5px;
+  }
+
+  .ant-form-item-label > label, .ant-checkbox-wrapper, .ant-radio-wrapper {
+    color: $text-80;
+  }
+
+  .ant-checkbox-wrapper {
+    font-weight: 400;
+  }
+
+  formly-form {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: block;
+  }
+
+  .regular-label {
+    label {
+      font-weight: 400;
+      color: $text-80;
+      font-size: 0.75rem;
+    }
+  }
+
+  .highlightType {
+    .ant-form-item-control {
+      padding-top: 3px;
+      max-width: 127px;
+
+      .ant-select-single .ant-select-selector .ant-select-selection-item {
+        line-height: 18px;
+      }
+    }
+
+    .ant-form-item-label > label {
+      margin-right: 5px;
+      font-weight: 400;
+
+      &:after {
+        content: none;
+      }
+    }
+  }
+
+  formly-field-nz-checkbox, formly-field-nz-radio {
+    label {
+      font-weight: 400;
+    }
+  }
+
+  .d-grid {
+    display: grid;
+  }
+
+  .two-rows {
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 6px;
+  }
+
+  .ant-form-item {
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  .field-item > formly-wrapper-nz-form-field > nz-form-item {
+    flex-direction: column;
+    margin-bottom: 0;
+
+    > .ant-form-item-label, column-selector .ant-form-item-label {
+      text-align: left;
+      border-bottom: 1px solid $lighter;
+      margin-bottom: 12px;
+      width: 100%;
+
+      label {
+        padding-left: 6px;
+        color: $text-40;
+        font-size: 0.85rem;
+
+        &:after {
+          content: none;
+        }
+      }
+    }
+
+    & > .ant-form-item-control {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+  }
+}

@@ -31,15 +31,16 @@ import {
   PositionsRepository,
   QuoteSide,
   UpdateType,
-  OHLVFeed, IPosition, compareInstruments
+  OHLVFeed, IPosition, compareInstruments, IInstrument
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { TradeDataFeed } from 'trading';
-import { IChartState, IChartTemplate } from "chart/models";
-import { TemplatesService } from "templates";
-import { CreateModalComponent, TradeHandler } from "src/app/components";
+import { IChartState, IChartTemplate } from 'chart/models';
+import { TemplatesService } from 'templates';
+import { TradeHandler } from 'src/app/components';
+import { CreateModalComponent } from 'ui';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -69,12 +70,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
 
   chart: IChart;
-  link: any;
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
-
   showOrderConfirm = true;
 
   ocoStep = OcoStep.None;
@@ -116,10 +115,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
-
-    if (value) {
-      value.company = this._getInstrumentCompany();
-    }
 
     this.refresh();
 
@@ -484,8 +479,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  handleLinkData(data: any) {
-    this.update(data);
+  handleLinkData({ instrument }: any) {
+    this.instrument = instrument;
   }
 
   private _getInstrumentCompany() {

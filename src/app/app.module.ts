@@ -38,21 +38,18 @@ import { AppConfig } from './app.config';
 import {
   AccountComponent,
   AppComponent,
-  ConfirmModalComponent,
   ConnectionsComponent,
-  CreateModalComponent,
   DashboardComponent,
   DragDrawerComponent,
   NavbarComponent,
   NavbarControllerComponent,
-  RenameModalComponent,
   TradeLockComponent,
   WindowsComponent
 } from './components';
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
-import { SaveLoaderModule } from 'ui';
+import { SaveLoaderModule, ModalsModule } from 'ui';
 import { TemplatesModule } from "templates";
 
 /**
@@ -124,9 +121,6 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     ConnectionsComponent,
     FramesManagerComponent,
     WorkspaceComponent,
-    CreateModalComponent,
-    RenameModalComponent,
-    ConfirmModalComponent,
   ],
   imports: [
     FormsModule,
@@ -134,6 +128,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NzFormModule,
     NzSelectModule,
     NzRadioModule,
+    ModalsModule,
     HttpClientModule,
     CommunicationModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
@@ -208,6 +203,10 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       {
         path: Modules.SessionManager,
         loadChildren: () => import('session-manager').then(i => i.SessionManagerModule)
+      },
+      {
+        path: Modules.MarketWatch,
+        loadChildren: () => import('market-watch').then(i => i.MarketWatchModule)
       },
     ], modulesStore),
     RouterModule.forRoot([

@@ -1,0 +1,13 @@
+@import "~src/scss/variables";
+
+:host {
+  background-color: $darkBackground;
+
+  .ant-input {
+    color: $text-40;
+    height: 21px;
+    border: none;
+    font-size: 0.8rem;
+    box-shadow: none;
+  }
+}

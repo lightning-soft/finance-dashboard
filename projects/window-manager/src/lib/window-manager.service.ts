@@ -185,7 +185,7 @@ export class WindowManagerService {
   }
 
   private _normalizeCordsConsideringBounds(cords: Cords): Cords {
-    cords = {...cords};
+    cords = { ...cords };
 
     if (!this.bounds)
       return cords;

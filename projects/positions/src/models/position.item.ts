@@ -2,11 +2,11 @@ import { Id } from 'base-components';
 import {
   AddClassStrategy,
   Cell, CellStatus, CellStatusGetter,
-  DataCell,
+  DataCell, getProfitStatus,
   HoverableItem,
   IconCell,
   NumberCell, PriceFormatter,
-  ProfitClass,
+  ProfitStatus,
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
@@ -22,12 +22,6 @@ export enum PositionColumn {
   total = 'total',
   close = 'close',
   side = 'side',
-}
-
-enum PositionStatus {
-  InProfit = 'inProfit',
-  Loss = 'loss',
-  None = ''
 }
 
 const allColumns = Object.keys(PositionColumn) as PositionColumn[];
@@ -129,13 +123,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   private _updateCellProfitStatus(cell: Cell): void {
-    let status = PositionStatus.None;
-
-    if (cell.class === ProfitClass.DOWN)
-      status = PositionStatus.Loss;
-    else if (cell.class === ProfitClass.UP)
-      status = PositionStatus.InProfit;
-    cell.changeStatus(status);
+    cell.changeStatus(getProfitStatus(cell));
   }
 
   protected _getCellsToHover(): Cell[] {
@@ -145,7 +133,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
 
 const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
   if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return ([PositionStatus.InProfit, PositionStatus.Loss] as string[]).includes(cell.status)
+    return ([ProfitStatus.InProfit, ProfitStatus.Loss] as string[]).includes(cell.status)
       ? cell.status : CellStatus.Hovered;
   }
 

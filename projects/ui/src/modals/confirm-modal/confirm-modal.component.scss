@@ -1,0 +1,22 @@
+:host {
+  user-select: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  ::ng-deep {
+    .ant-modal .ant-modal-content {
+      .ant-modal-body {
+        padding: 28px 34px 24px;
+      }
+
+      .ant-modal-footer {
+        padding-bottom: 40px;
+      }
+    }
+  }
+}
+
+
+@import "../base-modal";
+

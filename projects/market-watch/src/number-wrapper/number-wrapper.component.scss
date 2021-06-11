@@ -1,0 +1,45 @@
+@import "~src/scss/variables";
+
+:host {
+  background-color: $darkBackground;
+  border-radius: 2px;
+
+  .ant-input-number {
+    color: #fff;
+    width: 100%;
+  }
+
+  .dropdown-archor {
+    position: absolute;
+    right: -110px;
+  }
+
+  ::ng-deep {
+    .cdk-virtual-scroll-content-wrapper {
+      padding-right: 2px;
+    }
+
+    nz-input-number:not(.custom-form-control) .ant-input-number-input {
+      height: 22px;
+    }
+
+    .ant-input-number-handler-wrap {
+      height: 100%;
+      padding-top: 3px;
+    }
+
+    nz-input-number:not(.custom-form-control) .ant-input-number-handler-wrap .ant-input-number-handler .ant-input-number-handler-up-inner, nz-input-number:not(.custom-form-control) .ant-input-number-handler-wrap .ant-input-number-handler .ant-input-number-handler-down-inner {
+      background-color: #fff;
+      height: 10px;
+      display: inline-block;
+      mask-size: 7px;
+    }
+  }
+}
+
+::ng-deep {
+  .number-wrapper-scroller {
+    height: 300px;
+    width: 100px;
+  }
+}

@@ -129,7 +129,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._pendingRequests = [];
   }
 
-  protected _handleTrade(data) {
+  protected _handleTrade(data): boolean {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
@@ -140,7 +140,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     if (type !== this.type || !result || !this._filter(result))
       return;
 
-    const _result = this._map(result);
+    const _result = this._getResult(data);
 
     for (const executor of this._executors) {
       try {
@@ -149,7 +149,14 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         console.error('_handleTrade', error);
       }
     }
+    return true;
   }
+
+  protected _getResult(data) {
+    const { result } =  data;
+    return this._map(result);
+  }
+
 
   protected _filter(item: T): boolean {
     return true;
