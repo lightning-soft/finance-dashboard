@@ -59,6 +59,6 @@ export class TradeLockComponent {
   }
 
   toggleTrading(): void {
-    this.tradeHandler.tradingEnabled = !this.tradeHandler.tradingEnabled;
+    this.tradeHandler.toggleTradingEnabled();
   }
 }

@@ -15,9 +15,9 @@
     <i (click)="showChartForm = !showChartForm; setNeedUpdate()" [class.active]="showChartForm"
        [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
     <i (click)="toggleTrading()"
-       [class.icon-lock]="isTradingLocked"
-       [class.icon-unlock]="!isTradingLocked"
-       [title]="isTradingLocked? 'Lock' : 'Unlock'"
+       [class.icon-lock]="!isTradingEnabled"
+       [class.icon-unlock]="isTradingEnabled"
+       [title]="isTradingEnabled ? 'Unlock' : 'Lock'"
        class="lock"></i>
   </div>
 

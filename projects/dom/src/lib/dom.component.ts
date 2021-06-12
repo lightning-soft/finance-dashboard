@@ -490,6 +490,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   isFormOpen = true;
   bracketActive = true;
   isExtended = true;
+  isTradingEnabled = true;
 
   private _instrument: IInstrument;
   private _priceFormatter: IFormatter;
@@ -514,10 +515,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _counter = 0;
   showColumnTitleOnHover = (item: Column) => false;
 
-  get isTradingLocked(): boolean {
-    return !this._tradeHandler.isTradingEnabled$.value;
-  }
-
   ngOnInit(): void {
     super.ngOnInit();
     this._accountsManager.activeConnection
@@ -534,6 +531,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._ordersRepository.actions
       .pipe(untilDestroyed(this))
       .subscribe((action) => this._handleOrdersRealtime(action));
+
+    this._tradeHandler.isTradingEnabled$
+      .pipe(untilDestroyed(this))
+      .subscribe((enabled) => this.isTradingEnabled = enabled);
 
     this.onRemove(
       this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
@@ -1941,7 +1942,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   toggleTrading(): void {
-    this._tradeHandler.toggleTradingEnabled();
+    if (!this.isTradingEnabled) {
+      this._tradeHandler.enableTrading();
+    } else {
+      this.isTradingEnabled = false;
+    }
   }
 
   private _handleResize(afterResize?: Function) {
@@ -2033,7 +2038,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
-    if (this.isTradingLocked)
+    if (!this.isTradingEnabled)
       return;
 
     if (!this._domForm.valid) {

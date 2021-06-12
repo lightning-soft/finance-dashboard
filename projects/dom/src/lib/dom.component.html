@@ -46,9 +46,9 @@
     <i (click)="isFormOpen = !isFormOpen" [class.active]="isFormOpen"
        [title]="isFormOpen? 'Hide': 'Show' + ' order area'" class="icon-widget-orders window-icon large"></i>
     <i (click)="toggleTrading()"
-       [class.icon-lock]="isTradingLocked"
-       [class.icon-unlock]="!isTradingLocked"
-       [title]="isTradingLocked? 'Lock' : 'Unlock'"
+       [class.icon-lock]="!isTradingEnabled"
+       [class.icon-unlock]="isTradingEnabled"
+       [title]="isTradingEnabled ? 'Unlock' : 'Lock'"
        class="window-icon large"></i>
 
   </span>
