@@ -129,6 +129,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private loadedState = new BehaviorSubject<IChartState>(null);
   loadedTemplate: IChartTemplate;
+  isTradingEnabled = true;
 
   bestAskPrice: number;
   bestBidPrice: number;
@@ -141,10 +142,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   get orders() {
     return this._orders.items;
-  }
-
-  get isTradingLocked(): boolean {
-    return !this._tradeHandler.isTradingEnabled$.value;
   }
 
   @ViewChild('menu') menu: NzDropdownMenuComponent;
@@ -187,6 +184,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this._positionsRepository = this._positionsRepository.forConnection(connection);
         this._historyRepository = this._historyRepository.forConnection(connection);
       });
+
+    this._tradeHandler.isTradingEnabled$
+      .pipe(untilDestroyed(this))
+      .subscribe((enabled) => this.isTradingEnabled = enabled);
 
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       if (this.loadedTemplate)
@@ -236,7 +237,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleTrading(): void {
-    this._tradeHandler.toggleTradingEnabled();
+    if (!this.isTradingEnabled) {
+      this._tradeHandler.enableTrading();
+    } else {
+      this.isTradingEnabled = false;
+    }
   }
 
   getQuoteInfo(info: number) {
@@ -270,7 +275,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
       orderForm: this._sideForm.getState(),
-    };
+    } as IChartState;
   }
 
   private _instrumentChangeHandler = (event) => {
@@ -582,8 +587,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrderWithConfirm(config: Partial<IOrder>) {
-    if (this.isTradingLocked)
+    if (!this.isTradingEnabled)
       return;
+
     if (this.showOrderConfirm) {
       const dto = this._sideForm.getDto();
       this._modalService.create({
@@ -607,8 +613,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrder(config: Partial<IOrder>) {
-    if (this.isTradingLocked)
+    if (!this.isTradingEnabled)
       return;
+
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };
     const { exchange, symbol } = this.instrument;
