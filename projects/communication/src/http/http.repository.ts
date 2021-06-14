@@ -56,10 +56,7 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     const optionsHeaders = (this._httpOptions as any)?.headers ?? {};
     const headers = { ...optionsHeaders, ...paramsHeaders };
 
-    if ((obj as any)?.headers)
-      delete (obj as any).headers;
-    if ((obj as any)?.accountId)
-      delete (obj as any).accountId;
+    this._processParams(obj);
 
     const { id = null, ...query } = this._mapItemsParams(obj ?? {});
 
@@ -92,6 +89,13 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     }
 
     return request;
+  }
+
+  protected _processParams(obj: any) {
+    if ((obj as any)?.headers)
+      delete (obj as any).headers;
+    if ((obj as any)?.accountId)
+      delete (obj as any).accountId;
   }
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {

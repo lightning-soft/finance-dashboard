@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ExcludeId, Id } from 'communication';
+import { ExcludeId, Id, RepositoryAction } from 'communication';
 import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
@@ -28,6 +28,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
 
   onInit() {
     super.onInit();
+    this.tradeHandler = this._injector.get(TradeHandler);
     this._connectionContainer = this._injector.get(ConnectionContainer);
   }
 
@@ -35,14 +36,21 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     const _params = { ...params };
 
     if (_params.accountId) {
-      _params.id = _params.accountId;
-      delete _params.accountId;
-    }
+       _params.id = _params.accountId;
+       delete _params.accountId;
+     }
 
     if (_params.StartDate == null) _params.StartDate = new Date(0).toUTCString();
     if (_params.EndDate == null) _params.EndDate = new Date(Date.now()).toUTCString();
 
     return _params;
+  }
+
+  _processParams(obj) {
+    if ((obj as any)?.headers)
+      delete (obj as any).headers;
+    /*if ((obj as any)?.accountId)
+      delete (obj as any).accountId;*/
   }
 
   protected _responseToItems(res: any, params: any) {
@@ -54,7 +62,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       throw new Error('Invalid order');
 
     return this._http.post<IOrder>(
-      this._getRESTURL(`${item.id}/cancel`),
+      this._getRESTURL(`${ item.id }/cancel`),
       null,
       {
         ...this.getApiHeadersByAccount(item.accountId),
@@ -74,14 +82,16 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       exchange: item.instrument.exchange
     };
 
-    return this._http.put<IOrder>(this._getRESTURL(), dto, { ...this.getApiHeadersByAccount(item.accountId), params: query })
+    return this._http.put<IOrder>(this._getRESTURL(), dto, {
+      ...this.getApiHeadersByAccount(item.accountId),
+      params: query
+    })
       .pipe(tap(this._onUpdate));
   }
 
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {
     if (this.tradeHandler.tradingEnabled)
-      return (super.createItem(item, options) as Observable<{ result: IOrder }>)
-        .pipe(map(res => res.result));
+      return (super.createItem(item, {...options, ...this.getApiHeadersByAccount(item.accountId) }) as Observable<IOrder>);
 
     return throwError('You can\'t create order when trading is locked ');
   }

@@ -59,7 +59,7 @@ import { IWindow } from 'window-manager';
 import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
 import { InstrumentDialogComponent } from 'instrument-dialog';
 import { Subject } from 'rxjs';
-import { buffer, debounceTime, take } from 'rxjs/operators';
+import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
 import * as clone from 'lodash.clonedeep';
 import { noneValue } from 'dynamic-form';
@@ -75,6 +75,13 @@ import { PerformedAction } from './models/actions.cell';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
 import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
+import { AccountsListener, filterByAccountsConnection } from 'real-trading';
+import { IAccount } from 'trading';
+import {
+  filterByAccountAndInstrument,
+  filterByAccountConnection,
+  filterByConnectionAndInstrument
+} from '../../real-trading';
 
 const labelText = 'Text label';
 
@@ -138,6 +145,7 @@ export interface IMarketWatchState {
   contextMenuState: any;
   componentInstanceId: number;
   settings;
+  accountId: Id;
   createdOrders: Id[];
 }
 
@@ -148,19 +156,26 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
+@AccountsListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
   columns: Column[] = [];
   contextInstrument: IInstrument;
   contextLabelId: Id;
   contextPoint: { x, y };
-  connection$ = new Subject();
+  connection$ = new Subject<void>();
 
   isInlineOrderCreating = false;
 
   menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }];
 
   dataFeeds = [];
-  accountId: string;
+
+  account;
+
+  accountId: Id;
+
+  accounts = [];
+
   currentCell: Cell;
 
   createdOrders = [];
@@ -223,8 +238,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
               this.builder.deleteItems([data.item]);
               const order = data.item.getDto();
               this.isInlineOrderCreating = false;
-              order.accountId = this.accountId;
-              this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
+              order.accountId = this.account.id;
+              this._ordersRepository.createItem(order, { accountId: this.account.id }).toPromise().then(orderResponse => {
                 if (!isForbiddenOrder(orderResponse))
                   this.createdOrders.push(orderResponse.id);
               });
@@ -440,9 +455,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
         instruments.forEach(item => this.subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
-        this._positionsRepository.getItems({ accountId: this.accountId }).toPromise()
+        this._positionsRepository.getItems({
+          accountId: this.account.id,
+          connectionId: this.account.connectionId
+        }).toPromise()
           .then((response) => response.data.forEach(pos => this._processPosition(pos)));
-        this._ordersRepository.getItems({ accountId: this.accountId }).toPromise()
+        this._ordersRepository.getItems({
+          // accountId: this.connection.id,
+          accountId: this.account.id,
+          connectionId: this.account.connectionId,
+        }).toPromise()
           .then((response) => response.data.forEach(order => this._processOrders(order)));
         this.detectChanges(true);
       });
@@ -460,6 +482,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   ngAfterViewInit() {
     if (this.settings)
       this._applySettings();
+  }
+
+  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    console.log(acccounts);
+    this.accounts = connectedAccounts;
+  }
+
+  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    console.log(acccounts);
+    this.accounts = connectedAccounts;
   }
 
   private addOrders(viewModel: MarketWatchItem) {
@@ -640,6 +672,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
+      accountId: this.account?.id,
     };
   }
 
@@ -654,6 +687,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     if (state.currentTabId) {
       this.currentTab = this.tabs.find(item => item.id === state.currentTabId);
       this.columns = this.tabs.find(item => item.id === this.currentTab.id)?.columns;
+    }
+    if (state.accountId) {
+      const account = this.accounts.find(item => item.id === state.accountId);
+      if (account)
+        this.account = account;
     }
     this.loadInstrumentData();
 
@@ -690,18 +728,23 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.updateDataGridItems();
 
       this.onRemove(
-        this._levelOneDatafeed.on((updates) => this._processQuotes(updates)),
-        this._positionsFeed.on(position => this._processPosition(position)),
-        this._tradeFeed.on(trade => this._processTrade(trade)),
-        this._ordersFeed.on(order => this._processOrders(order)),
-        this._settleFeed.on((settle: SettleData) => {
+        this._levelOneDatafeed.on(filterByAccountConnection(this, (updates) => this._processQuotes(updates))),
+        this._positionsFeed.on(filterByAccountConnection(this, position => this._processPosition(position))),
+        this._tradeFeed.on(filterByAccountConnection(this, trade => this._processTrade(trade))),
+        this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
+        this._settleFeed.on(filterByAccountConnection(this, (settle: SettleData) => {
           const item = this.builder.getInstrumentItem(settle.instrument);
           if (item)
             item.handleSettlePrice(settle.price);
-        }),
-        this._ohlvFeed.on(ohlv => this._handleOHLV(ohlv)),
+        })),
+        this._ohlvFeed.on(filterByAccountConnection(this, ohlv => this._handleOHLV(ohlv))),
       );
     });
+    this.connection$
+      .pipe(
+        skip(1),
+        untilDestroyed(this)
+      ).subscribe(() => console.log(this.account));
   }
 
   _applySettings() {
@@ -923,7 +966,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: { instrument: this.contextInstrument },
+        state: { instrument: this.contextInstrument, account: this.account },
       },
       ...item.options
     });
@@ -990,9 +1033,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
 
   handleAccountChange($event: any) {
-    this.accountId = $event;
-    if ($event)
+    this.account = $event;
+    if ($event) {
+      this.accountId = $event.id;
       this.connection$.next();
+      this.broadcastData(this._getLinkingKey(), { account: $event });
+    }
   }
 
   onColumnUpdate(column: Column) {
@@ -1010,6 +1056,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         state: {
           instrument: this.contextInstrument,
           link: this._getLinkingKey(),
+          account: this.account,
           ...state,
         },
       },

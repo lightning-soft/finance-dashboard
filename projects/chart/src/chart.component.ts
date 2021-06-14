@@ -18,7 +18,7 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
-  compareInstruments,
+  compareInstruments, IAccount,
   IHistoryItem,
   IOrder,
   IPosition,
@@ -110,6 +110,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   //     this.refresh();
   //   }
   // >>>>>>> origin/develop
+  account: IAccount;
 
   get instrument() {
     return this.chart?.instrument;
@@ -465,17 +466,20 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     } as IChartConfig);
   }
 
-  update(data: IChartConfig) {
+  update(data) {
     const { chart } = this;
 
     if (!chart || !data) {
       return;
     }
 
-    const { instrument } = data;
+    const { instrument, account } = data;
 
     if (instrument) {
       chart.instrument = instrument;
+    }
+    if (account) {
+      this.account = account;
     }
 
     chart.sendBarsRequest();
@@ -521,6 +525,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
     this._sideForm?.loadState(state?.orderForm);
+    if (state?.account) {
+      this.account = state.account;
+    }
   }
 
   loadTemplate(template: IChartTemplate): void {

@@ -5,7 +5,7 @@ import { NumberHelper } from 'base-components';
 import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { RealPositionsRepository } from 'real-trading';
+import { AccountsListener, filterByConnectionAndInstrument, RealPositionsRepository } from 'real-trading';
 import { Storage } from 'storage';
 import {
   compareInstruments, IConnection, IInstrument,
@@ -14,7 +14,7 @@ import {
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType
+  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType, IAccount
 } from 'trading';
 
 const orderLastPriceKey = 'orderLastPrice';
@@ -24,6 +24,7 @@ interface OrderFormState {
   instrument: IInstrument;
   link: string | number;
   orderLink?: string;
+  account?: IAccount;
 }
 
 export interface OrderFormComponent extends ILayoutNode {
@@ -90,6 +91,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     return this.instrument?.precision ?? 2;
   }
 
+  account: IAccount;
+
   get accountId() {
     return this.formValue?.accountId;
   }
@@ -138,35 +141,35 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   ngOnInit() {
     super.ngOnInit();
     this.onTypeUpdated();
+    this.onRemove(
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
+        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price.toFixed(this.precision);
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price.toFixed(this.precision);
+          }
+        }
+      })),
+      this._positionDatafeed.on((pos) => {
+        const position = RealPositionsRepository.transformPosition(pos);
+
+        if (compareInstruments(position.instrument, this.instrument)) {
+          this.position = position;
+        }
+      })
+    );
   }
 
   // handleConnect(connection: IConnection) {
   //   super.handleConnect(connection);
-
-  //   this.onRemove(
-  //     this._levelOneDatafeed.on((quote: IQuote) => {
-  //       if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-  //         if (quote.side === QuoteSide.Ask) {
-  //           this.askPrice = quote.price.toFixed(this.precision);
-  //           this.askVolume = quote.volume;
-  //         } else {
-  //           this.bidVolume = quote.volume;
-  //           this.bidPrice = quote.price.toFixed(this.precision);
-  //         }
-  //       }
-  //     }),
-  //     this._positionDatafeed.on((pos) => {
-  //       const position = RealPositionsRepository.transformPosition(pos);
-
-  //       if (compareInstruments(position.instrument, this.instrument)) {
-  //         this.position = position;
-  //       }
-  //     })
-  //   );
   // }
 
-  handleAccountChange() {
-    this.form.patchValue({ accountId: this.accountId });
+  handleAccountChange(account: IAccount) {
+    this.account = account;
+    this.form.patchValue({ accountId: account?.id });
     this.loadPositions();
   }
 
@@ -180,6 +183,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     }
     if (this.isStopLimit)
       dto.limitPrice = this.limitPrice;
+
+    dto.accountId = this.accountId;
     return dto;
   }
 
@@ -201,11 +206,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
         precision: 2,
         symbol: 'ESM1',
       };
+
+    if (state?.account)
+      this.account = state.account;
   }
 
-  handleLinkData({ instrument }) {
+  handleLinkData({ instrument, account }) {
     if (instrument)
       this.instrument = instrument;
+    if (account)
+      this.account = account;
   }
 
   onTypeUpdated() {

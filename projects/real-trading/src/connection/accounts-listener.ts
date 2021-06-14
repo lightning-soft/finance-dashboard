@@ -78,10 +78,12 @@ export const accountsListeners = new AccountsListenerRegister();
 
 export interface IAccountsListener {
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
+
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
 }
 
-interface _AccountsListener extends IAccountsListener { }
+interface _AccountsListener extends IAccountsListener {
+}
 
 
 @Injectable() // just to avoid error in console
@@ -104,6 +106,7 @@ export interface IAccountListener {
 abstract class _AccountListener extends _AccountsListener {
   accounts: IAccount[] = [];
   account: IAccount;
+  accountId: Id;
 
   ngOnInit() {
     accountsListeners.subscribe(this);
@@ -136,6 +139,14 @@ export function AccountsListener() {
 
 export function AccountListener() {
   return mixinDecorator(_AccountListener);
+}
+
+export function filterByAccountsConnection<T>(accountContainer: { accounts: IAccount[] }, fn: (data: T, connectionId) => any) {
+  return (data: T, connectionId: Id) => {
+    if (accountContainer.accounts.some(item => item.connectionId === connectionId)) {
+      fn(data, connectionId);
+    }
+  };
 }
 
 export function filterByAccountConnection<T>(accountContainer: { account: IAccount }, fn: (data: T, connectionId: Id) => any) {

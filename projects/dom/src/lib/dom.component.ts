@@ -59,7 +59,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { TradeHandler } from "src/app/components";
+import { TradeHandler } from 'src/app/components';
 import { AccountSelectComponent } from 'account-select';
 import { finalize } from 'rxjs/operators';
 
@@ -126,6 +126,7 @@ interface IDomState {
   componentInstanceId: number;
   columns: any;
   contextMenuState: any;
+  account?: IAccount;
   orderForm: Partial<SideOrderForm>;
   link: string | number;
 }
@@ -198,13 +199,9 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 @AccountsListener()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
 
-  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
-
   get accountId() {
     return this._accountsSelect?.account?.id;
   }
-
-  @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   public get instrument(): IInstrument {
     return this._instrument;
@@ -236,8 +233,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.items = value;
   }
 
-  private _lastTradeItem: DomItem;
-
   private get _lastPrice(): number {
     return this._lastTradeItem?.lastPrice;
   }
@@ -252,22 +247,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   get _tickSize() {
     return this.instrument?.tickSize ?? 0.25;
-  }
-
-  orders: IOrder[] = [];
-
-  askSumItem: DomItem;
-  bidSumItem: DomItem;
-
-  _lastAskItem: DomItem;
-  _lastBidItem: DomItem;
-
-  private _marketDepth = 9;
-  private _marketDeltaDepth = 9;
-
-  handleLinkData( {instrument} ) {
-    if (instrument)
-      this.instrument = instrument;
   }
 
   constructor(
@@ -310,6 +289,36 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  public get account(): IAccount {
+    return this._account;
+  }
+
+  public set account(value: IAccount) {
+    this._account = value;
+    this.handleAccountChange(value);
+  }
+
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
+
+  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+
+  @ViewChild('domForm') domForm: SideOrderFormComponent;
+
+  private _lastTradeItem: DomItem;
+
+  orders: IOrder[] = [];
+
+  askSumItem: DomItem;
+  bidSumItem: DomItem;
+
+  _lastAskItem: DomItem;
+  _lastBidItem: DomItem;
+
+  private _marketDepth = 9;
+  private _marketDeltaDepth = 9;
+
   columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
@@ -319,15 +328,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   orderFormState: Partial<SideOrderForm>;
 
   private _account: IAccount;
-
-  public get account(): IAccount {
-    return this._account;
-  }
-
-  public set account(value: IAccount) {
-    this._account = value;
-    this.handleAccountChange(value);
-  }
 
   private currentRow: DomItem;
 
@@ -527,11 +527,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dailyInfo: Partial<IHistoryItem>;
 
   private _counter = 0;
-  showColumnTitleOnHover = (item: Column) => false;
 
-  get isTradingLocked(): boolean {
-    return !this._tradeHandler.isTradingEnabled$.value;
+  protected _ttt = 0;
+
+  handleLinkData( {instrument, account} ) {
+    if (instrument)
+      this.instrument = instrument;
+    if (instrument)
+      this.instrument = instrument;
+    if (account)
+      this.account = account;
   }
+  showColumnTitleOnHover = (item: Column) => false;
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -820,7 +827,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     orders.map(item => {
       item.amount = amount;
-      const priceTypes = this._getPriceSpecs(<IOrder & { amount: number }>item, price);
+      const priceTypes = this._getPriceSpecs(item as IOrder & { amount: number }, price);
 
       return {
         quantity: item.quantity,
@@ -1566,8 +1573,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._handleNewBestBid(this._bestBidPrice);
   }
 
-  protected _ttt = 0;
-
   protected _handleQuote(trade: IQuote) {
     this._counter++;
     const item = this._getItem(trade.price);
@@ -1981,6 +1986,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (state.link != null) {
       this.link = state.link;
     }
+
+    if (state.account) {
+        this.account = state.account;
+    }
+
 
     if (!state?.instrument)
       state.instrument = {

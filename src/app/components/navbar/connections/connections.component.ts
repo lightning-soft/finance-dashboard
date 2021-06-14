@@ -64,7 +64,10 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     super.ngOnInit();
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
-      .subscribe(connections => this.builder.replaceItems(connections));
+      .subscribe(connections => {
+        this.hasConnectedConnections = connections.some(item => item.connected);
+        this.builder.replaceItems(connections);
+      });
   }
 
 
@@ -142,7 +145,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     if (!this.isConnectionsDropdownOpened)
       return;
 
-    const maxHeight = 320;
+    const maxHeight = 330;
 
     setTimeout(() => {
       const connectionsOffsetHeight = this.connectionsList.nativeElement.offsetHeight;
