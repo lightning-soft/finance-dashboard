@@ -7,14 +7,13 @@ import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   IAccount,
   IConnection,
   InstrumentsRepository,
   IPosition,
-  IPositionParams,
-  PositionsFeed,
+  IPositionParams, Level1DataFeed, PositionsFeed,
   PositionsRepository,
   PositionStatus,
   TradeDataFeed,
@@ -131,6 +130,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _changeDetectorRef: ChangeDetectorRef,
     private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
+    private _levelOneDataFeed: Level1DataFeed,
   ) {
     super();
     this.autoLoadData = false;
@@ -181,61 +181,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
   }
-
-  // handleConnectedConnectionsChange(data: IAccountNodeData) {
-  //   super.handleConnectedConnectionsChange(data);
-
-  //   this._connections = data.created;
-  // }
-
-  // handleAccountsChange(data: IAccountNodeData<IAccount>) {
-  //   super.handleAccountsChange(data);
-
-  //   if (data.deleted.length) {
-  //     const itemsToDelete = this.items.filter(i => data.deleted.some(_i => _i.id === i.position.accountId));
-
-  //     this.builder.handleDeleteItems(itemsToDelete);
-  //     this.updatePl();
-  //   }
-
-  //   this._accounts = data.created;
-
-  //   if (this._accounts.length) {
-  //     this.loadData();
-  //   }
-  // }
-
-  // protected _getItems(params?: any): Observable<IPaginationResponse<IPosition>> {
-  //   const observables = this._accounts.map(account => {
-  //     const connection = this._connections.find(i => i.id === account.connectionId);
-
-  //     return this.repository.get(connection).getItems({ ...params, accountId: account.id })
-  //       .pipe(
-  //         map((res: IPaginationResponse<IPosition>) => {
-  //           res.data = res.data.map(item => {
-  //             return this._addInstrumentName(item);
-  //           });
-
-  //           return res;
-  //         }),
-  //         mergeMap((res: IPaginationResponse<IPosition>) => {
-  //           return this._combinePositionsWithInstruments(res.data).pipe(
-  //             map(positions => ({ ...res, data: positions }))
-  //           );
-  //         }),
-  //       );
-  //   });
-
-  //   return forkJoin(observables).pipe(
-  //     map((responses: IPaginationResponse<IPosition>[]) => {
-  //       return responses.reduce((accum, res) => {
-  //         accum.data = accum.data.concat(res.data);
-
-  //         return accum;
-  //       });
-  //     }),
-  //   );
-  // }
 
   protected _handleCreateItems(items: IPosition[]) {
     this._combinePositionsWithInstruments(items)
@@ -381,4 +326,3 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 }
-

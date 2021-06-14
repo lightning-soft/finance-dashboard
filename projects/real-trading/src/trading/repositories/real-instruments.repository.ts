@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { flatMap, map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { IInstrument, InstrumentsRepository } from 'trading';
 import { BaseRepository } from './base-repository';
 

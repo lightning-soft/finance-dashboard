@@ -5,9 +5,7 @@
     [(instrument)]="instrument"
     [account]="select.account"
   ></instrument-select>
-  <account-select
-    [(account)]="account"
-    #select></account-select>
+  <account-select #select></account-select>
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item"
        [class.active]="currentDirection === item"

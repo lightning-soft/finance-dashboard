@@ -1,25 +1,25 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AccountSelectComponent } from 'account-select';
+import { AccountsManager } from 'accounts-manager';
+import { BindUnsubscribe, IUnsubscribe } from 'base-components';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { IChartState, IChartTemplate } from 'chart/models';
+import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
-import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Themes, ThemesHandler } from 'themes';
-import { Datafeed, RithmicDatafeed } from './datafeed';
-import { IChart } from './models/chart';
-import { IChartConfig } from './models/chart.config';
-import { IScxComponentState } from './models/scx.component.state';
-import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { LoadingService } from 'lazy-modules';
-import { Orders, Positions } from './objects';
-import { ToolbarComponent } from './toolbar/toolbar.component';
-import { AccountsManager } from 'accounts-manager';
-import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NotifierService } from 'notifier';
+import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
+import { TradeHandler } from 'src/app/components';
+import { Components } from 'src/app/modules';
+import { environment } from 'src/environments/environment';
+import { TemplatesService } from 'templates';
+import { Themes, ThemesHandler } from 'themes';
 import {
-  compareInstruments, IAccount,
-  IHistoryItem,
+  compareInstruments, IHistoryItem,
   IOrder,
   IPosition,
   IQuote,
@@ -32,16 +32,16 @@ import {
   QuoteSide,
   UpdateType
 } from 'trading';
-import { NotifierService } from 'notifier';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
-import { InstrumentSelectComponent } from 'instrument-select';
-import { IChartState, IChartTemplate } from 'chart/models';
-import { TemplatesService } from 'templates';
-import { TradeHandler } from 'src/app/components';
 import { CreateModalComponent } from 'ui';
-import { ExcludeId } from 'communication';
-import { AccountSelectComponent } from 'account-select';
+import { filterByConnectionAndInstrument } from '../../real-trading/src/connection/accounts-listener';
+import { Datafeed, RithmicDatafeed } from './datafeed';
+import { StockChartXPeriodicity } from './datafeed/TimeFrame';
+import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
+import { IChart } from './models/chart';
+import { IChartConfig } from './models/chart.config';
+import { IScxComponentState } from './models/scx.component.state';
+import { Orders, Positions } from './objects';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -49,7 +49,7 @@ declare let $: JQueryStatic;
 const EVENTS_SUFFIX = '.scxComponent';
 
 // tslint:disable-next-line: no-empty-interface
-export interface ChartComponent extends ILayoutNode {
+export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 }
 
 @UntilDestroy()
@@ -62,6 +62,7 @@ export interface ChartComponent extends ILayoutNode {
   ]
 })
 @LayoutNode()
+@BindUnsubscribe()
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
 
@@ -69,12 +70,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
-  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
-  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+  @ViewChild(AccountSelectComponent, { static: true }) private _accountsSelect: AccountSelectComponent;
 
   get accountId() {
-    return this._accountsSelect?.account?.id;
+    return this.account?.id;
+  }
+
+  get account() {
+    return this._accountsSelect?.account;
+  }
+
+  set account(value) {
+    this._accountsSelect.account = value;
   }
 
   chart: IChart;
@@ -96,54 +104,40 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showOHLV = true;
   showChanges = true;
   private _templatesSubscription: Subscription;
-  // TODO: Listen account select
-  // <<<<<<< HEAD
-  // =======
-  //   private _accountId: Id;
-
-  //   get accountId(): Id {
-  //     return this._accountId;
-  //   }
-
-  //   set accountId(value: Id) {
-  //     this._accountId = value;
-  //     this.refresh();
-  //   }
-  // >>>>>>> origin/develop
-  account: IAccount;
 
   get instrument() {
     return this.chart?.instrument;
   }
 
-  set instrument(value) {
-    if (this.chart.instrument.symbol === value.symbol
-      && this.chart.instrument.exchange === value.exchange)
+  set instrument(instrument) {
+    if (this.chart.instrument.id === instrument.id)
       return;
 
-    if (this.chart.instrument) {
-      this._ohlvFeed.unsubscribe(this.chart.instrument);
-      this._levelOneDatafeed.unsubscribe(this.chart.instrument);
-    }
-
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
-    this.chart.instrument = value;
-    this.chart.incomePrecision = value.precision ?? 2;
+    this.chart.instrument = instrument;
+    this.chart.incomePrecision = instrument.precision ?? 2;
 
     this.lastHistoryItem = null;
     this.income = null;
     this.incomePercentage = null;
     this._updateOHLVData();
-    this._ohlvFeed.subscribe(this.chart.instrument);
 
-    this._levelOneDatafeed.subscribe(this.chart.instrument);
+    const connectionId = this.account.connectionId;
+
+    this._ohlvFeed.subscribe(instrument, connectionId);
+    this._levelOneDatafeed.subscribe(instrument, connectionId);
+
+    this.unsubscribe(() => {
+      this._ohlvFeed.unsubscribe(instrument, connectionId);
+      this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+    });
   }
 
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
-    {
-      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-    }>(null);
+  {
+    showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
+    showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
+  }>(null);
   loadedTemplate: IChartTemplate;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
@@ -201,49 +195,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .catch(e => console.error(e));
 
     this.onRemove(
-      this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => this._handleQuote(quote))),
       this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)
       ));
-
-    // this._accountsManager.activeConnection
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe((connection) => {
-    //     this._ordersRepository = this._ordersRepository.forConnection(connection);
-    //     this._positionsRepository = this._positionsRepository.forConnection(connection);
-    //     this._historyRepository = this._historyRepository.forConnection(connection);
-    //   });
 
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       if (this.loadedTemplate)
         this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
     });
   }
-
-  // handleConnect(connection: IConnection) {
-  //   super.handleConnect(connection);
-
-  //   this._ohlvFeed.subscribe(this.instrument);
-
-  //   this.onRemove(
-  //     this._levelOneDatafeed.on((quote: IQuote) => this._handleQuote(quote)),
-  //     this._ohlvFeed.on((historyItem) => this._handleOHLV(historyItem)),
-  //   );
-
-  //   this.loadedChart$.subscribe(() => {
-  //     this.chart.datafeed = this.datafeed;
-  //     this.chart.reload();
-  //   });
-  // }
-
-  // handleDisconnect(connection: IConnection) {
-  //   super.handleDisconnect(connection);
-
-  //   this._ohlvFeed.unsubscribe(this.instrument);
-
-  //   this.loadedChart$.subscribe(() => {
-  //     delete this.chart.datafeed;
-  //   });
-  // }
 
   private _updateOHLVData() {
     if (this.lastHistoryItem?.open != null) {
@@ -356,8 +316,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.showInstrumentWatermark = false;
 
-    this._ohlvFeed.subscribe(this.chart.instrument);
-    this._levelOneDatafeed.subscribe(this.chart.instrument);
+    this.instrument = this.chart.instrument;
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -513,9 +472,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${ this.instrument.description }`;
+        name += ` - ${this.instrument.description}`;
       }
-      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
+      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
 
       return name;
     }
@@ -545,13 +504,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._templatesSubscription.unsubscribe();
 
     if (this.chart) {
-      this._ohlvFeed.unsubscribe(this.instrument);
-      this._levelOneDatafeed.unsubscribe(this.instrument);
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.destroy();
     }
 
+    this.unsubscribe();
     this.chart = null;
   }
 

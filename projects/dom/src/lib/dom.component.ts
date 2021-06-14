@@ -9,7 +9,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
+import { AccountSelectComponent } from 'account-select';
+import { BindUnsubscribe, convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
 import {
   FormActions,
   getPriceSpecs,
@@ -32,25 +33,20 @@ import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
 import { AccountsListener, filterByAccountAndInstrument, filterByConnectionAndInstrument, IHistoryItem, RealPositionsRepository } from 'real-trading';
+import { finalize } from 'rxjs/operators';
+import { TradeHandler } from 'src/app/components';
 import {
-  compareInstruments,
-  IConnection,
-  IInstrument,
-  IOrder,
-  getPrice,
-  IPosition,
-  IQuote,
-  Level1DataFeed, OHLVFeed, OrderBooksRepository,
+  compareInstruments, getPrice, IAccount, IInstrument,
+  IOrder, IPosition,
+  IQuote, isForbiddenOrder, Level1DataFeed, OHLVFeed, OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, isForbiddenOrder,
-  PositionsFeed,
+  OrderType, PositionsFeed,
   PositionsRepository,
-  QuoteSide,
-  Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize, IAccount
+  QuoteSide, roundToTickSize, Side, TradeDataFeed,
+  TradePrint, UpdateType, VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
@@ -59,11 +55,9 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { TradeHandler } from 'src/app/components';
-import { AccountSelectComponent } from 'account-select';
-import { finalize } from 'rxjs/operators';
+import { IUnsubscribe } from 'base-components';
 
-export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe {
 }
 
 export class DomItemMax {
@@ -197,6 +191,7 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
 })
 @LayoutNode()
 @AccountsListener()
+@BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
 
   get accountId() {
@@ -530,7 +525,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   protected _ttt = 0;
 
-  handleLinkData( {instrument, account} ) {
+  handleLinkData({ instrument, account }) {
     if (instrument)
       this.instrument = instrument;
     if (instrument)
@@ -735,8 +730,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${ key }${ _key }`] = obj[_key];
-          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
         }
       }
     }
@@ -975,23 +970,21 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
 
-      this._unsubscribeFromInstrument(prevInstrument);
-      this._levelOneDatafeed.subscribe(instrument, this.account.connectionId);
-      this._tradeDatafeed.subscribe(instrument, this.account.connectionId);
-      this._ohlvFeed.subscribe(instrument, this.account.connectionId);
+      const connectionId = this.account.connectionId;
+      this._levelOneDatafeed.subscribe(instrument, connectionId);
+      this._tradeDatafeed.subscribe(instrument, connectionId);
+      this._ohlvFeed.subscribe(instrument, connectionId);
+
+      this.unsubscribe(() => {
+        this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+        this._tradeDatafeed.unsubscribe(instrument, connectionId);
+        this._ohlvFeed.unsubscribe(instrument, connectionId);
+      });
     }
 
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
 
     this._loadData();
-  }
-
-  _unsubscribeFromInstrument(instrument: IInstrument) {
-    if (instrument) {
-      this._levelOneDatafeed.unsubscribe(instrument, this.account.connectionId);
-      this._tradeDatafeed.unsubscribe(instrument, this.account.connectionId);
-      this._ohlvFeed.unsubscribe(instrument, this.account.connectionId);
-    }
   }
 
   protected _loadVolumeHistory() {
@@ -1131,8 +1124,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._loadPositions();
     this._loadOrderBook();
     this.refresh();
-
-    this._ohlvFeed.subscribe(this.instrument);
   }
 
   protected _loadPositions() {
@@ -1988,7 +1979,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (state.account) {
-        this.account = state.account;
+      this.account = state.account;
     }
 
 
@@ -2208,7 +2199,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 
@@ -2221,7 +2212,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!instrument)
       return;
 
-    this._unsubscribeFromInstrument(this.instrument);
+    this.unsubscribe();
   }
 
   onCurrentCellChanged(event: ICellChangedEvent<DomItem>) {

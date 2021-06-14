@@ -1,9 +1,9 @@
 import { Directive, OnInit } from '@angular/core';
-import { AbstractControl, FormGroup, FormControl } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import { IBaseItem } from 'communication';
 import { Observable } from 'rxjs';
 import { debounceTime, filter, finalize, tap } from 'rxjs/operators';
-import { difference, deepAssign } from '../utils';
+import { deepAssign, difference } from '../utils';
 import { ItemComponent } from './item.component';
 import { getDefaultLoadingItemConfig, ILoadingComponentConfig } from './loading.component';
 
