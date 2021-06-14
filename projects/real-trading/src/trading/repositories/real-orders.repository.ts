@@ -65,7 +65,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       this._getRESTURL(`${ item.id }/cancel`),
       null,
       {
-        ...this.getApiHeadersByAccount(item.accountId),
+        ...this.getApiHeadersByAccount(item?.accountId ?? item?.account?.id),
         params: {
           AccountId: item?.account?.id,
         } as any

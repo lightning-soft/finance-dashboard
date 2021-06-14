@@ -119,7 +119,7 @@ abstract class _AccountListener extends _AccountsListener {
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (this.account == null) {
+    if (this.account == null && allAccounts.length) {
       this.account = allAccounts[0];
     }
   }

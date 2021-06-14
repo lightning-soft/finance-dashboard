@@ -8,6 +8,7 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 import { debounceTime } from 'rxjs/operators';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Subject } from "rxjs";
+import { Id } from 'communication';
 
 @Component({
   selector: 'instrument-dialog',
@@ -24,6 +25,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
     skip: 0,
     criteria: '',
   };
+  accountId: Id;
   theEnd = false;
 
 
@@ -55,6 +57,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
       const total = this.viewport.getDataLength();
       if (end === total) {
         this.query.skip = this.items.length;
+        this.query.accountId = this.accountId;
         this.loadData(this.query);
       }
     });

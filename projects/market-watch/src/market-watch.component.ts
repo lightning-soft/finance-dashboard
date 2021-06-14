@@ -485,8 +485,10 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    console.log(acccounts);
     this.accounts = connectedAccounts;
+    const account = connectedAccounts.find(item => item.id === this.accountId);
+    if (account)
+      this.account = account;
   }
 
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
@@ -689,9 +691,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.columns = this.tabs.find(item => item.id === this.currentTab.id)?.columns;
     }
     if (state.accountId) {
-      const account = this.accounts.find(item => item.id === state.accountId);
-      if (account)
-        this.account = account;
+      this.accountId = state.accountId;
     }
     this.loadInstrumentData();
 
@@ -978,6 +978,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWidth: 386,
       nzClassName: 'instrument-dialog',
       nzFooter: null,
+      nzComponentParams: {
+        accountId: this.account?.id,
+      }
     });
   }
 
@@ -1035,7 +1038,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   handleAccountChange($event: any) {
     this.account = $event;
     if ($event) {
-      this.accountId = $event.id;
       this.connection$.next();
       this.broadcastData(this._getLinkingKey(), { account: $event });
     }

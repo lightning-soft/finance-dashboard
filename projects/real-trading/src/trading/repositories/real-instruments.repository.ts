@@ -64,7 +64,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
     return super.getItems(_params).pipe(
       map((res: any) => {
-        const data = res.result.map(({ symbol, exchange, contractSize, precision, increment, description  }) => {
+        const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description  }) => {
           return {
             id: `${symbol}.${exchange}`,
             symbol,
