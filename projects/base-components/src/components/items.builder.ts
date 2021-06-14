@@ -69,7 +69,7 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
     this._items = this._items.filter(vm => item.id !== vm.id);
   }
   removeViewModels(items: VM[]) {
-    this._items = this._items.filter(vm => !items.some(item => item.id === vm.id) );
+    this._items = this._items.filter(vm => !items.some(item => item.id === vm.id));
   }
 
 
@@ -83,6 +83,10 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
       data = [this._items, this._handle(filteredItems)];
     }
     this._items = this._order(data);
+  }
+
+  removeWhere(filter: (item: VM) => boolean) {
+    this._items = this._items.filter(i => !filter(i));
   }
 
   wrap(data: T | T[]): any {

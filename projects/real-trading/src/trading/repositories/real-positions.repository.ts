@@ -1,9 +1,8 @@
 import { Id, IPaginationResponse } from 'communication';
-import { map } from 'rxjs/operators';
-import { IInstrument, IInstrumentParams, IPosition, PositionStatus } from 'trading';
-import { BaseRepository } from './base-repository';
-import { PositionsRepository, IDeletePositionsParams } from 'trading';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IDeletePositionsParams, IPosition, PositionsRepository, PositionStatus } from 'trading';
+import { BaseRepository } from './base-repository';
 
 export class RealPositionsRepository extends BaseRepository<IPosition> implements PositionsRepository {
   protected get suffix(): string {
@@ -15,7 +14,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
     return {
       id: instrument.exchange + instrument.symbol,
       instrument,
-      accountId: item.account.id,
+      accountId: item.account?.id,
       price,
       size,
       sellVolume: item.sellVolume,

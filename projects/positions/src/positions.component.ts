@@ -5,7 +5,7 @@ import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { RealPositionsRepository } from 'real-trading';
+import { AccountsListener, RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
@@ -55,6 +55,7 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
+@AccountsListener()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
   private _connections: IConnection[] = [];
   private _accounts: IAccount[] = [];
@@ -74,7 +75,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   };
 
   private _status: PositionStatus = PositionStatus.Open;
-  private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
+  private _lastTrades: { [instrumentKey: string]: TradePrint } = {};
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
@@ -113,7 +114,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   set accountId(accountId) {
- //   this._accountId = accountId;
+    //   this._accountId = accountId;
     this.loadData({ accountId });
   }
 
@@ -133,9 +134,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   ) {
     super();
     this.autoLoadData = false;
+    (window as any).positions = this;
 
     this.builder.setParams({
-      groupBy: ['accountId', 'instrumentName'],
+      groupBy: ['accountId'],
       order: 'desc',
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
@@ -169,6 +171,17 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
   }
 
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.repository.getItems({ accounts }).subscribe(
+      res => this.builder.addItems(res.data),
+      err => this.showError(err),
+    );
+  }
+
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
+  }
+
   // handleConnectedConnectionsChange(data: IAccountNodeData) {
   //   super.handleConnectedConnectionsChange(data);
 
@@ -192,37 +205,37 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   //   }
   // }
 
-  protected _getItems(params?: any): Observable<IPaginationResponse<IPosition>> {
-    const observables = this._accounts.map(account => {
-      const connection = this._connections.find(i => i.id === account.connectionId);
+  // protected _getItems(params?: any): Observable<IPaginationResponse<IPosition>> {
+  //   const observables = this._accounts.map(account => {
+  //     const connection = this._connections.find(i => i.id === account.connectionId);
 
-      return this.repository.get(connection).getItems({ ...params, accountId: account.id })
-        .pipe(
-          map((res: IPaginationResponse<IPosition>) => {
-            res.data = res.data.map(item => {
-              return this._addInstrumentName(item);
-            });
+  //     return this.repository.get(connection).getItems({ ...params, accountId: account.id })
+  //       .pipe(
+  //         map((res: IPaginationResponse<IPosition>) => {
+  //           res.data = res.data.map(item => {
+  //             return this._addInstrumentName(item);
+  //           });
 
-            return res;
-          }),
-          mergeMap((res: IPaginationResponse<IPosition>) => {
-            return this._combinePositionsWithInstruments(res.data).pipe(
-              map(positions => ({ ...res, data: positions }))
-            );
-          }),
-        );
-    });
+  //           return res;
+  //         }),
+  //         mergeMap((res: IPaginationResponse<IPosition>) => {
+  //           return this._combinePositionsWithInstruments(res.data).pipe(
+  //             map(positions => ({ ...res, data: positions }))
+  //           );
+  //         }),
+  //       );
+  //   });
 
-    return forkJoin(observables).pipe(
-      map((responses: IPaginationResponse<IPosition>[]) => {
-        return responses.reduce((accum, res) => {
-          accum.data = accum.data.concat(res.data);
+  //   return forkJoin(observables).pipe(
+  //     map((responses: IPaginationResponse<IPosition>[]) => {
+  //       return responses.reduce((accum, res) => {
+  //         accum.data = accum.data.concat(res.data);
 
-          return accum;
-        });
-      }),
-    );
-  }
+  //         return accum;
+  //       });
+  //     }),
+  //   );
+  // }
 
   protected _handleCreateItems(items: IPosition[]) {
     this._combinePositionsWithInstruments(items)

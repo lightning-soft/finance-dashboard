@@ -1,8 +1,8 @@
-import { query } from '@angular/animations';
 import { HttpRepository, IBaseItem, Id, IPaginationResponse } from 'communication';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConnectionContainer, IConnection } from 'trading';
+import * as _ from 'underscore';
 
 const ApiKey = 'Api-Key';
 
@@ -36,6 +36,24 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   }
 
   getItems(params?: any): Observable<IPaginationResponse<T>> {
+    const accounts = params.accounts;
+    delete params.accounts;
+
+    if (Array.isArray(accounts)) {
+      const configs = accounts.map(i => this._mapItemsParams({ ...params, accountId: i.id }));
+      return forkJoin(configs.map(i => this.getItems(i)))
+        .pipe(
+          map(arr => {
+            const data = _.flatten(arr.map(i => i.data));
+
+            return {
+              data,
+              requestParams: {},
+            } as any;
+          })
+        );
+    }
+
     const itemParams = this._mapItemsParams(params);
     return super.getItems(itemParams)
       .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: itemParams?.connection?.id })) })));

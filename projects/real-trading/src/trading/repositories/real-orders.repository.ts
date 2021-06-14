@@ -77,7 +77,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     const dto: IUpdateOrderRequestParams = {
       ...item,
       orderId: item.id,
-      accountId: item.account.id,
+      accountId: item.account?.id,
       symbol: item.instrument.symbol,
       exchange: item.instrument.exchange
     };
