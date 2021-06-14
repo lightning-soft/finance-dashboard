@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { WindowManager } from 'simple-window-manager';
 import { EVENTS, Position } from './enums';
@@ -11,7 +11,7 @@ const StartShiftY = 36;
 const StartShiftX = Shift;
 
 
-export type Cords = {
+export type Coords = {
   x: number,
   y: number
 };
@@ -106,7 +106,7 @@ export class WindowManagerService {
     this.wm.setCustomBounds(bounds);
   }
 
-  private calculatePosition(options: Options): Cords {
+  private calculatePosition(options: Options): Coords {
     const width = options.width || options.minWidth;
     const height = options.height || options.minHeight;
 
@@ -159,10 +159,10 @@ export class WindowManagerService {
     return { x: x as number, y: y as number };
   }
 
-  private calculateShift({ width, height, containerWidth, containerHeight }): Cords {
-    let result: Cords;
+  private calculateShift({ width, height, containerWidth, containerHeight }): Coords {
+    let result: Coords;
 
-    const shiftedPosition: Cords = this._normalizeCordsConsideringBounds({ x: StartShiftX, y: StartShiftY });
+    const shiftedPosition: Coords = this._normalizeCordsConsideringBounds({ x: StartShiftX, y: StartShiftY });
 
     do {
       const windowWithSameCords = this.wm.windows.find(w => w.x === shiftedPosition.x && w.y === shiftedPosition.y);
@@ -184,18 +184,18 @@ export class WindowManagerService {
     return result;
   }
 
-  private _normalizeCordsConsideringBounds(cords: Cords): Cords {
-    cords = { ...cords };
+  private _normalizeCordsConsideringBounds(coords: Coords): Coords {
+    coords = { ...coords };
 
     if (!this.bounds)
-      return cords;
+      return coords;
 
-    if (this.bounds.top > cords.y)
-      cords.y = this.bounds.top;
+    if (this.bounds.top > coords.y)
+      coords.y = this.bounds.top;
 
-    if (this.bounds.left > cords.x)
-      cords.x = this.bounds.left;
+    if (this.bounds.left > coords.x)
+      coords.x = this.bounds.left;
 
-    return cords;
+    return coords;
   }
 }

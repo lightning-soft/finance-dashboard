@@ -15,7 +15,7 @@ import { IChart } from '../models/chart';
 import { NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
-import { Cords, IWindow } from "window-manager";
+import { Coords, IWindow } from "window-manager";
 
 declare const StockChartX;
 
@@ -103,8 +103,8 @@ export class ToolbarComponent {
     crossBars: 'Crosshairs',
   };
   shouldDrawingBeOpened = false;
-  private _windowCordsSnapshot: Cords;
-  drawingMenuOffset: Cords = {x: 0, y: 0};
+  private _windowCoordsSnapshot: Coords;
+  drawingMenuOffset: Coords = {x: 0, y: 0};
 
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
@@ -237,8 +237,8 @@ export class ToolbarComponent {
 
   private _updateMenuOffset(): void {
     this.drawingMenuOffset = {
-      x: this.window?.x - this._windowCordsSnapshot?.x,
-      y: this.window?.y - this._windowCordsSnapshot?.y,
+      x: this.window?.x - this._windowCoordsSnapshot?.x,
+      y: this.window?.y - this._windowCoordsSnapshot?.y,
     };
   }
 
@@ -259,7 +259,7 @@ export class ToolbarComponent {
 
   private _updateCoordsSnapshot(): void {
     if (this.isDrawingsVisible) {
-      this._windowCordsSnapshot = {
+      this._windowCoordsSnapshot = {
         x: this.window.x,
         y: this.window.y
       };
