@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Id } from 'communication';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
+import { ConenctionWebSocketService } from './connection.web-socket.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WebSocketService  {
-  private _map = new Map<Id, any>();
+export class WebSocketService {
+  private _map = new Map<Id, ConenctionWebSocketService>();
   private _listeners: IWSListeners = Object.values(WSEventType).reduce((accum, event) => {
     accum[event] = new Set();
     return accum;
@@ -17,7 +18,7 @@ export class WebSocketService  {
     if (!service)
       return;
 
-    service.send(data);
+    service.send(data, connectionId);
   }
 
   on(type: WSEventType, listener: IWSListener): IWSListenerUnsubscribe {
