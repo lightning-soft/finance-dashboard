@@ -1,5 +1,5 @@
 import { Id, Repository } from 'communication';
-import { IPosition } from 'trading';
+import { IConnection, IInstrument, IPosition } from 'trading';
 import { Observable } from 'rxjs';
 
 export interface IDeletePositionsParams {
@@ -7,6 +7,11 @@ export interface IDeletePositionsParams {
   symbol: string;
   exchange: string;
 }
+
+export interface IInstrumentParams {
+  accountId: string;
+}
+
 export abstract class PositionsRepository extends Repository<IPosition> {
   abstract deleteMany(params: IDeletePositionsParams): Observable<any>;
 }

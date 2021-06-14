@@ -18,25 +18,28 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
+  compareInstruments,
   IHistoryItem,
   IOrder,
+  IPosition,
   IQuote,
   Level1DataFeed,
+  OHLVFeed,
   OrderSide,
   OrdersRepository,
   OrderType,
   PositionsRepository,
   QuoteSide,
-  UpdateType,
-  OHLVFeed, IPosition, compareInstruments
+  UpdateType
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { InstrumentSelectComponent } from 'instrument-select';
-import { IChartState, IChartTemplate } from "chart/models";
-import { TemplatesService } from "templates";
-import { CreateModalComponent, TradeHandler } from "src/app/components";
+import { IChartState, IChartTemplate } from 'chart/models';
+import { TemplatesService } from 'templates';
+import { TradeHandler } from 'src/app/components';
+import { CreateModalComponent } from 'ui';
 import { ExcludeId } from 'communication';
 import { AccountSelectComponent } from 'account-select';
 
@@ -80,7 +83,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
-
   showOrderConfirm = true;
 
   ocoStep = OcoStep.None;
@@ -127,12 +129,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
 
-    if (value) {
-      value.company = this._getInstrumentCompany();
-    }
-
-    this.chart.reload();
-
     this.lastHistoryItem = null;
     this.income = null;
     this.incomePercentage = null;
@@ -143,10 +139,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
-  {
-    showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-    showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-  }>(null);
+    {
+      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
+      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
+    }>(null);
   loadedTemplate: IChartTemplate;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
@@ -513,9 +509,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${this.instrument.description}`;
+        name += ` - ${ this.instrument.description }`;
       }
-      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
+      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
 
       return name;
     }

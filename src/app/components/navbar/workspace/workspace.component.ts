@@ -3,12 +3,10 @@ import { LayoutComponent } from 'layout';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { Workspace, WorkspaceId, WorkspacesManager } from 'workspace-manager';
-import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
-import { CreateModalComponent } from './create-modal/create-modal.component';
-import { RenameModalComponent } from './rename-modal/rename-modal.component';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
 import { Id } from 'communication';
+import { ConfirmModalComponent, RenameModalComponent, CreateModalComponent } from 'ui';
 
 @Component({
   selector: 'app-workspace',
@@ -59,7 +57,7 @@ export class WorkspaceComponent implements OnInit {
       nzWrapClassName: 'modal-workspace vertical-center-modal',
       nzComponentParams: {
         name: workspace.name,
-        label: 'Name workspace'
+        label: 'Name workspace',
       },
     });
 

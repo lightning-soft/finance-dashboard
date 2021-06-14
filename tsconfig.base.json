@@ -112,6 +112,9 @@
       "instrument-select": [
         "projects/instrument-select/index"
       ],
+      "instrument-dialog": [
+        "projects/instrument-dialog/index"
+      ],
       "account-select": [
         "projects/account-select/index"
       ],
@@ -162,6 +165,9 @@
       ],
       "cache": [
         "projects/cache/index"
+      ],
+      "market-watch": [
+        "projects/market-watch/index"
       ],
       "templates": [
         "projects/templates/index"

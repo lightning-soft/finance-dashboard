@@ -52,8 +52,8 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
 
   private _itemsMap: Map<Id, WatchlistItem> = new Map();
 
-  @ViewChild(DataGrid)
-  private _dataGrid: DataGrid;
+  @ViewChild(DataGrid, { static: true })
+  protected _dataGrid: DataGrid;
 
   @ViewChild(InstrumentSelectComponent)
   private _instrumentSelect: InstrumentSelectComponent;

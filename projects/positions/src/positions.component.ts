@@ -1,8 +1,8 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { untilDestroyed } from "@ngneat/until-destroy";
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGrid, DataGridHandler } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { RealPositionsRepository } from 'real-trading';
@@ -11,7 +11,6 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
   IAccount,
   IConnection,
-
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -74,8 +73,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     showColumnHeaders: true,
   };
 
-  @ViewChild('grid') dataGrid: DataGrid;
-
   private _status: PositionStatus = PositionStatus.Open;
   private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
 
@@ -113,6 +110,16 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   get params(): IPositionParams {
     return { ...this._params, status: this.status };
+  }
+
+  set accountId(accountId) {
+ //   this._accountId = accountId;
+    this.loadData({ accountId });
+  }
+
+  get accountId() {
+    // return this._accountId;
+    return null;
   }
 
   constructor(

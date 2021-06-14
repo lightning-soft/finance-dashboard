@@ -111,6 +111,7 @@
     "http-server": "^0.12.3",
     "jquery": "^3.5.1",
     "keyboard": "git+https://git.avidi.tech:zdoF-WhEdwhGXbDC9HEj@git.avidi.tech/b.tsap/keyboard",
+    "lodash.clonedeep": "4.5.0",
     "ng-zorro-antd": "9.3.0",
     "ngx-color-picker": "11.0.0",
     "ngx-cookie-service": "10.1.1",

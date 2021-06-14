@@ -30,6 +30,7 @@ export function convertToColumn(item: HeaderItem, defaultStyles: any = DefaultSt
     hidden: options.hidden ?? false, // not shown in tableView
     canHide: options.canHide ?? true,
     title: title.toUpperCase(),
+    subtitle: options.subtitle,
     tableViewName: options.tableViewName ?? StringHelper.capitalize(title),
   };
 }

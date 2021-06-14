@@ -1,4 +1,4 @@
-import { Column } from "../types";
+import { Column } from '../types';
 
 export interface IHandlerData<T = any> {
   item: T,
@@ -26,7 +26,6 @@ export enum Events {
 
 //   handleEvent(event: Event);
 // }
-
 export abstract class DataGridHandler<T = any, E = Event> {
   event: Events;
   handleHeaderClick = false;

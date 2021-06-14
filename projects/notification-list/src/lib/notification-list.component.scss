@@ -19,27 +19,6 @@
     .window-icon {
       margin-right: 6px !important;
     }
-
-    .clear-btn {
-      height: 20px;
-      background: $darkBackground;
-      font-size: 0.7rem;
-      line-height: 1;
-      font-weight: 600;
-      min-width: 56px;
-      border: none;
-      color: $text-80;
-      box-shadow: none;
-      transition: color .2s ease;
-
-      &:hover {
-        color: $primary;
-      }
-
-      &:after {
-        content: none;
-      }
-    }
   }
 }
 

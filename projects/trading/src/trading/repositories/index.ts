@@ -21,3 +21,4 @@ export * from './sessions.repository';
 export * from './timezones.repository';
 export * from './ohlv.feed';
 export * from './volume.data-feed';
+export * from './settle.feed';

@@ -44,6 +44,8 @@ export enum OrderDuration {
   IOC = 'IOC',
   DAY = 'DAY'
 }
+export const OrderDurationArray = Object.values(OrderDuration);
+Object.freeze(OrderDurationArray);
 
 export enum OrderType {
   Market = 'Market',
