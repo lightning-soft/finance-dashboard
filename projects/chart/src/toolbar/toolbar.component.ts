@@ -12,9 +12,10 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropdownMenuComponent, NzSelectComponent } from 'ng-zorro-antd';
+import { NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
+import { Cords, IWindow } from "window-manager";
 
 declare const StockChartX;
 
@@ -38,6 +39,7 @@ const periodicityMap = new Map([
 export class ToolbarComponent {
   @Input() link: any;
   @Input() enableOrderForm: boolean = false;
+  @Input() window: IWindow;
   @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
 
@@ -49,7 +51,6 @@ export class ToolbarComponent {
   showToolbar = true;
   isDrawingsPinned = false;
   lastUsedDrawings = [];
-
 
   timeFrameOptions = [
     { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
@@ -102,11 +103,12 @@ export class ToolbarComponent {
     crossBars: 'Crosshairs',
   };
   shouldDrawingBeOpened = false;
+  private _windowCordsSnapshot: Cords;
+  drawingMenuOffset: Cords = {x: 0, y: 0};
 
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
   }
-
 
   // allDrawings = ["dot", "note", "square", "diamond", "arrowUp", "arrowDown", "arrowLeft", "arrowRight", "arrow", "lineSegment",
   //   "rectangle", "triangle", "circle", "ellipse", "horizontalLine", "verticalLine", "polygon", "polyline", "freeHand", "cyclicLines",
@@ -230,12 +232,40 @@ export class ToolbarComponent {
     this.chart.crossHairType = value;
   }
 
-  update() {
-    this.isDrawingsPinned = false;
+  constructor(private _cdr: ChangeDetectorRef) {
+  }
+
+  private _updateMenuOffset(): void {
+    this.drawingMenuOffset = {
+      x: this.window?.x - this._windowCordsSnapshot?.x,
+      y: this.window?.y - this._windowCordsSnapshot?.y,
+    };
+  }
+
+  updateOffset(): void {
+      this._updateMenuOffset();
+      this._cdr.detectChanges();
   }
 
   toggleDrawingVisible() {
     this.shouldDrawingBeOpened = !this.shouldDrawingBeOpened;
+    this._updateCoordsSnapshot();
+  }
+
+  closeDrawing(): void {
+    this.shouldDrawingBeOpened = false;
+    this._updateCoordsSnapshot();
+  }
+
+  private _updateCoordsSnapshot(): void {
+    if (this.isDrawingsVisible) {
+      this._windowCordsSnapshot = {
+        x: this.window.x,
+        y: this.window.y
+      };
+
+      this._updateMenuOffset();
+    }
   }
 
   hasOneDrawing(drawingInstrument: any) {
@@ -249,7 +279,6 @@ export class ToolbarComponent {
       return false;
     }
   }
-
 
   compareTimeFrame = (obj1: ITimeFrame, obj2: ITimeFrame) => {
     if (!obj1 || !obj2)
@@ -290,7 +319,6 @@ export class ToolbarComponent {
         }
       });
     });
-
   }
 
   openIndicatorDialog() {

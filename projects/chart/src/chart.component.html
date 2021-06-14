@@ -30,6 +30,7 @@
       [(enableOrderForm)]="enableOrderForm"
       (enableOrderFormChange)="checkIfTradingEnabled()"
       [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart"
+      [window]="window"
       [link]="link"></app-toolbar>
     <div class="chart" #chartContainer></div>
   </div>

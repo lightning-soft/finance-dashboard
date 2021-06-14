@@ -11,7 +11,7 @@ const StartShiftY = 36;
 const StartShiftX = Shift;
 
 
-type Cords = {
+export type Cords = {
   x: number,
   y: number
 };

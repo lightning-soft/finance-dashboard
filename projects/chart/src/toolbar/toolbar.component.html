@@ -5,8 +5,7 @@
       nz-dropdown
       (click)="toggleDrawingVisible()"
       [nzTrigger]="null"
-
-      (focusout)="shouldDrawingBeOpened = false"
+      (focusout)="closeDrawing()"
       [nzClickHide]="false"
       [nzVisible]="isDrawingsVisible"
       [nzDropdownMenu]="menu2"
@@ -19,7 +18,7 @@
     </nz-button-group>
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
-      <ul class="drawing-menu" nz-menu>
+      <ul class="drawing-menu" nz-menu [style.left.px]="drawingMenuOffset.x" [style.top.px]="drawingMenuOffset.y">
         <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item
             *ngFor="let drawing of lastUsedDrawings">
           <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>

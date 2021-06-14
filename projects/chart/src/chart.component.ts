@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, Input, OnDestroy, ViewChild} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -31,7 +31,7 @@ import {
   PositionsRepository,
   QuoteSide,
   UpdateType,
-  OHLVFeed, IPosition, compareInstruments, IInstrument
+  OHLVFeed, IPosition, compareInstruments,
 } from 'trading';
 import { NotifierService } from 'notifier';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -41,6 +41,7 @@ import { IChartState, IChartTemplate } from 'chart/models';
 import { TemplatesService } from 'templates';
 import { TradeHandler } from 'src/app/components';
 import { CreateModalComponent } from 'ui';
+import {IWindow, WindowManagerService} from "window-manager";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -68,6 +69,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild('chartContainer') chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+  @Input() window: IWindow;
 
   chart: IChart;
   directions = ['window-left', 'window-right'];
@@ -165,6 +167,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _modalService: NzModalService,
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
+    private _windowManager: WindowManagerService
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -253,6 +256,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
+    this.window = this._windowManager.getWindowByComponent(this);
     this.loadFiles()
       .then(() => this.loadChart())
       .catch(e => console.error(e));
@@ -469,20 +473,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.refresh();
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
+  handleNodeEvent(name: LayoutNodeEvent, e) {
     switch (name) {
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
       case LayoutNodeEvent.MakeVisible:
         this.setNeedUpdate();
-        this.toolbar?.update();
+        this.toolbar?.updateOffset();
         break;
       case LayoutNodeEvent.Move:
-        this.toolbar.update();
+        this.toolbar.updateOffset();
         break;
     }
   }
+
+
 
   handleLinkData({ instrument }: any) {
     this.instrument = instrument;
