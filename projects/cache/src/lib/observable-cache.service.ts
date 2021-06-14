@@ -8,17 +8,18 @@ export class ObservableCacheService<T = any> extends CustomCache<Observable<T>> 
   public cache = new Map<any, Observable<T>>();
 
   get(key: string, setValue?: Observable<T>): Observable<T> {
-    if (this.cache.has(key)) {
-      return this.cache.get(key).pipe(
-        take(1),
-      );
-    }
+    // if (this.cache.has(key)) {
+    //   return this.cache.get(key).pipe(
+    //     take(1),
+    //   );
+    // }
 
-    if (setValue) {
-      return this.set(key, setValue);
-    }
+    // if (setValue) {
+    //   return this.set(key, setValue);
+    // }
 
-    return of(null);
+    // return of(null);
+    return setValue;
   }
 
   set(key: string, data: T | Observable<T>): Observable<T> {

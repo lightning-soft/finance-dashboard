@@ -33,12 +33,12 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   }
 
   protected _mapItemsParams(params: any = {}) {
-    const _params = { ...params };
+    const _params = { ...super._mapItemsParams(params) };
 
     if (_params.accountId) {
-       _params.id = _params.accountId;
-       delete _params.accountId;
-     }
+      _params.id = _params.accountId;
+      delete _params.accountId;
+    }
 
     if (_params.StartDate == null) _params.StartDate = new Date(0).toUTCString();
     if (_params.EndDate == null) _params.EndDate = new Date(Date.now()).toUTCString();
@@ -46,12 +46,12 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     return _params;
   }
 
-  _processParams(obj) {
-    if ((obj as any)?.headers)
-      delete (obj as any).headers;
-    /*if ((obj as any)?.accountId)
-      delete (obj as any).accountId;*/
-  }
+  // _processParams(obj) {
+  //   if ((obj as any)?.headers)
+  //     delete (obj as any).headers;
+  //   /*if ((obj as any)?.accountId)
+  //     delete (obj as any).accountId;*/
+  // }
 
   protected _responseToItems(res: any, params: any) {
     return res.result.filter((item: any) => this._filter(item, params));
@@ -62,7 +62,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       throw new Error('Invalid order');
 
     return this._http.post<IOrder>(
-      this._getRESTURL(`${ item.id }/cancel`),
+      this._getRESTURL(`${item.id}/cancel`),
       null,
       {
         ...this.getApiHeadersByAccount(item?.accountId ?? item?.account?.id),
@@ -91,7 +91,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
 
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {
     if (this.tradeHandler.tradingEnabled)
-      return (super.createItem(item, {...options, ...this.getApiHeadersByAccount(item.accountId) }) as Observable<IOrder>);
+      return (super.createItem(item, { ...options, ...this.getApiHeadersByAccount(item.accountId) }) as Observable<IOrder>);
 
     return throwError('You can\'t create order when trading is locked ');
   }
