@@ -20,6 +20,8 @@ export class AccountSelectComponent {
   @Input() loadingHandler: ILoadingHandler;
   @Output() accountChange: EventEmitter<IAccount> = new EventEmitter();
 
+  @Input() selectFirstAsDefault: boolean;
+
   private _account: IAccount;
 
   public get account(): IAccount {

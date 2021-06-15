@@ -75,7 +75,7 @@ import { PerformedAction } from './models/actions.cell';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
 import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
-import { AccountsListener, filterByAccountsConnection } from 'real-trading';
+import { filterByAccountsConnection, AccountListener } from 'real-trading';
 import { IAccount } from 'trading';
 import {
   filterByAccountAndInstrument,
@@ -156,13 +156,15 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
-@AccountsListener()
+@AccountListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
   columns: Column[] = [];
   contextInstrument: IInstrument;
   contextLabelId: Id;
   contextPoint: { x, y };
   connection$ = new Subject<void>();
+
+  selectFirstAsDefault = false;
 
   isInlineOrderCreating = false;
 
@@ -415,7 +417,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     private _positionsRepository: PositionsRepository,
     private _tradeFeed: TradeDataFeed,
     protected cd: ChangeDetectorRef,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
     private _modalService: NzModalService,
@@ -455,17 +456,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
         instruments.forEach(item => this.subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
-        this._positionsRepository.getItems({
-          accountId: this.account.id,
-          connectionId: this.account.connectionId
-        }).toPromise()
-          .then((response) => response.data.forEach(pos => this._processPosition(pos)));
-        this._ordersRepository.getItems({
-          // accountId: this.connection.id,
-          accountId: this.account.id,
-          connectionId: this.account.connectionId,
-        }).toPromise()
-          .then((response) => response.data.forEach(order => this._processOrders(order)));
+        this.loadPositions();
+        this.accounts.forEach(item => {
+          this._ordersRepository.getItems({
+            // accountId: this.connection.id,
+            accountId: item.id,
+            connectionId: item.connectionId,
+          }).toPromise()
+            .then((response) => response.data.forEach(order => this._processOrders(order)));
+        });
         this.detectChanges(true);
       });
 
@@ -479,6 +478,14 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     });
   }
 
+  private loadPositions() {
+    this._positionsRepository.getItems({
+      accountId: this.account.id,
+      connectionId: this.account.connectionId
+    }).toPromise()
+      .then((response) => response.data.forEach(pos => this._processPosition(pos)));
+  }
+
   ngAfterViewInit() {
     if (this.settings)
       this._applySettings();
@@ -486,13 +493,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
     this.accounts = connectedAccounts;
+    if (this.account)
+      return;
+
     const account = connectedAccounts.find(item => item.id === this.accountId);
     if (account)
       this.account = account;
+    else if (connectedAccounts.length) {
+      this.account = connectedAccounts[0];
+    }
   }
 
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    console.log(acccounts);
     this.accounts = connectedAccounts;
   }
 
@@ -744,7 +756,10 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       .pipe(
         skip(1),
         untilDestroyed(this)
-      ).subscribe(() => console.log(this.account));
+      ).subscribe(() => {
+      this.builder.clearRealtimeData();
+      this.loadPositions();
+    });
   }
 
   _applySettings() {
@@ -943,7 +958,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
-          state: { linkKey: this._getSettingsKey() }
+          state: { linkKey: this._getSettingsKey(), settings: this.settings }
         },
         closeBtn: true,
         single: false,

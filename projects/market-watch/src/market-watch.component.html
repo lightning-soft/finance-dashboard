@@ -1,5 +1,7 @@
 <window-header (contextmenu)="grid.createComponentModal($event)" className="widget" [window]="this">
-  <account-select [account]="account" (accountChange)="handleAccountChange($event)"></account-select>
+  <account-select
+    [selectFirstAsDefault]="false"
+    [account]="account" (accountChange)="handleAccountChange($event)"></account-select>
 </window-header>
 <data-grid
   [items]="builder.items"

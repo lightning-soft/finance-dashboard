@@ -88,6 +88,7 @@ interface _AccountsListener extends IAccountsListener {
 
 @Injectable() // just to avoid error in console
 abstract class _AccountsListener {
+
   ngOnInit() {
     accountsListeners.subscribe(this);
   }
@@ -107,6 +108,8 @@ abstract class _AccountListener extends _AccountsListener {
   accounts: IAccount[] = [];
   account: IAccount;
   accountId: Id;
+  selectFirstAsDefault = true;
+
 
   ngOnInit() {
     accountsListeners.subscribe(this);
@@ -118,8 +121,8 @@ abstract class _AccountListener extends _AccountsListener {
 
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
-
-    if (this.account == null && allAccounts.length) {
+    const selectFirstAsDefault = this.selectFirstAsDefault ?? true;
+    if (this.account == null && accounts.length && selectFirstAsDefault) {
       this.account = allAccounts[0];
     }
   }
@@ -127,7 +130,7 @@ abstract class _AccountListener extends _AccountsListener {
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (disconnectedAccounts.some(account => this.account.id === account.id)) {
+    if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectFirstAsDefault && allAccounts.length) {
       this.account = allAccounts[0];
     }
   }
@@ -168,6 +171,13 @@ export function filterByConnectionAndInstrument<T extends { instrument: { id: Id
 export function filterByAccountAndInstrument<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
   return (data: T, connectionId: Id) => {
     if (container?.account?.id === data.accountId && data?.instrument?.id === container?.instrument?.id) {
+      fn(data, connectionId);
+    }
+  }
+}
+export function filterByAccount<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
+  return (data: T, connectionId: Id) => {
+    if (container?.account?.id === data.accountId) {
       fn(data, connectionId);
     }
   }

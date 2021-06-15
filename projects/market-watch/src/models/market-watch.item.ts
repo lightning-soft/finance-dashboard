@@ -54,6 +54,22 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     }
   }
 
+  clearRealtimeData() {
+    this.pos.clear();
+    this.bid.clear();
+    this.ask.clear();
+    this.last.clear();
+    this.netChange.clear();
+    this.percentChange.clear();
+    this.askQuantity.clear();
+    this.bidQuantity.clear();
+    this.volume.clear();
+    this.settle.clear();
+    this.high.clear();
+    this.low.clear();
+    this.open.clear();
+  }
+
   toggleExpand(mouseEvent: MouseEvent) {
     return this.symbol.clickOnExpand(mouseEvent);
   }
