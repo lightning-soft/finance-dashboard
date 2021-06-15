@@ -92,7 +92,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showSettingsInContextMenu = false;
   @Input() detach = false;
   @Input() afterDraw = (e, grid) => null;
-  @Input() onResize = (e) => null;
+  @Input() sizeChanged = (e) => null;
   @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
@@ -347,8 +347,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   _handleResize = (e) => {
-    if (this.onResize)
-      this.onResize(e);
+    if (this.sizeChanged)
+      this.sizeChanged(e);
   }
 
   _handleColumnResize = (e) => {

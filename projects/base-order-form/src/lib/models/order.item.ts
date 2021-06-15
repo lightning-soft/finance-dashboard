@@ -3,16 +3,15 @@ import { Id } from 'communication';
 import {
   Cell,
   CellStatus,
-  CellStatusGetter,
   CheckboxCell,
   DataCell,
   HoverableItem,
   IconCell, NumberCell,
   RoundFormatter
 } from 'data-grid';
+import { TextAlign } from 'dynamic-form';
 import { IOrder, OrderSide } from 'trading';
 import { PriceStatus } from 'trading-ui';
-import { TextAlign } from 'dynamic-form';
 
 export enum OrderColumn {
   checkbox = 'checkbox',
@@ -47,26 +46,26 @@ const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 export class OrderItem extends HoverableItem implements IOrderItem {
   private _priceFormatter = new RoundFormatter(this.order.instrument.precision ?? 2);
 
-  accountId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  symbol = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  fcmId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  identifier = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  ibId = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  triggerPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  currentPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  averageFillPrice = new NumberCell({ withHoverStatus: true, getStatusByStyleProp });
-  description = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  duration = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  filledQuantity = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  quantityRemain = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  quantity = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  status = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  type = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp });
-  checkbox = new CheckboxCell({ withHoverStatus: true, getStatusByStyleProp });
+  accountId = new DataCell({ withHoverStatus: true });
+  exchange = new DataCell({ withHoverStatus: true });
+  symbol = new DataCell({ withHoverStatus: true });
+  fcmId = new DataCell({ withHoverStatus: true });
+  identifier = new DataCell({ withHoverStatus: true });
+  ibId = new DataCell({ withHoverStatus: true });
+  price = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
+  triggerPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
+  currentPrice = new NumberCell({ withHoverStatus: true });
+  averageFillPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
+  description = new DataCell({ withHoverStatus: true });
+  duration = new DataCell({ withHoverStatus: true });
+  filledQuantity = new DataCell({ withHoverStatus: true });
+  quantityRemain = new DataCell({ withHoverStatus: true });
+  quantity = new DataCell({ withHoverStatus: true });
+  side = new DataCell({ withHoverStatus: true });
+  status = new DataCell({ withHoverStatus: true });
+  type = new DataCell({ withHoverStatus: true });
+  close = new IconCell({ withHoverStatus: true });
+  checkbox = new CheckboxCell({ withHoverStatus: true });
 
   get id(): Id {
     return this.order.id;
@@ -156,15 +155,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this._updateCellStatus(this.currentPrice);
   }
 
-  protected _getCellsToHover(): Cell[] {
-    return allColumns.map((field) => this[field]);
+  protected _getPropertiesForHover(): string[] {
+    return allColumns;
   }
-}
-
-const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return CellStatus.Hovered;
-  }
-
-  return cell.status;
 }

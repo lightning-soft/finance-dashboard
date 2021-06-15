@@ -23,7 +23,6 @@ export interface ICell {
   colSpan?: number;
   settings?: ICellSettings;
   hoverStatusEnabled: boolean;
-  getStatusByStyleProp?: CellStatusGetter;
 
   updateValue(...args: any[]);
 
@@ -33,7 +32,6 @@ export interface ICell {
 export interface ICellConfig {
   settings?: ICellSettings;
   withHoverStatus?: boolean;
-  getStatusByStyleProp?: CellStatusGetter;
 }
 
 export enum CellStatus {
@@ -51,8 +49,6 @@ export abstract class Cell implements ICell {
   protected _statses: string[];
   protected _statusPrefix: string;
 
-  protected _hovered = false;
-
   name: string = '';
   value = '';
   class = '';
@@ -64,7 +60,6 @@ export abstract class Cell implements ICell {
   settings: ICellSettings = {};
   drawed = false; // performance solution
   status: string = '';
-  getStatusByStyleProp: CellStatusGetter;
   hoverStatusEnabled: boolean;
   private _prevStatus = '';
 
@@ -97,21 +92,26 @@ export abstract class Cell implements ICell {
   }
 
   set hovered(hovered: boolean) {
-    if (!this.hoverStatusEnabled || hovered === this._hovered) {
+    if (!this.hoverStatusEnabled) {
       return;
     }
 
-    this._hovered = hovered;
+    if (hovered === (this.status === CellStatus.Hovered))
+      return;
+
+    if (hovered)
+      this.changeStatus(CellStatus.Hovered);
+    else
+      this.revertStatus();
   }
 
   get hovered(): boolean {
-    return this._hovered;
+    return this.status === CellStatus.Hovered;
   }
 
   constructor(config?: ICellConfig) {
     this.settings = config?.settings ?? {};
     this.hoverStatusEnabled = config?.withHoverStatus ?? false;
-    this.getStatusByStyleProp = config?.getStatusByStyleProp;
   }
 
   abstract updateValue(...args: any[]);
@@ -136,6 +136,11 @@ export abstract class Cell implements ICell {
 
     if (status == this.status)
       return;
+
+    if (this.status === CellStatus.Hovered) {
+      this._prevStatus = status;
+      return;
+    }
 
     this._prevStatus = this.status;
     this.status = status;

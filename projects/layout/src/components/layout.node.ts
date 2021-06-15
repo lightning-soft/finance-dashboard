@@ -213,24 +213,28 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     return this._tabTitle ?? '';
   }
 
+  get options(): any {
+    return this.layoutContainer?.options ?? {};
+  }
+
   isMaximized() {
     return this.layoutContainer.maximized;
   }
 
   maximizable() {
-    return this.layoutContainer.options.maximizable;
+    return this.options.maximizable;
   }
 
   minimizable() {
-    return this.layoutContainer.options.minimizable;
+    return this.options.minimizable;
   }
 
   closableIfPopup() {
-    return this.layoutContainer.options.closableIfPopup;
+    return this.options.closableIfPopup;
   }
 
   shouldOpenInNewWindow() {
-    return this.layoutContainer.options.allowPopup;
+    return this.options.allowPopup;
   }
 
   close() {

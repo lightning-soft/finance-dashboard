@@ -10,6 +10,7 @@ import {
   ProfitClass
 } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
+import { HoverableItem } from 'data-grid';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -464,40 +465,42 @@ class LevelCell extends HistogramCell {
   }
 }
 
-export const SumStatus = 'sum';
-
 class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
 
+  isSumCell = false;
+
   get size() {
-    return this.status === SumStatus ? this._hiddenValue : this._value;
+    return this.isSumCell ? this._hiddenValue : this._value;
   }
 
-  changeStatus(status: string) {
-    super.changeStatus(status);
-    if (status === SumStatus) {
-      this.visible = true;
-      this.hist = null;
-    } else {
-      this.updateValue(this._hiddenValue);
-    }
-  }
+  // changeStatus(status: string) {
+  //   super.changeStatus(status);
+  //   if (this.isSumCell) {
+  //     this.visible = true;
+  //     this.hist = null;
+  //   } else {
+  //     this.updateValue(this._hiddenValue);
+  //   }
+  // }
 
-  update(value: number, status?: string | false): boolean {
-    if (this.status === SumStatus && ((status === false) || (status !== SumStatus && this.status === status))) {
+  update(value: number, isSum: boolean): boolean {
+    if (this.isSumCell && isSum) {
       const isChanged = this._hiddenValue !== value;
       this._hiddenValue = value;
       return isChanged;
     }
 
-    if (this.status !== status) {
-      if (this.status === SumStatus) {
-        this.updateValue(this._hiddenValue);
-        this._hiddenValue = null;
+    if (this.isSumCell !== isSum) {
+      this.updateValue(this._hiddenValue);
+      this._hiddenValue = null;
+
+      if (isSum) {
+        this.visible = true;
+        this.hist = null;
       }
 
-      if (status !== false)
-        this.changeStatus(status);
+      this.isSumCell = isSum;
     }
 
     return this.updateValue(value);
@@ -508,7 +511,7 @@ class SumHistogramCell extends HistogramCell {
   // }
 
   calcHist(value: number) {
-    if (this.status === SumStatus) {
+    if (this.isSumCell) {
       this.hist = 0;
     } else {
       super.calcHist(value);
@@ -522,9 +525,7 @@ export enum VolumeStatus {
   ValueArea = 'valueArea',
   VWAP = 'VWAP',
 }
-
-
-export class DomItem implements IBaseItem {
+export class DomItem extends HoverableItem implements IBaseItem {
   id: Id;
   index: number;
   isCenter = false;
@@ -551,7 +552,6 @@ export class DomItem implements IBaseItem {
 
   protected _bid = 0;
   protected _ask = 0;
-  private _hovered = false;
 
   get isBidSideVisible() {
     return (this.bid.visible || this.bidDelta.visible);
@@ -565,42 +565,34 @@ export class DomItem implements IBaseItem {
     return this.price._value;
   }
 
-  set hovered(value: boolean) {
-    this._hovered = value;
-
-    if (value) {
-      this.price.hovered = this.ask.hovered || this.bid.hovered || this.price.hovered;
-    } else {
-      this.price.hovered = false;
-    }
+  get isAskSum() {
+    return this.ask.isSumCell;
   }
 
-  get hovered() {
-    return this._hovered;
+  get isBidSum() {
+    return this.bid.isSumCell;
   }
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
+    super();
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
       formatter: _priceFormatter,
       settings: settings.price,
       withHoverStatus: true,
-      getStatusByStyleProp
     });
     this.bid = new SumHistogramCell({
       settings: settings.bid,
       ignoreZero: true,
       hightlightOnChange: false,
       withHoverStatus: true,
-      getStatusByStyleProp
     });
     this.ask = new SumHistogramCell({
       settings: settings.ask,
       ignoreZero: true,
       hightlightOnChange: false,
       withHoverStatus: true,
-      getStatusByStyleProp
     });
     this.currentAsk = new LevelCell({ settings: settings.currentAsk, hightlightOnChange: false });
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
@@ -665,13 +657,6 @@ export class DomItem implements IBaseItem {
     this._bid = this.bid.size;
   }
 
-  isAskSum() {
-    return this.ask.status === SumStatus;
-  }
-
-  isBidSum() {
-    return this.bid.status === SumStatus;
-  }
 
   clearLTQ() {
     this.ltq.changeStatus('');
@@ -824,11 +809,11 @@ export class DomItem implements IBaseItem {
   }
 
   setBidSum(value: number) {
-    this.bid.update(value == null ? this._bid : value, value == null ? '' : SumStatus);
+    this.bid.update(value == null ? this._bid : value, value != null);
   }
 
   setAskSum(value: number) {
-    this.ask.update(value == null ? this._ask : value, value == null ? '' : SumStatus);
+    this.ask.update(value == null ? this._ask : value, value != null);
   }
 
   refresh() {
@@ -914,6 +899,10 @@ export class DomItem implements IBaseItem {
   setPL(pl: number) {
     this.orders.setPL(pl);
   }
+
+  protected _getPropertiesForHover(column: any): string[] {
+    return [column.name, 'price'];
+  }
 }
 
 export class CustomDomItem extends DomItem {
@@ -944,13 +933,13 @@ export class CustomDomItem extends DomItem {
       return;
 
     if (data.side === QuoteSide.Ask) {
-      const ask = item.ask.status === SumStatus ? 0 : item?.ask?._value ?? 0;
+      const ask = item.isAskSum ? 0 : item?.ask?._value ?? 0;
       mergedData = {
         ...data,
         volume: data.volume - ask + (this.ask._value ?? 0),
       };
     } else {
-      const bid = item.ask.status === SumStatus ? 0 : item?.bid._value ?? 0;
+      const bid = item.isBidSum ? 0 : item?.bid._value ?? 0;
       mergedData = {
         ...data,
         volume: data.volume - bid + (this.bid._value ?? 0),
@@ -1045,11 +1034,3 @@ export class CustomDomItem extends DomItem {
   //   return this.bidDelta.updateValue(sum);
   // }
 }
-
-const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return CellStatus.Hovered;
-  }
-
-  return cell.status;
-};
