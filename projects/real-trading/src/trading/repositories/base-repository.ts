@@ -80,7 +80,7 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
 
       if (!connection)
         params.headers = this.getApiHeadersByAccount(params.accountId).headers;
-      else if (connection)
+      else
         params.headers = this.getApiHeaders(this._getApiKey(connection));
 
     }
