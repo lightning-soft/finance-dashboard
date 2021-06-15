@@ -7,7 +7,6 @@ import { NzButtonModule, NzCollapseModule, NzFormModule, NzInputModule, NzSelect
 import { WindowHeaderModule } from 'window-header';
 import { NotificationListComponent } from './notification-list.component';
 
-
 @NgModule({
   declarations: [NotificationListComponent],
   imports: [
