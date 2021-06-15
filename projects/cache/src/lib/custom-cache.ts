@@ -36,7 +36,7 @@ export abstract class CustomCache<T, C extends ICustomCacheConfig = ICustomCache
 
   abstract get(key: string, setData?: T): T;
 
-  abstract set(key: string, data: T);
+  abstract set(key: string, data: T): void;
 
   abstract clear(): void;
 
