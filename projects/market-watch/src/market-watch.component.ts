@@ -11,7 +11,6 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, ItemsComponent } from 'base-components';
 import { Id } from 'communication';
 import {
@@ -24,6 +23,7 @@ import {
 } from 'data-grid';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import {
+  IAccount,
   IInstrument,
   InstrumentsRepository,
   IOrder,
@@ -75,13 +75,8 @@ import { PerformedAction } from './models/actions.cell';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
 import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
-import { filterByAccountsConnection, AccountListener } from 'real-trading';
-import { IAccount } from 'trading';
-import {
-  filterByAccountAndInstrument,
-  filterByAccountConnection,
-  filterByConnectionAndInstrument
-} from '../../real-trading';
+import { AccountListener, filterByAccountsConnection } from 'real-trading';
+import { filterByAccountConnection } from '../../real-trading';
 
 const labelText = 'Text label';
 

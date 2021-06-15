@@ -3,6 +3,7 @@ import { Id } from 'communication';
 // import { MixinHelper } from '../../../base-components/src/helpers/mixin.helper';
 // import { MixinHelper } from 'base-components';
 import { IAccount, IInstrument } from 'trading';
+
 // const { mixinDecorator } = MixinHelper;
 
 function mixinDecorator(
@@ -168,12 +169,19 @@ export function filterByConnectionAndInstrument<T extends { instrument: { id: Id
   }
 }
 
-export function filterByAccountAndInstrument<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
+export function filterByAccountIdAndInstrument<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
   return (data: T, connectionId: Id) => {
     if (container?.account?.id === data.accountId && data?.instrument?.id === container?.instrument?.id) {
       fn(data, connectionId);
     }
-  }
+  };
+}
+export function filterByAccountAndInstrument<T extends { instrument: { id: Id }, account: { id: Id } }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
+  return (data: T, connectionId: Id) => {
+    if (container?.account?.id === data?.account?.id && data?.instrument?.id === container?.instrument?.id) {
+      fn(data, connectionId);
+    }
+  };
 }
 export function filterByAccount<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
   return (data: T, connectionId: Id) => {

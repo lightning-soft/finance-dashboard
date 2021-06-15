@@ -10,47 +10,60 @@ import {
 } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
-import {
-  FormActions,
-  getPriceSpecs,
-  OcoStep,
-  SideOrderForm,
-  SideOrderFormComponent
-} from 'base-order-form';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderForm, SideOrderFormComponent } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
   CellStatus,
-  Column, ContextMenuClickDataGridHandler,
-  DataGrid, DataGridHandler,
-  ICellChangedEvent, IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
+  Column,
+  ContextMenuClickDataGridHandler,
+  DataGrid,
+  DataGridHandler,
+  ICellChangedEvent,
+  IFormatter,
+  MouseDownDataGridHandler,
+  MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { AccountsListener, filterByAccountAndInstrument, filterByConnectionAndInstrument, IHistoryItem, RealPositionsRepository } from 'real-trading';
+import {
+  AccountsListener,
+  filterByAccountAndInstrument,
+  filterByAccountIdAndInstrument,
+  filterByConnectionAndInstrument,
+  IHistoryItem,
+  RealPositionsRepository
+} from 'real-trading';
 import {
   compareInstruments,
-  IConnection,
+  getPrice,
+  IAccount,
   IInstrument,
   IOrder,
-  getPrice,
   IPosition,
   IQuote,
-  Level1DataFeed, OHLVFeed, OrderBooksRepository,
+  isForbiddenOrder,
+  Level1DataFeed,
+  OHLVFeed,
+  OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, isForbiddenOrder,
+  OrderType,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
-  Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize, IAccount
+  roundToTickSize,
+  Side,
+  TradeDataFeed,
+  TradePrint,
+  UpdateType,
+  VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
@@ -613,7 +626,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
       this._tradeDatafeed.on(filterByConnectionAndInstrument(this, (item: TradePrint) => this._handleTrade(item))),
       this._ordersFeed.on(filterByAccountAndInstrument(this, (order: IOrder) => this._handleOrders([order]))),
-      this._positionsFeed.on(filterByAccountAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
+      this._positionsFeed.on(filterByAccountIdAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this.handleOHLV(ohlv)))
     );
 
@@ -621,6 +634,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleAccountChange(account: IAccount) {
+    this.account
     this._loadData();
     this._onInstrumentChange(this.instrument, true);
   }
@@ -1072,11 +1086,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrders(): void {
-    if (!this.accountId)
+    if (!this.account)
       return;
 
     this.orders = [];
-    this._ordersRepository.getItems({ id: this.accountId })
+    this._ordersRepository.getItems({ accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -1092,7 +1106,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.accountId != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
+      if (order.account.id != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
 
       this.items.forEach(item => item.removeOrder(order));
       this._fillOrders(order);

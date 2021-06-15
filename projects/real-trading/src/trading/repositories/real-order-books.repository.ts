@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IOrderBook } from 'trading';
 import { BaseRepository } from './base-repository';
+import { IPaginationResponse } from 'communication';
 
 @Injectable()
 export class RealOrderBooksRepository extends BaseRepository<IOrderBook> {
@@ -17,5 +18,9 @@ export class RealOrderBooksRepository extends BaseRepository<IOrderBook> {
     }
 
     return _params;
+  }
+
+  protected _mapItemsResponse(res: any, params: any) {
+    return { requestParams: params, data: [res.result] } as IPaginationResponse<IOrderBook>;
   }
 }

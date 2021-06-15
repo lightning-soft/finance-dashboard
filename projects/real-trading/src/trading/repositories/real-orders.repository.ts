@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ExcludeId, Id, RepositoryAction } from 'communication';
-import { Observable, of, throwError, forkJoin } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { ExcludeId, Id } from 'communication';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
 import { ConnectionContainer, IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { BaseRepository } from './base-repository';
@@ -117,15 +117,17 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       }
     }
 
-    return forkJoin(new Array(map.keys()).map((key: any) =>
+    return forkJoin(Array.from(map.keys()).map((key: any) =>
       this._http.post(
         this._getRESTURL(`cancel`),
         null,
         {
-          ...this.getApiHeaders(key),
+          headers: {
+            ...this.getApiHeaders(key),
+          },
           params: {
-            orderIds: map.get(key),
-            accountId: map.get(key)[0].accountId
+            orderIds: map.get(key).map(item => item.id),
+            accountId: map.get(key)[0].account.id
           }
         },
       ),

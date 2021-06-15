@@ -70,8 +70,8 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
     return connection?.connectionData?.apiKey;
   }
 
-  getApiKey(item: { accountId: Id }): Id {
-    return this._getApiKey(this._connectionContainer.getConnectionByAccountId(item.accountId));
+  getApiKey(item: { accountId?: Id, account?: { id } }): Id {
+    return this._getApiKey(this._connectionContainer.getConnectionByAccountId(item.accountId ?? item.account.id));
   }
 
   getConnection(connectionId: Id): IConnection {
