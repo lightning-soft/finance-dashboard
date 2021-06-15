@@ -9,10 +9,13 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
     return 'Position';
   }
   static transformPosition(item): IPosition {
+    if (isPositionTransformed(item))
+      return item;
+
     const { averageFillPrice: price, volume: size, instrument } = item;
 
     return {
-      id: instrument.exchange + instrument.symbol,
+      id: `${instrument.id}.${item.account?.id}`,
       instrument,
       accountId: item.account?.id,
       price,
@@ -78,4 +81,8 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     return true;
   }
+}
+
+function isPositionTransformed(position: IPosition | any): position is IPosition {
+  return (position as IPosition).accountId !== undefined && position.id !== undefined;
 }

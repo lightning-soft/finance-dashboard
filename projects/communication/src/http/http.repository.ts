@@ -70,7 +70,7 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     }
 
     if (headers && !headers['Api-Key'])
-      console.log('aaaa', this.constructor.name, JSON.stringify(headers));
+      console.warn('NO API KEY', this.constructor.name, JSON.stringify(headers));
 
     const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
       .pipe(
