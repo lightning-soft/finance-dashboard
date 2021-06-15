@@ -72,15 +72,21 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     return this._total;
   }
 
-  protected _handleConnection(connection) {
-    if (connection) {
-      if ((this.config.autoLoadData || {}).onConnectionChange) {
-        this.refresh();
-      }
-    } else if (this._clearOnDisconnect) {
-      this.builder.replaceItems([]);
-    }
-  }
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
+
+  //   if ((this.config.autoLoadData || {}).onConnectionChange) {
+  //     this.refresh();
+  //   }
+  // }
+
+  // handleDisconnect(connection: IConnection) {
+  //   super.handleDisconnect(connection);
+
+  //   if (this._clearOnDisconnect) {
+  //     this.builder.replaceItems([]);
+  //   }
+  // }
 
   loadData(params?: P) {
     this._params = params || this._params;
@@ -95,7 +101,11 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
         finalize(() => hide())
       )
       .subscribe(
-        (response) => this._handleResponse(response, this.params),
+        (response) => {
+          if (!response.requestParams || JSON.stringify(response.requestParams) === JSON.stringify(this.params)) {
+            this._handleResponse(response, this.params);
+          }
+        },
         (error) => this._handleLoadingError(error),
       );
   }
@@ -177,6 +187,8 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   protected _handleLoadingError(error: any) {
+    console.error(error);
+
     this.showError(error, 'action.load-items-error');
   }
 

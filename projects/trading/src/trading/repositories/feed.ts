@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { Id } from 'communication';
 
-export type OnTradeFn<T> = (item: T) => void;
+// TODO: remove optional
+export type OnTradeFn<T> = (item: T, connectionId?: Id) => void;
 export type UnsubscribeFn = () => void;
 
 @Injectable()

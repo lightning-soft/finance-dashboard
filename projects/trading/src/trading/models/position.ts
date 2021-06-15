@@ -19,7 +19,7 @@ export interface IPosition extends IBaseItem {
   total: number;
   side: Side;
   status: PositionStatus;
-  instrument?: IInstrument;
+  instrument: IInstrument;
 }
 
 export enum PositionStatus {

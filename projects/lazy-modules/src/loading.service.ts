@@ -61,17 +61,17 @@ export class LoadingService {
     return this._getModuleRef(item.module);
   }
 
-  async getComponentFactory<T = any>(name: string): Promise<ComponentFactory<T>> {
-    const moduleRef = await this._getRef(name);
-    const module = moduleRef.instance;
-    const componentsStore = module.components;
-    const entryComponent = componentsStore && componentsStore[name];
+  // async getComponentFactory<T = any>(name: string): Promise<ComponentFactory<T>> {
+  //   const moduleRef = await this._getRef(name);
+  //   const module = moduleRef.instance;
+  //   const componentsStore = module.components;
+  //   const entryComponent = componentsStore && componentsStore[name];
 
-    if (!entryComponent)
-      throw new Error(`${name} should to been registered`);
+  //   if (!entryComponent)
+  //     throw new Error(`${name} should to been registered`);
 
-    return moduleRef.componentFactoryResolver.resolveComponentFactory<T>(entryComponent);
-  }
+  //   return moduleRef.componentFactoryResolver.resolveComponentFactory<T>(entryComponent);
+  // }
 
   async getComponentRef<T = any>(name: string): Promise<ComponentRef<T>> {
     const moduleRef = await this._getRef(name);

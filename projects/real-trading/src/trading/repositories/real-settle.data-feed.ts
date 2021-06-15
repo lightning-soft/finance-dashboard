@@ -16,9 +16,10 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
     return super.on(fn);
   }
 
-  protected _handleTrade(data) {
-    const result = super._handleTrade(data);
+  protected _handleTrade(data, connectionId) {
+    const result = super._handleTrade(data, connectionId);
     if (result) {
+      // #TODO save last value by connection id and instrument
       this._lastValue = this._getResult(data);
       return true;
     }

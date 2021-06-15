@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { OrderSide } from 'trading';
+import { ConnectionsFactory } from 'real-trading';
+import { IAccount, OrderSide } from 'trading';
 import { IBar, IChart, IDetails } from '../models';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
+
 export type IDateFormat = (request: IRequest) => string;
 
 export interface IKeyValuePair<TKey, TValue> {
@@ -19,9 +21,8 @@ export interface IDatafeed {
 declare let StockChartX: any;
 
 
-
 @Injectable()
-export abstract class Datafeed implements IDatafeed {
+export abstract class Datafeed extends ConnectionsFactory<Datafeed> implements IDatafeed {
   /**
    * @internal
    */
@@ -36,6 +37,11 @@ export abstract class Datafeed implements IDatafeed {
    * @internal
    */
   protected _details: IDetails[] = [];
+
+  /**
+   * @internal
+   */
+  protected _account: IAccount;
 
   /**
    * Executes request post cancel actions (e.g. hides waiting bar).
@@ -73,7 +79,7 @@ export abstract class Datafeed implements IDatafeed {
         dataManager.insertInstrumentBars(instrument, 0, bars);
         break;
       default:
-        throw new Error(`Unknown request kind: ${request.kind}`);
+        throw new Error(`Unknown request kind: ${ request.kind }`);
     }
     chart.updateComputedDataSeries();
 
@@ -126,6 +132,10 @@ export abstract class Datafeed implements IDatafeed {
   cancel(request: IRequest) {
     this._requests.delete(request.id);
     this.onRequstCanceled(request as IBarsRequest);
+  }
+
+  changeAccount(account: IAccount) {
+    this._account = account;
   }
 
   /**

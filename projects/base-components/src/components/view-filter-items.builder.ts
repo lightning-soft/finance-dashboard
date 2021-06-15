@@ -1,5 +1,5 @@
-import { IBaseItem } from 'communication';
 import { IItemsBuilder, IItemsBuilderParams, IViewItem, ViewItemsBuilder } from 'base-components';
+import { IBaseItem } from 'communication';
 
 interface IViewFilterItemsBuilderParams<Item, ViewItem> extends IItemsBuilderParams<Item, ViewItem> {
   viewItemsFilter?: (viewItem: ViewItem) => boolean;
@@ -40,6 +40,11 @@ export class ViewFilterItemsBuilder<T extends IBaseItem, VM extends IViewItem<T>
 
   addItems(items: T[]) {
     super.addItems(items);
+    this.refilterViewItems();
+  }
+
+  removeWhere(filter: (item: VM) => boolean) {
+    super.removeWhere(filter);
     this.refilterViewItems();
   }
 

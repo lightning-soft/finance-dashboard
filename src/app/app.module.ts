@@ -1,5 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule, NgZone } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
 import { AuthModule, AuthService } from 'auth';
-import { CommunicationConfig, CommunicationModule } from 'communication';
+import { CacheInterceptor, CommunicationConfig, CommunicationModule } from 'communication';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
 import { FakeCommunicationModule } from 'fake-communication';
@@ -152,6 +152,11 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       {
         provide: CommunicationConfig,
         useExisting: AppConfig,
+      },
+      {
+        provide: HTTP_INTERCEPTORS,
+        useClass: CacheInterceptor,
+        multi: true
       }
     ]),
     FakeCommunicationModule.forRoot(),

@@ -2,21 +2,18 @@ import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
+import { BehaviorSubject } from 'rxjs';
 import {
-  HistoryRepository,
-  IConnection,
-  IInstrument,
+  compareInstruments, IInstrument,
   IOrder,
-  OrderDuration,
+  isForbiddenOrder, OrderDuration,
   OrderSide,
   OrderType,
-  PositionsRepository,
-  isForbiddenOrder, compareInstruments
+  PositionsRepository
 } from 'trading';
-import { BehaviorSubject } from 'rxjs';
-import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
+import { ITypeButton } from '../type-buttons/type-buttons.component';
 
 export enum FormActions {
   ClosePositions,
@@ -134,7 +131,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() set accountId(value) {
     if (this._accountId !== value) {
       this._accountId = value;
-      this.form.patchValue({ accountId: value });
+      this.form?.patchValue({ accountId: value });
     }
   }
 
@@ -238,7 +235,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
 
   constructor(
     protected _injector: Injector,
-    private _historyRepository: HistoryRepository,
     protected positionsRepository: PositionsRepository,
   ) {
     super();
@@ -254,13 +250,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
       quantity: (this.form.controls as SideOrderForm).quantity.value,
     };
   }
-
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    this._historyRepository = this._historyRepository.forConnection(connection);
-    this.positionsRepository = this.positionsRepository.forConnection(connection);
-  }
-
 
   positionsToQuantity() {
     if (this._positionsSum) {
@@ -329,7 +318,7 @@ export function getPriceSpecs(item: IOrder & { amount: number }, price: number, 
   }
   if (item.type === OrderType.StopLimit) {
     const offset = tickSize * item.amount;
-    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset :  -offset);
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset : -offset);
   }
   return priceSpecs;
 }

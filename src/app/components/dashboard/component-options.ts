@@ -42,11 +42,11 @@ export const widgetList = [
     name: 'Market Watch',
     component: Components.MarketWatch,
   },
-  {
-    icon: 'icon-widget-watchlist',
-    name: 'Watchlist',
-    component: Components.Watchlist
-  },
+  // {
+  //   icon: 'icon-widget-watchlist',
+  //   name: 'Watchlist',
+  //   component: Components.Watchlist
+  // },
   {
     icon: 'icon-widget-dom',
     name: 'DOM',

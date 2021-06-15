@@ -2,9 +2,10 @@ import { ViewRef } from '@angular/core';
 import { ILinkNode, LinkDataObserver } from '../observers';
 import { LayoutNodeEvent } from './layout-node.event';
 import { Layout } from './layout/layouts/layout';
+import { MixinHelper } from '../../../base-components/src/helpers/mixin.helper';
 import { IWindow, saveData } from "window-manager";
 
-declare const $: any;
+const { mixinDecorator } = MixinHelper;
 
 export interface IStateProvider<T = any> {
   saveState?(): T;
@@ -262,13 +263,6 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 }
 
-export function LayoutNode(): <T extends { new(...args: any) }>(constructor: T) => void {
-  return (derivedCtor: any) => {
-    Object.getOwnPropertyNames(_LayoutNode.prototype)
-      .forEach(name => {
-        if (name !== 'constructor') {
-          derivedCtor.prototype[name] = _LayoutNode.prototype[name];
-        }
-      });
-  };
+export function LayoutNode() {
+  return mixinDecorator(_LayoutNode);
 }

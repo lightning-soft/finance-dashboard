@@ -1,27 +1,23 @@
-import { IPaginationResponse } from 'communication';
-import { Observable } from 'rxjs';
+import { HttpRepository } from 'communication';
 import { map } from 'rxjs/operators';
 import { AccountRepository, IAccount } from 'trading';
-import { BaseRepository } from './base-repository';
 
-export class RealAccountRepository extends BaseRepository<IAccount> implements AccountRepository {
+export class RealAccountRepository extends HttpRepository<IAccount> implements AccountRepository {
   protected get suffix(): string {
     return 'Account';
   }
 
-  _getRepository() {
-    return new RealAccountRepository(
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
+  protected get _baseUrl(): string {
+    return this._communicationConfig.rithmic.http.url + this.suffix;
   }
 
-  getItems(params = {}): Observable<IPaginationResponse<IAccount>> {
-    return super.getItems(params).pipe(
-      map((res: any) => {
-        return { data: res.result, } as IPaginationResponse<IAccount>;
-      }),
-    );
+  getItems(params: any) {
+    if (!params)
+      params = {};
+    const connection = params.connection;
+
+    params.headers = { 'Api-Key': connection?.connectionData?.apiKey ?? '' };
+    return super.getItems(params)
+      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: connection.id })) })));
   }
 }

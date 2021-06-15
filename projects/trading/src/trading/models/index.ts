@@ -13,3 +13,4 @@ export * from './order-book';
 export * from './trade-print';
 export * from './timezone';
 export * from './session';
+export * from './connection.container';

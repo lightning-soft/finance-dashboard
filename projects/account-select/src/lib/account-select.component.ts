@@ -1,58 +1,49 @@
-import { Component, EventEmitter, Input, Output, Injector } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { Id, ILoadingHandler, ItemsComponent } from 'base-components';
-import { AccountRepository, IAccount, IConnection } from 'trading';
-import { IPaginationResponse } from 'communication';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ILoadingHandler } from 'base-components';
+import { AccountListener, IAccountListener } from 'real-trading';
+import { IAccount } from 'trading';
 
-@UntilDestroy()
+export interface AccountSelectComponent extends IAccountListener {
+
+}
+
 @Component({
   selector: 'account-select',
   templateUrl: './account-select.component.html',
   styleUrls: ['account-select.component.scss'],
 })
-export class AccountSelectComponent extends ItemsComponent<IAccount> {
+@AccountListener()
+export class AccountSelectComponent {
   @Input() placeholder = 'Select account';
   @Input() className = '';
   @Input() nzDropdownClassName = '';
   @Input() loadingHandler: ILoadingHandler;
-  @Output() accountChange: EventEmitter<Id> = new EventEmitter();
+  @Output() accountChange: EventEmitter<IAccount> = new EventEmitter();
 
-  activeAccountId: Id;
+  @Input() selectFirstAsDefault: boolean;
+
+  private _account: IAccount;
+
+  public get account(): IAccount {
+    return this._account;
+  }
+
+  @Input()
+  public set account(value: IAccount) {
+    if (this._account?.id === value?.id)
+      return;
+
+    this.accountChange.emit(value);
+    this._account = value;
+  }
+
+  get items(): IAccount[] {
+    return this.accounts ?? [];
+  }
 
   @Input() labelTransformer = (label) => label;
 
-  constructor(
-    protected _repository: AccountRepository,
-    protected _injector: Injector,
-  ) {
-    super();
-    this.autoLoadData = {
-      onConnectionChange: true,
-    };
-
-    this._params = { status: 'Active', criteria: '' };
-  }
-
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    if (!connection) {
-      this.activeAccountId = null;
-    }
-  }
-
-  protected _handleResponse(response: IPaginationResponse<IAccount>, params: any) {
-    super._handleResponse(response, params);
-    if (this.items.every((item) => item.id !== this.activeAccountId)) {
-      const item = this.items[0];
-      this.select(item?.id);
-    }
-  }
-
-  select(id: Id): void {
-    if (this.activeAccountId === id)
-      return;
-
-    this.activeAccountId = id;
-    this.accountChange.emit(id);
+  compareAccounts(a: IAccount, b: IAccount): boolean {
+    return a?.id === b?.id;
   }
 }

@@ -115,4 +115,6 @@ export class MarketWatchSubItem implements IMarketWatchItem {
     }
     this.symbol = this.actions;
   }
+  clearRealtimeData() {
+  }
 }

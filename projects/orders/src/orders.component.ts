@@ -1,10 +1,15 @@
 import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { OrderColumn, OrderItem } from 'base-order-form';
+import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
+import { AccountsListener, IAccountsListener } from 'real-trading';
+import { forkJoin, Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { Components } from 'src/app/modules';
 import {
+  IAccount,
   IOrder,
   IOrderParams,
   OrdersFeed,
@@ -14,9 +19,6 @@ import {
   OrderType,
   TradeDataFeed, TradePrint
 } from 'trading';
-import { finalize } from 'rxjs/operators';
-import { OrderColumn, OrderItem } from 'base-order-form';
-import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
@@ -37,7 +39,8 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit {
+@AccountsListener()
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit, IAccountsListener {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
   columns: Column[];
@@ -95,17 +98,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   get orders(): IOrder[] {
     return this.items.map(i => i.order);
-  }
-
-  private _accountId;
-
-  set accountId(accountId: Id) {
-    this._accountId = accountId;
-    this.loadData({ ...this.params, accountId });
-  }
-
-  get accountId() {
-    return this._accountId;
   }
 
   // private _status: OrderStatus = OrderStatus.Pending;
@@ -184,6 +176,17 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.repository.getItems({ accounts }).subscribe(
+      res => this.builder.addItems(res.data),
+      err => this.showError(err),
+    );
+  }
+
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.builder.removeWhere(i => accounts.some(a => a.id === i.accountId.value));
+  }
+
   changeActiveTab(tab: Tab): void {
     this.activeTab = tab;
 
@@ -205,10 +208,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.updateCheckboxState(this.contextMenuState);
   }
 
-  handleAccountChange(accountId: Id): void {
-    this.accountId = accountId;
-  }
-
   protected _deleteItem(item: IOrder) {
     return this.repository.deleteItem(item);
   }
@@ -226,8 +225,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   loadState(state): void {
-    this._subscribeToConnections();
-
     if (state && state.columns) {
       this.columns = state.columns;
       const checkboxColumn = state.columns.find(i => i.name === OrderColumn.checkbox);
@@ -342,12 +339,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this._repository.deleteMany(orders)
       .pipe(finalize(hide))
       .subscribe({
-          next: () => {
-            this._handleDeleteItems(orders);
-            this._showSuccessDelete();
-          },
-          error: (error) => this._handleDeleteError(error)
-        }
+        next: () => {
+          this._handleDeleteItems(orders);
+          this._showSuccessDelete();
+        },
+        error: (error) => this._handleDeleteError(error)
+      }
       );
   }
 

@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, WebSocketService, WSEventType } from 'communication';
+import { IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
 import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
 
@@ -26,30 +26,21 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
 
-  private get _sucessfullyConected() {
-    return this._accountsManager.getActiveConnection()?.connected && this._webSocketService.sucessfulyConnected;
-  }
-
   private _pendingRequests = [];
 
-  constructor(@Inject(WebSocketService) protected _webSocketService: WebSocketService,
-              @Inject(AccountsManager) protected _accountsManager: AccountsManager) {
+  constructor(
+    protected _injector: Injector,
+    @Inject(WebSocketService) protected _webSocketService: WebSocketService,
+    @Inject(AccountsManager) protected _accountsManager: AccountsManager,
+  ) {
     this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
-    this._webSocketService.connection$.subscribe(conected => !conected && this._onConnectionLost());
-    this._accountsManager.activeConnection.subscribe((connection) => {
-      if (!connection || !connection.connected)
-        this._onConnectionLost();
-    });
   }
 
-  protected _onConnectionLost() {
-    for (const key in this._unsubscribeFns)
-      this._unsubscribeFns[key]();
-    this._pendingRequests = [];
-    Object.values(this._subscriptions).forEach(item =>
-      this.createPendingRequest(this.subscribeType, item.payload));
-    this._unsubscribeFns = {};
-  }
+  // initConnectionDeps() {
+  //   super.initConnectionDeps();
+
+  //   this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
+  // }
 
   on(fn: OnTradeFn<T>): UnsubscribeFn {
     this._executors.push(fn);
@@ -59,15 +50,15 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     };
   }
 
-  subscribe(data: I | I[]) {
-    this._sendRequest(this.subscribeType, data);
+  subscribe(data: I | I[], connectionId: Id) {
+    this._sendRequest(this.subscribeType, data, connectionId);
   }
 
-  unsubscribe(data: I | I[]) {
-    this._sendRequest(this.unsubscribeType, data);
+  unsubscribe(data: I | I[], connectionId: Id) {
+    this._sendRequest(this.unsubscribeType, data, connectionId);
   }
 
-  private _sendRequest(type: WSMessageTypes, data: I | I[]) {
+  private _sendRequest(type: WSMessageTypes, data: I | I[], connectionId: Id) {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
@@ -84,12 +75,12 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
         if (subscriptions[hash].count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
-          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto });
+          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
           subscriptions[hash].payload = dto;
-          if (this._sucessfullyConected)
-            this._webSocketService.send({ Type: type, ...dto });
-          else
-            this.createPendingRequest(type, dto);
+          // if (this.connection?.connected)
+          this._webSocketService.send({ Type: type, ...dto }, connectionId);
+          // else
+          //   this.createPendingRequest(type, dto);
         }
       } else {
         if (!subscriptions[hash])
@@ -105,9 +96,9 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     });
   }
 
-  private createPendingRequest(type, payload) {
-    this._pendingRequests.push(() => this._webSocketService.send({ Type: type, ...payload }));
-  }
+  // private createPendingRequest(type, payload) {
+  //   this._pendingRequests.push(() => this.send({ Type: type, ...payload }));
+  // }
 
   protected _getHash(instrument: I) {
     const { symbol, exchange } = instrument as any;
@@ -129,7 +120,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._pendingRequests = [];
   }
 
-  protected _handleTrade(data): boolean {
+  protected _handleTrade(data, connectionId: Id): boolean {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
@@ -144,7 +135,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
     for (const executor of this._executors) {
       try {
-        executor(_result);
+        executor(_result, connectionId);
       } catch (error) {
         console.error('_handleTrade', error);
       }

@@ -11,8 +11,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, ItemsComponent } from 'base-components';
+import { OrderColumn } from 'base-order-form';
 import { Id } from 'communication';
 import {
   Cell,
@@ -22,9 +22,17 @@ import {
   DataGrid,
   DataGridHandler
 } from 'data-grid';
+import { noneValue } from 'dynamic-form';
+import { InstrumentDialogComponent } from 'instrument-dialog';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
+import * as clone from 'lodash.clonedeep';
+import { NzContextMenuService, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
+import { AccountListener, filterByAccountsConnection } from 'real-trading';
+import { Subject } from 'rxjs';
+import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
-  IConnection,
+  IAccount,
   IInstrument,
   InstrumentsRepository,
   IOrder,
@@ -46,36 +54,29 @@ import {
   TradePrint
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
-import { MarketWatchItem } from './models/market-watch.item';
-import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, } from 'ng-zorro-antd';
-import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
+import { IWindow } from 'window-manager';
+import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
 import { Components } from '../../../src/app/modules';
-import { NotifierService } from 'notifier';
+import { filterByAccountConnection } from '../../real-trading';
+import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
+import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
+import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
 import {
   defaultSettings,
   marketWatchReceiveKey,
   MarketWatchSettings
 } from './market-watch-settings/market-watch-settings.component';
-import { IWindow } from 'window-manager';
-import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
-import { InstrumentDialogComponent } from 'instrument-dialog';
-import { Subject } from 'rxjs';
-import { buffer, debounceTime, take } from 'rxjs/operators';
-import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
-import * as clone from 'lodash.clonedeep';
-import { noneValue } from 'dynamic-form';
-import { OrderColumn } from 'base-order-form';
 import { MarketWatchBuilder } from './market-watch.builder';
-import { IMarketWatchItem, ItemType } from './models/interface-market-watch.item';
 import { defaultInstruments } from './mocked-instruments';
-import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
-import { MarketWatchCreateOrderItem } from './models/market-watch-create-order.item';
-import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
-import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { PerformedAction } from './models/actions.cell';
+import { IMarketWatchItem, ItemType } from './models/interface-market-watch.item';
+import { MarketWatchCreateOrderItem } from './models/market-watch-create-order.item';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
-import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
+import { MarketWatchItem } from './models/market-watch.item';
+import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
+import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
+import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 
 const labelText = 'Text label';
 
@@ -139,6 +140,7 @@ export interface IMarketWatchState {
   contextMenuState: any;
   componentInstanceId: number;
   settings;
+  accountId: Id;
   createdOrders: Id[];
 }
 
@@ -149,19 +151,28 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
+@AccountListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
   columns: Column[] = [];
   contextInstrument: IInstrument;
   contextLabelId: Id;
   contextPoint: { x, y };
-  connection$ = new Subject();
+  connection$ = new Subject<void>();
+
+  selectFirstAsDefault = false;
 
   isInlineOrderCreating = false;
 
   menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }];
 
   dataFeeds = [];
-  accountId: string;
+
+  account;
+
+  accountId: Id;
+
+  accounts = [];
+
   currentCell: Cell;
 
   createdOrders = [];
@@ -224,8 +235,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
               this.builder.deleteItems([data.item]);
               const order = data.item.getDto();
               this.isInlineOrderCreating = false;
-              order.accountId = this.accountId;
-              this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
+              order.accountId = this.account.id;
+              this._ordersRepository.createItem(order, { accountId: this.account.id }).toPromise().then(orderResponse => {
                 if (!isForbiddenOrder(orderResponse))
                   this.createdOrders.push(orderResponse.id);
               });
@@ -401,7 +412,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     private _positionsRepository: PositionsRepository,
     private _tradeFeed: TradeDataFeed,
     protected cd: ChangeDetectorRef,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
     private _modalService: NzModalService,
@@ -441,10 +451,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
         instruments.forEach(item => this.subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
-        this._positionsRepository.getItems({ accountId: this.accountId }).toPromise()
-          .then((response) => response.data.forEach(pos => this._processPosition(pos)));
-        this._ordersRepository.getItems({ accountId: this.accountId }).toPromise()
-          .then((response) => response.data.forEach(order => this._processOrders(order)));
+        this.loadPositions();
+        this.accounts.forEach(item => {
+          this._ordersRepository.getItems({
+            // accountId: this.connection.id,
+            accountId: item.id,
+            connectionId: item.connectionId,
+          }).toPromise()
+            .then((response) => response.data.forEach(order => this._processOrders(order)));
+        });
         this.detectChanges(true);
       });
 
@@ -458,15 +473,34 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     });
   }
 
-  protected _handleConnection(connection: IConnection) {
-    this._repository = this._repository.forConnection(connection);
-    this._positionsRepository = this._positionsRepository.forConnection(connection);
-    this._ordersRepository = this._ordersRepository.forConnection(connection);
+  private loadPositions() {
+    this._positionsRepository.getItems({
+      accountId: this.account.id,
+      connectionId: this.account.connectionId
+    }).toPromise()
+      .then((response) => response.data.forEach(pos => this._processPosition(pos)));
   }
 
   ngAfterViewInit() {
     if (this.settings)
       this._applySettings();
+  }
+
+  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.accounts = connectedAccounts;
+    if (this.account)
+      return;
+
+    const account = connectedAccounts.find(item => item.id === this.accountId);
+    if (account)
+      this.account = account;
+    else if (connectedAccounts.length) {
+      this.account = connectedAccounts[0];
+    }
+  }
+
+  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.accounts = connectedAccounts;
   }
 
   private addOrders(viewModel: MarketWatchItem) {
@@ -650,11 +684,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
+      accountId: this.account?.id,
     };
   }
 
   loadState(state?: IMarketWatchState): void {
-    this._subscribeToConnections();
 
     if (!state)
       state = {} as any;
@@ -665,6 +699,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     if (state.currentTabId) {
       this.currentTab = this.tabs.find(item => item.id === state.currentTabId);
       this.columns = this.tabs.find(item => item.id === this.currentTab.id)?.columns;
+    }
+    if (state.accountId) {
+      this.accountId = state.accountId;
     }
     this.loadInstrumentData();
 
@@ -701,17 +738,25 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.updateDataGridItems();
 
       this.onRemove(
-        this._levelOneDatafeed.on((updates) => this._processQuotes(updates)),
-        this._positionsFeed.on(position => this._processPosition(position)),
-        this._tradeFeed.on(trade => this._processTrade(trade)),
-        this._ordersFeed.on(order => this._processOrders(order)),
-        this._settleFeed.on((settle: SettleData) => {
+        this._levelOneDatafeed.on(filterByAccountConnection(this, (updates) => this._processQuotes(updates))),
+        this._positionsFeed.on(filterByAccountConnection(this, position => this._processPosition(position))),
+        this._tradeFeed.on(filterByAccountConnection(this, trade => this._processTrade(trade))),
+        this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
+        this._settleFeed.on(filterByAccountConnection(this, (settle: SettleData) => {
           const item = this.builder.getInstrumentItem(settle.instrument);
           if (item)
             item.handleSettlePrice(settle.price);
-        }),
-        this._ohlvFeed.on(ohlv => this._handleOHLV(ohlv)),
+        })),
+        this._ohlvFeed.on(filterByAccountConnection(this, ohlv => this._handleOHLV(ohlv))),
       );
+    });
+    this.connection$
+      .pipe(
+        skip(1),
+        untilDestroyed(this)
+      ).subscribe(() => {
+      this.builder.clearRealtimeData();
+      this.loadPositions();
     });
   }
 
@@ -929,7 +974,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: { instrument: this.contextInstrument },
+        state: { instrument: this.contextInstrument, account: this.account },
       },
       ...item.options
     });
@@ -941,6 +986,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWidth: 386,
       nzClassName: 'instrument-dialog',
       nzFooter: null,
+      nzComponentParams: {
+        accountId: this.account?.id,
+      }
     });
   }
 
@@ -996,9 +1044,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
 
   handleAccountChange($event: any) {
-    this.accountId = $event;
-    if ($event)
+    this.account = $event;
+    if ($event) {
       this.connection$.next();
+      this.broadcastData(this._getLinkingKey(), { account: $event });
+    }
   }
 
   onColumnUpdate(column: Column) {
@@ -1016,6 +1066,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         state: {
           instrument: this.contextInstrument,
           link: this._getLinkingKey(),
+          account: this.account,
           ...state,
         },
       },

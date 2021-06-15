@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
-import { IBaseItem, IPaginationResponse } from 'communication';
+import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from "trading";
 
 declare const moment: any;
 
-export interface IHistoryItem extends IBaseItem, IBar {}
+export interface IHistoryItem extends IBaseItem, IBar { }
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
@@ -16,32 +14,31 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     return 'History';
   }
 
-  _getRepository() {
-    return new RealHistoryRepository(
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
+  protected _mapResponseItem(item: any): IHistoryItem {
+    return {
+      id: item.id,
+      date: moment.utc(item.timestamp).toDate(),
+      open: item.openPrice,
+      close: item.closePrice,
+      high: item.highPrice,
+      low: item.lowPrice,
+      volume: item.volume,
+      details: (item.details ?? []).map(i => ({
+        ...i,
+        tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
+      })),
+    };
   }
 
-  getItems(params: { id: string }): Observable<IPaginationResponse<IHistoryItem>> {
-    return super.getItems(params).pipe(
-      map((res: any) => {
-        const data = res.result.map(item => ({
-          date: moment.utc(item.timestamp).toDate(),
-          open: item.openPrice,
-          close: item.closePrice,
-          high: item.highPrice,
-          low: item.lowPrice,
-          volume: item.volume,
-          details: (item.details || []).map(i => ({
-            ...i,
-            tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
-          })),
-        }));
+  getItems(params: any) {
+    if (params?.Symbol) {
+      params.id = params.Symbol;
+    } else if (params?.id) {
+      const [symbol, exchange] = params.id.split('.');
+      params.id = symbol;
+      params.Exchange = exchange;
+    }
 
-        return { data } as IPaginationResponse<IHistoryItem>;
-      }),
-    );
+    return super.getItems(params);
   }
 }

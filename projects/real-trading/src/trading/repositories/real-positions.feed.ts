@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IOrder, IPosition, OrderSide, PositionStatus, Side } from 'trading';
+import { IOrder } from 'trading';
 import { RealFeed } from './real-feed';
 import { RealtimeType } from './realtime';
 

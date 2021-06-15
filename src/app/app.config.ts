@@ -16,5 +16,6 @@ export class AppConfig extends Config implements CommunicationConfig {
   ws: ICommunicationWsConfig;
   setting: ICommunicationHttpConfig;
   rithmic: ICommunicationConfig;
+  zoneDecoder: ICommunicationConfig;
   identity: IIdentityConfig;
 }
