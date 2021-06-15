@@ -47,8 +47,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
   dataGrid: DataGrid;
 
   protected _dataFeed: any;
-  protected _levelOneDataFeed: Level1DataFeed;
-  protected _levelOneDataFeedHandler: OnTradeFn<IQuote>;
+
   private _unsubscribeFunctions = [];
 
   addUnsubscribeFn(value) {
@@ -59,10 +58,6 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
     super.ngOnInit();
 
     this._subscribeToDataFeed();
-
-    this._levelOneDataFeed = this._injector.get(Level1DataFeed);
-
-    this._onLevelOneDataFeed();
   }
 
   ngAfterViewInit() {
@@ -132,52 +127,10 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
       fn();
     }
     super.ngOnDestroy();
-
-    this._unsubscribeFromLevelOneDataFeed(this.items);
   }
 
 
   protected _transformDataFeedItem(item) {
     return item;
-  }
-
-  protected _onLevelOneDataFeed() {
-    if (!this._levelOneDataFeedHandler) {
-      return;
-    }
-
-    this.addUnsubscribeFn(this._levelOneDataFeed.on(this._levelOneDataFeedHandler.bind(this)));
-  }
-
-  protected _subscribeToLevelOneDataFeed(items: T[]) {
-    if (!this._levelOneDataFeedHandler) {
-      return;
-    }
-
-    items.forEach(item => {
-      this._levelOneDataFeed.subscribe((item as any).instrument);
-    });
-  }
-
-  protected _unsubscribeFromLevelOneDataFeed(items: T[]) {
-    if (!this._levelOneDataFeedHandler) {
-      return;
-    }
-
-    items.forEach(item => {
-      this._levelOneDataFeed.unsubscribe((item as any).instrument);
-    });
-  }
-
-  protected _handleCreateItems(items: T[]) {
-    super._handleCreateItems(items);
-
-    this._subscribeToLevelOneDataFeed(items);
-  }
-
-  protected _handleDeleteItems(items: T[]) {
-    super._handleDeleteItems(items);
-
-    this._unsubscribeFromLevelOneDataFeed(items);
   }
 }

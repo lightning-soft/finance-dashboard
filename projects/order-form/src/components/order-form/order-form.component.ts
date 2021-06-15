@@ -1,20 +1,19 @@
-import { AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { NumberHelper } from 'base-components';
+import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
 import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
-import { InstrumentSelectComponent } from 'instrument-select';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { AccountsListener, filterByConnectionAndInstrument, RealPositionsRepository } from 'real-trading';
+import { filterByConnectionAndInstrument, RealPositionsRepository } from 'real-trading';
 import { Storage } from 'storage';
 import {
-  compareInstruments, IConnection, IInstrument,
+  compareInstruments, IAccount, IInstrument,
   IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
   OrderType,
-  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType, IAccount
+  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType
 } from 'trading';
 
 const orderLastPriceKey = 'orderLastPrice';
@@ -27,7 +26,7 @@ interface OrderFormState {
   account?: IAccount;
 }
 
-export interface OrderFormComponent extends ILayoutNode {
+export interface OrderFormComponent extends ILayoutNode, IUnsubscribe {
 }
 
 @Component({
@@ -37,6 +36,7 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
+@BindUnsubscribe()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
 
   get isStopLimit() {
@@ -44,7 +44,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
-  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
 
   private _instrument: IInstrument;
 
@@ -64,8 +63,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (value?.id === this.instrument?.id)
       return;
 
-    this._levelOneDatafeed.unsubscribe(this._instrument);
-    this._levelOneDatafeed.subscribe(value);
+    const connectionId = this.account?.connectionId;
+    this._levelOneDatafeed.unsubscribe(value, connectionId);
+
+    this.unsubscribe(() => {
+      this._levelOneDatafeed.unsubscribe(value, connectionId);
+    });
 
     this._instrument = value;
 
@@ -306,7 +309,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    this._levelOneDatafeed.unsubscribe(this.instrument);
   }
 
   increasePrice() {
@@ -350,7 +352,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 }

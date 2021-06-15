@@ -65,7 +65,7 @@ export class RithmicDatafeed extends Datafeed {
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: timeFrame.interval,
-      accountId: this._account.id,
+      accountId: this._account?.id,
       BarCount: count ?? 500,
       Skip: 0,
       PriceHistory: true,

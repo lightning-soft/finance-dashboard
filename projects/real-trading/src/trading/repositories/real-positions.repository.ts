@@ -1,21 +1,23 @@
 import { Id, IPaginationResponse } from 'communication';
-import { map } from 'rxjs/operators';
-import { IInstrument, IInstrumentParams, IPosition, PositionStatus } from 'trading';
-import { BaseRepository } from './base-repository';
-import { PositionsRepository, IDeletePositionsParams } from 'trading';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IDeletePositionsParams, IPosition, PositionsRepository, PositionStatus } from 'trading';
+import { BaseRepository } from './base-repository';
 
 export class RealPositionsRepository extends BaseRepository<IPosition> implements PositionsRepository {
   protected get suffix(): string {
     return 'Position';
   }
   static transformPosition(item): IPosition {
+    if (isPositionTransformed(item))
+      return item;
+
     const { averageFillPrice: price, volume: size, instrument } = item;
 
     return {
-      id: instrument.exchange + instrument.symbol,
+      id: `${instrument.id}.${item.account?.id}`,
       instrument,
-      accountId: item.account.id,
+      accountId: item.account?.id,
       price,
       size,
       sellVolume: item.sellVolume,
@@ -79,4 +81,8 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     return true;
   }
+}
+
+function isPositionTransformed(position: IPosition | any): position is IPosition {
+  return (position as IPosition).accountId !== undefined && position.id !== undefined;
 }

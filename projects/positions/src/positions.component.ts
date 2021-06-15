@@ -5,16 +5,14 @@ import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
-import { RealPositionsRepository } from 'real-trading';
+import { AccountsListener, RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   IAccount,
-  IConnection,
   InstrumentsRepository,
   IPosition,
-  IPositionParams,
-  PositionsFeed,
+  IPositionParams, Level1DataFeed, PositionsFeed,
   PositionsRepository,
   PositionStatus,
   TradeDataFeed,
@@ -55,26 +53,20 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
+@AccountsListener()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
-  private _connections: IConnection[] = [];
-  private _accounts: IAccount[] = [];
-
   builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
-
-  private _columns: Column[] = [];
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
   menuVisible = false;
   open: number;
   realized: number;
   totalPl: number;
+
   contextMenuState = {
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
-
-  private _status: PositionStatus = PositionStatus.Open;
-  private _lastTrades: {[instrumentKey: string]: TradePrint} = {};
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<PositionItem>({
@@ -82,6 +74,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       handler: (data) => this.delete(data.item),
     }),
   ];
+
+  private _columns: Column[] = [];
+  private _status: PositionStatus = PositionStatus.Open;
+  private _lastTrades: { [instrumentKey: string]: TradePrint } = {};
 
   get columns() {
     return this._columns;
@@ -112,16 +108,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return { ...this._params, status: this.status };
   }
 
-  set accountId(accountId) {
- //   this._accountId = accountId;
-    this.loadData({ accountId });
-  }
-
-  get accountId() {
-    // return this._accountId;
-    return null;
-  }
-
   constructor(
     protected _repository: PositionsRepository,
     protected _injector: Injector,
@@ -130,12 +116,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _changeDetectorRef: ChangeDetectorRef,
     private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
+    private _levelOneDataFeed: Level1DataFeed,
   ) {
     super();
     this.autoLoadData = false;
+    (window as any).positions = this;
 
     this.builder.setParams({
-      groupBy: ['accountId', 'instrumentName'],
+      groupBy: ['accountId'],
       order: 'desc',
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
@@ -169,59 +157,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
   }
 
-  // handleConnectedConnectionsChange(data: IAccountNodeData) {
-  //   super.handleConnectedConnectionsChange(data);
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.loadData({ accounts });
+  }
 
-  //   this._connections = data.created;
-  // }
-
-  // handleAccountsChange(data: IAccountNodeData<IAccount>) {
-  //   super.handleAccountsChange(data);
-
-  //   if (data.deleted.length) {
-  //     const itemsToDelete = this.items.filter(i => data.deleted.some(_i => _i.id === i.position.accountId));
-
-  //     this.builder.handleDeleteItems(itemsToDelete);
-  //     this.updatePl();
-  //   }
-
-  //   this._accounts = data.created;
-
-  //   if (this._accounts.length) {
-  //     this.loadData();
-  //   }
-  // }
-
-  protected _getItems(params?: any): Observable<IPaginationResponse<IPosition>> {
-    const observables = this._accounts.map(account => {
-      const connection = this._connections.find(i => i.id === account.connectionId);
-
-      return this.repository.get(connection).getItems({ ...params, accountId: account.id })
-        .pipe(
-          map((res: IPaginationResponse<IPosition>) => {
-            res.data = res.data.map(item => {
-              return this._addInstrumentName(item);
-            });
-
-            return res;
-          }),
-          mergeMap((res: IPaginationResponse<IPosition>) => {
-            return this._combinePositionsWithInstruments(res.data).pipe(
-              map(positions => ({ ...res, data: positions }))
-            );
-          }),
-        );
-    });
-
-    return forkJoin(observables).pipe(
-      map((responses: IPaginationResponse<IPosition>[]) => {
-        return responses.reduce((accum, res) => {
-          accum.data = accum.data.concat(res.data);
-
-          return accum;
-        });
-      }),
-    );
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
   }
 
   protected _handleCreateItems(items: IPosition[]) {
@@ -232,14 +173,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       )
       .subscribe((combinedPositions) => {
         super._handleCreateItems(combinedPositions);
+        combinedPositions.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
         this.updatePl();
       });
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
     super._handleResponse(response, params);
-    response.data.forEach(item => this._levelOneDataFeed.subscribe(item.instrument));
-    this.updatePl();
+    this._handleCreateItems(response.data);
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
@@ -265,20 +206,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   private _combinePositionsWithInstruments(positions: IPosition[]): Observable<IPosition[]> {
     const instrumentsRequests = positions.map(p => {
-      const connection = this._connections.find(i => {
-        const account = this._accounts.find(_i => _i.id === p.accountId);
-
-        return i.id === account.connectionId;
-      });
-
-      return this._instrumentsRepository.get(connection)
-        .getItemById(p.instrument.symbol, { exchange: p.instrument.exchange });
+      return this._instrumentsRepository
+        .getItemById(p.instrument.symbol, { exchange: p.instrument.exchange, accountId: p.accountId });
     });
 
     return forkJoin(instrumentsRequests).pipe(
       map(instruments => positions.map((p, index) => {
-        // p.instrument = instruments[index];
-        return p;
+        return { ...p, instrument: instruments[index] };
       }))
     );
   }
@@ -368,4 +302,3 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     }
   }
 }
-

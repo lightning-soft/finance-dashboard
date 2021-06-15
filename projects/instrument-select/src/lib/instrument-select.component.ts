@@ -76,7 +76,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
 
     if (!instrument._loaded) {
       const hide = this.showLoading();
-      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange })
+      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange, accountId: this.account.id })
         .pipe(untilDestroyed(this))
         .subscribe(
           (_instrument: IInstrument) => {

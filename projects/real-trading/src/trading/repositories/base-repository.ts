@@ -1,7 +1,8 @@
 import { HttpRepository, IBaseItem, Id, IPaginationResponse } from 'communication';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConnectionContainer, IConnection } from 'trading';
+import * as _ from 'underscore';
 
 const ApiKey = 'Api-Key';
 
@@ -35,26 +36,73 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   }
 
   getItems(params?: any): Observable<IPaginationResponse<T>> {
+    const accounts = params.accounts;
+    delete params.accounts;
+
+    if (Array.isArray(accounts)) {
+      const configs = accounts.map(i => this._mapItemsParams({ ...params, accountId: i.id }));
+      return forkJoin(configs.map(i => this.getItems(i)))
+        .pipe(
+          map(arr => {
+            const data = _.flatten(arr.map(i => i.data));
+
+            return {
+              data,
+              requestParams: {},
+            } as any;
+          })
+        );
+    }
+
+    const itemParams = this._mapItemsParams(params);
+    return super.getItems(itemParams)
+      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: itemParams?.connection?.id })) })));
+  }
+
+  // getItemById(id: string | number, query: any): Observable<T> {
+  //   return super.getItemById(id, query);
+  // }
+
+  protected _mapItemsParams(params) {
+    return this._mapItemParams(params);
+  }
+
+  protected _mapItemParams(params: any) {
     if (!params)
       params = {};
 
-    const connection = params.connectionId != null ? this.getConnection(params.connectionId) : params.connection;
+    const paramsHeaders = params?.headers ?? {};
+    const optionsHeaders = (this._httpOptions as any)?.headers ?? {};
+    const headers = { ...optionsHeaders, ...paramsHeaders };
 
-    if (!connection)
-      params.headers = this.getApiHeadersByAccount(params.accountId).headers;
-    else if (connection)
-      params.headers = this.getApiHeaders(this._getApiKey(connection));
+    if (!params?.headers || !params?.headers[ApiKey]) {
+      const connection = params.connectionId != null ? this.getConnection(params.connectionId) : params.connection;
 
-    if (!params?.headers[ApiKey]) {
-      console.error(`Invalid ${ApiKey}, ${params?.headers[ApiKey]}`);
+      if (!connection)
+        params.headers = this.getApiHeadersByAccount(params.accountId).headers;
+      else
+        params.headers = this.getApiHeaders(this._getApiKey(connection));
+
     }
+    //  else {
+    //   console.error(`Invalid ${ApiKey}, ${params?.headers && params?.headers[ApiKey]}`);
+    // }
 
-    if (connection) {
-      delete params.connection;
-    }
+    this._processParams(params);
 
-    return super.getItems(params)
-      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: connection?.id })) })));
+    return {
+      headers,
+      ...params,
+    };
+  }
+
+  protected _processParams(obj: any) {
+    // if ((obj as any)?.headers)
+    //   delete (obj as any).headers;
+    // if ((obj as any)?.accountId)
+    //   delete (obj as any).accountId;
+    if ((obj as any)?.connection)
+      delete (obj as any).connection;
   }
 
   // getApiKeys(items: { accountId: Id }[]): Id[] {
@@ -71,7 +119,10 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
   }
 
   getApiKey(item: { accountId?: Id, account?: { id } }): Id {
-    return this._getApiKey(this._connectionContainer.getConnectionByAccountId(item.accountId ?? item.account.id));
+    if (!item)
+      return null;
+
+    return this._getApiKey(this._connectionContainer.getConnectionByAccountId(item.accountId ?? item.account?.id));
   }
 
   getConnection(connectionId: Id): IConnection {

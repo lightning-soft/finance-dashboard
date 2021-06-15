@@ -71,11 +71,11 @@ export abstract class Repository<T extends IBaseItem = any> {
     };
   }
 
-  protected _mapItemsParams(params: any): any {
+  protected _mapItemsParams(params: any): { headers?: any, [key: string]: string } {
     return params;
   }
 
-  protected _mapItemParams(params: any, action: RepositoryAction): any {
+  protected _mapItemParams(params: any, action: RepositoryAction): { headers?: any, [key: string]: string } {
     return params;
   }
 

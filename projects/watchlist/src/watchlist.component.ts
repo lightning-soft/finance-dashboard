@@ -126,9 +126,9 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {
-    for (const instrument of instruments) {
-      this._levelOneDatafeed.subscribe(instrument);
-    }
+    // for (const instrument of instruments) {
+    //   this._levelOneDatafeed.subscribe(instrument);
+    // }
   }
 
   _processQuotes(quotes: IQuote[] | IQuote) {

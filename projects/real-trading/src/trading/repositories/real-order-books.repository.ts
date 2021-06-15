@@ -10,7 +10,7 @@ export class RealOrderBooksRepository extends BaseRepository<IOrderBook> {
   }
 
   protected _mapItemsParams(params: any = {}) {
-    const _params = { ...params };
+    const _params = { ...super._mapItemsParams(params) };
 
     if (_params.symbol) {
       _params.id = _params.symbol;

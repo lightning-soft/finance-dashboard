@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { flatMap, map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { IInstrument, InstrumentsRepository } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -16,7 +16,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
   protected _mapItemsParams(params: any = {}) {
     return {
       criteria: '',
-      ...params,
+      ...super._mapItemsParams(params),
     };
   }
 
@@ -40,11 +40,10 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     }
 
     return super.getItemById(id, query).pipe(
-      mergeMap((data: any) => {
-        const result = data.result;
+      mergeMap((result: any) => {
         if (!result) {
-          console.error(data);
-          return throwError(`Invalid response, ${data}`);
+          console.error(result);
+          return throwError(`Invalid response, ${result}`);
         }
 
         return of({
@@ -64,7 +63,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
     return super.getItems(_params).pipe(
       map((res: any) => {
-        const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description  }) => {
+        const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description }) => {
           return {
             id: `${symbol}.${exchange}`,
             symbol,

@@ -1,8 +1,12 @@
 import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
+import { OrderColumn, OrderItem } from 'base-order-form';
 import { IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
+import { AccountsListener, IAccountsListener } from 'real-trading';
+import { forkJoin, Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { Components } from 'src/app/modules';
 import {
   IAccount,
@@ -15,11 +19,7 @@ import {
   OrderType,
   TradeDataFeed, TradePrint
 } from 'trading';
-import { finalize } from 'rxjs/operators';
-import { OrderColumn, OrderItem } from 'base-order-form';
-import { forkJoin, Observable } from 'rxjs';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
-import { AccountListener, AccountsListener, IAccountsListener } from 'real-trading';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -176,17 +176,15 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
-  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    // this.repository.getItems({ accounts }).subscribe(orders => this.builder.addItems(orders));
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.repository.getItems({ accounts }).subscribe(
+      res => this.builder.addItems(res.data),
+      err => this.showError(err),
+    );
   }
 
-  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    // this.builder.removeWhere(accounts);
-  }
-
-  handleAccountChange() {
-    // TODO
-    // this.loadData({ ...this.params, accountId: this.accountId });
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.builder.removeWhere(i => accounts.some(a => a.id === i.accountId.value));
   }
 
   changeActiveTab(tab: Tab): void {

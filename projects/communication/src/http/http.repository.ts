@@ -34,9 +34,9 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   getItemById(id: number | string, query?: any): Observable<T> {
-    const params = this._mapItemParams(query, RepositoryAction.Read);
+    const { headers, ...params } = this._mapItemParams(query, RepositoryAction.Read);
 
-    const request = this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, params })
+    const request = this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
       .pipe(
         map(res => this._mapItemResponse(res, query, RepositoryAction.Read)),
       );
@@ -52,14 +52,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
     let params = {};
-    const paramsHeaders = obj?.headers ?? {};
-    const optionsHeaders = (this._httpOptions as any)?.headers ?? {};
-    const headers = { ...optionsHeaders, ...paramsHeaders };
 
-    this._processParams(obj);
-
-    const { id = null, ...query } = this._mapItemsParams(obj ?? {});
-
+    const { id = null, headers, ...query } = this._mapItemsParams(obj ?? {});
 
     if (query) {
       if (query.skip != null) {
@@ -75,7 +69,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
       params = new HttpParams({ fromObject: query });
     }
 
-    console.log('aaaa', this.constructor.name, JSON.stringify(headers));
+    if (headers && !headers['Api-Key'])
+      console.warn('NO API KEY', this.constructor.name, JSON.stringify(headers));
 
     const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
       .pipe(
@@ -91,18 +86,11 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     return request;
   }
 
-  protected _processParams(obj: any) {
-    if ((obj as any)?.headers)
-      delete (obj as any).headers;
-    if ((obj as any)?.accountId)
-      delete (obj as any).accountId;
-  }
-
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
     const action = RepositoryAction.Create;
-    const params = this._mapItemParams(options, action);
+    const { headers, ...params } = this._mapItemParams(options, action);
 
-    return this._createItem(this._mapRequestItem(item, action), params)
+    return this._createItem(this._mapRequestItem(item, action), { headers, params })
       .pipe(
         map(res => this._mapItemResponse(res, params, action)),
         tap(i => this._onCreate(i)),
@@ -110,7 +98,7 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   protected _createItem(item: ExcludeId<T>, options?: any): Observable<any> {
-    return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options })
+    return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options });
   }
 
   updateItem(item: T, query?: any): Observable<T> {
