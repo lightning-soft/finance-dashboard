@@ -18,7 +18,8 @@ import { Components } from 'src/app/modules';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import {
-  compareInstruments, IAccount,
+  compareInstruments,
+  IAccount,
   IHistoryItem,
   IOrder,
   IPosition,
@@ -110,7 +111,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   //     this.refresh();
   //   }
   // >>>>>>> origin/develop
-  account: IAccount;
+
+  private _account: IAccount;
+
+  set account(value: IAccount) {
+    this._account = value;
+    this.datafeed.changeAccount(value);
+    this.refresh();
+  }
+
+  get account() {
+    return this._account;
+  }
 
   get instrument() {
     return this.chart?.instrument;
@@ -129,6 +141,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = value;
     this.chart.incomePrecision = value.precision ?? 2;
+
+    this.refresh();
 
     this.lastHistoryItem = null;
     this.income = null;
@@ -365,6 +379,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(value => chart.theme = getScxTheme(value));
 
+    this.refresh();
+
     this._loadedState$
       .pipe(untilDestroyed(this))
       .subscribe(state => {
@@ -374,7 +390,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.checkIfTradingEnabled();
 
         if (state.instrument && state.instrument.id != null) {
-          chart.instrument = state.instrument; // todo: test it
+         this.instrument = state.instrument; // todo: test it
         }
 
         if (state.timeFrame != null) {
@@ -452,6 +468,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       showInstrumentWatermark: false,
       incomePrecision: state?.instrument.precision ?? 2,
       stayInDrawingMode: false,
+      datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
       instrument: (state && state.instrument) ?? {
@@ -476,13 +493,27 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const { instrument, account } = data;
 
     if (instrument) {
-      chart.instrument = instrument;
+      this.instrument = instrument;
     }
     if (account) {
       this.account = account;
     }
 
     chart.sendBarsRequest();
+  }
+
+  refresh() {
+    const { chart } = this;
+
+    if (!chart || !this.instrument || !this._account) {
+      return;
+    }
+
+    if (chart.reload) {
+      chart.reload();
+    }
+    this._positions.refresh();
+    this._orders.refresh();
   }
 
   handleNodeEvent(name: LayoutNodeEvent) {

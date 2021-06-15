@@ -1,11 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import {
-  HistoryRepository,
-  InstrumentsRepository,
-  TradeDataFeed, TradePrint
-} from 'trading';
+import { HistoryRepository, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
 import { IBar } from '../models';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
@@ -65,10 +61,11 @@ export class RithmicDatafeed extends Datafeed {
     const { symbol, exchange } = instrument;
 
     const params = {
-      id: symbol,
+      Symbol: symbol,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: timeFrame.interval,
+      accountId: this._account.id,
       BarCount: count ?? 500,
       Skip: 0,
       PriceHistory: true,
