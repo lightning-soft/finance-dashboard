@@ -79,6 +79,7 @@ export class ConenctionWebSocketService {
       this._config,
       this._service
     );
+    instance.connection = connection;
 
     constructor.instances.set(key, instance);
 
