@@ -322,7 +322,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   // }
   saveState(): DataGridState {
     return {
-      columns: this._grid.schema,
+      columns: this._grid?.schema,
       contextMenuState: this.contextMenuState,
     };
   }
