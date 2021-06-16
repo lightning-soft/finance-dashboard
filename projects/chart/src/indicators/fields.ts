@@ -1,12 +1,18 @@
 import {
   FieldConfig,
   getCheckboxes,
-  getColor, getColorSelect, getDatePicker,
-  getInput, getLineSelector,
+  getColor,
+  getColorSelect,
+  getDatePicker,
+  getInput,
+  getLineSelector,
   getNumber,
-  getSelect, getSwitch, getTextAlign,
+  getSelect,
+  getSwitch,
+  getTextAlign,
   IFieldConfig,
-  wrapWithClass, wrapWithConfig
+  wrapWithClass,
+  wrapWithConfig
 } from 'dynamic-form';
 
 
@@ -144,6 +150,61 @@ function getProfileConfig(key, _config = {}) {
   };
 }
 
+function getShorterConfig(key, _config = {}) {
+  const config = {
+    additionalElements: [],
+  };
+  Object.assign(config, _config);
+  const { additionalElements, ...extraConfig } = config;
+  return {
+    key,
+    fieldGroupClassName: 'd-grid two-rows p-x-10',
+    className: 'profile-settings',
+    fieldGroup: [
+      getTradingSelect(),
+      getSelect({
+        key: 'type',
+        label: 'Profile Type',
+        className: 'regular-label label-400 hide-border-bottom profile-type',
+        options: [
+          { icon: 'icon-hollow-block', value: 'hollowBlocks', label: 'Hollow Blocks' },
+          { icon: 'icon-dots-indicator', value: 'dots', label: 'Dots' },
+          { icon: 'icon-lines-indicator', value: 'lines', label: 'Lines' },
+          { icon: 'icon-hollowgram', value: 'hollowgram', label: 'Hollowgram' },
+          { icon: 'icon-solidgram', value: 'solidgram', label: 'Solidgram' },
+          { icon: 'icon-filled-line', value: 'filledLine', label: 'Filled Line' },
+          { icon: 'icon-hollow-line', value: 'hollowLine', label: 'Hollow Line' },
+          { icon: 'icon-solid-block', value: 'solidBlock', label: 'Solid Block' }
+        ],
+      }),
+      getColorSelect({
+        key: 'color',
+        className: 'd-flex flex-column justify-content-end',
+        options: [
+          {
+            label: 'Profile Color',
+            value: { type: 'profileColor', value: '#a0a0a0' },
+          },
+          {
+            label: 'Heat Map',
+            value: { type: 'heatMap', value: '#a0a0a0' },
+          },
+          {
+            label: 'Custom Blend',
+            value: { type: 'customBlend', value: '#a0a0a0' },
+          },
+          {
+            label: 'FP Shading',
+            value: { type: 'fpShading', value: '#a0a0a0' },
+          }
+        ]
+      }),
+      ...additionalElements,
+    ],
+    ...extraConfig
+  };
+}
+
 function getValueArea(key, _config: any = {}) {
   const defaultConfig: any = { extraGroupClass: '', };
   Object.assign(defaultConfig, _config);
@@ -151,7 +212,7 @@ function getValueArea(key, _config: any = {}) {
 
   return {
     key,
-    fieldGroupClassName: `d-grid three-rows align-items-center ${extraGroupClass}`,
+    fieldGroupClassName: `d-grid three-rows align-items-center ${ extraGroupClass }`,
     wrappers: ['form-field'],
     templateOptions: {
       label: config.label
@@ -1066,3 +1127,448 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
     ],
   }),
 ];
+
+function getWidthField(key = 'width', selectKey = 'widthType') {
+  return new FieldConfig({
+    wrappers: [],
+    fieldGroupClassName: 'd-grid width-row',
+    fieldGroup: [getNumber({
+      key,
+      label: 'Width',
+      min: 1,
+      className: 'calculate-profiles'
+    }),
+      getSelect({
+        key: selectKey,
+        className: 'width-select',
+        options: [
+          {
+            label: 'px',
+            value: 'px',
+          },
+          {
+            label: '%',
+            value: 'percent',
+          }
+        ],
+      })],
+  });
+}
+
+export const compositeProfile: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
+    fieldGroup: [
+      getSelect({
+        key: 'type', label: 'Profile Type',
+        className: 'split-select',
+        options: [{
+          value: 'volume',
+          label: 'Volume'
+        },
+          {
+            value: 'tradesCount',
+            label: 'Ticks'
+          },
+          {
+            value: 'price',
+            label: 'Price'
+          },
+        ],
+      }),
+      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getTextAlign('align', 'Profile Alignment',
+        { className: 'profile-alignment' }),
+      wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
+        { className: 'tickPerPrice' }),
+      getWidthField(),
+      {
+        key: 'smoothed',
+        fieldGroupClassName: 'd-flex align-items-center smooth-price',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
+          }),
+          getNumber({
+            key: 'value',
+            label: 'Prices',
+            min: 0,
+          }),
+        ],
+      },
+    ],
+  }),
+  new FieldConfig({
+    key: 'profile',
+    label: 'Profile Settings',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-flex align-items-center',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'overlayEthOverRth', label: 'Overlay ETH over RTH' },
+            ],
+            extraConfig: {}
+          }),
+        ],
+      },
+      getShorterConfig('general', {
+        additionalElements: [],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: ''
+        },
+        className: 'mt-4 block profile-settings bordered',
+        hideExpression: (model, state, field) => {
+          return field.form.value.overlayEthOverRth;
+        },
+      }),
+      getShorterConfig('RTH', {
+        additionalElements: [],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'RTH'
+        },
+        className: 'mt-4 block profile-settings bordered',
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+      }),
+      getShorterConfig('ETH', {
+        additionalElements: [],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'ETH Overlay'
+        },
+        className: 'mt-4 block profile-settings bordered',
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+      }),
+    ],
+  }),
+  new FieldConfig({
+    key: 'lines',
+    label: 'POC and Value Area Lines',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container py-0 p-x-10',
+    fieldGroup: [
+      pocAndValue('Poc', 'poc'),
+      pocAndValue('ValueArea(VA)', 'valueArea'),
+
+    ],
+  }),
+
+];
+export const priceStats: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
+    fieldGroup: [
+      getSelect({
+        key: 'type', label: 'Profile Type',
+        className: 'split-select',
+        options: [{
+          value: 'volume',
+          label: 'Volume'
+        },
+          {
+            value: 'tradesCount',
+            label: 'Ticks'
+          },
+          {
+            value: 'price',
+            label: 'Price'
+          },
+        ],
+      }),
+      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getTextAlign('align', 'Profile Alignment',
+        { className: 'profile-alignment' }),
+      wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
+        { className: 'tickPerPrice' }),
+      new FieldConfig({
+        wrappers: [],
+        fieldGroupClassName: 'd-grid two-rows bordered mt-3',
+        className: 'full-width',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { label: 'Current Session', key: 'currentSession' },
+            ],
+          }),
+          getWidthField('currentSessionWidth', 'currentSessionWidthType'),
+          getCheckboxes({
+            checkboxes: [
+              { label: 'Previous Session', key: 'previousSession', },
+            ],
+          }),
+          getWidthField('previousSessionWidth', 'previousSessionWidthType'),
+          getCheckboxes({
+            checkboxes: [{
+              label: '',
+              key: 'days',
+
+            }],
+            additionalFields: [
+              getNumber({
+                key: 'daysCount',
+                label: 'Days',
+                className: 'reverse-number-label regular-number-label',
+                min: 1
+              })
+            ]
+          }),
+          getWidthField(),
+          getSwitch('includeCurrentSession', 'Include Current Session', { className: 'regularSwitch reverse-switch-label' })
+        ],
+      }),
+    ],
+  }),
+  new FieldConfig({
+    key: 'profile',
+    label: 'Profile Settings',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-flex align-items-center',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'overlayEthOverRth', label: 'Overlay ETH over RTH' },
+            ],
+            extraConfig: {}
+          }),
+        ],
+      },
+      getShorterConfig('general', {
+        hideExpression: (model, state, field) => {
+          return field.form.value.overlayEthOverRth;
+        },
+        additionalElements: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'pocChartOverlay', label: 'POC Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developPOC', 'Developing POC', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'pocColor', label: 'POC Color' }),
+          getCheckboxes({
+            checkboxes: [
+              { key: 'vaChartOverlay', label: 'VA Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developVA', 'Developing VA', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'vaColor', label: 'VA Color' }),
+        ],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: ''
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+      getShorterConfig('rth', {
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+        additionalElements: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'pocChartOverlay', label: 'POC Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developPOC', 'Developing POC', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'pocColor', label: 'POC Color' }),
+          getCheckboxes({
+            checkboxes: [
+              { key: 'vaChartOverlay', label: 'VA Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developVA', 'Developing VA', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'vaColor', label: 'VA Color' }),
+        ],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'RTH',
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+      getShorterConfig('ethOverlay', {
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+        additionalElements: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'pocChartOverlay', label: 'POC Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developPOC', 'Developing POC', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'pocColor', label: 'POC Color' }),
+          getCheckboxes({
+            checkboxes: [
+              { key: 'vaChartOverlay', label: 'VA Chart Overlay' },
+            ],
+            additionalFields: [
+              getSwitch('developVA', 'Developing VA', { className: 'regularSwitch reverse-switch-label' }),
+            ],
+          }),
+          getColor({ key: 'vaColor', label: 'VA Color' }),
+        ],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'ETH Overlay',
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+
+    ],
+  }),
+];
+/*
+*
+export const priceStatsDefaultSettings = {
+  general: {
+    currentSession: true,
+    currentSessionWidth: 3,
+    currentSessionWidthType: 'px',
+    days: true,
+    daysCount: 1,
+    includeCurrentSession: true,
+    previousSession: true,
+    previousSessionWidth: 3,
+    previousSessionWidthType: 'percent',
+    type: 'tradesCount',
+    va: 2,
+    value: 1,
+    width: 1,
+    widthType: 'percent',
+  },
+  profile: {
+    overlayEthOverRth: false,
+    ethOverlay: {
+      color: { type: 'customBlend', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(241,110,110,1)',
+      tradingHours: 'cmeTrading',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,122,64,1)',
+    },
+    general: {
+      color: { type: 'heatMap', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(0,242,126,1)',
+      tradingHours: 'cmeTrading',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,32,143,1)',
+    },
+    rth: {
+      color: { type: 'customBlend', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(0,220,114,1)',
+      tradingHours: 'newSession',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,242,126,1)',
+    }
+  }
+};
+
+export const compositeProfileSettings = {
+    general: {
+      align: 'left',
+      smoothed: { enabled: true, value: 5 },
+      type: 'tradesCount',
+      va: 2,
+      value: 4,
+      width: 4,
+      widthType: 'percent',
+    },
+    lines: {
+      poc: {
+        colors: {
+          strokeColor: 'rgb(0,153,80,1)'
+        },
+        enabled: true,
+        labelEnabled: true,
+      },
+      valueArea: {
+        colors: {
+          strokeColor: 'rgb(0,153,80,1)'
+        },
+        enabled: true,
+        labelEnabled: true,
+      }
+    },
+    profile: {
+      overlayEthOverRth: false,
+      ETH: {
+        color: { type: 'heatMap', value: '#a0a0a0' },
+        tradingHours: 'cmeTrading',
+        type: 'dots',
+      },
+      RTH: {
+        color: { type: 'heatMap', value: '#a0a0a0' },
+        tradingHours: 'cmeTrading',
+        type: 'dots',
+      },
+      general: {
+        color: { type: 'customBlend', value: '#a0a0a0' },
+        tradingHours: 'newSession',
+        type: 'hollowBlocks',
+      }
+    }
+  };
+* */
+function pocAndValue(label, key) {
+  return {
+    key,
+    className: 'mt-2 d-block',
+    fieldGroupClassName: 'three-rows d-grid',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [
+          {
+            key: 'enabled', label,
+          },
+        ]
+      }),
+      {
+        key: 'colors',
+        fieldGroupClassName: 'd-grid inner-value-area',
+        fieldGroup: [
+          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithConfig(getLineSelector({ key: 'strokeTheme' }), {
+            className: 'ml-2',
+          }),
+        ]
+      },
+      getSwitch('labelEnabled', 'Label'),
+    ]
+  };
+}

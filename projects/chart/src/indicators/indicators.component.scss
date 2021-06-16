@@ -5,6 +5,54 @@
 
 
   ::ng-deep {
+    .reverse-switch-label {
+      switch {
+        flex-direction: row;
+      }
+
+      switch nz-switch, switch .switch-label {
+        width: auto;
+        margin-left: 7px;
+      }
+    }
+
+    .reverse-number-label {
+      number-input {
+        flex-direction: row;
+
+        .number-label {
+          margin-left: 6px;
+        }
+      }
+    }
+
+    .regular-number-label {
+      number-input {
+        .number-label {
+          font-weight: 400;
+        }
+      }
+    }
+
+    .width-select {
+      width: 38px;
+    }
+
+    .regularSwitch {
+      switch .switch-label {
+        font-weight: 400;
+      }
+    }
+
+    .width-row {
+      grid-template-columns: 3fr 1fr;
+      grid-column-gap: 5px;
+
+      nz-select {
+        min-width: 1px;
+      }
+    }
+
     .tickPerPrice {
       number-input {
         flex-direction: row;
