@@ -4,7 +4,6 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import { BehaviorSubject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { IConnection } from 'trading';
-import { ConnectionsFactory } from '../../../real-trading/src/trading/repositories/connections.factory';
 import { CommunicationConfig } from '../http';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
 import { WebSocketService } from './web-socket.service';
@@ -13,7 +12,8 @@ import { WebSocketService } from './web-socket.service';
 @Injectable({
   providedIn: 'root'
 })
-export class ConenctionWebSocketService extends ConnectionsFactory<ConenctionWebSocketService> {
+export class ConenctionWebSocketService {
+  connection: IConnection;
   connection$ = new BehaviorSubject<boolean>(false);
 
   get connected(): boolean {
@@ -38,7 +38,6 @@ export class ConenctionWebSocketService extends ConnectionsFactory<ConenctionWeb
     private _config: CommunicationConfig,
     private _service: WebSocketService
   ) {
-    super();
 
     this._setListeners();
     this._setEventListeners();
@@ -55,6 +54,35 @@ export class ConenctionWebSocketService extends ConnectionsFactory<ConenctionWeb
         eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
       };
     };
+  }
+
+
+  get(connection: IConnection): ConenctionWebSocketService {
+    if (!connection) {
+      throw new Error(`Please provide valid connection`);
+    }
+
+    const key = connection.id;
+    const constructor = this.constructor as any;
+
+    if (!constructor.instances) {
+      constructor.instances = new Map<IConnection, any>();
+      constructor.instancesCounts = new Map<IConnection, number>();
+    }
+
+    if (constructor.instances.has(key)) {
+      return constructor.instances.get(key);
+    }
+
+    const instance = new ConenctionWebSocketService(
+      this._injector,
+      this._config,
+      this._service
+    );
+
+    constructor.instances.set(key, instance);
+
+    return instance;
   }
 
   destroy(connection: IConnection) {

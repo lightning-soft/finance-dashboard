@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ConnectionsFactory } from 'real-trading';
 import { IAccount, OrderSide } from 'trading';
 import { IBar, IChart, IDetails } from '../models';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
@@ -22,7 +21,7 @@ declare let StockChartX: any;
 
 
 @Injectable()
-export abstract class Datafeed extends ConnectionsFactory<Datafeed> implements IDatafeed {
+export abstract class Datafeed implements IDatafeed {
   /**
    * @internal
    */
