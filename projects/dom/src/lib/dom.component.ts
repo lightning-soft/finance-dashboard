@@ -1957,6 +1957,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const window = this._windowManagerService.getWindowByComponent(this);
     const minWindowWidth = minGridWidth + (window._container.offsetWidth - currentGridWidth);
     window.options.minWidth = minWindowWidth;
+
+    if (minGridWidth > currentGridWidth) {
+      window.width = minWindowWidth;
+      this.dataGrid.resize();
+    }
   }
 
   toggleTrading(): void {
