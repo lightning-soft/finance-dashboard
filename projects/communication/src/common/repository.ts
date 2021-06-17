@@ -6,6 +6,8 @@ export type ExcludeId<T> = {
   [P in Exclude<keyof T, keyof IBaseItem>]?: T[P]
 };
 
+type EventHandler = (data: any) => void;
+
 export enum RepositoryAction {
   Create = 'create',
   Read = 'read',
@@ -22,9 +24,9 @@ export abstract class Repository<T extends IBaseItem = any> {
 
   actions: Subject<RepositoryActionData<T>> = new Subject();
 
-  protected _onCreate = this._bindEmit(RepositoryAction.Create);
-  protected _onUpdate = this._bindEmit(RepositoryAction.Update);
-  protected _onDelete = this._bindEmit(RepositoryAction.Delete);
+  protected _onCreate: EventHandler = this._bindEmit(RepositoryAction.Create);
+  protected _onUpdate: EventHandler = this._bindEmit(RepositoryAction.Update);
+  protected _onDelete: EventHandler = this._bindEmit(RepositoryAction.Delete);
 
   connection;
 
@@ -56,7 +58,7 @@ export abstract class Repository<T extends IBaseItem = any> {
     throw new Error('Please implement deleteMany');
   }
 
-  protected _bindEmit(action: RepositoryAction) {
+  protected _bindEmit(action: RepositoryAction): EventHandler {
     return (data) => {
       if (data == null)
         return;
