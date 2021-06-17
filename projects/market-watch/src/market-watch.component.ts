@@ -1193,7 +1193,7 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   let lastStyles = {};
-  if (settings.display.highlightType) {
+  if (settings.display.highlightType !== noneValue) {
     lastStyles = {
       highlightColor: '#fff',
       [`highlight${ settings.display.highlightType }`]: settings.colors.priceUpdateHighlight
