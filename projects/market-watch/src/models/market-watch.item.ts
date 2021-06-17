@@ -1,15 +1,20 @@
 import { IBaseItem, Id } from 'communication';
-import { Cell, NumberCell } from 'data-grid';
-import { IInstrument, IQuote, IPosition } from 'trading';
-import { AddClassStrategy } from 'data-grid';
-import { IOrder } from 'trading';
-import { OrderSide, QuoteSide } from 'trading';
-import { getProfitStatus } from 'data-grid';
-import { isForbiddenOrder, TradePrint, UpdateType, VolumeData } from 'trading';
+import { AddClassStrategy, Cell, getProfitStatus, NumberCell, RoundFormatter } from 'data-grid';
+import {
+  IInstrument,
+  IOrder,
+  IPosition,
+  IQuote,
+  isForbiddenOrder,
+  OHLVData,
+  OrderSide,
+  QuoteSide,
+  TradePrint,
+  UpdateType,
+  VolumeData
+} from 'trading';
 import { MarketWatchSubItem } from './market-watch.sub-item';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
-import { OHLVData } from 'trading';
-import { RoundFormatter } from 'data-grid';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
 
@@ -72,6 +77,10 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
 
   toggleExpand(mouseEvent: MouseEvent) {
     return this.symbol.clickOnExpand(mouseEvent);
+  }
+
+  setShowDrawings(value: boolean) {
+    this.symbol.setShowDrawings(value);
   }
 
   applySettings(settings) {

@@ -1,14 +1,16 @@
-import { Component, Injector, ViewChild } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ItemsComponent } from 'base-components';
-import { IInstrument } from 'trading';
-import { InstrumentsRepository } from 'trading';
+import { IInstrument, InstrumentsRepository } from 'trading';
 import { FormControl } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { debounceTime } from 'rxjs/operators';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { Subject } from "rxjs";
+import { Subject } from 'rxjs';
 import { Id } from 'communication';
+import { Storage } from 'storage';
+
+const instrumentDialogStorageKey = 'instrumentDialogStorageKey';
 
 @Component({
   selector: 'instrument-dialog',
@@ -18,7 +20,7 @@ import { Id } from 'communication';
   ]
 })
 @UntilDestroy()
-export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
+export class InstrumentDialogComponent extends ItemsComponent<IInstrument> implements OnInit, OnDestroy {
   formControl = new FormControl();
   query: any = {
     take: 20,
@@ -33,9 +35,11 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
   viewport: CdkVirtualScrollViewport;
 
   scroller$ = new Subject();
+  tabIndex = 0;
 
   constructor(protected _injector: Injector,
               private _modal: NzModalRef,
+              private _storage: Storage,
               protected _repository: InstrumentsRepository) {
     super();
     this.autoLoadData = { onConnectionChange: true };
@@ -63,6 +67,15 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
     });
   }
 
+  ngOnInit() {
+    const query = this._storage.getItem(instrumentDialogStorageKey);
+    if (query) {
+      this.tabIndex = query.tabIndex;
+      this.query.criteria = query.criteria;
+      this.formControl.patchValue(this.query.criteria);
+    }
+  }
+
   search() {
     this.builder.replaceItems([]);
     this.loadData(this.query);
@@ -78,6 +91,14 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> {
 
   trackByIdx(item) {
     return item.id;
+  }
+
+  ngOnDestroy() {
+    const query = {
+      criteria: this.query.criteria,
+      tabIndex: this.tabIndex,
+    };
+    this._storage.setItem(instrumentDialogStorageKey, query);
   }
 
 }

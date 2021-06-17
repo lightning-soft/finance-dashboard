@@ -3,6 +3,8 @@
 :host {
   height: 20px;
 }
+$label-left-margin: 10px;
+$color-container-size: 10px;
 
 ::ng-deep {
   .color-type-selection {
@@ -60,8 +62,8 @@
 }
 
 .color {
-  height: 10px;
-  width: 10px;
+  height: $label-left-margin;
+  width: $color-container-size;
   border-radius: 2px;
   border: 1px solid transparent;
   transition: border-color .2s ease;
@@ -90,12 +92,12 @@
   pointer-events: none;
   opacity: 0.3;
 }
-
 .color-label {
   margin-left: 10px;
   color: #D0D0D2;
   font-size: 0.75rem;
   text-overflow: ellipsis;
+  width: calc(100% - #{$label-left-margin} - #{$color-container-size});
   white-space: nowrap;
   overflow: hidden;
 }

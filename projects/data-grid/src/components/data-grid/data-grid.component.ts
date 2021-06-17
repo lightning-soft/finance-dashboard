@@ -4,8 +4,10 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostBinding, HostListener,
-  Input, NgZone,
+  HostBinding,
+  HostListener,
+  Input,
+  NgZone,
   OnDestroy,
   OnInit,
   Output,
@@ -59,7 +61,7 @@ export interface ICellChangedEvent<T> {
 }
 
 let closePrevContextMenu: () => void;
-export type CustomContextMenuItem = { title: string, action: () => void };
+export type CustomContextMenuItem = { title?: string, action?: () => void, divider?: boolean };
 
 @Component({
   selector: 'data-grid',
@@ -385,10 +387,15 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     if (!editPayload)
       return;
 
-    const { factory, params } = editPayload;
+    const { factory, params, styles } = editPayload;
     const component = this.entry.createComponent(factory);
     this.editComponent = component;
-    component.location.nativeElement.style.position = 'absolute';
+    const style = component.location.nativeElement.style;
+    style.position = 'absolute';
+    for (let key in styles) {
+      style[key] = styles[key];
+    }
+
     for (let key in params) {
       component.instance[key] = params[key];
     }

@@ -11,7 +11,12 @@
                             [(nzChecked)]="contextMenuState.showColumnHeaders"
     >Column Headers</label></li>
     <li nz-menu-divider></li>
-    <li nz-menu-item *ngFor="let item of customMenuItems" (click)="item.action()">{{item.title}}</li>
+    <ng-container *ngFor="let item of customMenuItems">
+      <li nz-menu-item *ngIf="!item.divider; else divider" (click)="item.action()">{{item.title}}</li>
+      <ng-template #divider>
+        <li nz-menu-divider></li>
+      </ng-template>
+    </ng-container>
     <li nz-menu-item (click)="setFitColumnsWidth()">Best Fit Columns</li>
     <li nz-menu-divider></li>
     <li nz-submenu nzMenuClassName="columns-items" nzTitle="Table View">

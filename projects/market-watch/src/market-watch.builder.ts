@@ -111,4 +111,12 @@ export class MarketWatchBuilder extends ItemsBuilder<InstrumentHolder, IMarketWa
         this.deleteCallback(holder.item.instrument);
     }
   }
+
+  getCreateOrderItem() {
+    return this.items.find(item => item.itemType === ItemType.CreateItem);
+  }
+
+  getMarketWatchItems(): MarketWatchItem[] {
+    return this.items.filter(item => item.itemType === ItemType.Item) as MarketWatchItem[];
+  }
 }

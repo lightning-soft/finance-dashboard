@@ -1,8 +1,7 @@
-import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getSelect } from 'dynamic-form';
+import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getSelect, noneValue } from 'dynamic-form';
 import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { OrderColumn } from 'base-order-form';
 import { OrderDurationArray, OrderSide, OrderType } from 'trading';
-import { noneValue } from 'dynamic-form';
 
 export enum OpenIn {
   orderTicker = 'orderTicket',
@@ -126,7 +125,8 @@ export const settingsField = [
               value: OrderColumn.identifier
             }, 'Side', 'Quantity', 'Type', 'Price', 'Trigger Price', 'Average Fill Price',
               { label: 'TIF', value: OrderColumn.duration }, {
-                label: 'Destination',
+               // label: 'Destination',
+               label: 'Description',
                 value: OrderColumn.description
               }, 'Status'],
             columns: [

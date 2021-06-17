@@ -96,6 +96,7 @@ const orderStyles = {
   orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
   orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
   labelColor: '#fff',
+  createOrderColor: '#D0D0D2',
   labelBackgroundColor: '#24262C',
 };
 const defaultStyles = { color: '#D0D0D2', textAlign: 'left' };
@@ -163,7 +164,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   isInlineOrderCreating = false;
 
-  menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }];
+  menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }, { divider: true }];
 
   dataFeeds = [];
 
@@ -221,10 +222,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
           const action = data.item.checkAction(event);
           switch (action) {
             case PerformedAction.Close:
-              const item = this.builder.getInstrumentItem(data.item.instrument);
-              item.deleteSubItem(data.item);
-              this.builder.deleteItems([data.item]);
-              this.isInlineOrderCreating = false;
+              this.cancelCreateOrder(data.item);
               break;
             case PerformedAction.Stop:
               this.isInlineOrderCreating = false;
@@ -286,6 +284,13 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       }
     }),
   ];
+
+  private cancelCreateOrder(row) {
+    const item = this.builder.getInstrumentItem(row.instrument);
+    item.deleteSubItem(row);
+    this.builder.deleteItems([row]);
+    this.isInlineOrderCreating = false;
+  }
 
   components = [
     Components.Chart,
@@ -352,8 +357,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       case 'orderDuration': {
         return this.createSelect(cell, OrderDuration);
       }
-      case 'text': {
-        return this.createText(cell);
+      case 'label': {
+        return this.createLabel(cell);
       }
       case 'orderSide':
         return this.createSelect(cell, OrderSide);
@@ -368,12 +373,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     }
   }
 
-  private createText(cell) {
+  private createLabel(cell) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(InputWrapperComponent);
+    const value = cell.item.value;
+    cell.item.updateValue('');
     return {
       factory,
       params: {
-        value: cell.item.value,
+        value,
+      },
+      styles: {
+        minWidth: '250px',
+        marginLeft: '40px',
       }
     };
   }
@@ -765,6 +776,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this._dataGrid.applyStyles({ font: `${ fontWeight } 14px \"Open Sans\", sans-serif` });
 
     const showOrders = this.settings.display.showOrders;
+    this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
     if (!showOrders) {
       this.builder.hideSubItems();
     } else if (!this.shouldShowAllOrders()) {
@@ -850,8 +862,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzContent: CreateModalComponent,
       nzWidth: 438,
       nzComponentParams: {
-       // blankOption: 'Blank tab',
-        name: 'Create tab',
+        name: 'Tab name',
         options: this.tabs.map(item => ({ label: item.name, value: item.id }))
       }
     });
@@ -877,17 +888,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       return;
     }
     const newTab = tab.clone();
-    this.addTab(newTab);
+    const index = this.tabs.indexOf(tab);
+    this.addTab(newTab, index);
     this.builder.loadInstruments(newTab.getInstruments());
   }
 
-  addTab(tab: Tab) {
+  addTab(tab: Tab, index = this.tabs.length) {
     if (this.tabs.length >= maxTabCount) {
       this._notifier.showError('You can\'t create more than 10 tabs');
       return;
     }
 
-    this.tabs.push(tab);
+    this.tabs.splice(index, 0, tab);
 
     if (this.tabs.length === 1)
       this.selectTab(this.tabs[0]);
@@ -902,7 +914,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
         name: this.contextTab.name,
-        label: 'Name of tab',
+        label: 'Tab name',
       },
     });
 
@@ -919,8 +931,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
         message: 'Do you want delete the tab?',
-        confirmText: 'Yes',
-        cancelText: 'No',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
       },
     });
 
@@ -1113,9 +1125,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   onInstrumentChanged(prevInstrument: IInstrument, instrument: IInstrument) {
-    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
-    if (index === -1)
+    if (prevInstrument.id === instrument.id) {
       return;
+    }
+
+    if (this.currentTab.hasInstrument(prevInstrument)) {
+      this._notifier.showError('You can\'t add symbol that is already in the tab');
+      return;
+    }
+
+    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
 
     (this.currentTab.data[index] as InstrumentHolder).instrument = instrument;
     this.builder.loadInstrument(instrument);
@@ -1130,8 +1149,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   private createInlineOrder(instrument: IInstrument) {
     const index = this.builder.getIndex(instrument.id);
-    if (index === -1 || this.isInlineOrderCreating)
+    if (index === -1)
       return;
+
+    const createOrderItem = this.builder.getCreateOrderItem();
+    if (createOrderItem)
+      this.cancelCreateOrder(createOrderItem);
 
     const orderMarketWatchItem = new MarketWatchCreateOrderItem(instrument, this.settings.order);
     orderMarketWatchItem.applySettings(this.columnSettings);

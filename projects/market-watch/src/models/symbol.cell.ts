@@ -18,6 +18,7 @@ const regularStyles = {
 
 export class SymbolCell extends Cell {
   private _expanded = false;
+  private _showDrawings = true;
   styles = regularStyles;
   centerX: number;
   centerY: number;
@@ -37,6 +38,14 @@ export class SymbolCell extends Cell {
     this.drawed = false;
   }
 
+  setShowDrawings(value: boolean) {
+    if (value == this._showDrawings)
+      return;
+
+    this._showDrawings = value;
+    this.drawed = false;
+  }
+
   draw(context) {
     const ctx: CanvasRenderingContext2D = context?.ctx;
 
@@ -45,29 +54,32 @@ export class SymbolCell extends Cell {
 
     const x = context.x;
     const y = context.y + 1;
-    const width = context.width;
     const height = context.height;
-    const prevFill = ctx.fillStyle;
-    ctx.beginPath();
-    ctx.fillStyle = this.styles.circleBackground;
-    this.centerX = x + leftMargin + circleRadius;
-    this.centerY = y + (height / 2);
-    ctx.arc(this.centerX, this.centerY, circleRadius, 0, 2 * Math.PI, false);
-    ctx.fill();
-    ctx.closePath();
+
+    if (this._showDrawings) {
+      const prevFill = ctx.fillStyle;
+      ctx.beginPath();
+      ctx.fillStyle = this.styles.circleBackground;
+      this.centerX = x + leftMargin + circleRadius;
+      this.centerY = y + (height / 2);
+      ctx.arc(this.centerX, this.centerY, circleRadius, 0, 2 * Math.PI, false);
+      ctx.fill();
+      ctx.closePath();
 
 
-    ctx.beginPath();
-    ctx.fillStyle = this.styles.triangleBackground;
+      ctx.beginPath();
+      ctx.fillStyle = this.styles.triangleBackground;
 
-    if (this._expanded)
-      drawExpandedTriangle(ctx, this.centerX, this.centerY);
-    else
-      drawRegularTriangle(ctx, this.centerX, this.centerY);
+      if (this._expanded)
+        drawExpandedTriangle(ctx, this.centerX, this.centerY);
+      else
+        drawRegularTriangle(ctx, this.centerX, this.centerY);
 
-    ctx.fill();
-    ctx.fillStyle = prevFill;
-    ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = prevFill;
+      ctx.closePath();
+    }
+
 
     ctx.fillText(this.value, x + textLeftMargin + leftMargin + (circleRadius * 2), y + (height / 2));
     return true;
@@ -75,7 +87,7 @@ export class SymbolCell extends Cell {
 
   private isClickedOnCircle(mouseEvent: MouseEvent) {
     const { offsetX: x, offsetY: y } = mouseEvent;
-    return (x <= this.centerX + circleRadius) && (x >= this.centerX - circleRadius) &&
+    return this._showDrawings && (x <= this.centerX + circleRadius) && (x >= this.centerX - circleRadius) &&
       (y <= this.centerY + circleRadius) && (y >= this.centerY - circleRadius);
   }
 }

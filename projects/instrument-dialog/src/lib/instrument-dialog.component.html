@@ -4,7 +4,7 @@
     <input [formControl]="formControl" nzSize="small" type="text" nz-input/>
   </nz-input-group>
 </nz-form-control>
-<nz-tabset>
+<nz-tabset [(nzSelectedIndex)]="tabIndex">
   <nz-tab nzTitle="All">
   </nz-tab>
   <nz-tab nzTitle="Futures">
