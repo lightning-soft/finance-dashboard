@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, Injector, Input, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostBinding,
+  Injector,
+  Input,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
@@ -20,7 +29,8 @@ import { Themes, ThemesHandler } from 'themes';
 import {
   compareInstruments,
   IAccount,
-  IHistoryItem, IOrder,
+  IHistoryItem,
+  IOrder,
   IPosition,
   IQuote,
   Level1DataFeed,
@@ -42,6 +52,7 @@ import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { filterByConnectionAndInstrument } from 'real-trading';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -116,7 +127,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   set instrument(instrument) {
-    if (this.chart.instrument.id === instrument.id)
+    if (this.chart.instrument?.id === instrument.id)
       return;
 
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
@@ -193,6 +204,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._orders = new Orders(this);
     this._positions = new Positions(this);
+    this.onRemove(
+      this._ohlvFeed.on(filterByConnectionAndInstrument(this,  (ohlv) => this._handleOHLV(ohlv))),
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote) => this._handleQuote(quote))),
+    );
   }
 
   async ngAfterViewInit() {
@@ -319,6 +334,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+    this.instrument = state?.instrument ?? {
+      id: 'ESM1',
+      symbol: 'ESM1',
+      exchange: 'CME',
+      tickSize: 0.25,
+      precision: 2,
+      company: this._getInstrumentCompany(),
+    };
 
     this._orders.init();
     this._positions.init();
@@ -327,7 +350,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.showInstrumentWatermark = false;
 
-    this.instrument = this.chart.instrument;
+  //  this.instrument = this.chart.instrument;
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
@@ -427,14 +450,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
-      instrument: (state && state.instrument) ?? {
-        id: 'ESM1',
-        symbol: 'ESM1',
-        exchange: 'CME',
-        tickSize: 0.25,
-        precision: 2,
-        company: this._getInstrumentCompany(),
-      },
       theme: getScxTheme(this._themesHandler.theme),
     } as IChartConfig);
   }

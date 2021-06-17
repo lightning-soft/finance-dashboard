@@ -222,11 +222,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   maximizable() {
-    return this.options.maximizable;
+    return this.layoutContainer?.options?.maximizable;
   }
 
   minimizable() {
-    return this.options.minimizable;
+    return this.layoutContainer?.options?.minimizable;
   }
 
   closableIfPopup() {

@@ -151,7 +151,13 @@ export class RithmicDatafeed extends Datafeed {
 
     this._unsubscribe();
 
-    this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint) => {
+    this._tradeDataFeed.subscribe(instrument, this._account.connectionId);
+
+    this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, this._account.connectionId));
+    this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint, connectionId) => {
+      if (connectionId !== this._account.connectionId)
+        return;
+
       const quoteInstrument = quote.instrument;
       const quoteInstrumentId = `${quoteInstrument.exchange}.${quoteInstrument.symbol}`;
 

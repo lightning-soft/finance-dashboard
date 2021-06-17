@@ -72,8 +72,8 @@ export class RealOHLVFeed extends OHLVFeed {
     const now = new Date();
     const barCount = now.getHours();
 
-    this._tradeDatafeed.subscribe(instrument);
-    this._volumeDatafeed.subscribe(instrument);
+    this._tradeDatafeed.subscribe(instrument, connectionId);
+    this._volumeDatafeed.subscribe(instrument, connectionId);
 
     this._historyRepository.getItems({
       id: instrument.id,
@@ -118,7 +118,7 @@ export class RealOHLVFeed extends OHLVFeed {
   }
 
   unsubscribe(instrument: IInstrument, connecionId: Id) {
-    if (!this._ohlv[instrument.id])
+    if (!this._ohlv[connecionId])
       return;
 
     const obj = this._ohlv[connecionId];

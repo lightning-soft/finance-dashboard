@@ -1,9 +1,13 @@
 import { Id } from 'base-components';
 import {
   AddClassStrategy,
-  Cell, DataCell, getProfitStatus, HoverableItem,
+  Cell,
+  DataCell,
+  getProfitStatus,
+  HoverableItem,
   IconCell,
-  NumberCell, PriceFormatter
+  NumberCell,
+  PriceFormatter
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
@@ -29,7 +33,7 @@ type IPositionItem = {
 
 export class PositionItem extends HoverableItem implements IPositionItem {
   private _PLFormatter: PriceFormatter = new PriceFormatter(2);
-  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position.instrument?.precision ?? 2);
+  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position?.instrument?.precision ?? 2);
 
   account = new DataCell({ withHoverStatus: true });
   instrumentName = new DataCell({ withHoverStatus: true });

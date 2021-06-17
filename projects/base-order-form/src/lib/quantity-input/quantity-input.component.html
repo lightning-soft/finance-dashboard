@@ -9,10 +9,10 @@
     <nz-input-number
       #input
       [class.black-input]="item.black"
+      (ngModelChange)="updateValue($event)"
       [ngModel]="currentValue"
       [nzMin]="0"
       (keydown.enter)="$event.preventDefault(); input.blur()"
-      (ngModelChange)="updateValue(currentValue)"
       *ngIf="item.black">
     </nz-input-number>
 

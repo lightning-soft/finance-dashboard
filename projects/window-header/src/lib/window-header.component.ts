@@ -1,6 +1,5 @@
-import { Component, Input, EventEmitter, Output } from '@angular/core';
-import { ILayoutNode } from 'layout';
-import { WindowPopupManager } from '../../../layout/src/services/window-popup-manager';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ILayoutNode, WindowPopupManager } from 'layout';
 
 @Component({
   selector: 'window-header',
@@ -26,6 +25,6 @@ export class WindowHeaderComponent {
   }
 
   hideInstruments(): boolean {
-   return this.windowPopupManager.hideWindowHeaderInstruments;
+    return this.windowPopupManager.hideWindowHeaderInstruments;
   }
 }
