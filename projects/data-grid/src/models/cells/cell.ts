@@ -1,7 +1,5 @@
 const textBoldClass = ' text-bold';
 
-export type CellStatusGetter = (cell: Cell, style: 'BackgroundColor' | 'Color') => string;
-
 enum TextAlign {
   Left = 'left',
   Center = 'center',
@@ -42,12 +40,9 @@ export enum CellStatus {
 }
 
 export abstract class Cell implements ICell {
-  static mergeStatuses(prefix: string = '', status: string = '') {
-    return `${prefix}${status}`;
-  }
-
-  protected _statses: string[];
   protected _statusPrefix: string;
+  protected _hovered = false;
+  protected _visibility = true;
 
   name: string = '';
   value = '';
@@ -63,7 +58,9 @@ export abstract class Cell implements ICell {
   hoverStatusEnabled: boolean;
   private _prevStatus = '';
 
-  protected _visibility = true;
+  static mergeStatuses(prefix: string = '', status: string = '') {
+    return `${prefix}${status}`;
+  }
 
   get visible() {
     return this._visibility;
@@ -92,21 +89,16 @@ export abstract class Cell implements ICell {
   }
 
   set hovered(hovered: boolean) {
-    if (!this.hoverStatusEnabled) {
+    if (!this.hoverStatusEnabled || hovered === this._hovered) {
       return;
     }
 
-    if (hovered === (this.status === CellStatus.Hovered))
-      return;
-
-    if (hovered)
-      this.changeStatus(CellStatus.Hovered);
-    else
-      this.revertStatus();
+    this._hovered = hovered;
+    this._setHoveredStatus();
   }
 
   get hovered(): boolean {
-    return this.status === CellStatus.Hovered;
+    return this._hovered;
   }
 
   constructor(config?: ICellConfig) {
@@ -117,7 +109,7 @@ export abstract class Cell implements ICell {
   abstract updateValue(...args: any[]);
 
   setStatusPrefix(prefix: string) {
-    if (prefix == this._statusPrefix)
+    if (prefix === this._statusPrefix)
       return;
 
     const status = this.status.replace(this._statusPrefix, '');
@@ -125,6 +117,14 @@ export abstract class Cell implements ICell {
 
     this.changeStatus(status);
     this.drawed = false;
+  }
+
+  protected _setHoveredStatus(): void {
+    if (this._hovered) {
+      this.setStatusPrefix(`${CellStatus.Hovered}${this._statusPrefix ?? ''}`);
+    } else {
+      this.setStatusPrefix((this._statusPrefix ?? '').replace(CellStatus.Hovered, ''));
+    }
   }
 
   protected _getStatus(status: string, usePrefix = true) {
@@ -136,11 +136,6 @@ export abstract class Cell implements ICell {
 
     if (status == this.status)
       return;
-
-    if (this.status === CellStatus.Hovered) {
-      this._prevStatus = status;
-      return;
-    }
 
     this._prevStatus = this.status;
     this.status = status;

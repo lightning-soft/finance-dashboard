@@ -1,3 +1,4 @@
+import {Column} from "./types";
 
 export abstract class HoverableItem {
   private _hoveredProperties = [];
@@ -15,7 +16,7 @@ export abstract class HoverableItem {
     return this._hovered;
   }
 
-  protected abstract _getPropertiesForHover(column: any): string[];
+  protected abstract _getPropertiesForHover(column: Column): string[];
 
   hover(column: any) {
     const hovered = column !== false;

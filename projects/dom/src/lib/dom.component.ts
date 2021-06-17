@@ -14,6 +14,7 @@ import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComp
 import { FormActions, getPriceSpecs, OcoStep, SideOrderForm, SideOrderFormComponent } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
+  capitalizeFirstLetter,
   Cell,
   CellClickDataGridHandler,
   CellStatus,
@@ -70,7 +71,7 @@ import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
-import { CustomDomItem, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
+import {CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus} from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 
@@ -154,41 +155,22 @@ const directionsHints: { [key in FormDirection]: string } = {
   [FormDirection.Right]: 'Right View',
 };
 
-enum Columns {
-  ID = '_id',
-  LTQ = 'ltq',
-  Bid = 'bid',
-  Ask = 'ask',
-  CurrentBid = 'currentBid',
-  CurrentAsk = 'currentAsk',
-  Delta = 'delta',
-  AskDelta = 'askDelta',
-  BidDelta = 'bidDelta',
-  Orders = 'orders',
-  SellOrders = 'sellOrders',
-  BuyOrders = 'buyOrders',
-  Volume = 'volume',
-  TotalBid = 'totalBid',
-  TotalAsk = 'totalAsk',
-  Price = 'price',
-}
-
 const headers: HeaderItem[] = [
-  { name: Columns.Orders, tableViewName: 'Orders' },
-  { name: Columns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
-  { name: Columns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
-  { name: Columns.Volume, tableViewName: 'Volume', type: 'histogram' },
-  Columns.Price,
-  { name: Columns.Delta, tableViewName: 'Delta' },
-  { name: Columns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
-  { name: Columns.Bid, tableViewName: 'Bid', type: 'histogram' },
-  { name: Columns.LTQ, tableViewName: 'LTQ' },
-  { name: Columns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
-  { name: Columns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
-  { name: Columns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
-  { name: Columns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
-  { name: Columns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
-  { name: Columns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+  { name: DOMColumns.Orders, tableViewName: 'Orders' },
+  { name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
+  { name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
+  { name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram' },
+  DOMColumns.Price,
+  { name: DOMColumns.Delta, tableViewName: 'Delta' },
+  { name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
+  { name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram' },
+  { name: DOMColumns.LTQ, tableViewName: 'LTQ' },
+  { name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
+  { name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
+  { name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
+  { name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
+  { name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
+  { name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
 ];
 
 export enum QuantityPositions {
@@ -199,7 +181,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
+const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMColumns.Orders, DOMColumns.Delta, DOMColumns.BuyOrders, DOMColumns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -471,7 +453,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }),
     new CellClickDataGridHandler<DomItem>({
-      column: [Columns.Ask, Columns.Bid],
+      column: [DOMColumns.Ask, DOMColumns.Bid],
       handler: (data) => this._createOrderByClick(data.column.name, data.item),
     }),
     new MouseDownDataGridHandler<DomItem>({
@@ -723,7 +705,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       minToVisible,
     };
 
-    for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
+    for (const key of [DOMColumns.CurrentAsk, DOMColumns.CurrentBid]) {
       const obj = settings[key];
       if (!obj)
         continue;
@@ -746,7 +728,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const deltaStyles = {};
-    for (const key of [Columns.BidDelta, Columns.AskDelta]) {
+    for (const key of [DOMColumns.BidDelta, DOMColumns.AskDelta]) {
       const obj = settings[key];
       if (!obj)
         continue;
@@ -2094,7 +2076,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
-    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
+    const side = column === DOMColumns.Ask ? OrderSide.Sell : OrderSide.Buy;
     if (this.ocoStep === OcoStep.None) {
       this._createOrder(side, item.price._value);
     } else {
@@ -2292,10 +2274,6 @@ function isStartFromUpperCase(key) {
   return /[A-Z]/.test((key ?? '')[0]);
 }
 
-
-export function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includeRealizedPL = false): number {
   if (!position || position.side === Side.Closed)

@@ -1,9 +1,13 @@
 import { Id } from 'base-components';
 import {
   AddClassStrategy,
-  Cell, DataCell, getProfitStatus, HoverableItem,
+  Cell,
+  DataCell,
+  getProfitStatus,
+  HoverableItem,
   IconCell,
-  NumberCell, PriceFormatter
+  NumberCell,
+  PriceFormatter
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
