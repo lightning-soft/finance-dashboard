@@ -11,7 +11,7 @@ import {
   IOrder, IQuote, Level1DataFeed,
   OrderDuration,
   OrderSide,
-  OrdersRepository,
+  OrdersRepository, OrderStatus,
   OrderType,
   PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType
 } from 'trading';
@@ -354,5 +354,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.instrument) {
       return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
+  }
+
+  protected _handleSuccessCreate(response?) {
+    if (response?.status === OrderStatus.Rejected)
+      return;
+
+    super._handleSuccessCreate(response);
   }
 }
