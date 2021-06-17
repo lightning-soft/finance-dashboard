@@ -141,11 +141,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.incomePercentage = null;
     this._updateOHLVData();
 
-    const connectionId = this.account.connectionId;
+    const connectionId = this.account?.connectionId;
 
-    this._ohlvFeed.subscribe(instrument, connectionId);
-    this._levelOneDatafeed.subscribe(instrument, connectionId);
-
+    if (connectionId != null) {
+      this._ohlvFeed.subscribe(instrument, connectionId);
+      this._levelOneDatafeed.subscribe(instrument, connectionId);
+    }
     this.unsubscribe(() => {
       this._ohlvFeed.unsubscribe(instrument, connectionId);
       this._levelOneDatafeed.unsubscribe(instrument, connectionId);
@@ -205,7 +206,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders = new Orders(this);
     this._positions = new Positions(this);
     this.onRemove(
-      this._ohlvFeed.on(filterByConnectionAndInstrument(this,  (ohlv) => this._handleOHLV(ohlv))),
+      this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this._handleOHLV(ohlv))),
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote) => this._handleQuote(quote))),
     );
   }
@@ -350,7 +351,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     chart.showInstrumentWatermark = false;
 
-  //  this.instrument = this.chart.instrument;
+    //  this.instrument = this.chart.instrument;
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);

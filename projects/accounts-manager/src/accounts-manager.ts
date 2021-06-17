@@ -158,7 +158,7 @@ export class AccountsManager implements ConnectionContainer {
 
     webSocketService.connect();
 
-    webSocketService.send({ type: 'Id', value: connection.connectionData.apiKey }, connection.id);
+    webSocketService.send({ type: 'Id', value: connection?.connectionData?.apiKey }, connection?.id);
   }
 
   private _closeWS(connection: IConnection) {

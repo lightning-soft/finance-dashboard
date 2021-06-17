@@ -976,10 +976,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
 
-      const connectionId = this.account.connectionId;
-      this._levelOneDatafeed.subscribe(instrument, connectionId);
-      this._tradeDatafeed.subscribe(instrument, connectionId);
-      this._ohlvFeed.subscribe(instrument, connectionId);
+      const connectionId = this.account?.connectionId;
+      if (connectionId != null) {
+        this._levelOneDatafeed.subscribe(instrument, connectionId);
+        this._tradeDatafeed.subscribe(instrument, connectionId);
+        this._ohlvFeed.subscribe(instrument, connectionId);
+      }
 
       this.unsubscribe(() => {
         this._levelOneDatafeed.unsubscribe(instrument, connectionId);
