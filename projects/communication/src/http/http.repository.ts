@@ -88,7 +88,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
     const action = RepositoryAction.Create;
-    const { headers, ...params } = this._mapItemParams(options, action);
+    const itemParams = this._mapItemParams(options, action);
+    const { headers, ...params } = itemParams || {};
 
     return this._createItem(this._mapRequestItem(item, action), { headers, params })
       .pipe(

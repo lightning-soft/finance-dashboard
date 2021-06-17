@@ -120,8 +120,8 @@ export class AccountsManager implements ConnectionContainer {
   private async _fetchConnections(): Promise<void> {
     return this._connectionsRepository.getItems().toPromise().then(res => {
       this._connections = res.data.map(item => {
+        item.connected = false;
         if (item.connected && !item.connectOnStartUp) {
-          item.connected = false;
           delete item.connectionData;
         }
 
