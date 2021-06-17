@@ -126,7 +126,7 @@ export class RealOHLVFeed extends OHLVFeed {
     if (!obj)
       return;
 
-    if ((obj[instrument.id].count - 1) <= 0) {
+    if (obj[instrument.id] && (obj[instrument.id].count - 1) <= 0) {
       this._tradeDatafeed.unsubscribe(instrument, connecionId);
       this._volumeDatafeed.unsubscribe(instrument, connecionId);
     }

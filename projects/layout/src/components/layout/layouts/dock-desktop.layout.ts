@@ -41,7 +41,7 @@ export class DockDesktopLayout extends Layout {
     this._windowManagerService.windows.getValue()
       .forEach(item => {
         if (callback(item))
-            item.close();
+          item.close();
       });
   }
 
@@ -49,7 +49,7 @@ export class DockDesktopLayout extends Layout {
     return this._windowManagerService.windows.getValue().slice();
   }
 
-  async addComponent(componentNameOrConfig: ComponentOptions | any) {
+  async addComponent(componentNameOrConfig: ComponentOptions | any): Promise<boolean> {
     let componentName: string;
     let componentState: any;
     let componentTemplate: IBaseTemplate;
@@ -84,73 +84,81 @@ export class DockDesktopLayout extends Layout {
     //   this._notifyError('Your browser is not supported this component');
     //   return;
     // }
+    let window;
+    let comp;
 
     try {
-        try {
-          const comp = await this._creationsService.getComponentRef(componentName);
-          const componentRef = this.viewContainer.insert(comp.hostView);
-          const instance: any = comp.instance;
+      comp = await this._creationsService.getComponentRef(componentName);
+      const componentRef = this.viewContainer.insert(comp.hostView);
+      const instance: any = comp.instance;
 
-          instance.componentRef = componentRef; // To remove
-          instance.layout = this;
-          const configData = {
-            width: 500,
-            allowPopup: true,
-            height: 500,
-            visible: true,
-            minWidth: 320,
-            minHeight: 150,
-            ...config
-          };
-          if (configData.minHeight > configData.height) {
-            configData.height = configData.minHeight;
-          }
-          if (configData.minWidth > configData.width) {
-            configData.width = configData.minWidth;
-          }
-          const windowOptions: Options = {
-            // type: this.getComponentTitle(componentName),
-            type: componentName,
-            minimizable: true,
-            minHeight: config.minHeight,
-            minWidth: config.minWidth,
-            maximizable: true,
-            keepInside: {
-              top: true,
-              left: true,
-            },
-            ...configData,
-            ...componentTemplate?.tabState,
-            componentState: () => ({
-              state: instance.saveState && instance.saveState(),
-              name: componentName,
-            }),
-          };
+      instance.componentRef = componentRef; // To remove
+      instance.layout = this;
+      const configData = {
+        width: 500,
+        allowPopup: true,
+        height: 500,
+        visible: true,
+        minWidth: 320,
+        minHeight: 150,
+        ...config
+      };
+      if (configData.minHeight > configData.height) {
+        configData.height = configData.minHeight;
+      }
+      if (configData.minWidth > configData.width) {
+        configData.width = configData.minWidth;
+      }
+      const windowOptions: Options = {
+        // type: this.getComponentTitle(componentName),
+        type: componentName,
+        // minimizable: true,
+        minHeight: config.minHeight,
+        minWidth: config.minWidth,
+        // maximizable: true,
+        keepInside: {
+          top: true,
+          left: true,
+        },
+        ...configData,
+        ...componentTemplate?.tabState,
+        componentState: () => ({
+          state: instance.saveState && instance.saveState(),
+          name: componentName,
+        }),
+      };
 
-          const window = this._windowManagerService.createWindow(windowOptions);
+      window = this._windowManagerService.createWindow(windowOptions);
 
-          if (instance.setLayoutContainer)
-            instance.setLayoutContainer(window);
+      if (instance.setLayoutContainer)
+        instance.setLayoutContainer(window);
 
-          if (config.hidden)
-            instance.minimize();
+      if (config.hidden)
+        instance.minimize();
 
-          if (componentTemplate && instance.loadTemplate) {
-            instance.loadTemplate(componentTemplate);
-          } else if (instance.loadState) {
-            instance.loadState(componentState);
-          }
+      if (componentTemplate && instance.loadTemplate) {
+        instance.loadTemplate(componentTemplate);
+      } else if (instance.loadState) {
+        instance.loadState(componentState);
+      }
 
-          const { _container } = window;
+      const { _container } = window;
 
-          _container.appendChild(comp.location.nativeElement);
-        } catch (e) {
-          console.error(e);
-          // container.close();
-        }
+      _container.appendChild(comp.location.nativeElement);
     } catch (e) {
-      console.log(e);
+      console.error('Create component', e);
+
+      if (window)
+        window.close();
+
+      const index = this.viewContainer.indexOf(comp.hostView);
+      if (index !== -1)
+        this.viewContainer.remove();
+
+      return false;
     }
+
+    return true;
   }
 
   private getComponentTitle(componentName: string) {
@@ -198,6 +206,7 @@ export class DockDesktopLayout extends Layout {
   async _load(config: any[]) {
     if (!Array.isArray(config))
       return;
+
     const widgets = this.getWidgets();
     const promises = [];
     for (let i = config.length - 1; i >= 0; i--) {
@@ -205,10 +214,16 @@ export class DockDesktopLayout extends Layout {
       if (widget) {
         widget.visible = true;
       } else {
-        promises.push(this.addComponent(config[i]));
+        const index = i;
+        promises.push(this.addComponent(config[index]).then(result => {
+          if (result === false) {
+            config.splice(index, 1);
+          }
+        }));
       }
     }
     await Promise.all(promises);
+
     this._windowManagerService.updateWindows();
   }
 
@@ -230,8 +245,7 @@ export class DockDesktopLayout extends Layout {
       //   // (window as any).wm = manager;
       // }
 
-      if (Array.isArray(config))
-        await this._load(config);
+      await this._load(config);
     } catch (e) {
       console.error(e);
       throw e;
