@@ -69,7 +69,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
-      .subscribe(connections => this.builder.replaceItems(connections));
+      .subscribe(connections => {
+        this.builder.replaceItems(connections);
+        this.selectedItem = { ...this.builder.items.find(i => i.id === this.selectedItem.id) };
+      });
 
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
