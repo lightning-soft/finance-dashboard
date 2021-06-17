@@ -11,7 +11,7 @@ export enum ProfitStatus {
   Loss = 'loss',
   None = ''
 }
-export function getProfitStatus(cell){
+export function getProfitStatus(cell) {
   let status = ProfitStatus.None;
 
   if (cell.class === ProfitClass.DOWN)

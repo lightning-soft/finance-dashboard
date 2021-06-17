@@ -117,7 +117,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   private _updateTotal(): void {
-    this.total.updateValue(this.realized.numberValue + this.unrealized.numberValue);
+    this.total.updateValue((this.realized._value || 0) + (this.unrealized._value || 0));
   }
 
   private _updateCellProfitStatus(cell: Cell): void {
