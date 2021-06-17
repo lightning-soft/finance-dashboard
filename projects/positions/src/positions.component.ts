@@ -10,6 +10,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
   IAccount,
+  AccountRepository,
   InstrumentsRepository,
   IPosition,
   IPositionParams, Level1DataFeed, PositionsFeed,
@@ -23,6 +24,8 @@ import { PositionColumn, PositionItem } from './models/position.item';
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
   inProfitBackgroundColor: '#4895F5',
+  hoveredlossBackgroundColor: '#C93B3B',
+  hoveredinProfitBackgroundColor: '#4895F5',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -130,6 +133,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
     this._columns = headers.map((i) => convertToColumn(i, {
       hoveredBackgroundColor: '#2B2D33',
+      hoveredhighlightBackgroundColor: '#2B2D33',
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint) => {

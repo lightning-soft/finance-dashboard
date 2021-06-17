@@ -2,7 +2,7 @@ import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@ang
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, CheckboxCell, Column, DataGrid, DataGridHandler } from 'data-grid';
+import {CellClickDataGridHandler, CellStatus, CheckboxCell, Column, DataGrid, DataGridHandler} from 'data-grid';
 import { LayoutNode } from 'layout';
 import { AccountsListener, IAccountsListener } from 'real-trading';
 import { forkJoin, Observable } from 'rxjs';
@@ -20,6 +20,7 @@ import {
   TradeDataFeed, TradePrint
 } from 'trading';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
+import { generateNewStatusesByPrefix } from 'data-grid';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -158,13 +159,17 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     });
 
     this.columns = this.headers.map(i => convertToColumn(i, {
-      buyColor: 'rgba(72, 149, 245, 1)',
-      sellColor: 'rgba(220, 50, 47, 1)',
-      selectedbuyColor: 'rgba(72, 149, 245, 1)',
-      selectedsellColor: 'rgba(220, 50, 47, 1)',
-      selectedbuyBackgroundColor: '#383A40',
-      selectedsellBackgroundColor: '#383A40',
+      ...generateNewStatusesByPrefix({
+        buyColor: 'rgba(72, 149, 245, 1)',
+        sellColor: 'rgba(220, 50, 47, 1)',
+        selectedbuyColor: 'rgba(72, 149, 245, 1)',
+        selectedsellColor: 'rgba(220, 50, 47, 1)',
+        selectedbuyBackgroundColor: '#383A40',
+        selectedsellBackgroundColor: '#383A40',
+      }, CellStatus.Hovered),
       hoveredBackgroundColor: '#2B2D33',
+      hoveredbuyBackgroundColor: '#2B2D33',
+      hoveredsellBackgroundColor: '#2B2D33',
       textOverflow: true,
       textAlign: 'left',
     }));

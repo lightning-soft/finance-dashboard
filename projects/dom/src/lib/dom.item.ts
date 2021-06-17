@@ -2,8 +2,7 @@ import { IBaseItem, Id } from 'communication';
 import {
   AddClassStrategy,
   Cell,
-  CellStatus,
-  CellStatusGetter,
+  CellStatus, Column,
   DataCell,
   IFormatter,
   NumberCell,
@@ -19,6 +18,24 @@ const LevelsCount = 9;
 export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
 export const TailInside = 'tailInside';
 
+export enum DOMColumns {
+  ID = '_id',
+  LTQ = 'ltq',
+  Bid = 'bid',
+  Ask = 'ask',
+  CurrentBid = 'currentBid',
+  CurrentAsk = 'currentAsk',
+  Delta = 'delta',
+  AskDelta = 'askDelta',
+  BidDelta = 'bidDelta',
+  Orders = 'orders',
+  SellOrders = 'sellOrders',
+  BuyOrders = 'buyOrders',
+  Volume = 'volume',
+  TotalBid = 'totalBid',
+  TotalAsk = 'totalAsk',
+  Price = 'price',
+}
 
 class OrdersCell extends HistogramCell {
   orders: IOrder[] = [];
@@ -525,6 +542,7 @@ export enum VolumeStatus {
   ValueArea = 'valueArea',
   VWAP = 'VWAP',
 }
+
 export class DomItem extends HoverableItem implements IBaseItem {
   id: Id;
   index: number;
@@ -900,8 +918,12 @@ export class DomItem extends HoverableItem implements IBaseItem {
     this.orders.setPL(pl);
   }
 
-  protected _getPropertiesForHover(column: any): string[] {
-    return [column.name, 'price'];
+  protected _getPropertiesForHover(column: Column): string[] {
+    if (column.name === DOMColumns.Price)
+      return [DOMColumns.Price];
+
+    if (([DOMColumns.Ask, DOMColumns.Bid] as string[]).includes(column.name))
+      return [column.name];
   }
 }
 
