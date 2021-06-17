@@ -1,8 +1,9 @@
 @import "../../../scss/dark.theme";
 @import "themes/index";
+$height: 36px;
 
 :host {
-  height: 36px;
+  height: $height;
   width: 100%;
   display: block !important;
   background-color: transparent !important;
@@ -16,14 +17,14 @@
   }
 
   &.hidden {
-    height: 4px;
+    height: $height;
 
     .navigation-bar {
-      margin-top: -36px;
+      margin-top: -$height;
     }
 
     &.Bottom .navigation-bar {
-      margin-top: 36px;
+      margin-top: $height;
     }
   }
 

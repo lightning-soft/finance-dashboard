@@ -33,7 +33,7 @@ type IPositionItem = {
 
 export class PositionItem extends HoverableItem implements IPositionItem {
   private _PLFormatter: PriceFormatter = new PriceFormatter(2);
-  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position.instrument?.precision ?? 2);
+  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position?.instrument?.precision ?? 2);
 
   account = new DataCell({ withHoverStatus: true });
   instrumentName = new DataCell({ withHoverStatus: true });
