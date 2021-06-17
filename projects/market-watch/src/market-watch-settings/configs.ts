@@ -2,6 +2,7 @@ import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getS
 import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { OrderColumn } from 'base-order-form';
 import { OrderDurationArray, OrderSide, OrderType } from 'trading';
+import { noneValue } from 'dynamic-form';
 
 export enum OpenIn {
   orderTicker = 'orderTicket',
@@ -62,7 +63,7 @@ export const settingsField = [
             label: 'Price update highlight type',
             className: 'd-block highlightType',
             options: [
-              { label: 'None', value: null },
+              { label: 'None', value: noneValue },
               { label: 'Highlight Text', value: 'Color' },
               { label: 'Highlight Background', value: 'BackgroundColor' },
             ]
