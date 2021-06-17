@@ -9,9 +9,7 @@ import { AccountsListener, RealPositionsRepository } from 'real-trading';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
-  IAccount,
-  AccountRepository,
-  InstrumentsRepository,
+  IAccount, InstrumentsRepository,
   IPosition,
   IPositionParams, Level1DataFeed, PositionsFeed,
   PositionsRepository,
@@ -183,6 +181,10 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
+    if (Array.isArray(response?.data)) {
+      response.data = response.data.filter((item, index, arr) => arr.findIndex(comparePosition(item)) === index);
+    }
+
     super._handleResponse(response, params);
     this._handleCreateItems(response.data);
   }
@@ -305,4 +307,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       this.contextMenuState = contextMenuState;
     }
   }
+}
+
+function comparePosition(item) {
+  return i => item.instrument.id === i.instrument.id && item.accountId === i.accountId;
 }

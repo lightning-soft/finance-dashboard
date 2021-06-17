@@ -72,22 +72,6 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
     return this._total;
   }
 
-  // handleConnect(connection: IConnection) {
-  //   super.handleConnect(connection);
-
-  //   if ((this.config.autoLoadData || {}).onConnectionChange) {
-  //     this.refresh();
-  //   }
-  // }
-
-  // handleDisconnect(connection: IConnection) {
-  //   super.handleDisconnect(connection);
-
-  //   if (this._clearOnDisconnect) {
-  //     this.builder.replaceItems([]);
-  //   }
-  // }
-
   loadData(params?: P) {
     this._params = params || this._params;
 
