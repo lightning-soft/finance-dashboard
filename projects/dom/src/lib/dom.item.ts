@@ -923,7 +923,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
       return [DOMColumns.Price];
 
     if (([DOMColumns.Ask, DOMColumns.Bid] as string[]).includes(column.name))
-      return [column.name];
+      return [column.name, DOMColumns.Price];
   }
 }
 
