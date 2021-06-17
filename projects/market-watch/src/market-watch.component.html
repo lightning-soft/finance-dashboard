@@ -11,6 +11,8 @@
   (editFinished)="editFinished($event)"
   [editComponentsFactory]="editComponentsFactory"
   (columnUpdate)="onColumnUpdate($event)"
+  [showSettingsInContextMenu]="true"
+  (settingsClicked)="openSettings()"
   [styles]="gridStyles"
   (currentCellChanged)="currentCell = $event"
   [(contextMenuState)]="contextMenuState"
@@ -26,7 +28,7 @@
   <i (click)="createTab()" class="icon-add"></i>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <ul class="market-watch-context-menu" nz-menu>
+  <ul class="market-watch-context-menu tab-context-menu" nz-menu>
     <li (click)="copyTab(contextTab)" nz-menu-item>Copy Tab</li>
     <li (click)="renameTab()" nz-menu-item>Rename Tab</li>
     <li nz-menu-divider></li>

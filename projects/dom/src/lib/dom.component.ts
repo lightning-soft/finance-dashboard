@@ -45,14 +45,16 @@ import { TradeHandler } from 'src/app/components';
 import {
   compareInstruments,
   getPrice,
-  IAccount, IInstrument,
+  IAccount,
+  IInstrument,
   IOrder,
   IPosition,
   IQuote,
   isForbiddenOrder,
   Level1DataFeed,
   OHLVFeed,
-  OrderBooksRepository, OrdersFeed,
+  OrderBooksRepository,
+  OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
@@ -71,7 +73,7 @@ import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
-import {CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus} from './dom.item';
+import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 
@@ -620,7 +622,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleAccountChange(account: IAccount) {
-    this.account
     this._loadData();
     this._onInstrumentChange(this.instrument, true);
   }
@@ -969,7 +970,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _onInstrumentChange(prevInstrument: IInstrument, force = false) {
     const instrument = this.instrument;
-    if (!this.account)
+    if (!this.account || !instrument)
       return;
 
     if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {

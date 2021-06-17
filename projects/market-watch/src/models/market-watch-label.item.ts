@@ -33,7 +33,7 @@ export class MarketWatchLabelItem implements IMarketWatchItem {
     this.symbol.updateValue(labelHolder.label);
     this.id = labelHolder.id;
     this.symbol.editable = true;
-    this.symbol.editType = 'text';
+    this.symbol.editType = 'label';
 
     MarketWatchColumnsArray.forEach(key => this[key].changeStatus(labelStatus));
 
