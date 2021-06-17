@@ -1934,6 +1934,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (keyBinding) {
       console.warn(keyBinding[0]);
       this.domKeyHandlers[keyBinding[0] as string]();
+      this.detectChanges(true);
       return true;
     }
   }
