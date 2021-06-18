@@ -6,13 +6,14 @@ import {
   NgZone,
   Output,
   ViewChild,
-  EventEmitter
+  EventEmitter,
+  ComponentRef
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
 import { Coords, IWindow } from "window-manager";
@@ -42,6 +43,7 @@ export class ToolbarComponent {
   @Input() window: IWindow;
   @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
+  @ViewChild(NzDropDownDirective, { static: true }) dropDownDirective: NzDropDownDirective;
 
   zoomDropdownVisible = false;
   crossOpen = false;
@@ -104,7 +106,7 @@ export class ToolbarComponent {
   };
   shouldDrawingBeOpened = false;
   private _windowCoordsSnapshot: Coords;
-  drawingMenuOffset: Coords = {x: 0, y: 0};
+  drawingMenuOffset: Coords = { x: 0, y: 0 };
 
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
@@ -235,6 +237,33 @@ export class ToolbarComponent {
   constructor(private _cdr: ChangeDetectorRef) {
   }
 
+  ngAfterViewInit() {
+    console.log(this.dropDownDirective);
+    (this.dropDownDirective as any).overlayRef = this;
+  }
+
+  // #region OverlayRef
+
+  attach(...args) {
+    console.log('attach', ...args);
+  }
+
+  detach() {
+    console.log('detach')
+  }
+
+  dispose() {
+    console.log('dispose')
+  }
+
+
+  getConfig() {
+    console.log('getConfig');
+    return {};
+  }
+
+  // #endregion
+
   private _updateMenuOffset(): void {
     this.drawingMenuOffset = {
       x: this.window?.x - this._windowCoordsSnapshot?.x,
@@ -243,8 +272,8 @@ export class ToolbarComponent {
   }
 
   updateOffset(): void {
-      this._updateMenuOffset();
-      this._cdr.detectChanges();
+    this._updateMenuOffset();
+    this._cdr.detectChanges();
   }
 
   toggleDrawingVisible() {
