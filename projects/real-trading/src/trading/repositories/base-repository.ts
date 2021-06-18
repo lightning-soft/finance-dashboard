@@ -15,11 +15,6 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
     return this._communicationConfig.rithmic.http.url + this.suffix;
   }
 
-  protected get _apiKey(): string {
-    throw new Error('Deprecaated');
-    return this.connection?.connectionData?.apiKey;
-  }
-
   // protected get _httpOptions() {
   //   // throw new Error('Deprecaated');
   //   // return {
@@ -56,7 +51,7 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
 
     const itemParams = this._mapItemsParams(params);
     return super.getItems(itemParams)
-      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: itemParams?.connection?.id })) })));
+      .pipe(map((res) => ({ ...res, data: res.data.map(item => ({ ...item, connectionId: itemParams.connectionId })) })));
   }
 
   // getItemById(id: string | number, query: any): Observable<T> {
@@ -76,13 +71,13 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
     const headers = { ...optionsHeaders, ...paramsHeaders };
 
     if (!params?.headers || !params?.headers[ApiKey]) {
-      const connection = params.connectionId != null ? this.getConnection(params.connectionId) : params.connection;
+      let connection = params.connectionId != null ? this.getConnection(params.connectionId) : params.connection;
 
       if (!connection)
-        params.headers = this.getApiHeadersByAccount(params.accountId).headers;
-      else
-        params.headers = this.getApiHeaders(this._getApiKey(connection));
+        connection = this.getConnectionByAccount(params.accountId);
 
+      params.connectionId = connection.id;
+      params.headers = this.getApiHeaders(this._getApiKey(connection));
     }
     //  else {
     //   console.error(`Invalid ${ApiKey}, ${params?.headers && params?.headers[ApiKey]}`);
@@ -127,6 +122,10 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
 
   getConnection(connectionId: Id): IConnection {
     return this._connectionContainer.getConnection(connectionId);
+  }
+
+  getConnectionByAccount(accountId: Id): IConnection {
+    return this._connectionContainer.getConnectionByAccountId(accountId);
   }
 
   getApiHeaders(apiKey: Id): any {

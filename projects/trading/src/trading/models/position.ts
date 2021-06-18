@@ -10,6 +10,7 @@ export enum Side {
 
 export interface IPosition extends IBaseItem {
   accountId: Id;
+  connectionId: Id;
   price: number;
   size: number;
   realized: number;
