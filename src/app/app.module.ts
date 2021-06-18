@@ -19,6 +19,7 @@ import {
   NzFormModule,
   NzInputModule,
   NzRadioModule,
+  NzTooltipBaseDirective,
   NzToolTipModule
 } from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -261,6 +262,12 @@ export class AppModule {
 
     //   return addEventListener.apply(_this, args);
     // };
+
+    const show = NzTooltipBaseDirective.prototype.show;
+    NzTooltipBaseDirective.prototype.show = function (...args) {
+      const _this = this;
+      zone.run(() => show.apply(_this, args));
+    };
   }
 
   setConfig(config) {
