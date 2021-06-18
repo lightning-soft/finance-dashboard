@@ -131,7 +131,7 @@ export class DomItemMax {
   }
 }
 
-const ROWS = 400;
+const ROWS = 800;
 const DOM_HOTKEYS = 'domHotkeys';
 
 interface IDomState {
