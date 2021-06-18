@@ -3,19 +3,24 @@ import {
   Component,
   HostBinding,
   Input,
-  NgZone,
   Output,
   ViewChild,
-  EventEmitter
+  EventEmitter,
+  AfterViewInit, ElementRef
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
-import { Coords, IWindow } from "window-manager";
+import { Coords, EVENTS, IWindow } from 'window-manager';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { Overlay } from '@angular/cdk/overlay';
+import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
+import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
+import { PortalOutlet } from '@angular/cdk/portal/portal';
 
 declare const StockChartX;
 
@@ -36,12 +41,15 @@ const periodicityMap = new Map([
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   @Input() link: any;
-  @Input() enableOrderForm: boolean = false;
+  @Input() enableOrderForm = false;
   @Input() window: IWindow;
+  @Input() chart: IChart;
+  @Input() layout: Layout;
   @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
+  @ViewChild(NzDropDownDirective, { static: true }) dropDownDirective: NzDropDownDirective;
 
   zoomDropdownVisible = false;
   crossOpen = false;
@@ -63,7 +71,6 @@ export class ToolbarComponent {
     { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
     { interval: 1, periodicity: StockChartXPeriodicity.MINUTE }
   ] as ITimeFrame[];
-
 
   priceStyles = ['heikinAshi', 'bar', 'coloredHLBar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
@@ -103,8 +110,10 @@ export class ToolbarComponent {
     crossBars: 'Crosshairs',
   };
   shouldDrawingBeOpened = false;
+  drawingMenuOffset: Coords = { x: 0, y: 0 };
   private _windowCoordsSnapshot: Coords;
-  drawingMenuOffset: Coords = {x: 0, y: 0};
+  private _overlayRef: OverlayRef;
+  private _positionStrategy: FlexibleConnectedPositionStrategy;
 
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
@@ -174,9 +183,6 @@ export class ToolbarComponent {
 
   ];
 
-  @Input() chart: IChart;
-  @Input() layout: Layout;
-
   @HostBinding('class.opened')
   get isOpened() {
     return this.priceOpen || this.crossOpen ||
@@ -232,7 +238,72 @@ export class ToolbarComponent {
     this.chart.crossHairType = value;
   }
 
-  constructor(private _cdr: ChangeDetectorRef) {
+  constructor(private _cdr: ChangeDetectorRef,
+              private elementRef: ElementRef,
+              private _overlay: Overlay) {
+  }
+
+  ngAfterViewInit() {
+    (this.dropDownDirective as any).overlayRef = this;
+
+    this._positionStrategy = this._overlay
+      .position()
+      .flexibleConnectedTo((this.dropDownDirective as any).elementRef.nativeElement)
+      .withLockedPosition()
+      .withTransformOriginOn('.ant-dropdown');
+
+    this._positionStrategy.withPositions([{
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'top',
+    }]);
+
+    this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
+    this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
+  }
+
+  // #region OverlayRef
+
+  attach(portal: TemplatePortal): void {
+    if (!this._overlayRef) {
+      this._overlayRef = this._overlay.create({
+        positionStrategy: this._positionStrategy,
+      });
+    }
+
+    this._overlayRef.attach(new TemplatePortal(this.menu.templateRef, (this.dropDownDirective as any).viewContainerRef));
+    this._updateOverlayZIndex();
+  }
+
+  detach(): void {
+    if (this._overlayRef) {
+      this._overlayRef.detach();
+    }
+  }
+
+  dispose(): void {
+    if (this._overlayRef) {
+      this._overlayRef.dispose();
+    }
+  }
+
+  hasAttached(): boolean {
+    return this._overlayRef.hasAttached();
+  }
+
+  getConfig() {
+    return {};
+  }
+
+  // #endregion
+
+  private _updateOverlayZIndex(): void {
+    const overlayContainer = this._overlayRef?.hostElement?.parentElement;
+    setTimeout(() => {
+      if (overlayContainer)
+      overlayContainer.style.zIndex = String(this.window.z);
+    });
   }
 
   private _updateMenuOffset(): void {
@@ -243,18 +314,18 @@ export class ToolbarComponent {
   }
 
   updateOffset(): void {
-      this._updateMenuOffset();
-      this._cdr.detectChanges();
+    this._updateMenuOffset();
+    this._cdr.detectChanges();
   }
 
   toggleDrawingVisible() {
     this.shouldDrawingBeOpened = !this.shouldDrawingBeOpened;
-    this._updateCoordsSnapshot();
+    if (this.shouldDrawingBeOpened && !this.isDrawingsPinned)
+      this._updateCoordsSnapshot();
   }
 
   closeDrawing(): void {
     this.shouldDrawingBeOpened = false;
-    this._updateCoordsSnapshot();
   }
 
   private _updateCoordsSnapshot(): void {

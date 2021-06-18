@@ -53,6 +53,8 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
+import { Overlay } from '@angular/cdk/overlay';
+import { forwardRef } from '@angular/core';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -84,7 +86,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
 
   @Input() window: IWindow;
-
 
   chart: IChart;
   link: any;

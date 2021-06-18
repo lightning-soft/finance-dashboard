@@ -25,6 +25,7 @@
        [class.hide-changes]="!showChanges"
        class="chart-container">
     <app-toolbar
+      *ngIf="window"
       [(enableOrderForm)]="enableOrderForm"
       (enableOrderFormChange)="checkIfTradingEnabled()"
       [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart"

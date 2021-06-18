@@ -28,6 +28,7 @@ import { BaseOrderFormModule } from 'base-order-form';
 import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
 import { DataGridModule } from 'data-grid';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 // const environment = { scxPath: '' };
 
@@ -82,6 +83,7 @@ import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.comp
     NzSwitchModule,
     NzToolTipModule,
     NzCheckboxModule,
+    OverlayModule
   ],
   exports: [
     ChartComponent
