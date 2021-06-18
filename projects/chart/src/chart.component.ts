@@ -87,7 +87,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   @Input() window: IWindow;
 
-
   chart: IChart;
   link: any;
   directions = ['window-left', 'window-right'];
