@@ -28,7 +28,7 @@ import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { AccountListener, filterByAccountsConnection } from 'real-trading';
+import { AccountsListener, filterByAccountsConnection } from 'real-trading';
 import { Subject } from 'rxjs';
 import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
@@ -129,7 +129,7 @@ const marketWatchKeyLinking = 'marketwatch-linking';
 const marketWatchOrderKeyLinking = 'marketWatchOrderKeyLinking';
 
 const ordersColumns = [MarketWatchColumns.Position, MarketWatchColumns.Bid,
-  MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
+MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
 
 export interface MarketWatchComponent extends ILayoutNode {
 }
@@ -152,7 +152,7 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
-@AccountListener()
+@AccountsListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
   columns: Column[] = [];
   contextInstrument: IInstrument;
@@ -214,52 +214,52 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       },
     }),
     new CellClickDataGridHandler<MarketWatchCreateOrderItem>({
-        column: MarketWatchColumns.Symbol,
-        handler: (data, event) => {
-          if (data?.item.itemType !== ItemType.CreateItem)
-            return;
+      column: MarketWatchColumns.Symbol,
+      handler: (data, event) => {
+        if (data?.item.itemType !== ItemType.CreateItem)
+          return;
 
-          const action = data.item.checkAction(event);
-          switch (action) {
-            case PerformedAction.Close:
-              this.cancelCreateOrder(data.item);
-              break;
-            case PerformedAction.Stop:
-              this.isInlineOrderCreating = false;
-              break;
-            case PerformedAction.Play:
-              const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
-              marketWatchItem.deleteSubItem(data.item);
-              this.builder.deleteItems([data.item]);
-              const order = data.item.getDto();
-              this.isInlineOrderCreating = false;
-              order.accountId = this.account.id;
-              this._ordersRepository.createItem(order, { accountId: this.account.id }).toPromise().then(orderResponse => {
-                if (!isForbiddenOrder(orderResponse))
-                  this.createdOrders.push(orderResponse.id);
-              });
-              break;
-          }
+        const action = data.item.checkAction(event);
+        switch (action) {
+          case PerformedAction.Close:
+            this.cancelCreateOrder(data.item);
+            break;
+          case PerformedAction.Stop:
+            this.isInlineOrderCreating = false;
+            break;
+          case PerformedAction.Play:
+            const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
+            marketWatchItem.deleteSubItem(data.item);
+            this.builder.deleteItems([data.item]);
+            const order = data.item.getDto();
+            this.isInlineOrderCreating = false;
+            order.accountId = this.account.id;
+            this._ordersRepository.createItem(order, { accountId: this.account.id }).toPromise().then(orderResponse => {
+              if (!isForbiddenOrder(orderResponse))
+                this.createdOrders.push(orderResponse.id);
+            });
+            break;
         }
       }
+    }
     ),
     new CellClickDataGridHandler<MarketWatchSubItem>({
-        column: MarketWatchColumns.Symbol,
-        handler: (data, event) => {
-          if (data.item.itemType !== ItemType.SubItem)
-            return;
+      column: MarketWatchColumns.Symbol,
+      handler: (data, event) => {
+        if (data.item.itemType !== ItemType.SubItem)
+          return;
 
-          const action = data.item.checkAction(event);
-          switch (action) {
-            case PerformedAction.Close:
-              this._ordersRepository.deleteItem(data.item.order).toPromise();
-              break;
-          }
-          console.log(action);
-          // #TODO for stop resume orders
-          console.log(data);
+        const action = data.item.checkAction(event);
+        switch (action) {
+          case PerformedAction.Close:
+            this._ordersRepository.deleteItem(data.item.order).toPromise();
+            break;
         }
+        console.log(action);
+        // #TODO for stop resume orders
+        console.log(data);
       }
+    }
     ),
     new ContextMenuClickDataGridHandler<MarketWatchItem>({
       column: MarketWatchColumns.Symbol,
@@ -463,14 +463,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         instruments.forEach(item => this.subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
         this.loadPositions();
-        this.accounts.forEach(item => {
-          this._ordersRepository.getItems({
-            // accountId: this.connection.id,
-            accountId: item.id,
-            connectionId: item.connectionId,
-          }).toPromise()
-            .then((response) => response.data.forEach(order => this._processOrders(order)));
-        });
+        const accounts = this.accounts;
+        this._ordersRepository.getItems({ accounts }).subscribe((response) => response.data.forEach(order => this._processOrders(order)));
+
         this.detectChanges(true);
       });
 
@@ -742,38 +737,38 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         take(1),
         untilDestroyed(this)
       ).subscribe(() => {
-      const instruments = this.tabs.reduce((total, item) => {
-        return total.concat(item.getInstruments());
-      }, []);
-      this.builder.loadInstruments(instruments);
-      this.updateDataGridItems();
+        const instruments = this.tabs.reduce((total, item) => {
+          return total.concat(item.getInstruments());
+        }, []);
+        this.builder.loadInstruments(instruments);
+        this.updateDataGridItems();
 
-      this.onRemove(
-        this._levelOneDatafeed.on(filterByAccountConnection(this, (updates) => this._processQuotes(updates))),
-        this._positionsFeed.on(filterByAccountConnection(this, position => this._processPosition(position))),
-        this._tradeFeed.on(filterByAccountConnection(this, trade => this._processTrade(trade))),
-        this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
-        this._settleFeed.on(filterByAccountConnection(this, (settle: SettleData) => {
-          const item = this.builder.getInstrumentItem(settle.instrument);
-          if (item)
-            item.handleSettlePrice(settle.price);
-        })),
-        this._ohlvFeed.on(filterByAccountConnection(this, ohlv => this._handleOHLV(ohlv))),
-      );
-    });
+        this.onRemove(
+          this._levelOneDatafeed.on(filterByAccountConnection(this, (updates) => this._processQuotes(updates))),
+          this._positionsFeed.on(filterByAccountConnection(this, position => this._processPosition(position))),
+          this._tradeFeed.on(filterByAccountConnection(this, trade => this._processTrade(trade))),
+          this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
+          this._settleFeed.on(filterByAccountConnection(this, (settle: SettleData) => {
+            const item = this.builder.getInstrumentItem(settle.instrument);
+            if (item)
+              item.handleSettlePrice(settle.price);
+          })),
+          this._ohlvFeed.on(filterByAccountConnection(this, ohlv => this._handleOHLV(ohlv))),
+        );
+      });
     this.connection$
       .pipe(
         skip(1),
         untilDestroyed(this)
       ).subscribe(() => {
-      this.builder.clearRealtimeData();
-      this.loadPositions();
-    });
+        this.builder.clearRealtimeData();
+        this.loadPositions();
+      });
   }
 
   _applySettings() {
     const fontWeight = this.settings.display.boldFont ? 700 : 200;
-    this._dataGrid.applyStyles({ font: `${ fontWeight } 14px \"Open Sans\", sans-serif` });
+    this._dataGrid.applyStyles({ font: `${fontWeight} 14px \"Open Sans\", sans-serif` });
 
     const showOrders = this.settings.display.showOrders;
     this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
@@ -979,7 +974,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ MarketWatchSettings }`;
+    return `${this.componentInstanceId}.${MarketWatchSettings}`;
   }
 
   openWidget(item) {
@@ -1105,7 +1100,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   private _copyToNewTab() {
     const newTab = new Tab({
-      name: `Tab ${ this.tabs.length + 1 }`,
+      name: `Tab ${this.tabs.length + 1}`,
       columns: this.defaultColumns,
       data: [new InstrumentHolder(this.contextInstrument)],
     });
@@ -1191,8 +1186,8 @@ function generateStyles(settings: MarketWatchSettings) {
   const bid = generateStyle('bid', settings);
   const ask = generateStyle('ask', settings);
   const positionStyle = {
-    [`${ profitClass }BackgroundColor`]: settings.colors.positionUpColor,
-    [`${ lossClass }BackgroundColor`]: settings.colors.positionDownColor,
+    [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
+    [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
     color: settings.colors.positionTextColor,
   };
   const bidQuantityStyle = {
@@ -1203,12 +1198,12 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   const netChangeStyle = {
-    [`${ profitClass }Color`]: settings.colors.netChangeUpColor,
-    [`${ lossClass }Color`]: settings.colors.netChangeDownColor,
+    [`${profitClass}Color`]: settings.colors.netChangeUpColor,
+    [`${lossClass}Color`]: settings.colors.netChangeDownColor,
   };
   const percentChangeStyle = {
-    [`${ profitClass }Color`]: settings.colors.percentChangeUpColor,
-    [`${ lossClass }Color`]: settings.colors.percentChangeDownColor,
+    [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
+    [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
   };
 
   const generalStyles = {
@@ -1219,7 +1214,7 @@ function generateStyles(settings: MarketWatchSettings) {
   if (settings.display.highlightType !== noneValue) {
     lastStyles = {
       highlightColor: '#fff',
-      [`highlight${ settings.display.highlightType }`]: settings.colors.priceUpdateHighlight
+      [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight
     };
   }
 
@@ -1248,7 +1243,7 @@ const subtitleMap = {
 
 function generateStyle(prefix, settings) {
   return {
-    highlightColor: settings.colors[`${ prefix }Color`],
-    highlightBackgroundColor: settings.colors[`${ prefix }Background`],
+    highlightColor: settings.colors[`${prefix}Color`],
+    highlightBackgroundColor: settings.colors[`${prefix}Background`],
   };
 }
