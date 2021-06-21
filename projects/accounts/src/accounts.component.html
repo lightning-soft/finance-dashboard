@@ -195,6 +195,14 @@
               (click)="disconnect(selectedItem)"
             >Disconnect
             </button>
+            <button
+              nz-button
+              nzType="primary"
+              nzBlock
+              class="bg-secondary text-uppercase disconnect-button"
+              (click)="selectedItem.isDefault? null : makeDefault(selectedItem)"
+            >{{selectedItem.isDefault ? 'Already default' : 'Make default'}}
+            </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">
             <div class="broker-description text-center" [innerHTML]="selectedBroker.description"></div>

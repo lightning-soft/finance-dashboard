@@ -100,7 +100,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       if (connect) {
         this.userData?.form?.controls?.autoSavePassword?.setValue(true);
       }
-    })
+    });
   }
 
   // handleConnectionsChange(data: IAccountNodeData) {
@@ -258,6 +258,13 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err),
       );
+  }
+
+  makeDefault(item: IConnection) {
+    this._accountsManager.makeDefault(item).subscribe(
+      (response: any) => null,
+      err => this._notifier.showError(err),
+    );
   }
 
   _disconnect(item: IConnection) {

@@ -13,6 +13,7 @@ export interface IConnection extends IBaseItem {
   connectOnStartUp: boolean;
   connected: boolean;
   favourite: boolean;
+  isDefault: boolean;
   error?: boolean;
   connectionData: any; // api key, ... etc
 }

@@ -1,19 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Id } from 'communication';
-// import { MixinHelper } from '../../../base-components/src/helpers/mixin.helper';
-// import { MixinHelper } from 'base-components';
 import { IAccount, IInstrument } from 'trading';
-
-// const { mixinDecorator } = MixinHelper;
+import { IConnection } from '../../../trading/src/trading/models/connection';
 
 function mixinDecorator(
   constructor: any,
-  // extendableMethods: string[] = [],
 ): (constructor: any) => void {
   return (derivedCtor: any) => {
     Object.getOwnPropertyNames(constructor.prototype)
       .forEach(name => {
-        // console.log('mixinDecorator', name);
         if (name === 'constructor') {
           return;
         }
@@ -22,7 +17,6 @@ function mixinDecorator(
         const constructorProp = constructor.prototype[name];
 
         if (
-          // extendableMethods.includes(name)
           typeof derivedCtorProp === 'function'
           && typeof constructorProp === 'function'
         ) {
@@ -34,7 +28,7 @@ function mixinDecorator(
             if (constructorProp) {
               constructorProp.apply(this, args);
             }
-          }
+          };
         } else {
           derivedCtor.prototype[name] = constructorProp;
         }
@@ -46,9 +40,12 @@ function mixinDecorator(
 class AccountsListenerRegister {
   private _listeners = [];
   private _accounts = [];
+  private _connnections = [];
 
   subscribe(listener: IAccountsListener) {
     this._listeners.push(listener);
+    if ((listener as any).handleConnectionsConnect)
+      (listener as any).handleConnectionsConnect(this._connnections, this._accounts);
     if (listener.handleAccountsConnect)
       listener.handleAccountsConnect(this._accounts, this._accounts);
   }
@@ -72,6 +69,22 @@ class AccountsListenerRegister {
         listener.handleAccountsDisconnect(accounts, connectedAccounts);
     }
   }
+
+  notifyConnectionsConnected(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._connnections = connectedConnections;
+    for (const listener of this._listeners) {
+      if (listener.handleConnectionsConnect)
+        listener.handleConnectionsConnect(connections, connectedConnections);
+    }
+  }
+
+  notifyConnectionsDisconnected(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._connnections = connectedConnections;
+    for (const listener of this._listeners) {
+      if (listener.handleConnectionsDisconnect)
+        listener.handleConnectionsDisconnect(connections, connectedConnections);
+    }
+  }
 }
 
 export const accountsListeners = new AccountsListenerRegister();
@@ -81,6 +94,12 @@ export interface IAccountsListener {
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
 
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
+}
+
+export interface IConnectionsListener {
+  handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]);
+
+  handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]);
 }
 
 interface _AccountsListener extends IAccountsListener {
@@ -141,6 +160,10 @@ export function AccountsListener() {
   return mixinDecorator(_AccountsListener);
 }
 
+export function ConnectionsListener() {
+  return mixinDecorator(_AccountsListener);
+}
+
 export function AccountListener() {
   return mixinDecorator(_AccountListener);
 }
@@ -158,7 +181,7 @@ export function filterByAccountConnection<T>(accountContainer: { account: IAccou
     if (accountContainer.account.connectionId === connectionId) {
       fn(data, connectionId);
     }
-  }
+  };
 }
 
 export function filterByConnectionAndInstrument<T extends { instrument: { id: Id } }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
@@ -166,7 +189,7 @@ export function filterByConnectionAndInstrument<T extends { instrument: { id: Id
     if (container?.account?.connectionId === connectionId && data?.instrument?.id === container?.instrument?.id) {
       fn(data, connectionId);
     }
-  }
+  };
 }
 
 export function filterByAccountIdAndInstrument<T extends { instrument: { id: Id }, accountId: Id }>(container: { account: IAccount, instrument: IInstrument }, fn: (data: T, connectionId: Id) => any) {
@@ -188,5 +211,5 @@ export function filterByAccount<T extends { instrument: { id: Id }, accountId: I
     if (container?.account?.id === data.accountId) {
       fn(data, connectionId);
     }
-  }
+  };
 }
