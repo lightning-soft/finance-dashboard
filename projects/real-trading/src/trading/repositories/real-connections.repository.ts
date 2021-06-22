@@ -27,6 +27,7 @@ class Connection implements IConnection {
   favourite: boolean;
   connectionData: any;
   id: Id;
+  isDefault: boolean;
 
   constructor(connection: IConnection) {
     Object.assign(this, connection);

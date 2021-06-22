@@ -230,15 +230,16 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   disconnect(connection: IConnection): Observable<void> {
+    const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
+
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        map(() => ({ ...connection, connected: false, isDefault: false })),
-        tap((updatedConnection) => this.onUpdated(updatedConnection)),
-        tap((connection) => this._onDisconnected(connection)),
-        concatMap((updatedConnection) => this._connectionsRepository.updateItem(updatedConnection)),
+        tap(() => this._onDisconnected(connection)),
+        concatMap(() => this._connectionsRepository.updateItem(updatedConnection)),
+        tap(() => this.onUpdated(updatedConnection)),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
-            this.onUpdated(connection);
+            this.onUpdated(updatedConnection);
             return of(null);
           } else
             return throwError(err);
@@ -295,51 +296,4 @@ export class AccountsManager implements ConnectionContainer {
   protected onUpdated(connection: IConnection): void {
     this._connections = this._connections.map(i => i.id === connection.id ? connection : i);
   }
-
-  // private _emitDataToSubscriber(subscriber: AccountNodeSubscriber) {
-  //   subscriber.handleConnectionsChange(this._connectionsData);
-  //   subscriber.handleConnectedConnectionsChange(this._connectedConnectionsData);
-  //   subscriber.handleAccountsChange(this._accountsData);
-  // }
-
-  //   if (!connection.connected) {
-  //     this._wsClose(connection);
-  //   }
-  // }
-
-  // private _emitConnectionToNode(node: AccountNode, connection: IConnection, account?: IAccount) {
-  //   this._setConnectionToSubscriber(node, connection, account);
-
-  //   this._subscribers.get(node).forEach(subscriber => {
-  //     this._emitConnectionToSubscriber(subscriber, connection, account);
-  //   });
-  // }
-
-  // private _emitConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
-  //   this._setConnectionToSubscriber(subscriber, connection, account);
-
-  //   subscriber.handleConnection(connection);
-
-  //   if (connection?.connected) {
-  //     subscriber.handleConnect(connection);
-  //   } else {
-  //     subscriber.handleDisconnect(connection);
-  //   }
-
-  //   subscriber.handleAccountChange(account);
-  // }
-
-  // private _setConnectionToSubscriber(subscriber: AccountNodeSubscriber, connection: IConnection, account?: IAccount) {
-  //   if (connection?.connected) {
-  //     subscriber.connection = connection;
-
-  //     if (account) {
-  //       subscriber.account = account;
-  //     }
-  //   } else {
-  //     subscriber.connection = undefined;
-  //     subscriber.account = undefined;
-  //   }
-  // }
-
 }

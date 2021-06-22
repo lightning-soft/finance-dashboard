@@ -70,8 +70,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
+        console.log(this);
         this.builder.replaceItems(connections);
-        this.selectedItem = { ...this.builder.items.find(i => i.id === this.selectedItem.id) };
+        this.selectedItem = { ...this.builder.items.find(i => i.id === this.selectedItem?.id) };
       });
 
     this._brokersRepository.getItems()
@@ -102,23 +103,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       }
     });
   }
-
-  // handleConnectionsChange(data: IAccountNodeData) {
-  //   this.builder.replaceItems(data.current);
-  //   this.expandBrokers();
-
-  //   if (!this._wasConnected) {
-  //     if (!this.selectedItem) {
-  //       const item = this.builder.items.find(item => item.connected && item.connectOnStartUp);
-
-  //       this.selectItem(item);
-  //     }
-
-  //     this._wasConnected = true;
-  //   }
-
-  //   this._updateSelectedItem();
-  // }
 
   contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
