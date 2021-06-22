@@ -65,7 +65,10 @@ export class AccountsManager implements ConnectionContainer {
   async init(): Promise<IConnection[]> {
     await this._fetchConnections();
     for (const conn of this._connections.filter(i => i.connectOnStartUp))
-      this.connect(conn).subscribe(); // TODO: handleError
+      this.connect(conn).subscribe(
+        () => console.log('Successfully conected', conn),
+        (err) => console.error('Conected error', conn, err),
+      );
 
     return this._connections;
   }

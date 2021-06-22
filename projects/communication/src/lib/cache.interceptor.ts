@@ -11,13 +11,13 @@ export class CacheInterceptor implements HttpInterceptor {
     if (req.method !== 'GET') {
       return next.handle(req);
     }
-
-    const key = [req.urlWithParams, req.responseType].join('-');
+    const apiKey = req.headers.get('Api-Key') ?? '';
+    const key = [req.urlWithParams, req.responseType, apiKey].join('-');
 
     if (!this.cachedRequests.has(key)) {
       this.cachedRequests.set(key, next.handle(req).pipe(
         finalize(() => this.cachedRequests.delete(key)),
-        shareReplay({refCount: true, bufferSize: 1}),
+        shareReplay({ refCount: true, bufferSize: 1 }),
       ));
     }
 
