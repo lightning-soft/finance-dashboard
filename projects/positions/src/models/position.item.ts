@@ -62,6 +62,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   });
   close = new IconCell({ withHoverStatus: true, size: 10 });
   side = new DataCell({ withHoverStatus: true });
+  private _instrument: IInstrument;
 
   get id(): Id | undefined {
     return this.position && this.position.id;
@@ -73,6 +74,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       return;
     }
     this.update(position);
+  }
+
+  setInstrument(instrument: IInstrument) {
+    if (this.position?.instrument?.id !== instrument.id)
+      return;
+
+    this._instrument = instrument;
   }
 
   update(position: IPosition) {
@@ -91,6 +99,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.realized,
       PositionColumn.side
     ];
+
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -103,10 +112,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this._updateCellProfitStatus(this.total);
   }
 
-  public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
+  public updateUnrealized(trade: TradePrint, connectionId: Id) {
     const position = this.position;
+    const instrument = this._instrument;
 
-    if (position == null || !compareInstruments(trade?.instrument, position?.instrument))
+    console.log('position.connectionId', position.connectionId);
+    if (position.connectionId !== connectionId || instrument == null
+      || position == null || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);

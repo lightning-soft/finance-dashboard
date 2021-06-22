@@ -135,6 +135,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
     for (const executor of this._executors) {
       try {
+        _result.connectionId = connectionId;
         executor(_result, connectionId);
       } catch (error) {
         console.error('_handleTrade', error);

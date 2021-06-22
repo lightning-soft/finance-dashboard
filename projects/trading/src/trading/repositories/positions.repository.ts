@@ -1,6 +1,6 @@
 import { Id, Repository } from 'communication';
-import { IConnection, IInstrument, IPosition } from 'trading';
 import { Observable } from 'rxjs';
+import { IPosition } from 'trading';
 
 export interface IDeletePositionsParams {
   accountId: Id;

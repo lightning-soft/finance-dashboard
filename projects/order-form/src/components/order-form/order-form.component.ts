@@ -156,8 +156,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
           }
         }
       })),
-      this._positionDatafeed.on((pos) => {
-        const position = RealPositionsRepository.transformPosition(pos);
+      this._positionDatafeed.on((pos, connectionId) => {
+        const position = RealPositionsRepository.transformPosition(pos, connectionId);
 
         if (compareInstruments(position.instrument, this.instrument)) {
           this.position = position;

@@ -8,7 +8,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
   protected get suffix(): string {
     return 'Position';
   }
-  static transformPosition(item): IPosition {
+  static transformPosition(item, connectionId?): IPosition {
     if (isPositionTransformed(item))
       return item;
 
@@ -26,6 +26,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       unrealized: 0,
       total: size * price,
       side: item.type,
+      connectionId: connectionId ?? item.connectionId,
       status: PositionStatus.Open,
     };
   }
