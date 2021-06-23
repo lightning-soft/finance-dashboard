@@ -63,6 +63,12 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
     this.triggerPrice.editValueSetter = (target) => {
       this.triggerPrice.updateValue(target.instance.value);
     };
+
+    this.accountId.editType = 'accounts';
+    this.accountId.editable = true;
+    this.accountId.editValueSetter = (target) => {
+      this.accountId.updateValue(target.instance.account.id);
+    };
   }
 
   private updatePrices(type) {
@@ -92,6 +98,7 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
       exchange: this.instrument.exchange,
       limitPrice: +this.price.value,
       stopPrice: +this.triggerPrice.value,
+      accountId: this.accountId.value,
     } as IOrder;
   }
 

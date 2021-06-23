@@ -6,4 +6,5 @@ export interface IAccount  extends IBaseItem {
   server: string;
   connectionId: Id;
   connected?: boolean;
+  isDefault?: boolean;
 }

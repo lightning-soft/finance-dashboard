@@ -28,6 +28,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
     criteria: '',
   };
   accountId: Id;
+  connectionId: Id;
   theEnd = false;
 
 
@@ -62,6 +63,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
       if (end === total) {
         this.query.skip = this.items.length;
         this.query.accountId = this.accountId;
+        this.query.connectionId = this.connectionId;
         this.loadData(this.query);
       }
     });
