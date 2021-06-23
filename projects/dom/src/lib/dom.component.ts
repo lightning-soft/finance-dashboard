@@ -11,7 +11,13 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderForm, SideOrderFormComponent } from 'base-order-form';
+import {
+  FormActions,
+  getPriceSpecs,
+  OcoStep,
+  SideOrderFormComponent,
+  SideOrderFormState
+} from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -141,7 +147,7 @@ interface IDomState {
   columns: any;
   contextMenuState: any;
   account?: IAccount;
-  orderForm: Partial<SideOrderForm>;
+  orderForm: SideOrderFormState;
   link: string | number;
 }
 
@@ -321,10 +327,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
   position: IPosition;
-  orderFormState: Partial<SideOrderForm>;
 
+  private _initialState: IDomState;
   private _account: IAccount;
-
   private currentRow: DomItem;
 
   domKeyHandlers = {
@@ -619,6 +624,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     );
 
     this._onInstrumentChange(this.instrument);
+    this.domForm.loadState(this._initialState.orderForm);
   }
 
   handleAccountChange(account: IAccount) {
@@ -1976,9 +1982,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: {
-        quantity: (this.domForm.form.controls as SideOrderForm).quantity.value
-      }
+      orderForm: this.domForm.getState()
     };
   }
 
@@ -2026,7 +2030,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.instrument = state.instrument;
-    this.orderFormState = state.orderForm;
+    this._initialState = state;
   }
 
   openSettings(hidden = false) {
