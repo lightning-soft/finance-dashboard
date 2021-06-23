@@ -404,9 +404,11 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   private _resizeEdit = ({ position }) => {
     const editView = this.tableContainer.nativeElement.parentNode.children[1];
-    for (let key in position) {
-      editView.style[key] = position[key];
-    }
+    this._zone.run(() => {
+      for (let key in position) {
+        editView.style[key] = position[key];
+      }
+    });
   }
   private _endEdit = (e) => {
     if (e.item.editValueSetter) {

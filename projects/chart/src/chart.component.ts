@@ -53,8 +53,6 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
-import { Overlay } from '@angular/cdk/overlay';
-import { forwardRef } from '@angular/core';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -379,9 +377,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         }
         if (state.stockChartXState) {
           chart.loadState(state.stockChartXState);
-        } else if (StockChartX.Indicator.registeredIndicators.VOL) {
-          chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
         }
+       /* else if (StockChartX.Indicator.registeredIndicators.VOL) {
+          chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
+        }*/
 
         this._sideForm.loadState(state?.orderForm);
         this.enableOrderForm = state?.enableOrderForm;

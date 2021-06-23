@@ -24,13 +24,13 @@ export class NumberWrapperComponent {
     if (!this.shouldOpenSelect)
       return;
 
-    let from = +value - (this.optionSize * this.step);
-    const to = +value + (this.optionSize * this.step);
+    let from = +value + (this.optionSize * this.step);
+    const to = +value - (this.optionSize * this.step);
     this.options = [];
 
-    while (from <= to) {
+    while (from >= to) {
       this.options.push(from);
-      from += this.step;
+      from -= this.step;
     }
   }
 
