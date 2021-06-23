@@ -76,7 +76,7 @@ import { SelectWrapperComponent } from './select-wrapper/select-wrapper.componen
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
 
-const labelText = 'Text label';
+const labelText = 'Indices';
 
 const maxTabCount = 10;
 const profitStyles = {
@@ -202,14 +202,14 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           return;
         const instrumentHolder: InstrumentHolder = this.currentTab.getInstrumentHolder(data.item.instrument);
 
-        if (data.item.expanded) {
-          data.item.setExpanded(false);
+        if (data.item.shouldExpand) {
+          data.item.setShouldExpand(false);
           instrumentHolder.expanded = false;
           this.builder.removeViewModels(data.item.subItems);
         } else {
           const viewModel = data.item;
           this.addOrders(viewModel);
-          viewModel.setExpanded(true);
+          viewModel.setShouldExpand(true);
           instrumentHolder.expanded = true;
         }
       },
@@ -229,11 +229,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
               this.isInlineOrderCreating = false;
               break;
             case PerformedAction.Play:
-              const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
-              marketWatchItem.deleteSubItem(data.item);
               this.builder.deleteItems([data.item]);
               const order = data.item.getDto();
-              this.isInlineOrderCreating = false;
+              this.cancelCreateOrder(data.item);
               this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
                 if (!isForbiddenOrder(orderResponse))
                   this.createdOrders.push(orderResponse.id);
@@ -243,6 +241,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         }
       }
     ),
+    new CellClickDataGridHandler<MarketWatchCreateOrderItem>({
+      column: MarketWatchColumnsArray,
+      handler: (data, event) => {
+        if (data?.item.itemType !== ItemType.CreateItem)
+          return;
+        const cell = data.item[data.column.name];
+        if (cell && cell.editable) {
+          const point =  { x: event.offsetX, y: event.offsetY };
+          this._dataGrid.startEditingAt(point.x, point.y);
+        }
+      },
+    }),
     new CellClickDataGridHandler<MarketWatchSubItem>({
         column: MarketWatchColumns.Symbol,
         handler: (data, event) => {
@@ -367,6 +377,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
         return {
           factory,
+          params: {
+            isOpened: true,
+          }
         };
     }
   }
@@ -381,8 +394,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         value,
       },
       styles: {
-        minWidth: '250px',
-        marginLeft: '40px',
+       // minWidth: '250px',
+       // marginLeft: '40px',
+       marginLeft: '5px',
       }
     };
   }
@@ -500,6 +514,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   private cancelCreateOrder(row) {
     const item = this.builder.getInstrumentItem(row.instrument);
     item.deleteSubItem(row);
+    item.setHasCreatingOrder(false);
     this.builder.deleteItems([row]);
     this.isInlineOrderCreating = false;
   }
@@ -508,7 +523,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this._positionsRepository.getItems({
      connectionId: this.connection?.id,
     }).toPromise()
-      .then((response) => response.data.forEach(pos => this._processPosition(pos)));
+      .then((response) => response?.data.forEach(pos => this._processPosition(pos)));
   }
 
   ngAfterViewInit() {
@@ -642,7 +657,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     item.handleOrder(order);
     if (isForbiddenOrder(order)) {
       this.builder.handleDeleteItems([order]);
-    } else if (!hasOrder && item.expanded && this.settings.display.showOrders) {
+    } else if (!hasOrder && item.shouldExpand && this.settings.display.showOrders) {
       this.addOrders(item);
     }
     this._changeDetectorRef.detectChanges();
@@ -862,9 +877,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       const viewItem = this.builder.getInstrumentItem(item.instrument);
       if (!viewItem)
         return;
-      viewItem.expanded = item.expanded;
+      viewItem.shouldExpand = item.expanded;
       viewItem.updateExpanded();
-      if (viewItem.expanded)
+      if (viewItem.shouldExpand)
         this.addOrders(viewItem);
     });
   }
@@ -963,7 +978,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         }
 
         if (this.tabs.length === 0) {
-          this.currentTab = null;
+          const tab = new Tab({name: 'Blank', columns: this.defaultColumns});
+          this.tabs.push(tab);
+          this.selectTab(tab);
           this.builder.replaceViewItems([]);
         }
       }
@@ -1003,7 +1020,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: {instrument: this.contextInstrument, account: this.account},
+        state: { instrument: this.contextInstrument },
       },
       ...item.options
     });
@@ -1030,7 +1047,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     const index = this.builder.items.findIndex(item => item.id === this.contextInstrument?.id);
     const viewModel = this.builder.getInstrumentItem(this.contextInstrument);
-    const subItemCount = viewModel?.expanded ? viewModel.subItems.length : 0;
+    const subItemCount = viewModel?.shouldExpand ? viewModel.subItems.length : 0;
     if (index !== -1)
       this.addSymbol(index + 1 + subItemCount);
   }
@@ -1049,7 +1066,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.currentTab.data.splice(tabIndex + 1, 0, labelHolder);
 
     const labelViewModel = new MarketWatchLabelItem(labelHolder);
-    const additionalNumber = viewModel.expanded && this.settings.display.showOrders ? viewModel.subItems.length : 0;
+    const additionalNumber = viewModel.shouldExpand && this.settings.display.showOrders ? viewModel.subItems.length : 0;
     this.builder.addViewItems([labelViewModel], index + 1 + additionalNumber);
 
   }
@@ -1095,7 +1112,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         state: {
           instrument: this.contextInstrument,
           link: this._getLinkingKey(),
-          account: this.account,
           ...state,
         },
       },
@@ -1188,8 +1204,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       orderMarketWatchItem.price.updateValue(item.bid._value);
 
     item.subItems.unshift(orderMarketWatchItem);
+    item.setHasCreatingOrder(true);
     this.isInlineOrderCreating = true;
-    this.builder.addViewItems([orderMarketWatchItem], index + 1);
+    this.builder.addViewItems([orderMarketWatchItem], this.builder.getIndex(instrument.id) + 1);
   }
 
   renameLabel() {

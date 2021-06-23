@@ -44,7 +44,8 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
   low: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter });
   open: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter });
 
-  expanded = true;
+  shouldExpand = true;
+  private _hasCreatingOrder = false;
   itemType = ItemType.Item;
   subItems: IMarketWatchItem[] = [];
 
@@ -82,13 +83,18 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     this.symbol.setShowDrawings(value);
   }
 
+  setHasCreatingOrder(value: boolean) {
+    this._hasCreatingOrder = value;
+    this.updateExpanded();
+  }
+
   applySettings(settings) {
     this.subItems.forEach(item => item.applySettings(settings));
   }
 
-  setExpanded(value) {
-    this.expanded = value;
-    this.symbol.setExpanded(value);
+  setShouldExpand(value) {
+    this.shouldExpand = value;
+    this.updateExpanded();
   }
 
   processQuote(quote: IQuote) {
@@ -144,10 +150,8 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
   }
 
   updateExpanded() {
-    if (this.expanded) {
-      const showExpanded = !!(this.buyOrders.size || this.sellOrders.size);
-      this.symbol.setExpanded(showExpanded);
-    }
+    const showExpanded = this.shouldExpand && !!(this.buyOrders.size || this.sellOrders.size || this._hasCreatingOrder);
+    this.symbol.setExpanded(showExpanded);
   }
 
   hasOrder(order: IOrder) {

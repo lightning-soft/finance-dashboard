@@ -1,4 +1,4 @@
-<nz-select [nzOptionHeightPx]="24" [(ngModel)]="value">
+<nz-select [nzOpen]="true" [nzAutoFocus]="true" [nzOptionHeightPx]="24" [(ngModel)]="value">
   <nz-option [nzLabel]="item.label" [nzValue]="item.value" *ngFor="let item of options">
   </nz-option>
 </nz-select>

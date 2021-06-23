@@ -4,9 +4,11 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
 import { BehaviorSubject } from 'rxjs';
 import {
-  compareInstruments, IInstrument,
+  compareInstruments,
+  IInstrument,
   IOrder,
-  isForbiddenOrder, OrderDuration,
+  isForbiddenOrder,
+  OrderDuration,
   OrderSide,
   OrderType,
   PositionsRepository
@@ -252,7 +254,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
 
   loadState(state: SideOrderFormState): void {
     this.form.patchValue(state ?? {});
-    if (state.amountButtons)
+    if (state?.amountButtons)
       this.amountButtons = state.amountButtons;
   }
 

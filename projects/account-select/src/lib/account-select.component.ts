@@ -42,6 +42,7 @@ export class AccountSelectComponent {
   }
 
   @Input() labelTransformer = (label) => label;
+  @Input() isOpened = false;
 
   compareAccounts(a: IAccount, b: IAccount): boolean {
     return a?.id === b?.id;

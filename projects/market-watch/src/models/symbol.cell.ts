@@ -32,6 +32,10 @@ export class SymbolCell extends Cell {
     return this.isClickedOnCircle(mouseEvent);
   }
 
+  getLeftPadding() {
+    return leftMargin + (circleRadius * 2) + textLeftMargin;
+  }
+
   setExpanded(value) {
     this._expanded = value;
     this.styles = value ? expandedStyles : regularStyles;
