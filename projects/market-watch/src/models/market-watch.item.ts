@@ -9,7 +9,6 @@ import {
   OHLVData,
   OrderSide,
   QuoteSide,
-  TradePrint,
   UpdateType,
   VolumeData
 } from 'trading';
@@ -102,10 +101,6 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     }
   }
 
-  handleTrade(trade: TradePrint) {
-    this.last.updateValue(trade.price);
-  }
-
   handleOrder(order) {
     const map = order.side === OrderSide.Buy ? this.buyOrders : this.sellOrders;
     const cell = order.side === OrderSide.Buy ? this.workingBuys : this.workingSells;
@@ -193,6 +188,7 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     this.high.updateValue(ohlv.high);
     this.low.updateValue(ohlv.low);
     this.volume.updateValue(ohlv.volume);
+    this.last.updateValue(ohlv.close);
     this._ohlv = ohlv;
     this._updateProfits();
   }

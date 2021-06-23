@@ -4,15 +4,22 @@ import { RealtimeType } from './realtime';
 
 export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
   type = RealtimeType.Settle;
-  _lastValue: SettleData;
+  _lastValue: {
+    [connectionId: string]: {
+      [instrumentId: string]: SettleData
+    }
+  } = {};
 
   subscribeType = WSMessageTypes.SUBSCRIBE;
   unsubscribeType = WSMessageTypes.UNSUBSCRIBE;
 
   on(fn: OnTradeFn<SettleData>): UnsubscribeFn {
-    if (this._lastValue != null) {
-      fn(this._lastValue);
-    }
+      for (const connectionId in this._lastValue) {
+        for (const key in this._lastValue[connectionId]) {
+          const value = this._lastValue[connectionId][key];
+          fn(value, connectionId);
+        }
+      }
     return super.on(fn);
   }
 
@@ -20,7 +27,11 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
     const result = super._handleTrade(data, connectionId);
     if (result) {
       // #TODO save last value by connection id and instrument
-      this._lastValue = this._getResult(data);
+      const settleData = this._getResult(data);
+      if (!this._lastValue[connectionId]) {
+        this._lastValue[connectionId] = {};
+      }
+      this._lastValue[connectionId][settleData.instrument.id] = settleData;
       return true;
     }
   }

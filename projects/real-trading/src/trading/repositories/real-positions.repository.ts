@@ -37,6 +37,9 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
     if (_params.accountId) {
       _params.id = _params.accountId;
       // delete _params.accountId;
+      // needed to exit eternal recursion
+    } else if (_params.hasOwnProperty('connectionId') && !_params.hasOwnProperty('accounts')){
+      _params.accounts = this._connectionContainer.getAccountsByConnection(params.connectionId);
     }
 
     return super.getItems(_params).pipe(

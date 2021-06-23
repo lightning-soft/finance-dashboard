@@ -123,7 +123,7 @@ export class RealOHLVFeed extends OHLVFeed {
 
     const obj = this._ohlv[connecionId];
 
-    if (!obj || obj[instrument?.id])
+    if (!obj || !obj[instrument?.id])
       return;
 
     if ((obj[instrument.id].count - 1) <= 0) {
@@ -135,13 +135,13 @@ export class RealOHLVFeed extends OHLVFeed {
   }
 
   handleTrade = (trade, connectionId: Id) => {
-    const ohlvHandler = this._ohlv[trade.instrument.id];
+    if (!this._ohlv[connectionId])
+      return;
+
+    const ohlvHandler = this._ohlv[connectionId][trade.instrument.id];
     if (!ohlvHandler || !ohlvHandler.count) {
       return;
     }
-
-    if (!this._ohlv[connectionId])
-      return;
 
     const historyItem = this._ohlv[connectionId][trade.instrument.id].historyItem;
     historyItem.close = trade.price;

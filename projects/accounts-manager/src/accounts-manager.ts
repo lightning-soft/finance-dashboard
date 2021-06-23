@@ -52,6 +52,10 @@ export class AccountsManager implements ConnectionContainer {
     return this._accountsConnection.get(accountId);
   }
 
+  getAccountsByConnection(connId: Id) {
+    return this._accounts.filter(item => item.connectionId === connId);
+  }
+
   getConnection(connectionId: Id): IConnection {
     if (!connectionId)
       return null;
@@ -60,6 +64,8 @@ export class AccountsManager implements ConnectionContainer {
       if (connection.id === connectionId)
         return connection;
     }
+
+    return this._connections.find(item => item.id === connectionId);
   }
 
   async init(): Promise<IConnection[]> {
@@ -100,7 +106,7 @@ export class AccountsManager implements ConnectionContainer {
 
   private async _getAccountsByConnections(connection: IConnection): Promise<IAccount[]> {
     if (!connection) {
-      return [];
+      return Promise.resolve([]);
     }
 
     const params = {
@@ -186,6 +192,9 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   createConnection(connection: IConnection): Observable<IConnection> {
+    if (this._connections.some(hasConnection(connection)))
+      return throwError('You can \'t create duplicated connection');
+
     return this._connectionsRepository.createItem(connection)
       .pipe(tap((conn) => this.onCreated(conn)));
   }
@@ -207,7 +216,9 @@ export class AccountsManager implements ConnectionContainer {
 
           return this._connectionsRepository.updateItem((item)).pipe(
             map(_ => item),
-            tap(() => accountsListeners.notifyConnectionsConnected([connection], this._connections.filter(i => i.connected)))
+            tap((conn) => {
+              this.onUpdated(conn);
+            }),
           );
         }),
         tap((conn) => {
@@ -215,9 +226,9 @@ export class AccountsManager implements ConnectionContainer {
             this._initWS(conn);
             this._fetchAccounts(conn);
           }
-
-          this.onUpdated(conn);
         }),
+        tap(() => accountsListeners.notifyConnectionsConnected([connection],
+          this._connections.filter(i => i.connected)))
       );
   }
 
@@ -237,9 +248,9 @@ export class AccountsManager implements ConnectionContainer {
 
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        tap(() => this._onDisconnected(connection)),
         concatMap(() => this._connectionsRepository.updateItem(updatedConnection)),
         tap(() => this.onUpdated(updatedConnection)),
+        tap(() => this._onDisconnected(connection)),
         catchError((err: HttpErrorResponse) => {
           if (err.status === 401) {
             this.onUpdated(updatedConnection);
@@ -259,8 +270,14 @@ export class AccountsManager implements ConnectionContainer {
 
     const needUpdate = defaultConnections.map(i => ({ ...i, isDefault: false })).concat(_connection);
 
-    return forkJoin(needUpdate.map(i => this._connectionsRepository.updateItem(i)
-      .pipe(tap(() => this.onUpdated(i)))));
+    return forkJoin(
+      needUpdate.map(i => this._connectionsRepository.updateItem(i)
+        .pipe(tap(() => this.onUpdated(i))))
+    ).pipe(tap(() => this._onDefaultChanged(item)));
+  }
+
+  private _onDefaultChanged(item) {
+    accountsListeners.notifyDefaultChanged(this._connections, item);
   }
 
   deleteConnection(connection: IConnection): Observable<any> {
@@ -290,7 +307,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
+      connection.name = `${ connection.server }(${ connection.gateway })`;
     }
 
     this._connections = this._connections.concat(connection);
@@ -299,4 +316,8 @@ export class AccountsManager implements ConnectionContainer {
   protected onUpdated(connection: IConnection): void {
     this._connections = this._connections.map(i => i.id === connection.id ? connection : i);
   }
+}
+
+function hasConnection(connection: IConnection) {
+  return (conn: IConnection) => conn.username === connection.username && conn.server === connection.server;
 }

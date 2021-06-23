@@ -7,7 +7,6 @@ import {
   Injector,
   NgZone,
   OnDestroy,
-  OnInit,
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -28,11 +27,12 @@ import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { AccountsListener, filterByAccountsConnection } from 'real-trading';
+import { AccountsListener, filterByAccountsConnection, filterConnection, IConnectionsListener } from 'real-trading';
 import { Subject } from 'rxjs';
 import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
   IAccount,
+  IConnection,
   IInstrument,
   InstrumentsRepository,
   IOrder,
@@ -49,15 +49,12 @@ import {
   PositionsFeed,
   PositionsRepository,
   SettleData,
-  SettleDataFeed,
-  TradeDataFeed,
-  TradePrint
+  SettleDataFeed
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow } from 'window-manager';
 import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
 import { Components } from '../../../src/app/modules';
-import { filterByAccountConnection } from '../../real-trading';
 import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
 import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
 import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
@@ -77,6 +74,7 @@ import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
+import { AccountSelectComponent } from 'account-select';
 
 const labelText = 'Text label';
 
@@ -99,7 +97,7 @@ const orderStyles = {
   createOrderColor: '#D0D0D2',
   labelBackgroundColor: '#24262C',
 };
-const defaultStyles = { color: '#D0D0D2', textAlign: 'left' };
+const defaultStyles = {color: '#D0D0D2', textAlign: 'left'};
 
 const profitClass = 'inProfit';
 const lossClass = 'loss';
@@ -129,7 +127,7 @@ const marketWatchKeyLinking = 'marketwatch-linking';
 const marketWatchOrderKeyLinking = 'marketWatchOrderKeyLinking';
 
 const ordersColumns = [MarketWatchColumns.Position, MarketWatchColumns.Bid,
-MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
+  MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
 
 export interface MarketWatchComponent extends ILayoutNode {
 }
@@ -153,7 +151,7 @@ export interface IMarketWatchState {
 })
 @LayoutNode()
 @AccountsListener()
-export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
+export class MarketWatchComponent extends ItemsComponent<any> implements AfterViewInit, OnDestroy, IConnectionsListener {
   columns: Column[] = [];
   contextInstrument: IInstrument;
   contextLabelId: Id;
@@ -168,9 +166,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   dataFeeds = [];
 
-  account;
+  account: IAccount;
 
   accountId: Id;
+  connection: IConnection;
+  prevConnection: IConnection;
+  connections: IConnection[] = [];
 
   accounts = [];
 
@@ -214,52 +215,51 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       },
     }),
     new CellClickDataGridHandler<MarketWatchCreateOrderItem>({
-      column: MarketWatchColumns.Symbol,
-      handler: (data, event) => {
-        if (data?.item.itemType !== ItemType.CreateItem)
-          return;
+        column: MarketWatchColumns.Symbol,
+        handler: (data, event) => {
+          if (data?.item.itemType !== ItemType.CreateItem)
+            return;
 
-        const action = data.item.checkAction(event);
-        switch (action) {
-          case PerformedAction.Close:
-            this.cancelCreateOrder(data.item);
-            break;
-          case PerformedAction.Stop:
-            this.isInlineOrderCreating = false;
-            break;
-          case PerformedAction.Play:
-            const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
-            marketWatchItem.deleteSubItem(data.item);
-            this.builder.deleteItems([data.item]);
-            const order = data.item.getDto();
-            this.isInlineOrderCreating = false;
-            order.accountId = this.account.id;
-            this._ordersRepository.createItem(order, { accountId: this.account.id }).toPromise().then(orderResponse => {
-              if (!isForbiddenOrder(orderResponse))
-                this.createdOrders.push(orderResponse.id);
-            });
-            break;
+          const action = data.item.checkAction(event);
+          switch (action) {
+            case PerformedAction.Close:
+              this.cancelCreateOrder(data.item);
+              break;
+            case PerformedAction.Stop:
+              this.isInlineOrderCreating = false;
+              break;
+            case PerformedAction.Play:
+              const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
+              marketWatchItem.deleteSubItem(data.item);
+              this.builder.deleteItems([data.item]);
+              const order = data.item.getDto();
+              this.isInlineOrderCreating = false;
+              this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
+                if (!isForbiddenOrder(orderResponse))
+                  this.createdOrders.push(orderResponse.id);
+              });
+              break;
+          }
         }
       }
-    }
     ),
     new CellClickDataGridHandler<MarketWatchSubItem>({
-      column: MarketWatchColumns.Symbol,
-      handler: (data, event) => {
-        if (data.item.itemType !== ItemType.SubItem)
-          return;
+        column: MarketWatchColumns.Symbol,
+        handler: (data, event) => {
+          if (data.item.itemType !== ItemType.SubItem)
+            return;
 
-        const action = data.item.checkAction(event);
-        switch (action) {
-          case PerformedAction.Close:
-            this._ordersRepository.deleteItem(data.item.order).toPromise();
-            break;
+          const action = data.item.checkAction(event);
+          switch (action) {
+            case PerformedAction.Close:
+              this._ordersRepository.deleteItem(data.item.order).toPromise();
+              break;
+          }
+          console.log(action);
+          // #TODO for stop resume orders
+          console.log(data);
         }
-        console.log(action);
-        // #TODO for stop resume orders
-        console.log(data);
       }
-    }
     ),
     new ContextMenuClickDataGridHandler<MarketWatchItem>({
       column: MarketWatchColumns.Symbol,
@@ -284,13 +284,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       }
     }),
   ];
-
-  private cancelCreateOrder(row) {
-    const item = this.builder.getInstrumentItem(row.instrument);
-    item.deleteSubItem(row);
-    this.builder.deleteItems([row]);
-    this.isInlineOrderCreating = false;
-  }
 
   components = [
     Components.Chart,
@@ -370,6 +363,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         return this.createNumber(cell, { placeholder: 'Stop Price', step: cell.row.instrument.tickSize });
       case 'quantity':
         return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false });
+      case 'accounts':
+        const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
+        return {
+          factory,
+        };
     }
   }
 
@@ -421,7 +419,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     private _ordersFeed: OrdersFeed,
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
-    private _tradeFeed: TradeDataFeed,
     protected cd: ChangeDetectorRef,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
@@ -445,12 +442,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
     this.dataFeeds = [
       this._levelOneDatafeed,
-      this._tradeFeed,
       this._ohlvFeed,
       this._settleFeed,
     ];
 
-    this.builder.addCallback = this._handleNewItems.bind(this);
+    this.builder.addCallback = (item) => this.newInstrument$.next(item);
     this.builder.deleteCallback = this._unsubscribeFromRealtime.bind(this);
 
     this.newInstrument$.pipe(
@@ -460,7 +456,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         if (!instruments.length)
           return;
 
-        instruments.forEach(item => this.subscribeForRealtime(item));
+        instruments.forEach(item => this._subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
         this.loadPositions();
         const accounts = this.accounts;
@@ -479,10 +475,38 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     });
   }
 
+  handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._handleConnections(connectedConnections);
+  }
+
+  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection[]) {
+    this._handleConnections([defaultConnection]);
+  }
+
+  handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._handleConnections(connectedConnections);
+  }
+
+  private _handleConnections(connectedConnections) {
+    this.connections = connectedConnections;
+    const connection = connectedConnections.find(item => item.isDefault && item.connected) || connectedConnections[0];
+    if (this.connection?.id !== connection?.id) {
+      this.prevConnection = this.connection;
+      this.connection = connection;
+      this.connection$.next();
+    }
+  }
+
+  private cancelCreateOrder(row) {
+    const item = this.builder.getInstrumentItem(row.instrument);
+    item.deleteSubItem(row);
+    this.builder.deleteItems([row]);
+    this.isInlineOrderCreating = false;
+  }
+
   private loadPositions() {
     this._positionsRepository.getItems({
-      accountId: this.account.id,
-      connectionId: this.account.connectionId
+     connectionId: this.connection?.id,
     }).toPromise()
       .then((response) => response.data.forEach(pos => this._processPosition(pos)));
   }
@@ -496,7 +520,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.accounts = connectedAccounts;
     if (this.account)
       return;
-
     const account = connectedAccounts.find(item => item.id === this.accountId);
     if (account)
       this.account = account;
@@ -532,7 +555,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   private _sendLinks(data) {
     const instrument = data.item?.instrument;
     if (instrument)
-      this.broadcastData(this._getLinkingKey(), { instrument });
+      this.broadcastData(this._getLinkingKey(), {instrument});
   }
 
   _createOrderByClick(data, event) {
@@ -548,7 +571,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
             x: event.x,
             y: event.y + this.gridStyles.rowHeight,
           }
-        }, { orderLink: this._getOrderKey(), instrument: data.item.instrument });
+        }, {orderLink: this._getOrderKey(), instrument: data.item.instrument});
       } else {
         this.createInlineOrder(data.item.instrument);
       }
@@ -580,16 +603,22 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.builder.deleteItems([item]);
   }
 
-  _handleNewItems(item: IInstrument) {
-    this.newInstrument$.next(item);
+  subscribeForAllInstruments() {
+    if (this.connection)
+      this.getAllInstruments().forEach(item => this._subscribeForRealtime(item));
   }
 
-  subscribeForRealtime(instrument: IInstrument) {
-    this.dataFeeds.forEach(item => item.subscribe(instrument));
+  unsubscribeFromAllInstruments() {
+    this.getAllInstruments().forEach(item => this._unsubscribeFromRealtime(item, this.prevConnection));
   }
 
-  _unsubscribeFromRealtime(instrument: IInstrument) {
-    this.dataFeeds.forEach(item => item.unsubscribe(instrument));
+  private _subscribeForRealtime(instrument: IInstrument) {
+    this.dataFeeds.forEach(item => item.subscribe(instrument, this.connection.id));
+  }
+
+  private _unsubscribeFromRealtime(instrument: IInstrument, connection = this.connection) {
+    if (connection.id)
+      this.dataFeeds.forEach(item => item.unsubscribe(instrument, connection.id));
   }
 
   _handleOHLV(ohlv: OHLVData) {
@@ -638,15 +667,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.detectChanges();
   }
 
-  _processTrade(trade: TradePrint) {
-    const item = this.builder.getInstrumentItem(trade.instrument);
-
-    if (!item)
-      return;
-
-    item.handleTrade(trade);
-  }
-
   private _handleResize() {
     this._dataGrid?.resize();
   }
@@ -690,7 +710,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
-      accountId: this.account?.id,
     };
   }
 
@@ -706,9 +725,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.currentTab = this.tabs.find(item => item.id === state.currentTabId);
       this.columns = this.tabs.find(item => item.id === this.currentTab.id)?.columns;
     }
-    if (state.accountId) {
-      this.accountId = state.accountId;
-    }
+
     this.loadInstrumentData();
 
     if (state.contextMenuState) {
@@ -720,7 +737,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     if (state.settings) {
       this.settings = state.settings;
     }
-    this._applySettings();
 
     if (state.componentInstanceId) {
       this.componentInstanceId = state.componentInstanceId;
@@ -737,38 +753,44 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         take(1),
         untilDestroyed(this)
       ).subscribe(() => {
-        const instruments = this.tabs.reduce((total, item) => {
-          return total.concat(item.getInstruments());
-        }, []);
+        const instruments = this.getAllInstruments();
         this.builder.loadInstruments(instruments);
         this.updateDataGridItems();
 
         this.onRemove(
-          this._levelOneDatafeed.on(filterByAccountConnection(this, (updates) => this._processQuotes(updates))),
-          this._positionsFeed.on(filterByAccountConnection(this, position => this._processPosition(position))),
-          this._tradeFeed.on(filterByAccountConnection(this, trade => this._processTrade(trade))),
+          this._levelOneDatafeed.on(filterConnection(this, (updates) => this._processQuotes(updates))),
+          this._positionsFeed.on(filterConnection(this, position => this._processPosition(position))),
           this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
-          this._settleFeed.on(filterByAccountConnection(this, (settle: SettleData) => {
+          this._settleFeed.on(filterConnection(this, (settle: SettleData) => {
             const item = this.builder.getInstrumentItem(settle.instrument);
             if (item)
               item.handleSettlePrice(settle.price);
           })),
-          this._ohlvFeed.on(filterByAccountConnection(this, ohlv => this._handleOHLV(ohlv))),
-        );
-      });
+          this._ohlvFeed.on(filterConnection(this, ohlv => this._handleOHLV(ohlv))),
+      );
+    });
     this.connection$
       .pipe(
         skip(1),
         untilDestroyed(this)
       ).subscribe(() => {
-        this.builder.clearRealtimeData();
-        this.loadPositions();
-      });
+      this.builder.clearRealtimeData();
+      this.loadPositions();
+      this.unsubscribeFromAllInstruments();
+      this.subscribeForAllInstruments();
+      this._dataGrid.detectChanges(true);
+    });
+  }
+
+  private getAllInstruments() {
+    return this.tabs.reduce((total, item) => {
+      return total.concat(item.getInstruments());
+    }, []);
   }
 
   _applySettings() {
     const fontWeight = this.settings.display.boldFont ? 700 : 200;
-    this._dataGrid.applyStyles({ font: `${fontWeight} 14px \"Open Sans\", sans-serif` });
+    this._dataGrid.applyStyles({font: `${fontWeight} 14px \"Open Sans\", sans-serif`});
 
     const showOrders = this.settings.display.showOrders;
     this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
@@ -785,9 +807,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.columns.forEach((item) => {
       const style = styles[item.name];
       if (style)
-        item.style = { ...defaultStyles, ...style, ...orderStyles };
+        item.style = {...defaultStyles, ...style, ...orderStyles};
       else {
-        item.style = { ...item.style, ...styles[generalColumnStyles], ...orderStyles };
+        item.style = {...item.style, ...styles[generalColumnStyles], ...orderStyles};
       }
       const column = this.settings.columnView.columns[item.name];
       item.visible = column?.enabled;
@@ -858,7 +880,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWidth: 438,
       nzComponentParams: {
         name: 'Tab name',
-        options: this.tabs.map(item => ({ label: item.name, value: item.id }))
+        options: this.tabs.map(item => ({label: item.name, value: item.id}))
       }
     });
 
@@ -868,7 +890,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         if (!result || !result.name)
           return;
 
-        const tab = new Tab({ name: result.name, columns: this.defaultColumns });
+        const tab = new Tab({name: result.name, columns: this.defaultColumns});
         this.addTab(tab);
         if (this.tabs.length === 1) {
           this.selectTab(this.tabs[0]);
@@ -958,7 +980,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
-          state: { linkKey: this._getSettingsKey(), settings: this.settings }
+          state: {linkKey: this._getSettingsKey(), settings: this.settings}
         },
         closeBtn: true,
         single: false,
@@ -981,7 +1003,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: { instrument: this.contextInstrument, account: this.account },
+        state: {instrument: this.contextInstrument, account: this.account},
       },
       ...item.options
     });
@@ -994,7 +1016,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzClassName: 'instrument-dialog',
       nzFooter: null,
       nzComponentParams: {
-        accountId: this.account?.id,
+       // accountId: this.account?.id,
+       connectionId: this.connection.id,
       }
     });
   }
@@ -1053,7 +1076,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   handleAccountChange($event: any) {
     this.account = $event;
     if ($event) {
-      this.connection$.next();
       this.broadcastData(this._getLinkingKey(), { account: $event });
     }
   }
@@ -1124,7 +1146,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       return;
     }
 
-    if (this.currentTab.hasInstrument(prevInstrument)) {
+    if (this.currentTab.hasInstrument(instrument)) {
       this._notifier.showError('You can\'t add symbol that is already in the tab');
       return;
     }
@@ -1152,12 +1174,19 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.cancelCreateOrder(createOrderItem);
 
     const orderMarketWatchItem = new MarketWatchCreateOrderItem(instrument, this.settings.order);
+    const accountId = this.accounts.length ? this.accounts[0].id : null;
+
+    if (accountId)
+      orderMarketWatchItem.accountId.updateValue(accountId);
+
     orderMarketWatchItem.applySettings(this.columnSettings);
     const item = this.builder.getInstrumentItem(instrument);
+
     if (item.ask._value != null)
       orderMarketWatchItem.triggerPrice.updateValue(item.ask._value);
     if (item.bid._value != null)
       orderMarketWatchItem.price.updateValue(item.bid._value);
+
     item.subItems.unshift(orderMarketWatchItem);
     this.isInlineOrderCreating = true;
     this.builder.addViewItems([orderMarketWatchItem], index + 1);

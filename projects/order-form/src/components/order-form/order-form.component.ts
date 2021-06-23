@@ -4,16 +4,24 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
 import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
-import { filterByConnectionAndInstrument, RealPositionsRepository } from 'real-trading';
+import { filterByConnectionAndInstrument, filterPositions, RealPositionsRepository } from 'real-trading';
 import { Storage } from 'storage';
 import {
-  compareInstruments, IAccount, IInstrument,
-  IOrder, IQuote, Level1DataFeed,
+  IAccount,
+  IInstrument,
+  IOrder,
+  IQuote,
+  Level1DataFeed,
   OrderDuration,
   OrderSide,
-  OrdersRepository, OrderStatus,
+  OrdersRepository,
+  OrderStatus,
   OrderType,
-  PositionsFeed, PositionsRepository, QuoteSide, roundToTickSize, UpdateType
+  PositionsFeed,
+  PositionsRepository,
+  QuoteSide,
+  roundToTickSize,
+  UpdateType
 } from 'trading';
 
 const orderLastPriceKey = 'orderLastPrice';
@@ -156,13 +164,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
           }
         }
       })),
-      this._positionDatafeed.on((pos, connectionId) => {
-        const position = RealPositionsRepository.transformPosition(pos, connectionId);
-
-        if (compareInstruments(position.instrument, this.instrument)) {
-          this.position = position;
-        }
-      })
+      this._positionDatafeed.on(filterPositions(this, (pos, connectionId) => {
+        this.position = RealPositionsRepository.transformPosition(pos, connectionId);
+      })),
     );
   }
 
