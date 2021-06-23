@@ -41,6 +41,7 @@ interface GridStyles {
   gridHeaderBorderColor?: string;
   scrollSensetive?: number;
   rowHeight?: number;
+  rowOffset?: number;
 }
 
 export interface DataGridState {
