@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { ItemsBuilder, ItemsComponent, StringHelper } from 'base-components';
 import { Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
@@ -75,7 +74,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     protected cd: ChangeDetectorRef,
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
     super();
@@ -87,13 +85,12 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     this.setTabTitle('Watchlist');
   }
 
-  closeMenu(): void {
-    this.nzContextMenuService.close();
-  }
-
-
   ngOnInit(): void {
     this.onRemove(this._levelOneDatafeed.on((quotes) => this._processQuotes(quotes as any)));
+  }
+
+  closeMenu(): void {
+    this.nzContextMenuService.close();
   }
 
   selectInstrument(instrument: IInstrument) {
@@ -129,9 +126,9 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   }
 
   subscribeForRealtime(instruments: IInstrument[]) {
-    for (const instrument of instruments) {
-      this._levelOneDatafeed.subscribe(instrument);
-    }
+    // for (const instrument of instruments) {
+    //   this._levelOneDatafeed.subscribe(instrument);
+    // }
   }
 
   _processQuotes(quotes: IQuote[] | IQuote) {
@@ -173,8 +170,6 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
   }
 
   loadState(state?: IWatchlistState): void {
-    this._subscribeToConnections();
-
     if (state && state.items)
       this.loadInstruments(state.items);
 

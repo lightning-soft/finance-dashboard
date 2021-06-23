@@ -7,6 +7,12 @@
     background: $inputBackground;
     padding: 8px 8px 12px;
   }
+
+  ::ng-deep {
+    window-header > .content {
+      max-width: calc(100% - 50px) !important;
+    }
+  }
 }
 
 .order-button {

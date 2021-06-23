@@ -1,7 +1,5 @@
 import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { WebSocketService } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
@@ -46,8 +44,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _renderer: Renderer2,
     private readonly nzConfigService: NzConfigService,
     private _themesHandler: ThemesHandler,
-    private _accountsManager: AccountsManager,
-    private _websocketService: WebSocketService,
     private _settingsService: SettingsService,
     public themeHandler: ThemesHandler,
     private trade: TradeHandler,
@@ -60,13 +56,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
-
-    this._websocketService.connect();
-
-    this._accountsManager.activeConnection.subscribe((connection) => {
-      if (connection)
-        this._websocketService.send({ type: 'Id', value: connection.connectionData.apiKey });
-    });
 
     this._setupSettings();
 

@@ -4,8 +4,10 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostBinding, HostListener,
-  Input, NgZone,
+  HostBinding,
+  HostListener,
+  Input,
+  NgZone,
   OnDestroy,
   OnInit,
   Output,
@@ -39,6 +41,7 @@ interface GridStyles {
   gridHeaderBorderColor?: string;
   scrollSensetive?: number;
   rowHeight?: number;
+  rowOffset?: number;
 }
 
 export interface DataGridState {
@@ -59,7 +62,7 @@ export interface ICellChangedEvent<T> {
 }
 
 let closePrevContextMenu: () => void;
-export type CustomContextMenuItem = { title: string, action: () => void };
+export type CustomContextMenuItem = { title?: string, action?: () => void, divider?: boolean };
 
 @Component({
   selector: 'data-grid',
@@ -92,7 +95,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() showSettingsInContextMenu = false;
   @Input() detach = false;
   @Input() afterDraw = (e, grid) => null;
-  @Input() onResize = (e) => null;
+  @Input() sizeChanged = (e) => null;
   @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
@@ -322,7 +325,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   // }
   saveState(): DataGridState {
     return {
-      columns: this._grid.schema,
+      columns: this._grid?.schema,
       contextMenuState: this.contextMenuState,
     };
   }
@@ -347,8 +350,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   _handleResize = (e) => {
-    if (this.onResize)
-      this.onResize(e);
+    if (this.sizeChanged)
+      this.sizeChanged(e);
   }
 
   _handleColumnResize = (e) => {
@@ -385,10 +388,15 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     if (!editPayload)
       return;
 
-    const { factory, params } = editPayload;
+    const { factory, params, styles } = editPayload;
     const component = this.entry.createComponent(factory);
     this.editComponent = component;
-    component.location.nativeElement.style.position = 'absolute';
+    const style = component.location.nativeElement.style;
+    style.position = 'absolute';
+    for (let key in styles) {
+      style[key] = styles[key];
+    }
+
     for (let key in params) {
       component.instance[key] = params[key];
     }

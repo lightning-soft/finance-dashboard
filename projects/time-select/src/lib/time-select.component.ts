@@ -10,6 +10,7 @@ export class TimeSelectComponent implements OnInit, OnChanges {
   @Input() value = 0;
   @Input() step = 15;
 
+  inited = false;
   hours: number;
   minutes: number;
   partOfDay: string;
@@ -18,6 +19,8 @@ export class TimeSelectComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit() {
+    this.inited = true;
+
     this._handleValue();
   }
 

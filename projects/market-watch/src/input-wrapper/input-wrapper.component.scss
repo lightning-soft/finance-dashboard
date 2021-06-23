@@ -1,13 +1,17 @@
 @import "~src/scss/variables";
 
+$vertical-margin: 2px;
+
 :host {
-  background-color: $darkBackground;
 
   .ant-input {
     color: $text-40;
+    background-color: $darkBackground;
     height: 21px;
     border: none;
+    border-radius: 1px;
     font-size: 0.8rem;
     box-shadow: none;
+    margin-top: $vertical-margin;
   }
 }

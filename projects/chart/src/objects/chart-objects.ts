@@ -1,19 +1,16 @@
 import { Injector } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, Id, IPaginationResponse, RealtimeAction, Repository } from 'communication';
-import { Subscription } from 'rxjs';
-import { IChart } from '../models';
+import { IBaseItem, Id, IPaginationResponse, Repository } from 'communication';
 import { NotifierService } from 'notifier';
 import { Feed, IInstrument } from 'trading';
+import { ChartComponent } from '../chart.component';
+import { IChart } from '../models';
 
 export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrument }> {
-  protected _instance: any;
+  protected _instance: ChartComponent;
   protected _repository: Repository<T>;
   protected _notifier: NotifierService;
-  protected _accountsManager: AccountsManager;
   protected _barsMap: any = {};
-  protected _repositorySubscription: Subscription;
   protected _dataFeed: Feed<T>;
   private unsubscribeFn: () => void;
   items: T[] = [];
@@ -27,23 +24,17 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
   }
 
   protected get _params(): any {
-    const { accountId, instrument } = this._instance;
-
-    return { accountId, instrument };
+    return {
+      accountId: this._instance.accountId
+    };
   }
 
   constructor(instance: any) {
     this._instance = instance;
-    this._accountsManager = this._injector.get(AccountsManager);
     this._notifier = this._injector.get(NotifierService);
   }
 
-  init() {
-    this._subscribeToConnections();
-    this.unsubscribeFn = this._dataFeed.on((model) => {
-      this.handle(model);
-    });
-  }
+  init() {}
 
   handle(model: T) {
     const instrument = this._instance?.instrument;
@@ -89,27 +80,8 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
       this.unsubscribeFn();
   }
 
-  protected _subscribeToConnections() {
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this._instance))
-      .subscribe((connection) => {
-        this._repositorySubscription?.unsubscribe();
-
-        if (connection) {
-          const repository = this._repository as any;
-
-          if (repository?.forConnection) {
-            this._repository = repository.forConnection(connection);
-          }
-          this._loadItems();
-        } else {
-          this._deleteItems();
-        }
-      });
-  }
-
   protected _loadItems() {
-    if (!this._instance.accountId || !this._instance.instrument) {
+    if (!this._instance.accountId) {
       return;
     }
 

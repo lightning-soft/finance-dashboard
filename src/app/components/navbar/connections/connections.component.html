@@ -30,7 +30,7 @@
 >
   <i class="icon-arrow-down text-small mr-1" [class.opened]="isConnectionsDropdownOpened"></i>
   <i [ngClass]="{
-    'text-active': activeConnection
+    'text-active': hasConnectedConnections
   }" class="icon-signal"></i>
 </button>
 <div
@@ -41,7 +41,7 @@
   <i
     title="Connections"
     class="icon-signal" [ngClass]="{
-    'text-active': activeConnection
+    'text-active': hasConnectedConnections
   }"></i>
 </div>
 <nz-dropdown-menu #connectionsDropdown="nzDropdownMenu">

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { Id, ItemsComponent } from 'base-components';
-import { IInstrument, InstrumentsRepository } from 'trading';
+import { IAccount, IInstrument, InstrumentsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
 
 @Component({
@@ -23,6 +23,18 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   }
 
   @Input() placeholder = 'Select instrument';
+
+  private _account: IAccount;
+
+  @Input()
+  set account(value: IAccount) {
+    this._account = value;
+  }
+
+  get account() {
+    return this._account;
+  }
+
   @Input() className = '';
   @Output() instrumentChange: EventEmitter<IInstrument> = new EventEmitter();
 
@@ -49,6 +61,10 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     });
   }
 
+  protected _getItems(params: any) {
+    return super._getItems({ ...params, accountId: this.account?.id });
+  }
+
   loadMore() {
     this.skip = this.items.length;
 
@@ -60,7 +76,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
 
     if (!instrument._loaded) {
       const hide = this.showLoading();
-      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange })
+      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange, accountId: this.account.id })
         .pipe(untilDestroyed(this))
         .subscribe(
           (_instrument: IInstrument) => {

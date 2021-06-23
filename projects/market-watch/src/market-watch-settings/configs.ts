@@ -1,4 +1,4 @@
-import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getSelect } from 'dynamic-form';
+import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getSelect, noneValue } from 'dynamic-form';
 import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { OrderColumn } from 'base-order-form';
 import { OrderDurationArray, OrderSide, OrderType } from 'trading';
@@ -62,7 +62,7 @@ export const settingsField = [
             label: 'Price update highlight type',
             className: 'd-block highlightType',
             options: [
-              { label: 'None', value: null },
+              { label: 'None', value: noneValue },
               { label: 'Highlight Text', value: 'Color' },
               { label: 'Highlight Background', value: 'BackgroundColor' },
             ]
@@ -125,7 +125,8 @@ export const settingsField = [
               value: OrderColumn.identifier
             }, 'Side', 'Quantity', 'Type', 'Price', 'Trigger Price', 'Average Fill Price',
               { label: 'TIF', value: OrderColumn.duration }, {
-                label: 'Destination',
+               // label: 'Destination',
+               label: 'Description',
                 value: OrderColumn.description
               }, 'Status'],
             columns: [

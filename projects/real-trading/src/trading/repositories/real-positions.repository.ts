@@ -1,21 +1,23 @@
 import { Id, IPaginationResponse } from 'communication';
-import { map } from 'rxjs/operators';
-import { IInstrument, IInstrumentParams, IPosition, PositionStatus } from 'trading';
-import { BaseRepository } from './base-repository';
-import { PositionsRepository, IDeletePositionsParams } from 'trading';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IDeletePositionsParams, IPosition, PositionsRepository, PositionStatus } from 'trading';
+import { BaseRepository } from './base-repository';
 
 export class RealPositionsRepository extends BaseRepository<IPosition> implements PositionsRepository {
   protected get suffix(): string {
     return 'Position';
   }
-  static transformPosition(item): IPosition {
+  static transformPosition(item, connectionId?): IPosition {
+    if (isPositionTransformed(item))
+      return item;
+
     const { averageFillPrice: price, volume: size, instrument } = item;
 
     return {
-      id: instrument.exchange + instrument.symbol,
+      id: `${instrument.id}.${item.account?.id}`,
       instrument,
-      accountId: item.account.id,
+      accountId: item.account?.id,
       price,
       size,
       sellVolume: item.sellVolume,
@@ -24,27 +26,9 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       unrealized: 0,
       total: size * price,
       side: item.type,
+      connectionId: connectionId ?? item.connectionId,
       status: PositionStatus.Open,
     };
-  }
-  _getRepository() {
-    return new RealPositionsRepository(
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
-  }
-  getItemByInstrument(instrument: IInstrument, params: IInstrumentParams): Observable<IPosition> {
-    return this._http.get<IPosition>(
-      this._getRESTURL(params.accountId),
-      {
-        ...this._httpOptions,
-        params: {
-          Symbol: instrument.symbol,
-          Exchange: instrument.exchange,
-        }
-      },
-    );
   }
 
   getItems(params: any = {}) {
@@ -52,12 +36,15 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     if (_params.accountId) {
       _params.id = _params.accountId;
-      delete _params.accountId;
+      // delete _params.accountId;
+      // needed to exit eternal recursion
+    } else if (_params.hasOwnProperty('connectionId') && !_params.hasOwnProperty('accounts')){
+      _params.accounts = this._connectionContainer.getAccountsByConnection(params.connectionId);
     }
 
     return super.getItems(_params).pipe(
       map((res: any) => {
-        const data = res.result
+        const data = res.data
           .filter((item: any) => this._filter(item, _params))
           .map((item: any) => {
             return RealPositionsRepository.transformPosition(item);
@@ -76,7 +63,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
       this._getRESTURL(item.accountId),
       null,
       {
-        ...this._httpOptions,
+        ...this.getApiHeadersByAccount(item.accountId),
         params: {
           Symbol: item.instrument.symbol,
           Exchange: item.instrument.exchange,
@@ -86,7 +73,7 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
   }
 
   deleteMany({ accountId, ...params }: IDeletePositionsParams | any): Observable<any> {
-    return this._http.post(this._getRESTURL(accountId), null, { ...this._httpOptions, params });
+    return this._http.post(this._getRESTURL(accountId), null, { ...this.getApiHeadersByAccount(accountId), params });
   }
 
   protected _filter(item: IPosition, params: any = {}) {
@@ -98,4 +85,8 @@ export class RealPositionsRepository extends BaseRepository<IPosition> implement
 
     return true;
   }
+}
+
+function isPositionTransformed(position: IPosition | any): position is IPosition {
+  return (position as IPosition).accountId !== undefined && position.id !== undefined;
 }

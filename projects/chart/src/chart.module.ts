@@ -19,7 +19,6 @@ import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
 import { ChartComponent } from './chart.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { WindowToolbarComponent } from './window-toolbar/window-toolbar.component';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IndicatorsComponent } from './indicators/indicators.component';
 import { DynamicFormModule } from 'dynamic-form';
@@ -29,6 +28,7 @@ import { BaseOrderFormModule } from 'base-order-form';
 import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
 import { DataGridModule } from 'data-grid';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 // const environment = { scxPath: '' };
 
@@ -83,6 +83,7 @@ import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.comp
     NzSwitchModule,
     NzToolTipModule,
     NzCheckboxModule,
+    OverlayModule
   ],
   exports: [
     ChartComponent
@@ -90,7 +91,6 @@ import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.comp
   declarations: [
     ChartComponent,
     ToolbarComponent,
-    WindowToolbarComponent,
     IndicatorsComponent,
     IndicatorListComponent,
     OrdersPanelComponent,

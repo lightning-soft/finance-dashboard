@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
 import { Observable, of } from 'rxjs';
-import { catchError, delay, map, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Broker, ConnectionsRepository, IConnection } from 'trading';
 
 interface AccountSetting {
@@ -26,6 +26,7 @@ class Connection implements IConnection {
   connected: boolean;
   favourite: boolean;
   connectionData: any;
+  isDefault: boolean;
   id: Id;
 
   constructor(connection: IConnection) {
@@ -49,7 +50,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
     return `${this._communicationConfig.setting.url}api/AccountSettings`;
   }
 
-  getItems(): Observable<IPaginationResponse<IConnection>> {
+  getItems(params: any): Observable<IPaginationResponse<IConnection>> {
     return this._http.get<AccountSetting[]>(this._accountsSettings, { ...this._httpOptions })
       .pipe(
         map(data => {
@@ -59,7 +60,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
           });
         }),
         map(data => {
-          return { data } as IPaginationResponse;
+          return { data, requestParams: params } as IPaginationResponse;
         })
       );
   }
@@ -71,6 +72,11 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   getServers() {
     return super.getItems();
+  }
+
+  protected _responseToItems(res: any): any[] {
+    return Object.keys(res.result)
+      .map((name) => ({ gateways: res.result[name], name }));
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
@@ -109,7 +115,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   protected _disconnect(item: IConnection): Observable<any> {
     const data = item.connectionData;
-    const apiKey = data.apiKey;
+    const apiKey = data?.apiKey;
 
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {

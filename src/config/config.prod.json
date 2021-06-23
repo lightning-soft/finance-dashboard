@@ -12,6 +12,11 @@
 		"url": "wss://rithmic-dev.amstradinggroup.com/api/market/"
 	  }
 	},
+  "zoneDecoder": {
+    "http": {
+      "url": "https://zonedecoder-dev.amstradinggroup.com/api/"
+    }
+  },
 	"identity": {
     "url": "https://auth-dev.amstradinggroup.com/",
     "scope": [

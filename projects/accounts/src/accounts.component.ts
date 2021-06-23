@@ -6,7 +6,7 @@ import { GroupItemsBuilder } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize, take, tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
 import { AcccountFormComponent } from './acccount-form/acccount-form.component';
 
@@ -27,7 +27,6 @@ const maxAccountsPerConnection = 4;
 })
 @LayoutNode()
 export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, AfterViewInit {
-
   builder = new GroupItemsBuilder<IConnection>();
   form: FormGroup;
   isLoading: { [key: number]: boolean } = {};
@@ -68,6 +67,15 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       groupBy: ['broker'],
     });
 
+    this._accountsManager.connectionsChange
+      .pipe(untilDestroyed(this))
+      .subscribe(connections => {
+        this.builder.replaceItems(connections);
+        const items = this.builder.items;
+        this.selectedItem = this.selectedItem ? { ...items.find(i => i.id === this.selectedItem?.id) } : items[0];
+        this.expandBrokers();
+      });
+
     this._brokersRepository.getItems()
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -87,26 +95,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err)
       );
-
-    this._accountsManager.connections
-      .pipe(
-        untilDestroyed(this))
-      .subscribe((data) => {
-        if (data) {
-          this.builder.replaceItems(data);
-          this.expandBrokers();
-          this._updateSelectedItem();
-        }
-      });
-
-    this._accountsManager.connections.pipe(take(1), untilDestroyed(this))
-      .subscribe((data) => {
-        const item = data.find(item => item.connected && item.connectOnStartUp);
-        if (!this.selectedItem) {
-          this.selectItem(item);
-        }
-        this._updateSelectedItem();
-      });
   }
 
   ngAfterViewInit() {
@@ -114,7 +102,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       if (connect) {
         this.userData?.form?.controls?.autoSavePassword?.setValue(true);
       }
-    })
+    });
   }
 
   contextMenu($event: MouseEvent, menu: any): void {
@@ -225,12 +213,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         this.showItemLoader(item),
         untilDestroyed(this)
       ).subscribe(
-      (response: any) => {
-      },
-      err => {
-        this._notifier.showError(err);
-      },
-    );
+        (response: any) => {
+        },
+        err => {
+          this._notifier.showError(err);
+        },
+      );
   }
 
   connect() {
@@ -255,6 +243,13 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err),
       );
+  }
+
+  makeDefault(item: IConnection) {
+    this._accountsManager.makeDefault(item).subscribe(
+      (response: any) => null,
+      err => this._notifier.showError(err),
+    );
   }
 
   _disconnect(item: IConnection) {

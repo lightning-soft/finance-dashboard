@@ -7,12 +7,11 @@ import {
   Injector,
   NgZone,
   OnDestroy,
-  OnInit,
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { convertToColumn, ItemsComponent } from 'base-components';
+import { OrderColumn } from 'base-order-form';
 import { Id } from 'communication';
 import {
   Cell,
@@ -22,8 +21,17 @@ import {
   DataGrid,
   DataGridHandler
 } from 'data-grid';
+import { noneValue } from 'dynamic-form';
+import { InstrumentDialogComponent } from 'instrument-dialog';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
+import * as clone from 'lodash.clonedeep';
+import { NzContextMenuService, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
+import { AccountsListener, filterByAccountsConnection, filterConnection, IConnectionsListener } from 'real-trading';
+import { Subject } from 'rxjs';
+import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
+  IAccount,
   IConnection,
   IInstrument,
   InstrumentsRepository,
@@ -41,41 +49,32 @@ import {
   PositionsFeed,
   PositionsRepository,
   SettleData,
-  SettleDataFeed,
-  TradeDataFeed,
-  TradePrint
+  SettleDataFeed
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
-import { MarketWatchItem } from './models/market-watch.item';
-import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, } from 'ng-zorro-antd';
-import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
+import { IWindow } from 'window-manager';
+import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
 import { Components } from '../../../src/app/modules';
-import { NotifierService } from 'notifier';
+import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
+import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
+import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
 import {
   defaultSettings,
   marketWatchReceiveKey,
   MarketWatchSettings
 } from './market-watch-settings/market-watch-settings.component';
-import { IWindow } from 'window-manager';
-import { orderFormOptions, widgetList } from '../../../src/app/components/dashboard';
-import { InstrumentDialogComponent } from 'instrument-dialog';
-import { Subject } from 'rxjs';
-import { buffer, debounceTime, take } from 'rxjs/operators';
-import { MarketWatchColumns, MarketWatchColumnsArray } from './market-watch-columns.enum';
-import * as clone from 'lodash.clonedeep';
-import { noneValue } from 'dynamic-form';
-import { OrderColumn } from 'base-order-form';
 import { MarketWatchBuilder } from './market-watch.builder';
-import { IMarketWatchItem, ItemType } from './models/interface-market-watch.item';
 import { defaultInstruments } from './mocked-instruments';
-import { DisplayOrders, OpenIn } from './market-watch-settings/configs';
-import { MarketWatchCreateOrderItem } from './models/market-watch-create-order.item';
-import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
-import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { PerformedAction } from './models/actions.cell';
+import { IMarketWatchItem, ItemType } from './models/interface-market-watch.item';
+import { MarketWatchCreateOrderItem } from './models/market-watch-create-order.item';
 import { MarketWatchLabelItem } from './models/market-watch-label.item';
-import { InputWrapperComponent } from './input-wrapper/input-wrapper.component';
+import { MarketWatchItem } from './models/market-watch.item';
+import { MarketWatchSubItem } from './models/market-watch.sub-item';
 import { NumberWrapperComponent } from './number-wrapper/number-wrapper.component';
+import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
+import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
+import { AccountSelectComponent } from 'account-select';
 
 const labelText = 'Text label';
 
@@ -95,9 +94,10 @@ const orderStyles = {
   orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
   orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
   labelColor: '#fff',
+  createOrderColor: '#D0D0D2',
   labelBackgroundColor: '#24262C',
 };
-const defaultStyles = { color: '#D0D0D2', textAlign: 'left' };
+const defaultStyles = {color: '#D0D0D2', textAlign: 'left'};
 
 const profitClass = 'inProfit';
 const lossClass = 'loss';
@@ -139,6 +139,7 @@ export interface IMarketWatchState {
   contextMenuState: any;
   componentInstanceId: number;
   settings;
+  accountId: Id;
   createdOrders: Id[];
 }
 
@@ -149,19 +150,31 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
-export class MarketWatchComponent extends ItemsComponent<any> implements OnInit, AfterViewInit, OnDestroy {
+@AccountsListener()
+export class MarketWatchComponent extends ItemsComponent<any> implements AfterViewInit, OnDestroy, IConnectionsListener {
   columns: Column[] = [];
   contextInstrument: IInstrument;
   contextLabelId: Id;
   contextPoint: { x, y };
-  connection$ = new Subject();
+  connection$ = new Subject<void>();
+
+  selectFirstAsDefault = false;
 
   isInlineOrderCreating = false;
 
-  menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }];
+  menuItems = [{ title: 'Add Symbol', action: () => this.addSymbol() }, { divider: true }];
 
   dataFeeds = [];
-  accountId: string;
+
+  account: IAccount;
+
+  accountId: Id;
+  connection: IConnection;
+  prevConnection: IConnection;
+  connections: IConnection[] = [];
+
+  accounts = [];
+
   currentCell: Cell;
 
   createdOrders = [];
@@ -210,10 +223,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
           const action = data.item.checkAction(event);
           switch (action) {
             case PerformedAction.Close:
-              const item = this.builder.getInstrumentItem(data.item.instrument);
-              item.deleteSubItem(data.item);
-              this.builder.deleteItems([data.item]);
-              this.isInlineOrderCreating = false;
+              this.cancelCreateOrder(data.item);
               break;
             case PerformedAction.Stop:
               this.isInlineOrderCreating = false;
@@ -224,7 +234,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
               this.builder.deleteItems([data.item]);
               const order = data.item.getDto();
               this.isInlineOrderCreating = false;
-              order.accountId = this.accountId;
               this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
                 if (!isForbiddenOrder(orderResponse))
                   this.createdOrders.push(orderResponse.id);
@@ -341,8 +350,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       case 'orderDuration': {
         return this.createSelect(cell, OrderDuration);
       }
-      case 'text': {
-        return this.createText(cell);
+      case 'label': {
+        return this.createLabel(cell);
       }
       case 'orderSide':
         return this.createSelect(cell, OrderSide);
@@ -354,15 +363,26 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         return this.createNumber(cell, { placeholder: 'Stop Price', step: cell.row.instrument.tickSize });
       case 'quantity':
         return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false });
+      case 'accounts':
+        const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
+        return {
+          factory,
+        };
     }
   }
 
-  private createText(cell) {
+  private createLabel(cell) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(InputWrapperComponent);
+    const value = cell.item.value;
+    cell.item.updateValue('');
     return {
       factory,
       params: {
-        value: cell.item.value,
+        value,
+      },
+      styles: {
+        minWidth: '250px',
+        marginLeft: '40px',
       }
     };
   }
@@ -399,9 +419,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     private _ordersFeed: OrdersFeed,
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
-    private _tradeFeed: TradeDataFeed,
     protected cd: ChangeDetectorRef,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
     private _modalService: NzModalService,
@@ -424,12 +442,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
     this.dataFeeds = [
       this._levelOneDatafeed,
-      this._tradeFeed,
       this._ohlvFeed,
       this._settleFeed,
     ];
 
-    this.builder.addCallback = this._handleNewItems.bind(this);
+    this.builder.addCallback = (item) => this.newInstrument$.next(item);
     this.builder.deleteCallback = this._unsubscribeFromRealtime.bind(this);
 
     this.newInstrument$.pipe(
@@ -439,12 +456,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         if (!instruments.length)
           return;
 
-        instruments.forEach(item => this.subscribeForRealtime(item));
+        instruments.forEach(item => this._subscribeForRealtime(item));
         // #TODO add filter after implementation on backend
-        this._positionsRepository.getItems({ accountId: this.accountId }).toPromise()
-          .then((response) => response.data.forEach(pos => this._processPosition(pos)));
-        this._ordersRepository.getItems({ accountId: this.accountId }).toPromise()
-          .then((response) => response.data.forEach(order => this._processOrders(order)));
+        this.loadPositions();
+        const accounts = this.accounts;
+        this._ordersRepository.getItems({ accounts }).subscribe((response) => response.data.forEach(order => this._processOrders(order)));
+
         this.detectChanges(true);
       });
 
@@ -458,15 +475,61 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     });
   }
 
-  protected _handleConnection(connection: IConnection) {
-    this._repository = this._repository.forConnection(connection);
-    this._positionsRepository = this._positionsRepository.forConnection(connection);
-    this._ordersRepository = this._ordersRepository.forConnection(connection);
+  handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._handleConnections(connectedConnections);
+  }
+
+  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection[]) {
+    this._handleConnections([defaultConnection]);
+  }
+
+  handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this._handleConnections(connectedConnections);
+  }
+
+  private _handleConnections(connectedConnections) {
+    this.connections = connectedConnections;
+    const connection = connectedConnections.find(item => item.isDefault && item.connected) || connectedConnections[0];
+    if (this.connection?.id !== connection?.id) {
+      this.prevConnection = this.connection;
+      this.connection = connection;
+      this.connection$.next();
+    }
+  }
+
+  private cancelCreateOrder(row) {
+    const item = this.builder.getInstrumentItem(row.instrument);
+    item.deleteSubItem(row);
+    this.builder.deleteItems([row]);
+    this.isInlineOrderCreating = false;
+  }
+
+  private loadPositions() {
+    this._positionsRepository.getItems({
+     connectionId: this.connection?.id,
+    }).toPromise()
+      .then((response) => response.data.forEach(pos => this._processPosition(pos)));
   }
 
   ngAfterViewInit() {
     if (this.settings)
       this._applySettings();
+  }
+
+  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.accounts = connectedAccounts;
+    if (this.account)
+      return;
+    const account = connectedAccounts.find(item => item.id === this.accountId);
+    if (account)
+      this.account = account;
+    else if (connectedAccounts.length) {
+      this.account = connectedAccounts[0];
+    }
+  }
+
+  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.accounts = connectedAccounts;
   }
 
   private addOrders(viewModel: MarketWatchItem) {
@@ -492,7 +555,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   private _sendLinks(data) {
     const instrument = data.item?.instrument;
     if (instrument)
-      this.broadcastData(this._getLinkingKey(), { instrument });
+      this.broadcastData(this._getLinkingKey(), {instrument});
   }
 
   _createOrderByClick(data, event) {
@@ -508,7 +571,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
             x: event.x,
             y: event.y + this.gridStyles.rowHeight,
           }
-        }, { orderLink: this._getOrderKey(), instrument: data.item.instrument });
+        }, {orderLink: this._getOrderKey(), instrument: data.item.instrument});
       } else {
         this.createInlineOrder(data.item.instrument);
       }
@@ -540,16 +603,22 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.builder.deleteItems([item]);
   }
 
-  _handleNewItems(item: IInstrument) {
-    this.newInstrument$.next(item);
+  subscribeForAllInstruments() {
+    if (this.connection)
+      this.getAllInstruments().forEach(item => this._subscribeForRealtime(item));
   }
 
-  subscribeForRealtime(instrument: IInstrument) {
-    this.dataFeeds.forEach(item => item.subscribe(instrument));
+  unsubscribeFromAllInstruments() {
+    this.getAllInstruments().forEach(item => this._unsubscribeFromRealtime(item, this.prevConnection));
   }
 
-  _unsubscribeFromRealtime(instrument: IInstrument) {
-    this.dataFeeds.forEach(item => item.unsubscribe(instrument));
+  private _subscribeForRealtime(instrument: IInstrument) {
+    this.dataFeeds.forEach(item => item.subscribe(instrument, this.connection.id));
+  }
+
+  private _unsubscribeFromRealtime(instrument: IInstrument, connection = this.connection) {
+    if (connection.id)
+      this.dataFeeds.forEach(item => item.unsubscribe(instrument, connection.id));
   }
 
   _handleOHLV(ohlv: OHLVData) {
@@ -596,15 +665,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
     item.processQuote(quote);
     this.detectChanges();
-  }
-
-  _processTrade(trade: TradePrint) {
-    const item = this.builder.getInstrumentItem(trade.instrument);
-
-    if (!item)
-      return;
-
-    item.handleTrade(trade);
   }
 
   private _handleResize() {
@@ -654,7 +714,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   loadState(state?: IMarketWatchState): void {
-    this._subscribeToConnections();
 
     if (!state)
       state = {} as any;
@@ -666,6 +725,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.currentTab = this.tabs.find(item => item.id === state.currentTabId);
       this.columns = this.tabs.find(item => item.id === this.currentTab.id)?.columns;
     }
+
     this.loadInstrumentData();
 
     if (state.contextMenuState) {
@@ -677,7 +737,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     if (state.settings) {
       this.settings = state.settings;
     }
-    this._applySettings();
 
     if (state.componentInstanceId) {
       this.componentInstanceId = state.componentInstanceId;
@@ -694,32 +753,47 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         take(1),
         untilDestroyed(this)
       ).subscribe(() => {
-      const instruments = this.tabs.reduce((total, item) => {
-        return total.concat(item.getInstruments());
-      }, []);
-      this.builder.loadInstruments(instruments);
-      this.updateDataGridItems();
+        const instruments = this.getAllInstruments();
+        this.builder.loadInstruments(instruments);
+        this.updateDataGridItems();
 
-      this.onRemove(
-        this._levelOneDatafeed.on((updates) => this._processQuotes(updates)),
-        this._positionsFeed.on(position => this._processPosition(position)),
-        this._tradeFeed.on(trade => this._processTrade(trade)),
-        this._ordersFeed.on(order => this._processOrders(order)),
-        this._settleFeed.on((settle: SettleData) => {
-          const item = this.builder.getInstrumentItem(settle.instrument);
-          if (item)
-            item.handleSettlePrice(settle.price);
-        }),
-        this._ohlvFeed.on(ohlv => this._handleOHLV(ohlv)),
+        this.onRemove(
+          this._levelOneDatafeed.on(filterConnection(this, (updates) => this._processQuotes(updates))),
+          this._positionsFeed.on(filterConnection(this, position => this._processPosition(position))),
+          this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
+          this._settleFeed.on(filterConnection(this, (settle: SettleData) => {
+            const item = this.builder.getInstrumentItem(settle.instrument);
+            if (item)
+              item.handleSettlePrice(settle.price);
+          })),
+          this._ohlvFeed.on(filterConnection(this, ohlv => this._handleOHLV(ohlv))),
       );
     });
+    this.connection$
+      .pipe(
+        skip(1),
+        untilDestroyed(this)
+      ).subscribe(() => {
+      this.builder.clearRealtimeData();
+      this.loadPositions();
+      this.unsubscribeFromAllInstruments();
+      this.subscribeForAllInstruments();
+      this._dataGrid.detectChanges(true);
+    });
+  }
+
+  private getAllInstruments() {
+    return this.tabs.reduce((total, item) => {
+      return total.concat(item.getInstruments());
+    }, []);
   }
 
   _applySettings() {
     const fontWeight = this.settings.display.boldFont ? 700 : 200;
-    this._dataGrid.applyStyles({ font: `${ fontWeight } 14px \"Open Sans\", sans-serif` });
+    this._dataGrid.applyStyles({font: `${fontWeight} 14px \"Open Sans\", sans-serif`});
 
     const showOrders = this.settings.display.showOrders;
+    this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
     if (!showOrders) {
       this.builder.hideSubItems();
     } else if (!this.shouldShowAllOrders()) {
@@ -733,9 +807,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
     this.columns.forEach((item) => {
       const style = styles[item.name];
       if (style)
-        item.style = { ...defaultStyles, ...style, ...orderStyles };
+        item.style = {...defaultStyles, ...style, ...orderStyles};
       else {
-        item.style = { ...item.style, ...styles[generalColumnStyles], ...orderStyles };
+        item.style = {...item.style, ...styles[generalColumnStyles], ...orderStyles};
       }
       const column = this.settings.columnView.columns[item.name];
       item.visible = column?.enabled;
@@ -805,9 +879,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzContent: CreateModalComponent,
       nzWidth: 438,
       nzComponentParams: {
-       // blankOption: 'Blank tab',
-        name: 'Create tab',
-        options: this.tabs.map(item => ({ label: item.name, value: item.id }))
+        name: 'Tab name',
+        options: this.tabs.map(item => ({label: item.name, value: item.id}))
       }
     });
 
@@ -817,7 +890,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         if (!result || !result.name)
           return;
 
-        const tab = new Tab({ name: result.name, columns: this.defaultColumns });
+        const tab = new Tab({name: result.name, columns: this.defaultColumns});
         this.addTab(tab);
         if (this.tabs.length === 1) {
           this.selectTab(this.tabs[0]);
@@ -832,17 +905,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       return;
     }
     const newTab = tab.clone();
-    this.addTab(newTab);
+    const index = this.tabs.indexOf(tab);
+    this.addTab(newTab, index);
     this.builder.loadInstruments(newTab.getInstruments());
   }
 
-  addTab(tab: Tab) {
+  addTab(tab: Tab, index = this.tabs.length) {
     if (this.tabs.length >= maxTabCount) {
       this._notifier.showError('You can\'t create more than 10 tabs');
       return;
     }
 
-    this.tabs.push(tab);
+    this.tabs.splice(index, 0, tab);
 
     if (this.tabs.length === 1)
       this.selectTab(this.tabs[0]);
@@ -857,7 +931,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
         name: this.contextTab.name,
-        label: 'Name of tab',
+        label: 'Tab name',
       },
     });
 
@@ -874,8 +948,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
         message: 'Do you want delete the tab?',
-        confirmText: 'Yes',
-        cancelText: 'No',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
       },
     });
 
@@ -906,7 +980,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
-          state: { linkKey: this._getSettingsKey(), settings: this.settings }
+          state: {linkKey: this._getSettingsKey(), settings: this.settings}
         },
         closeBtn: true,
         single: false,
@@ -922,14 +996,14 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ MarketWatchSettings }`;
+    return `${this.componentInstanceId}.${MarketWatchSettings}`;
   }
 
   openWidget(item) {
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: { instrument: this.contextInstrument },
+        state: {instrument: this.contextInstrument, account: this.account},
       },
       ...item.options
     });
@@ -941,6 +1015,10 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
       nzWidth: 386,
       nzClassName: 'instrument-dialog',
       nzFooter: null,
+      nzComponentParams: {
+       // accountId: this.account?.id,
+       connectionId: this.connection.id,
+      }
     });
   }
 
@@ -996,9 +1074,10 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
 
   handleAccountChange($event: any) {
-    this.accountId = $event;
-    if ($event)
-      this.connection$.next();
+    this.account = $event;
+    if ($event) {
+      this.broadcastData(this._getLinkingKey(), { account: $event });
+    }
   }
 
   onColumnUpdate(column: Column) {
@@ -1016,6 +1095,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
         state: {
           instrument: this.contextInstrument,
           link: this._getLinkingKey(),
+          account: this.account,
           ...state,
         },
       },
@@ -1042,7 +1122,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   private _copyToNewTab() {
     const newTab = new Tab({
-      name: `Tab ${ this.tabs.length + 1 }`,
+      name: `Tab ${this.tabs.length + 1}`,
       columns: this.defaultColumns,
       data: [new InstrumentHolder(this.contextInstrument)],
     });
@@ -1062,9 +1142,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
   }
 
   onInstrumentChanged(prevInstrument: IInstrument, instrument: IInstrument) {
-    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
-    if (index === -1)
+    if (prevInstrument.id === instrument.id) {
       return;
+    }
+
+    if (this.currentTab.hasInstrument(instrument)) {
+      this._notifier.showError('You can\'t add symbol that is already in the tab');
+      return;
+    }
+
+    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
 
     (this.currentTab.data[index] as InstrumentHolder).instrument = instrument;
     this.builder.loadInstrument(instrument);
@@ -1079,16 +1166,27 @@ export class MarketWatchComponent extends ItemsComponent<any> implements OnInit,
 
   private createInlineOrder(instrument: IInstrument) {
     const index = this.builder.getIndex(instrument.id);
-    if (index === -1 || this.isInlineOrderCreating)
+    if (index === -1)
       return;
 
+    const createOrderItem = this.builder.getCreateOrderItem();
+    if (createOrderItem)
+      this.cancelCreateOrder(createOrderItem);
+
     const orderMarketWatchItem = new MarketWatchCreateOrderItem(instrument, this.settings.order);
+    const accountId = this.accounts.length ? this.accounts[0].id : null;
+
+    if (accountId)
+      orderMarketWatchItem.accountId.updateValue(accountId);
+
     orderMarketWatchItem.applySettings(this.columnSettings);
     const item = this.builder.getInstrumentItem(instrument);
+
     if (item.ask._value != null)
       orderMarketWatchItem.triggerPrice.updateValue(item.ask._value);
     if (item.bid._value != null)
       orderMarketWatchItem.price.updateValue(item.bid._value);
+
     item.subItems.unshift(orderMarketWatchItem);
     this.isInlineOrderCreating = true;
     this.builder.addViewItems([orderMarketWatchItem], index + 1);
@@ -1117,8 +1215,8 @@ function generateStyles(settings: MarketWatchSettings) {
   const bid = generateStyle('bid', settings);
   const ask = generateStyle('ask', settings);
   const positionStyle = {
-    [`${ profitClass }BackgroundColor`]: settings.colors.positionUpColor,
-    [`${ lossClass }BackgroundColor`]: settings.colors.positionDownColor,
+    [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
+    [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
     color: settings.colors.positionTextColor,
   };
   const bidQuantityStyle = {
@@ -1129,12 +1227,12 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   const netChangeStyle = {
-    [`${ profitClass }Color`]: settings.colors.netChangeUpColor,
-    [`${ lossClass }Color`]: settings.colors.netChangeDownColor,
+    [`${profitClass}Color`]: settings.colors.netChangeUpColor,
+    [`${lossClass}Color`]: settings.colors.netChangeDownColor,
   };
   const percentChangeStyle = {
-    [`${ profitClass }Color`]: settings.colors.percentChangeUpColor,
-    [`${ lossClass }Color`]: settings.colors.percentChangeDownColor,
+    [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
+    [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
   };
 
   const generalStyles = {
@@ -1142,10 +1240,10 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   let lastStyles = {};
-  if (settings.display.highlightType) {
+  if (settings.display.highlightType !== noneValue) {
     lastStyles = {
       highlightColor: '#fff',
-      [`highlight${ settings.display.highlightType }`]: settings.colors.priceUpdateHighlight
+      [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight
     };
   }
 
@@ -1174,7 +1272,7 @@ const subtitleMap = {
 
 function generateStyle(prefix, settings) {
   return {
-    highlightColor: settings.colors[`${ prefix }Color`],
-    highlightBackgroundColor: settings.colors[`${ prefix }Background`],
+    highlightColor: settings.colors[`${prefix}Color`],
+    highlightBackgroundColor: settings.colors[`${prefix}Background`],
   };
 }

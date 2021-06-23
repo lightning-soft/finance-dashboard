@@ -1,15 +1,19 @@
 import { IBaseItem, Id } from 'communication';
-import { Cell, NumberCell } from 'data-grid';
-import { IInstrument, IQuote, IPosition } from 'trading';
-import { AddClassStrategy } from 'data-grid';
-import { IOrder } from 'trading';
-import { OrderSide, QuoteSide } from 'trading';
-import { getProfitStatus } from 'data-grid';
-import { isForbiddenOrder, TradePrint, UpdateType, VolumeData } from 'trading';
+import { AddClassStrategy, Cell, getProfitStatus, NumberCell, RoundFormatter } from 'data-grid';
+import {
+  IInstrument,
+  IOrder,
+  IPosition,
+  IQuote,
+  isForbiddenOrder,
+  OHLVData,
+  OrderSide,
+  QuoteSide,
+  UpdateType,
+  VolumeData
+} from 'trading';
 import { MarketWatchSubItem } from './market-watch.sub-item';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
-import { OHLVData } from 'trading';
-import { RoundFormatter } from 'data-grid';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
 
@@ -54,8 +58,28 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     }
   }
 
+  clearRealtimeData() {
+    this.pos.clear();
+    this.bid.clear();
+    this.ask.clear();
+    this.last.clear();
+    this.netChange.clear();
+    this.percentChange.clear();
+    this.askQuantity.clear();
+    this.bidQuantity.clear();
+    this.volume.clear();
+    this.settle.clear();
+    this.high.clear();
+    this.low.clear();
+    this.open.clear();
+  }
+
   toggleExpand(mouseEvent: MouseEvent) {
     return this.symbol.clickOnExpand(mouseEvent);
+  }
+
+  setShowDrawings(value: boolean) {
+    this.symbol.setShowDrawings(value);
   }
 
   applySettings(settings) {
@@ -75,10 +99,6 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
       price.updateValue(quote.price);
       quantity.updateValue(quote.volume);
     }
-  }
-
-  handleTrade(trade: TradePrint) {
-    this.last.updateValue(trade.price);
   }
 
   handleOrder(order) {
@@ -168,6 +188,7 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     this.high.updateValue(ohlv.high);
     this.low.updateValue(ohlv.low);
     this.volume.updateValue(ohlv.volume);
+    this.last.updateValue(ohlv.close);
     this._ohlv = ohlv;
     this._updateProfits();
   }

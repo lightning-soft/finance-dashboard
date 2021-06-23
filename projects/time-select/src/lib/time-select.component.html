@@ -1,4 +1,7 @@
-<div class="d-flex align-items-center">
+<div
+  *ngIf="inited"
+  class="d-flex align-items-center"
+>
   <nz-input-number
     class="custom-form-control time-input"
     [nzFormatter]="formatter"

@@ -1,6 +1,6 @@
-import { Id, IPaginationParams } from 'communication';
-import { IBaseItem } from 'communication';
+import { IBaseItem, Id, IPaginationParams } from 'communication';
 import { IInstrument } from './instrument';
+import { IAccount } from './account';
 
 export enum Side {
   Short = 'Short',
@@ -10,6 +10,7 @@ export enum Side {
 
 export interface IPosition extends IBaseItem {
   accountId: Id;
+  connectionId: Id;
   price: number;
   size: number;
   realized: number;
@@ -19,7 +20,8 @@ export interface IPosition extends IBaseItem {
   total: number;
   side: Side;
   status: PositionStatus;
-  instrument?: IInstrument;
+  instrument: IInstrument;
+  account?: IAccount;
 }
 
 export enum PositionStatus {

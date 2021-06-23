@@ -1,7 +1,6 @@
-import { IInstrument, OrderDuration, IOrder } from 'trading';
+import { IInstrument, IOrder, OrderDuration, OrderSide, OrderType } from 'trading';
 import { MarketWatchSubItem } from './market-watch.sub-item';
 import { ItemType } from './interface-market-watch.item';
-import { OrderSide, OrderType } from 'trading';
 
 export interface OrderSettings {
   side: OrderSide;
@@ -59,9 +58,16 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
     this.price.editValueSetter = (target) => {
       this.price.updateValue(target.instance.value);
     };
+
     this.triggerPrice.editType = 'stopPrice';
     this.triggerPrice.editValueSetter = (target) => {
       this.triggerPrice.updateValue(target.instance.value);
+    };
+
+    this.accountId.editType = 'accounts';
+    this.accountId.editable = true;
+    this.accountId.editValueSetter = (target) => {
+      this.accountId.updateValue(target.instance.account.id);
     };
   }
 
@@ -75,8 +81,11 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
     this.stopPrice.changeStatus(stopPriceEnabled ? this.priceEnabledStatus : this.priceDisabledStatus);
   }
 
-  public updateOrder(order: IOrder) {
+  protected getPrefix() {
+    return createOrderPrefix;
+  }
 
+  public updateOrder(order: IOrder) {
   }
 
   getDto(): IOrder {
@@ -89,6 +98,7 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
       exchange: this.instrument.exchange,
       limitPrice: +this.price.value,
       stopPrice: +this.triggerPrice.value,
+      accountId: this.accountId.value,
     } as IOrder;
   }
 

@@ -52,6 +52,12 @@ export class MarketWatchBuilder extends ItemsBuilder<InstrumentHolder, IMarketWa
     this._items = this._items.filter(item => item.itemType !== ItemType.SubItem);
   }
 
+  clearRealtimeData() {
+    for (const holder of this._itemsMap.values()) {
+      holder.item.clearRealtimeData();
+    }
+  }
+
   filterSubItems(callback) {
     this._items = this._items.filter(item => item.itemType !== ItemType.SubItem || callback(item));
   }
@@ -104,5 +110,13 @@ export class MarketWatchBuilder extends ItemsBuilder<InstrumentHolder, IMarketWa
       for (const holder of this._itemsMap.values())
         this.deleteCallback(holder.item.instrument);
     }
+  }
+
+  getCreateOrderItem() {
+    return this.items.find(item => item.itemType === ItemType.CreateItem);
+  }
+
+  getMarketWatchItems(): MarketWatchItem[] {
+    return this.items.filter(item => item.itemType === ItemType.Item) as MarketWatchItem[];
   }
 }

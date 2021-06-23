@@ -75,6 +75,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
 
     return {
       id,
+      connectionId: '',
       side: (id % 2 === 0) ? Side.Long : Side.Short,
       accountId: (id % 2 === 0) ? 'EURUSD' : 'BTCUSD',
       price: randomFixedNumber(100),
@@ -85,6 +86,7 @@ export class FakePositionsRepository extends FakeTradingRepository<IPosition> {
       unrealized: randomFixedNumber(),
       total: randomFixedNumber(),
       status: PositionStatus.Open,
+      instrument: { id: 'tt' } as any,
     };
   }
 }

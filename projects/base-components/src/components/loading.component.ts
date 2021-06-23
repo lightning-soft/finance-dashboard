@@ -3,12 +3,11 @@ import { ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, RealtimeAction, Repository } from 'communication';
+import { IBaseItem, Repository, RepositoryAction } from 'communication';
 import { NotifierService } from 'notifier';
-import { filter, finalize } from 'rxjs/operators';
-import { isEqual } from 'underscore';
 import { Subscription } from 'rxjs';
-import { IConnection } from 'trading';
+import { finalize } from 'rxjs/operators';
+import { isEqual } from 'underscore';
 
 type HideLoader = () => void;
 
@@ -135,6 +134,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
   }
 
   protected set notifier(value: NotifierService) {
+    console.log('notifier', value);
     this._notifier = value;
   }
 
@@ -153,7 +153,7 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
     this._route = injector.get(ActivatedRoute);
     this._router = injector.get(Router);
     this._accountsManager = injector.get(AccountsManager);
-    this._notifier = injector.get(NotifierService, null);
+    this.notifier = injector.get(NotifierService, null);
   }
 
   ngOnInit(): void {
@@ -172,38 +172,26 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
         .pipe(untilDestroyed(this))
         .subscribe((params) => this._onQueryParamsChanged(params));
 
-    if (this.subscribeToConnections)
-      this._subscribeToConnections();
+    // if (this.subscribeToConnections)
+    //   this._accountsManager.subscribe(this);
 
     // this.subscribeToRealtime();
   }
 
-  protected _subscribeToConnections() {
-    this._accountsManager = this._injector.get(AccountsManager);
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
 
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._repositorySubscription?.unsubscribe();
+  //   this._repositorySubscription = this._subscribeToRepository();
+  // }
 
-        if (connection) {
-          const repository = this._repository as any;
+  // handleDisconnect(connection: IConnection) {
+  //   super.handleDisconnect(connection);
 
-          if (repository?.forConnection) {
-            this.repository = repository.forConnection(connection);
-
-            this._repositorySubscription = this._subscribeToRepository();
-          }
-        }
-
-        this._handleConnection(connection);
-      });
-  }
-
-  protected _handleConnection(connection: IConnection) { }
+  //   this._repositorySubscription?.unsubscribe();
+  // }
 
   protected _subscribeToRepository(): Subscription {
-    if (!this.repository) {
+    if (!this._repository) {
       return;
     }
 
@@ -211,13 +199,13 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
       .pipe(untilDestroyed(this))
       .subscribe(({ action, items }) => {
         switch (action) {
-          case RealtimeAction.Create:
+          case RepositoryAction.Create:
             this._handleCreateItems(items);
             break;
-          case RealtimeAction.Update:
+          case RepositoryAction.Update:
             this._handleUpdateItems(items);
             break;
-          case RealtimeAction.Delete:
+          case RepositoryAction.Delete:
             this._handleDeleteItems(items);
             break;
         }

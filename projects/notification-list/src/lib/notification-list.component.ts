@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Component, NgZone } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { AuthService } from 'auth';
 import { ILayoutNode, LayoutNode } from 'layout';
 import {
@@ -7,10 +7,6 @@ import {
   Notification
 } from 'notification';
 import * as moment from 'moment';
-
-interface NotificationGroup {
-  notifications: Notification[];
-}
 
 export interface NotificationListComponent extends ILayoutNode {
 }
@@ -30,6 +26,7 @@ export class NotificationListComponent {
 
   constructor(
     private _notificationService: NotificationService,
+    private _ngZone: NgZone,
     public auth: AuthService
   ) {
     this._handleNotifications(this._notificationService.getNotification());
@@ -40,9 +37,11 @@ export class NotificationListComponent {
     this.setTabIcon('icon-notification');
   }
 
-  private _handleNotifications(notifications: Notification[]) {
-    this.notificationsGroup = groupNotifications(notifications);
-    this.hasNotifications = !!notifications.length;
+  private _handleNotifications(notifications: Notification[]): void {
+    this._ngZone.run(() => {
+      this.notificationsGroup = groupNotifications(notifications);
+      this.hasNotifications = !!notifications.length;
+    });
   }
 
   closeList(): void {

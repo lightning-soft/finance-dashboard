@@ -1,6 +1,6 @@
 import { Inject, Injectable, Injector } from '@angular/core';
 import { NumberHelper } from 'base-components';
-import { RealtimeAction } from 'communication';
+import { RepositoryAction } from 'communication';
 import { IOrder, IPosition, OrderDuration, OrderSide, OrderStatus, OrderType, PositionsRepository, Side } from 'trading';
 import { FakeTradingRepository } from './fake-trading.repository';
 import { throwError } from 'rxjs';
@@ -89,13 +89,14 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
       status: OrderStatus.Pending,
       type: OrderType.Market,
       description: '',
+      accountId: '',
     };
   }
 
   protected _emulateTrading() {
     this.actions.subscribe(({ action, items: orders }) => {
       switch (action) {
-        case RealtimeAction.Create:
+        case RepositoryAction.Create:
           const closeOrderAndCreatePosition = (order: IOrder) => {
             this.closeOrder(order);
 
@@ -118,10 +119,10 @@ export class FakeOrdersRepository extends FakeTradingRepository<IOrder> {
           });
 
           break;
-        case RealtimeAction.Update:
+        case RepositoryAction.Update:
           this._declineItems(orders);
           break;
-        case RealtimeAction.Delete:
+        case RepositoryAction.Delete:
           this._declineItems(orders);
           break;
       }

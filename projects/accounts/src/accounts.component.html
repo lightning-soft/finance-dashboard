@@ -3,7 +3,7 @@
   <div class="custom-panel custom-panel-fixed">
     <div class="custom-panel-body">
       <cdk-virtual-scroll-viewport class="right-border" [itemSize]="">
-        <nz-collapse class="custom-collapse-ghost">
+        <nz-collapse  class="custom-collapse-ghost">
           <nz-collapse-panel
             *ngFor="let broker of brokers"
             [nzHeader]="broker.title"
@@ -194,6 +194,14 @@
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
               (click)="disconnect(selectedItem)"
             >Disconnect
+            </button>
+            <button
+              nz-button
+              nzType="primary"
+              nzBlock
+              class="bg-secondary text-uppercase disconnect-button"
+              (click)="selectedItem.isDefault? null : makeDefault(selectedItem)"
+            >{{selectedItem.isDefault ? 'Already default' : 'Make default'}}
             </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">

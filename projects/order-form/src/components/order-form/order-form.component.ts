@@ -1,22 +1,28 @@
 import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { BaseOrderForm, orderTypes, QuantityInputComponent, orderDurations } from 'base-order-form';
-import { Id } from 'communication';
+import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
+import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
+import { filterByConnectionAndInstrument, filterPositions, RealPositionsRepository } from 'real-trading';
+import { Storage } from 'storage';
 import {
+  IAccount,
   IInstrument,
-  IOrder, IQuote, Level1DataFeed,
+  IOrder,
+  IQuote,
+  Level1DataFeed,
   OrderDuration,
   OrderSide,
   OrdersRepository,
+  OrderStatus,
   OrderType,
-  PositionsRepository, QuoteSide, UpdateType, PositionsFeed, compareInstruments, roundToTickSize
+  PositionsFeed,
+  PositionsRepository,
+  QuoteSide,
+  roundToTickSize,
+  UpdateType
 } from 'trading';
-import { RealPositionsRepository } from 'real-trading';
-import { Storage } from 'storage';
-import { NumberHelper } from 'base-components';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -25,9 +31,10 @@ interface OrderFormState {
   instrument: IInstrument;
   link: string | number;
   orderLink?: string;
+  account?: IAccount;
 }
 
-export interface OrderFormComponent extends ILayoutNode {
+export interface OrderFormComponent extends ILayoutNode, IUnsubscribe {
 }
 
 @Component({
@@ -37,11 +44,16 @@ export interface OrderFormComponent extends ILayoutNode {
 })
 @UntilDestroy()
 @LayoutNode()
+@BindUnsubscribe()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
 
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
   }
+
+  @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+
+  private _instrument: IInstrument;
 
   get shouldDisablePrice() {
     const limitTypes = [OrderType.Limit, OrderType.StopLimit, OrderType.StopMarket];
@@ -59,8 +71,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (value?.id === this.instrument?.id)
       return;
 
-    this._levelOneDatafeed.unsubscribe(this._instrument);
-    this._levelOneDatafeed.subscribe(value);
+    const connectionId = this.account?.connectionId;
+    this._levelOneDatafeed.unsubscribe(value, connectionId);
+
+    this.unsubscribe(() => {
+      this._levelOneDatafeed.unsubscribe(value, connectionId);
+    });
 
     this._instrument = value;
 
@@ -86,6 +102,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     return this.instrument?.precision ?? 2;
   }
 
+  account: IAccount;
+
   get accountId() {
     return this.formValue?.accountId;
   }
@@ -105,10 +123,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   limitPrice: number;
   price: number;
 
-  @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
-
-  private _instrument: IInstrument;
-
   amountButtons = [
     { value: 1 }, { value: 2 },
     { value: 10 }, { value: 50 },
@@ -121,11 +135,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     protected fb: FormBuilder,
     protected _repository: OrdersRepository,
     protected positionsRepository: PositionsRepository,
-    // protected _levelOneDatafeedService: Level1DataFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
-    protected _accountsManager: AccountsManager,
     protected _injector: Injector
   ) {
     super();
@@ -135,6 +147,37 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
     this.price = this._storage.getItem(orderLastPriceKey) ?? 1;
     this.limitPrice = this._storage.getItem(orderLastLimitKey) ?? 1;
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this.onTypeUpdated();
+    this.onRemove(
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
+        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price.toFixed(this.precision);
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price.toFixed(this.precision);
+          }
+        }
+      })),
+      this._positionDatafeed.on(filterPositions(this, (pos, connectionId) => {
+        this.position = RealPositionsRepository.transformPosition(pos, connectionId);
+      })),
+    );
+  }
+
+  // handleConnect(connection: IConnection) {
+  //   super.handleConnect(connection);
+  // }
+
+  handleAccountChange(account: IAccount) {
+    this.account = account;
+    this.form.patchValue({ accountId: account?.id });
+    this.loadPositions();
   }
 
   getDto(): any {
@@ -147,6 +190,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     }
     if (this.isStopLimit)
       dto.limitPrice = this.limitPrice;
+
+    dto.accountId = this.accountId;
     return dto;
   }
 
@@ -168,11 +213,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
         precision: 2,
         symbol: 'ESM1',
       };
+
+    if (state?.account)
+      this.account = state.account;
   }
 
-  handleLinkData({ instrument }) {
+  handleLinkData({ instrument, account }) {
     if (instrument)
       this.instrument = instrument;
+    if (account)
+      this.account = account;
   }
 
   onTypeUpdated() {
@@ -186,37 +236,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   saveState(): OrderFormState {
     return { instrument: this.instrument, link: this.link, orderLink: this.orderLink };
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-    this.onTypeUpdated();
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._repository = this._repository.forConnection(connection);
-        this.positionsRepository = this.positionsRepository.forConnection(connection);
-      });
-
-    this.onRemove(
-      this._levelOneDatafeed.on((quote: IQuote) => {
-        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-          if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
-            this.askVolume = quote.volume;
-          } else {
-            this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
-          }
-        }
-      }),
-      this._positionDatafeed.on((pos) => {
-        const position = RealPositionsRepository.transformPosition(pos);
-        if (compareInstruments(position.instrument, this.instrument))
-          this.position = position;
-
-      })
-    );
   }
 
   closePositions() {
@@ -264,12 +283,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.apply();
   }
 
-  handleAccountChange(accountId: Id): void {
-    this.form.patchValue({ accountId });
-    this.loadPositions();
-  }
-
-
   protected handleItem(item: IOrder): void {
     super.handleItem(item);
     this.needCreate = true;
@@ -300,7 +313,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    this._levelOneDatafeed.unsubscribe(this.instrument);
   }
 
   increasePrice() {
@@ -344,7 +356,14 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
+  }
+
+  protected _handleSuccessCreate(response?) {
+    if (response?.status === OrderStatus.Rejected)
+      return;
+
+    super._handleSuccessCreate(response);
   }
 }

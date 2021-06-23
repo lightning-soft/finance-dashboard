@@ -31,5 +31,7 @@ export interface IMarketWatchItem extends IBaseItem {
 
   itemType: ItemType;
 
+  clearRealtimeData();
+
   applySettings(settings);
 }

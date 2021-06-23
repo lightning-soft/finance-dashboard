@@ -3,7 +3,7 @@ import { IBaseTemplate } from "./models";
 import { Observable, of, Subscription, throwError } from "rxjs";
 import { SettingsService } from "settings";
 import { Id, Repository } from "base-components";
-import { ExcludeId, IPaginationResponse, RealtimeAction, RealtimeActionData } from "communication";
+import { ExcludeId, IPaginationResponse, RepositoryAction, RepositoryActionData } from "communication";
 
 @Injectable()
 export class TemplatesService extends Repository<IBaseTemplate> {
@@ -51,9 +51,9 @@ export class TemplatesService extends Repository<IBaseTemplate> {
     return of(true);
   }
 
-  subscribe(callback: (data: RealtimeActionData<IBaseTemplate>) => void): Subscription {
+  subscribe(callback: (data: RepositoryActionData<IBaseTemplate>) => void): Subscription {
     return this._settingsService.settings.subscribe((data) => {
-      callback({ action: RealtimeAction.Update, items: data.templates });
+      callback({ action: RepositoryAction.Update, items: data.templates });
     });
   }
 

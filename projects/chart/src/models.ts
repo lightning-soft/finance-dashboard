@@ -1,6 +1,7 @@
-import { IScxComponentState } from "chart";
-import { IBaseTemplate } from "templates";
-import { SideOrderForm } from "base-order-form";
+import { IScxComponentState } from 'chart';
+import { IBaseTemplate } from 'templates';
+import { SideOrderFormState } from 'base-order-form';
+import { IAccount } from 'trading';
 
 export * from './models/index';
 export * from './datafeed/index';
@@ -12,6 +13,8 @@ export interface IChartState extends IScxComponentState {
   enableOrderForm: boolean;
   link: any;
   showOrderConfirm: boolean;
-  orderForm: Partial<SideOrderForm>;
+  account?: IAccount;
+  orderForm: SideOrderFormState
+  ;
 }
 export type IChartTemplate = IBaseTemplate<IChartState>;

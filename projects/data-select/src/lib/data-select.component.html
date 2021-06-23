@@ -2,9 +2,9 @@
   <label class="mr-2">{{ label }}</label>
   <nz-select
     class="custom-form-control w-auto flex-grow-1"
+    [(nzOpen)]="opened"
     [nzLoading]="loading"
     [nzOptionHeightPx]="24"
-    (nzOpenChange)="handleToggle($event)"
     [(ngModel)]="value"
     (ngModelChange)="handleValueChange()"
   >
@@ -24,7 +24,7 @@
         <span
           *ngFor="let action of actions"
           class="text-muted link data-select-item-action ml-2"
-          (click)="action.callback(item)"
+          (click)="action.callback(cloneItem(item)); opened = false; $event.stopPropagation()"
         >
           <i class="{{ action.icon }} font-size-inherit"></i>
         </span>

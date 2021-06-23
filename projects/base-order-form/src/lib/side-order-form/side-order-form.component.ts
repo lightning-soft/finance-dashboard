@@ -2,21 +2,18 @@ import { Component, EventEmitter, Injector, Input, Output, ViewChild } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { QuantityPositions } from 'dom';
+import { BehaviorSubject } from 'rxjs';
 import {
-  HistoryRepository,
-  IConnection,
-  IInstrument,
+  compareInstruments, IInstrument,
   IOrder,
-  OrderDuration,
+  isForbiddenOrder, OrderDuration,
   OrderSide,
   OrderType,
-  PositionsRepository,
-  isForbiddenOrder, compareInstruments
+  PositionsRepository
 } from 'trading';
-import { BehaviorSubject } from 'rxjs';
-import { ITypeButton } from '../type-buttons/type-buttons.component';
 import { BaseOrderForm } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
+import { ITypeButton } from '../type-buttons/type-buttons.component';
 
 export enum FormActions {
   ClosePositions,
@@ -57,11 +54,20 @@ export interface DomFormSettings {
   };
 }
 
-export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
+interface IAmountButton {
+  value: number;
+  black?: boolean;
+}
+
+type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   stopLoss: FormControl;
   isIce: FormControl;
   takeProfit: FormControl;
 };
+
+export type SideOrderFormState = Partial<SideOrderForm> & {
+  amountButtons?: IAmountButton[];
+}
 
 @Component({
   selector: 'side-form',
@@ -134,7 +140,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @Input() set accountId(value) {
     if (this._accountId !== value) {
       this._accountId = value;
-      this.form.patchValue({ accountId: value });
+      this.form?.patchValue({ accountId: value });
     }
   }
 
@@ -195,7 +201,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     return this.isIce && this.isIceEnabled;
   }
 
-  amountButtons = [
+  amountButtons: IAmountButton[] = [
     { value: 1 }, { value: 2, black: true },
     { value: 10 }, { value: 50 },
     { value: 100 }, { value: 5 }
@@ -238,29 +244,24 @@ export class SideOrderFormComponent extends BaseOrderForm {
 
   constructor(
     protected _injector: Injector,
-    private _historyRepository: HistoryRepository,
     protected positionsRepository: PositionsRepository,
   ) {
     super();
     this.autoLoadData = false;
   }
 
-  loadState(state: Partial<SideOrderForm>): void {
+  loadState(state: SideOrderFormState): void {
     this.form.patchValue(state ?? {});
+    if (state.amountButtons)
+      this.amountButtons = state.amountButtons;
   }
 
-  getState(): Partial<SideOrderForm> {
+  getState(): SideOrderFormState {
     return {
       quantity: (this.form.controls as SideOrderForm).quantity.value,
+      amountButtons: this.amountButtons
     };
   }
-
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    this._historyRepository = this._historyRepository.forConnection(connection);
-    this.positionsRepository = this.positionsRepository.forConnection(connection);
-  }
-
 
   positionsToQuantity() {
     if (this._positionsSum) {
@@ -329,7 +330,7 @@ export function getPriceSpecs(item: IOrder & { amount: number }, price: number, 
   }
   if (item.type === OrderType.StopLimit) {
     const offset = tickSize * item.amount;
-    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset :  -offset);
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset : -offset);
   }
   return priceSpecs;
 }

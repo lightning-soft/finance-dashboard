@@ -1,11 +1,11 @@
 <loader *ngIf="loading"></loader>
 
 <window-header (contextmenu)="grid.createComponentModal($event)" [window]="this">
-  <instrument-select class="ml-1" [(instrument)]="instrument"></instrument-select>
-  <account-select [labelTransformer]="transformAccountLabel.bind(this)"
-                  [loadingHandler]="loadingHandler"
-                  class="ml-1"
-                  (accountChange)="handleAccountChange($event)"
+  <instrument-select class="ml-1" [(instrument)]="instrument" [account]="select.account"></instrument-select>
+  <account-select #select
+    [labelTransformer]="transformAccountLabel.bind(this)"
+    class="ml-1"
+    [(account)]="account"
   ></account-select>
 </window-header>
 <div (contextmenu)="grid.createComponentModal($event)" class="window-header-button">
@@ -95,7 +95,7 @@
                (currentCellChanged)="onCurrentCellChanged($event)"
                [showColumnTitleOnHover]="showColumnTitleOnHover"
                [afterDraw]="afterDraw"
-               [onResize]="onResize.bind(this)"
+               [sizeChanged]="onResize.bind(this)"
                [onColumnResize]="onColumnResize.bind(this)"
                [handlers]="handlers">
     </data-grid>

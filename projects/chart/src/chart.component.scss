@@ -7,9 +7,6 @@
 @import "themes/template";
 
 $toolbarMargin: 4px;
-app-window-toolbar {
-  margin-left: 4px;
-}
 
 .form-header {
   font-size: 0.7rem;
@@ -140,6 +137,10 @@ side-form {
       padding-bottom: 7px !important;
     }
 
+    #scxDrawingDialog .modal-dialog .modal-content .modal-body .scxDrawingDialog_imagePreviewWrapper {
+      min-height: 160px;
+    }
+
     .scxDialog .modal-dialog {
       width: 437px !important;
 
@@ -251,6 +252,32 @@ side-form {
           padding-left: 8px;
           height: 100%;
           padding-top: 2px;
+        }
+      }
+
+      .modal-body {
+        overflow: hidden !important;
+      }
+
+      .modal-body, .modal-content {
+        &::-webkit-scrollbar {
+          width: 2px;
+        }
+
+        /* Track */
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+          background: $light2;
+          border-radius: 1px;
+        }
+
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+          background: $light2;
         }
       }
 
@@ -586,8 +613,7 @@ side-form {
     }
   }
 
-  $chartPanelButtons:
-    (scxPanelSettings: "setting-gear", scxPanelClose: "close",
+  $chartPanelButtons: (scxPanelSettings: "setting-gear", scxPanelClose: "close",
     scxPanelMoveDown: "arrow-down-general", scxPanelMoveUp: "arrow-up-general",
     scxPanelMaximize: "maximize-indicator", scxPanelRestore: "minimize-indicator");
 

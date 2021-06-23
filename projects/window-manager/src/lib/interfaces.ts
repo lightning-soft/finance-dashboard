@@ -39,7 +39,7 @@ export interface IWindow {
   _container: HTMLElement;
   component: ILayoutNode;
 
-  on(event: EVENTS, fn: Executor): void;
+  on(event: EVENTS, fn: (window: IWindow) => void): void;
   save(): saveData;
   setTitle(title: string);
   minimize();

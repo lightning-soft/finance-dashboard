@@ -1,5 +1,5 @@
-import { Component, HostBinding, Input } from '@angular/core';
-import {  IWindow, WindowManagerService } from 'window-manager';
+import { Component, HostBinding, Input, NgZone } from '@angular/core';
+import { IWindow, WindowManagerService } from 'window-manager';
 import { Components } from '../../../modules';
 import { NzPlacementType } from 'ng-zorro-antd';
 
@@ -47,7 +47,7 @@ export class FramesManagerComponent {
     return this.highlightedWindow.x + this.highlightedWindow.globalOffset?.left;
   }
 
-  constructor(private windowManagerService: WindowManagerService) {
+  constructor(private windowManagerService: WindowManagerService, private ngZone: NgZone) {
     this.windowManagerService.windows.subscribe(windows => {
       this._setWindowTuples(windows);
     });
@@ -90,12 +90,16 @@ export class FramesManagerComponent {
   }
 
   highlightWindowArea(window: IWindow): void {
-    if (window.minimized)
-      this.highlightedWindow = window;
+    this.ngZone.run(() => {
+      if (window.minimized)
+        this.highlightedWindow = window;
+    });
   }
 
   hideWindowArea(): void {
-    this.highlightedWindow = null;
+    this.ngZone.run(() => {
+      this.highlightedWindow = null;
+    });
   }
 
   closeWindow(window: IWindow): void {

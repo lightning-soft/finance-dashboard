@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, Injector, Optional } from '@angular/core';
 import { Id } from 'communication';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { ExcludeId, IBaseItem, IPaginationResponse, Repository } from '../common';
+import { ExcludeId, IBaseItem, IPaginationResponse, Repository, RepositoryAction } from '../common';
 import { CommunicationConfig } from './communication.config';
 import { ObservableCacheService } from 'cache';
 
@@ -34,18 +34,26 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   getItemById(id: number | string, query?: any): Observable<T> {
-    const request = this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, params: query });
-    if (!this._cacheEnabled) {
-      return request;
-    }
+    const { headers, ...params } = this._mapItemParams(query, RepositoryAction.Read);
+
+    const request = this._http.get<T>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
+      .pipe(
+        map(res => this._mapItemResponse(res, query, RepositoryAction.Read)),
+      );
 
     const cacheKey = `${id}${JSON.stringify(query)}`;
-    return this._cache.get(cacheKey, request);
+
+    if (this._cacheEnabled) {
+      return this._cache.get(cacheKey, request);
+    }
+
+    return request;
   }
 
   getItems(obj?: any): Observable<IPaginationResponse<T>> {
     let params = {};
-    const { id = null, ...query } = obj ?? {};
+
+    const { id = null, headers, ...query } = this._mapItemsParams(obj ?? {});
 
     if (query) {
       if (query.skip != null) {
@@ -61,28 +69,56 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
       params = new HttpParams({ fromObject: query });
     }
 
-    const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, params });
+    if (headers && !headers['Api-Key'])
+      console.warn('NO API KEY', this.constructor.name, JSON.stringify(headers));
 
-    return this._cacheEnabled ? this._cache.get(JSON.stringify(query), request) : request;
+    const request = this._http.get<IPaginationResponse<T>>(this._getRESTURL(id), { ...this._httpOptions, headers, params })
+      .pipe(
+        map(res => this._mapItemsResponse(res, obj)),
+      );
+
+    const cacheKey = JSON.stringify(query);
+
+    if (this._cacheEnabled) {
+      return this._cache.get(cacheKey, request);
+    }
+
+    return request;
   }
 
   createItem(item: ExcludeId<T>, options?: any): Observable<any> {
-    return this._createItem(item, options).pipe(tap(i => this._onCreate(i)));
+    const action = RepositoryAction.Create;
+    const itemParams = this._mapItemParams(options, action);
+    const { headers, ...params } = itemParams || {};
+
+    return this._createItem(this._mapRequestItem(item, action), { headers, params })
+      .pipe(
+        map(res => this._mapItemResponse(res, params, action)),
+        tap(i => this._onCreate(i)),
+      );
   }
 
   protected _createItem(item: ExcludeId<T>, options?: any): Observable<any> {
-    return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options })
+    return this._http.post(this._getRESTURL(), item, { ...this._httpOptions, ...options });
   }
 
   updateItem(item: T, query?: any): Observable<T> {
-    const { id, ...dto } = item;
-    return this._http.patch<T>(this._getRESTURL(id), dto, { ...this._httpOptions, params: query })
-      .pipe(tap(this._onUpdate));
+    const action = RepositoryAction.Update;
+    const { id, ...dto } = this._mapRequestItem(item, action);
+    const params = this._mapItemParams(query, action);
+
+    return this._http.put<T>(this._getRESTURL(id), dto, { ...this._httpOptions, params })
+      .pipe(
+        map(res => this._mapItemResponse(res, params, action)),
+        tap(i => this._onUpdate(i)),
+      );
   }
 
   deleteItem(id: number | string): Observable<any> {
     return this._http.delete(this._getRESTURL(id), this._httpOptions)
-      .pipe(tap(() => this._onDelete({ id })));
+      .pipe(
+        tap(() => this._onDelete({ id })),
+      );
   }
 
   getItemsByIds(ids?: Id[]): Observable<T[]> {
@@ -90,8 +126,8 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
       return of([]);
     }
 
-    return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
-    // return forkJoin(ids.map(id => this.getItemById(id)));
+    // return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
+    return forkJoin(ids.map(id => this.getItemById(id)));
   }
 
   protected _concatUrl(...params: (string | number)[]): string {

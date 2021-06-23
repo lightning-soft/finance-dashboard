@@ -1,4 +1,4 @@
-import { Column, DefaultScrollSensetive } from 'data-grid';
+import { CellStatus, Column, DefaultScrollSensetive, generateNewStatusesByPrefix } from 'data-grid';
 import * as merge from 'deepmerge';
 import { TextAlign, HistogramOrientation } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
@@ -149,16 +149,18 @@ export class DomSettings {
     },
   };
   price: any = {
-    color: 'rgba(208, 208, 210, 1)',
-    backgroundColor: 'transparent',
-    hoveredBackgroundColor: '#383A40',
-    hoveredColor: '#fff',
-    highlightBackgroundColor: '#383A40',
-    highlightColor: '#fff',
-    tradedPriceColor: 'rgba(208, 208, 210, 1)',
-    tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
-    longPositionOpenBackgroundColor: '#2A8AD2',
-    shortPositionOpenBackgroundColor: '#DC322F',
+    ...generateNewStatusesByPrefix({
+      color: 'rgba(208, 208, 210, 1)',
+      highlightColor: '#fff',
+      tradedPriceColor: 'rgba(208, 208, 210, 1)',
+    }, CellStatus.Hovered),
+    ...generateNewStatusesByPrefix({
+      backgroundColor: 'transparent',
+      highlightBackgroundColor: '#383A40',
+      tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
+      longPositionOpenBackgroundColor: '#2A8AD2',
+      shortPositionOpenBackgroundColor: '#DC322F',
+    }, CellStatus.Hovered, '#383A40'),
     textAlign: TextAlign.Center,
   };
   bidDelta: any = {

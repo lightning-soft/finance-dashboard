@@ -1,12 +1,13 @@
 import { Id } from 'base-components';
 import {
   AddClassStrategy,
-  Cell, CellStatus, CellStatusGetter,
-  DataCell, getProfitStatus,
+  Cell,
+  DataCell,
+  getProfitStatus,
   HoverableItem,
   IconCell,
-  NumberCell, PriceFormatter,
-  ProfitStatus,
+  NumberCell,
+  PriceFormatter
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
@@ -31,21 +32,20 @@ type IPositionItem = {
 };
 
 export class PositionItem extends HoverableItem implements IPositionItem {
-  private _PLFormatter = new PriceFormatter(2);
-  private _priceFormatter = new PriceFormatter(this.position.instrument?.precision ?? 2);
+  private _PLFormatter: PriceFormatter = new PriceFormatter(2);
+  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position?.instrument?.precision ?? 2);
 
-  account = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  instrumentName = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  exchange = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
-  price = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, formatter: this._priceFormatter });
-  size = new NumberCell({ withHoverStatus: true, getStatusByStyleProp, ignoreZero: false });
+  account = new DataCell({ withHoverStatus: true });
+  instrumentName = new DataCell({ withHoverStatus: true });
+  exchange = new DataCell({ withHoverStatus: true });
+  price = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
+  size = new NumberCell({ withHoverStatus: true, ignoreZero: false });
   unrealized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     hightlightOnChange: false,
     withHoverStatus: true,
     ignoreZero: false,
     formatter: this._PLFormatter,
-    getStatusByStyleProp
   });
   realized = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
@@ -53,17 +53,16 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     withHoverStatus: true,
     ignoreZero: false,
     formatter: this._PLFormatter,
-    getStatusByStyleProp
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     withHoverStatus: true,
     formatter: this._PLFormatter,
     ignoreZero: false,
-    getStatusByStyleProp,
   });
-  close = new IconCell({ withHoverStatus: true, getStatusByStyleProp, size: 10 });
-  side = new DataCell({ withHoverStatus: true, getStatusByStyleProp });
+  close = new IconCell({ withHoverStatus: true, size: 10 });
+  side = new DataCell({ withHoverStatus: true });
+  private _instrument: IInstrument;
 
   get id(): Id | undefined {
     return this.position && this.position.id;
@@ -75,6 +74,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       return;
     }
     this.update(position);
+  }
+
+  setInstrument(instrument: IInstrument) {
+    if (this.position?.instrument?.id !== instrument.id)
+      return;
+
+    this._instrument = instrument;
   }
 
   update(position: IPosition) {
@@ -93,6 +99,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.realized,
       PositionColumn.side
     ];
+
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
@@ -105,10 +112,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this._updateCellProfitStatus(this.total);
   }
 
-  public updateUnrealized(trade: TradePrint, instrument: IInstrument) {
+  public updateUnrealized(trade: TradePrint, connectionId: Id) {
     const position = this.position;
+    const instrument = this._instrument;
 
-    if (position == null || !compareInstruments(trade?.instrument, position?.instrument))
+    console.log('position.connectionId', position.connectionId);
+    if (position.connectionId !== connectionId || instrument == null
+      || position == null || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);
@@ -119,23 +129,14 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   private _updateTotal(): void {
-    this.total.updateValue(this.realized.numberValue + this.unrealized.numberValue);
+    this.total.updateValue((this.realized._value || 0) + (this.unrealized._value || 0));
   }
 
   private _updateCellProfitStatus(cell: Cell): void {
     cell.changeStatus(getProfitStatus(cell));
   }
 
-  protected _getCellsToHover(): Cell[] {
-    return allColumns.map((field) => this[field]);
+  protected _getPropertiesForHover(): string[] {
+    return allColumns;
   }
-}
-
-const getStatusByStyleProp: CellStatusGetter = (cell, style) => {
-  if (cell.hovered && cell.hoverStatusEnabled && style === 'BackgroundColor') {
-    return ([ProfitStatus.InProfit, ProfitStatus.Loss] as string[]).includes(cell.status)
-      ? cell.status : CellStatus.Hovered;
-  }
-
-  return cell.status;
 }

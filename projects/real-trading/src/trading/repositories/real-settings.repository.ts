@@ -1,24 +1,19 @@
-import { CommunicationConfig, HttpRepository } from 'communication';
-import { ISettings } from 'trading';
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, Injector, Optional } from '@angular/core';
-import { AuthService } from 'auth';
+import { Injectable } from '@angular/core';
+import { HttpRepository, IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
-const settingKey = 'setting';
+import { ISettings } from 'trading';
+
 @Injectable()
 export class RealSettingsRepository extends HttpRepository<ISettings> {
   protected get _baseUrl(): string {
-    return this._communicationConfig[settingKey].url + 'api/GeneralUserSetting';
+    return this._communicationConfig.setting.url + 'api/GeneralUserSetting';
   }
 
-  constructor(
-    @Inject(HttpClient) protected _http: HttpClient,
-    @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
-    private authService: AuthService,
-    @Optional() @Inject(Injector) protected _injector: Injector) {
-    super(_http, _communicationConfig, _injector);
-  }
   updateItem(item: ISettings, query?: any): Observable<ISettings> {
     return this._http.put<any>(this._getRESTURL(), item);
+  }
+
+  protected _mapItemsResponse(res: any, params: any): IPaginationResponse<ISettings> {
+    return { ...res, requestParams: params };
   }
 }

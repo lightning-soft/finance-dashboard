@@ -4,10 +4,7 @@
   (contextmenu)="dataGrid?.createComponentModal($event)"
   className="widget" [window]="this">
 
-  <account-select
-    [loadingHandler]="loadingHandler"
-    (accountChange)="handleAccountChange($event)"
-  ></account-select>
+  <!-- <account-select></account-select> -->
   <!-- <nz-select class="ml-1 regular"
              [nzOptionHeightPx]="22"
              (ngModelChange)="updateTitle()" [(ngModel)]="allTypes" nzDropdownClassName="order-dropdown-list" >
@@ -21,7 +18,7 @@
   </nz-select> -->
 
 </window-header>
-<div class="wrapper">
+<div class="wrapper" [class.loading-block]="loading">
   <div class="toolbar">
     <!-- <div (click)="selectComponent.setOpenState(true)" class="select-container">
       <nz-select

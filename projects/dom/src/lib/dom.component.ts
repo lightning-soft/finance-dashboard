@@ -9,60 +9,81 @@ import {
   ViewChild
 } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { convertToColumn, HeaderItem, LoadingComponent } from 'base-components';
+import { AccountSelectComponent } from 'account-select';
+import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
 import {
   FormActions,
   getPriceSpecs,
   OcoStep,
-  SideOrderForm,
-  SideOrderFormComponent
+  SideOrderFormComponent,
+  SideOrderFormState
 } from 'base-order-form';
-import { Id, RealtimeActionData } from 'communication';
+import { Id, RepositoryActionData } from 'communication';
 import {
+  capitalizeFirstLetter,
   Cell,
   CellClickDataGridHandler,
   CellStatus,
-  Column, ContextMenuClickDataGridHandler,
-  DataGrid, DataGridHandler,
-  ICellChangedEvent, IFormatter, MouseDownDataGridHandler, MouseUpDataGridHandler,
+  Column,
+  ContextMenuClickDataGridHandler,
+  DataGrid,
+  DataGridHandler,
+  ICellChangedEvent,
+  IFormatter,
+  MouseDownDataGridHandler,
+  MouseUpDataGridHandler,
   RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
+import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
-import { IHistoryItem, RealPositionsRepository } from 'real-trading';
+import {
+  AccountsListener,
+  filterByAccountAndInstrument,
+  filterByAccountIdAndInstrument,
+  filterByConnectionAndInstrument,
+  IHistoryItem,
+  RealPositionsRepository
+} from 'real-trading';
+import { finalize } from 'rxjs/operators';
+import { TradeHandler } from 'src/app/components';
 import {
   compareInstruments,
-  IConnection,
+  getPrice,
+  IAccount,
   IInstrument,
   IOrder,
-  getPrice,
   IPosition,
   IQuote,
-  Level1DataFeed, OHLVFeed, OrderBooksRepository,
+  isForbiddenOrder,
+  Level1DataFeed,
+  OHLVFeed,
+  OrderBooksRepository,
   OrdersFeed,
   OrderSide,
   OrdersRepository,
   OrderStatus,
-  OrderType, isForbiddenOrder,
+  OrderType,
   PositionsFeed,
   PositionsRepository,
   QuoteSide,
-  Side, TradeDataFeed,
-  TradePrint, UpdateType, VolumeHistoryRepository, roundToTickSize
+  roundToTickSize,
+  Side,
+  TradeDataFeed,
+  TradePrint,
+  UpdateType,
+  VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
-import { CustomDomItem, DomItem, LEVELS, SumStatus, TailInside, VolumeStatus } from './dom.item';
+import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
-import { finalize } from "rxjs/operators";
-import { TradeHandler } from "src/app/components";
 
-export interface DomComponent extends ILayoutNode, LoadingComponent<any, any> {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe {
 }
 
 export class DomItemMax {
@@ -116,7 +137,7 @@ export class DomItemMax {
   }
 }
 
-const ROWS = 400;
+const ROWS = 800;
 const DOM_HOTKEYS = 'domHotkeys';
 
 interface IDomState {
@@ -125,7 +146,8 @@ interface IDomState {
   componentInstanceId: number;
   columns: any;
   contextMenuState: any;
-  orderForm: Partial<SideOrderForm>;
+  account?: IAccount;
+  orderForm: SideOrderFormState;
   link: string | number;
 }
 
@@ -141,41 +163,22 @@ const directionsHints: { [key in FormDirection]: string } = {
   [FormDirection.Right]: 'Right View',
 };
 
-enum Columns {
-  ID = '_id',
-  LTQ = 'ltq',
-  Bid = 'bid',
-  Ask = 'ask',
-  CurrentBid = 'currentBid',
-  CurrentAsk = 'currentAsk',
-  Delta = 'delta',
-  AskDelta = 'askDelta',
-  BidDelta = 'bidDelta',
-  Orders = 'orders',
-  SellOrders = 'sellOrders',
-  BuyOrders = 'buyOrders',
-  Volume = 'volume',
-  TotalBid = 'totalBid',
-  TotalAsk = 'totalAsk',
-  Price = 'price',
-}
-
 const headers: HeaderItem[] = [
-  { name: Columns.Orders, tableViewName: 'Orders' },
-  { name: Columns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
-  { name: Columns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
-  { name: Columns.Volume, tableViewName: 'Volume', type: 'histogram' },
-  Columns.Price,
-  { name: Columns.Delta, tableViewName: 'Delta' },
-  { name: Columns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
-  { name: Columns.Bid, tableViewName: 'Bid', type: 'histogram' },
-  { name: Columns.LTQ, tableViewName: 'LTQ' },
-  { name: Columns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
-  { name: Columns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
-  { name: Columns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
-  { name: Columns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
-  { name: Columns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
-  { name: Columns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+  { name: DOMColumns.Orders, tableViewName: 'Orders' },
+  { name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
+  { name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
+  { name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram' },
+  DOMColumns.Price,
+  { name: DOMColumns.Delta, tableViewName: 'Delta' },
+  { name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
+  { name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram' },
+  { name: DOMColumns.LTQ, tableViewName: 'LTQ' },
+  { name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
+  { name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
+  { name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
+  { name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
+  { name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
+  { name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
 ];
 
 export enum QuantityPositions {
@@ -186,7 +189,7 @@ export enum QuantityPositions {
   FIFTH = 5,
 }
 
-const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orders, Columns.Delta, Columns.BuyOrders, Columns.SellOrders];
+const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMColumns.Orders, DOMColumns.Delta, DOMColumns.BuyOrders, DOMColumns.SellOrders];
 
 @Component({
   selector: 'lib-dom',
@@ -194,11 +197,12 @@ const OrderColumns: string[] = [Columns.AskDelta, Columns.BidDelta, Columns.Orde
   styleUrls: ['./dom.component.scss'],
 })
 @LayoutNode()
+@AccountsListener()
+@BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
-  @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   get accountId() {
-    return this._accountId;
+    return this._accountsSelect?.account?.id;
   }
 
   public get instrument(): IInstrument {
@@ -210,8 +214,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     const prevInstrument = this._instrument;
-    this._unsubscribeFromInstrument();
-
     this._instrument = value;
     this._onInstrumentChange(prevInstrument);
   }
@@ -233,8 +235,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.dataGrid.items = value;
   }
 
-  private _lastTradeItem: DomItem;
-
   private get _lastPrice(): number {
     return this._lastTradeItem?.lastPrice;
   }
@@ -251,22 +251,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.instrument?.tickSize ?? 0.25;
   }
 
-  orders: IOrder[] = [];
-
-  askSumItem: DomItem;
-  bidSumItem: DomItem;
-
-  _lastAskItem: DomItem;
-  _lastBidItem: DomItem;
-
-  private _marketDepth = 9;
-  private _marketDeltaDepth = 9;
-
-  handleLinkData( {instrument} ) {
-    if (instrument)
-      this.instrument = instrument;
-  }
-
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -275,13 +259,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _positionsFeed: PositionsFeed,
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
-    protected _accountsManager: AccountsManager,
     private _volumeHistoryRepository: VolumeHistoryRepository,
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
     private _tradeHandler: TradeHandler,
-    protected _changeDetectorRef: ChangeDetectorRef,
+    protected _changeDetectorRef: ChangeDetectorRef
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -308,13 +291,45 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  public get account(): IAccount {
+    return this._account;
+  }
+
+  public set account(value: IAccount) {
+    this._account = value;
+    this.handleAccountChange(value);
+  }
+
+  get isTradingLocked(): boolean {
+    return !this._tradeHandler.isTradingEnabled$.value;
+  }
+
+  @ViewChild(AccountSelectComponent) private _accountsSelect: AccountSelectComponent;
+
+  @ViewChild('domForm') domForm: SideOrderFormComponent;
+
+  private _lastTradeItem: DomItem;
+
+  orders: IOrder[] = [];
+
+  askSumItem: DomItem;
+  bidSumItem: DomItem;
+
+  _lastAskItem: DomItem;
+  _lastBidItem: DomItem;
+
+  private _marketDepth = 9;
+  private _marketDeltaDepth = 9;
+
   columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
   buyOcoOrder: IOrder;
   sellOcoOrder: IOrder;
   ocoStep = OcoStep.None;
   position: IPosition;
-  orderFormState: Partial<SideOrderForm>;
+
+  private _initialState: IDomState;
+  private _account: IAccount;
   private currentRow: DomItem;
 
   domKeyHandlers = {
@@ -445,7 +460,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }),
     new CellClickDataGridHandler<DomItem>({
-      column: [Columns.Ask, Columns.Bid],
+      column: [DOMColumns.Ask, DOMColumns.Bid],
       handler: (data) => this._createOrderByClick(data.column.name, data.item),
     }),
     new MouseDownDataGridHandler<DomItem>({
@@ -470,7 +485,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }),
   ];
 
-  private _accountId: string;
   private _updatedAt: number;
   private _levelsInterval: number;
   private _clearInterval: () => void;
@@ -491,6 +505,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   bracketActive = true;
   isExtended = true;
   isTradingEnabled = true;
+
+  @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
 
   private _instrument: IInstrument;
   private _priceFormatter: IFormatter;
@@ -513,36 +529,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dailyInfo: Partial<IHistoryItem>;
 
   private _counter = 0;
+
+  protected _ttt = 0;
+
+  handleLinkData({ instrument, account }) {
+    if (instrument)
+      this.instrument = instrument;
+    if (instrument)
+      this.instrument = instrument;
+    if (account)
+      this.account = account;
+  }
   showColumnTitleOnHover = (item: Column) => false;
 
   ngOnInit(): void {
     super.ngOnInit();
-    this._accountsManager.activeConnection
-      .pipe(untilDestroyed(this))
-      .subscribe((connection) => {
-        this._ordersRepository = this._ordersRepository.forConnection(connection);
-        this._positionsRepository = this._positionsRepository.forConnection(connection);
-        this._orderBooksRepository = this._orderBooksRepository.forConnection(connection);
-        this._volumeHistoryRepository = this._volumeHistoryRepository.forConnection(connection);
-        if (connection)
-          this._onInstrumentChange(this.instrument);
-      });
-
-    this._ordersRepository.actions
-      .pipe(untilDestroyed(this))
-      .subscribe((action) => this._handleOrdersRealtime(action));
 
     this._tradeHandler.isTradingEnabled$
       .pipe(untilDestroyed(this))
       .subscribe((enabled) => this.isTradingEnabled = enabled);
-
-    this.onRemove(
-      this._levelOneDatafeed.on((item: IQuote) => this._handleQuote(item)),
-      this._tradeDatafeed.on((item: TradePrint) => this._handleTrade(item)),
-      this._ordersFeed.on((trade: IOrder) => this._handleOrders([trade])),
-      this._positionsFeed.on((pos) => this.handlePosition(pos)),
-      this._ohlvFeed.on((ohlv) => this.handleOHLV(ohlv))
-    );
 
     // setInterval(() => {
     //   if (!this.items.length)
@@ -602,6 +607,29 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     //   //   updateType: Math.random() > 0.6 ? UpdateType.Undefined : UpdateType.Solo,
     //   // });
     // }, 1000);
+  }
+
+  ngAfterViewInit() {
+    this._handleResize();
+    // this._ordersRepository.actions
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((action) => this._handleOrdersRealtime(action));
+
+    this.onRemove(
+      this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
+      this._tradeDatafeed.on(filterByConnectionAndInstrument(this, (item: TradePrint) => this._handleTrade(item))),
+      this._ordersFeed.on(filterByAccountAndInstrument(this, (order: IOrder) => this._handleOrders([order]))),
+      this._positionsFeed.on(filterByAccountIdAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
+      this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this.handleOHLV(ohlv)))
+    );
+
+    this._onInstrumentChange(this.instrument);
+    this.domForm.loadState(this._initialState.orderForm);
+  }
+
+  handleAccountChange(account: IAccount) {
+    this._loadData();
+    this._onInstrumentChange(this.instrument, true);
   }
 
   private _observe() {
@@ -684,7 +712,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       minToVisible,
     };
 
-    for (const key of [Columns.CurrentAsk, Columns.CurrentBid]) {
+    for (const key of [DOMColumns.CurrentAsk, DOMColumns.CurrentBid]) {
       const obj = settings[key];
       if (!obj)
         continue;
@@ -707,15 +735,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     const deltaStyles = {};
-    for (const key of [Columns.BidDelta, Columns.AskDelta]) {
+    for (const key of [DOMColumns.BidDelta, DOMColumns.AskDelta]) {
       const obj = settings[key];
       if (!obj)
         continue;
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${ key }${ _key }`] = obj[_key];
-          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
         }
       }
     }
@@ -806,7 +834,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     orders.map(item => {
       item.amount = amount;
-      const priceTypes = this._getPriceSpecs(<IOrder & { amount: number }>item, price);
+      const priceTypes = this._getPriceSpecs(item as IOrder & { amount: number }, price);
 
       return {
         quantity: item.quantity,
@@ -815,7 +843,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         duration: item.duration,
         id: item.id,
         account: item.account,
-        accountId: item.account.id,
+        accountId: item.account?.id,
         instrument: item.instrument,
         symbol: item.instrument.symbol,
         exchange: item.instrument.exchange,
@@ -834,8 +862,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleOHLV(ohlv) {
-    if (compareInstruments(this.instrument, ohlv.instrument))
-      this.dailyInfo = { ...ohlv };
+    this.dailyInfo = { ...ohlv };
   }
 
   handlePosition(pos) {
@@ -940,40 +967,46 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }, (err) => this.notifier.showError(err));
   }
 
-  _handleOrdersRealtime(action: RealtimeActionData<IOrder>) {
+  _handleOrdersRealtime(action: RepositoryActionData<IOrder>) {
     if (action.items)
       this._handleOrders(action.items);
 
     this.detectChanges();
   }
 
-  _onInstrumentChange(prevInstrument: IInstrument) {
+  _onInstrumentChange(prevInstrument: IInstrument, force = false) {
     const instrument = this.instrument;
-    if (instrument?.id != null && instrument?.id !== prevInstrument?.id) {
+    if (!this.account || !instrument)
+      return;
+
+    if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
-      this._levelOneDatafeed.subscribe(instrument);
-      this._tradeDatafeed.subscribe(instrument);
+
+      const connectionId = this.account?.connectionId;
+      if (connectionId != null) {
+        this._levelOneDatafeed.subscribe(instrument, connectionId);
+        this._tradeDatafeed.subscribe(instrument, connectionId);
+        this._ohlvFeed.subscribe(instrument, connectionId);
+      }
+
+      this.unsubscribe(() => {
+        this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+        this._tradeDatafeed.unsubscribe(instrument, connectionId);
+        this._ohlvFeed.unsubscribe(instrument, connectionId);
+      });
     }
+
     this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
 
     this._loadData();
   }
 
-  _unsubscribeFromInstrument() {
-    const instrument = this.instrument;
-    if (instrument) {
-      this._levelOneDatafeed.unsubscribe(instrument);
-      this._tradeDatafeed.unsubscribe(instrument);
-      this._ohlvFeed.unsubscribe(instrument);
-    }
-  }
-
   protected _loadVolumeHistory() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange })
+    this._volumeHistoryRepository.getItems({ symbol, exchange, accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -989,11 +1022,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrderBook() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     const { symbol, exchange } = this._instrument;
-    this._orderBooksRepository.getItems({ symbol, exchange })
+    this._orderBooksRepository.getItems({ symbol, exchange, accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -1046,11 +1079,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _loadOrders(): void {
-    if (!this._accountId)
+    if (!this.account)
       return;
 
     this.orders = [];
-    this._ordersRepository.getItems({ id: this._accountId })
+    this._ordersRepository.getItems({ accountId: this.accountId })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -1066,8 +1099,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.instrument.symbol !== this.instrument.symbol || order.instrument.exchange != this.instrument.exchange)
-        continue;
+      if (order.account.id != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
 
       this.items.forEach(item => item.removeOrder(order));
       this._fillOrders(order);
@@ -1099,25 +1131,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  handleAccountChange(account: string) {
-    this._accountId = account;
-    this._loadData();
-  }
-
   protected _loadData() {
-    if (!this._accountId || !this._instrument)
+    if (!this.accountId || !this._instrument)
       return;
 
     this._loadPositions();
     this._loadOrderBook();
     this.refresh();
-
-    this._ohlvFeed.subscribe(this.instrument);
   }
 
   protected _loadPositions() {
     const hide = this.showLoading();
-    this._positionsRepository.getItems({ accountId: this._accountId })
+    this._positionsRepository.getItems({ accountId: this.accountId })
       .pipe(finalize(hide), untilDestroyed(this))
       .subscribe(items => {
         this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
@@ -1161,16 +1186,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  protected _handleConnection(connection: IConnection) {
-    super._handleConnection(connection);
-    this._ordersRepository = this._ordersRepository.forConnection(connection);
-  }
-
-  ngAfterViewInit() {
-    this._handleResize();
-    this.domForm.loadState(this.orderFormState);
-  }
-
   _getDomItemsMap() {
     let map = {};
 
@@ -1210,7 +1225,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const startPrice = _lastPrice + (decimals > 0.5 ? (1 - decimals) : (decimals - 1));
 
       while (offset <= ROWS) {
-        const customItemData = {};
+        const customItemData: { [key: number]: DomItem } = {};
         const prices = [];
 
         for (let m = 0; m < multiplier; m++) {
@@ -1220,10 +1235,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           customItemData[price] = map[price] ?? new DomItem(null, this._settings, this._priceFormatter, customItemData);
           const _item = customItemData[price];
 
-          if (_item.ask.status === SumStatus) {
+          if (_item.isAskSum) {
             _item.setAskSum(null);
           }
-          if (_item.bid.status === SumStatus) {
+          if (_item.isBidSum) {
             _item.setBidSum(null);
           }
 
@@ -1268,6 +1283,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _getItem(price: number, index?: number): DomItem {
     let item = this._map.get(price);
     if (!item) {
+      // if (index == null)
+      //   console.warn('Omit index', index);
+
       item = new DomItem(index, this._settings, this._priceFormatter);
       this._map.set(price, item);
       item.setPrice(price);
@@ -1304,10 +1322,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // }
 
   protected _handleTrade(trade: TradePrint) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol ||
-      trade.instrument?.exchange !== this.instrument?.exchange)
-      return;
-
     this._counter++;
     const prevltqItem = this._lastTradeItem;
     let needCentralize = false;
@@ -1567,12 +1581,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._handleNewBestBid(this._bestBidPrice);
   }
 
-  protected _ttt = 0;
-
   protected _handleQuote(trade: IQuote) {
-    if (trade.instrument?.symbol !== this.instrument?.symbol
-      || trade.instrument?.exchange !== this.instrument?.exchange) return;
-
     this._counter++;
     const item = this._getItem(trade.price);
 
@@ -1590,13 +1599,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     item.handleQuote(trade);
 
-    if ((isBid && item.bid.status === SumStatus) || (!isBid && item.ask.status === SumStatus)) {
+    if ((isBid && item.isBidSum) || (!isBid && item.isAskSum)) {
       return;
     }
 
     const max = this._max;
     const needRecalculate = trade.updateType === UpdateType.Undefined;
     const needClear = trade.volume === 0;
+    const price = trade.price;
 
     if (isBid) {
       if (item.bid.visible) {
@@ -1607,6 +1617,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             max.bid = item.bid.size;
             this._calculateBidHist();
           }
+        } else {
+          this._bestBidPrice = price;
         }
 
         this.bidSumItem.setBidSum(this.bidSumItem.bid._value - size + (item.bid._value ?? 0));
@@ -1620,6 +1632,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             max.ask = item.ask.size;
             this._calculateAskHist();
           }
+        } else {
+          this._bestAskPrice = price;
         }
 
         this.askSumItem.ask.updateValue(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
@@ -1631,15 +1645,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       if (isBid || (needClear && !isBid)) {
         // if (this._bestBidPrice !== price || needClear) {
-        if (!needClear)
-          this._bestBidPrice = price;
+        // if (!needClear)
+        //   this._bestBidPrice = price;
 
         this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
-        if (!needClear)
-          this._bestAskPrice = price;
+        // if (!needClear)
+        //   this._bestAskPrice = price;
 
         this._handleNewBestAsk(price);
         // }
@@ -1664,7 +1678,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let index = startIndex;
       let _item = items[index];
 
-      while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
+      while (_item && _item.ask.visible && !_item.isAskSum) {
         if (_item.ask._value > _max)
           _max = _item.ask._value;
 
@@ -1680,7 +1694,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let index = this._getItem(this._bestAskPrice).index;
     let _item = items[index];
 
-    while (_item && _item.ask.visible && _item.ask.status !== SumStatus) {
+    while (_item && _item.ask.visible && !_item.isAskSum) {
       _item.ask.calcHist(max.ask);
       _item = items[--index];
     }
@@ -1696,7 +1710,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       let index = startIndex;
       let _item = items[index];
 
-      while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
+      while (_item && _item.bid.visible && !_item.isBidSum) {
         if (_item.bid._value > _max)
           _max = _item.bid._value;
         _item = items[++index];
@@ -1711,7 +1725,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let index = startIndex;
     let _item = items[index];
 
-    while (_item && _item.bid.visible && _item.bid.status !== SumStatus) {
+    while (_item && _item.bid.visible && !_item.isBidSum) {
       _item.bid.calcHist(max.bid);
       _item = items[++index];
     }
@@ -1911,6 +1925,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (keyBinding) {
       console.warn(keyBinding[0]);
       this.domKeyHandlers[keyBinding[0] as string]();
+      this.detectChanges(true);
       return true;
     }
   }
@@ -1932,6 +1947,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
+    if (!window)
+      return;
+
     const minWindowWidth = minGridWidth + (window._container.offsetWidth - currentGridWidth);
     window.options.minWidth = minWindowWidth;
 
@@ -1964,9 +1982,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: {
-        quantity: (this.domForm.form.controls as SideOrderForm).quantity.value
-      }
+      orderForm: this.domForm.getState()
     };
   }
 
@@ -1990,9 +2006,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.link = state.link;
     }
 
+    if (state.account) {
+      this.account = state.account;
+    }
+
+
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1',
+        id: 'ESM1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
@@ -2009,7 +2030,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.instrument = state.instrument;
-    this.orderFormState = state.orderForm;
+    this._initialState = state;
   }
 
   openSettings(hidden = false) {
@@ -2057,7 +2078,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       exchange,
       side,
       symbol,
-      accountId: this._accountId,
+      accountId: this.accountId,
     }).pipe(untilDestroyed(this))
       .subscribe(
         (res) => console.log('Order successfully created'),
@@ -2066,7 +2087,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrderByClick(column: string, item: DomItem) {
-    const side = column === Columns.Ask ? OrderSide.Sell : OrderSide.Buy;
+    const side = column === DOMColumns.Ask ? OrderSide.Sell : OrderSide.Buy;
     if (this.ocoStep === OcoStep.None) {
       this._createOrder(side, item.price._value);
     } else {
@@ -2170,7 +2191,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _closePositions() {
     this._positionsRepository.deleteMany({
-      accountId: this._accountId,
+      accountId: this.accountId,
       ...this._instrument,
     }).pipe(untilDestroyed(this))
       .subscribe(
@@ -2206,7 +2227,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 
@@ -2218,7 +2239,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const instrument = this.instrument;
     if (!instrument)
       return;
-    this._unsubscribeFromInstrument();
+
+    this.unsubscribe();
   }
 
   onCurrentCellChanged(event: ICellChangedEvent<DomItem>) {
@@ -2263,10 +2285,6 @@ function isStartFromUpperCase(key) {
   return /[A-Z]/.test((key ?? '')[0]);
 }
 
-
-export function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 export function calculatePL(position: IPosition, price: number, tickSize: number, contractSize: number, includeRealizedPL = false): number {
   if (!position || position.side === Side.Closed)

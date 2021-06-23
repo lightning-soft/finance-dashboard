@@ -1,17 +1,16 @@
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, Injector, Optional } from '@angular/core';
-import { CommunicationConfig, ExcludeId, Id, IPaginationResponse } from 'communication';
-import { Observable, of, throwError } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { ExcludeId, Id } from 'communication';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
-import { IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import { ConnectionContainer, IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { BaseRepository } from './base-repository';
 
 interface IUpdateOrderRequestParams {
   orderId: Id;
   symbol: string;
   exchange: string;
-  accountId: string;
+  accountId: Id;
   duration: OrderDuration;
   type: OrderType;
   quantity: number;
@@ -25,25 +24,16 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     return 'Order';
   }
 
-  constructor(@Inject(TradeHandler) public tradeHandler: TradeHandler,
-              @Inject(HttpClient) protected _http: HttpClient,
-              @Optional() @Inject(CommunicationConfig) protected _communicationConfig: CommunicationConfig,
-              @Optional() @Inject(Injector) protected _injector: Injector
-  ) {
-    super(_http, _communicationConfig, _injector);
+  tradeHandler: TradeHandler;
+
+  onInit() {
+    super.onInit();
+    this.tradeHandler = this._injector.get(TradeHandler);
+    this._connectionContainer = this._injector.get(ConnectionContainer);
   }
 
-  _getRepository() {
-    return new RealOrdersRepository(
-      this.tradeHandler,
-      this._http,
-      this._communicationConfig,
-      this._injector
-    );
-  }
-
-  getItems(params: any = {}) {
-    const _params = { ...params };
+  protected _mapItemsParams(params: any = {}) {
+    const _params = { ...super._mapItemsParams(params) };
 
     if (_params.accountId) {
       _params.id = _params.accountId;
@@ -53,14 +43,18 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     if (_params.StartDate == null) _params.StartDate = new Date(0).toUTCString();
     if (_params.EndDate == null) _params.EndDate = new Date(Date.now()).toUTCString();
 
-    return super.getItems(_params).pipe(
-      map((res: any) => {
-        const data = res.result
-          .filter((item: any) => this._filter(item, _params));
+    return _params;
+  }
 
-        return { data } as IPaginationResponse<IOrder>;
-      }),
-    );
+  // _processParams(obj) {
+  //   if ((obj as any)?.headers)
+  //     delete (obj as any).headers;
+  //   /*if ((obj as any)?.accountId)
+  //     delete (obj as any).accountId;*/
+  // }
+
+  protected _responseToItems(res: any, params: any) {
+    return res.result.filter((item: any) => this._filter(item, params));
   }
 
   deleteItem(item: IOrder | Id): Observable<any> {
@@ -71,7 +65,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       this._getRESTURL(`${item.id}/cancel`),
       null,
       {
-        ...this._httpOptions,
+        ...this.getApiHeadersByAccount(item?.accountId ?? item?.account?.id),
         params: {
           AccountId: item?.account?.id,
         } as any
@@ -83,19 +77,21 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     const dto: IUpdateOrderRequestParams = {
       ...item,
       orderId: item.id,
-      accountId: item.account.id,
+      accountId: item.account?.id,
       symbol: item.instrument.symbol,
       exchange: item.instrument.exchange
     };
 
-    return this._http.put<IOrder>(this._getRESTURL(), dto, { ...this._httpOptions, params: query })
+    return this._http.put<IOrder>(this._getRESTURL(), dto, {
+      ...this.getApiHeadersByAccount(item.accountId),
+      params: query
+    })
       .pipe(tap(this._onUpdate));
   }
 
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {
     if (this.tradeHandler.tradingEnabled)
-      return (super.createItem(item, options) as Observable<{ result: IOrder }>)
-        .pipe(map(res => res.result));
+      return (super.createItem(item, { ...options, ...this.getApiHeadersByAccount(item.accountId) }) as Observable<IOrder>);
 
     return throwError('You can\'t create order when trading is locked ');
   }
@@ -105,13 +101,37 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       return throwError('Please provide array of orders');
 
     orders = orders.filter(i => i.status == OrderStatus.Pending || i.status == OrderStatus.New || i.status == OrderStatus.PartialFilled);
+
     if (!orders.length)
       return of(null);
 
-    const orderIds = orders.map(i => i.id.toString());
-    const accountId: any = orders[0].accountId ?? orders[0].account?.id;
+    const map = new Map();
 
-    return this._http.post(this._getRESTURL(`cancel`), null, { ...this._httpOptions, params: { orderIds, accountId } });
+    for (const order of orders) {
+      const key = this.getApiKey(order);
+
+      if (!map.has(key)) {
+        map.set(key, [order]);
+      } else {
+        map.get(key).push(order);
+      }
+    }
+
+    return forkJoin(Array.from(map.keys()).map((key: any) =>
+      this._http.post(
+        this._getRESTURL(`cancel`),
+        null,
+        {
+          headers: {
+            ...this.getApiHeaders(key),
+          },
+          params: {
+            orderIds: map.get(key).map(item => item.id),
+            accountId: map.get(key)[0].account.id
+          }
+        },
+      ),
+    ));
   }
 
   protected _filter(item: IOrder, params: any = {}) {

@@ -26,7 +26,7 @@ export interface IOrder extends IBaseItem {
   iceQuantity?: number;
   amount?: number;
   price?: number;
-  accountId?: string;
+  accountId: Id;
   limitPrice?: number;
   stopPrice?: number;
   currentSequenceNumber?: string;

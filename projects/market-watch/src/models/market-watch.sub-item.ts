@@ -1,8 +1,7 @@
-import { NumberCell, DataCell, Cell } from 'data-grid';
-import { IOrder } from 'trading';
+import { Cell, DataCell, NumberCell } from 'data-grid';
+import { IInstrument, IOrder } from 'trading';
 import { Id } from 'communication';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
-import { IInstrument } from 'trading';
 import { ActionsCell } from './actions.cell';
 import { OrderColumnsArray } from 'base-order-form';
 
@@ -48,18 +47,23 @@ export class MarketWatchSubItem implements IMarketWatchItem {
   low: Cell;
   open: Cell;
 
+
   constructor(order?: IOrder) {
     OrderColumnsArray.forEach(item => {
       const cell = this[item];
       if (cell)
-        cell.setStatusPrefix(prefix);
+        cell.setStatusPrefix(this.getPrefix());
     });
-    this.actions.setStatusPrefix(prefix);
+    this.actions.setStatusPrefix(this.getPrefix());
     this.actions.setState({ play: false, close: true, stop: false });
-    this.emptyCell.setStatusPrefix(prefix);
+    this.emptyCell.setStatusPrefix(this.getPrefix());
 
     if (order)
       this.updateOrder(order);
+  }
+
+  protected getPrefix() {
+    return prefix;
   }
 
   checkAction(event: MouseEvent) {
@@ -114,5 +118,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
       this[key] = cell ?? this.emptyCell;
     }
     this.symbol = this.actions;
+  }
+  clearRealtimeData() {
   }
 }
