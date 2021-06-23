@@ -54,11 +54,20 @@ export interface DomFormSettings {
   };
 }
 
-export type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
+interface IAmountButton {
+  value: number;
+  black?: boolean;
+}
+
+type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   stopLoss: FormControl;
   isIce: FormControl;
   takeProfit: FormControl;
 };
+
+export type SideOrderFormState = Partial<SideOrderForm> & {
+  amountButtons?: IAmountButton[];
+}
 
 @Component({
   selector: 'side-form',
@@ -192,7 +201,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     return this.isIce && this.isIceEnabled;
   }
 
-  amountButtons = [
+  amountButtons: IAmountButton[] = [
     { value: 1 }, { value: 2, black: true },
     { value: 10 }, { value: 50 },
     { value: 100 }, { value: 5 }
@@ -241,13 +250,16 @@ export class SideOrderFormComponent extends BaseOrderForm {
     this.autoLoadData = false;
   }
 
-  loadState(state: Partial<SideOrderForm>): void {
+  loadState(state: SideOrderFormState): void {
     this.form.patchValue(state ?? {});
+    if (state.amountButtons)
+      this.amountButtons = state.amountButtons;
   }
 
-  getState(): Partial<SideOrderForm> {
+  getState(): SideOrderFormState {
     return {
       quantity: (this.form.controls as SideOrderForm).quantity.value,
+      amountButtons: this.amountButtons
     };
   }
 
