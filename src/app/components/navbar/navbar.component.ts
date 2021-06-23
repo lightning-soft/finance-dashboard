@@ -63,8 +63,8 @@ export class NavbarComponent implements AfterViewInit {
         if (this.currentNavbarPosition !== settings.navbarPosition || this.isNavbarHidden !== settings.isNavbarHidden) {
           this.currentNavbarPosition = settings.navbarPosition;
           this.isNavbarHidden = settings.isNavbarHidden;
-          this._updateWindowsBounds();
         }
+        this._updateWindowsBounds();
       });
   }
 
