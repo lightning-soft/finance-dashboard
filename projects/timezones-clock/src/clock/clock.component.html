@@ -44,7 +44,7 @@
     <timezone-item *ngFor="let timezone of timezones"
                    [timezone]="timezone"
                    [subtitleFontSize]="timezone.enabled ? 11 : 10"
-                   [checkboxDisabled]="!timezone.enabled && !canEnableTimezone"
+                   [checkboxDisabled]="false"
                    (delete)="deleteTimezone(timezone)"
                    (reset)="resetTimezone(timezone)"
                    (rename)="updateTimezoneName(timezone, $event)"
