@@ -172,6 +172,10 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
     this.subItems = this.subItems.filter(item => item.id !== subItem.id);
   }
 
+  getCreateItems() {
+    return this.subItems.filter(item => item.itemType === ItemType.CreateItem);
+  }
+
   handlePosition(position: IPosition) {
     this.pos.updateValue(position.buyVolume - position.sellVolume);
     this.pos.changeStatus(getProfitStatus(this.pos));
