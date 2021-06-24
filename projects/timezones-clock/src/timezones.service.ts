@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { SettingsService } from "../../settings/src";
 import { Observable } from "rxjs";
 import { map, tap } from "rxjs/operators";
+import { SettingsService } from "settings";
 import { ITimezone, Timezone } from "./timezones";
 
 interface ITimezonesData {
@@ -50,9 +50,11 @@ export class TimezonesService {
   }
 
   toggleEnabled(timezone: ITimezone, enabled: boolean): void {
-    if (!enabled || this.canEnableTimezone) {
-      this._updateItem({ ...timezone, enabled });
+    for (const item of this._timezones) {
+      item.enabled = item.id === timezone.id && enabled;
     }
+
+    this._save();
   }
 
   resetItem(timezone: ITimezone): void {
