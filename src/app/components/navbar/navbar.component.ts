@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
+import { Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
@@ -13,7 +13,7 @@ import { Bounds, WindowManagerService } from 'window-manager';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements AfterViewInit {
+export class NavbarComponent {
   @Input() layout: LayoutComponent;
 
   public readonly navbarPosition = NavbarPosition;
@@ -22,7 +22,6 @@ export class NavbarComponent implements AfterViewInit {
   private navbarActive = false;
   private isInsideDropdownOpened = false;
 
-  @HostBinding('class.is-electron') public isElectron: boolean;
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
   @HostBinding('class.hidden')
@@ -68,12 +67,12 @@ export class NavbarComponent implements AfterViewInit {
       });
   }
 
-  @HostListener('mouseover', ['$event'])
+  @HostListener('mouseenter', ['$event'])
   @HostListener('mouseleave', ['$event'])
   @HostListener('document:click', ['$event'])
   mouseMove(event: any) {
-    const active = event.type === 'mouseover'
-      || this._isHostContainsElement(document.activeElement)
+    const active = event.type === 'mouseenter'
+      || (event.type === 'mouseleave' && this._isInBounds(event as HTMLElement))
       || (event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement));
 
     if (this.navbarActive !== active) {
@@ -85,16 +84,19 @@ export class NavbarComponent implements AfterViewInit {
       clearTimeout(this.timeout);
     }
   }
+  _isInBounds(event) {
+      if (this.currentNavbarPosition === NavbarPosition.Top)
+        return event.screenY <= this.elementRef.nativeElement.clientTop + this.elementRef.nativeElement.clientHeight;
+
+      if (this.currentNavbarPosition === NavbarPosition.Bottom)
+        return event.clientY >= this.elementRef.nativeElement.offsetTop;
+  }
 
   setNavBarActive(active) {
     this._ngZone.run(() => {
       this.navbarActive = active;
       this._updateWindowsBounds();
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.isElectron = isElectron();
   }
 
   handleInsideDropdownToggle(opened: boolean): void {
@@ -186,9 +188,10 @@ export class NavbarComponent implements AfterViewInit {
   //   });
   // }
 }
+
 declare var process;
 
-function isElectron(): boolean {
+export function isElectron(): boolean {
   // Renderer process
   if (typeof window !== 'undefined' && typeof window['process'] === 'object' && window['process'].type === 'renderer') {
     return true;

@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IChart } from '../models';
-import { Footprint, VolumeProfile, VolumeBreakdown, DefaultIndicator } from './indicators';
+import { DefaultIndicator, Footprint, VolumeBreakdown, VolumeProfile } from './indicators';
 import { Components } from 'src/app/modules';
 import { debounceTime } from 'rxjs/operators';
 
@@ -104,7 +104,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    chart.indicators.forEach(indicator => {
+    chart.indicators?.forEach(indicator => {
       this._addIndicator(indicator);
     });
 

@@ -9,15 +9,10 @@ $height: 36px;
   background-color: transparent !important;
   position: absolute;
   z-index: 1000;
-
-  &.is-electron {
-    .control {
-      display: flex !important;
-    }
-  }
+  outline: none;
 
   &.hidden {
-    height: $height;
+    height: 10px;
 
     .navigation-bar {
       margin-top: -$height;

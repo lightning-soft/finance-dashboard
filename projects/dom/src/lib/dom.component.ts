@@ -11,13 +11,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import {
-  FormActions,
-  getPriceSpecs,
-  OcoStep,
-  SideOrderFormComponent,
-  SideOrderFormState
-} from 'base-order-form';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent, SideOrderFormState } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -2013,13 +2007,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1.CME',
+        id: 'ESU1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
         contractSize: 50,
-        symbol: 'ESM1',
+        symbol: 'ESU1',
       };
     // for debug purposes
 
