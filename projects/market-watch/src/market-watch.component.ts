@@ -1205,6 +1205,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     item.subItems.unshift(orderMarketWatchItem);
     item.setHasCreatingOrder(true);
+    item.setShouldExpand(true);
+    this.addOrders(item);
     this.isInlineOrderCreating = true;
     this.builder.addViewItems([orderMarketWatchItem], this.builder.getIndex(instrument.id) + 1);
   }

@@ -268,7 +268,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   startEditingAt(x, y) {
     const cell = this._grid.getCellAt(x, y);
-    this._grid.beginEditAt(cell);
+    if (cell)
+      this._grid.beginEditAt(cell);
   }
 
   applyStyles(styles: GridStyles) {

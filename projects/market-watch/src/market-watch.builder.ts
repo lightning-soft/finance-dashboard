@@ -113,7 +113,19 @@ export class MarketWatchBuilder extends ItemsBuilder<InstrumentHolder, IMarketWa
   }
 
   getCreateOrderItem() {
-    return this.items.find(item => item.itemType === ItemType.CreateItem);
+    let orderItem = this.items.find(item => item.itemType === ItemType.CreateItem);
+    if (orderItem)
+      return orderItem;
+
+    this.items.filter((item: MarketWatchItem) => item.getCreateItems).forEach((item: MarketWatchItem) => {
+      const createItem = item.getCreateItems();
+      if (item.getCreateItems().length) {
+        orderItem = createItem[0];
+        return;
+      }
+    });
+
+    return orderItem;
   }
 
   getMarketWatchItems(): MarketWatchItem[] {
