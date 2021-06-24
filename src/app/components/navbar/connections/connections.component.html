@@ -1,6 +1,6 @@
 <div
   class="connections-container  d-flex justify-content-end"
-  *ngIf="favourites.length < 3"
+  *ngIf="favourites.length < maxConnections + 1"
 >
   <div
     class="d-flex align-items-center   connection-item"
@@ -26,7 +26,7 @@
   (nzVisibleChange)="handleDropdownToggle($event)"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
-  *ngIf="favourites.length > 2"
+  *ngIf="favourites.length > maxConnections"
 >
   <i class="icon-arrow-down text-small mr-1" [class.opened]="isConnectionsDropdownOpened"></i>
   <i [ngClass]="{
