@@ -756,6 +756,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       // this._calculateDepth();
     }
 
+    for (const i of this.items) {
+      i.ltq.changeStatus('');
+      i.currentBid.changeStatus('');
+      i.currentAsk.changeStatus('');
+      i.totalAsk.changeStatus('');
+      i.totalBid.changeStatus('');
+    }
+
     const depth = settings.general?.marketDepth;
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
@@ -1756,8 +1764,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       const isVisible = lastMarketDepthIndex > item.index;
       const isDeltaVisible = lastMarketDeltaDepthIndex > item.index;
-      if (!item.isBidSideVisible && !isVisible && !isDeltaVisible)
-        break;
+      // provide bad begaviour
+      // if (!item.isBidSideVisible && !isVisible && !isDeltaVisible)
+      //   break;
 
       item.setBidVisibility(!isVisible, !isDeltaVisible);
 
@@ -1816,8 +1825,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       const isVisible = lastMarketDepthIndex < item.index;
       const isDeltaVisible = lastMarketDeltaDepthIndex < item.index;
-      if (!item.isAskSideVisible && !isVisible && !isDeltaVisible)
-        break;
+      // if (!item.isAskSideVisible && !isVisible && !isDeltaVisible)
+      //   break;
 
       item.setAskVisibility(!isVisible, !isDeltaVisible);
 
