@@ -25,7 +25,7 @@ function createWindow() {
     height: size.height,
     frame: true,
     alwaysOnTop: false,
-    title: "DeltaView by AMS",
+    title: "Tradrr",
     show: false,
     movable: true,
     webPreferences: {
@@ -163,10 +163,10 @@ try {
 // function callNotification(body) {
 //   // let iconAddress = path.join(__dirname, '/icon.png');
 //   var notif = {
-//     title: "DeltaView",
+//     title: "Tradrr",
 //     body: body
 //   };
-//   new electron.Notification(notif).show();
+//   new electron.Notificatπion(notif).show();
 // }
 
 // electron.ipcMain.on("minimize", function () {
