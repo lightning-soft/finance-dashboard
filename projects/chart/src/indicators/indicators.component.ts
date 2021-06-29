@@ -7,6 +7,7 @@ import { IChart } from '../models';
 import { DefaultIndicator, Footprint, VolumeBreakdown, VolumeProfile } from './indicators';
 import { Components } from 'src/app/modules';
 import { debounceTime } from 'rxjs/operators';
+import { vwapStats } from "./fields";
 
 declare const StockChartX: any;
 
@@ -27,7 +28,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   link: any;
   chart: IChart;
   indicators: any[] = [];
-  selectedIndicator: any;
+  selectedIndicator: any = {config: vwapStats, settings: {}};
   form: FormGroup;
   formValueChangesSubscription: Subscription;
   chartIndicators;

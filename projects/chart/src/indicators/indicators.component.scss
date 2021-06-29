@@ -53,6 +53,18 @@
       }
     }
 
+    .color-without-label {
+      color-picker {
+        .color-wrapper {
+          width: 20px;
+        }
+
+        .color-label {
+          display: none;
+        }
+      }
+    }
+
     .tickPerPrice {
       number-input {
         flex-direction: row;
@@ -265,6 +277,11 @@
         margin-bottom: 0;
         border-bottom: none;
       }
+    }
+
+    .visual-style-width {
+      width: calc(50% - 26px);
+      margin-left: 4px;
     }
 
     .number-full-width {
@@ -498,7 +515,27 @@
       display: grid;
     }
 
-    .two-rows, .three-rows {
+    .min-width-80 {
+      width: 80px;
+    }
+
+    .vwap-styles-grid {
+      display: grid;
+      grid-template-columns: 3fr 20px 2fr;
+      grid-column-gap: 10px;
+    }
+
+    .vwap .style {
+      & > formly-wrapper-nz-form-field > .ant-form-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 10px;
+        padding-left: 2px;
+        padding-right: 2px;
+      }
+    }
+
+    .two-rows, .three-rows, .font-rows, .four-rows, .liner-rows, .band-rows {
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 10px;
       grid-row-gap: 6px;
@@ -508,6 +545,20 @@
 
     .three-rows {
       grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .font-rows {
+      grid-template-columns: 20px 2fr 2fr 1fr;
+    }
+    .band-rows{
+      grid-template-columns: 1fr 1fr 20px 1fr;
+    }
+    .liner-rows {
+      grid-template-columns: 2fr 2fr 50px 1fr;
+    }
+
+    .four-rows {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
     .ant-form-item {
