@@ -1167,9 +1167,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       return;
     }
 
-    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
-
-    (this.currentTab.data[index] as InstrumentHolder).instrument = instrument;
+    this.currentTab.changeInstrument(prevInstrument, instrument);
     this.builder.loadInstrument(instrument);
     this.builder.replaceViewItem(this.builder.getInstrumentItem(instrument), this.builder.getInstrumentItem(prevInstrument));
     this.builder.deleteItem(prevInstrument);
@@ -1227,6 +1225,14 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         labelHolder.label = $event.item.value;
       }
     }
+  }
+
+  rollSymbol() {
+    if (this.connection)
+      this._repository.rollInstrument(this.contextInstrument, { connectionId: this.connection.id })
+        .toPromise().then(instrument => {
+          this.onInstrumentChanged(this.contextInstrument, instrument);
+        });
   }
 }
 

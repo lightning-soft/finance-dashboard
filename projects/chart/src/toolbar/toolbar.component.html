@@ -41,10 +41,10 @@
             <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
             <ul class="toolbar-submenu">
               <li *ngFor="let item of drawingInstrument.items" nz-menu-item
-                  data-name="{{transformToUIName(item)}}"
-                  (click)="addDrawing(item)">
-                <span class="scx-icon icon-drawing-{{transformToClassName(item)}}"></span>
-                <span class="drawing-instrument-name">{{transformToUIName(item)}}</span>
+                  data-name="{{transformToUIName(item.name)}}"
+                  (click)="addDrawing(item.name)">
+                <span class="scx-icon icon-drawing-{{transformToClassName(item.className)}}"></span>
+                <span class="drawing-instrument-name">{{transformToUIName(item.name)}}</span>
               </li>
             </ul>
           </li>
@@ -53,7 +53,7 @@
             <li nz-menu-item
                 [title]="drawingInstrument.name"
                 (click)="addDrawing(drawingInstrument.items[0])">
-              <i class="scx-icon icon-drawing-{{transformToClassName(drawingInstrument.items[0])}}"></i>
+              <i class="scx-icon icon-drawing-{{transformToClassName(drawingInstrument.items[0].className)}}"></i>
             </li>
           </ng-template>
         </ng-container>
