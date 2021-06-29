@@ -570,6 +570,10 @@ side-form {
 }
 
 :host ::ng-deep {
+  .scxCrossHairTradingButton {
+    display: none;
+  }
+
   side-form {
     button.top-position-btn {
       margin-top: 8px;

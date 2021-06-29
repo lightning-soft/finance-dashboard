@@ -35,8 +35,8 @@ import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout
 import {
   AccountsListener,
   filterByAccountAndInstrument,
-  filterByAccountIdAndInstrument,
   filterByConnectionAndInstrument,
+  filterPositions,
   IHistoryItem,
   RealPositionsRepository
 } from 'real-trading';
@@ -196,7 +196,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
 
   get accountId() {
-    return this._accountsSelect?.account?.id;
+    return this.account?.id;
   }
 
   public get instrument(): IInstrument {
@@ -613,7 +613,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
       this._tradeDatafeed.on(filterByConnectionAndInstrument(this, (item: TradePrint) => this._handleTrade(item))),
       this._ordersFeed.on(filterByAccountAndInstrument(this, (order: IOrder) => this._handleOrders([order]))),
-      this._positionsFeed.on(filterByAccountIdAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
+      this._positionsFeed.on(filterPositions(this, (pos: IPosition) => this.handlePosition(pos))),
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this.handleOHLV(ohlv)))
     );
 

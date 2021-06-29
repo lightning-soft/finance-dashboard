@@ -1,9 +1,7 @@
-import { IInstrument } from 'trading';
+import { IInstrument, IOrder } from 'trading';
 import { Column } from 'data-grid';
-import { Id } from 'communication';
+import { IBaseItem, Id } from 'communication';
 import * as cloneDeep from 'lodash.clonedeep';
-import { IOrder } from 'trading';
-import { IBaseItem } from 'communication';
 
 export class InstrumentHolder implements IBaseItem {
   id: Id;
@@ -47,6 +45,13 @@ export class Tab {
     return this.data.filter((item: InstrumentHolder) => {
       return item.instrument;
     }) as InstrumentHolder[];
+  }
+
+  changeInstrument(oldInstrument: IInstrument, newInstrument: IInstrument) {
+    const index = this.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === oldInstrument.id);
+    const instrumentHolder =  (this.data[index] as InstrumentHolder);
+    instrumentHolder.instrument = newInstrument;
+    instrumentHolder.id = newInstrument.id;
   }
 
   getLabelHolder(id: Id): LabelHolder {

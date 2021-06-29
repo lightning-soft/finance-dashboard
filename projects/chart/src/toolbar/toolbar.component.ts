@@ -1,12 +1,13 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
+  EventEmitter,
   HostBinding,
   Input,
   Output,
-  ViewChild,
-  EventEmitter,
-  AfterViewInit, ElementRef
+  ViewChild
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
@@ -21,6 +22,7 @@ import { Overlay } from '@angular/cdk/overlay';
 import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
 import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
 import { PortalOutlet } from '@angular/cdk/portal/portal';
+import drawings from './drawings';
 
 declare const StockChartX;
 
@@ -125,63 +127,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
   //   "tironeLevels", "speedLines", "gannFan", "trendAngle"];
 
-  drawingInstruments = [
-    {
-      icon: 'text',
-      name: 'Text',
-      items: ['text']
-    },
-    {
-      icon: 'measure',
-      name: 'Measure',
-      items: ['measures']
-    },
-    {
-      icon: 'add-image',
-      name: 'Image',
-      items: ['image']
-    },
-    {
-      icon: 'chart-market',
-      name: 'Chart market',
-      items: [
-        'dot', 'square', 'diamond', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'arrow', 'note'
-      ]
-    },
-    {
-      icon: 'fibonacci',
-      name: 'Fibonacci',
-      items: [
-        'fibonacciArcs', 'fibonacciEllipses',
-        'fibonacciRetracements', 'fibonacciFan', 'fibonacciTimeZones', 'fibonacciExtensions'
-      ]
-    },
-    {
-      icon: 'geometric',
-      name: 'Geometric',
-      items: [
-        'lineSegment', 'horizontalLine', 'verticalLine',
-        'rectangle', 'triangle', 'circle', 'ellipse', 'polygon', 'polyline', 'freeHand', 'cyclicLines'
-      ]
-    },
-    {
-      icon: 'trend-channel-drawing',
-      name: 'Trend Channel Drawings',
-      items: [
-        'trendChannel', 'andrewsPitchfork',
-        'errorChannel', 'raffRegression', 'quadrantLines',
-        'tironeLevels', 'speedLines', 'gannFan', 'trendAngle'
-      ]
-    },
-
-
-    // {
-    //   icon: 'drawing-baloon',
-    //   name: 'General-drawings',
-    //   items: ['balloon']
-    // },
-
-  ];
+  drawingInstruments = drawings;
 
   @HostBinding('class.opened')
   get isOpened() {
@@ -425,17 +371,18 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.chart.startZoomIn(option);
   }
 
-  addDrawing(name: string) {
+  addDrawing(item: any) {
+    const name = item.name ?? item;
     const chart = this.chart;
     chart.cancelUserDrawing();
     const drawing = StockChartX.Drawing.deserialize({ className: name });
     chart.startUserDrawing(drawing);
-    this.addLastUsedDrawing(name);
+    this.addLastUsedDrawing(item);
   }
 
-  addLastUsedDrawing(name: string) {
-    if (!this.lastUsedDrawings.includes(name)) {
-      this.lastUsedDrawings = [name, ...this.lastUsedDrawings].slice(0, 3);
+  addLastUsedDrawing(drawing: { name: string, className: string } | string) {
+    if (!this.lastUsedDrawings.some(item => item === drawing)) {
+      this.lastUsedDrawings = [drawing, ...this.lastUsedDrawings].slice(0, 3);
     }
   }
 
@@ -467,12 +414,14 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   // }
 
 
-  public transformToUIName(str: string): string {
+  public transformToUIName(drawing: any): string {
+    const str = drawing?.name ?? drawing;
     const nameUI = str.replace(/[A-Z]/g, ' $&');
     return nameUI[0].toUpperCase() + nameUI.slice(1);
   }
 
-  public transformToClassName(str: string): string {
+  public transformToClassName(drawing: any): string {
+    const str = drawing?.className ?? drawing;
     const className = str.replace(/[A-Z]/g, '-$&').toLowerCase();
     return className;
   }

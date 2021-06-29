@@ -13,6 +13,27 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     return 'Instrument';
   }
 
+  rollInstrument(instrument: IInstrument, query): Observable<IInstrument> {
+    const { headers, ...params } = this._mapItemParams(query);
+
+    return this._http.get<{ result: IInstrument[] }>(this._getRESTURL() + 'pack',
+      {
+        ...this._httpOptions,
+        headers,
+        params: { ...params, symbol: instrument.symbol, exchange: instrument.exchange }
+      })
+      .pipe(
+        map(response => response.result.map(item => {
+          item.id = `${ item.symbol }.${ item.exchange }`
+          return item;
+        })),
+        map(result => {
+          const index = result.findIndex(item => item.id === instrument.id);
+          return result[(index + 1) % result.length];
+        })
+      );
+  }
+
   protected _mapItemsParams(params: any = {}) {
     return {
       criteria: '',
@@ -43,12 +64,12 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       mergeMap((result: any) => {
         if (!result) {
           console.error(result);
-          return throwError(`Invalid response, ${result}`);
+          return throwError(`Invalid response, ${ result }`);
         }
 
         return of({
           ...result,
-          id: `${result.symbol}.${result.exchange}`,
+          id: `${ result.symbol }.${ result.exchange }`,
           tickSize: result.increment ?? 0.01,
         });
       }),
@@ -65,7 +86,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       map((res: any) => {
         const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description }) => {
           return {
-            id: `${symbol}.${exchange}`,
+            id: `${ symbol }.${ exchange }`,
             symbol,
             description,
             exchange,
