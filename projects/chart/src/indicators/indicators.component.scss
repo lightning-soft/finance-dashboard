@@ -518,10 +518,13 @@
     .min-width-80 {
       width: 80px;
     }
+    .max-width-85 {
+      max-width: 85px;
+    }
 
     .vwap-styles-grid {
       display: grid;
-      grid-template-columns: 3fr 20px 2fr;
+      grid-template-columns: 4fr 20px 2fr;
       grid-column-gap: 10px;
     }
 

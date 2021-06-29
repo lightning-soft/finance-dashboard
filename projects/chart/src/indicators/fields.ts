@@ -1547,7 +1547,7 @@ export const vwapStats: IFieldConfig[] = [
         className: 'style',
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
-          getSelect({
+          wrapWithClass(getSelect({
             options: [
               {
                 label: 'Line, Connected', value: 'lineConnected'
@@ -1565,7 +1565,7 @@ export const vwapStats: IFieldConfig[] = [
                 label: 'Price Box, Hollow', value: 'priceBoxHollow'
               },
             ]
-          }),
+          }), 'max-width-85'),
           wrapWithClass(getColor('color'), 'color-without-label'),
           getLineSelector({
             key: 'line'
