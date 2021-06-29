@@ -153,10 +153,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadedState$ = new BehaviorSubject<IScxComponentState &
-  {
-    showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-    showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-  }>(null);
+    {
+      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
+      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
+    }>(null);
   loadedTemplate: IChartTemplate;
   isTradingEnabled = true;
 
@@ -353,6 +353,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     //  this.instrument = this.chart.instrument;
 
     chart.on(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
+    chart.on(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
+    chart.on(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
@@ -408,6 +410,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._sideForm.getDto();
   }
 
+  private _handleShowWaitingBar = (e) => {
+    this.loading = true;
+  }
+
+  private _handleHideWaitingBar = (e) => {
+    this.loading = false;
+  }
+
   private _handleContextMenu = (e) => {
     const event = e.value.event.evt.originalEvent;
     this.nzContextMenuService.create(event, this.menu);
@@ -444,6 +454,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       showScrollbar: false,
       allowReadMoreHistory: true,
       autoSave: false,
+      useWaitingBar: false,
       autoLoad: false,
       showInstrumentWatermark: false,
       incomePrecision: state?.instrument.precision ?? 2,
@@ -516,9 +527,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${this.instrument.description}`;
+        name += ` - ${ this.instrument.description }`;
       }
-      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
+      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
 
       return name;
     }
@@ -550,6 +561,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
+      this.chart.off(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
+      this.chart.off(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
       this.chart.destroy();
     }
 

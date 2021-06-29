@@ -7,13 +7,16 @@ import { LazyAssetsModule } from 'lazy-assets';
 import { ComponentStore, LazyModule } from 'lazy-modules';
 import {
   NzAutocompleteModule,
-  NzButtonModule, NzCheckboxModule,
+  NzButtonModule,
+  NzCheckboxModule,
   NzDropDownModule,
   NzFormModule,
   NzIconModule,
-  NzInputModule, NzInputNumberModule,
+  NzInputModule,
+  NzInputNumberModule,
   NzSelectModule,
-  NzSwitchModule, NzToolTipModule
+  NzSwitchModule,
+  NzToolTipModule
 } from 'ng-zorro-antd';
 import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
@@ -29,6 +32,7 @@ import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
 import { DataGridModule } from 'data-grid';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { LoaderModule } from 'ui';
 
 // const environment = { scxPath: '' };
 
@@ -41,6 +45,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
     NzSelectModule,
     NzDropDownModule,
     NzButtonModule,
+    LoaderModule,
     NzIconModule,
     BaseOrderFormModule,
     NzModalModule,
