@@ -150,8 +150,10 @@ export class MarketWatchItem implements IBaseItem, IMarketWatchItem {
   }
 
   updateExpanded() {
-    const showExpanded = this.shouldExpand && !!(this.buyOrders.size || this.sellOrders.size || this._hasCreatingOrder);
+    const shouldShowDrawings = !!this.buyOrders.size || !!this.sellOrders.size || this._hasCreatingOrder;
+    const showExpanded = this.shouldExpand && shouldShowDrawings;
     this.symbol.setExpanded(showExpanded);
+    this.symbol.setShowDrawings(shouldShowDrawings);
   }
 
   hasOrder(order: IOrder) {
