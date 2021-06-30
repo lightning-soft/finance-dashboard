@@ -229,7 +229,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _updateOHLVData() {
     if (this.lastHistoryItem?.open != null) {
-      this.income = this.lastHistoryItem.close - this.lastHistoryItem.open;
+      this.income = +(this.lastHistoryItem.close - this.lastHistoryItem.open).toFixed(this.instrument.precision);
       const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
       this.incomePercentage = incomePercentage != null ? +incomePercentage.toFixed(2) : null;
     }
