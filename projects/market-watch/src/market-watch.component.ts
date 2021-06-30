@@ -75,29 +75,42 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
+import { CellStatus, generateNewStatusesByPrefix } from "../../data-grid/src/models";
 
 const labelText = 'Indices';
 
 const maxTabCount = 10;
 const profitStyles = {
-  lossBackgroundColor: '#C93B3B',
   color: '#fff',
-  inProfitBackgroundColor: '#4895F5',
+  ...generateNewStatusesByPrefix({
+    lossBackgroundColor: '#C93B3B',
+    inProfitBackgroundColor: '#4895F5',
+  }, CellStatus.Hovered)
 };
 const orderStyles = {
-  orderSellColor: '#C93B3B',
-  orderBuyColor: '#4895F5',
-  orderBuyBackgroundColor: '#24262C',
-  orderSellBackgroundColor: '#24262C',
-  orderPriceColor: '#D0D0D2',
-  orderPriceBackgroundColor: 'rgba(255, 255, 255, 0.2)',
-  orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
-  orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
-  labelColor: '#fff',
-  createOrderColor: '#D0D0D2',
-  labelBackgroundColor: '#24262C',
+  ...generateNewStatusesByPrefix({
+      orderSellColor: '#C93B3B',
+      orderBuyColor: '#4895F5',
+      orderPriceColor: '#D0D0D2',
+      orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
+      labelColor: '#fff',
+      createOrderColor: '#D0D0D2',
+    }, CellStatus.Hovered),
+  ...generateNewStatusesByPrefix({
+    orderBuyBackgroundColor: '#24262C',
+    orderSellBackgroundColor: '#24262C',
+    orderPriceBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    labelBackgroundColor: '#24262C',
+  }, CellStatus.Hovered, '#383A40'),
 };
-const defaultStyles = {color: '#D0D0D2', textAlign: 'left'};
+const defaultStyles = {
+  color: '#D0D0D2',
+  hoveredColor: '#D0D0D2',
+  hoveredBackgroundColor: '#383A40',
+  hoveredhighlightBackgroundColor: '#383A40',
+  textAlign: 'left'
+};
 
 const profitClass = 'inProfit';
 const lossClass = 'loss';
@@ -826,8 +839,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       if (style)
         item.style = {...defaultStyles, ...style, ...orderStyles};
       else {
-        item.style = {...item.style, ...styles[generalColumnStyles], ...orderStyles};
+        item.style = {...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles};
       }
+
       const column = this.settings.columnView.columns[item.name];
       item.visible = column?.enabled;
       item.disabled = this.settings.display.showOrders && column?.pair !== noneValue;
@@ -1242,8 +1256,10 @@ function generateStyles(settings: MarketWatchSettings) {
   const bid = generateStyle('bid', settings);
   const ask = generateStyle('ask', settings);
   const positionStyle = {
-    [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
-    [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
+      [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
+    }, CellStatus.Hovered),
     color: settings.colors.positionTextColor,
   };
   const bidQuantityStyle = {
@@ -1254,23 +1270,33 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   const netChangeStyle = {
-    [`${profitClass}Color`]: settings.colors.netChangeUpColor,
-    [`${lossClass}Color`]: settings.colors.netChangeDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}Color`]: settings.colors.netChangeUpColor,
+      [`${lossClass}Color`]: settings.colors.netChangeDownColor,
+    }, CellStatus.Hovered),
+    [`hovered${profitClass}BackgroundColor`]: '#383A40',
+    [`hovered${lossClass}BackgroundColor`]: '#383A40',
   };
   const percentChangeStyle = {
-    [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
-    [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
+      [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
+      [`hovered${profitClass}BackgroundColor`]: '#383A40',
+      [`hovered${lossClass}BackgroundColor`]: '#383A40',
+    }, CellStatus.Hovered)
   };
 
   const generalStyles = {
-    color: settings.colors.textColor
+    color: settings.colors.textColor,
   };
 
   let lastStyles = {};
   if (settings.display.highlightType !== noneValue) {
     lastStyles = {
-      highlightColor: '#fff',
-      [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight
+      ...generateNewStatusesByPrefix({
+        highlightColor: '#fff',
+        [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight,
+      }, CellStatus.Hovered)
     };
   }
 
@@ -1299,7 +1325,9 @@ const subtitleMap = {
 
 function generateStyle(prefix, settings) {
   return {
-    highlightColor: settings.colors[`${prefix}Color`],
-    highlightBackgroundColor: settings.colors[`${prefix}Background`],
+    ...generateNewStatusesByPrefix({
+      highlightColor: settings.colors[`${prefix}Color`],
+      highlightBackgroundColor: settings.colors[`${prefix}Background`],
+    }, CellStatus.Hovered)
   };
 }
