@@ -368,11 +368,13 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'orderType':
         return this.createSelect(cell, OrderType);
       case 'limitPrice':
-        return this.createNumber(cell, { placeholder: 'Limit Price', step: cell.row.instrument.tickSize });
+        return this.createNumber(cell, { placeholder: 'Limit Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
       case 'stopPrice':
-        return this.createNumber(cell, { placeholder: 'Stop Price', step: cell.row.instrument.tickSize });
+        return this.createNumber(cell, { placeholder: 'Stop Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
       case 'quantity':
-        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false });
+        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false, });
       case 'accounts':
         const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
         return {
@@ -449,7 +451,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     this.columns = this.defaultColumns;
     this.componentInstanceId = Date.now();
-    (window as any).mw = this;
+    // (window as any).mw = this;
 
     this.setTabIcon('icon-widget-market-watch');
     this.setTabTitle('MarketWatch');

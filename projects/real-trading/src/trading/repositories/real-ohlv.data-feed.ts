@@ -113,9 +113,11 @@ export class RealOHLVFeed extends OHLVFeed {
       ohlv.count += 1;
       ohlv.historyItem = dailyInfo as OHLVData;
       ohlv.historyItem.instrument = instrument;
+      ohlv.historyItem = normalizeHistoryItem(ohlv.historyItem, instrument);
       this._sendToSubscribers(ohlv.historyItem, connectionId);
     });
   }
+
 
   unsubscribe(instrument: IInstrument, connecionId: Id) {
     if (!this._ohlv[connecionId])
@@ -143,7 +145,7 @@ export class RealOHLVFeed extends OHLVFeed {
       return;
     }
 
-    const historyItem = this._ohlv[connectionId][trade.instrument.id].historyItem;
+    let historyItem = this._ohlv[connectionId][trade.instrument.id].historyItem;
     historyItem.close = trade.price;
 
     if (trade.price < historyItem.low) {
@@ -155,6 +157,9 @@ export class RealOHLVFeed extends OHLVFeed {
     }
     historyItem.date = new Date(trade.timestamp);
     historyItem.instrument = trade.instrument;
+    historyItem = normalizeHistoryItem(historyItem, trade.instrument);
+    this._ohlv[connectionId][trade.instrument.id].historyItem = historyItem;
+
     this._sendToSubscribers(historyItem, connectionId);
   }
 
@@ -178,4 +183,14 @@ export class RealOHLVFeed extends OHLVFeed {
       fn(historyItem, connectionId);
     });
   }
+}
+
+function normalizeHistoryItem(historyItem: OHLVData, instrument): OHLVData {
+  const data = { ...historyItem };
+  const precision = instrument.precision;
+  data.low = +data.low.toFixed(precision);
+  data.high = +data.high.toFixed(precision);
+  data.open = +data.open.toFixed(precision);
+  data.close = +data.close.toFixed(precision);
+  return data;
 }
