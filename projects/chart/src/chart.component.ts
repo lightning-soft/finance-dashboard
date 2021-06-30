@@ -25,7 +25,7 @@ import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { environment } from 'src/environments/environment';
 import { TemplatesService } from 'templates';
-import { Themes, ThemesHandler } from 'themes';
+import { ThemesHandler } from 'themes';
 import {
   compareInstruments,
   IAccount,
@@ -53,6 +53,8 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
+import { chartSettings, defaultChartSettings, IChartSettings } from "./chart-settings/settings";
+import * as clone from 'lodash.clonedeep';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -106,6 +108,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _templatesSubscription: Subscription;
 
   private _account: IAccount;
+  private _settings: IChartSettings;
 
   set account(value: IAccount) {
     this._account = value;
@@ -152,18 +155,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private _loadedState$ = new BehaviorSubject<IScxComponentState &
-    {
-      showOHLV: boolean, showChanges: boolean, showChartForm: boolean,
-      showOrderConfirm: boolean, enableOrderForm: boolean, orderForm: any
-    }>(null);
+  private _loadedState$ = new BehaviorSubject<IChartState>(null);
   loadedTemplate: IChartTemplate;
   isTradingEnabled = true;
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
-
-  loadedChart$ = this._loadedChart$.asObservable()
-    .pipe(untilDestroyed(this));
 
   bestAskPrice: number;
   bestBidPrice: number;
@@ -173,6 +169,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   position: IPosition;
   private _orders: Orders;
   private _positions: Positions;
+  componentInstanceId = Date.now();
 
   get orders() {
     return this._orders.items;
@@ -302,6 +299,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
       orderForm: this._sideForm.getState(),
+      componentInstanceId: this.componentInstanceId,
+      settings: this._settings,
     } as IChartState;
   }
 
@@ -358,7 +357,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
-      .subscribe(value => chart.theme = getScxTheme(value));
+      .subscribe(value =>  {
+        chart.theme = getScxTheme(this._settings);
+        chart.setNeedsUpdate();
+      });
 
     this.refresh();
 
@@ -462,7 +464,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
-      theme: getScxTheme(this._themesHandler.theme),
+      theme: getScxTheme(),
     } as IChartConfig);
   }
 
@@ -501,6 +503,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   handleNodeEvent(name: LayoutNodeEvent) {
     switch (name) {
+      case LayoutNodeEvent.Close:
+      case LayoutNodeEvent.Destroy:
+      case LayoutNodeEvent.Hide:
+        this._closeSettings();
+        break;
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
@@ -536,12 +543,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadState(state?: IChartState): void {
+    this._settings = state?.settings;
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
     this._sideForm?.loadState(state?.orderForm);
     if (state?.account) {
       this.account = state.account;
     }
+    if (state?.componentInstanceId) {
+      this.componentInstanceId = state.componentInstanceId;
+    }
+
+    this.addLinkObserver({
+      link: this._getSettingsKey(),
+      handleLinkData: this._handleSettingsChange.bind(this),
+    });
   }
 
   loadTemplate(template: IChartTemplate): void {
@@ -556,7 +572,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   destroy() {
     this._positions.destroy();
     this._orders.destroy();
-    this._templatesSubscription.unsubscribe();
+    this._templatesSubscription?.unsubscribe();
 
     if (this.chart) {
       this.chart.off(StockChartX.ChartEvent.INSTRUMENT_CHANGED + EVENTS_SUFFIX, this._instrumentChangeHandler);
@@ -774,12 +790,73 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
+
+  private _handleSettingsChange(settings: IChartSettings) {
+    this._settings = settings;
+    this.chart.theme = getScxTheme(settings);
+    this.chart.setNeedsUpdate();
+  }
+
+  private _getSettingsKey() {
+    return `${this.componentInstanceId}.${chartSettings}`;
+  }
+
+  openSettingsDialog(): void {
+    const settingsExists = this.layout.findComponent((item: IWindow) => {
+      return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+    });
+    if (settingsExists)
+      this._closeSettings();
+    else
+      this.layout.addComponent({
+        component: {
+          name: chartSettings,
+          state: {
+            linkKey: this._getSettingsKey(),
+            settings: this._settings,
+          }
+        },
+        closeBtn: true,
+        single: false,
+        width: 440,
+        allowPopup: false,
+        closableIfPopup: true,
+        resizable: false,
+        removeIfExists: false,
+        minimizable: false,
+        maximizable: false,
+      });
+  }
+
+  private _closeSettings() {
+    this.layout.removeComponents((item) => {
+      const isSettingsComponent = Components.ChartSettings === item.type;
+      return item.visible && isSettingsComponent && (item.options.componentState()?.state?.linkKey === this._getSettingsKey());
+    });
+  }
 }
 
-function getScxTheme(theme: Themes) {
-  return theme === Themes.Light ? StockChartX.Theme.Light : StockChartX.Theme.Dark;
-}
+function getScxTheme(settings: IChartSettings = defaultChartSettings) {
+  const theme = clone(StockChartX.Theme.Dark);
 
+  theme.plot.line.simple.strokeColor = settings.general.lineColor;
+  theme.chart.background = [settings.general.gradient1, settings.general.gradient2];
+  theme.plot.bar.candle.upCandle.fill.fillColor = settings.general.upCandleColor;
+  theme.plot.bar.candle.downCandle.fill.fillColor =  settings.general.downCandleColor;
+  theme.plot.bar.candle.upCandle.border.strokeColor =  settings.general.upCandleBorderColor;
+  theme.plot.bar.candle.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
+  theme.plot.bar.candle.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
+  theme.plot.bar.candle.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
+  theme.plot.bar.candle.upCandle.wick.strokeColor = settings.general.wickColor;
+  theme.valueScale.text.fontFamily = settings.general.font.fontFamily;
+  theme.valueScale.text.fillColor = settings.general.font.textColor;
+  theme.valueScale.text.fontSize = settings.general.font.fontSize;
+  theme.valueScale.fill.fillColor = settings.general.valueScaleColor;
+  theme.dateScale.fill.fillColor = settings.general.dateScaleColor;
+  theme.chartPanel.grid.strokeColor = settings.general.gridColor;
+
+  return theme;
+}
 
 function transformPeriodicity(periodicity: string): string {
   switch (periodicity) {

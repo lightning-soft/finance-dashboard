@@ -1,0 +1,10 @@
+<window-header (close)="saveState()" [window]="this"></window-header>
+
+<cdk-virtual-scroll-viewport itemSize="">
+  <formly-form
+    [(model)]="settings"
+    [form]="form"
+    [fields]="fieldsConfig"
+  >
+  </formly-form>
+</cdk-virtual-scroll-viewport>
