@@ -67,7 +67,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       }
 
       const subscriptions = this._subscriptions;
-      const hash = this._getHash(item);
+      const hash = this._getHash(item, connectionId);
 
       if (type === this.subscribeType) {
         if (!subscriptions[hash]?.hasOwnProperty('count'))
@@ -93,6 +93,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
           }
         }
       }
+      console.log(subscriptions);
     });
   }
 
@@ -100,10 +101,8 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   //   this._pendingRequests.push(() => this.send({ Type: type, ...payload }));
   // }
 
-  protected _getHash(instrument: I) {
-    const { symbol, exchange } = instrument as any;
-
-    return [symbol, exchange].join('.');
+  protected _getHash(instrument: I, connectionId: Id) {
+    return `${connectionId}/${instrument.id}`;
   }
 
   // protected _getFromHash(hash: string): I {
@@ -145,7 +144,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _getResult(data) {
-    const { result } =  data;
+    const { result } = data;
     return this._map(result);
   }
 

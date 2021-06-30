@@ -15,6 +15,7 @@ import { SaveLayoutConfigService } from '../save-layout-config.service';
 import { SaveLoaderService } from 'ui';
 import { isEqual } from 'underscore';
 import { widgetList } from './component-options';
+import { isElectron } from '../navbar/navbar.component';
 
 enum WindowEvents {
   Message = 'message'
@@ -114,7 +115,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     window.onbeforeunload = (e) => {
       for (const fn of this._subscriptions)
         fn();
-      if (this.hasBeenSaved || !environment.production || this._windowPopupManager.isPopup())
+      if (this.hasBeenSaved || isElectron() || !environment.production || this._windowPopupManager.isPopup())
         return;
       e = e || window.event;
 
