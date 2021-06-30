@@ -1,0 +1,42 @@
+@import "~src/scss/variables";
+
+cdk-virtual-scroll-viewport {
+  padding-top: 20px;
+  background-color: $secondary;
+  height: 100%;
+}
+
+:host ::ng-deep {
+  .cdk-virtual-scroll-content-wrapper {
+    padding-left: 10px;
+  }
+
+  .two-rows {
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 6px;
+  }
+
+  nz-form-item {
+    flex-direction: column;
+    margin-bottom: 0;
+
+    .ant-form-item-label {
+      text-align: start;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #383A40;
+      margin-right: 12px;
+
+      label {
+        font-weight: 600;
+        line-height: 1;
+        padding-left: 10px;
+        color: $text-40;
+
+        &:after {
+          display: none;
+        }
+      }
+    }
+  }
+}
