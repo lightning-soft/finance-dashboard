@@ -165,12 +165,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
+    this.updatePl();
   }
 
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
     this._loadInstrumentsForPositions(items);
     items.forEach(item => this._levelOneDataFeed.subscribe(item.instrument, item.connectionId));
+    this.updatePl();
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
@@ -183,10 +185,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
-    super._handleUpdateItems(items.map(i => {
-      delete i.instrument; // instrument data from realtime is not full and correct
-      return i;
-    }));
+    super._handleUpdateItems(items);
     this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.instrument));
     this.updatePl();
   }
