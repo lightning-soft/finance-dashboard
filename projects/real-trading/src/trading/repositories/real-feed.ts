@@ -93,7 +93,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
           }
         }
       }
-      console.log(subscriptions);
     });
   }
 

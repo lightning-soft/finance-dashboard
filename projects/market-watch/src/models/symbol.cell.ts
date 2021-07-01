@@ -18,7 +18,7 @@ const regularStyles = {
 
 export class SymbolCell extends Cell {
   private _expanded = false;
-  private _showDrawings = true;
+  private _showDrawings = false;
   styles = regularStyles;
   centerX: number;
   centerY: number;
