@@ -16,8 +16,8 @@ import { MarketWatchSubItem } from './market-watch.sub-item';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
-import { Column, HoverableItem } from "../../../data-grid/src";
-import { MarketWatchColumnsArray } from "../market-watch-columns.enum";
+import { Column, HoverableItem } from 'data-grid';
+import { MarketWatchColumnsArray } from '../market-watch-columns.enum';
 
 export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarketWatchItem {
   id: Id;
@@ -33,7 +33,8 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   pos: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, withHoverStatus: true });
   last: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
   netChange: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, formatter: this._formatter, withHoverStatus: true });
-  percentChange: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, formatter: this._percentFormatter, withHoverStatus: true });
+  percentChange: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO,
+    formatter: this._percentFormatter, withHoverStatus: true });
   workingBuys: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, withHoverStatus: true });
   bidQuantity: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_PREV_VALUE, withHoverStatus: true });
   bid: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
@@ -46,7 +47,9 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   low: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
   open: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
 
-  shouldExpand = true;
+  shouldExpand = false;
+  hasDrawings =  false;
+
   private _hasCreatingOrder = false;
   itemType = ItemType.Item;
   subItems: IMarketWatchItem[] = [];
@@ -88,6 +91,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   setShowDrawings(value: boolean) {
     this.symbol.setShowDrawings(value);
+    this.hasDrawings = value;
   }
 
   setHasCreatingOrder(value: boolean) {
@@ -160,7 +164,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
     const shouldShowDrawings = !!this.buyOrders.size || !!this.sellOrders.size || this._hasCreatingOrder;
     const showExpanded = this.shouldExpand && shouldShowDrawings;
     this.symbol.setExpanded(showExpanded);
-    this.symbol.setShowDrawings(shouldShowDrawings);
+    this.symbol.setShowDrawings(shouldShowDrawings && this.hasDrawings) ;
   }
 
   hasOrder(order: IOrder) {

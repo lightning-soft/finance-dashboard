@@ -90,8 +90,8 @@
     </div>
     <div class="trade-button">
       <div class="buy-info">
-        <span>{{bidVolume != null ? bidVolume : '--'}}</span>
-        <span>{{bidPrice != null ? bidPrice : '--' }}</span>
+        <span>{{bidVolume | nullCoalescing}}</span>
+        <span>{{bidPrice | nullCoalescing }}</span>
       </div>
       <button
         (click)="submit(OrderSide.Buy)"
@@ -100,8 +100,8 @@
     </div>
     <div class="trade-button">
       <div class="sell-info">
-        <span>{{askPrice != null ? askPrice : '--'}}</span>
-        <span>{{askVolume != null ? askVolume : '--'}}</span>
+        <span>{{askPrice | nullCoalescing}}</span>
+        <span>{{askVolume | nullCoalescing}}</span>
       </div>
       <button
         (click)="submit(OrderSide.Sell)"
