@@ -89,7 +89,10 @@
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form [isSubmitted]="isSubmitted" #userData [class.d-none]='splitConnections'
+            <acccount-form (autosavePasswordToggle)="handleAutosavePasswordToggle($event)"
+                           [isSubmitted]="isSubmitted"
+                           #userData
+                           [class.d-none]='splitConnections'
                            formControlName="userData"></acccount-form>
             <div *ngIf="splitConnections" class="d-flex split-form">
               <div class="split-form-item">
@@ -99,7 +102,8 @@
                   [ngModelOptions]="{standalone: true}"
                   (ngModelChange)="toggleFormConnection($event, 'marketConnection')" nzSize="small"></nz-switch>
                 <span>On</span></span>
-                <acccount-form formControlName="marketConnection"></acccount-form>
+                <acccount-form formControlName="marketConnection"
+                ></acccount-form>
               </div>
               <div class="split-form-item">
 
