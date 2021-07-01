@@ -1638,7 +1638,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._bestAskPrice = price;
         }
 
-        this.askSumItem.ask.updateValue(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
+        this.askSumItem.setBidSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
       }
     }
 
@@ -1795,7 +1795,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _handleNewBestAsk(price: number) {
     const items = this.items;
-
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
