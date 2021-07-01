@@ -84,6 +84,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    // prevent to show browser`s menu
+    this._renderer.listen('document', 'contextmenu', (e: MouseEvent) => {
+      if (isInput(<HTMLElement>e.target))
+         e.preventDefault();
+    });
+
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass('scxThemeLight scxThemeDark');
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
@@ -354,6 +360,10 @@ function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
   if (!element)
     return true;
 
-  return (element.tagName !== 'INPUT' && !element.classList.contains('hotkey-input')) ||
+  return (isInput(element) && !element.classList.contains('hotkey-input')) ||
     keysAlwaysToHandle.some(i => isEqual(i, keys));
+}
+
+function isInput(element: HTMLElement): boolean {
+  return element.tagName === 'INPUT';
 }
