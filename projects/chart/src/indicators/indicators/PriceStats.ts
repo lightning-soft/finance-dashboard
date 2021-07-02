@@ -53,6 +53,7 @@ export class PriceStats extends Indicator {
           },
         },
       },
+      highlight: settings.highlight,
     };
   }
 
@@ -138,6 +139,7 @@ export class PriceStats extends Indicator {
         workingTimes: settings.profile.eth.workingTimes,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
+      highlight: settings.highlight,
     };
   }
 }

@@ -17,9 +17,10 @@ export class VolumeProfile extends Indicator {
         calculateXProfiles: settings.general.calculateXProfiles,
         customTickSize: settings.general.customTickSize,
       },
+      graphics: settings.graphics,
       profile: {
         overlayEthOverRth: settings.overlayEthOverRth,
-        splitProfile: settings.general.splitProfile,
+        splitProfile: settings.splitProfile,
         rth: {
           type: settings.profile.type,
           color: settings.profile.color,
@@ -111,7 +112,6 @@ export class VolumeProfile extends Indicator {
           },
         },
       },
-      graphics: settings.graphics,
     };
   }
 
@@ -127,6 +127,7 @@ export class VolumeProfile extends Indicator {
         calculateXProfiles: settings.general.calculateXProfiles,
         customTickSize: settings.general.customTickSize,
       },
+      graphics: settings.graphics,
       profile: {
         type: settings.profile.rth.type,
         color: settings.profile.rth.color,
@@ -193,7 +194,7 @@ export class VolumeProfile extends Indicator {
           },
         },
       },
-      graphics: settings.graphics,
+      workingTimes: settings.profile.rth.workingTimes,
       eth: {
         profile: {
           type: settings.profile.eth.type,
@@ -261,6 +262,7 @@ export class VolumeProfile extends Indicator {
             },
           },
         },
+        workingTimes: settings.profile.eth.workingTimes,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
       splitProfile: settings.profile.splitProfile,

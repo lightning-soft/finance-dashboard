@@ -6,12 +6,24 @@ export abstract class Indicator {
   config: any;
   settings: any;
 
+  get indicatorSettings(): any {
+    return this.instance.settings || this.instance.plots[0].settings;
+  }
+
+  set indicatorSettings(settings: any) {
+    if (this.instance.settings) {
+      this.instance.settings = settings;
+    } else {
+      this.instance.plots[0].settings = settings;
+    }
+  }
+
   constructor(instance: any) {
     this.instance = instance;
     this.name = instance.constructor.className;
 
     const _settings = this._mapGetSettings(
-      jQuery.extend(true, {}, instance.plots[0].settings)
+      jQuery.extend(true, {}, this.indicatorSettings)
     );
 
     console.log('get', _settings);
@@ -26,7 +38,7 @@ export abstract class Indicator {
 
     console.log('set', _settings);
 
-    this.instance.plots[0].settings = _settings;
+    this.indicatorSettings = _settings;
   }
 
   protected _mapGetSettings(settings: any): any {

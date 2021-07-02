@@ -6,10 +6,48 @@ export class SessionStats extends Indicator {
   config = sessionStatsConfig;
 
   protected _mapGetSettings(settings: any): any {
-    return settings;
+    const lines = {};
+
+    for (let key in settings.lines) {
+      const line = settings.lines[key];
+
+      lines[key] = {
+        ...line,
+        strokeColor: line.strokeColor,
+      };
+    }
+
+    console.log(lines);
+
+    return {
+      general: settings.general,
+      font: settings.font,
+      lines,
+    };
   }
 
   protected _mapSetSettings(settings: any): any {
-    return settings;
+    const lines = {};
+
+    for (let key in settings.lines) {
+      const line = settings.lines[key];
+
+      lines[key] = {
+        enabled: line.enabled,
+        strokeTheme: {
+          ...line.strokeTheme,
+          strokeColor: line.strokeColor,
+        },
+        devEnabled: line.devEnabled,
+        labelEnabled: line.labelEnabled,
+      };
+    }
+
+    return {
+      general: settings.general,
+      font: settings.font,
+      workingTimes: settings.workingTimes,
+      lines,
+    };
   }
 }
