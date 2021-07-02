@@ -1279,7 +1279,7 @@ export const priceStatsConfig: IFieldConfig[] = [
                 checkboxes: [{
                   label: '',
                   key: 'enabled',
-    
+
                 }],
                 additionalFields: [
                   getNumber({
@@ -1496,11 +1496,11 @@ export const sessionStatsConfig: IFieldConfig[] = [
 
 export const volumeBreakdownConfig: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Delta',
-    fieldGroupClassName: 'regular-label',
+    label: 'General',
+    fieldGroupClassName: 'regular-label d-grid two-rows',
     fieldGroup: [
       getSelect({
-        label: 'Type',
+        label: 'Delta type',
         className: 'select minimize-select',
         key: 'type',
         options: [
@@ -1508,161 +1508,122 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
             label: 'BidAsk', value: 'BidAsk'
           },
           {
-            label: 'UpDownTickWithContinuation',
-            value: 'UpDownTickWithContinuation'
+            label: 'Uptick/Downtick',
+            value: 'uptick/downtick'
           },
-          {
-            label: 'UpDownOneTickWithContinuation',
-            value: 'UpDownOneTickWithContinuation'
-          },
-          {
-            label: 'Hybrid',
-            value: 'hybrid'
-          }
         ],
       }),
       getSelect({
-        label: 'Reset mode',
-        key: 'resetMode',
-        className: 'select mt-1 d-block',
+        key: 'unit',
+        className: 'select d-block minimize-select',
         options: [
           {
-            label: 'Session',
-            value: 'session'
+            label: 'Volume',
+            value: 'volume'
           },
           {
-            label: 'Bar',
-            value: 'bar'
+            label: 'Ticks',
+            value: 'ticks'
           },
           {
-            label: 'DeltaMomentum',
-            value: 'DeltaMomentum'
+            label: 'Price',
+            value: 'price'
           },
-          {
-            label: 'Cumulative',
-            value: 'Cumulative'
-          }
         ],
       }),
-      getNumber({
-        label: 'Show X Bars',
-        key: 'showBars',
-        min: 1,
-        className: 'split-input  mt-1 d-block',
-      }),
-      getCheckboxes({
-        extraConfig: { fieldGroupClassName: 'd-grid two-rows', className: 'mt-1 d-block' },
-        checkboxes: [{
-          key: 'invertDelta',
-          label: 'Invert Delta',
-        }, {
-          key: 'averageDelta',
-          label: 'Average Delta',
-        }]
-      }),
-      getNumber({
-        label: 'Average Period',
-        key: 'averagePeriod',
-        min: 1,
-        className: 'split-input mt-1 d-block',
-      }),
-      getCheckboxes({
-        checkboxes: [
+      getSelect({
+        key: 'mode',
+        label: 'Mode',
+        className: 'select mt-1 d-block minimize-select',
+        options: [
           {
-            key: 'showCandles',
-            label: 'Show Candles',
-            extraConfig: {
-              className: 'mt-1 d-block'
-            }
-          }
+            label: 'Delta (Buy - Sell Volume)',
+            value: 'deltaBuySell'
+          },
+          {
+            label: 'Delta Bars',
+            value: 'deltaBars'
+          },
+          {
+            label: 'Delta Momentum',
+            value: 'deltaMomentum'
+          },
+          {
+            label: 'Buy Volume',
+            value: 'buyVolume'
+          },
+          {
+            label: 'Sell Volume',
+            value: 'sellVolume'
+          },
+        ],
+      }),
+      getCheckboxes({
+        checkboxes: [{ key: 'accumulate', label: 'Accumulate' }],
+        additionalFields: [getSelect({
+          key: 'accumulateUnit',
+          options: [
+            { label: 'Session', value: 'session' },
+            { label: 'Week', value: 'week' },
+            { label: 'Month', value: 'month' },
+            { label: 'All Values', value: 'allValues' },
+          ],
+        })],
+      }),
+      getCheckboxes({
+        checkboxes: [{ key: 'averagePeriod', label: 'Average Period' }],
+        extraConfig: {
+          fieldGroupClassName: 'd-grid average-period-rows'
+        },
+        additionalFields: [
+          getNumber({
+            key: 'averagePeriodUnit',
+            min: 1,
+          }),
+        ],
+      }),
+      new FieldConfig({
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getColor('Up'),
+          getColor('Up Outline'),
+        ],
+      }),
+      getCheckboxes({
+        checkboxes: [{
+          key: 'zeroLine',
+          label: 'Zero Line',
+        }],
+        extraConfig: { fieldGroupClassName: 'd-grid zero-line-rows' },
+        additionalFields: [
+          wrapWithClass(getColor('zeroLineColor'), 'color-without-label'),
+          getLineSelector({
+            key: 'zeroLineType',
+          }),
+        ],
+      }),
+      new FieldConfig({
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getColor('Down'),
+          getColor('Down Outline'),
         ],
       }),
     ]
   }),
   new FieldConfig({
-    label: 'Filter',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label',
+    label: 'Size Filter',
+    key: 'filter',
+    className: 'mt-3 d-block',
+    fieldGroupClassName: 'd-grid four-rows',
     fieldGroup: [
-      getSelect({
-        label: 'Type',
-        className: 'select mt-1 d-block',
-        key: 'type',
-        options: [
-          {
-            label: 'None',
-            value: 'none',
-          },
-          {
-            label: 'GreaterOrEqualTo',
-            value: 'GreaterOrEqualTo',
-          },
-          {
-            label: 'LessThanOrEqualTo',
-            value: 'LessThanOrEqualTo',
-          },
-        ],
+      getCheckboxes({
+        checkboxes: [{ key: 'sizeFilter', label: 'Size Filter'}],
       }),
-      getNumber({ label: 'Size', min: 1, key: 'size', className: 'split-input mt-1 d-block' }),
-
-    ],
-  }),
-  new FieldConfig({
-    label: 'Colors',
-    className: 'block mt-2',
-    fieldGroupClassName: 'd-grid two-rows p-x-10',
-    fieldGroup: [
-      getColor('Up Color'),
-      getColor('Down Color'),
-      getColor('Up color outline'),
-      getColor('Down color outline'),
-    ],
-  }),
-  new FieldConfig({
-    label: 'Optimization',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label',
-    fieldGroup: [
-      getNumber({
-        label: 'Work during Last X Bars',
-        key: 'workLastBars',
-        min: 1,
-        className: 'split-input',
-      })
-    ],
-  }),
-  new FieldConfig({
-    label: 'Setup',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label hide-border-bottom p-x-10',
-    fieldGroup: [
-      getSelect({
-        className: 'select',
-        key: 'calculate',
-        label: 'Calculate', options: [{
-          label: 'On bar close',
-          value: 'onBarClose'
-        },
-          {
-            label: 'On each tick',
-            value: 'onEachTick'
-          },
-          {
-            label: 'On price change',
-            value: 'onPriceChange'
-          }
-        ]
-      }),
-      getInput({
-        label: 'Label', className: 'split-input inline-fields mt-1 d-block',
-      }),
-      getSelect({
-        label: 'Max bars look back', options: [
-          { value: '256', label: '256' },
-          { value: 'Infinite', label: 'Infinite' }
-        ],
-        className: 'select mt-1 d-block'
-      }),
+      wrapWithClass(getNumber({
+        key: 'sizeFilterValue',
+        min: 0,
+      }), 'd-flex justify-content-end'),
     ],
   }),
 ];

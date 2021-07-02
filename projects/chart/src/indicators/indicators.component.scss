@@ -538,12 +538,23 @@
       }
     }
 
-    .two-rows, .three-rows, .font-rows, .four-rows, .liner-rows, .band-rows {
+    .two-rows, .three-rows, .font-rows, .four-rows, .liner-rows, .band-rows, .average-period-rows, .zero-line-rows {
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 10px;
       grid-row-gap: 6px;
       padding-left: 2px;
       padding-right: 2px;
+    }
+
+    .average-period-rows {
+      grid-template-columns: 2fr 1fr;
+      grid-column-gap: 5px;
+      padding: 0;
+    }
+
+    .zero-line-rows {
+      grid-template-columns: 1.3fr 20px 1fr;
+      padding: 0;
     }
 
     .three-rows {
@@ -553,15 +564,21 @@
     .font-rows {
       grid-template-columns: 20px 2fr 2fr 1fr;
     }
-    .band-rows{
+
+    .band-rows {
       grid-template-columns: 1fr 1fr 20px 1fr;
     }
+
     .liner-rows {
       grid-template-columns: 2fr 2fr 50px 1fr;
     }
 
     .four-rows {
       grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    .zero-line-rows {
+
     }
 
     .ant-form-item {
