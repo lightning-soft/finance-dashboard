@@ -1,36 +1,56 @@
 import {
   FieldConfig,
   getCheckboxes,
-  getColor, getColorSelect, getDatePicker,
-  getInput, getLineSelector,
+  getColor,
+  getColorSelect,
+  getDatePicker,
+  getInput,
+  getLineSelector,
   getNumber,
-  getSelect, getSwitch, getTextAlign,
+  getSelect,
+  getSwitch,
+  getTextAlign,
   IFieldConfig,
-  wrapWithClass, wrapWithConfig
+  wrapWithClass,
+  wrapWithConfig
 } from 'dynamic-form';
 
+const tradingOptions = [
+  // {
+  //   label: 'New Session',
+  //   value: 'newSession'
+  // },
+  {
+    label: 'CME Trading Hours',
+    value: [
+      {
+        startDay: 1,
+        startTime: 0,
+        endDay: 5,
+        endTime: 24 * 3600 * 1000,
+      }
+    ],
+  },
+  {
+    label: 'Template 2',
+    value: [
+      {
+        startDay: 1,
+        startTime: 0,
+        endDay: 2,
+        endTime: 24 * 3600 * 1000,
+      }
+    ],
+  }
+];
 
-function getTradingSelect() {
+function getTradingSelect(key = 'workingTimes') {
   return getSelect({
-    key: 'tradingHours',
+    key,
     className: 'select full-width session-template',
     label: 'Session Template',
     // wrappers: [],
-    options: [
-      {
-        label: 'New Session',
-        value: 'newSession'
-      },
-      {
-        label: 'CME Trading Hours',
-        value: 'cmeTrading'
-      },
-      {
-        label: 'Template 2',
-        value: 'template2'
-      }
-
-    ],
+    options: tradingOptions,
   });
 }
 
@@ -144,6 +164,66 @@ function getProfileConfig(key, _config = {}) {
   };
 }
 
+function getShorterConfig(key, _config = {}) {
+  const config = {
+    additionalElements: [],
+  };
+  Object.assign(config, _config);
+  const { additionalElements, ...extraConfig } = config;
+  return {
+    key,
+    fieldGroupClassName: 'p-x-10',
+    className: 'profile-settings',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getTradingSelect(),
+          getSelect({
+            key: 'type',
+            label: 'Profile Type',
+            className: 'regular-label label-400 hide-border-bottom profile-type',
+            options: [
+              { icon: 'icon-hollow-block', value: 'hollowBlocks', label: 'Hollow Blocks' },
+              { icon: 'icon-dots-indicator', value: 'dots', label: 'Dots' },
+              { icon: 'icon-lines-indicator', value: 'lines', label: 'Lines' },
+              { icon: 'icon-hollowgram', value: 'hollowgram', label: 'Hollowgram' },
+              { icon: 'icon-solidgram', value: 'solidgram', label: 'Solidgram' },
+              { icon: 'icon-filled-line', value: 'filledLine', label: 'Filled Line' },
+              { icon: 'icon-hollow-line', value: 'hollowLine', label: 'Hollow Line' },
+              { icon: 'icon-solid-block', value: 'solidBlock', label: 'Solid Block' }
+            ],
+          }),
+          getColorSelect({
+            key: 'color',
+            className: 'd-flex flex-column justify-content-end',
+            options: [
+              {
+                label: 'Profile Color',
+                value: { type: 'profileColor', value: '#a0a0a0' },
+              },
+              {
+                label: 'Heat Map',
+                value: { type: 'heatMap', value: '#a0a0a0' },
+              },
+              {
+                label: 'Custom Blend',
+                value: { type: 'customBlend', value: '#a0a0a0' },
+              },
+              {
+                label: 'FP Shading',
+                value: { type: 'fpShading', value: '#a0a0a0' },
+              }
+            ]
+          }),
+        ]
+      },
+      ...additionalElements,
+    ],
+    ...extraConfig
+  };
+}
+
 function getValueArea(key, _config: any = {}) {
   const defaultConfig: any = { extraGroupClass: '', };
   Object.assign(defaultConfig, _config);
@@ -151,7 +231,7 @@ function getValueArea(key, _config: any = {}) {
 
   return {
     key,
-    fieldGroupClassName: `d-grid three-rows align-items-center ${extraGroupClass}`,
+    fieldGroupClassName: `d-grid three-rows align-items-center ${ extraGroupClass }`,
     wrappers: ['form-field'],
     templateOptions: {
       label: config.label
@@ -222,6 +302,130 @@ function getInnerValueArea(label, key) {
           getLineSelector({ key: 'strokeTheme' })]
       }
     ]
+  };
+}
+
+function pocAndValue(label, key) {
+  return {
+    key,
+    className: 'mt-2 d-block',
+    fieldGroupClassName: 'three-rows d-grid',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [
+          {
+            key: 'enabled', label,
+          },
+        ]
+      }),
+      {
+        fieldGroupClassName: 'd-grid inner-value-area',
+        fieldGroup: [
+          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithConfig(getLineSelector({ key: 'strokeTheme' }), {
+            className: 'ml-2',
+          }),
+        ]
+      },
+      getSwitch('labelEnabled', 'Label'),
+    ]
+  };
+}
+
+function getWidthField(key = 'width') {
+  return new FieldConfig({
+    key,
+    wrappers: [],
+    fieldGroupClassName: 'd-grid width-row',
+    fieldGroup: [getNumber({
+      key: 'value',
+      label: 'Width',
+      min: 1,
+      className: 'calculate-profiles'
+    }),
+      getSelect({
+        key: 'unit',
+        className: 'width-select',
+        options: [
+          {
+            label: 'px',
+            value: 'pixel',
+          },
+          {
+            label: '%',
+            value: 'percent',
+          }
+        ],
+      })],
+  });
+}
+
+function getBand(key) {
+  return {
+    key,
+    fieldGroupClassName: 'd-grid band-rows',
+    fieldGroup: [
+      getCheckboxes({ checkboxes: [{ label: `Bands at` }] }),
+      getNumber({
+        key: 'stdDev', label: 'StdDev',
+        className: 'reverse-number-label regular-number-label',
+        min: 1,
+      }),
+      wrapWithClass(getColor('Color'), 'color-without-label'),
+      getLineSelector({ key: 'line' }),
+    ]
+  };
+}
+
+function getSessionLine(key, label) {
+  return {
+    key,
+    fieldGroupClassName: 'd-grid liner-rows regular-label label-400 hide-border-bottom',
+    className: 'mt-2',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [
+          { label, key: 'enabled' }
+        ],
+      }),
+      {
+        fieldGroupClassName: 'd-flex align-items',
+        fieldGroup: [
+          wrapWithClass(getColor('strokeColor'), 'color-without-label'),
+          wrapWithClass(getLineSelector({ key: 'strokeTheme' }), 'ml-2 min-width-80'),
+        ],
+      },
+      getCheckboxes({
+        checkboxes: [
+          { label: 'Dev', key: 'devEnabled' }
+        ],
+        extraConfig: {
+          fieldGroupClassName: '',
+        },
+      }),
+      getSwitch('labelEnabled', 'Label')
+    ],
+  };
+}
+
+export function getMeasureField(key, label) {
+  return {
+    key,
+    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroup: [
+      getNumber({ key: 'value', label }),
+      getSelect({
+        key: 'unit',
+        className: 'select',
+        options: [{
+          label: 'px',
+          value: 'pixel'
+        }, {
+          label: '%',
+          value: 'percent',
+        }]
+      }),
+    ],
   };
 }
 
@@ -894,175 +1098,792 @@ export const volumeProfileConfig: IFieldConfig[] = [
   })
 ];
 
-export const volumeBreakdownConfig: IFieldConfig[] = [
+export const compositeProfileConfig: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Delta',
-    fieldGroupClassName: 'regular-label',
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
     fieldGroup: [
       getSelect({
-        label: 'Type',
-        className: 'select minimize-select',
-        key: 'type',
+        key: 'type', label: 'Profile Type',
+        className: 'split-select',
+        options: [{
+          value: 'volume',
+          label: 'Volume'
+        },
+          {
+            value: 'tradesCount',
+            label: 'Ticks'
+          },
+          {
+            value: 'price',
+            label: 'Price'
+          },
+        ],
+      }),
+      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getTextAlign('align', 'Profile Alignment',
+        { className: 'profile-alignment' }),
+      {
+        key: 'customTickSize',
+        fieldGroup: [
+          {
+            key: 'enabled',
+            value: true
+          },
+          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
+            { className: 'tickPerPrice' })
+        ]
+      },
+      getWidthField(),
+      {
+        key: 'smoothed',
+        fieldGroupClassName: 'd-flex align-items-center smooth-price',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
+          }),
+          getNumber({
+            key: 'value',
+            label: 'Prices',
+            min: 0,
+          }),
+        ],
+      },
+    ],
+  }),
+  new FieldConfig({
+    key: 'profile',
+    label: 'Profile Settings',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-flex align-items-center',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'overlayEthOverRth', label: 'Overlay ETH over RTH' },
+            ],
+            extraConfig: {}
+          }),
+        ],
+      },
+      getShorterConfig('rth', {
+        additionalElements: [],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'RTH'
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+      getShorterConfig('eth', {
+        additionalElements: [],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'ETH Overlay'
+        },
+        className: 'mt-4 block profile-settings bordered',
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+      }),
+    ],
+  }),
+  new FieldConfig({
+    key: 'lines',
+    label: 'POC and Value Area Lines',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container py-0 p-x-10',
+    fieldGroup: [
+      pocAndValue('Poc', 'poc'),
+      pocAndValue('ValueArea(VA)', 'va'),
+
+    ],
+  }),
+
+];
+
+export const priceStatsConfig: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
+    fieldGroup: [
+      getSelect({
+        key: 'type', label: 'Profile Type',
+        className: 'split-select',
+        options: [{
+          value: 'volume',
+          label: 'Volume'
+        },
+          {
+            value: 'tradesCount',
+            label: 'Ticks'
+          },
+          {
+            value: 'price',
+            label: 'Price'
+          },
+        ],
+      }),
+      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getTextAlign('align', 'Profile Alignment',
+        { className: 'profile-alignment' }),
+      {
+        key: 'customTickSize',
+        fieldGroup: [
+          {
+            key: 'enabled',
+            value: true
+          },
+          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
+            { className: 'tickPerPrice' }),
+        ]
+      },
+      new FieldConfig({
+        key: 'sessions',
+        wrappers: [],
+        fieldGroupClassName: 'd-block bordered mt-3',
+        className: 'full-width',
+        fieldGroup: [
+          {
+            key: 'current',
+            fieldGroupClassName: 'd-grid two-rows',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { label: 'Current Session', key: 'enabled' },
+                ],
+              }),
+              getWidthField(),
+            ]
+          },
+          {
+            key: 'prev',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { label: 'Previous Session', key: 'enabled' },
+                ],
+              }),
+              getWidthField(),
+            ]
+          },
+          {
+            key: 'days',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [{
+                  label: '',
+                  key: 'enabled',
+
+                }],
+                additionalFields: [
+                  getNumber({
+                    key: 'count',
+                    label: 'Days',
+                    className: 'reverse-number-label regular-number-label',
+                    min: 1
+                  })
+                ]
+              }),
+              getWidthField(),
+              getSwitch('includeCurrentSession', 'Include Current Session', { className: 'regularSwitch reverse-switch-label' })
+            ]
+          }
+        ],
+      }),
+    ],
+  }),
+  new FieldConfig({
+    key: 'profile',
+    label: 'Profile Settings',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'field-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-flex align-items-center',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { key: 'overlayEthOverRth', label: 'Overlay ETH over RTH' },
+            ],
+            extraConfig: {}
+          }),
+        ],
+      },
+      getShorterConfig('rth', {
+        additionalElements: [
+          {
+            key: 'poc',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { key: 'enabled', label: 'POC Chart Overlay' },
+                ],
+                additionalFields: [
+                  getSwitch('dev', 'Developing POC', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                ],
+              }),
+              getColor({ key: 'strokeColor', label: 'POC Color' }),
+            ]
+          },
+          {
+            key: 'va',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { key: 'enabled', label: 'VA Chart Overlay' },
+                ],
+                additionalFields: [
+                  getSwitch('dev', 'Developing VA', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                ],
+              }),
+              getColor({ key: 'strokeColor', label: 'VA Color' }),
+            ]
+          }
+        ],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'RTH',
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+      getShorterConfig('eth', {
+        hideExpression: (model, state, field) => {
+          return !field.form.value.overlayEthOverRth;
+        },
+        additionalElements: [
+          {
+            key: 'poc',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { key: 'enabled', label: 'POC Chart Overlay' },
+                ],
+                additionalFields: [
+                  getSwitch('dev', 'Developing POC', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                ],
+              }),
+              getColor({ key: 'strokeColor', label: 'POC Color' }),
+            ]
+          },
+          {
+            key: 'va',
+            fieldGroupClassName: 'd-grid two-rows mt-2',
+            fieldGroup: [
+              getCheckboxes({
+                checkboxes: [
+                  { key: 'enabled', label: 'VA Chart Overlay' },
+                ],
+                additionalFields: [
+                  getSwitch('va', 'Developing VA', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                ],
+              }),
+              getColor({ key: 'strokeColor', label: 'VA Color' }),
+            ]
+          }
+        ],
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'ETH Overlay',
+        },
+        className: 'mt-4 block profile-settings bordered',
+      }),
+
+    ],
+  }),
+  new FieldConfig({
+    key: 'highlight',
+    label: 'POC and Value Area Profile Highlight',
+    className: 'mt-3 d-block',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      {
+        key: 'poc',
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{
+              key: 'enabled',
+              label: 'POC',
+            }]
+          }),
+          getColor({ key: 'value', label: 'Highlight POC Color' }),
+        ],
+      },
+      {
+        key: 'va',
+        fieldGroupClassName: 'd-grid two-rows mt-2',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{
+              key: 'enabled',
+              label: 'Value area(VA)',
+            }]
+          }),
+          getColor({ key: 'value', label: 'Highlight VA Color' }),
+        ],
+      },
+    ],
+  }),
+];
+
+const sessionsItems = [
+  { key: 'rthHigh', label: 'RTH High' },
+  { key: 'rthLow', label: 'RTH Low' },
+  { key: 'ethHigh', label: 'ETH High' },
+  { key: 'ethLow', label: 'ETH Low' },
+  { key: 'ibHigh', label: 'IB High' },
+  { key: 'ibLow', label: 'IB Low' },
+  { key: 'prevRthHigh', label: 'PREV RTH High' },
+  { key: 'prevRthLow', label: 'PREV RTH Low' },
+  { key: 'rthMid', label: 'RTH Mid' },
+  { key: 'ethMid', label: 'ETH Mid' },
+  { key: 'rthSettle', label: 'RTH Settle' },
+  { key: 'rthOpen', label: 'RTH Open' },
+  { key: 'prevWkHigh', label: 'Prev Wk High' },
+  { key: 'prevWkLow', label: 'Prev Wk Low' },
+];
+
+export const sessionStatsConfig: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'General',
+    key: 'general',
+    fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
+    fieldGroup: [
+      getSelect({
+        key: 'style',
+        label: 'Visual style',
+        className: 'full-width select visual-style-width',
         options: [
           {
-            label: 'BidAsk', value: 'BidAsk'
+            label: 'Line',
+            value: 'line'
           },
           {
-            label: 'UpDownTickWithContinuation',
-            value: 'UpDownTickWithContinuation'
-          },
-          {
-            label: 'UpDownOneTickWithContinuation',
-            value: 'UpDownOneTickWithContinuation'
-          },
-          {
-            label: 'Hybrid',
-            value: 'hybrid'
+            label: 'Block',
+            value: 'block'
           }
+        ]
+      }),
+      getMeasureField('width', 'Width'),
+      getMeasureField('margin', 'Margin'),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Font',
+    key: 'font',
+    fieldGroupClassName: 'd-grid font-rows regular-label label-400 hide-border-bottom',
+    className: 'mt-4 d-block',
+    fieldGroup: [
+      wrapWithClass(getColor({ key: 'fillColor', label: '' }), 'color-without-label'),
+      getSelect({
+        key: 'fontFamily',
+        options: [{ label: 'Open Sans', value: 'Open Sans' },
+          { label: 'Monospace', value: 'monospace' },
+          { label: 'Sans Serif', value: 'sans-serif' }]
+      }),
+      getSelect({
+        key: 'fontWeight',
+        options: [{ label: 'Regular', value: '400' },
+          { label: 'Bold', value: '600' },
+        ]
+      }),
+      getNumber({
+        key: 'fontSize'
+      })
+    ],
+  }),
+  new FieldConfig({
+    label: 'Trading Hours',
+    key: 'workingTimes',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
+    fieldGroup: [
+      wrapWithConfig(getTradingSelect('rth'), {
+        label: 'RTH Session Template'
+      }),
+      wrapWithConfig(getTradingSelect('eth'), {
+        label: 'ETH Session Template'
+      }),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Lines',
+    className: 'mt-4 d-block',
+    key: 'lines',
+    fieldGroupClassName: 'd-grid regular-label label-400 hide-border-bottom',
+    fieldGroup:
+      sessionsItems.map(item => getSessionLine(item.key, item.label))
+    ,
+  })
+];
+
+export const volumeBreakdownConfig: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'General',
+    fieldGroupClassName: 'regular-label d-grid two-rows',
+    fieldGroup: [
+      getSelect({
+        label: 'Delta type',
+        className: 'select minimize-select',
+        key: 'deltaType',
+        options: [
+          {
+            label: 'BidAsk', value: 'bidAsk'
+          },
+          {
+            label: 'Uptick/Downtick',
+            value: 'uptickDowntick'
+          },
         ],
       }),
       getSelect({
-        label: 'Reset mode',
-        key: 'resetMode',
-        className: 'select mt-1 d-block',
+        key: 'type',
+        className: 'select d-block minimize-select',
         options: [
           {
-            label: 'Session',
-            value: 'session'
+            label: 'Volume',
+            value: 'volume'
           },
           {
-            label: 'Bar',
-            value: 'bar'
+            label: 'Ticks',
+            value: 'ticks'
           },
           {
-            label: 'DeltaMomentum',
-            value: 'DeltaMomentum'
+            label: 'Price',
+            value: 'price'
           },
-          {
-            label: 'Cumulative',
-            value: 'Cumulative'
-          }
         ],
       }),
-      getNumber({
-        label: 'Show X Bars',
-        key: 'showBars',
-        min: 1,
-        className: 'split-input  mt-1 d-block',
-      }),
-      getCheckboxes({
-        extraConfig: { fieldGroupClassName: 'd-grid two-rows', className: 'mt-1 d-block' },
-        checkboxes: [{
-          key: 'invertDelta',
-          label: 'Invert Delta',
-        }, {
-          key: 'averageDelta',
-          label: 'Average Delta',
-        }]
-      }),
-      getNumber({
-        label: 'Average Period',
-        key: 'averagePeriod',
-        min: 1,
-        className: 'split-input mt-1 d-block',
-      }),
-      getCheckboxes({
-        checkboxes: [
+      getSelect({
+        key: 'mode',
+        label: 'Mode',
+        className: 'select mt-1 d-block minimize-select',
+        options: [
           {
-            key: 'showCandles',
-            label: 'Show Candles',
+            label: 'Delta (Buy - Sell Volume)',
+            value: 'delta'
+          },
+          {
+            label: 'Delta Bars',
+            value: 'deltaBars'
+          },
+          {
+            label: 'Delta Momentum',
+            value: 'deltaMomentum'
+          },
+          {
+            label: 'Buy Volume',
+            value: 'buyVolume'
+          },
+          {
+            label: 'Sell Volume',
+            value: 'sellVolume'
+          },
+        ],
+      }),
+      {
+        key: 'accumulate',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'enabled', label: 'Accumulate' }],
+            additionalFields: [getSelect({
+              key: 'value',
+              options: [
+                { label: 'Session', value: 'session' },
+                { label: 'Week', value: 'week' },
+                { label: 'Month', value: 'month' },
+                { label: 'All Values', value: 'all' },
+              ],
+            })],
+          }),
+        ],
+      },
+      {
+        key: 'avaragePeriod',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'enabled', label: 'Average Period' }],
             extraConfig: {
-              className: 'mt-1 d-block'
-            }
-          }
+              fieldGroupClassName: 'd-grid average-period-rows'
+            },
+            additionalFields: [
+              getNumber({
+                key: 'value',
+                min: 1,
+              }),
+            ],
+          }),
+        ],
+      },
+      new FieldConfig({
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getColor({ key: 'upColor', label: 'Up' }),
+          getColor({ key: 'upOutlineColor', label: 'Up Outline' }),
+        ],
+      }),
+      {
+        key: 'zeroLine',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{
+              key: 'enabled',
+              label: 'Zero Line',
+            }],
+            extraConfig: { fieldGroupClassName: 'd-grid zero-line-rows' },
+            additionalFields: [
+              wrapWithClass(getColor('strokeColor'), 'color-without-label'),
+              getLineSelector({
+                key: 'strokeTheme',
+              }),
+            ],
+          }),
+        ],
+      },
+      new FieldConfig({
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getColor({ key: 'downColor', label: 'Down' }),
+          getColor({ key: 'downOutlineColor', label: 'Down Outline' }),
         ],
       }),
     ]
   }),
   new FieldConfig({
-    label: 'Filter',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label',
+    label: 'Size Filter',
+    key: 'sizeFilter',
+    className: 'mt-3 d-block',
     fieldGroup: [
-      getSelect({
-        label: 'Type',
-        className: 'select mt-1 d-block',
-        key: 'type',
-        options: [
-          {
-            label: 'None',
-            value: 'none',
-          },
-          {
-            label: 'GreaterOrEqualTo',
-            value: 'GreaterOrEqualTo',
-          },
-          {
-            label: 'LessThanOrEqualTo',
-            value: 'LessThanOrEqualTo',
-          },
-        ],
-      }),
-      getNumber({ label: 'Size', min: 1, key: 'size', className: 'split-input mt-1 d-block' }),
+      {
+        key: 'sizeFilter',
+        fieldGroupClassName: 'd-grid four-rows',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'enabled', label: 'Size Filter'}],
+          }),
+          wrapWithClass(getNumber({
+            key: 'value',
+            min: 0,
+          }), 'd-flex justify-content-end'),
+        ]
+      },
+    ],
+  }),
+];
 
-    ],
-  }),
+export const vwapConfig: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Colors',
-    className: 'block mt-2',
-    fieldGroupClassName: 'd-grid two-rows p-x-10',
+    label: 'General',
+    key: 'general',
+    fieldGroupClassName: 'regular-label  hide-border-bottom',
+    className: 'vwap',
     fieldGroup: [
-      getColor('Up Color'),
-      getColor('Down Color'),
-      getColor('Up color outline'),
-      getColor('Down color outline'),
-    ],
-  }),
-  new FieldConfig({
-    label: 'Optimization',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label',
-    fieldGroup: [
-      getNumber({
-        label: 'Work during Last X Bars',
-        key: 'workLastBars',
-        min: 1,
-        className: 'split-input',
-      })
-    ],
-  }),
-  new FieldConfig({
-    label: 'Setup',
-    className: 'block mt-2',
-    fieldGroupClassName: 'regular-label hide-border-bottom p-x-10',
-    fieldGroup: [
-      getSelect({
-        className: 'select',
-        key: 'calculate',
-        label: 'Calculate', options: [{
-          label: 'On bar close',
-          value: 'onBarClose'
-        },
-          {
-            label: 'On each tick',
-            value: 'onEachTick'
-          },
-          {
-            label: 'On price change',
-            value: 'onPriceChange'
-          }
+      new FieldConfig({
+        label: 'Style',
+        key: 'style',
+        className: 'style',
+        fieldGroupClassName: 'vwap-styles-grid',
+        fieldGroup: [
+          wrapWithClass(getSelect({
+            options: [
+              {
+                label: 'Line, Connected', value: 'lineConnected'
+              },
+              {
+                label: 'Line, Continuous', value: 'lineContinuous'
+              },
+              {
+                label: 'Line, Stepped', value: 'lineStepped'
+              },
+              {
+                label: 'Price Box, Solid', value: 'priceBoxSolid'
+              },
+              {
+                label: 'Price Box, Hollow', value: 'priceBoxHollow'
+              },
+            ]
+          }), 'max-width-85'),
+          wrapWithClass(getColor('color'), 'color-without-label'),
+          getLineSelector({
+            key: 'line'
+          }),
         ]
       }),
-      getInput({
-        label: 'Label', className: 'split-input inline-fields mt-1 d-block',
-      }),
-      getSelect({
-        label: 'Max bars look back', options: [
-          { value: '256', label: '256' },
-          { value: 'Infinite', label: 'Infinite' }
+      getCheckboxes({
+        checkboxes: [{
+          key: 'customTimes',
+          label: 'Custom Times'
+        }],
+        additionalFields: [
+          getSelect({
+            key: 'duration',
+            options: tradingOptions,
+          }),
         ],
-        className: 'select mt-1 d-block'
+        extraConfig: {
+          fieldGroupClassName: 'd-grid two-rows'
+        },
+      }),
+      getCheckboxes({
+        checkboxes: [{
+          key: 'customDuration',
+          label: 'Custom Duration'
+        }],
+        additionalFields: [
+          getSelect({
+            key: 'duration',
+            options: [
+              { label: 'Weekly', value: 'weekly' },
+              { label: 'Monthly', value: 'monthly' },
+              { label: 'Quarterly', value: 'quarterly' },
+              { label: 'Annualy', value: 'annualy' },
+            ],
+          }),
+        ],
+        extraConfig: {
+          className: 'mt-2 d-block',
+          fieldGroupClassName: 'd-grid two-rows'
+        },
+      }),
+    ],
+
+  }),
+  new FieldConfig({
+    label: 'Bands',
+    key: 'bands',
+    className: 'mt-3',
+    fieldGroup: [
+      getBand(1),
+      getBand(2),
+      getBand(3),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Label',
+    key: 'label',
+    className: 'mt-3',
+    fieldGroupClassName: 'd-grid two-rows regular-label hide-border-bottom',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [{ label: 'Show VWAP Label', key: 'showLabel' }],
+      }),
+      getNumber({
+        label: 'Label Line Length',
+        min: 1,
       }),
     ],
   }),
 ];
+
+/*
+*
+export const priceStatsDefaultSettings = {
+  general: {
+    currentSession: true,
+    currentSessionWidth: 3,
+    currentSessionWidthType: 'px',
+    days: true,
+    daysCount: 1,
+    includeCurrentSession: true,
+    previousSession: true,
+    previousSessionWidth: 3,
+    previousSessionWidthType: 'percent',
+    type: 'tradesCount',
+    va: 2,
+    value: 1,
+    width: 1,
+    widthType: 'percent',
+  },
+  profile: {
+    overlayEthOverRth: false,
+    ethOverlay: {
+      color: { type: 'customBlend', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(241,110,110,1)',
+      tradingHours: 'cmeTrading',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,122,64,1)',
+    },
+    general: {
+      color: { type: 'heatMap', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(0,242,126,1)',
+      tradingHours: 'cmeTrading',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,32,143,1)',
+    },
+    rth: {
+      color: { type: 'customBlend', value: '#a0a0a0' },
+      developPOC: true,
+      developVA: true,
+      pocChartOverlay: true,
+      pocColor: 'rgb(0,220,114,1)',
+      tradingHours: 'newSession',
+      type: 'dots',
+      vaChartOverlay: true,
+      vaColor: 'rgb(0,242,126,1)',
+    }
+  }
+};
+
+export const compositeProfileSettings = {
+    general: {
+      align: 'left',
+      smoothed: { enabled: true, value: 5 },
+      type: 'tradesCount',
+      va: 2,
+      value: 4,
+      width: 4,
+      widthType: 'percent',
+    },
+    lines: {
+      poc: {
+        colors: {
+          strokeColor: 'rgb(0,153,80,1)'
+        },
+        enabled: true,
+        labelEnabled: true,
+      },
+      valueArea: {
+        colors: {
+          strokeColor: 'rgb(0,153,80,1)'
+        },
+        enabled: true,
+        labelEnabled: true,
+      }
+    },
+    profile: {
+      overlayEthOverRth: false,
+      ETH: {
+        color: { type: 'heatMap', value: '#a0a0a0' },
+        tradingHours: 'cmeTrading',
+        type: 'dots',
+      },
+      RTH: {
+        color: { type: 'heatMap', value: '#a0a0a0' },
+        tradingHours: 'cmeTrading',
+        type: 'dots',
+      },
+      general: {
+        color: { type: 'customBlend', value: '#a0a0a0' },
+        tradingHours: 'newSession',
+        type: 'hollowBlocks',
+      }
+    }
+  };
+* */

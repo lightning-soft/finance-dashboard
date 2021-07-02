@@ -7,31 +7,31 @@ export class VolumeBreakdown extends Indicator {
 
   protected _mapGetSettings(settings: any) {
     return {
-      colors: {
-        downColor: null,
-        downcoloroutline: null,
-        upColor: null,
-        upcoloroutline: null,
+      general: {
+        ...settings.general,
+        zeroLine: {
+          enabled: settings.general.zeroLine.enabled,
+          strokeTheme: settings.general.zeroLine.strokeTheme,
+          strokeColor: settings.general.zeroLine.strokeTheme.strokeColor,
+        },
       },
-      delta: {
-        averageDelta: false,
-        averagePeriod: 2,
-        invertDelta: false,
-        resetMode: 'DeltaMomentum',
-        showBars: 1,
-        showCandles: false,
-        type: 'hybrid',
+      sizeFilter: settings.sizeFilter,
+    };
+  }
+
+  protected _mapSetSettings(settings: any) {
+    return {
+      general: {
+        ...settings.general,
+        zeroLine: {
+          enabled: settings.general.zeroLine.enabled,
+          strokeTheme: {
+            ...settings.general.zeroLine.strokeTheme,
+            strokeColor: settings.general.zeroLine.strokeTheme.strokeColor,
+          },
+        },
       },
-      filter: {
-        size: 2,
-        type: 'GreaterOrEqualTo',
-      },
-      optimization: {
-        workLastBars: 3
-      },
-      setup: {
-        calculate: 'onEachTick',
-      }
+      sizeFilter: settings.sizeFilter,
     };
   }
 }

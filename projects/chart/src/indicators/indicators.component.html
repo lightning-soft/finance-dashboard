@@ -3,13 +3,11 @@
   <div class="menu">
     <div class="menu-list">
       <ul>
-
         <li *ngFor="let item of indicators"
             (click)="selectIndicator(item)"
             [class.selected]="isSelected(item)"><i class="icon-visible"></i>{{item.name}}
           <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-minus ml-auto"></i>
         </li>
-
       </ul>
     </div>
     <div class="bottom-menu">
