@@ -1399,6 +1399,28 @@ export const priceStatsConfig: IFieldConfig[] = [
 
     ],
   }),
+  new FieldConfig({
+    key: 'pocAndValue',
+    label: 'POC and Value Area Profile Highlight',
+    className: 'mt-3 d-block',
+    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [{
+          key: 'poc',
+          label: 'POC',
+        }]
+      }),
+      getColor({ label: 'Highlight POC Color', value: 'HighlightPocColor' }),
+      getCheckboxes({
+        checkboxes: [{
+          key: 'valueArea',
+          label: 'Value area(VA)',
+        }]
+      }),
+      getColor({ label: 'Highlight VA Color', value: 'HighlightVAColor' }),
+    ],
+  }),
 ];
 
 const sessionsItems = [
@@ -1618,7 +1640,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
     fieldGroupClassName: 'd-grid four-rows',
     fieldGroup: [
       getCheckboxes({
-        checkboxes: [{ key: 'sizeFilter', label: 'Size Filter'}],
+        checkboxes: [{ key: 'sizeFilter', label: 'Size Filter' }],
       }),
       wrapWithClass(getNumber({
         key: 'sizeFilterValue',
