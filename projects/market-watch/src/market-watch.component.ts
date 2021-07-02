@@ -75,7 +75,7 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
-import { CellStatus, generateNewStatusesByPrefix } from "../../data-grid/src/models";
+import { CellStatus, generateNewStatusesByPrefix } from 'data-grid';
 
 const labelText = 'Indices';
 
@@ -92,7 +92,7 @@ const orderStyles = {
       orderSellColor: '#C93B3B',
       orderBuyColor: '#4895F5',
       orderPriceColor: '#D0D0D2',
-      orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
+      createOrderPriceDisabledColor: 'rgba(208,208,210,0.4)',
       labelColor: '#fff',
       createOrderColor: '#D0D0D2',
     }, CellStatus.Hovered),
@@ -878,10 +878,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
       this.columns = tab.columns;
       this._dataGrid.changeColumns(tab.columns);
-      this.updateDataGridItems();
-      if (this.settings.display.showOrders) {
-        this.showSubItems();
-      }
+      this.updateDataGridItems(this.settings.display.showOrders);
       this._applySettings();
       this._dataGrid?.resize();
     }
@@ -900,9 +897,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     });
   }
 
-  private updateDataGridItems() {
+  private updateDataGridItems(showSubitems = false) {
     this.isInlineOrderCreating = false;
     this.builder.displayItems(this.currentTab.data);
+    if (showSubitems) {
+      this.showSubItems();
+    }
   }
 
   createTab() {
@@ -1187,7 +1187,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.builder.loadInstrument(instrument);
     this.builder.replaceViewItem(this.builder.getInstrumentItem(instrument), this.builder.getInstrumentItem(prevInstrument));
     this.builder.deleteItem(prevInstrument);
-    this.updateDataGridItems();
+    this.updateDataGridItems(true);
   }
 
   ngOnDestroy() {
@@ -1220,7 +1220,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     item.subItems.unshift(orderMarketWatchItem);
     item.setHasCreatingOrder(true);
     item.setShouldExpand(true);
-    this.addOrders(item);
+    if (this.settings.display.showOrders && item.subItems.length)
+      this.addOrders(item);
     this.isInlineOrderCreating = true;
     this.builder.addViewItems([orderMarketWatchItem], this.builder.getIndex(instrument.id) + 1);
   }
