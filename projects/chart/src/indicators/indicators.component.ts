@@ -1,13 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormGroup } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
-import { IChart } from '../models';
-import { DefaultIndicator, Footprint, VolumeBreakdown, VolumeProfile } from './indicators';
-import { Components } from 'src/app/modules';
 import { debounceTime } from 'rxjs/operators';
-import { vwapStats } from "./fields";
+import { Components } from 'src/app/modules';
+import { IChart } from '../models';
+import {
+  CompositeProfile,
+  DefaultIndicator,
+  Footprint,
+  PriceStats,
+  SessionStats,
+  VolumeBreakdown,
+  VolumeProfile
+} from './indicators';
 
 declare const StockChartX: any;
 
@@ -28,12 +35,9 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   link: any;
   chart: IChart;
   indicators: any[] = [];
-  selectedIndicator: any = {config: vwapStats, settings: {}};
+  selectedIndicator: any;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
-  chartIndicators;
-  registeredIndicators;
-
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -161,6 +165,12 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         return new Footprint(instance);
       case StockChartX.VolumeProfile:
         return new VolumeProfile(instance);
+      case StockChartX.CompositeProfile:
+        return new CompositeProfile(instance);
+      case StockChartX.PriceStats:
+        return new PriceStats(instance);
+      case StockChartX.SessionStats:
+        return new SessionStats(instance);
       case StockChartX.VolumeBreakdown:
         return new VolumeBreakdown(instance);
       default:
