@@ -1,3 +1,6 @@
+<loader *ngIf="loading"></loader>
+
+
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
   <instrument-select
     class="mr-2"
@@ -62,7 +65,8 @@
     <li (click)="createTemplate()" nz-menu-item>Save as ...</li>
     <!--  <li nz-menu-divider></li>
       <li nz-menu-item>Reset PB</li>
-      <li nz-menu-divider></li>
-      <li nz-menu-item>Settings</li>-->
+     -->
+    <li nz-menu-divider></li>
+    <li nz-menu-item (click)="openSettingsDialog()">Settings</li>
   </ul>
 </nz-dropdown-menu>

@@ -1,10 +1,21 @@
-import { Component, ElementRef, Injector, Input, Output, ViewChild, EventEmitter, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
+import { isElectron } from '../navbar.component';
 
 export const accountsOptions = {
   resizable: false,
@@ -25,7 +36,7 @@ export const accountsOptions = {
   templateUrl: './connections.component.html',
   styleUrls: ['./connections.component.scss'],
 })
-export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements OnInit {
+export class ConnectionsComponent extends ItemsComponent<IConnection, any> implements OnInit, AfterViewInit {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
 
@@ -38,6 +49,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   connectionsListHeight: number;
 
   protected _clearOnDisconnect = false;
+  maxConnections = 2;
 
   get favourites() {
     return this.items.filter(item => item.favourite);
@@ -69,7 +81,11 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
         this.builder.replaceItems(connections);
       });
   }
-
+  ngAfterViewInit() {
+    if (isElectron()) {
+      this.maxConnections = 1;
+    }
+  }
 
   loadData(params?: any) {
   }

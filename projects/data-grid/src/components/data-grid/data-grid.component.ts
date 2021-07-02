@@ -268,7 +268,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
   startEditingAt(x, y) {
     const cell = this._grid.getCellAt(x, y);
-    this._grid.beginEditAt(cell);
+    if (cell)
+      this._grid.beginEditAt(cell);
   }
 
   applyStyles(styles: GridStyles) {
@@ -403,10 +404,17 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   };
 
   private _resizeEdit = ({ position }) => {
-    const editView = this.tableContainer.nativeElement.parentNode.children[1];
-    for (let key in position) {
-      editView.style[key] = position[key];
-    }
+    const children = this.tableContainer.nativeElement.parentNode.children;
+    if (!children.length)
+      return;
+
+    const editView = children[children.length - 1];
+
+    this._zone.run(() => {
+     for (let key in position) {
+       editView.style[key] = position[key];
+     }
+    });
   }
   private _endEdit = (e) => {
     if (e.item.editValueSetter) {

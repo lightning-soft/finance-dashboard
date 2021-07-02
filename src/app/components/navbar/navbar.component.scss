@@ -9,15 +9,10 @@ $height: 36px;
   background-color: transparent !important;
   position: absolute;
   z-index: 1000;
-
-  &.is-electron {
-    .control {
-      display: flex !important;
-    }
-  }
+  outline: none;
 
   &.hidden {
-    height: $height;
+    height: 10px;
 
     .navigation-bar {
       margin-top: -$height;
@@ -68,16 +63,15 @@ $height: 36px;
 
   .logo {
     display: flex;
+    background-image: url("../../../assets/img/svg/tradrr.svg");
     align-items: center;
     justify-content: center;
-    background-image: url("../../../assets/img/svg/deltaview.svg");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    width: 85px;
     height: 21px;
     margin: 0 16px;
-    transform: translateY(2px);
+    min-width: 60px;
   }
 
   .navbar-manager button {

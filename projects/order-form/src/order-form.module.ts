@@ -9,8 +9,9 @@ import { WindowHeaderModule } from 'window-header';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { PositionsComponent } from './components/positions/positions.component';
 import { BaseOrderFormModule } from 'base-order-form';
-import { ScrollingModule } from "@angular/cdk/scrolling";
-import { StorageModule } from "storage";
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { StorageModule } from 'storage';
+import { NullCalescingModule } from 'ui';
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { StorageModule } from "storage";
     NzInputModule,
     FormsModule,
     ScrollingModule,
+    NullCalescingModule,
     StorageModule
   ],
   declarations: [

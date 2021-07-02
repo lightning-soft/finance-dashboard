@@ -130,10 +130,6 @@ cdk-virtual-scroll-viewport {
     }
   }
 
-  .d-grid {
-    display: grid;
-  }
-
   .two-rows {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;

@@ -11,13 +11,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import {
-  FormActions,
-  getPriceSpecs,
-  OcoStep,
-  SideOrderFormComponent,
-  SideOrderFormState
-} from 'base-order-form';
+import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent, SideOrderFormState } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -41,8 +35,8 @@ import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout
 import {
   AccountsListener,
   filterByAccountAndInstrument,
-  filterByAccountIdAndInstrument,
   filterByConnectionAndInstrument,
+  filterPositions,
   IHistoryItem,
   RealPositionsRepository
 } from 'real-trading';
@@ -202,7 +196,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
 
   get accountId() {
-    return this._accountsSelect?.account?.id;
+    return this.account?.id;
   }
 
   public get instrument(): IInstrument {
@@ -619,7 +613,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (item: IQuote) => this._handleQuote(item))),
       this._tradeDatafeed.on(filterByConnectionAndInstrument(this, (item: TradePrint) => this._handleTrade(item))),
       this._ordersFeed.on(filterByAccountAndInstrument(this, (order: IOrder) => this._handleOrders([order]))),
-      this._positionsFeed.on(filterByAccountIdAndInstrument(this, (pos: IPosition) => this.handlePosition(pos))),
+      this._positionsFeed.on(filterPositions(this, (pos: IPosition) => this.handlePosition(pos))),
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this.handleOHLV(ohlv)))
     );
 
@@ -760,6 +754,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       || (!useCustomTickSize && this._customTickSize != null)) {
       this.centralize();
       // this._calculateDepth();
+    }
+
+    for (const i of this.items) {
+      i.ltq.changeStatus('');
+      i.currentBid.changeStatus('');
+      i.currentAsk.changeStatus('');
+      i.totalAsk.changeStatus('');
+      i.totalBid.changeStatus('');
     }
 
     const depth = settings.general?.marketDepth;
@@ -1636,7 +1638,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._bestAskPrice = price;
         }
 
-        this.askSumItem.ask.updateValue(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
+        this.askSumItem.setBidSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
       }
     }
 
@@ -1762,8 +1764,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       const isVisible = lastMarketDepthIndex > item.index;
       const isDeltaVisible = lastMarketDeltaDepthIndex > item.index;
-      if (!item.isBidSideVisible && !isVisible && !isDeltaVisible)
-        break;
+      // provide bad begaviour
+      // if (!item.isBidSideVisible && !isVisible && !isDeltaVisible)
+      //   break;
 
       item.setBidVisibility(!isVisible, !isDeltaVisible);
 
@@ -1792,7 +1795,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _handleNewBestAsk(price: number) {
     const items = this.items;
-
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
@@ -1822,8 +1824,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       const isVisible = lastMarketDepthIndex < item.index;
       const isDeltaVisible = lastMarketDeltaDepthIndex < item.index;
-      if (!item.isAskSideVisible && !isVisible && !isDeltaVisible)
-        break;
+      // if (!item.isAskSideVisible && !isVisible && !isDeltaVisible)
+      //   break;
 
       item.setAskVisibility(!isVisible, !isDeltaVisible);
 
@@ -2013,13 +2015,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESM1.CME',
+        id: 'ESU1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
         contractSize: 50,
-        symbol: 'ESM1',
+        symbol: 'ESU1',
       };
     // for debug purposes
 

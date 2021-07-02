@@ -4,6 +4,7 @@
   [nzPlaceHolder]="placeholder"
   [nzOptionHeightPx]="23"
   [compareWith]="compareAccounts"
+  [(nzOpen)]="isOpened"
   [(ngModel)]="account"
 >
   <nz-option *ngFor="let item of items" [nzLabel]="labelTransformer(item.id)" [nzValue]="item"></nz-option>

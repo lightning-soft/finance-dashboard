@@ -75,29 +75,42 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
+import { CellStatus, generateNewStatusesByPrefix } from 'data-grid';
 
-const labelText = 'Text label';
+const labelText = 'Indices';
 
 const maxTabCount = 10;
 const profitStyles = {
-  lossBackgroundColor: '#C93B3B',
   color: '#fff',
-  inProfitBackgroundColor: '#4895F5',
+  ...generateNewStatusesByPrefix({
+    lossBackgroundColor: '#C93B3B',
+    inProfitBackgroundColor: '#4895F5',
+  }, CellStatus.Hovered)
 };
 const orderStyles = {
-  orderSellColor: '#C93B3B',
-  orderBuyColor: '#4895F5',
-  orderBuyBackgroundColor: '#24262C',
-  orderSellBackgroundColor: '#24262C',
-  orderPriceColor: '#D0D0D2',
-  orderPriceBackgroundColor: 'rgba(255, 255, 255, 0.2)',
-  orderPriceDisabledColor: 'rgba(208,208,210,0.4)',
-  orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
-  labelColor: '#fff',
-  createOrderColor: '#D0D0D2',
-  labelBackgroundColor: '#24262C',
+  ...generateNewStatusesByPrefix({
+      orderSellColor: '#C93B3B',
+      orderBuyColor: '#4895F5',
+      orderPriceColor: '#D0D0D2',
+      createOrderPriceDisabledColor: 'rgba(208,208,210,0.4)',
+      labelColor: '#fff',
+      createOrderColor: '#D0D0D2',
+    }, CellStatus.Hovered),
+  ...generateNewStatusesByPrefix({
+    orderBuyBackgroundColor: '#24262C',
+    orderSellBackgroundColor: '#24262C',
+    orderPriceBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    labelBackgroundColor: '#24262C',
+  }, CellStatus.Hovered, '#383A40'),
 };
-const defaultStyles = {color: '#D0D0D2', textAlign: 'left'};
+const defaultStyles = {
+  color: '#D0D0D2',
+  hoveredColor: '#D0D0D2',
+  hoveredBackgroundColor: '#383A40',
+  hoveredhighlightBackgroundColor: '#383A40',
+  textAlign: 'left'
+};
 
 const profitClass = 'inProfit';
 const lossClass = 'loss';
@@ -202,14 +215,14 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           return;
         const instrumentHolder: InstrumentHolder = this.currentTab.getInstrumentHolder(data.item.instrument);
 
-        if (data.item.expanded) {
-          data.item.setExpanded(false);
+        if (data.item.shouldExpand) {
+          data.item.setShouldExpand(false);
           instrumentHolder.expanded = false;
           this.builder.removeViewModels(data.item.subItems);
         } else {
           const viewModel = data.item;
           this.addOrders(viewModel);
-          viewModel.setExpanded(true);
+          viewModel.setShouldExpand(true);
           instrumentHolder.expanded = true;
         }
       },
@@ -229,11 +242,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
               this.isInlineOrderCreating = false;
               break;
             case PerformedAction.Play:
-              const marketWatchItem = this.builder.getInstrumentItem(data.item.instrument);
-              marketWatchItem.deleteSubItem(data.item);
               this.builder.deleteItems([data.item]);
               const order = data.item.getDto();
-              this.isInlineOrderCreating = false;
+              this.cancelCreateOrder(data.item);
               this._ordersRepository.createItem(order).toPromise().then(orderResponse => {
                 if (!isForbiddenOrder(orderResponse))
                   this.createdOrders.push(orderResponse.id);
@@ -243,6 +254,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         }
       }
     ),
+    new CellClickDataGridHandler<MarketWatchCreateOrderItem>({
+      column: MarketWatchColumnsArray,
+      handler: (data, event) => {
+        if (data?.item.itemType !== ItemType.CreateItem)
+          return;
+        const cell = data.item[data.column.name];
+        if (cell && cell.editable) {
+          const point =  { x: event.offsetX, y: event.offsetY };
+          this._dataGrid.startEditingAt(point.x, point.y);
+        }
+      },
+    }),
     new CellClickDataGridHandler<MarketWatchSubItem>({
         column: MarketWatchColumns.Symbol,
         handler: (data, event) => {
@@ -358,15 +381,20 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'orderType':
         return this.createSelect(cell, OrderType);
       case 'limitPrice':
-        return this.createNumber(cell, { placeholder: 'Limit Price', step: cell.row.instrument.tickSize });
+        return this.createNumber(cell, { placeholder: 'Limit Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
       case 'stopPrice':
-        return this.createNumber(cell, { placeholder: 'Stop Price', step: cell.row.instrument.tickSize });
+        return this.createNumber(cell, { placeholder: 'Stop Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
       case 'quantity':
-        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false });
+        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false, });
       case 'accounts':
         const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
         return {
           factory,
+          params: {
+            isOpened: true,
+          }
         };
     }
   }
@@ -381,8 +409,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         value,
       },
       styles: {
-        minWidth: '250px',
-        marginLeft: '40px',
+       // minWidth: '250px',
+       // marginLeft: '40px',
+       marginLeft: '5px',
       }
     };
   }
@@ -435,7 +464,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     this.columns = this.defaultColumns;
     this.componentInstanceId = Date.now();
-    (window as any).mw = this;
+    // (window as any).mw = this;
 
     this.setTabIcon('icon-widget-market-watch');
     this.setTabTitle('MarketWatch');
@@ -500,6 +529,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   private cancelCreateOrder(row) {
     const item = this.builder.getInstrumentItem(row.instrument);
     item.deleteSubItem(row);
+    item.setHasCreatingOrder(false);
     this.builder.deleteItems([row]);
     this.isInlineOrderCreating = false;
   }
@@ -508,7 +538,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this._positionsRepository.getItems({
      connectionId: this.connection?.id,
     }).toPromise()
-      .then((response) => response.data.forEach(pos => this._processPosition(pos)));
+      .then((response) => response?.data.forEach(pos => this._processPosition(pos)));
   }
 
   ngAfterViewInit() {
@@ -642,7 +672,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     item.handleOrder(order);
     if (isForbiddenOrder(order)) {
       this.builder.handleDeleteItems([order]);
-    } else if (!hasOrder && item.expanded && this.settings.display.showOrders) {
+    } else if (!hasOrder && item.shouldExpand && this.settings.display.showOrders) {
       this.addOrders(item);
     }
     this._changeDetectorRef.detectChanges();
@@ -809,8 +839,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       if (style)
         item.style = {...defaultStyles, ...style, ...orderStyles};
       else {
-        item.style = {...item.style, ...styles[generalColumnStyles], ...orderStyles};
+        item.style = {...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles};
       }
+
       const column = this.settings.columnView.columns[item.name];
       item.visible = column?.enabled;
       item.disabled = this.settings.display.showOrders && column?.pair !== noneValue;
@@ -847,10 +878,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
       this.columns = tab.columns;
       this._dataGrid.changeColumns(tab.columns);
-      this.updateDataGridItems();
-      if (this.settings.display.showOrders) {
-        this.showSubItems();
-      }
+      this.updateDataGridItems(this.settings.display.showOrders);
       this._applySettings();
       this._dataGrid?.resize();
     }
@@ -862,16 +890,19 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       const viewItem = this.builder.getInstrumentItem(item.instrument);
       if (!viewItem)
         return;
-      viewItem.expanded = item.expanded;
+      viewItem.shouldExpand = item.expanded;
       viewItem.updateExpanded();
-      if (viewItem.expanded)
+      if (viewItem.shouldExpand)
         this.addOrders(viewItem);
     });
   }
 
-  private updateDataGridItems() {
+  private updateDataGridItems(showSubitems = false) {
     this.isInlineOrderCreating = false;
     this.builder.displayItems(this.currentTab.data);
+    if (showSubitems) {
+      this.showSubItems();
+    }
   }
 
   createTab() {
@@ -963,7 +994,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         }
 
         if (this.tabs.length === 0) {
-          this.currentTab = null;
+          const tab = new Tab({name: 'Blank', columns: this.defaultColumns});
+          this.tabs.push(tab);
+          this.selectTab(tab);
           this.builder.replaceViewItems([]);
         }
       }
@@ -1003,7 +1036,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.layout.addComponent({
       component: {
         name: item.component,
-        state: {instrument: this.contextInstrument, account: this.account},
+        state: { instrument: this.contextInstrument },
       },
       ...item.options
     });
@@ -1030,7 +1063,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     const index = this.builder.items.findIndex(item => item.id === this.contextInstrument?.id);
     const viewModel = this.builder.getInstrumentItem(this.contextInstrument);
-    const subItemCount = viewModel?.expanded ? viewModel.subItems.length : 0;
+    const subItemCount = viewModel?.shouldExpand ? viewModel.subItems.length : 0;
     if (index !== -1)
       this.addSymbol(index + 1 + subItemCount);
   }
@@ -1049,7 +1082,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.currentTab.data.splice(tabIndex + 1, 0, labelHolder);
 
     const labelViewModel = new MarketWatchLabelItem(labelHolder);
-    const additionalNumber = viewModel.expanded && this.settings.display.showOrders ? viewModel.subItems.length : 0;
+    const additionalNumber = viewModel.shouldExpand && this.settings.display.showOrders ? viewModel.subItems.length : 0;
     this.builder.addViewItems([labelViewModel], index + 1 + additionalNumber);
 
   }
@@ -1095,7 +1128,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         state: {
           instrument: this.contextInstrument,
           link: this._getLinkingKey(),
-          account: this.account,
           ...state,
         },
       },
@@ -1151,13 +1183,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       return;
     }
 
-    const index = this.currentTab.data.findIndex((item: InstrumentHolder) => item?.instrument?.id === prevInstrument.id);
-
-    (this.currentTab.data[index] as InstrumentHolder).instrument = instrument;
+    this.currentTab.changeInstrument(prevInstrument, instrument);
     this.builder.loadInstrument(instrument);
     this.builder.replaceViewItem(this.builder.getInstrumentItem(instrument), this.builder.getInstrumentItem(prevInstrument));
     this.builder.deleteItem(prevInstrument);
-    this.updateDataGridItems();
+    this.updateDataGridItems(true);
   }
 
   ngOnDestroy() {
@@ -1188,8 +1218,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       orderMarketWatchItem.price.updateValue(item.bid._value);
 
     item.subItems.unshift(orderMarketWatchItem);
+    item.setHasCreatingOrder(true);
+    item.setShouldExpand(true);
+    if (this.settings.display.showOrders && item.subItems.length)
+      this.addOrders(item);
     this.isInlineOrderCreating = true;
-    this.builder.addViewItems([orderMarketWatchItem], index + 1);
+    this.builder.addViewItems([orderMarketWatchItem], this.builder.getIndex(instrument.id) + 1);
   }
 
   renameLabel() {
@@ -1209,14 +1243,24 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       }
     }
   }
+
+  rollSymbol() {
+    if (this.connection)
+      this._repository.rollInstrument(this.contextInstrument, { connectionId: this.connection.id })
+        .toPromise().then(instrument => {
+          this.onInstrumentChanged(this.contextInstrument, instrument);
+        });
+  }
 }
 
 function generateStyles(settings: MarketWatchSettings) {
   const bid = generateStyle('bid', settings);
   const ask = generateStyle('ask', settings);
   const positionStyle = {
-    [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
-    [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
+      [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
+    }, CellStatus.Hovered),
     color: settings.colors.positionTextColor,
   };
   const bidQuantityStyle = {
@@ -1227,23 +1271,33 @@ function generateStyles(settings: MarketWatchSettings) {
   };
 
   const netChangeStyle = {
-    [`${profitClass}Color`]: settings.colors.netChangeUpColor,
-    [`${lossClass}Color`]: settings.colors.netChangeDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}Color`]: settings.colors.netChangeUpColor,
+      [`${lossClass}Color`]: settings.colors.netChangeDownColor,
+    }, CellStatus.Hovered),
+    [`hovered${profitClass}BackgroundColor`]: '#383A40',
+    [`hovered${lossClass}BackgroundColor`]: '#383A40',
   };
   const percentChangeStyle = {
-    [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
-    [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
+    ...generateNewStatusesByPrefix({
+      [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
+      [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
+      [`hovered${profitClass}BackgroundColor`]: '#383A40',
+      [`hovered${lossClass}BackgroundColor`]: '#383A40',
+    }, CellStatus.Hovered)
   };
 
   const generalStyles = {
-    color: settings.colors.textColor
+    color: settings.colors.textColor,
   };
 
   let lastStyles = {};
   if (settings.display.highlightType !== noneValue) {
     lastStyles = {
-      highlightColor: '#fff',
-      [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight
+      ...generateNewStatusesByPrefix({
+        highlightColor: '#fff',
+        [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight,
+      }, CellStatus.Hovered)
     };
   }
 
@@ -1272,7 +1326,9 @@ const subtitleMap = {
 
 function generateStyle(prefix, settings) {
   return {
-    highlightColor: settings.colors[`${prefix}Color`],
-    highlightBackgroundColor: settings.colors[`${prefix}Background`],
+    ...generateNewStatusesByPrefix({
+      highlightColor: settings.colors[`${prefix}Color`],
+      highlightBackgroundColor: settings.colors[`${prefix}Background`],
+    }, CellStatus.Hovered)
   };
 }

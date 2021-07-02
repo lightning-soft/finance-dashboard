@@ -18,7 +18,7 @@ const regularStyles = {
 
 export class SymbolCell extends Cell {
   private _expanded = false;
-  private _showDrawings = true;
+  private _showDrawings = false;
   styles = regularStyles;
   centerX: number;
   centerY: number;
@@ -30,6 +30,10 @@ export class SymbolCell extends Cell {
 
   clickOnExpand(mouseEvent: MouseEvent): boolean {
     return this.isClickedOnCircle(mouseEvent);
+  }
+
+  getLeftPadding() {
+    return leftMargin + (circleRadius * 2) + textLeftMargin;
   }
 
   setExpanded(value) {

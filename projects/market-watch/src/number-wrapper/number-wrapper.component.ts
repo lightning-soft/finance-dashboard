@@ -14,6 +14,7 @@ export class NumberWrapperComponent {
   step = 1;
   min = 0;
   placeholder = '';
+  precision = 2;
   dropdownVisible = true;
 
   set value(value) {
@@ -24,13 +25,13 @@ export class NumberWrapperComponent {
     if (!this.shouldOpenSelect)
       return;
 
-    let from = +value - (this.optionSize * this.step);
-    const to = +value + (this.optionSize * this.step);
+    let from = +value + (this.optionSize * this.step);
+    const to = +value - (this.optionSize * this.step);
     this.options = [];
 
-    while (from <= to) {
-      this.options.push(from);
-      from += this.step;
+    while (from >= to) {
+      this.options.push(+from.toFixed(this.precision));
+      from -= this.step;
     }
   }
 

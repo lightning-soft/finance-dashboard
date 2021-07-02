@@ -105,7 +105,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    chart.indicators.forEach(indicator => {
+    chart.indicators?.forEach(indicator => {
       this._addIndicator(indicator);
     });
 

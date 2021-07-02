@@ -1,7 +1,7 @@
 {
-  "name": "deltaview",
+  "name": "tradrr",
   "version": "10.0.5",
-  "description": "DeltaView by AMS",
+  "description": "Tradrr",
   "author": {
     "email": "tech@avidi.tech",
     "name": "tech"
@@ -44,9 +44,9 @@
     "electron:build": "npm run build:prod && electron-builder build"
   },
   "build": {
-    "appId": "com.deltaview.app",
-    "productName": "DeltaView",
-    "copyright": "Copyright © 2020 AMS",
+    "appId": "com.tradrr.app",
+    "productName": "Tradrr",
+    "copyright": "Copyright © 2020 Tradrr",
     "files": [
       "dist/browser/**/*",
       "package.json",

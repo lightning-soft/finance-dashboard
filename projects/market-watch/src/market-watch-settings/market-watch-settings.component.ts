@@ -46,12 +46,15 @@ export class MarketWatchSettingsComponent implements AfterViewInit {
 
   saveState() {
     return {
-      settings: this.settings,
+      settings: clone(this.settings),
       linkKey: this._linkKey,
     };
   }
 
   loadState(state) {
+    if (this._linkKey && state?.linkKey !== this._linkKey)
+      return;
+
     this.settings = state?.settings ?? clone(defaultSettings);
     this._linkKey = state?.linkKey;
 

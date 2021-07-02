@@ -1,30 +1,34 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
-import { untilDestroyed } from "@ngneat/until-destroy";
 import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import {
-  IAccount, InstrumentsRepository,
+  IAccount,
+  InstrumentsRepository,
   IPosition,
-  IPositionParams, Level1DataFeed, PositionsFeed,
+  IPositionParams,
+  Level1DataFeed,
+  PositionsFeed,
   PositionsRepository,
   PositionStatus,
   TradeDataFeed,
   TradePrint
 } from 'trading';
 import { PositionColumn, PositionItem } from './models/position.item';
-import { ConnectionId } from '../../communication/src/services/types';
 
 const profitStyles = {
   lossBackgroundColor: '#C93B3B',
   inProfitBackgroundColor: '#4895F5',
+  lossBorderColor: '#1B1D22',
+  inProfitBorderColor: '#1B1D22',
   hoveredlossBackgroundColor: '#C93B3B',
   hoveredinProfitBackgroundColor: '#4895F5',
+  hoveredlossBorderColor: '#383A40',
+  hoveredinProfitBorderColor: '#383A40',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
@@ -161,12 +165,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
+    this.updatePl();
   }
 
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
     this._loadInstrumentsForPositions(items);
     items.forEach(item => this._levelOneDataFeed.subscribe(item.instrument, item.connectionId));
+    this.updatePl();
   }
 
   protected _handleResponse(response: IPaginationResponse<IPosition>, params: any = {}) {
@@ -179,10 +185,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   protected _handleUpdateItems(items: IPosition[]) {
-    super._handleUpdateItems(items.map(i => {
-      delete i.instrument; // instrument data from realtime is not full and correct
-      return i;
-    }));
+    super._handleUpdateItems(items);
     this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.instrument));
     this.updatePl();
   }

@@ -238,7 +238,7 @@ export class WorkspacesManager {
     this.deletedWindow$.next(deletedWindow);
     workspace.windows = workspace.windows.filter(item => item.id !== id);
 
-    if (workspace.windows && workspace.windows.every(item => !item.isOnStartUp)) {
+    if (workspace.windows && workspace.windows.length && workspace.windows.every(item => !item.isOnStartUp)) {
       workspace.windows[0].isOnStartUp = true;
     }
 

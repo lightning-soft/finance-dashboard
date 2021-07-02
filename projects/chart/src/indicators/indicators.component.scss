@@ -198,7 +198,7 @@
       }
     }
 
-    .smooth-price, {
+    .smooth-price {
       number-input {
         flex-direction: row;
 
@@ -339,7 +339,7 @@
     }
 
     .split-input {
-      nz-form-label, {
+      nz-form-label {
         width: 50%;
       }
 

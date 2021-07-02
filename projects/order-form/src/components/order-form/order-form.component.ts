@@ -1,4 +1,4 @@
-import { Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Injector, Input, OnDestroy, OnInit, ViewChild, NgZone } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
@@ -71,13 +71,6 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (value?.id === this.instrument?.id)
       return;
 
-    const connectionId = this.account?.connectionId;
-    this._levelOneDatafeed.unsubscribe(value, connectionId);
-
-    this.unsubscribe(() => {
-      this._levelOneDatafeed.unsubscribe(value, connectionId);
-    });
-
     this._instrument = value;
 
     if (this.price)
@@ -86,12 +79,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
 
-    this.loadPositions();
-
-    this.bidPrice = null;
-    this.askPrice = null;
-    this.askVolume = null;
-    this.bidVolume = null;
+    this.loadData();
   }
 
   get instrument(): IInstrument {
@@ -138,7 +126,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     private _levelOneDatafeed: Level1DataFeed,
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
-    protected _injector: Injector
+    protected _injector: Injector,
+    private _zone: NgZone,
   ) {
     super();
     this.autoLoadData = false;
@@ -154,14 +143,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.onTypeUpdated();
     this.onRemove(
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
-        if (quote.updateType === UpdateType.Undefined && quote.instrument?.symbol === this.instrument?.symbol) {
-          if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
-            this.askVolume = quote.volume;
-          } else {
-            this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
-          }
+        if (quote.updateType === UpdateType.Undefined) {
+          this._zone.run(() => {
+            if (quote.side === QuoteSide.Ask) {
+              this.askPrice = quote.price.toFixed(this.precision);
+              this.askVolume = quote.volume;
+            } else {
+              this.bidVolume = quote.volume;
+              this.bidPrice = quote.price.toFixed(this.precision);
+            }
+          });
         }
       })),
       this._positionDatafeed.on(filterPositions(this, (pos, connectionId) => {
@@ -177,7 +168,26 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   handleAccountChange(account: IAccount) {
     this.account = account;
     this.form.patchValue({ accountId: account?.id });
+    this.loadData();
+  }
+
+  loadData() {
+    const instrument = this.instrument;
+    const connectionId = this.account?.connectionId;
+    if (!instrument || !connectionId)
+      return;
+
+    this.unsubscribe(() => {
+        this._levelOneDatafeed.unsubscribe(this.instrument, connectionId);
+      });
+    this._levelOneDatafeed.subscribe(this.instrument, connectionId);
+
     this.loadPositions();
+
+    this.bidPrice = null;
+    this.askPrice = null;
+    this.askVolume = null;
+    this.bidVolume = null;
   }
 
   getDto(): any {
@@ -206,12 +216,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this.instrument = state.instrument;
     else
       this.instrument = {
-        id: 'ESM1',
+        id: 'ESU1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: 'ESM1',
+        symbol: 'ESU1',
       };
 
     if (state?.account)
