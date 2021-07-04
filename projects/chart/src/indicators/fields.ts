@@ -1326,7 +1326,7 @@ export const priceStatsConfig: IFieldConfig[] = [
                   { key: 'enabled', label: 'POC Chart Overlay' },
                 ],
                 additionalFields: [
-                  getSwitch('dev', 'Developing POC', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                  getSwitch('devEnabled', 'Developing POC', { className: 'regularSwitch reverse-switch-label mt-n2' }),
                 ],
               }),
               getColor({ key: 'strokeColor', label: 'POC Color' }),
@@ -1341,7 +1341,7 @@ export const priceStatsConfig: IFieldConfig[] = [
                   { key: 'enabled', label: 'VA Chart Overlay' },
                 ],
                 additionalFields: [
-                  getSwitch('dev', 'Developing VA', { className: 'regularSwitch reverse-switch-label mt-n2' }),
+                  getSwitch('devEnabled', 'Developing VA', { className: 'regularSwitch reverse-switch-label mt-n2' }),
                 ],
               }),
               getColor({ key: 'strokeColor', label: 'VA Color' }),

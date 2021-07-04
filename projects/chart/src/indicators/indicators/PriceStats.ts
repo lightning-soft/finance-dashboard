@@ -21,16 +21,12 @@ export class PriceStats extends Indicator {
           color: settings.profile.color,
           poc: {
             enabled: settings.lines.current.poc.enabled,
-            dev: {
-              enabled: settings.lines.dev.poc.enabled,
-            },
+            devEnabled: settings.lines.dev.poc.enabled,
             strokeColor: settings.lines.current.poc.strokeTheme.strokeColor,
           },
           va: {
             enabled: settings.lines.current.va.enabled,
-            dev: {
-              enabled: settings.lines.dev.va.enabled,
-            },
+            devEnabled: settings.lines.dev.va.enabled,
             strokeColor: settings.lines.current.va.strokeTheme.strokeColor,
           },
         },
@@ -39,16 +35,12 @@ export class PriceStats extends Indicator {
           color: settings.eth.profile.color,
           poc: {
             enabled: settings.eth.lines.current.poc.enabled,
-            dev: {
-              enabled: settings.eth.lines.dev.poc.enabled,
-            },
+            devEnabled: settings.eth.lines.dev.poc.enabled,
             strokeColor: settings.eth.lines.current.poc.strokeTheme.strokeColor,
           },
           va: {
             enabled: settings.eth.lines.current.va.enabled,
-            dev: {
-              enabled: settings.eth.lines.dev.va.enabled,
-            },
+            devEnabled: settings.eth.lines.dev.va.enabled,
             strokeColor: settings.eth.lines.current.va.strokeTheme.strokeColor,
           },
         },
@@ -87,13 +79,13 @@ export class PriceStats extends Indicator {
         },
         dev: {
           poc: {
-            enabled: settings.profile.rth.poc.dev.enabled,
+            enabled: settings.profile.rth.poc.devEnabled,
             strokeTheme: {
               strokeColor: settings.profile.rth.poc.strokeColor,
             },
           },
           va: {
-            enabled: settings.profile.rth.va.dev.enabled,
+            enabled: settings.profile.rth.va.devEnabled,
             strokeTheme: {
               strokeColor: settings.profile.rth.va.strokeColor,
             },
@@ -123,13 +115,13 @@ export class PriceStats extends Indicator {
           },
           dev: {
             poc: {
-              enabled: settings.profile.eth.poc.dev.enabled,
+              enabled: settings.profile.eth.poc.devEnabled,
               strokeTheme: {
                 strokeColor: settings.profile.eth.poc.strokeColor,
               },
             },
             va: {
-              enabled: settings.profile.eth.va.dev.enabled,
+              enabled: settings.profile.eth.va.devEnabled,
               strokeTheme: {
                 strokeColor: settings.profile.eth.va.strokeColor,
               },

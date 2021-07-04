@@ -17,8 +17,6 @@ export class SessionStats extends Indicator {
       };
     }
 
-    console.log(lines);
-
     return {
       general: settings.general,
       font: settings.font,
