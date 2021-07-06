@@ -35,6 +35,8 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
 
+  @ViewChild('inputElement') inputElement;
+
   scroller$ = new Subject();
   tabIndex = 0;
 

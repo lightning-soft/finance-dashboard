@@ -13,7 +13,7 @@ import {
   OrderType,
   PositionsRepository
 } from 'trading';
-import { BaseOrderForm } from '../base-order-form';
+import { BaseOrderForm, OcoStep } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
 
@@ -28,11 +28,6 @@ export enum FormActions {
   CreateSellMarketOrder,
   CreateOcoOrder,
   CancelOcoOrder
-}
-
-
-export enum OcoStep {
-  Fist, Second, None
 }
 
 export interface DomFormSettings {

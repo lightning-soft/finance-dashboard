@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { Id, ItemsComponent } from 'base-components';
+import { ItemsComponent } from 'base-components';
 import { IAccount, IInstrument, InstrumentsRepository } from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
+import { InstrumentDialogComponent } from "instrument-dialog";
+import { NzModalService } from "ng-zorro-antd";
 
 @Component({
   selector: 'instrument-select',
@@ -43,22 +45,15 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
   }
 
   value = '';
+  opened = false;
 
   constructor(
     protected _injector: Injector,
     protected _repository: InstrumentsRepository,
+    private _modalService: NzModalService,
   ) {
     super();
     this.autoLoadData = false;
-  }
-
-  search(criteria = '') {
-    this.builder.replaceItems([]);
-
-    this.loadData({
-      criteria,
-      take: 20,
-    });
   }
 
   protected _getItems(params: any) {
@@ -71,37 +66,35 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     this.loadData();
   }
 
-  handleModelChange(id: Id) {
-    const instrument = this.items.find(i => i.id === id);
-
-    if (!instrument._loaded) {
-      const hide = this.showLoading();
-      this._repository.getItemById(instrument.symbol, { exchange: instrument.exchange, accountId: this.account.id })
-        .pipe(untilDestroyed(this))
-        .subscribe(
-          (_instrument: IInstrument) => {
-            Object.assign(instrument, _instrument, { _loaded: true, tickSize: _instrument.increment });
-            this.instrumentChange.emit(instrument);
-            hide();
-          },
-          (err) => this._handleLoadingError(err),
-        );
-    } else {
-      this.instrumentChange.emit(instrument);
-    }
-  }
-
-  handleOpenChange(opened: boolean) {
-    if (opened) {
-      this.search();
-    } else {
-      setTimeout(() => {
-        this._dataSubscription?.unsubscribe();
-      });
-    }
+  handleOpenChange(opened: boolean, select) {
+   if (opened) {
+     this.opened = false;
+     this.openDialog();
+   }
   }
 
   clear() {
     this.value = '';
+  }
+
+  openDialog() {
+    const modal = this._modalService.create({
+      nzContent: InstrumentDialogComponent,
+      nzWidth: 386,
+      nzClassName: 'instrument-dialog',
+      nzFooter: null,
+      nzComponentParams: {
+         accountId: this.account?.id,
+        // connectionId: this.connection.id,
+      }
+    });
+    modal.afterClose
+      .pipe(untilDestroyed(this))
+      .subscribe((res) => {
+        if (res) {
+          this.instrument = res;
+          this.instrumentChange.emit(res);
+        }
+      });
   }
 }

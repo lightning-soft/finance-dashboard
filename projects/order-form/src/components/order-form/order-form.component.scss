@@ -26,6 +26,12 @@
   grid-template-columns: 1fr 1fr;
 }
 
+.buttons-grid {
+  display: grid;
+  margin-top: 4px;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .gap-4 {
   grid-gap: 4px;
 }
@@ -83,7 +89,7 @@
   justify-content: center;
 }
 
-.ice-active {
+.button-active {
   border: 1px solid $primary !important;
   background: rgba(72, 149, 245, 0.5) !important;
 }

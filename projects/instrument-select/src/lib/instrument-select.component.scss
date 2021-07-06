@@ -1,6 +1,15 @@
 .ant-select {
   width: 100%;
 }
+
 nz-select {
   min-width: 70px;
+}
+
+::ng-deep {
+  .instrument-select {
+    .ant-select-dropdown {
+      display: none;
+    }
+  }
 }

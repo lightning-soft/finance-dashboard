@@ -5,6 +5,7 @@ import { NotifierService } from 'notifier';
 import { Feed, IInstrument } from 'trading';
 import { ChartComponent } from '../chart.component';
 import { IChart } from '../models';
+import { filterByAccountAndInstrument } from "real-trading";
 
 export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrument }> {
   protected _instance: ChartComponent;
@@ -34,7 +35,11 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
     this._notifier = this._injector.get(NotifierService);
   }
 
-  init() {}
+  init() {
+    this.unsubscribeFn = this._dataFeed.on(filterByAccountAndInstrument(this._instance,
+      (item: any) => this.handle(item))
+    );
+  }
 
   handle(model: T) {
     const instrument = this._instance?.instrument;
@@ -91,8 +96,8 @@ export abstract class ChartObjects<T extends IBaseItem & { instrument?: IInstrum
         this.items = res.data;
         res.data.forEach(item => {
           this.handle(item);
-          this._onDataLoaded();
         });
+        this._onDataLoaded();
       });
   }
 

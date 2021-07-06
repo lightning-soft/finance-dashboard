@@ -31,7 +31,7 @@
       "instrument-dialog": [
         "dist/instrument-dialog/instrument-dialog",
         "dist/instrument-dialog"
-      ]
+      ],
     }
   },
   "references": [

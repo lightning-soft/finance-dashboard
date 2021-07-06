@@ -1,10 +1,15 @@
 import { FormComponent } from 'base-components';
-import { IInstrument, IOrder, OrderType } from 'trading';
-import { IPosition, PositionsRepository } from 'trading';
+import {
+  compareInstruments,
+  IInstrument,
+  IOrder,
+  IPosition,
+  OrderDuration,
+  OrderType,
+  PositionsRepository
+} from 'trading';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { OrderDuration } from 'trading';
 import { Directive, Input, ViewChild } from '@angular/core';
-import { compareInstruments } from 'trading';
 import { AccountSelectComponent } from 'account-select';
 
 const placeholder = '-';
@@ -127,3 +132,6 @@ export const orderTypes = [
   { label: 'STP LMT', value: OrderType.StopLimit },
   { label: 'STP MKT', value: OrderType.StopMarket },
 ];
+export enum OcoStep {
+  Fist, Second, None
+}

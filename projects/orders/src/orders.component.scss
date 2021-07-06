@@ -1,5 +1,6 @@
 @import "themes/index";
 
+$headerHeight: 16px;
 $selectHeightContainer: 32px;
 $selectMarginBottom: 15px;
 
@@ -11,6 +12,9 @@ $selectMarginBottom: 15px;
   width: 100%;
 
   ::ng-deep {
+    data-grid {
+      height: calc(100% - #{$headerHeight});
+    }
 
     window-header {
       .title {

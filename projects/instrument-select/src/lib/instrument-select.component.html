@@ -1,15 +1,14 @@
 <nz-select
   [class]="className"
-  nzShowSearch
-  nzServerSearch
   [nzOptionHeightPx]="24"
   [nzPlaceHolder]="placeholder"
   [nzLoading]="loading"
-  (nzOnSearch)="search($event)"
-  (nzScrollToBottom)="loadMore()"
   [(ngModel)]="value"
-  (ngModelChange)="handleModelChange($event)"
-  (nzOpenChange)="handleOpenChange($event)"
+  [nzNotFoundContent]="empty"
+  nzDropdownClassName="instrument-select"
+  [(nzOpen)]="opened"
+  #select
+  (nzOpenChange)="handleOpenChange($event, select);"
 >
   <nz-option
     [nzValue]="instrument.id"
@@ -23,3 +22,4 @@
     [nzLabel]="item.symbol"
   ></nz-option>
 </nz-select>
+<ng-template #empty></ng-template>

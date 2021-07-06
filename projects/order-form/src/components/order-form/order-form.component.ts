@@ -1,8 +1,8 @@
-import { Component, Injector, Input, OnDestroy, OnInit, ViewChild, NgZone } from '@angular/core';
+import { Component, Injector, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
-import { BaseOrderForm, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
+import { BaseOrderForm, OcoStep, orderDurations, orderTypes, QuantityInputComponent } from 'base-order-form';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { filterByConnectionAndInstrument, filterPositions, RealPositionsRepository } from 'real-trading';
 import { Storage } from 'storage';
@@ -46,6 +46,11 @@ export interface OrderFormComponent extends ILayoutNode, IUnsubscribe {
 @LayoutNode()
 @BindUnsubscribe()
 export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestroy, IStateProvider<OrderFormState> {
+  isOco = false;
+  ocoStep = OcoStep.None;
+
+  buyOcoOrder: IOrder;
+  sellOcoOrder: IOrder;
 
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
@@ -97,7 +102,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   orderDurations = orderDurations;
-  orderTypes = orderTypes;
+  orderTypes = orderTypes.map(item => ({ ...item, disabled: false }));
   step = 1;
   OrderSide = OrderSide;
   editIceAmount: boolean;
@@ -178,8 +183,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     this.unsubscribe(() => {
-        this._levelOneDatafeed.unsubscribe(this.instrument, connectionId);
-      });
+      this._levelOneDatafeed.unsubscribe(this.instrument, connectionId);
+    });
     this._levelOneDatafeed.subscribe(this.instrument, connectionId);
 
     this.loadPositions();
@@ -289,8 +294,33 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   submit(side: OrderSide) {
     this.form.patchValue({ side });
+    if (this.isOco) {
+      this.submitOcoOrder(side);
+      return;
+    }
 
     this.apply();
+  }
+
+  submitOcoOrder(side: OrderSide) {
+    if (side === OrderSide.Buy) {
+      this.buyOcoOrder = this.getDto();
+      this.ocoStep = OcoStep.Second;
+    } else if (side === OrderSide.Sell) {
+      this.sellOcoOrder = this.getDto();
+      this.ocoStep = OcoStep.Second;
+    }
+
+    if (this.sellOcoOrder && this.buyOcoOrder) {
+      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+      this._repository.createItem(this.buyOcoOrder)
+        .pipe(untilDestroyed(this)).subscribe();
+      this.ocoStep = OcoStep.None;
+      this.sellOcoOrder = null;
+      this.buyOcoOrder = null;
+      this.isOco = false;
+    }
+    this.updateOrderTypes();
   }
 
   protected handleItem(item: IOrder): void {
@@ -366,7 +396,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.instrument.description}`;
+      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
     }
   }
 
@@ -375,5 +405,51 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     super._handleSuccessCreate(response);
+  }
+
+  createOco() {
+    if (!this.isOco) {
+      this.ocoStep = OcoStep.Fist;
+      this.isOco = true;
+      this.updateOrderTypes();
+    }
+  }
+
+  updateOrderTypes() {
+    switch (this.ocoStep) {
+      case OcoStep.Fist: {
+        this.orderTypes = this.orderTypes.map(item => {
+          item.disabled = OrderType.Limit !== item.value;
+          return item;
+        });
+        this.form.patchValue({ type: OrderType.Limit });
+        break;
+      }
+      case OcoStep.Second: {
+        this.orderTypes = this.orderTypes.map(item => {
+          item.disabled = ![OrderType.StopMarket, OrderType.StopLimit].includes(item.value);
+          return item;
+        });
+        this.form.patchValue({ type: OrderType.StopMarket });
+        break;
+      }
+      case OcoStep.None: {
+        this.orderTypes = this.orderTypes.map(item => {
+          item.disabled = false;
+          return item;
+        });
+        break;
+      }
+    }
+  }
+
+  cancelOco() {
+    if (this.isOco) {
+      this.ocoStep = OcoStep.None;
+      this.isOco = false;
+      this.sellOcoOrder = null;
+      this.buyOcoOrder = null;
+      this.updateOrderTypes();
+    }
   }
 }

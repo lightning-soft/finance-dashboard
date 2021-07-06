@@ -14,7 +14,8 @@
       <span class="pos-title">Pos</span>
       <button
         [class.pos-cursor-not-allowed]="!canClickPosButton"
-        (click)="setPositionQuantity()" class="position-button" [class.pos-negative]="isPositionsNegative">{{positionsSum}}</button>
+        (click)="setPositionQuantity()" class="position-button"
+        [class.pos-negative]="isPositionsNegative">{{positionsSum}}</button>
     </div>
     <div>
       <button (click)="closePositions()" class="close-position" nz-button>Close Position</button>
@@ -25,24 +26,28 @@
                       [ngModelOptions]="{standalone: true}"
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
-    <div class="grid gap-4">
-      <nz-select (ngModelChange)="onTypeUpdated()" formControlName="type" [nzOptionHeightPx]="23">
-        <nz-option *ngFor="let item of orderTypes" [nzValue]="item.value" [nzLabel]="item.label">
-        </nz-option>
-      </nz-select>
-      <nz-select formControlName="duration" [nzOptionHeightPx]="23">
-        <nz-option *ngFor="let item of orderDurations" [nzValue]="item" [nzLabel]="item">
-        </nz-option>
-      </nz-select>
-      <button [disabled]="!isIceEnabled" (click)="toggleIce()"
-              class="dark-button {{isIce && isIceEnabled ? 'ice-active': ''}}" nz-button>ICE
-      </button>
-
-      <nz-input-number
-        class="order-number-input w-100"
-        formControlName="iceQuantity"
-      >
-      </nz-input-number>
+    <div>
+      <div class="grid gap-4">
+        <nz-select (ngModelChange)="onTypeUpdated()" formControlName="type" [nzOptionHeightPx]="23">
+          <nz-option *ngFor="let item of orderTypes" [nzDisabled]="item.disabled" [nzValue]="item.value" [nzLabel]="item.label">
+          </nz-option>
+        </nz-select>
+        <nz-select formControlName="duration" [nzOptionHeightPx]="23">
+          <nz-option *ngFor="let item of orderDurations" [nzValue]="item" [nzLabel]="item">
+          </nz-option>
+        </nz-select>
+      </div>
+      <div class="buttons-grid gap-4">
+        <button nz-button (click)="createOco()" (contextmenu)="cancelOco()" class="dark-button {{isOco ? 'button-active': ''}}">OCO</button>
+        <button [disabled]="!isIceEnabled" (click)="toggleIce()"
+                class="dark-button {{isIce && isIceEnabled ? 'button-active': ''}}" nz-button>ICE
+        </button>
+        <nz-input-number
+          class="order-number-input w-100"
+          formControlName="iceQuantity"
+        >
+        </nz-input-number>
+      </div>
     </div>
     <div class="form-divider"></div>
     <sl-units overlayClass="order-form-overlay" formControlName="stopLoss"></sl-units>

@@ -84,12 +84,15 @@ export class NavbarComponent {
       clearTimeout(this.timeout);
     }
   }
-  _isInBounds(event) {
-      if (this.currentNavbarPosition === NavbarPosition.Top)
-        return event.screenY <= this.elementRef.nativeElement.clientTop + this.elementRef.nativeElement.clientHeight;
 
-      if (this.currentNavbarPosition === NavbarPosition.Bottom)
-        return event.clientY >= this.elementRef.nativeElement.offsetTop;
+  _isInBounds(event) {
+    if (this.currentNavbarPosition === NavbarPosition.Top) {
+      return event.offsetY < this.elementRef.nativeElement.clientTop + this.elementRef.nativeElement.clientHeight;
+    }
+
+    if (this.currentNavbarPosition === NavbarPosition.Bottom) {
+      return event.clientY >= this.elementRef.nativeElement.offsetTop;
+    }
   }
 
   setNavBarActive(active) {
@@ -136,7 +139,7 @@ export class NavbarComponent {
       y: 'top',
       height: 800,
       width: 300,
-      minWidth: 300,
+      minWidth: 225,
       single: true,
       allowPopup: false,
       removeIfExists: true,

@@ -16,10 +16,12 @@ import { Id } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
+  CellStatus,
   Column,
   ContextMenuClickDataGridHandler,
   DataGrid,
-  DataGridHandler
+  DataGridHandler,
+  generateNewStatusesByPrefix
 } from 'data-grid';
 import { noneValue } from 'dynamic-form';
 import { InstrumentDialogComponent } from 'instrument-dialog';
@@ -75,7 +77,6 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
-import { CellStatus, generateNewStatusesByPrefix } from 'data-grid';
 
 const labelText = 'Indices';
 
@@ -85,6 +86,8 @@ const profitStyles = {
   ...generateNewStatusesByPrefix({
     lossBackgroundColor: '#C93B3B',
     inProfitBackgroundColor: '#4895F5',
+    lossBorderColor: '#1B1D22',
+    inProfitBorderColor: '#1B1D22',
   }, CellStatus.Hovered)
 };
 const orderStyles = {
@@ -95,21 +98,30 @@ const orderStyles = {
       createOrderPriceDisabledColor: 'rgba(208,208,210,0.4)',
       labelColor: '#fff',
       createOrderColor: '#D0D0D2',
-    }, CellStatus.Hovered),
+      createOrderBorderColor: '#1B1D22',
+  }, CellStatus.Hovered),
   ...generateNewStatusesByPrefix({
     orderBuyBackgroundColor: '#24262C',
     orderSellBackgroundColor: '#24262C',
+    orderBuyBorderColor: '#24262C',
+    orderSellBorderColor: '#24262C',
     orderPriceBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    orderPriceBorderColor: '#1B1D22',
     orderPriceDisabledBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+    orderPriceDisabledBorderColor: '#1B1D22',
     labelBackgroundColor: '#24262C',
   }, CellStatus.Hovered, '#383A40'),
 };
 const defaultStyles = {
   color: '#D0D0D2',
   hoveredColor: '#D0D0D2',
+  hoveredhighlightBorderColor: '#383A40',
+  highlightBorderColor: '#1B1D22',
   hoveredBackgroundColor: '#383A40',
   hoveredhighlightBackgroundColor: '#383A40',
-  textAlign: 'left'
+  textAlign: 'left',
+  BorderColor: '#1B1D22',
+  hoveredBorderColor: '#383A40',
 };
 
 const profitClass = 'inProfit';
@@ -1013,7 +1025,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
-          state: {linkKey: this._getSettingsKey(), settings: this.settings}
+          state: { linkKey: this._getSettingsKey(), settings: this.settings }
         },
         closeBtn: true,
         single: false,
@@ -1213,9 +1225,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     const item = this.builder.getInstrumentItem(instrument);
 
     if (item.ask._value != null)
-      orderMarketWatchItem.triggerPrice.updateValue(item.ask._value);
+      orderMarketWatchItem.triggerPrice.updateValue(+item.ask._value.toFixed(orderMarketWatchItem.instrument.precision));
     if (item.bid._value != null)
-      orderMarketWatchItem.price.updateValue(item.bid._value);
+      orderMarketWatchItem.price.updateValue(+item.bid._value.toFixed(orderMarketWatchItem.instrument.precision));
 
     item.subItems.unshift(orderMarketWatchItem);
     item.setHasCreatingOrder(true);
@@ -1277,6 +1289,10 @@ function generateStyles(settings: MarketWatchSettings) {
     }, CellStatus.Hovered),
     [`hovered${profitClass}BackgroundColor`]: '#383A40',
     [`hovered${lossClass}BackgroundColor`]: '#383A40',
+    [`hovered${profitClass}BorderColor`]: '#383A40',
+    [`hovered${lossClass}BorderColor`]: '#383A40',
+    [`${profitClass}BorderColor`]: '#1B1D22',
+    [`${lossClass}BorderColor`]: '#1B1D22',
   };
   const percentChangeStyle = {
     ...generateNewStatusesByPrefix({
@@ -1284,7 +1300,11 @@ function generateStyles(settings: MarketWatchSettings) {
       [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
       [`hovered${profitClass}BackgroundColor`]: '#383A40',
       [`hovered${lossClass}BackgroundColor`]: '#383A40',
-    }, CellStatus.Hovered)
+    }, CellStatus.Hovered),
+    [`hovered${profitClass}BorderColor`]: '#383A40',
+    [`hovered${lossClass}BorderColor`]: '#383A40',
+    [`${profitClass}BorderColor`]: '#1B1D22',
+    [`${lossClass}BorderColor`]: '#1B1D22',
   };
 
   const generalStyles = {
