@@ -1,11 +1,12 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { ILayoutNode, LayoutNode } from "layout";
-import { FormGroup } from "@angular/forms";
-import { generalFields } from "./settings-fields";
-import { IFieldConfig } from "dynamic-form";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { ILayoutNode, LayoutNode } from 'layout';
+import { FormGroup } from '@angular/forms';
+import { generalFields } from './settings-fields';
+import { IFieldConfig } from 'dynamic-form';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as clone from 'lodash.clonedeep';
-import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from "./settings";
+import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
+import { mergeDeep } from 'base-components';
 
 export interface ChartSettingsComponent extends ILayoutNode {
 }
@@ -33,7 +34,7 @@ export class ChartSettingsComponent implements AfterViewInit {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe((value) => {
-        this.settings = clone(value);
+        this.settings = mergeDeep(this.settings, clone(value));
         this.broadcastData(this._linkKey, this.settings);
       });
   }

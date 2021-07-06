@@ -116,9 +116,8 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     const position = this.position;
     const instrument = this._instrument;
 
-    console.log('position.connectionId', position.connectionId);
-    if (position.connectionId !== connectionId || instrument == null
-      || position == null || !compareInstruments(trade?.instrument, position?.instrument))
+    if ( position == null  || position.connectionId !== connectionId || instrument == null
+      || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
     const unrealized = calculatePL(position, trade.price, instrument.tickSize, instrument.contractSize);

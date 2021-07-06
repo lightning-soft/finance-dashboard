@@ -43,7 +43,7 @@ import {
   UpdateType
 } from 'trading';
 import { CreateModalComponent } from 'ui';
-import { IWindow, WindowManagerService } from "window-manager";
+import { IWindow, WindowManagerService } from 'window-manager';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
@@ -53,7 +53,7 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartSettings, defaultChartSettings, IChartSettings } from "./chart-settings/settings";
+import { chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
 
 declare let StockChartX: any;
@@ -307,11 +307,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _instrumentChangeHandler = (event) => {
     this._setUnavaliableIfNeed();
     this.instrument = event.value;
-    this.broadcastLinkData({
-      instrument: {
-        id: event.value.symbol,
-      },
-    });
   }
 
   loadChart() {
@@ -357,7 +352,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
-      .subscribe(value =>  {
+      .subscribe(value => {
         chart.theme = getScxTheme(this._settings);
         chart.setNeedsUpdate();
       });
@@ -382,9 +377,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (state.stockChartXState) {
           chart.loadState(state.stockChartXState);
         }
-       /* else if (StockChartX.Indicator.registeredIndicators.VOL) {
-          chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
-        }*/
+        /* else if (StockChartX.Indicator.registeredIndicators.VOL) {
+           chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
+         }*/
 
         this._sideForm.loadState(state?.orderForm);
         this.enableOrderForm = state?.enableOrderForm;
@@ -798,7 +793,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _getSettingsKey() {
-    return `${this.componentInstanceId}.${chartSettings}`;
+    return `${ this.componentInstanceId }.${ chartSettings }`;
   }
 
   openSettingsDialog(): void {
@@ -836,21 +831,43 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 }
 
+function setWickColor(barTheme, settings: IChartSettings) {
+  barTheme.upCandle.wick.strokeColor = settings.general.wickColor;
+  barTheme.downCandle.wick.strokeColor = settings.general.wickColor;
+  if (barTheme.downHollowCandle) {
+    barTheme.downHollowCandle.wick.strokeColor = settings.general.wickColor;
+  }
+  if (barTheme.upHollowCandle) {
+    barTheme.upHollowCandle.wick.strokeColor = settings.general.wickColor;
+  }
+}
+
 function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   const theme = clone(StockChartX.Theme.Dark);
 
   theme.plot.line.simple.strokeColor = settings.general.lineColor;
+  theme.plot.bar.OHLC.strokeColor = settings.general.lineColor;
   theme.chart.background = [settings.general.gradient1, settings.general.gradient2];
   theme.plot.bar.candle.upCandle.fill.fillColor = settings.general.upCandleColor;
-  theme.plot.bar.candle.downCandle.fill.fillColor =  settings.general.downCandleColor;
-  theme.plot.bar.candle.upCandle.border.strokeColor =  settings.general.upCandleBorderColor;
+  theme.plot.bar.candle.downCandle.fill.fillColor = settings.general.downCandleColor;
+  theme.plot.bar.candle.upCandle.border.strokeColor = settings.general.upCandleBorderColor;
   theme.plot.bar.candle.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
   theme.plot.bar.candle.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
   theme.plot.bar.candle.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
-  theme.plot.bar.candle.upCandle.wick.strokeColor = settings.general.wickColor;
+
+
+  setWickColor(theme.plot.bar.candle, settings);
+  setWickColor(theme.plot.bar.candleVolume, settings);
+  setWickColor(theme.plot.bar.hollowCandle, settings);
+
   theme.valueScale.text.fontFamily = settings.general.font.fontFamily;
   theme.valueScale.text.fillColor = settings.general.font.textColor;
   theme.valueScale.text.fontSize = settings.general.font.fontSize;
+
+  theme.dateScale.text.fontFamily = settings.general.font.fontFamily;
+  theme.dateScale.text.fillColor = settings.general.font.textColor;
+  theme.dateScale.text.fontSize = settings.general.font.fontSize;
+
   theme.valueScale.fill.fillColor = settings.general.valueScaleColor;
   theme.dateScale.fill.fillColor = settings.general.dateScaleColor;
   theme.chartPanel.grid.strokeColor = settings.general.gridColor;

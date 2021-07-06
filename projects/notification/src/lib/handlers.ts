@@ -36,7 +36,7 @@ export const handlers = {
       message = 'Login Complete';
     } else if (connectionsErrors.includes(type)) {
       icon = 'notication-disconnected';
-      message = 'Connection Closed';
+      message = msg.result?.message ?? 'Connection Closed';
     } else {
       icon = 'notication-default';
       message = msg.result.message ?? '';

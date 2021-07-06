@@ -2122,6 +2122,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
     if (this.buyOcoOrder && this.sellOcoOrder) {
       this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
+      this.buyOcoOrder.accountId = this.accountId;
+      this.buyOcoOrder.ocoOrder.accountId = this.accountId;
       this._ordersRepository.createItem(this.buyOcoOrder)
         .pipe(untilDestroyed(this))
         .subscribe(() => {

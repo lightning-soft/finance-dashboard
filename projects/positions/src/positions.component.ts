@@ -129,7 +129,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     (window as any).positions = this;
 
     this.builder.setParams({
-      groupBy: ['accountId'],
+      groupBy: ['accountId', 'instrumentName'],
       order: 'desc',
       wrap: (item: IPosition) => new PositionItem(item),
       unwrap: (item: PositionItem) => item.position,
@@ -159,8 +159,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     });
   }
 
-  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
-    this.loadData({ accounts });
+  handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
+    this.loadData({ accounts:  allAccounts });
   }
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
@@ -179,6 +179,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     if (Array.isArray(response?.data)) {
       response.data = response.data.filter((item, index, arr) => arr.findIndex(comparePosition(item)) === index);
     }
+    response.data = response.data.map(item => this._addInstrumentName(item));
 
     super._handleResponse(response, params);
     this._handleCreateItems(response.data);
@@ -249,6 +250,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     (groupedItem as any).symbol = item; // for now using for grouping TODO: use another class for grouped element
     groupedItem[groupBy] = new DataCell();
     groupedItem[groupBy].updateValue(item);
+    groupedItem[groupBy].hoverStatusEnabled = true;
     groupedItem[groupBy].bold = true;
     groupedItem[groupBy].colSpan = this.columns.length - 1;
     return groupedItem;
