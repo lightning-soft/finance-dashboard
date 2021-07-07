@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode } from 'layout';
@@ -38,6 +38,8 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   selectedIndicator: any;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
+
+  constructor(private _injector: Injector) {}
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -164,13 +166,13 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       case StockChartX.Footprint:
         return new Footprint(instance);
       case StockChartX.VolumeProfile:
-        return new VolumeProfile(instance);
+        return new VolumeProfile(instance, this._injector);
       case StockChartX.CompositeProfile:
-        return new CompositeProfile(instance);
+        return new CompositeProfile(instance, this._injector);
       case StockChartX.PriceStats:
-        return new PriceStats(instance);
+        return new PriceStats(instance, this._injector);
       case StockChartX.SessionStats:
-        return new SessionStats(instance);
+        return new SessionStats(instance, this._injector);
       case StockChartX.VolumeBreakdown:
         return new VolumeBreakdown(instance);
       default:

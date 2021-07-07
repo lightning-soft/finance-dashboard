@@ -1,9 +1,15 @@
+import { Injector } from '@angular/core';
+import { getSessionStatsConfig } from '../fields';
 import { Indicator } from './Indicator';
-import { sessionStatsConfig } from '../fields';
 
 export class SessionStats extends Indicator {
   name = 'Session Stats';
-  config = sessionStatsConfig;
+
+  constructor(instance: any, injector: Injector) {
+    super(instance, injector);
+
+    this.config = getSessionStatsConfig.call(this);
+  }
 
   protected _mapGetSettings(settings: any): any {
     const lines = {};

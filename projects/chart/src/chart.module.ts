@@ -35,6 +35,8 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { LoaderModule } from 'ui';
 import { ChartSettingsComponent } from "./chart-settings/chart-settings.component";
 import { chartSettings } from "./chart-settings/settings";
+import { SessionsRepository } from 'trading';
+import { RealSessionsRepository } from 'real-trading';
 
 // const environment = { scxPath: '' };
 
@@ -104,7 +106,12 @@ import { chartSettings } from "./chart-settings/settings";
     ConfirmOrderComponent,
     ChartSettingsComponent
   ],
-  providers: [],
+  providers: [
+    {
+      provide: SessionsRepository,
+      useClass: RealSessionsRepository,
+    }
+  ],
 })
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {

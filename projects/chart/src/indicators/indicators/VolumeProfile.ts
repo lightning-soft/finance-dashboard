@@ -1,9 +1,15 @@
+import { Injector } from '@angular/core';
+import { getVolumeProfileConfig } from '../fields';
 import { Indicator } from './Indicator';
-import { volumeProfileConfig } from '../fields';
 
 export class VolumeProfile extends Indicator {
   name = 'Volume Profile';
-  config = volumeProfileConfig;
+
+  constructor(instance: any, injector: Injector) {
+    super(instance, injector);
+
+    this.config = getVolumeProfileConfig.call(this);
+  }
 
   protected _mapGetSettings(settings: any): any {
     return {

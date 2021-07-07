@@ -18,7 +18,13 @@ export class RealSessionsRepository extends BaseRepository<ISession> {
       name: item.name,
       exchange: item.exchange,
       timezoneId: item.timezoneId,
-      workingTimesDto: item.workingTimesDto,
+      workingTimes: item.workingTimes.map((i: any) => ({
+        startDay: i.startDay,
+        // startTime: i.startTime,
+        startTime: 0,
+        endDay: i.endDay,
+        endTime: i.endTime,
+      })),
     };
   }
 }

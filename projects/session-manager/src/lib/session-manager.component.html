@@ -35,12 +35,12 @@
         <th>End Time</th>
         <th></th>
       </tr>
-      <tr *ngFor="let item of session.workingTimesDto">
+      <tr *ngFor="let item of session.workingTimes">
         <td>
           <nz-select
             class="custom-form-control"
             [nzOptionHeightPx]="24"
-            [(ngModel)]="item.beginDay"
+            [(ngModel)]="item.startDay"
           >
             <nz-option
               *ngFor="let day of days; let i = index"
@@ -50,7 +50,7 @@
           </nz-select>
         </td>
         <td>
-          <time-select [(value)]="item.beginTime"></time-select>
+          <time-select [(value)]="item.startTime"></time-select>
         </td>
         <td></td>
         <td>
