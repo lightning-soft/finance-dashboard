@@ -317,8 +317,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   columns: Column[] = [];
   keysStack: KeyboardListener = new KeyboardListener();
-  buyOcoOrder: IOrder;
-  sellOcoOrder: IOrder;
+  firstOcoOrder: IOrder;
+  secondOcoOrder: IOrder;
   ocoStep = OcoStep.None;
   position: IPosition;
 
@@ -534,6 +534,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (account)
       this.account = account;
   }
+
   showColumnTitleOnHover = (item: Column) => false;
 
   ngOnInit(): void {
@@ -638,7 +639,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getSettingsKey() {
-    return `${this.componentInstanceId}.${DomSettingsSelector}`;
+    return `${ this.componentInstanceId }.${ DomSettingsSelector }`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -647,7 +648,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const common = settings.common;
     const general = settings?.general;
-    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
+    const getFont = (fontWeight) => `${ fontWeight || '' } ${ common.fontSize }px ${ common.fontFamily }`;
     const hiddenColumns: any = {};
 
     const hasSplitOrdersChanged = this._settings.orders.split !== settings.orders.split;
@@ -736,8 +737,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${key}${_key}`] = obj[_key];
-          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
+          deltaStyles[`${ key }${ _key }`] = obj[_key];
+          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
         }
       }
     }
@@ -2098,20 +2099,20 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _addOcoOrder(side, item: DomItem) {
-    if (!this.buyOcoOrder && side === OrderSide.Buy) {
-      item.createOcoOrder(side, this._domForm.getDto());
-      const order = { ...this._domForm.getDto(), side };
-      const specs = this._getPriceSpecs(order, +item.price.value);
-      this.buyOcoOrder = { ...order, ...specs };
+    if (!this.firstOcoOrder) {
+      this.firstOcoOrder = this._createOCOOrder(item, side);
+      this._createOcoOrder();
+    } else if (!this.secondOcoOrder) {
+      this.secondOcoOrder = this._createOCOOrder(item, side);
       this._createOcoOrder();
     }
-    if (!this.sellOcoOrder && side === OrderSide.Sell) {
-      item.createOcoOrder(side, this._domForm.getDto());
-      const order = { ...this._domForm.getDto(), side };
-      const specs = this._getPriceSpecs(order, +item.price.value);
-      this.sellOcoOrder = { ...order, ...specs };
-      this._createOcoOrder();
-    }
+  }
+
+  private _createOCOOrder(item: DomItem, side) {
+    item.createOcoOrder(side, this._domForm.getDto());
+    const order = { ...this._domForm.getDto(), side };
+    const specs = this._getPriceSpecs(order, +item.price.value);
+    return { ...order, ...specs };
   }
 
   private _getPriceSpecs(item: IOrder & { amount: number }, price) {
@@ -2120,11 +2121,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _createOcoOrder() {
     this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
-    if (this.buyOcoOrder && this.sellOcoOrder) {
-      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
-      this.buyOcoOrder.accountId = this.accountId;
-      this.buyOcoOrder.ocoOrder.accountId = this.accountId;
-      this._ordersRepository.createItem(this.buyOcoOrder)
+    if (this.firstOcoOrder && this.secondOcoOrder) {
+      this.firstOcoOrder.ocoOrder = this.secondOcoOrder;
+      this.firstOcoOrder.accountId = this.accountId;
+      this.firstOcoOrder.ocoOrder.accountId = this.accountId;
+      this._ordersRepository.createItem(this.firstOcoOrder)
         .pipe(untilDestroyed(this))
         .subscribe(() => {
           this._clearOcoOrders();
@@ -2136,6 +2137,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!item[column]?.canCancelOrder)
       return;
 
+    if (item.orders.hasOcoOrder()) {
+      this._clearOcoOrders();
+    }
     if (item.orders?.orders?.length)
       this._ordersRepository.deleteMany(item.orders.orders)
         .pipe(untilDestroyed(this))
@@ -2180,8 +2184,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   _clearOcoOrders() {
     this.ocoStep = OcoStep.None;
-    this.sellOcoOrder = null;
-    this.buyOcoOrder = null;
+    this.secondOcoOrder = null;
+    this.firstOcoOrder = null;
     this.items.forEach(item => item.clearOcoOrder());
   }
 
@@ -2231,7 +2235,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.instrument.description}`;
+      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
     }
   }
 

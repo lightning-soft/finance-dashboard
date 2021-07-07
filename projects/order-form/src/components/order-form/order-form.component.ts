@@ -49,8 +49,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   isOco = false;
   ocoStep = OcoStep.None;
 
-  buyOcoOrder: IOrder;
-  sellOcoOrder: IOrder;
+  firstOcoOrder: IOrder;
+  secondOcoOrder: IOrder;
 
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
@@ -303,21 +303,21 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   submitOcoOrder(side: OrderSide) {
-    if (side === OrderSide.Buy) {
-      this.buyOcoOrder = this.getDto();
+    if (!this.firstOcoOrder) {
+      this.firstOcoOrder = this.getDto();
       this.ocoStep = OcoStep.Second;
-    } else if (side === OrderSide.Sell) {
-      this.sellOcoOrder = this.getDto();
+    } else if (!this.secondOcoOrder) {
+      this.secondOcoOrder = this.getDto();
       this.ocoStep = OcoStep.Second;
     }
 
-    if (this.sellOcoOrder && this.buyOcoOrder) {
-      this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
-      this._repository.createItem(this.buyOcoOrder)
+    if (this.secondOcoOrder && this.firstOcoOrder) {
+      this.firstOcoOrder.ocoOrder = this.secondOcoOrder;
+      this._repository.createItem(this.firstOcoOrder)
         .pipe(untilDestroyed(this)).subscribe();
       this.ocoStep = OcoStep.None;
-      this.sellOcoOrder = null;
-      this.buyOcoOrder = null;
+      this.secondOcoOrder = null;
+      this.firstOcoOrder = null;
       this.isOco = false;
     }
     this.updateOrderTypes();
@@ -447,8 +447,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.isOco) {
       this.ocoStep = OcoStep.None;
       this.isOco = false;
-      this.sellOcoOrder = null;
-      this.buyOcoOrder = null;
+      this.secondOcoOrder = null;
+      this.firstOcoOrder = null;
       this.updateOrderTypes();
     }
   }

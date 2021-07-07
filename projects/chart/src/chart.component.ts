@@ -96,8 +96,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showOrderConfirm = true;
 
   ocoStep = OcoStep.None;
-  buyOcoOrder: IOrder;
-  sellOcoOrder: IOrder;
+  firstOcoOrder: IOrder;
+  secondOcoOrder: IOrder;
 
   lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
@@ -624,8 +624,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   clearOcoOrders() {
     this.ocoStep = OcoStep.None;
-    this.sellOcoOrder = null;
-    this.buyOcoOrder = null;
+    this.secondOcoOrder = null;
+    this.firstOcoOrder = null;
     this._orders.clearOcoOrders();
   }
 
@@ -672,19 +672,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     };
     if (isOCO) {
       order.isOco = true;
-      if (!this.sellOcoOrder && config.side === OrderSide.Sell) {
-        this.sellOcoOrder = order;
+      if (!this.firstOcoOrder) {
+        this.firstOcoOrder = order;
         this._orders.createOcoOrder(order);
         this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
-      }
-      if (!this.buyOcoOrder && config.side === OrderSide.Buy) {
-        this.buyOcoOrder = order;
-        this._orders.createOcoOrder(order);
+      } else if (!this.secondOcoOrder) {
+        this.secondOcoOrder = order;
         this.ocoStep = this.ocoStep === OcoStep.None ? OcoStep.Fist : OcoStep.Second;
       }
-      if (this.buyOcoOrder && this.sellOcoOrder) {
-        this.buyOcoOrder.ocoOrder = this.sellOcoOrder;
-        this._createOrder(this.buyOcoOrder);
+      if (this.firstOcoOrder && this.secondOcoOrder) {
+        this.firstOcoOrder.ocoOrder = this.secondOcoOrder;
+        this._createOrder(this.firstOcoOrder);
         this.clearOcoOrders();
       }
       return;

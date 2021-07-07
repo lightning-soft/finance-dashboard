@@ -2,14 +2,15 @@ import { IBaseItem, Id } from 'communication';
 import {
   AddClassStrategy,
   Cell,
-  CellStatus, Column,
+  CellStatus,
+  Column,
   DataCell,
+  HoverableItem,
   IFormatter,
   NumberCell,
   ProfitClass
 } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
-import { HoverableItem } from 'data-grid';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -73,6 +74,10 @@ class OrdersCell extends HistogramCell {
     this.ocoOrder = ocoOrder;
     this.orderStyle = 'oco';
     this.prepareOrder();
+  }
+
+  hasOcoOrder(): boolean {
+    return !!this.ocoOrder;
   }
 
   clearOcoOrder() {
@@ -379,6 +384,10 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   changeAskQuantity(quantity) {
     this._item.sellOrders.changeQuantity(quantity);
     this._item.askDelta.changeQuantity(quantity);
+  }
+
+  hasOcoOrder() {
+    return this._item.sellOrders.hasOcoOrder() || this._item.buyOrders.hasOcoOrder();
   }
 
   clearOcoOrder() {
