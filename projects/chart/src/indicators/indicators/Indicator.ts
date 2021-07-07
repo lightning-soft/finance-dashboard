@@ -1,3 +1,5 @@
+import { Injector } from '@angular/core';
+
 declare const jQuery: any;
 
 export abstract class Indicator {
@@ -5,6 +7,8 @@ export abstract class Indicator {
   name: string;
   config: any;
   settings: any;
+
+  protected _injector: Injector;
 
   get indicatorSettings(): any {
     return this.instance.settings || this.instance.plots[0].settings;
@@ -18,9 +22,11 @@ export abstract class Indicator {
     }
   }
 
-  constructor(instance: any) {
+  constructor(instance: any, injector?: Injector) {
     this.instance = instance;
     this.name = instance.constructor.className;
+
+    this._injector = injector;
 
     const _settings = this._mapGetSettings(
       jQuery.extend(true, {}, this.indicatorSettings)

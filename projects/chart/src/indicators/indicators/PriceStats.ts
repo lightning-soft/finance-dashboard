@@ -1,9 +1,15 @@
-import { priceStatsConfig } from '../fields';
+import { Injector } from '@angular/core';
+import { getPriceStatsConfig } from '../fields';
 import { Indicator } from './Indicator';
 
 export class PriceStats extends Indicator {
   name = 'Price Stats';
-  config = priceStatsConfig;
+
+  constructor(instance: any, injector: Injector) {
+    super(instance, injector);
+
+    this.config = getPriceStatsConfig.call(this);
+  }
 
   protected _mapGetSettings(settings: any): any {
     return {
@@ -29,6 +35,7 @@ export class PriceStats extends Indicator {
             devEnabled: settings.lines.dev.va.enabled,
             strokeColor: settings.lines.current.va.strokeTheme.strokeColor,
           },
+          workingTimes: settings.workingTimes,
         },
         eth: {
           type: settings.eth.profile.type,
@@ -43,6 +50,7 @@ export class PriceStats extends Indicator {
             devEnabled: settings.eth.lines.dev.va.enabled,
             strokeColor: settings.eth.lines.current.va.strokeTheme.strokeColor,
           },
+          workingTimes: settings.workingTimes,
         },
       },
       highlight: settings.highlight,

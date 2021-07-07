@@ -26,7 +26,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     name: 'New Session',
     exchange: 'CME',
     timezoneId: null,
-    workingTimesDto: [],
+    workingTimes: [],
   };
 
   session: ISession = jQuery.extend(true, {}, this.blankSession);
@@ -66,8 +66,11 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     'Saturday',
   ];
 
-  utcBeginTime = (9 * 3600 + 30 * 60) * 1000;
-  utcEndTime = 16 * 3600 * 1000;
+  // utcStartTime = (9 * 3600 + 30 * 60) * 1000;
+  // utcEndTime = 16 * 3600 * 1000;
+
+  utcStartTime = 0;
+  utcEndTime = 24 * 3600 * 1000;
 
   constructor(
     protected _injector: Injector,
@@ -90,17 +93,17 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     this.session.timezoneId = timezone.id;
   }
 
-  createWorkingTime(beginDay = 1, endDay = 1) {
-    this.session.workingTimesDto.push({
-      beginDay,
-      beginTime: this.utcBeginTime,
+  createWorkingTime(startDay = 1, endDay = 1) {
+    this.session.workingTimes.push({
+      startDay,
+      startTime: this.utcStartTime,
       endDay,
       endTime: this.utcEndTime,
     });
   }
 
   deleteWorkingTime(item: ISessionWorkingTime) {
-    this.session.workingTimesDto = this.session.workingTimesDto.filter(i => i !== item);
+    this.session.workingTimes = this.session.workingTimes.filter(i => i !== item);
   }
 
   save(callback: (item: ISession) => void = () => this._showSuccess()) {

@@ -7,14 +7,14 @@ const items: ISession[] = [
     name: 'Session 1',
     exchange: 'CME',
     timezoneId: 1,
-    workingTimesDto: [],
+    workingTimes: [],
   },
   {
     id: 2,
     name: 'Session 2',
     exchange: 'CME',
     timezoneId: 1,
-    workingTimesDto: [],
+    workingTimes: [],
   },
 ];
 
