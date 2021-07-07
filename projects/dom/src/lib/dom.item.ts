@@ -10,7 +10,7 @@ import {
   NumberCell,
   ProfitClass
 } from 'data-grid';
-import { IOrder, IQuote, OrderSide, OrderStatus, QuoteSide, TradePrint, UpdateType } from 'trading';
+import { IOrder, IQuote, OrderSide, OrderStatus, OrderType, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
 import { HistogramCell } from './histogram';
 import { PriceCell } from './price.cell';
@@ -139,7 +139,9 @@ class OrdersCell extends HistogramCell {
     if (value == null) {
       return;
     }
-    if (value < this._quantitySequence || this._quantitySequence == null) {
+
+    if (this._order?.type === OrderType.Limit
+        && (value < this._quantitySequence || this._quantitySequence == null)) {
       this._quantitySequence = value;
       this.drawed = false;
     }
