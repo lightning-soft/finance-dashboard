@@ -1,5 +1,6 @@
 import { IBaseItem, Id, IPaginationParams } from 'communication';
 import { IInstrument } from './instrument';
+import { IAccount } from './account';
 
 export type OrderAccount = {
   fcmId: string;
@@ -67,7 +68,7 @@ export enum OrderStatus {
 }
 
 export interface IOrderParams extends IPaginationParams {
-  accountId: Id;
+  accounts: IAccount[];
   status: OrderStatus;
 }
 

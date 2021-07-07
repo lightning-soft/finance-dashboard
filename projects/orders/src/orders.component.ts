@@ -2,7 +2,15 @@ import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@ang
 import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { IPaginationResponse } from 'communication';
-import {CellClickDataGridHandler, CellStatus, CheckboxCell, Column, DataGrid, DataGridHandler} from 'data-grid';
+import {
+  CellClickDataGridHandler,
+  CellStatus,
+  CheckboxCell,
+  Column,
+  DataGrid,
+  DataGridHandler,
+  generateNewStatusesByPrefix
+} from 'data-grid';
 import { LayoutNode } from 'layout';
 import { AccountsListener, IAccountsListener } from 'real-trading';
 import { forkJoin, Observable } from 'rxjs';
@@ -17,10 +25,10 @@ import {
   OrdersRepository,
   OrderStatus,
   OrderType,
-  TradeDataFeed, TradePrint
+  TradeDataFeed,
+  TradePrint
 } from 'trading';
 import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
-import { generateNewStatusesByPrefix } from 'data-grid';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
 }
@@ -183,9 +191,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
+    const hide = this.showLoading(true);
     this.repository.getItems({ accounts }).subscribe(
       res => this.builder.addItems(res.data),
       err => this.showError(err),
+      () => hide(),
     );
   }
 
