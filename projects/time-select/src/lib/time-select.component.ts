@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'time-select',
@@ -7,8 +7,10 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 })
 export class TimeSelectComponent implements OnInit, OnChanges {
 
-  @Input() value = 0;
+  @Input() value: number;
   @Input() step = 15;
+
+  @Output() valueChange = new EventEmitter<number>();
 
   inited = false;
   hours: number;
@@ -81,6 +83,8 @@ export class TimeSelectComponent implements OnInit, OnChanges {
     const hours = this.hours === 12 ? 0 : this.hours;
 
     this.value = (amTime + hours * 3600 + this.minutes * 60) * 1000;
+
+    this.valueChange.emit(this.value);
   }
 
   private _handleValue() {

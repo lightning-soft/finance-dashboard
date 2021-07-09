@@ -1,7 +1,6 @@
 import { Component, Injector, TemplateRef, ViewChild } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { ItemComponent } from 'base-components';
-import { IDataSelectItemAction } from 'data-select';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { finalize } from 'rxjs/operators';
@@ -29,32 +28,8 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     workingTimes: [],
   };
 
-  session: ISession = jQuery.extend(true, {}, this.blankSession);
+  item: ISession = jQuery.extend(true, {}, this.blankSession);
   sessionName: string;
-
-  sessionActions: IDataSelectItemAction[] = [
-    {
-      icon: 'icon-edit',
-      callback: (session: ISession) => {
-        this.session = session;
-      },
-    },
-    {
-      icon: 'icon-duplicate',
-      callback: (session: ISession) => {
-        this.session = {
-          ...session,
-          id: 0,
-        };
-      },
-    },
-    {
-      icon: 'icon-delete',
-      callback: (session: ISession) => {
-        this.deleteItem(session);
-      },
-    },
-  ];
 
   days = [
     'Sunday',
@@ -66,11 +41,8 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     'Saturday',
   ];
 
-  // utcStartTime = (9 * 3600 + 30 * 60) * 1000;
-  // utcEndTime = 16 * 3600 * 1000;
-
-  utcStartTime = 0;
-  utcEndTime = 24 * 3600 * 1000;
+  utcStartTime = (9 * 3600 + 30 * 60) * 1000;
+  utcEndTime = 16 * 3600 * 1000;
 
   constructor(
     protected _injector: Injector,
@@ -85,16 +57,16 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   }
 
   handleSessionChange(session: ISession) {
-    this.session = session;
+    this.item = session;
     this.sessionName = session.name;
   }
 
   handleTimezoneChange(timezone: ITimezone) {
-    this.session.timezoneId = timezone.id;
+    this.item.timezoneId = timezone.id;
   }
 
   createWorkingTime(startDay = 1, endDay = 1) {
-    this.session.workingTimes.push({
+    this.item.workingTimes.push({
       startDay,
       startTime: this.utcStartTime,
       endDay,
@@ -103,11 +75,11 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   }
 
   deleteWorkingTime(item: ISessionWorkingTime) {
-    this.session.workingTimes = this.session.workingTimes.filter(i => i !== item);
+    this.item.workingTimes = this.item.workingTimes.filter(i => i !== item);
   }
 
   save(callback: (item: ISession) => void = () => this._showSuccess()) {
-    const { session, repository } = this;
+    const { item: session, repository } = this;
 
     const hide = this.showLoading(true);
 
@@ -127,7 +99,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   }
 
   saveAs() {
-    this.sessionName = this.session.name;
+    this.sessionName = this.item.name;
 
     this._modal.create({
       nzTitle: 'Save As',
@@ -135,7 +107,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       nzCancelText: null,
       nzOkText: 'Save',
       nzOnOk: () => {
-        this.session.name = this.sessionName;
+        this.item.name = this.sessionName;
 
         this.save();
       },
@@ -160,7 +132,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   }
 
   protected _handleCreateItems(items: ISession[]) {
-    this.session = jQuery.extend(true, [], items[0]);
+    this.item = jQuery.extend(true, [], items[0]);
   }
 
 }

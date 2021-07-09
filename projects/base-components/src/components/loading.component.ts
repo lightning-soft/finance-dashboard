@@ -26,6 +26,7 @@ export interface IAutoLoadDataConfig {
 
 export interface ILoadingComponentConfig {
   autoLoadData?: false | IAutoLoadDataConfig;
+  subscribeToRepository?: boolean;
   subscribeToConnections?: boolean;
 }
 
@@ -37,6 +38,7 @@ export function getDefaultLoadingItemConfig(): ILoadingComponentConfig {
       onQueryParamsChange: true,
       onConnectionChange: true,
     },
+    subscribeToRepository: true,
     subscribeToConnections: true,
   };
 }
@@ -171,6 +173,11 @@ export abstract class LoadingComponent<T, I extends IBaseItem = any> implements 
       this.route.queryParams
         .pipe(untilDestroyed(this))
         .subscribe((params) => this._onQueryParamsChanged(params));
+
+    if (this.config.subscribeToRepository) {
+      this._repositorySubscription?.unsubscribe();
+      this._repositorySubscription = this._subscribeToRepository();
+    }
 
     // if (this.subscribeToConnections)
     //   this._accountsManager.subscribe(this);

@@ -414,7 +414,6 @@
 
       input {
         height: 20px;
-        width: 50%;
       }
     }
 
@@ -456,8 +455,14 @@
     }
 
     .session-template {
-      .select .ant-form-item-label > label {
-        height: 20px;
+      data-select {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 10px;
+
+        label {
+          margin-right: 0 !important;
+        }
       }
     }
 

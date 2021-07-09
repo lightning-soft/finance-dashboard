@@ -20,8 +20,7 @@ export class RealSessionsRepository extends BaseRepository<ISession> {
       timezoneId: item.timezoneId,
       workingTimes: item.workingTimes.map((i: any) => ({
         startDay: i.startDay,
-        // startTime: i.startTime,
-        startTime: 0,
+        startTime: i.startTime,
         endDay: i.endDay,
         endTime: i.endTime,
       })),

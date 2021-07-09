@@ -1,15 +1,9 @@
-import { Injector } from '@angular/core';
-import { getCompositeProfileConfig } from '../fields';
+import { compositeProfileConfig } from '../fields';
 import { Indicator } from './Indicator';
 
 export class CompositeProfile extends Indicator {
   name = 'Composite Profile';
-
-  constructor(instance: any, injector: Injector) {
-    super(instance, injector);
-
-    this.config = getCompositeProfileConfig.call(this);
-  }
+  config = compositeProfileConfig;
 
   protected _mapGetSettings(settings: any): any {
     return {
