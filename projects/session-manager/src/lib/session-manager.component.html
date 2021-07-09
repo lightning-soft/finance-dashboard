@@ -9,15 +9,16 @@
         <data-select
           label="Name"
           [default]="blankSession"
-          [actions]="sessionActions"
+          [value]="item.id"
           [repository]="repository"
+          [withActions]="true"
           (handleChange)="handleSessionChange($event)"
         ></data-select>
       </div>
       <div class="pl-2 flex-grow-1">
         <data-select
           label="Time Zone"
-          [value]="session.timezoneId"
+          [value]="item.timezoneId"
           [repository]="timezonesRepository"
           (handleChange)="handleTimezoneChange($event)"
         ></data-select>
@@ -35,12 +36,12 @@
         <th>End Time</th>
         <th></th>
       </tr>
-      <tr *ngFor="let item of session.workingTimes">
+      <tr *ngFor="let workingTime of item.workingTimes">
         <td>
           <nz-select
             class="custom-form-control"
             [nzOptionHeightPx]="24"
-            [(ngModel)]="item.startDay"
+            [(ngModel)]="workingTime.startDay"
           >
             <nz-option
               *ngFor="let day of days; let i = index"
@@ -50,14 +51,17 @@
           </nz-select>
         </td>
         <td>
-          <time-select [(value)]="item.startTime"></time-select>
+          <time-select
+            [value]="workingTime.startTime"
+            (valueChange)="workingTime.startTime = $event"
+          ></time-select>
         </td>
         <td></td>
         <td>
           <nz-select
             class="custom-form-control"
             [nzOptionHeightPx]="24"
-            [(ngModel)]="item.endDay"
+            [(ngModel)]="workingTime.endDay"
           >
             <nz-option
               *ngFor="let day of days; let i = index"
@@ -67,10 +71,13 @@
           </nz-select>
         </td>
         <td>
-          <time-select [(value)]="item.endTime"></time-select>
+          <time-select
+            [value]="workingTime.endTime"
+            (valueChange)="workingTime.endTime = $event"
+          ></time-select>
         </td>
         <td>
-          <span class="link" (click)="deleteWorkingTime(item)">
+          <span class="link" (click)="deleteWorkingTime(workingTime)">
             <i class="icon-delete font-size-inherit"></i>
           </span>
         </td>

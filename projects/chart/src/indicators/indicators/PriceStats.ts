@@ -1,15 +1,9 @@
-import { Injector } from '@angular/core';
-import { getPriceStatsConfig } from '../fields';
+import { priceStatsConfig } from '../fields';
 import { Indicator } from './Indicator';
 
 export class PriceStats extends Indicator {
   name = 'Price Stats';
-
-  constructor(instance: any, injector: Injector) {
-    super(instance, injector);
-
-    this.config = getPriceStatsConfig.call(this);
-  }
+  config = priceStatsConfig;
 
   protected _mapGetSettings(settings: any): any {
     return {

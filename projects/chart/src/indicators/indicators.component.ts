@@ -1,4 +1,4 @@
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode } from 'layout';
@@ -15,6 +15,7 @@ import {
   VolumeBreakdown,
   VolumeProfile
 } from './indicators';
+import { Indicator } from './indicators/Indicator';
 
 declare const StockChartX: any;
 
@@ -39,7 +40,14 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   form: FormGroup;
   formValueChangesSubscription: Subscription;
 
-  constructor(private _injector: Injector) {}
+  private _constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
+    [StockChartX.Footprint, Footprint],
+    [StockChartX.VolumeProfile, VolumeProfile],
+    [StockChartX.CompositeProfile, CompositeProfile],
+    [StockChartX.PriceStats, PriceStats],
+    [StockChartX.SessionStats, SessionStats],
+    [StockChartX.VolumeBreakdown, VolumeBreakdown],
+  ]);
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -141,7 +149,9 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   private _addIndicator(instance: any) {
-    this.indicators.push(this._createIndicator(instance));
+    const Constructor = this._constructorsMap.get(instance.constructor) || DefaultIndicator;
+
+    this.indicators.push(new Constructor(instance));
   }
 
   removeAll() {
@@ -158,25 +168,6 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
     if (this.selectedIndicator?.instance === instance) {
       delete this.selectedIndicator;
-    }
-  }
-
-  private _createIndicator(instance: any): any {
-    switch (instance.constructor) {
-      case StockChartX.Footprint:
-        return new Footprint(instance);
-      case StockChartX.VolumeProfile:
-        return new VolumeProfile(instance, this._injector);
-      case StockChartX.CompositeProfile:
-        return new CompositeProfile(instance, this._injector);
-      case StockChartX.PriceStats:
-        return new PriceStats(instance, this._injector);
-      case StockChartX.SessionStats:
-        return new SessionStats(instance, this._injector);
-      case StockChartX.VolumeBreakdown:
-        return new VolumeBreakdown(instance);
-      default:
-        return new DefaultIndicator(instance);
     }
   }
 

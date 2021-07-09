@@ -35,8 +35,9 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { LoaderModule } from 'ui';
 import { ChartSettingsComponent } from "./chart-settings/chart-settings.component";
 import { chartSettings } from "./chart-settings/settings";
-import { SessionsRepository } from 'trading';
-import { RealSessionsRepository } from 'real-trading';
+import { FormlyModule } from '@ngx-formly/core';
+import { DataSelectModule } from 'data-select';
+import { SessionsSelectComponent } from './indicators/sessions-select/sessions-select.component';
 
 // const environment = { scxPath: '' };
 
@@ -92,7 +93,16 @@ import { RealSessionsRepository } from 'real-trading';
     NzSwitchModule,
     NzToolTipModule,
     NzCheckboxModule,
-    OverlayModule
+    OverlayModule,
+    DataSelectModule,
+    FormlyModule.forRoot({
+      types: [
+        {
+          name: 'sessions-select',
+          component: SessionsSelectComponent,
+        },
+      ],
+    }),
   ],
   exports: [
     ChartComponent
@@ -104,13 +114,8 @@ import { RealSessionsRepository } from 'real-trading';
     IndicatorListComponent,
     OrdersPanelComponent,
     ConfirmOrderComponent,
-    ChartSettingsComponent
-  ],
-  providers: [
-    {
-      provide: SessionsRepository,
-      useClass: RealSessionsRepository,
-    }
+    ChartSettingsComponent,
+    SessionsSelectComponent,
   ],
 })
 export class ChartModule implements LazyModule {

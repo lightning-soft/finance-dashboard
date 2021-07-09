@@ -8,8 +8,6 @@ export abstract class Indicator {
   config: any;
   settings: any;
 
-  protected _injector: Injector;
-
   get indicatorSettings(): any {
     return this.instance.settings || this.instance.plots[0].settings;
   }
@@ -22,11 +20,9 @@ export abstract class Indicator {
     }
   }
 
-  constructor(instance: any, injector?: Injector) {
+  constructor(instance: any) {
     this.instance = instance;
     this.name = instance.constructor.className;
-
-    this._injector = injector;
 
     const _settings = this._mapGetSettings(
       jQuery.extend(true, {}, this.indicatorSettings)

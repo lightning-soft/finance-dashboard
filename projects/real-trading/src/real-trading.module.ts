@@ -14,7 +14,7 @@ import {
   VolumeHistoryRepository,
   BarDataFeed,
   OHLVFeed,
-  VolumeDataFeed, SettleDataFeed,
+  VolumeDataFeed, SettleDataFeed, SessionsRepository, TimezonesRepository,
 } from 'trading';
 import {
   RealAccountRepository,
@@ -28,7 +28,7 @@ import {
   RealTradeDataFeed,
   RealVolumeHistoryRepository,
   RealBarDataFeed, RealOHLVFeed,
-  RealVolumeDatafeed, RealSettleDataFeed,
+  RealVolumeDatafeed, RealSettleDataFeed, RealSessionsRepository, RealTimezonesRepository,
 } from './trading/repositories';
 
 @NgModule({})
@@ -123,6 +123,14 @@ export class RealTradingModule {
         {
           provide: OHLVFeed,
           useClass: RealOHLVFeed,
+        },
+        {
+          provide: SessionsRepository,
+          useClass: RealSessionsRepository,
+        },
+        {
+          provide: TimezonesRepository,
+          useClass: RealTimezonesRepository,
         },
       ]
     };
