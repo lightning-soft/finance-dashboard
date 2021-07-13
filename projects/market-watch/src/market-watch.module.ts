@@ -10,7 +10,8 @@ import {
   NzDropDownModule,
   NzInputModule,
   NzInputNumberModule,
-  NzSelectModule
+  NzSelectModule,
+  NzSpinModule
 } from 'ng-zorro-antd';
 import { InstrumentSelectModule } from 'instrument-select';
 import { WindowHeaderModule } from 'window-header';
@@ -44,6 +45,7 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
     NzButtonModule,
     NzSelectModule,
     NzInputNumberModule,
+    NzSpinModule,
   ],
   exports: [
     MarketWatchComponent,

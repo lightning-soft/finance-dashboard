@@ -1,5 +1,6 @@
-import { IItemsBuilder, IItemsBuilderParams, IViewItem, ViewItemsBuilder } from 'base-components';
 import { IBaseItem } from 'communication';
+import { IItemsBuilder, IItemsBuilderParams } from './items.builder';
+import { IViewItem, ViewItemsBuilder } from './view-items.builder';
 
 interface IViewFilterItemsBuilderParams<Item, ViewItem> extends IItemsBuilderParams<Item, ViewItem> {
   viewItemsFilter?: (viewItem: ViewItem) => boolean;

@@ -1,5 +1,12 @@
 import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
-import { convertToColumn, HeaderItem, RealtimeGridComponent } from 'base-components';
+import {
+  convertToColumn,
+  HeaderItem,
+  ISettingsApplier,
+  RealtimeGridComponent,
+  SettingsApplier,
+  ViewFilterItemsBuilder
+} from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { IPaginationResponse } from 'communication';
 import {
@@ -28,9 +35,10 @@ import {
   TradeDataFeed,
   TradePrint
 } from 'trading';
-import { ViewFilterItemsBuilder } from '../../base-components/src/components/view-filter-items.builder';
+import { ordersSettings } from './components/orders-settings/orders-settings.component';
+import { defaultSettings } from './components/orders-settings/configs';
 
-export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> {
+export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier {
 }
 
 enum Tab {
@@ -49,6 +57,7 @@ const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.Ne
 })
 @LayoutNode()
 @AccountsListener()
+@SettingsApplier()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit, IAccountsListener {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
@@ -64,6 +73,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
+
+  defaultSettings = defaultSettings;
 
   gridStyles = {
     gridHeaderBorderColor: '#24262C',
@@ -105,6 +116,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     { name: OrderColumn.identifier, title: 'ORDER ID', tableViewName: 'Order ID' },
     // OrderColumn.close,
   ];
+
+  private componentInstanceId: number;
 
   get orders(): IOrder[] {
     return this.items.map(i => i.order);
@@ -160,6 +173,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     super();
     this.autoLoadData = false;
 
+    this.componentInstanceId = Date.now();
+
     this.builder.setParams({
       order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
@@ -169,10 +184,6 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
     this.columns = this.headers.map(i => convertToColumn(i, {
       ...generateNewStatusesByPrefix({
-        buyColor: 'rgba(72, 149, 245, 1)',
-        sellColor: 'rgba(220, 50, 47, 1)',
-        selectedbuyColor: 'rgba(72, 149, 245, 1)',
-        selectedsellColor: 'rgba(220, 50, 47, 1)',
         selectedbuyBackgroundColor: '#383A40',
         selectedsellBackgroundColor: '#383A40',
       }, CellStatus.Hovered),
@@ -191,11 +202,19 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
-    const hide = this.showLoading(true);
+    if (!accounts.length)
+      return;
+
+    const hide = this.showLoading();
     this.repository.getItems({ accounts }).subscribe(
-      res => this.builder.addItems(res.data),
-      err => this.showError(err),
-      () => hide(),
+      res => {
+        hide();
+        this.builder.addItems(res.data);
+      },
+      err => {
+        hide();
+        this.showError(err);
+      },
     );
   }
 
@@ -237,7 +256,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return { ...this.dataGrid.saveState() };
+    return { ...this.dataGrid.saveState(), settings: this.settings, componentInstanceId: this.componentInstanceId };
   }
 
   loadState(state): void {
@@ -250,7 +269,41 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     if (state) {
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
+      this.componentInstanceId = state.componentInstanceId;
     }
+  }
+
+  protected _handleCreateItems(items: IOrder[]) {
+    this.builder.handleCreateItems(items);
+    this.detectChanges(true);
+  }
+
+  detectChanges(force = false) {
+    const now = Date.now();
+    if (!force && (this._updatedAt + this._upadateInterval) > now)
+      return;
+
+    this.dataGrid.detectChanges(force);
+    this._updatedAt = now;
+  }
+
+  applySettings() {
+    const buyColor = this.settings.colors.buyTextColor;
+    const sellColor = this.settings.colors.sellTextColor;
+    this.columns = this.columns.map(item => {
+      item.style.buyColor = buyColor;
+      item.style.sellColor = sellColor;
+      item.style.hoveredbuyColor = buyColor;
+      item.style.hoveredsellColor = sellColor;
+
+      item.style.selectedbuyColor = buyColor;
+      item.style.selectedsellColor = sellColor;
+      item.style.hoveredselectedbuyColor = buyColor;
+      item.style.hoveredselectedsellColor = sellColor;
+
+      return item;
+    });
+    this.detectChanges(true);
   }
 
   openOrderForm() {
@@ -360,7 +413,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
           this._showSuccessDelete();
         },
         error: (error) => this._handleDeleteError(error)
-      }
+        }
       );
   }
 
@@ -379,5 +432,20 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
           item.setCurrentPrice(data.price);
       });
     }));
+  }
+
+  getOpenSettingsConfig() {
+    return {
+      name: ordersSettings, width: 550,
+      height: 475,
+    };
+  }
+
+  getCloseSettingsConfig() {
+    return { type: Components.OrdersSetting };
+  }
+
+  private _getSettingsKey() {
+    return `orders-component ${ this.componentInstanceId }`;
   }
 }

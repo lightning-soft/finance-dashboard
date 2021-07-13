@@ -8,3 +8,5 @@ export * from './group-items.builder';
 export * from './view-items.builder';
 export * from './realtime-grid.component';
 export * from './unsubscribe';
+export * from './view-filter-items.builder';
+export * from './base-settings.component';

@@ -21,7 +21,9 @@ export const Components = {
   Indicators: 'indicators',
   Watchlist: 'watchlist',
   Positions: 'positions',
+  PositionsSettings: 'positions-settings',
   Orders: 'orders',
+  OrdersSetting: 'orders-settings',
   OrderForm: 'order-form',
   Accounts: 'accounts',
   Scripting: 'scripting',
@@ -57,12 +59,14 @@ export const modulesStore: IModules[] = [
     module: Modules.Positions,
     components: [
       Components.Positions,
+      Components.PositionsSettings,
     ]
   },
   {
     module: Modules.Orders,
     components: [
       Components.Orders,
+      Components.OrdersSetting,
     ]
   },
   {

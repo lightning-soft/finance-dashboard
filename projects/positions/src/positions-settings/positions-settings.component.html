@@ -1,0 +1,12 @@
+<window-header marginClass="" class="window-header" [window]="this">
+</window-header>
+<div class="settings-form">
+  <cdk-virtual-scroll-viewport itemSize="">
+    <formly-form
+      [form]="form"
+      [(model)]="settings"
+      [fields]="fields"
+    >
+    </formly-form>
+  </cdk-virtual-scroll-viewport>
+</div>

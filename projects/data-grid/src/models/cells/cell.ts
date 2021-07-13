@@ -49,6 +49,7 @@ export abstract class Cell implements ICell {
   class = '';
   colSpan = 0;
   editable = false;
+  manualEdit = true;
   editType: string;
   editValueSetter: Function;
   _bold: boolean;

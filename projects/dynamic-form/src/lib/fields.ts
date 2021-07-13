@@ -79,7 +79,16 @@ export function getSelect(_config: any) {
 }
 
 export function getColumnSelector(config) {
-  const { key, primaryColumnLabel, label, subLabel, secondaryColumnLabel, columns, secondaryOptions, ..._config } = config;
+  const {
+    key,
+    primaryColumnLabel,
+    label,
+    subLabel,
+    secondaryColumnLabel,
+    columns,
+    secondaryOptions,
+    ..._config
+  } = config;
   return {
     key,
     type: FieldType.ColumnSelector,
@@ -172,6 +181,15 @@ export function lowerFirstLetter(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
+export function getLabel(label) {
+  return {
+    type: FieldType.Label,
+    templateOptions: {
+      label,
+    }
+  };
+}
+
 export function getRadio(key: string, options: { label: string, value: string }[] | string[]) {
   const _options = (options as Array<any>).map(item => {
     if (typeof item === 'string') {
@@ -182,7 +200,9 @@ export function getRadio(key: string, options: { label: string, value: string }[
   return {
     key,
     type: FieldType.Radio,
-    templateOptions: { options: _options }
+    templateOptions: {
+      options: _options,
+    }
   };
 }
 

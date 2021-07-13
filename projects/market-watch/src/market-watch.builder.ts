@@ -42,6 +42,8 @@ export class MarketWatchBuilder extends ItemsBuilder<InstrumentHolder, IMarketWa
       if (instrument) {
         const vm = this.getInstrumentItem(instrument);
         vm.subItems = vm.subItems.filter(subItem => subItem.itemType !== ItemType.CreateItem);
+        vm.setHasCreatingOrder(false);
+        vm.updateExpanded();
         return vm;
       }
       return new MarketWatchLabelItem((item as LabelHolder));

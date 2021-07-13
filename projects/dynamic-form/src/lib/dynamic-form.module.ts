@@ -2,13 +2,16 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-    NzCheckboxModule,
-    NzDatePickerModule,
-    NzDividerModule, NzDropDownModule, NzFormModule,
-    NzInputModule,
-    NzInputNumberModule,
-    NzSelectModule, NzSliderModule,
-    NzSwitchModule
+  NzCheckboxModule,
+  NzDatePickerModule,
+  NzDividerModule,
+  NzDropDownModule,
+  NzFormModule,
+  NzInputModule,
+  NzInputNumberModule,
+  NzSelectModule,
+  NzSliderModule,
+  NzSwitchModule
 } from 'ng-zorro-antd';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
@@ -26,6 +29,7 @@ import { DatepickerComponent } from './datepicker/datepicker.component';
 import { StorageModule } from 'storage';
 import { ColumnSelectorComponent } from './column-selector/column-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { LabelComponent } from './label/label.component';
 
 const formlyComponents = [
   {
@@ -57,13 +61,16 @@ const formlyComponents = [
   },
   {
     name: FieldType.ColumnSelector, component: ColumnSelectorComponent,
+  },
+  {
+    name: FieldType.Label, component: LabelComponent,
   }
 ];
 
 @NgModule({
   declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent,
-    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent],
+    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent],
     imports: [
         CommonModule,
         ReactiveFormsModule,

@@ -27,7 +27,7 @@ import { noneValue } from 'dynamic-form';
 import { InstrumentDialogComponent } from 'instrument-dialog';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import * as clone from 'lodash.clonedeep';
-import { NzContextMenuService, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
+import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, NzSpinComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, filterByAccountsConnection, filterConnection, IConnectionsListener } from 'real-trading';
 import { Subject } from 'rxjs';
@@ -179,6 +179,7 @@ export interface IMarketWatchState {
 export class MarketWatchComponent extends ItemsComponent<any> implements AfterViewInit, OnDestroy, IConnectionsListener {
   columns: Column[] = [];
   contextInstrument: IInstrument;
+  lastContextMenuPoint: { x, y };
   contextLabelId: Id;
   contextPoint: { x, y };
   connection$ = new Subject<void>();
@@ -273,7 +274,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           return;
         const cell = data.item[data.column.name];
         if (cell && cell.editable) {
-          const point =  { x: event.offsetX, y: event.offsetY };
+          const point = { x: event.offsetX, y: event.offsetY };
           this._dataGrid.startEditingAt(point.x, point.y);
         }
       },
@@ -301,6 +302,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       handleHeaderClick: true,
       handler: (data, event) => {
         if (data.item?.itemType == null || data.item?.itemType === ItemType.Item) {
+          this.lastContextMenuPoint = { x: event.offsetX, y: event.offsetY };
           this.nzContextMenuService.create(event, this.symbolContextMenu);
           this.contextInstrument = data.item?.instrument;
         }
@@ -393,11 +395,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'orderType':
         return this.createSelect(cell, OrderType);
       case 'limitPrice':
-        return this.createNumber(cell, { placeholder: 'Limit Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
+        return this.createNumber(cell, {
+          placeholder: 'Limit Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+        });
       case 'stopPrice':
-        return this.createNumber(cell, { placeholder: 'Stop Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision });
+        return this.createNumber(cell, {
+          placeholder: 'Stop Price',
+          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+        });
       case 'quantity':
         return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false, });
       case 'accounts':
@@ -408,6 +414,12 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
             isOpened: true,
           }
         };
+      case 'loading': {
+        const value = cell.item._value;
+        cell.item.updateValue('');
+        const spinFactory = this.componentFactoryResolver.resolveComponentFactory(NzSpinComponent);
+        return { factory: spinFactory };
+      }
     }
   }
 
@@ -1257,11 +1269,17 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   }
 
   rollSymbol() {
-    if (this.connection)
+    if (this.connection) {
+      this._dataGrid.startEditingAt(this.lastContextMenuPoint.x, this.lastContextMenuPoint.y);
       this._repository.rollInstrument(this.contextInstrument, { connectionId: this.connection.id })
         .toPromise().then(instrument => {
           this.onInstrumentChanged(this.contextInstrument, instrument);
-        });
+          this._dataGrid.endEdit();
+      }).catch(() => {
+          this._dataGrid.currentCell.updateValue(this._dataGrid.currentCell._value);
+          this._dataGrid.endEdit();
+      });
+    }
   }
 }
 

@@ -1,7 +1,6 @@
-<loader *ngIf="loading"></loader>
-
 <window-header
   (contextmenu)="dataGrid?.createComponentModal($event)"
+  (close)="closeSettings()"
   className="widget" [window]="this">
   <!-- <account-select></account-select> -->
   <!-- <nz-select class="ml-1 regular"
@@ -18,6 +17,7 @@
 
 </window-header>
 <div class="wrapper">
+  <loader *ngIf="loading"></loader>
   <div class="toolbar">
     <!-- <div (click)="selectComponent.setOpenState(true)" class="select-container">
       <nz-select
@@ -110,6 +110,8 @@
              [(contextMenuState)]="contextMenuState"
              (contextMenuStateChange)="updateCheckboxState($event)"
              [showHeaderPanelInContextMenu]="true"
+             [showSettingsInContextMenu]="true"
+             (settingsClicked)="openSettings()"
              [items]="items"
              [handlers]="handlers"
              [columns]="columns"

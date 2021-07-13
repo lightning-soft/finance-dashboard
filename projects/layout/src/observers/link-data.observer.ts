@@ -1,6 +1,6 @@
 export interface ILinkNode<T = any> {
   link: number | string;
-  layoutContainer?: any;
+  layoutContainer?: { visible: boolean };
   handleLinkData?(data: T);
 }
 

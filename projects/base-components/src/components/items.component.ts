@@ -1,4 +1,3 @@
-
 import { Directive, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams, IPaginationResponse, PaginationResponsePayload } from 'communication';

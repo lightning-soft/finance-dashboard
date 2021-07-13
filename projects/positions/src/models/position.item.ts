@@ -23,9 +23,12 @@ export enum PositionColumn {
   total = 'total',
   close = 'close',
   side = 'side',
+  sellVolume = 'sellVolume',
+  buyVolume = 'buyVolume',
+  position = 'positionCell'
 }
 
-const allColumns = Object.keys(PositionColumn) as PositionColumn[];
+const allColumns = Object.values(PositionColumn) as PositionColumn[];
 
 type IPositionItem = {
   [key in PositionColumn]: Cell;
@@ -53,6 +56,21 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     withHoverStatus: true,
     ignoreZero: false,
     formatter: this._PLFormatter,
+  });
+  buyVolume = new NumberCell({
+    strategy: AddClassStrategy.NONE, hightlightOnChange: false,
+    ignoreZero: false,
+    withHoverStatus: true,
+  });
+  sellVolume = new NumberCell({
+    strategy: AddClassStrategy.NONE, hightlightOnChange: false,
+    ignoreZero: false,
+    withHoverStatus: true,
+  });
+  positionCell = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    withHoverStatus: true,
+    hightlightOnChange: false,
   });
   total = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
@@ -97,16 +115,20 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.instrumentName,
       PositionColumn.unrealized,
       PositionColumn.realized,
-      PositionColumn.side
+      PositionColumn.side,
+      PositionColumn.sellVolume,
+      PositionColumn.buyVolume,
     ];
 
     for (let key of fields) {
       this[key].updateValue(position[key]);
     }
 
+    this.positionCell.updateValue(this.position.buyVolume - position.sellVolume);
     this._updateTotal();
     const iconClass = position.side !== Side.Closed ? 'icon-close-window' : 'd-none';
     this.close.updateClass(iconClass);
+    this._updateCellProfitStatus(this.positionCell);
     this._updateCellProfitStatus(this.unrealized);
     this._updateCellProfitStatus(this.realized);
     this._updateCellProfitStatus(this.total);
@@ -116,7 +138,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     const position = this.position;
     const instrument = this._instrument;
 
-    if ( position == null  || position.connectionId !== connectionId || instrument == null
+    if (position == null || position.connectionId !== connectionId || instrument == null
       || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 
