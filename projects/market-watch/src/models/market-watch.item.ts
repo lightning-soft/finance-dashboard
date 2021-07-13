@@ -1,5 +1,5 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, getProfitStatus, NumberCell, RoundFormatter } from 'data-grid';
+import { AddClassStrategy, Cell, Column, getProfitStatus, HoverableItem, NumberCell, RoundFormatter } from 'data-grid';
 import {
   IInstrument,
   IOrder,
@@ -16,7 +16,6 @@ import { MarketWatchSubItem } from './market-watch.sub-item';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
-import { Column, HoverableItem } from 'data-grid';
 import { MarketWatchColumnsArray } from '../market-watch-columns.enum';
 
 export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarketWatchItem {
@@ -63,6 +62,9 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
       this.symbol.updateValue('Loading...');
       this.id = config;
     }
+    this.symbol.editable = true;
+    this.symbol.editType = 'loading';
+    this.symbol.manualEdit = false;
   }
 
   protected _getPropertiesForHover(column: Column): string[] {

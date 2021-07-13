@@ -8,34 +8,41 @@ import { NzDropDownModule, NzSelectModule, NzTabsModule } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { OrdersToolbarComponent } from './components/toolbar/orders-toolbar.component';
 import { OrdersComponent } from './orders.component';
-import { LoaderModule } from "ui";
+import { LoaderModule } from 'ui';
+import { ordersSettings, OrdersSettingsComponent } from './components/orders-settings/orders-settings.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { DynamicFormModule } from 'dynamic-form';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        DataGridModule,
-        NzSelectModule,
-        FormsModule,
-        AccountSelectModule,
-        WindowHeaderModule,
-        NzTabsModule,
-        NzDropDownModule,
-        LoaderModule,
-    ],
+  imports: [
+    CommonModule,
+    DataGridModule,
+    NzSelectModule,
+    FormsModule,
+    AccountSelectModule,
+    WindowHeaderModule,
+    NzTabsModule,
+    NzDropDownModule,
+    LoaderModule,
+    ScrollingModule,
+    DynamicFormModule,
+  ],
   exports: [
     OrdersComponent,
     OrdersToolbarComponent
   ],
   declarations: [
     OrdersComponent,
-    OrdersToolbarComponent
+    OrdersToolbarComponent,
+    OrdersSettingsComponent,
   ],
 
 })
 export class OrdersModule implements LazyModule {
   get components(): ComponentStore {
     return {
-      orders: OrdersComponent
+      orders: OrdersComponent,
+      [ordersSettings]: OrdersSettingsComponent,
     };
   }
 }

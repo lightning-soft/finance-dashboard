@@ -23,6 +23,7 @@ import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from 
 import { Column } from '../types';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TextAlign } from 'dynamic-form';
+import * as clone from 'lodash.clonedeep';
 
 declare function canvasDatagrid(params: any);
 
@@ -164,6 +165,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     return this._contextMenuState;
   }
 
+  get currentCell() {
+    return this._grid.currentCell;
+  }
+
   @Output()
   contextMenuStateChange = new EventEmitter<any>();
 
@@ -272,6 +277,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       this._grid.beginEditAt(cell);
   }
 
+  endEdit() {
+    this._grid.endEdit();
+  }
+
   applyStyles(styles: GridStyles) {
     const grid = this._grid;
     this.styles = styles;
@@ -326,7 +335,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   // }
   saveState(): DataGridState {
     return {
-      columns: this._grid?.schema,
+      columns: clone(this._grid?.schema),
       contextMenuState: this.contextMenuState,
     };
   }

@@ -630,10 +630,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _observe() {
     this.addLinkObserver({
       link: DOM_HOTKEYS,
+      layoutContainer: this.layoutContainer,
       handleLinkData: (key: string) => this.handleHotkey(key),
     });
     this.addLinkObserver({
       link: this._getSettingsKey(),
+      layoutContainer: this.layoutContainer,
       handleLinkData: this._linkSettings,
     });
   }

@@ -1,0 +1,12 @@
+:host ::ng-deep {
+  .full-width {
+    grid-column: 1 / span 2;
+  }
+
+  .color-50 {
+    color-picker {
+      width: calc(50% - 6px);
+      display: block;
+    }
+  }
+}

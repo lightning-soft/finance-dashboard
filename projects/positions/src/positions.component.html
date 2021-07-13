@@ -2,6 +2,7 @@
 
 <window-header
   (contextmenu)="grid.createComponentModal($event)"
+  (close)="closeSettings()"
   className="widget" [window]="this">
   <!--  <button
       class="wm-header-btn mr-2"
@@ -18,6 +19,8 @@
 </window-header>
 <data-grid #grid [items]="builder.items" [handlers]="handlers"
            [rowHeight]="24"
+           [showSettingsInContextMenu]="true"
+           (settingsClicked)="openSettings()"
            [(contextMenuState)]="contextMenuState"
            [columns]="columns"></data-grid>
 <div class="bottom-info">

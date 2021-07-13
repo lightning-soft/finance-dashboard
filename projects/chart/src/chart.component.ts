@@ -5,11 +5,11 @@ import {
   HostBinding,
   Injector,
   Input,
+  NgZone,
   OnDestroy,
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
@@ -187,7 +187,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
     protected _loadingService: LoadingService,
-    protected _accountsManager: AccountsManager,
+    private _zone: NgZone,
     private _ohlvFeed: OHLVFeed,
     private _levelOneDatafeed: Level1DataFeed,
     protected _notifier: NotifierService,
@@ -255,13 +255,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleQuote(quote: IQuote) {
     if (quote.updateType === UpdateType.Undefined) {
-      if (quote.side === QuoteSide.Ask) {
-        this.bestAskPrice = quote.price;
-        this.askSize = quote.volume;
-      } else {
-        this.bestBidPrice = quote.price;
-        this.bidSize = quote.volume;
-      }
+      this._zone.run(() => {
+        if (quote.side === QuoteSide.Ask) {
+          this.bestAskPrice = quote.price;
+          this.askSize = quote.volume;
+        } else {
+          this.bestBidPrice = quote.price;
+          this.bidSize = quote.volume;
+        }
+      });
     }
   }
 
@@ -274,7 +276,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   getQuoteInfo(info: number) {
-    return info?.toFixed(this.instrument?.precision ?? 2) ?? '-';
+    return info?.toFixed(this.instrument?.precision ?? 2);
   }
 
   getQuoteSize(info: number) {
@@ -551,6 +553,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.addLinkObserver({
       link: this._getSettingsKey(),
+      layoutContainer: this.layoutContainer,
       handleLinkData: this._handleSettingsChange.bind(this),
     });
   }
@@ -829,15 +832,30 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 }
 
+function setCandleBackground(barTheme, settings: IChartSettings) {
+  if (barTheme.upCandle.fill) {
+    barTheme.upCandle.fill.fillColor = settings.general.upCandleColor;
+  } else {
+    barTheme.upCandle.border.strokeColor = settings.general.upCandleColor;
+
+  }
+  if (barTheme.downCandle.fill) {
+    barTheme.downCandle.fill.fillColor = settings.general.downCandleColor;
+  }
+  else {
+    barTheme.downCandle.border.strokeColor = settings.general.downCandleColor;
+  }
+}
+
+function setBarBackground(barTheme, settings) {
+  barTheme.upBar.strokeColor = settings.general.upCandleColor;
+  barTheme.downBar.strokeColor = settings.general.downCandleColor;
+}
+
+
 function setWickColor(barTheme, settings: IChartSettings) {
   barTheme.upCandle.wick.strokeColor = settings.general.wickColor;
   barTheme.downCandle.wick.strokeColor = settings.general.wickColor;
-  if (barTheme.downHollowCandle) {
-    barTheme.downHollowCandle.wick.strokeColor = settings.general.wickColor;
-  }
-  if (barTheme.upHollowCandle) {
-    barTheme.upHollowCandle.wick.strokeColor = settings.general.wickColor;
-  }
 }
 
 function getScxTheme(settings: IChartSettings = defaultChartSettings) {
@@ -845,14 +863,35 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
 
   theme.plot.line.simple.strokeColor = settings.general.lineColor;
   theme.plot.bar.OHLC.strokeColor = settings.general.lineColor;
+  theme.plot.line.mountain.line.strokeColor = settings.general.lineColor;
   theme.chart.background = [settings.general.gradient1, settings.general.gradient2];
-  theme.plot.bar.candle.upCandle.fill.fillColor = settings.general.upCandleColor;
-  theme.plot.bar.candle.downCandle.fill.fillColor = settings.general.downCandleColor;
-  theme.plot.bar.candle.upCandle.border.strokeColor = settings.general.upCandleBorderColor;
-  theme.plot.bar.candle.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
-  theme.plot.bar.candle.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
-  theme.plot.bar.candle.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
 
+
+  setCandleBackground(theme.plot.bar.candle, settings);
+  setCandleBackground(theme.plot.bar.candleVolume, settings);
+  setCandleBackground(theme.plot.bar.hollowCandle, settings);
+  theme.plot.bar.hollowCandle.downHollowCandle.border.strokeColor = settings.general.downCandleColor;
+  theme.plot.bar.hollowCandle.upHollowCandle.border.strokeColor = settings.general.upCandleColor;
+  theme.plot.bar.hollowCandle.downHollowCandle.wick.strokeColor = settings.general.downCandleColor;
+  theme.plot.bar.hollowCandle.upHollowCandle.wick.strokeColor = settings.general.upCandleColor;
+
+  setCandleBackground(theme.plot.bar.renko, settings);
+  setCandleBackground(theme.plot.bar.lineBreak, settings);
+  setCandleBackground(theme.plot.bar.kagi, settings);
+  setCandleBackground(theme.plot.bar.equiVolume, settings);
+  setCandleBackground(theme.plot.bar.equiVolumeShadow, settings);
+  setBarBackground(theme.plot.bar.coloredHL, settings);
+  setCandleBackground(theme.plot.bar.heikinAshi, settings);
+  setCandleBackground(theme.plot.bar.pointAndFigure, settings);
+
+
+  setBorderColor(theme.plot.bar.candle, settings);
+  setBorderColor(theme.plot.bar.candleVolume, settings);
+  setBorderColor(theme.plot.bar.equiVolume, settings);
+  setBorderColor(theme.plot.bar.equiVolumeShadow, settings);
+  setBorderColor(theme.plot.bar.heikinAshi, settings);
+  setBorderColor(theme.plot.bar.hollowCandle, settings);
+  setBorderColor(theme.plot.bar.lineBreak, settings);
 
   setWickColor(theme.plot.bar.candle, settings);
   setWickColor(theme.plot.bar.candleVolume, settings);
@@ -871,6 +910,12 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.chartPanel.grid.strokeColor = settings.general.gridColor;
 
   return theme;
+}
+function setBorderColor(barTheme, settings){
+  barTheme.upCandle.border.strokeColor = settings.general.upCandleBorderColor;
+  barTheme.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
+  barTheme.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
+  barTheme.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
 }
 
 function transformPeriodicity(periodicity: string): string {

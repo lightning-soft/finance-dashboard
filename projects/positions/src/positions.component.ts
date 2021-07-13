@@ -1,5 +1,12 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnDestroy, OnInit } from '@angular/core';
-import { convertToColumn, HeaderItem, RealtimeGridComponent, ViewGroupItemsBuilder } from 'base-components';
+import {
+  convertToColumn,
+  HeaderItem,
+  ISettingsApplier,
+  RealtimeGridComponent,
+  SettingsApplier,
+  ViewGroupItemsBuilder
+} from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -19,32 +26,37 @@ import {
   TradePrint
 } from 'trading';
 import { PositionColumn, PositionItem } from './models/position.item';
+import { positionsSettings } from './positions-settings/positions-settings.component';
+import { Components } from '../../../src/app/modules';
+import { defaultSettings } from './positions-settings/field.config';
 
 const profitStyles = {
-  lossBackgroundColor: '#C93B3B',
-  inProfitBackgroundColor: '#4895F5',
+  // lossBackgroundColor: '#C93B3B',
+  // inProfitBackgroundColor: '#4895F5',
   lossBorderColor: '#1B1D22',
   inProfitBorderColor: '#1B1D22',
-  hoveredlossBackgroundColor: '#C93B3B',
-  hoveredinProfitBackgroundColor: '#4895F5',
-  hoveredlossBorderColor: '#383A40',
-  hoveredinProfitBorderColor: '#383A40',
+  /* hoveredlossBackgroundColor: '#C93B3B',
+   hoveredinProfitBackgroundColor: '#4895F5',*/
+  hoveredlossBorderColor: '#2B2D33',
+  hoveredinProfitBorderColor: '#2B2D33',
+  hoveredBackgroundColor: '#2B2D33',
 };
 
 const headers: HeaderItem<PositionColumn>[] = [
+  { name: PositionColumn.instrumentName, title: 'SYMBOL' },
+  { name: PositionColumn.exchange, title: 'EXCH' },
   PositionColumn.account,
+  { name: PositionColumn.position, title: 'POS', style: profitStyles },
+  { name: PositionColumn.total, title: 'PL', style: profitStyles },
+  { name: PositionColumn.buyVolume, title: 'BUY QTY' },
+  { name: PositionColumn.sellVolume, title: 'SELL QTY' },
+  { name: PositionColumn.realized, title: 'R/PL', style: profitStyles },
+  { name: PositionColumn.unrealized, title: 'F/PL', style: profitStyles },
   PositionColumn.price,
-  PositionColumn.side,
-  PositionColumn.size,
-  { name: PositionColumn.realized, style: profitStyles },
-  { name: PositionColumn.unrealized, style: profitStyles },
-  { name: PositionColumn.total, style: profitStyles },
-  { name: PositionColumn.instrumentName, title: 'instrument' },
-  PositionColumn.exchange,
   { name: PositionColumn.close, hidden: true }
 ];
 
-export interface PositionsComponent extends RealtimeGridComponent<IPosition> {
+export interface PositionsComponent extends RealtimeGridComponent<IPosition>, ISettingsApplier {
 }
 
 enum GroupByItem {
@@ -60,6 +72,7 @@ enum GroupByItem {
 })
 @LayoutNode()
 @AccountsListener()
+@SettingsApplier()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
   builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
   groupBy = GroupByItem.None;
@@ -68,6 +81,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   open: number;
   realized: number;
   totalPl: number;
+  defaultSettings = defaultSettings;
+  componentInstanceId: number;
 
   contextMenuState = {
     showHeaderPanel: true,
@@ -127,6 +142,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     super();
     this.autoLoadData = false;
     (window as any).positions = this;
+    this.componentInstanceId = Date.now();
 
     this.builder.setParams({
       groupBy: ['accountId', 'instrumentName'],
@@ -160,7 +176,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
-    this.loadData({ accounts:  allAccounts });
+    this.loadData({ accounts: allAccounts });
   }
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
@@ -206,18 +222,19 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   private _loadInstrumentsForPositions(positions: IPosition[]) {
     forkJoin(
       positions.map(p =>
-        this._instrumentsRepository.getItemById(p.instrument.symbol, { exchange: p.instrument.exchange, accountId: p.accountId })
-      ))
-      .subscribe(
-        instruments => {
-          for (const item of this.items) {
-            for (const instrument of instruments) {
-              item.setInstrument(instrument);
-            }
+        this._instrumentsRepository.getItemById(p.instrument.symbol, {
+          exchange: p.instrument.exchange,
+          accountId: p.accountId
+        }))
+    ).subscribe(instruments => {
+        for (const item of this.items) {
+          for (const instrument of instruments) {
+            item.setInstrument(instrument);
           }
-        },
-        err => this.notifier.showError(err),
-      );
+        }
+      },
+      err => this.notifier.showError(err),
+    );
   }
 
   private _addInstrumentName(item) {
@@ -293,7 +310,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   saveState() {
-    return { ...this.dataGrid.saveState() };
+    return {
+      ...this.dataGrid.saveState(), componentInstanceId: this.componentInstanceId, settings: this.settings
+    };
   }
 
   loadState(state): void {
@@ -303,8 +322,61 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     if (state) {
       const { contextMenuState } = state;
       this.contextMenuState = contextMenuState;
+      this.componentInstanceId = state.componentInstanceId;
     }
   }
+
+  applySettings() {
+    this._columns = this._columns.map(item => {
+      item.style.color = this.settings.colors.textColor;
+      const styles = getPositionStyles(item.name, this.settings);
+      item.style = { ...item.style, ...styles };
+      return item;
+    });
+    this.dataGrid.detectChanges(true);
+  }
+
+  _getSettingsKey() {
+    return `positionsSettings.${ this.componentInstanceId }`;
+  }
+
+  getOpenSettingsConfig() {
+    return { name: positionsSettings };
+  }
+
+  getCloseSettingsConfig() {
+    return { type: Components.PositionsSettings };
+  }
+
+}
+
+export function getPositionStyles(name, settings) {
+  switch (name) {
+    case PositionColumn.total:
+      return generateProfitLossStyle(settings.colors.plDownColor, settings.colors.plUpColor, settings.colors.plTextColor);
+    case PositionColumn.position: {
+      return generateProfitLossStyle(settings.colors.positionShortColor,
+        settings.colors.positionLongColor, settings.colors.positionTextColor);
+    }
+    case PositionColumn.realized: {
+      return generateProfitLossStyle(settings.colors.realizedDownColor, settings.colors.realizedUpColor,
+        settings.colors.realizedTextColor);
+    }
+    case PositionColumn.unrealized: {
+      return generateProfitLossStyle(settings.colors.floatingDownColor, settings.colors.floatingUpColor,
+        settings.colors.floatingTextColor);
+    }
+  }
+}
+
+function generateProfitLossStyle(lossBackgroundColor, inProfitBackgroundColor, color) {
+  return {
+    lossBackgroundColor,
+    inProfitBackgroundColor,
+    hoveredlossBackgroundColor: lossBackgroundColor,
+    hoveredinProfitBackgroundColor: inProfitBackgroundColor,
+    color
+  };
 }
 
 function comparePosition(item) {

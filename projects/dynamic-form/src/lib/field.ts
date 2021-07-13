@@ -29,6 +29,7 @@ export enum FieldType {
   LineSelector = 'lineSelector',
   DatePicker = 'datePicker',
   ColumnSelector = 'columnSelector',
+  Label = 'Label',
 }
 
 export enum InputType {

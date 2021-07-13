@@ -141,13 +141,13 @@ export class AccountsManager implements ConnectionContainer {
     webSocketService.destroy(connection);
   }
 
-  private _wsHandleMessage(msg: any, connection: IConnection): void {
+  private _wsHandleMessage(msg: any, connectionId: string): void {
     if (msg.type === 'Connect' && (
       msg.result.type === AlertType.ConnectionClosed ||
       msg.result.type === AlertType.ConnectionBroken ||
       msg.result.type === AlertType.ForcedLogout
     ) || msg.type === 'Error' && msg.result.value === 'No connection!') {
-      this._deactivateConnection(connection);
+      this._deactivateConnection(connectionId);
     }
   }
 
@@ -169,7 +169,7 @@ export class AccountsManager implements ConnectionContainer {
 
     this._wsHasError = true;
 
-    this._notificationService.showError('Connection lost.');
+    this._notificationService.showError('Connection lost. Check your internet connection.');
 
     if (connection?.connected) {
       this.onUpdated({
@@ -179,16 +179,21 @@ export class AccountsManager implements ConnectionContainer {
     }
   }
 
-  private _deactivateConnection(connection: IConnection): void {
+  private _deactivateConnection(connectionId: string): void {
+    if (!connectionId) {
+      return;
+    }
+    const connection = this._connections.find(item => item.id === connectionId);
     if (!connection) {
       return;
     }
 
-    const _connection = { ...connection, connected: false };
+    connection.connected = false;
 
-    this._connectionsRepository.updateItem(_connection)
-      .pipe(tap(() => this.onUpdated(_connection)))
+    this._connectionsRepository.updateItem(connection)
+      .pipe(tap(() => this.onUpdated(connection)))
       .subscribe();
+
   }
 
   createConnection(connection: IConnection): Observable<IConnection> {
