@@ -7,6 +7,7 @@ import { RealtimeType } from '../../../real-trading/src/trading/repositories/rea
 
 const timeOffset = 3000;
 const notificationSendOffset = 3 * 60 * 1000;
+const maxTimeOffset = 10800000; // 3 hours
 
 const errorAlerts = [
   AlertType.ServiceError,
@@ -29,7 +30,7 @@ export const handlers = {
 
     const now =  Date.now();
     const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > timeOffset;
+    const hasDelay = timeDelay > timeOffset && timeOffset < maxTimeOffset;
     const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
     if (hasDelay && shouldSendNtf) {
       lastSentNotification = now;

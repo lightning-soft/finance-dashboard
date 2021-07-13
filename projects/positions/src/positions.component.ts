@@ -265,11 +265,11 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new PositionItem();
     (groupedItem as any).symbol = item; // for now using for grouping TODO: use another class for grouped element
-    groupedItem[groupBy] = new DataCell();
-    groupedItem[groupBy].updateValue(item);
-    groupedItem[groupBy].hoverStatusEnabled = true;
-    groupedItem[groupBy].bold = true;
-    groupedItem[groupBy].colSpan = this.columns.length - 1;
+    groupedItem.instrumentName = new DataCell();
+    groupedItem.instrumentName.updateValue(item);
+    groupedItem.instrumentName.hoverStatusEnabled = true;
+    groupedItem.instrumentName.bold = true;
+    groupedItem.instrumentName.colSpan = this.columns.length - 1;
     return groupedItem;
   }
 

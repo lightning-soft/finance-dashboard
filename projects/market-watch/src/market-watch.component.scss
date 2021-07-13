@@ -26,7 +26,7 @@ $tabHeight: 26px;
   }
 }
 
-.data-grid-container {
+data-grid {
   height: calc(100% - #{$headerHeight});
 }
 
@@ -78,7 +78,7 @@ $tabHeight: 26px;
     display: flex;
   }
 
-  .data-grid-container {
+  data-grid {
     height: calc(100% - #{$headerHeight} - #{$tabHeight});
   }
 }

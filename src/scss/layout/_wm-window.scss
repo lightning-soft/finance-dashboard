@@ -9,6 +9,12 @@ $border-width: 1px;
     display: none !important;
   }
 
+  &.window-maximized window-header {
+    .wm-draggable {
+      cursor: default;
+    }
+  }
+
   & > * > window-header {
     display: flex;
     align-items: center;

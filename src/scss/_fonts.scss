@@ -58,5 +58,13 @@
   font-family: Open Sans;
   font-style: normal;
   font-weight: 600;
+ // src: url("../assets/font/OpenSans-SemiBold.ttf") format('ttf');
+  src: url(../assets/StockChartX/fonts/open-sans-latin/open-sans-latin.woff) format("woff"),url(../assets/StockChartX/fonts/open-sans-latin/open-sans-latin.ttf) format("truetype"),url(../assets/StockChartX/fonts/open-sans-latin/open-sans-latin.svg) format("svg");
+
+}
+@font-face {
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: 700;
   src: url("../assets/font/OpenSans-SemiBold.ttf") format('ttf');
 }
