@@ -232,6 +232,8 @@ export abstract class Datafeed implements IDatafeed {
 
       chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
     }
+
+    chart.updateIndicators();
   }
 
   private _updateLastBar(bar: IBar, chart: IChart, instrument?: IStockChartXInstrument): void {
