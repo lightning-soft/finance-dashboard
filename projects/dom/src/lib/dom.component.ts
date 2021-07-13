@@ -1641,7 +1641,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._bestAskPrice = price;
         }
 
-        this.askSumItem.setBidSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
+        this.askSumItem.setAskSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
       }
     }
 
