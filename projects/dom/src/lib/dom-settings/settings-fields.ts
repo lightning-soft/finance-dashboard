@@ -1,6 +1,16 @@
 import {
-  FieldType, getCheckboxes, getTextAlign, wrapWithClass, getSwitch, getHistogramOrientation,
-  getColor, getHistogramColor, IFieldConfig, FieldConfig, getHotkey, getNumber
+  FieldConfig,
+  FieldType,
+  getCheckboxes,
+  getColor,
+  getHistogramColor,
+  getHistogramOrientation,
+  getHotkey,
+  getNumber,
+  getSwitch,
+  getTextAlign,
+  IFieldConfig,
+  wrapWithClass
 } from 'dynamic-form';
 import { wrapWithConfig } from 'projects/dynamic-form';
 
@@ -46,7 +56,7 @@ export const commonFields: IFieldConfig[] = [
         type: FieldType.Select,
         templateOptions: {
           options: [
-            { label: 'Regular', value: '' }, { label: 'Bold', value: 'bold' }]
+            { label: 'Regular', value: '' }, { label: 'Bold', value: '700' }]
         },
         className: 'p-r-7',
         key: 'fontWeight',

@@ -212,18 +212,17 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   connect(connection: IConnection): Observable<IConnection> {
-    const isDefault = this._connections.every(i => !i.isDefault);
+    const defaultConnection = this._connections.find(item => item.isDefault);
     return this._connectionsRepository.connect(connection)
       .pipe(
         concatMap(item => {
-          if (isDefault)
-            item.isDefault = true;
+            item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-          return this._connectionsRepository.updateItem((item)).pipe(
-            map(_ => item),
-            tap((conn) => {
-              this.onUpdated(conn);
-            }),
+            return this._connectionsRepository.updateItem((item)).pipe(
+              map(_ => item),
+              tap((conn) => {
+                this.onUpdated(conn);
+              }),
           );
         }),
         tap((conn) => {

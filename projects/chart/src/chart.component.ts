@@ -88,7 +88,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @Input() window: IWindow;
 
   chart: IChart;
-  link: any;
+  link: string;
+
+  get chartLink() {
+    return `chart-${this.link}`;
+  }
+
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
   showChartForm = true;
@@ -391,7 +396,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._loadedChart$.next(chart);
 
-    this.broadcastData(this.link, chart);
+    this.broadcastData(this.chartLink, chart);
 
     let charts = [];
 
@@ -504,6 +509,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Destroy:
       case LayoutNodeEvent.Hide:
         this._closeSettings();
+        this.onWindowClose();
         break;
       case LayoutNodeEvent.Resize:
       case LayoutNodeEvent.Maximize:
@@ -585,9 +591,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   onWindowClose() {
+    const link = this.chartLink;
     this.layout.removeComponents((item) => {
       const isIndicatorComponent = [Components.Indicators, Components.IndicatorList].includes(item.type);
-      return item.visible && isIndicatorComponent && (item.options.componentState()?.state?.link === this.link);
+      return item.visible && isIndicatorComponent && (item.options.componentState()?.state?.link === link);
     });
   }
 

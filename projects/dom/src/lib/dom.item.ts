@@ -754,7 +754,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
       else
         this._calculateBidDelta();
 
-      this.orders.changeAskQuantity(data.volume);
+      this.orders.changeBidQuantity(data.volume);
     }
 
     if (this.clearCross)
