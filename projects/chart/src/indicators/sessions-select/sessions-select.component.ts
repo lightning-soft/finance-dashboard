@@ -14,6 +14,6 @@ export class SessionsSelectComponent extends FieldType {
   }
 
   handleSessionChange(session: ISession) {
-    this.formControl.setValue(session.workingTimes);
+    this.formControl.setValue(session);
   }
 }

@@ -46,7 +46,7 @@ const tradingOptions = [
   }
 ];
 
-function getSessionsSelect(key = 'workingTimes') {
+function getSessionsSelect(key = 'session') {
   return {
     key,
     type: 'sessions-select',
@@ -1503,7 +1503,7 @@ export const sessionStatsConfig: IFieldConfig[] = [
   }),
   new FieldConfig({
     label: 'Trading Hours',
-    key: 'workingTimes',
+    key: 'sessions',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
     fieldGroup: [

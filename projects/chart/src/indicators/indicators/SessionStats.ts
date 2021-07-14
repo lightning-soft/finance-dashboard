@@ -21,6 +21,10 @@ export class SessionStats extends Indicator {
       general: settings.general,
       font: settings.font,
       lines,
+      sessions: {
+        rth: settings.rthSessionId,
+        eth: settings.ethSessionId,
+      },
     };
   }
 
@@ -44,8 +48,13 @@ export class SessionStats extends Indicator {
     return {
       general: settings.general,
       font: settings.font,
-      workingTimes: settings.workingTimes,
       lines,
+      workingTimes: {
+        rth: settings.sessions.rth?.workingTimes,
+        eth: settings.sessions.eth?.workingTimes,
+      },
+      rthSessionId: settings.sessions.rth?.id,
+      ethSessionId: settings.sessions.eth?.id,
     };
   }
 }

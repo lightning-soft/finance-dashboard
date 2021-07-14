@@ -29,7 +29,7 @@ export class PriceStats extends Indicator {
             devEnabled: settings.lines.dev.va.enabled,
             strokeColor: settings.lines.current.va.strokeTheme.strokeColor,
           },
-          workingTimes: settings.workingTimes,
+          session: settings.sessionId,
         },
         eth: {
           type: settings.eth.profile.type,
@@ -44,7 +44,7 @@ export class PriceStats extends Indicator {
             devEnabled: settings.eth.lines.dev.va.enabled,
             strokeColor: settings.eth.lines.current.va.strokeTheme.strokeColor,
           },
-          workingTimes: settings.workingTimes,
+          session: settings.eth.sessionId,
         },
       },
       highlight: settings.highlight,
@@ -94,7 +94,8 @@ export class PriceStats extends Indicator {
           },
         },
       },
-      workingTimes: settings.profile.rth.workingTimes,
+      workingTimes: settings.profile.rth.session?.workingTimes,
+      sessionId: settings.profile.rth.session?.id,
       eth: {
         profile: {
           type: settings.profile.eth.type,
@@ -130,7 +131,8 @@ export class PriceStats extends Indicator {
             },
           },
         },
-        workingTimes: settings.profile.eth.workingTimes,
+        workingTimes: settings.profile.eth.session?.workingTimes,
+        sessionId: settings.profile.eth.session?.id,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
       highlight: settings.highlight,
