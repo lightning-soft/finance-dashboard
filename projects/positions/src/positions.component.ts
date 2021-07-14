@@ -8,7 +8,7 @@ import {
   ViewGroupItemsBuilder
 } from 'base-components';
 import { Id, IPaginationResponse } from 'communication';
-import { CellClickDataGridHandler, Column, DataCell, DataGridHandler } from 'data-grid';
+import { CellClickDataGridHandler, Column, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
@@ -29,6 +29,7 @@ import { PositionColumn, PositionItem } from './models/position.item';
 import { positionsSettings } from './positions-settings/positions-settings.component';
 import { Components } from '../../../src/app/modules';
 import { defaultSettings } from './positions-settings/field.config';
+import { GroupedPositionItem, groupStatus } from './models/grouped-position.item';
 
 const profitStyles = {
   // lossBackgroundColor: '#C93B3B',
@@ -153,6 +154,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this._columns = headers.map((i) => convertToColumn(i, {
       hoveredBackgroundColor: '#2B2D33',
       hoveredhighlightBackgroundColor: '#2B2D33',
+      [`${groupStatus}BackgroundColor`]: '#24262C',
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint, connectionId: Id) => {
@@ -263,13 +265,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   getGroupHeaderItem(item, groupBy) {
-    const groupedItem = new PositionItem();
-    (groupedItem as any).symbol = item; // for now using for grouping TODO: use another class for grouped element
-    groupedItem.instrumentName = new DataCell();
+    const groupedItem = new GroupedPositionItem();
     groupedItem.instrumentName.updateValue(item);
-    groupedItem.instrumentName.hoverStatusEnabled = true;
-    groupedItem.instrumentName.bold = true;
-    groupedItem.instrumentName.colSpan = this.columns.length - 1;
     return groupedItem;
   }
 

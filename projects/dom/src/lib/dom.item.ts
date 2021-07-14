@@ -873,8 +873,10 @@ export class DomItem extends HoverableItem implements IBaseItem {
         this.orders.addOrder(order);
         this.askDelta.addOrder(order);
         this.bidDelta.addOrder(order);
-        this.orders.changeAskQuantity(this.ask._value);
-        this.orders.changeBidQuantity(this.bid._value);
+        if (!this.ask.isSumCell)
+          this.orders.changeAskQuantity(this.ask._value);
+        if (!this.bid.isSumCell)
+          this.orders.changeBidQuantity(this.bid._value);
         this.notes.updateValue(order.description);
 
         // if (order.side === OrderSide.Sell) {

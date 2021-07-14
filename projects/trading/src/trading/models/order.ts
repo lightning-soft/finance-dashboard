@@ -45,6 +45,7 @@ export enum OrderDuration {
   IOC = 'IOC',
   DAY = 'DAY'
 }
+
 export const OrderDurationArray = Object.values(OrderDuration);
 Object.freeze(OrderDurationArray);
 
@@ -74,10 +75,38 @@ export interface IOrderParams extends IPaginationParams {
 
 const forbiddenOrders = [OrderStatus.Rejected, OrderStatus.Filled, OrderStatus.Canceled];
 
-export function isForbiddenOrder(order){
+export function isForbiddenOrder(order) {
   return forbiddenOrders.includes(order.status);
 }
 
 export function getPrice(order: IOrder) {
   return isNaN(order.price) ? order.triggerPrice : order.price;
+}
+
+export function getPriceSpecs(item: IOrder & { amount: number }, price: number, tickSize) {
+  const priceSpecs: any = {};
+  const multiplier = 1 / tickSize;
+  price = (Math.ceil(price * multiplier) / multiplier);
+  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.limitPrice = price;
+  }
+  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+    priceSpecs.stopPrice = price;
+  }
+  if (item.type === OrderType.StopLimit) {
+    const offset = tickSize * item.amount;
+    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset : -offset);
+  }
+  return priceSpecs;
+}
+
+export function getPriceScecsForDuplicate(item: IOrder) {
+  const prices: any = {};
+  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+    prices.limitPrice = +item.price;
+  }
+  if ([OrderType.StopLimit, OrderType.StopMarket].includes(item.type)) {
+    prices.stopPrice = +item.triggerPrice;
+  }
+  return prices;
 }

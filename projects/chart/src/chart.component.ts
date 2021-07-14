@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -28,6 +28,7 @@ import { TemplatesService } from 'templates';
 import { ThemesHandler } from 'themes';
 import {
   compareInstruments,
+  getPriceSpecs,
   IAccount,
   IHistoryItem,
   IOrder,

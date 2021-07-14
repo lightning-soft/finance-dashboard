@@ -24,6 +24,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Components } from 'src/app/modules';
 import {
+  getPriceScecsForDuplicate,
   IAccount,
   IOrder,
   IOrderParams,
@@ -326,8 +327,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   repriceSelectedOrdersByTickSize(up: boolean): void {
     const requests: Observable<IOrder>[] = [];
 
-    this.selectedOrders.forEach(order => {
-      if (orderWorkingStatuses.includes(order.status)) {
+    this.items.forEach(item => {
+      const order = item.order;
+      if (orderWorkingStatuses.includes(order.status) && item.isSelected) {
         requests.push(this._repository.updateItem(this._getRepricedOrderByTickSize(order, up)));
       }
     });
@@ -351,9 +353,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       order.accountId = order.account.id;
       order.symbol = order.instrument.symbol;
       order.exchange = order.instrument.exchange;
+      const orderDto = { ...order, ...getPriceScecsForDuplicate(order) };
 
       const hide = this.showLoading();
-      this._repository.createItem(order)
+      this._repository.createItem(orderDto)
         .pipe(finalize(hide))
         .subscribe((data) => {
           this._handleCreateItems([data]);
@@ -374,10 +377,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const tickSize = order.instrument.increment ?? 0.25;
 
     if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
-      updatedOrder.limitPrice += up ? tickSize : -tickSize;
+      updatedOrder.limitPrice =  +updatedOrder.price + (up ? tickSize : -tickSize);
     }
     if ([OrderType.StopMarket, OrderType.StopLimit].includes(order.type)) {
-      updatedOrder.stopPrice += up ? tickSize : -tickSize;
+      updatedOrder.stopPrice = +updatedOrder.triggerPrice + (up ? tickSize : -tickSize);
     }
 
     return updatedOrder;

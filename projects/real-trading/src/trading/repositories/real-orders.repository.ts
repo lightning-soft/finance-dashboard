@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ExcludeId, Id } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
 import { ConnectionContainer, IOrder, OrderDuration, OrdersRepository, OrderStatus, OrderType } from 'trading';
 import { BaseRepository } from './base-repository';
@@ -82,11 +82,13 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       exchange: item.instrument.exchange
     };
 
-    return this._http.put<IOrder>(this._getRESTURL(), dto, {
-      ...this.getApiHeadersByAccount(item.accountId),
+    return this._http.put<{ result: IOrder }>(this._getRESTURL(), dto, {
+      ...this.getApiHeadersByAccount(item.accountId ?? dto.accountId),
       params: query
-    })
-      .pipe(tap(this._onUpdate));
+    }).pipe(
+      map((response: any) => response.result),
+      tap(this._onUpdate),
+    );
   }
 
   createItem(item: ExcludeId<IOrder>, options?: any): Observable<IOrder> {

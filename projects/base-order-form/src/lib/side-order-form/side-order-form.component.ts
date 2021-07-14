@@ -315,19 +315,3 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 }
 
-export function getPriceSpecs(item: IOrder & { amount: number }, price: number, tickSize) {
-  const priceSpecs: any = {};
-  const multiplier = 1 / tickSize;
-  price = (Math.ceil(price * multiplier) / multiplier);
-  if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
-    priceSpecs.limitPrice = price;
-  }
-  if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
-    priceSpecs.stopPrice = price;
-  }
-  if (item.type === OrderType.StopLimit) {
-    const offset = tickSize * item.amount;
-    priceSpecs.stopPrice = price + (item.side === OrderSide.Sell ? offset : -offset);
-  }
-  return priceSpecs;
-}
