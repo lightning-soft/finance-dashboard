@@ -32,6 +32,7 @@ export class VolumeProfile extends Indicator {
           },
           vaInsideOpacity: settings.profile.vaInsideOpacity * 100,
           vaOutsideOpacity: settings.profile.vaOutsideOpacity * 100,
+          session: settings.profile.sessionId,
         },
         eth: {
           type: settings.eth.profile.type,
@@ -44,6 +45,7 @@ export class VolumeProfile extends Indicator {
           },
           vaInsideOpacity: settings.eth.profile.vaInsideOpacity * 100,
           vaOutsideOpacity: settings.eth.profile.vaOutsideOpacity * 100,
+          session: settings.eth.profile.sessionId,
         },
       },
       lines: {
@@ -194,7 +196,8 @@ export class VolumeProfile extends Indicator {
           },
         },
       },
-      workingTimes: settings.profile.rth.workingTimes,
+      workingTimes: settings.profile.rth.session?.workingTimes,
+      sessionId: settings.profile.rth.session?.id,
       eth: {
         profile: {
           type: settings.profile.eth.type,
@@ -262,7 +265,8 @@ export class VolumeProfile extends Indicator {
             },
           },
         },
-        workingTimes: settings.profile.eth.workingTimes,
+        workingTimes: settings.profile.eth.session?.workingTimes,
+        sessionId: settings.profile.eth.session?.id,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
       splitProfile: settings.profile.splitProfile,

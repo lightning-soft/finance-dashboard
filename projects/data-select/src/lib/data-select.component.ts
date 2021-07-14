@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ItemsComponent } from 'base-components';
-import { Id, Repository } from 'communication';
+import { Repository } from 'communication';
 
 interface IDataSelectItemAction {
   icon: string;
@@ -17,7 +17,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
 
   @Input() label: string;
   @Input() default?: any;
-  @Input() value?: Id;
+  @Input() value?: any;
   @Input('repository') protected _repository: Repository;
   @Input() withActions = false;
   @Output() handleChange = new EventEmitter<any>();
@@ -61,7 +61,13 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.value) {
-      this._setValueIfNeeded();
+      if (typeof this.value === 'object' && this.value !== null) {
+        this.value = this.value.id;
+      }
+
+      if (this.value == null) {
+        this._setValueIfNeeded();
+      }
     }
   }
 
