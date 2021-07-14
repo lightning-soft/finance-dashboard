@@ -11,7 +11,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import { FormActions, getPriceSpecs, OcoStep, SideOrderFormComponent, SideOrderFormState } from 'base-order-form';
+import { FormActions, OcoStep, SideOrderFormComponent, SideOrderFormState } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -45,6 +45,7 @@ import { TradeHandler } from 'src/app/components';
 import {
   compareInstruments,
   getPrice,
+  getPriceSpecs,
   IAccount,
   IInstrument,
   IOrder,

@@ -532,7 +532,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this._handleConnections(connectedConnections);
   }
 
-  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection[]) {
+  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection) {
     this._handleConnections([defaultConnection]);
   }
 

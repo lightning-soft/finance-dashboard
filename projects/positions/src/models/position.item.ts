@@ -27,6 +27,7 @@ export enum PositionColumn {
   buyVolume = 'buyVolume',
   position = 'positionCell'
 }
+export const PositionColumnsArray = Object.values(PositionColumn);
 
 const allColumns = Object.values(PositionColumn) as PositionColumn[];
 

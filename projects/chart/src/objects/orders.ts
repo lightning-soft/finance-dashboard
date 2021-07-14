@@ -1,9 +1,17 @@
 import { StringHelper } from 'base-components';
-import { getPrice, IOrder, OrdersFeed, OrderSide, OrdersRepository, OrderStatus, OrderType } from 'trading';
+import {
+  getPrice,
+  getPriceSpecs,
+  IOrder,
+  OrdersFeed,
+  OrderSide,
+  OrdersRepository,
+  OrderStatus,
+  OrderType
+} from 'trading';
 import { ChartObjects } from './chart-objects';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { getPriceSpecs } from 'base-order-form';
 
 declare const StockChartX: any;
 

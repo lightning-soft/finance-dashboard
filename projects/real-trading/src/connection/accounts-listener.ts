@@ -61,7 +61,7 @@ class AccountsListenerRegister {
     }
   }
 
-  notifyDefaultChanged(connections: IConnection[], conn: IConnection[]) {
+  notifyDefaultChanged(connections: IConnection[], conn: IConnection) {
     this._connnections = connections;
     for (const listener of this._listeners) {
       if (listener.handleDefaultConnectionChanged)
@@ -105,7 +105,7 @@ export interface IAccountsListener {
 
 export interface IConnectionsListener {
   handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]);
-  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection[]);
+  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection);
   handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]);
 }
 
@@ -131,11 +131,12 @@ export interface IAccountListener {
 }
 
 @Injectable() // just to avoid error in console
-abstract class _AccountListener extends _AccountsListener {
+abstract class _AccountListener extends _AccountsListener implements IConnectionsListener {
   accounts: IAccount[] = [];
   account: IAccount;
   accountId: Id;
-  selectFirstAsDefault = true;
+  selectDefault = true;
+  defaultConnection: IConnection;
 
 
   ngOnInit() {
@@ -146,19 +147,30 @@ abstract class _AccountListener extends _AccountsListener {
     accountsListeners.unsubscribe(this);
   }
 
+  handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this.defaultConnection = connectedConnections.find(item => item.isDefault);
+  }
+
+  handleDefaultConnectionChanged(connections: IConnection[], defaultConnection: IConnection) {
+    this.defaultConnection = defaultConnection;
+  }
+  handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this.defaultConnection = connectedConnections.find(item => item.isDefault);
+  }
+
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
-    const selectFirstAsDefault = this.selectFirstAsDefault ?? true;
+    const selectFirstAsDefault = this.selectDefault ?? true;
     if (this.account == null && accounts.length && selectFirstAsDefault) {
-      this.account = allAccounts[0];
+      this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
   }
 
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectFirstAsDefault && allAccounts.length) {
-      this.account = allAccounts[0];
+    if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectDefault && allAccounts.length) {
+      this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
   }
 }
