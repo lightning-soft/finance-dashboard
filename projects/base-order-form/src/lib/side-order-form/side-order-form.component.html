@@ -85,13 +85,19 @@
       <button
         [style.color]="setting.sellButtonsFontColor"
         [style.background]="setting.sellButtonsBackgroundColor"
-        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL <span class="cxl-quantity">{{sellQuantity}}</span></button>
+        [class.cxl-btn-disabled]="!sellQuantity"
+        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL
+        <span *ngIf="sellQuantity" class="cxl-quantity">{{sellQuantity}}</span></button>
       <button
         [style.color]="setting.cancelButtonFontColor"
         [style.background]="setting.cancelButtonBackgroundColor"
-        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL <span class="cxl-quantity">{{totalQuantity}}</span></button>
+        [class.cxl-btn-disabled]="!totalQuantity"
+        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL
+        <span *ngIf="totalQuantity" class="cxl-quantity">{{totalQuantity}}</span></button>
       <button [style.color]="setting.buyButtonsFontColor"
-              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY <span class="cxl-quantity">{{buyQuantity}}</span></button>
+              [class.cxl-btn-disabled]="!buyQuantity"
+              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY
+        <span *ngIf="buyQuantity" class="cxl-quantity">{{buyQuantity}}</span></button>
     </div>
     <div class="bottom-btns">
       <button (click)="emit(FormActions.ClosePositions)"

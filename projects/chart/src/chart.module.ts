@@ -26,7 +26,6 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IndicatorsComponent } from './indicators/indicators.component';
 import { DynamicFormModule } from 'dynamic-form';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { IndicatorListComponent } from './indicators/indicator-list/indicator-list.component';
 import { BaseOrderFormModule } from 'base-order-form';
 import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
 import { DataGridModule } from 'data-grid';
@@ -112,7 +111,6 @@ import { SessionsSelectComponent } from './indicators/sessions-select/sessions-s
     ChartComponent,
     ToolbarComponent,
     IndicatorsComponent,
-    IndicatorListComponent,
     OrdersPanelComponent,
     ConfirmOrderComponent,
     ChartSettingsComponent,
@@ -124,7 +122,6 @@ export class ChartModule implements LazyModule {
     return {
       chart: ChartComponent,
       indicators: IndicatorsComponent,
-      indicatorList: IndicatorListComponent,
       ordersPanel: OrdersPanelComponent,
       [chartSettings]: ChartSettingsComponent
     };

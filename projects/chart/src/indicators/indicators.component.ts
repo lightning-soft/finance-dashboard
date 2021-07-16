@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { Components } from 'src/app/modules';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { IChart } from '../models';
 import {
   CompositeProfile,
@@ -16,6 +15,7 @@ import {
   VolumeProfile
 } from './indicators';
 import { Indicator } from './indicators/Indicator';
+import { StringHelper } from "base-components";
 
 declare const StockChartX: any;
 
@@ -36,9 +36,97 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   link: any;
   chart: IChart;
   indicators: any[] = [];
+  allExpanded = false;
+  registeredIndicators = [];
+  searchControl = new FormControl('', Validators.required);
+  groups: any = [
+    {
+      name: 'Tradrr',
+      indicators: [
+        'Footprint',
+        'VolumeProfile',
+        'CompositeProfile',
+        'PriceStats',
+        'SessionStats',
+        'VolumeBreakdown',
+      ],
+    },
+    {
+      name: 'General', indicators: [
+        'MedianPrice',
+        'VOL',
+        'HML',
+        'ROC',
+        'VROC',
+        'StdDev',
+        'WeightedClose',
+        'TypicalPrice',
+        'SUM',
+        'MAX',
+        'MIN',
+      ],
+    },
+    {
+      name: 'Bands', indicators: [
+        'Bollinger',
+        'HighLowBands',
+        'DBox',
+        'Ichimoku',
+        'PNB',
+        'KeltnerChannel',
+      ],
+    },
+    {
+      name: 'Index', indicators: [
+        'ADL', 'ADX', 'ASI',
+        'SwingIndex', 'MarketFacilitationIndex', 'RAVI',
+        'ChaikinMoneyFlow', 'CCI', 'MFI', 'RSI', 'CRS', 'NVI', 'EFI',
+        'OBV', /*'SwingIndex',*/ 'ElderThermometer', 'PerformanceIndex', 'TVI',
+        'TSI',
+        'GRI', 'PVI', /*'PVI',*/ 'TMF', 'HistoricalVolatility', 'PVT',
+        'IMI', /*'QStick'*/
+      ],
+    },
+    {
+      name: 'Moving Average',
+      indicators: [
+        'DeviationToMA',
+        'MAEnvelopes', 'VMA', 'TMA', 'EMA', 'KAMA', 'HMA', 'VOLMA', 'DEMA', 'TEMA', 'SMA', /*'T3',*/ 'WWS', 'VIDYA', 'WMA', 'ZLEMA'
+      ],
+    },
+    {
+      name: 'Oscillator',
+      indicators: [
+        'AroonOscillator', 'Aroon', 'ATR', 'CenterOfGravity', 'ChaikinVolatility', 'MACD', 'TSF', 'CFO', 'FOSC',
+        'ChaikinOscillator', 'CMO', 'CoppockCurve', 'PriceOscillator', 'DM', 'EasyOfMovement', 'EFT', 'ElderRay', 'TrueRange', 'TRIX',
+        'Stochastics', 'StochasticsFast', 'UltimateOscillator', 'VolumeOscillator', 'PGO', 'WillamsR', 'PPO', 'WAD', 'PNO'
+
+      ],
+    },
+    {
+      name: 'Regression',
+      indicators: [
+        'LinearRegressionForecast', 'LinearRegression' /*,'TimeSeriesForecast'*/, 'LinearRegressionIntercept', 'LinearRegressionSlope'
+      ],
+    },
+    {
+      name: 'Others',
+      indicators: [
+        'ADXR', 'APZ', 'BOP', 'DonchianChannel', 'RSS', 'Range', 'KeyReversalDown', 'KeyReversalUp',
+        'StochRSI', 'PFE', 'RIND', 'Momentum', 'McGinleysDynamic', 'VWAP', 'VolumeUpDown',
+        'NBarsDown', 'LogChange', 'NBarsUp'
+      ],
+    }
+  ];
   selectedIndicator: any;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
+  indicatorsDescriptions: {
+    [key: string]: {
+      title: string;
+      content: string[];
+    }[];
+  } = {};
 
   private _constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
     [StockChartX.Footprint, Footprint],
@@ -51,6 +139,17 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
+    this.groups = this.groups.map(item => {
+      item.filteredIndicators = item.indicators;
+      return item;
+    });
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        untilDestroyed(this)
+      )
+      .subscribe((query) => this.search(query));
   }
 
   isSelected(item: any) {
@@ -93,36 +192,26 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     };
   }
 
-  addIndicator() {
-    this.layout.addComponent({
-      component: {
-        name: Components.IndicatorList,
-        state: {
-          link: this.link,
-          chart: this.chart,
-        }
-      },
-      resizable: false,
-      width: 522,
-      height: 570,
-      single: true,
-      allowPopup: false,
-      removeIfExists: true,
-      closableIfPopup: true,
-      minimizable: false,
-      maximizable: false,
-    });
+  fetchIndicators() {
+    this.registeredIndicators = StockChartX.Indicator.registeredIndicators;
+  }
+
+  addIndicator(item) {
+    if (this.indicators.find((indicator) => indicator.name === item))
+      return;
+
+    const indicator = this.registeredIndicators[item];
+    this.chart.addIndicators(new indicator);
   }
 
   private _handleChart(chart: IChart) {
-    if (!chart) {
+    if (!chart)
       return;
-    }
 
+    this.fetchIndicators();
     chart.indicators?.forEach(indicator => {
       this._addIndicator(indicator);
     });
-
     chart.on(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
     chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
   }
@@ -178,5 +267,58 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       chart.off(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
       chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
     }
+  }
+
+  expand(group) {
+    group.expanded = !group.expanded;
+    this.allExpanded = this.groups.every(item => item.expanded);
+  }
+
+  search(query: string) {
+    const isEmpty = query === '' || query != null;
+    this.groups = this.groups.map(item => {
+      if (isEmpty)
+        item.filteredIndicators = item.indicators.filter(indicator => indicator.toLowerCase().includes(query.toLowerCase()));
+      else
+        item.filteredIndicators = item.indicators;
+      return item;
+    });
+  }
+
+  fetchDescription(name: string) {
+    if (this.indicatorsDescriptions.hasOwnProperty(name)) {
+      return;
+    }
+
+    const keys = ['overview', 'interpretation', 'parameters'];
+    const contentKeys = ['content', 'content1', 'content2'];
+
+    const promises = keys.map(key => {
+      const contentPromises = contentKeys.map(contentKey => {
+        return StockChartX.Localization.localizeText(
+          this.chart,
+          `indicator.${ name }.help.${ key }.${ contentKey }`,
+          { defaultValue: null },
+        );
+      });
+
+      return Promise.all(contentPromises).then(content => content.filter(Boolean));
+    });
+
+    Promise.all(promises).then(sections => {
+      this.indicatorsDescriptions[name] = sections.map((content, i) => ({
+        title: StringHelper.capitalize(keys[i]),
+        content,
+      }));
+    });
+  }
+
+  clearQuery() {
+    this.searchControl.patchValue('');
+  }
+
+  toggleAll() {
+    this.groups = this.groups.map(item => ({ ...item, expanded: !this.allExpanded }));
+    this.allExpanded = !this.allExpanded;
   }
 }

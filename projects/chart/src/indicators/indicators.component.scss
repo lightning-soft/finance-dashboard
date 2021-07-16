@@ -523,6 +523,7 @@
     .min-width-80 {
       width: 80px;
     }
+
     .max-width-85 {
       max-width: 85px;
     }
@@ -708,6 +709,39 @@
   }
 }
 
+.expand-all {
+  height: 20px;
+  width: 20px;
+  background: $darkBackground;
+  border-radius: 2px;
+  margin-left: 5px;
+  color: $text-40;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 10px;
+    transition: all 0.3s;
+  }
+
+  .all-expaned  {
+    transform: rotate(180deg);
+  }
+}
+
+::ng-deep {
+  .indicator-tooltip .ant-tooltip-inner {
+    background: $light;
+    color: $text-60;
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+    padding: 12px;
+    border: 0.5px solid $light2;
+    border-radius: 2px;
+  }
+}
 
 .layout {
   display: flex;
@@ -744,29 +778,162 @@ formly-form {
 
 }
 
-.menu-list {
+.menu-list, .bottom-menu {
   background: $inputBackground;
   margin-top: 3px;
-  height: calc(100% - 29px);
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 8px;
 }
 
 .bottom-menu {
-  font-size: 0.75rem;
-  height: 20px;
-  text-align: right;
+  margin-top: 6px;
+  height: 241px;
   display: flex;
-  justify-content: space-between;
-  margin-top: 4px;
+  flex-direction: column;
 
   .remove-all-text {
-    height: 100%;
     display: inline-block;
-    padding: 3px 3px 3px 6px;
     color: $text-40;
+    margin-top: auto;
+    margin-left: auto;
+    font-size: 0.8rem;
 
     &.is-removable {
       cursor: pointer;
     }
+  }
+}
+
+:host ::ng-deep {
+  .all-group, .current-text {
+    color: $light2;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+  }
+
+  .all-group-clickable {
+    cursor: pointer;
+
+    &:hover {
+      color: $text-40;
+    }
+  }
+
+  .search-group {
+    height: 20px;
+    border: none;
+    width: auto;
+
+    .icon-search {
+      font-size: 10px;
+    }
+  }
+
+  .menu {
+    cdk-virtual-scroll-viewport {
+      margin-top: 10px;
+      height: 183px;
+    }
+
+    ul, li, .cdk-virtual-scroll-content-wrapper {
+      padding: 0;
+    }
+
+    li {
+      padding-right: 8px;
+    }
+
+    .indicator-item {
+      color: $text-60;
+      margin-left: 10px;
+      margin-right: 5px;
+      font-size: 0.85rem;
+      padding-left: 8px;
+      border-radius: 2px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      margin-top: 7px;
+
+      &:not(:first-child) {
+        margin-top: 3px;
+      }
+
+      &:hover {
+        background: $light3;
+        color: #FFFFFF;
+      }
+    }
+
+    .current-indicators {
+      color: $text-60;
+      font-size: 0.85rem;
+      margin-top: 3px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding-left: 4px;
+      padding-right: 7px;
+      border-radius: 2px;
+
+
+      &.selected {
+        background: $light;
+        color: #fff;
+      }
+
+      &:hover {
+        background: $light3;
+        color: #fff;
+
+        .icon-visible, .icon-bucket {
+          opacity: 1;
+        }
+      }
+
+      &:first-child {
+        margin-top: 10px;
+      }
+
+      .icon-visible {
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .icon-bucket {
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 10px;
+        color: $text-60;
+      }
+    }
+  }
+}
+
+.indicator-group-item {
+  font-size: 0.85rem;
+  color: $text-60;
+  display: flex;
+  justify-content: space-between;
+
+  &:not(:first-child) {
+    margin-top: 9px;
+  }
+
+  .arrow {
+    font-size: 8px;
+    transition: all 0.5s;
+  }
+
+  .arrow-up {
+    transform: rotate(180deg);
+  }
+
+  &.expanded {
+    color: #fff;
   }
 }
 

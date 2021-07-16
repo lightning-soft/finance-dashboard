@@ -6,3 +6,4 @@ export * from './date.cell';
 export * from './price.cell';
 export * from './checkbox.cell';
 export * from './components';
+export * from './empty.cell';

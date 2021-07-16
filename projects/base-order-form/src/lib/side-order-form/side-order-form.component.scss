@@ -276,6 +276,11 @@ button.top-position-btn {
   background: #4895F5;
 }
 
+.cxl-btn-disabled, .cxl-btn-disabled:focus, .cxl-btn-disabled:hover, .cxl-btn-disabled:focus-within {
+  opacity: 0.6;
+  justify-content: center;
+}
+
 .close-position-button {
   &, &:hover, &:focus-within {
     background: #51535A;

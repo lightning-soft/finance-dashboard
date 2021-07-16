@@ -2,29 +2,76 @@
 <div class="layout">
   <div class="menu">
     <div class="menu-list">
-      <ul>
-        <li *ngFor="let item of indicators"
-            (click)="selectIndicator(item)"
-            [class.selected]="isSelected(item)"><i class="icon-visible"></i>{{item.name}}
-          <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-minus ml-auto"></i>
-        </li>
-      </ul>
+      <div class="d-flex align-items-center">
+        <span (click)="searchControl.valid && clearQuery()" [class.all-group-clickable]="searchControl.valid"
+              class="all-group d-block mr-2">All</span>
+        <nz-input-group class="custom-form-control search-group" nzSize="small" [nzPrefix]="prefix">
+          <input [formControl]="searchControl" type="text" nz-input placeholder=""/>
+        </nz-input-group>
+        <ng-template #prefix>
+          <i class="icon-search"></i>
+        </ng-template>
+        <div (click)="toggleAll()" class="expand-all">
+          <i [class.all-expaned]="allExpanded" class="icon-arrow-up"></i>
+        </div>
+      </div>
+      <cdk-virtual-scroll-viewport itemSize="">
+        <ul>
+          <ng-container *ngFor="let group of groups">
+            <li
+              [class.expanded]="group.expanded"
+              (click)="expand(group)"
+              class="indicator-group-item">{{group.name}}
+              <i class="arrow icon-arrow-down"
+                 [class.arrow-up]="group.expanded"
+              ></i>
+            </li>
+            <div *ngIf="group.expanded">
+              <div (click)="addIndicator(indicator)" class="indicator-item"
+                   nz-tooltip [nzTooltipTitle]="description"
+                   (mouseenter)="fetchDescription(indicator)"
+                   nzPlacement="rightTop"
+                   [nzTooltipOverlayClassName]="'indicator-tooltip'"
+                   *ngFor="let indicator of group.filteredIndicators">{{indicator}}
+                <ng-template #description>
+                  <ng-container *ngFor="let section of indicatorsDescriptions[indicator]">
+                    <ng-container *ngIf="section.content.length">
+                      <h5>{{ section.title }}</h5>
+                      <p *ngFor="let paragraph of section.content">{{ paragraph }}</p>
+                    </ng-container>
+                  </ng-container>
+                </ng-template>
+              </div>
+            </div>
+          </ng-container>
+        </ul>
+      </cdk-virtual-scroll-viewport>
+
     </div>
     <div class="bottom-menu">
-      <button (click)="addIndicator()" class="add-button">ADD</button>
+      <span class="current-text">Current</span>
+      <cdk-virtual-scroll-viewport class="mt-0" itemSize="">
+        <li *ngFor="let item of indicators"
+            (click)="selectIndicator(item)"
+            class="current-indicators"
+            [class.selected]="isSelected(item)"><i class="icon-visible"></i>{{item.name}}
+          <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-bucket ml-auto"></i>
+        </li>
+      </cdk-virtual-scroll-viewport>
       <span [class.is-removable]="indicators.length" class="remove-all-text" (click)="removeAll()">remove all</span>
     </div>
   </div>
   <div class="form-layout">
-      <cdk-virtual-scroll-viewport itemSize="">
-        <formly-form
-          *ngIf="selectedIndicator"
-          [form]="form"
-          [(model)]="selectedIndicator.settings"
-          [fields]="selectedIndicator.config">
-        </formly-form>
-      </cdk-virtual-scroll-viewport>
+    <cdk-virtual-scroll-viewport itemSize="">
+      <formly-form
+        *ngIf="selectedIndicator"
+        [form]="form"
+        [(model)]="selectedIndicator.settings"
+        [fields]="selectedIndicator.config">
+      </formly-form>
+    </cdk-virtual-scroll-viewport>
   </div>
 
 
 </div>
+

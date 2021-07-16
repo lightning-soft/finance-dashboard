@@ -205,7 +205,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleUpdateItems(items: IPosition[]) {
     super._handleUpdateItems(items);
-    this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.instrument));
+    this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.connectionId));
     this.updatePl();
   }
 
@@ -229,7 +229,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
           accountId: p.accountId
         }))
     ).subscribe(instruments => {
-        for (const item of this.items) {
+        for (const item of this.builder.allItems) {
           for (const instrument of instruments) {
             item.setInstrument(instrument);
           }

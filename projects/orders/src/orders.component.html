@@ -33,6 +33,12 @@
   <ng-template #headerPanelTemplate>
     <div class="d-flex align-items-center">
       <!--      <button><i class="icon-group"></i></button>-->
+      <span [class.opened]="menuVisible"
+            class="group-container">
+        <i nz-dropdown (nzVisibleChange)="menuVisible = $event" [nzDropdownMenu]="groupMenuTemplate"
+           nzTrigger="click"
+           [class.active]="isGroupSelected" class="icon-group "></i>
+    </span>
 
       <button nz-dropdown
               [nzDropdownMenu]="menu"
@@ -101,7 +107,18 @@
     </nz-tab>
   </nz-tabset>
 </div>
-
+<nz-dropdown-menu #groupMenuTemplate="nzDropdownMenu">
+  <ul nz-menu class="orders-menu">
+    <li nz-menu-item>
+      <nz-radio-group [ngModel]="groupBy" (ngModelChange)="handleGroupChange($event)" class="d-flex flex-column">
+        <label nz-radio [nzValue]="groupByOptions.None">None</label>
+        <div class="divider"></div>
+        <label nz-radio [nzValue]="groupByOptions.AccountId">Account</label>
+        <label nz-radio [nzValue]="groupByOptions.InstrumentName">Instrument</label>
+      </nz-radio-group>
+    </li>
+  </ul>
+</nz-dropdown-menu>
 <ng-template #gridTemplate>
   <data-grid #grid
              [styles]="gridStyles"
