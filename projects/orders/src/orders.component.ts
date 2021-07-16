@@ -5,7 +5,7 @@ import {
   ISettingsApplier,
   RealtimeGridComponent,
   SettingsApplier,
-  ViewFilterItemsBuilder
+  ViewGroupItemsBuilder
 } from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
 import { IPaginationResponse } from 'communication';
@@ -38,6 +38,7 @@ import {
 } from 'trading';
 import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { defaultSettings } from './components/orders-settings/configs';
+import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier {
 }
@@ -50,6 +51,12 @@ enum Tab {
 
 const allTypes = 'All';
 const orderWorkingStatuses: OrderStatus[] = [OrderStatus.Pending, OrderStatus.New, OrderStatus.PartialFilled];
+
+enum GroupByItem {
+  None = 'none',
+  AccountId = 'accountId',
+  InstrumentName = 'instrumentName'
+}
 
 @Component({
   selector: 'orders-list',
@@ -66,8 +73,15 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   orderTypes = [allTypes, ...Object.values(OrderType)];
   orderStatuses = ['Show All', ...Object.values(OrderStatus)];
   cancelMenuOpened = false;
+  groupBy = GroupByItem.None;
+  groupByOptions = GroupByItem;
+  menuVisible = false;
 
-  builder = new ViewFilterItemsBuilder<IOrder, OrderItem>();
+  get isGroupSelected() {
+    return this.groupBy !== GroupByItem.None;
+  }
+
+  builder = new ViewGroupItemsBuilder<IOrder, OrderItem>();
   activeTab: Tab = Tab.All;
   selectedOrders: IOrder[] = [];
   contextMenuState = {
@@ -175,11 +189,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.autoLoadData = false;
 
     this.componentInstanceId = Date.now();
+    (window as any).orders = this;
 
     this.builder.setParams({
       order: 'asc',
       wrap: (item: IOrder) => new OrderItem(item),
+      groupBy: ['accountId', 'instrumentName'],
       unwrap: (item: OrderItem) => item.order,
+      viewItemsFilter: null,
       addNewItems: 'start',
     });
 
@@ -191,6 +208,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       hoveredBackgroundColor: '#2B2D33',
       hoveredbuyBackgroundColor: '#2B2D33',
       hoveredsellBackgroundColor: '#2B2D33',
+      [`${ groupStatus }BackgroundColor`]: '#24262C',
+      [`${ groupStatus }Color`]: '#fff',
       textOverflow: true,
       textAlign: 'left',
     }));
@@ -210,7 +229,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.repository.getItems({ accounts }).subscribe(
       res => {
         hide();
-        this.builder.addItems(res.data);
+        const { data } = this._processOrders(res);
+        this.builder.addItems(data);
       },
       err => {
         hide();
@@ -231,17 +251,35 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         this.builder.setParams({ viewItemsFilter: null });
         break;
       case Tab.Filled:
-        this.builder.setParams({ viewItemsFilter: i => i.order.status === OrderStatus.Filled });
-        break;
+       this.builder.setParams({ viewItemsFilter: i => i.order?.status === OrderStatus.Filled });
+       break;
       case Tab.Working:
-        this.builder.setParams({ viewItemsFilter: i => orderWorkingStatuses.includes(i.order.status) });
-        break;
+       this.builder.setParams({ viewItemsFilter: i => {
+           console.log(orderWorkingStatuses.includes(i.order?.status));
+           return orderWorkingStatuses.includes(i.order?.status);
+         } });
+       break;
     }
   }
 
   protected _handleResponse(response: IPaginationResponse<IOrder>, params: any = {}) {
-    super._handleResponse(response, params);
+    super._handleResponse(this._processOrders(response), params);
     this.updateCheckboxState(this.contextMenuState);
+  }
+
+  protected _transformDataFeedItem(item) {
+    return this._processOrder(item);
+  }
+
+  private _processOrder = (item) => {
+    item.accountId = item.account.id;
+    item.instrumentName = item.instrument.symbol;
+    return item;
+  }
+
+  private _processOrders(response) {
+    const data = response.data.map(this._processOrder);
+    return { ...response, data };
   }
 
   protected _deleteItem(item: IOrder) {
@@ -275,7 +313,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   protected _handleCreateItems(items: IOrder[]) {
-    this.builder.handleCreateItems(items);
+    this.builder.handleCreateItems(items.map(this._processOrder));
+    this.detectChanges(true);
+  }
+
+  protected _handleUpdateItems(items: IOrder[]) {
+    super._handleUpdateItems(items.map(this._processOrder));
     this.detectChanges(true);
   }
 
@@ -377,7 +420,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const tickSize = order.instrument.increment ?? 0.25;
 
     if ([OrderType.Limit, OrderType.StopLimit].includes(order.type)) {
-      updatedOrder.limitPrice =  +updatedOrder.price + (up ? tickSize : -tickSize);
+      updatedOrder.limitPrice = +updatedOrder.price + (up ? tickSize : -tickSize);
     }
     if ([OrderType.StopMarket, OrderType.StopLimit].includes(order.type)) {
       updatedOrder.stopPrice = +updatedOrder.triggerPrice + (up ? tickSize : -tickSize);
@@ -411,11 +454,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this._repository.deleteMany(orders)
       .pipe(finalize(hide))
       .subscribe({
-        next: () => {
-          this._handleDeleteItems(orders);
-          this._showSuccessDelete();
-        },
-        error: (error) => this._handleDeleteError(error)
+          next: () => {
+            this._handleDeleteItems(orders);
+            this._showSuccessDelete();
+          },
+          error: (error) => this._handleDeleteError(error)
         }
       );
   }
@@ -431,7 +474,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((data: TradePrint) => {
       this.items.forEach((item: OrderItem) => {
-        if (item.order.instrument.id === data.instrument.id)
+        if (item.order?.instrument.id === data.instrument.id)
           item.setCurrentPrice(data.price);
       });
     }));
@@ -450,5 +493,32 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _getSettingsKey() {
     return `orders-component ${ this.componentInstanceId }`;
+  }
+
+  handleGroupChange($event: any) {
+    if ($event === this.groupBy)
+      return;
+    this.groupBy = $event;
+    if ($event === GroupByItem.None)
+      this.builder.ungroupItems();
+    else
+      this.groupItems($event);
+  }
+
+  groupItems(groupBy) {
+    this.builder.groupItems(groupBy, item => {
+      if (groupBy === GroupByItem.AccountId) {
+        return this.getGroupHeaderItem(item, 'account');
+      } else {
+        return this.getGroupHeaderItem(item, 'instrumentName');
+      }
+    });
+  }
+
+  getGroupHeaderItem(item, groupBy) {
+    const groupedItem = new GroupedOrderItem();
+    groupedItem.id = item;
+    groupedItem.accountId.updateValue(item);
+    return groupedItem;
   }
 }

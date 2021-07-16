@@ -44,7 +44,6 @@ export const modulesStore: IModules[] = [
     components: [
       Components.Chart,
       Components.Indicators,
-      Components.IndicatorList,
       Components.OrdersPanel,
       Components.ChartSettings,
     ]

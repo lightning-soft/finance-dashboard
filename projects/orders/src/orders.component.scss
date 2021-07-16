@@ -116,7 +116,60 @@ nz-tabset {
   height: 100%;
 }
 
+.group-container {
+  background-color: $darkBackground;
+  width: 24px;
+  display: flex;
+  height: 18px;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+
+  i {
+
+    font-size: 11px;
+    line-height: 1;
+    transition: color 0.3s;
+
+    &.active {
+      color: $primary;
+    }
+  }
+
+  &.opened {
+    border: 1px solid $primary;
+  }
+}
+
 ::ng-deep {
+  .orders-menu {
+    background: #24262C;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 2px;
+    box-shadow: 0px 0px 10px 0px #15161d;
+
+    .ant-dropdown-menu-item:hover, .ant-dropdown-menu-submenu-title:hover {
+      background-color: transparent;
+    }
+
+    .divider {
+      margin: 6px 0;
+    }
+
+    .ant-radio-wrapper {
+      font-size: 0.75rem;
+      font-weight: 400;
+      margin-top: 6px;
+      line-height: 1.2rem;
+      color: $text-80;
+    }
+  }
+
   .order-dropdown-list {
     min-width: 130px;
 

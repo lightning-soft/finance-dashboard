@@ -6,7 +6,8 @@ import {
   CheckboxCell,
   DataCell,
   HoverableItem,
-  IconCell, NumberCell,
+  IconCell,
+  NumberCell,
   RoundFormatter
 } from 'data-grid';
 import { TextAlign } from 'dynamic-form';
@@ -44,7 +45,7 @@ type IOrderItem = IViewItem<IOrder> & {
 const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 
 export class OrderItem extends HoverableItem implements IOrderItem {
-  private _priceFormatter = new RoundFormatter(this.order.instrument.precision ?? 2);
+  protected _priceFormatter = new RoundFormatter(this.order?.instrument.precision ?? 2);
 
   accountId = new DataCell({ withHoverStatus: true });
   exchange = new DataCell({ withHoverStatus: true });
@@ -75,9 +76,10 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     return this.checkbox.checked;
   }
 
-  constructor(public order: IOrder) {
+  constructor(public order?: IOrder) {
     super();
-    this.update(order);
+    if (order)
+      this.update(order);
   }
 
   update(order: IOrder) {
