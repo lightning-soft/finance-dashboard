@@ -32,11 +32,12 @@ import { DataGridModule } from 'data-grid';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { LoaderModule, NullCalescingModule } from 'ui';
-import { ChartSettingsComponent } from "./chart-settings/chart-settings.component";
-import { chartSettings } from "./chart-settings/settings";
+import { ChartSettingsComponent } from './chart-settings/chart-settings.component';
+import { chartSettings } from './chart-settings/settings';
 import { FormlyModule } from '@ngx-formly/core';
 import { DataSelectModule } from 'data-select';
 import { SessionsSelectComponent } from './indicators/sessions-select/sessions-select.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // const environment = { scxPath: '' };
 
@@ -86,6 +87,7 @@ import { SessionsSelectComponent } from './indicators/sessions-select/sessions-s
       ]
     }),
     NzFormModule,
+    DragDropModule,
     ReactiveFormsModule,
     NzInputNumberModule,
     DynamicFormModule,

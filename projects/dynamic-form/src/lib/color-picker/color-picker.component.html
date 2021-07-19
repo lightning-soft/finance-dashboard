@@ -4,7 +4,7 @@
   [nzDropdownMenu]="menu"
   class="color-wrapper"
   [formlyAttributes]="field"
-  [class.disabled]="formControl.disabled"
+  [class.disabled]="formControl?.disabled"
 >
   <div class="color with-border" disabled [style.background]="formControl?.value"></div>
   <span class="color-label">{{field.templateOptions?.label}}</span>

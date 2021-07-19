@@ -298,6 +298,14 @@ export function getCheckboxes(_config: any) {
   };
 }
 
+export function getDataBox(key) {
+  return {
+    key,
+    type: FieldType.DataBox,
+    templateOptions: {},
+  };
+}
+
 export function getColorSelect(_config) {
   const config: any = {
     key: '', label: '', options: [], templateConfig: {},

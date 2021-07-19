@@ -15,7 +15,7 @@ import {
   VolumeProfile
 } from './indicators';
 import { Indicator } from './indicators/Indicator';
-import { StringHelper } from "base-components";
+import { StringHelper } from 'base-components';
 
 declare const StockChartX: any;
 
@@ -148,8 +148,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         debounceTime(250),
         distinctUntilChanged(),
         untilDestroyed(this)
-      )
-      .subscribe((query) => this.search(query));
+      ).subscribe((query) => this.search(query));
   }
 
   isSelected(item: any) {
@@ -320,5 +319,11 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   toggleAll() {
     this.groups = this.groups.map(item => ({ ...item, expanded: !this.allExpanded }));
     this.allExpanded = !this.allExpanded;
+  }
+
+  dropped({ previousIndex, currentIndex }) {
+    const temp = this.indicators[previousIndex];
+    this.indicators[previousIndex] = this.indicators[currentIndex];
+    this.indicators[currentIndex] = temp;
   }
 }

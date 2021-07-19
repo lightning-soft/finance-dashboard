@@ -3,6 +3,7 @@ import {
   getCheckboxes,
   getColor,
   getColorSelect,
+  getDataBox,
   getDatePicker,
   getInput,
   getLineSelector,
@@ -14,8 +15,6 @@ import {
   wrapWithClass,
   wrapWithConfig
 } from 'dynamic-form';
-import { map } from 'rxjs/operators';
-import { SessionsRepository } from 'trading';
 
 const tradingOptions = [
   // {
@@ -1668,7 +1667,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
         fieldGroupClassName: 'd-grid four-rows',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ key: 'enabled', label: 'Size Filter'}],
+            checkboxes: [{ key: 'enabled', label: 'Size Filter' }],
           }),
           wrapWithClass(getNumber({
             key: 'value',
@@ -1784,6 +1783,103 @@ export const vwapConfig: IFieldConfig[] = [
   }),
 ];
 
+export const zigZagConfig: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'parameters',
+    label: 'Parameters',
+    fieldGroupClassName: 'two-rows d-grid zig-zag',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [{
+          key: 'show',
+          label: 'Show ZigZag Line'
+        }]
+      }),
+      {
+        fieldGroupClassName: 'two-rows d-grid',
+        fieldGroup: [
+          getColor('Down'),
+          getColor('Up'),
+        ],
+      },
+      getNumber({
+        label: 'Min. Change (Ticks)',
+        key: 'minChange'
+      }),
+      getNumber({
+        label: 'Bar Width Text',
+        key: 'barWidth'
+      }),
+      getNumber({
+        label: 'Data Box Offset(Px)',
+        key: 'barWidth'
+      }),
+      getColor('Text Color'),
+      getCheckboxes({
+        checkboxes: [{ key: 'dataBoxBackgroundEnabled', label: 'Data Box Background' }],
+      }),
+      getColor('Background Color'),
+      getCheckboxes({
+        checkboxes: [{ key: 'dataBoxBorderEnabled', label: 'Data Box Border' }],
+      }),
+      getColor('Border Color'),
+      getCheckboxes({
+        checkboxes: [{ key: 'showRealtimeSwing', label: 'Show Realtime Swing' }],
+      }),
+      getNumber({
+        label: 'Min. Ticks Rev.',
+        key: 'minRevTicks'
+      }),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Data Box',
+    key: 'dataBox',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      wrapWithClass(getDataBox('dataBoxParams'), 'data-box-border'),
+      getCheckboxes({
+        extraConfig: {
+          className: 'mt-2 d-block',
+          fieldGroupClassName: '',
+        },
+        checkboxes: [{
+          label: 'Inverse Sorting for Down Swing',
+          key: 'inverseSorting'
+        }],
+      }),
+    ],
+  }),
+];
+export const zigZagSettings = {
+  parameters: {
+    backgroundColor: 'rgb(105,0,239,1)',
+    barWidth: 1,
+    borderColor: 'rgb(255,223,111,1)',
+    dataBoxBackgroundEnabled: true,
+    dataBoxBorderEnabled: true,
+    down: 'rgb(0,242,126,1)',
+    minChange: 7,
+    minRevTicks: 3,
+    show: true,
+    showRealtimeSwing: true,
+    textColor: 'rgb(0,242,126,1)',
+    up: 'rgb(120,198,255,1)',
+  },
+  dataBox: {
+    dataBoxParams: {
+      dataBoxPlacement: ['delta', 'volume', 'price', 'priceChanged'],
+      delta: true,
+      price: true,
+      priceChanged: true,
+      showIn: 'showInPoints',
+      volume: true,
+      negativeDelta: 'rgb(0,255,133,1)',
+      positiveDelta: 'rgb(14,67,255,1)',
+    },
+    inverseSorting: true
+  },
+};
 /*
 *
 export const priceStatsDefaultSettings = {
