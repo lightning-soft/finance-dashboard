@@ -1597,7 +1597,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
             additionalFields: [getSelect({
               key: 'value',
               options: [
-                { label: 'Session', value: 'session' },
+                { label: 'Session', value: 'day' },
                 { label: 'Week', value: 'week' },
                 { label: 'Month', value: 'month' },
                 { label: 'All Values', value: 'all' },
@@ -1626,8 +1626,8 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
       new FieldConfig({
         fieldGroupClassName: 'd-grid two-rows',
         fieldGroup: [
-          getColor({ key: 'upColor', label: 'Up' }),
-          getColor({ key: 'upOutlineColor', label: 'Up Outline' }),
+          getColor({ key: 'upFillColor', label: 'Up' }),
+          getColor({ key: 'upStrokeColor', label: 'Up Outline' }),
         ],
       }),
       {
@@ -1651,8 +1651,8 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
       new FieldConfig({
         fieldGroupClassName: 'd-grid two-rows',
         fieldGroup: [
-          getColor({ key: 'downColor', label: 'Down' }),
-          getColor({ key: 'downOutlineColor', label: 'Down Outline' }),
+          getColor({ key: 'downFillColor', label: 'Down' }),
+          getColor({ key: 'downStrokeColor', label: 'Down Outline' }),
         ],
       }),
     ]
@@ -1791,15 +1791,15 @@ export const zigZagConfig: IFieldConfig[] = [
     fieldGroup: [
       getCheckboxes({
         checkboxes: [{
-          key: 'show',
+          key: 'showZigZagLine',
           label: 'Show ZigZag Line'
         }]
       }),
       {
         fieldGroupClassName: 'two-rows d-grid',
         fieldGroup: [
-          getColor('Down'),
-          getColor('Up'),
+          getColor({ key: 'downStrokeColor', label: 'Down' }),
+          getColor({ key: 'upStrokeColor', label: 'Up' }),
         ],
       },
       getNumber({
@@ -1807,28 +1807,42 @@ export const zigZagConfig: IFieldConfig[] = [
         key: 'minChange'
       }),
       getNumber({
-        label: 'Bar Width Text',
-        key: 'barWidth'
+        label: 'Bar Width Text Thr..',
+        key: 'barWidthTextThreshold'
       }),
       getNumber({
         label: 'Data Box Offset(Px)',
-        key: 'barWidth'
+        key: 'dataBoxOffset'
       }),
       getColor('Text Color'),
-      getCheckboxes({
-        checkboxes: [{ key: 'dataBoxBackgroundEnabled', label: 'Data Box Background' }],
-      }),
-      getColor('Background Color'),
-      getCheckboxes({
-        checkboxes: [{ key: 'dataBoxBorderEnabled', label: 'Data Box Border' }],
-      }),
-      getColor('Border Color'),
+      {
+        key: 'dataBoxBackground',
+        className: 'full-width',
+        fieldGroupClassName: 'two-rows d-grid',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'enabled', label: 'Data Box Background' }],
+          }),
+          getColor({ key: 'value', label: 'Background Color' }),
+        ],
+      },
+      {
+        key: 'dataBoxBorder',
+        className: 'full-width',
+        fieldGroupClassName: 'two-rows d-grid',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'enabled', label: 'Data Box Border' }],
+          }),
+          getColor({ key: 'value', label: 'Border Color' }),
+        ],
+      },
       getCheckboxes({
         checkboxes: [{ key: 'showRealtimeSwing', label: 'Show Realtime Swing' }],
       }),
       getNumber({
         label: 'Min. Ticks Rev.',
-        key: 'minRevTicks'
+        key: 'minTicksRev'
       }),
     ],
   }),
@@ -1845,41 +1859,42 @@ export const zigZagConfig: IFieldConfig[] = [
         },
         checkboxes: [{
           label: 'Inverse Sorting for Down Swing',
-          key: 'inverseSorting'
+          key: 'inverseSortingForDownSwing'
         }],
       }),
     ],
   }),
 ];
-export const zigZagSettings = {
-  parameters: {
-    backgroundColor: 'rgb(105,0,239,1)',
-    barWidth: 1,
-    borderColor: 'rgb(255,223,111,1)',
-    dataBoxBackgroundEnabled: true,
-    dataBoxBorderEnabled: true,
-    down: 'rgb(0,242,126,1)',
-    minChange: 7,
-    minRevTicks: 3,
-    show: true,
-    showRealtimeSwing: true,
-    textColor: 'rgb(0,242,126,1)',
-    up: 'rgb(120,198,255,1)',
-  },
-  dataBox: {
-    dataBoxParams: {
-      dataBoxPlacement: ['delta', 'volume', 'price', 'priceChanged'],
-      delta: true,
-      price: true,
-      priceChanged: true,
-      showIn: 'showInPoints',
-      volume: true,
-      negativeDelta: 'rgb(0,255,133,1)',
-      positiveDelta: 'rgb(14,67,255,1)',
-    },
-    inverseSorting: true
-  },
-};
+
+// export const zigZagSettings = {
+//   parameters: {
+//     backgroundColor: 'rgb(105,0,239,1)',
+//     barWidth: 1,
+//     borderColor: 'rgb(255,223,111,1)',
+//     dataBoxBackgroundEnabled: true,
+//     dataBoxBorderEnabled: true,
+//     down: 'rgb(0,242,126,1)',
+//     minChange: 7,
+//     minRevTicks: 3,
+//     show: true,
+//     showRealtimeSwing: true,
+//     textColor: 'rgb(0,242,126,1)',
+//     up: 'rgb(120,198,255,1)',
+//   },
+//   dataBox: {
+//     dataBoxParams: {
+//       dataBoxPlacement: ['delta', 'volume', 'price', 'priceChanged'],
+//       delta: true,
+//       price: true,
+//       priceChanged: true,
+//       showIn: 'showInPoints',
+//       volume: true,
+//       negativeDelta: 'rgb(0,255,133,1)',
+//       positiveDelta: 'rgb(14,67,255,1)',
+//     },
+//     inverseSorting: true
+//   },
+// };
 /*
 *
 export const priceStatsDefaultSettings = {
