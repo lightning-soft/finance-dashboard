@@ -1,0 +1,32 @@
+@import "~src/scss/variables";
+
+.root-line {
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+
+  &:not(.line-container) {
+    i {
+      margin-right: 16px;
+    }
+  }
+}
+
+.line-container {
+  display: grid;
+  grid-template-columns: 25px 1fr 1fr;
+  grid-column-gap: 5px;
+}
+
+.colors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 6px;
+}
+
+
+.icon-drag-and-drop {
+  font-size: 12px;
+  color: $light2;
+  cursor: move;
+}

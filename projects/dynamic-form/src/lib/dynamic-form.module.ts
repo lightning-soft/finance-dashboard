@@ -30,6 +30,7 @@ import { StorageModule } from 'storage';
 import { ColumnSelectorComponent } from './column-selector/column-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LabelComponent } from './label/label.component';
+import { DataBoxComponent } from './data-box/data-box.component';
 
 const formlyComponents = [
   {
@@ -64,13 +65,16 @@ const formlyComponents = [
   },
   {
     name: FieldType.Label, component: LabelComponent,
+  },
+  {
+    name: FieldType.DataBox, component: DataBoxComponent,
   }
 ];
 
 @NgModule({
   declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent,
-    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent],
+    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent, DataBoxComponent],
     imports: [
         CommonModule,
         ReactiveFormsModule,

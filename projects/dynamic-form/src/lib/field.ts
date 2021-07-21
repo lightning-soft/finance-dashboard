@@ -30,6 +30,7 @@ export enum FieldType {
   DatePicker = 'datePicker',
   ColumnSelector = 'columnSelector',
   Label = 'Label',
+  DataBox = 'dataBox',
 }
 
 export enum InputType {

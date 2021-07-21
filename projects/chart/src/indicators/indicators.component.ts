@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ArrayHelper, StringHelper } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -9,13 +10,13 @@ import {
   CompositeProfile,
   DefaultIndicator,
   Footprint,
+  Indicator,
   PriceStats,
   SessionStats,
   VolumeBreakdown,
-  VolumeProfile
+  VolumeProfile,
+  ZigZag,
 } from './indicators';
-import { Indicator } from './indicators/Indicator';
-import { StringHelper } from "base-components";
 
 declare const StockChartX: any;
 
@@ -49,6 +50,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         'PriceStats',
         'SessionStats',
         'VolumeBreakdown',
+        'ZigZag',
       ],
       expanded: true,
     },
@@ -136,6 +138,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     [StockChartX.PriceStats, PriceStats],
     [StockChartX.SessionStats, SessionStats],
     [StockChartX.VolumeBreakdown, VolumeBreakdown],
+    [StockChartX.ZigZag, ZigZag],
   ]);
 
   ngOnInit(): void {
@@ -149,8 +152,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         debounceTime(250),
         distinctUntilChanged(),
         untilDestroyed(this)
-      )
-      .subscribe((query) => this.search(query));
+      ).subscribe((query) => this.search(query));
   }
 
   isSelected(item: any) {
@@ -203,6 +205,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
     const indicator = this.registeredIndicators[item];
     this.chart.addIndicators(new indicator);
+    this.chart.setNeedsUpdate();
   }
 
   private _handleChart(chart: IChart) {
@@ -321,5 +324,13 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   toggleAll() {
     this.groups = this.groups.map(item => ({ ...item, expanded: !this.allExpanded }));
     this.allExpanded = !this.allExpanded;
+  }
+
+  dropped({ previousIndex, currentIndex }) {
+    ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
+    ArrayHelper.swapItems(this.chart.indicators, previousIndex, currentIndex);
+
+    this.chart.updateIndicators();
+    this.chart.setNeedsUpdate();
   }
 }

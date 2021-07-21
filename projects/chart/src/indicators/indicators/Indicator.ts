@@ -1,5 +1,3 @@
-import { Injector } from '@angular/core';
-
 declare const jQuery: any;
 
 export abstract class Indicator {
