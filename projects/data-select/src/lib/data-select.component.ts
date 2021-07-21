@@ -75,6 +75,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
     if (typeof item === 'object') {
       this.value = item.id;
     } else {
+      this.value = +item;
+
       const items = this.default ? [this.default].concat(this.items) : this.items;
 
       item = items.find(i => i.id === this.value);
@@ -98,7 +100,11 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   protected _handleResponse(response, params) {
     super._handleResponse(response, params);
 
-    this._setValueIfNeeded();
+    if (this.value != null) {
+      this.handleValueChange();
+    } else {
+      this._setValueIfNeeded();
+    }
   }
 
   protected _handleUpdateItems(items: any[]) {
@@ -115,7 +121,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
     const item = items[0];
     const index = this.items.findIndex(i => i.id === item.id);
 
-    if (this.value === item.id) {
+    if (item.id === this.value) {
       if (index > 0) {
         this.handleValueChange(this.items[index - 1]);
       } else if (this.default) {
@@ -127,10 +133,6 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   }
 
   private _setValueIfNeeded() {
-    if (this.value != null) {
-      return;
-    }
-
     if (this.default) {
       this.handleValueChange(this.default);
     } else if (this.items.length) {
