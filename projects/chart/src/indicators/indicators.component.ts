@@ -131,15 +131,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     }[];
   } = {};
 
-  private _constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
-    [StockChartX.Footprint, Footprint],
-    [StockChartX.VolumeProfile, VolumeProfile],
-    [StockChartX.CompositeProfile, CompositeProfile],
-    [StockChartX.PriceStats, PriceStats],
-    [StockChartX.SessionStats, SessionStats],
-    [StockChartX.VolumeBreakdown, VolumeBreakdown],
-    [StockChartX.ZigZag, ZigZag],
-  ]);
+  private _constructorsMap: WeakMap<any, new(...args: any[]) => Indicator>;
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -211,6 +203,16 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   private _handleChart(chart: IChart) {
     if (!chart)
       return;
+
+    this._constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
+      [StockChartX.Footprint, Footprint],
+      [StockChartX.VolumeProfile, VolumeProfile],
+      [StockChartX.CompositeProfile, CompositeProfile],
+      [StockChartX.PriceStats, PriceStats],
+      [StockChartX.SessionStats, SessionStats],
+      [StockChartX.VolumeBreakdown, VolumeBreakdown],
+      [StockChartX.ZigZag, ZigZag],
+    ]);
 
     this.fetchIndicators();
     chart.indicators?.forEach(indicator => {
