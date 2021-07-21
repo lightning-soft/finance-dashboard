@@ -92,13 +92,13 @@ const profitStyles = {
 };
 const orderStyles = {
   ...generateNewStatusesByPrefix({
-      orderSellColor: '#C93B3B',
-      orderBuyColor: '#4895F5',
-      orderPriceColor: '#D0D0D2',
-      createOrderPriceDisabledColor: 'rgba(208,208,210,0.4)',
-      labelColor: '#fff',
-      createOrderColor: '#D0D0D2',
-      createOrderBorderColor: '#1B1D22',
+    orderSellColor: '#C93B3B',
+    orderBuyColor: '#4895F5',
+    orderPriceColor: '#D0D0D2',
+    createOrderPriceDisabledColor: 'rgba(208,208,210,0.4)',
+    labelColor: '#fff',
+    createOrderColor: '#D0D0D2',
+    createOrderBorderColor: '#1B1D22',
   }, CellStatus.Hovered),
   ...generateNewStatusesByPrefix({
     orderBuyBackgroundColor: '#24262C',
@@ -123,6 +123,9 @@ const defaultStyles = {
   BorderColor: '#1B1D22',
   hoveredBorderColor: '#383A40',
 };
+
+const extendedHeaderHeight = 36;
+const rowHeight = 25;
 
 const profitClass = 'inProfit';
 const lossClass = 'loss';
@@ -375,8 +378,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     gridBorderWidth: 0,
     subtitleColor: '#51535A',
     color: '#A1A2A5',
-    rowHeight: 25,
-    headerHeight: 36,
+    rowHeight,
+    headerHeight: extendedHeaderHeight,
     showSubtitles: true
   };
 
@@ -433,9 +436,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         value,
       },
       styles: {
-       // minWidth: '250px',
-       // marginLeft: '40px',
-       marginLeft: '5px',
+        // minWidth: '250px',
+        // marginLeft: '40px',
+        marginLeft: '5px',
       }
     };
   }
@@ -560,7 +563,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   private loadPositions() {
     this._positionsRepository.getItems({
-     connectionId: this.connection?.id,
+      connectionId: this.connection?.id,
     }).toPromise()
       .then((response) => response?.data.forEach(pos => this._processPosition(pos)));
   }
@@ -609,7 +612,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   private _sendLinks(data) {
     const instrument = data.item?.instrument;
     if (instrument)
-      this.broadcastData(this._getLinkingKey(), {instrument});
+      this.broadcastData(this._getLinkingKey(), { instrument });
   }
 
   _createOrderByClick(data, event) {
@@ -625,7 +628,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
             x: event.x,
             y: event.y + this.gridStyles.rowHeight,
           }
-        }, {orderLink: this._getOrderKey(), instrument: data.item.instrument});
+        }, { orderLink: this._getOrderKey(), instrument: data.item.instrument });
       } else {
         this.createInlineOrder(data.item.instrument);
       }
@@ -807,20 +810,20 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         take(1),
         untilDestroyed(this)
       ).subscribe(() => {
-        const instruments = this.getAllInstruments();
-        this.builder.loadInstruments(instruments);
-        this.updateDataGridItems();
+      const instruments = this.getAllInstruments();
+      this.builder.loadInstruments(instruments);
+      this.updateDataGridItems();
 
-        this.onRemove(
-          this._levelOneDatafeed.on(filterConnection(this, (updates) => this._processQuotes(updates))),
-          this._positionsFeed.on(filterConnection(this, position => this._processPosition(position))),
-          this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
-          this._settleFeed.on(filterConnection(this, (settle: SettleData) => {
-            const item = this.builder.getInstrumentItem(settle.instrument);
-            if (item)
-              item.handleSettlePrice(settle.price);
-          })),
-          this._ohlvFeed.on(filterConnection(this, ohlv => this._handleOHLV(ohlv))),
+      this.onRemove(
+        this._levelOneDatafeed.on(filterConnection(this, (updates) => this._processQuotes(updates))),
+        this._positionsFeed.on(filterConnection(this, position => this._processPosition(position))),
+        this._ordersFeed.on(filterByAccountsConnection(this, order => this._processOrders(order))),
+        this._settleFeed.on(filterConnection(this, (settle: SettleData) => {
+          const item = this.builder.getInstrumentItem(settle.instrument);
+          if (item)
+            item.handleSettlePrice(settle.price);
+        })),
+        this._ohlvFeed.on(filterConnection(this, ohlv => this._handleOHLV(ohlv))),
       );
     });
     this.connection$
@@ -844,9 +847,13 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   _applySettings() {
     const fontWeight = this.settings.display.boldFont ? 700 : 200;
-    this._dataGrid.applyStyles({font: `${fontWeight} 14px \"Open Sans\", sans-serif`});
 
     const showOrders = this.settings.display.showOrders;
+    this._dataGrid.applyStyles({
+      font: `${ fontWeight } 14px \"Open Sans\", sans-serif`,
+      headerHeight: ( showOrders ? extendedHeaderHeight : rowHeight)
+    });
+
     this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
     if (!showOrders) {
       this.builder.hideSubItems();
@@ -861,9 +868,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.columns.forEach((item) => {
       const style = styles[item.name];
       if (style)
-        item.style = {...defaultStyles, ...style, ...orderStyles};
+        item.style = { ...defaultStyles, ...style, ...orderStyles };
       else {
-        item.style = {...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles};
+        item.style = { ...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles };
       }
 
       const column = this.settings.columnView.columns[item.name];
@@ -935,7 +942,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       nzWidth: 438,
       nzComponentParams: {
         name: 'Tab name',
-        options: this.tabs.map(item => ({label: item.name, value: item.id}))
+        options: this.tabs.map(item => ({ label: item.name, value: item.id }))
       }
     });
 
@@ -945,7 +952,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         if (!result || !result.name)
           return;
 
-        const tab = new Tab({name: result.name, columns: this.defaultColumns});
+        const tab = new Tab({ name: result.name, columns: this.defaultColumns });
         this.addTab(tab);
         if (this.tabs.length === 1) {
           this.selectTab(this.tabs[0]);
@@ -1018,7 +1025,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         }
 
         if (this.tabs.length === 0) {
-          const tab = new Tab({name: 'Blank', columns: this.defaultColumns});
+          const tab = new Tab({ name: 'Blank', columns: this.defaultColumns });
           this.tabs.push(tab);
           this.selectTab(tab);
           this.builder.replaceViewItems([]);
@@ -1053,7 +1060,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   }
 
   private _getSettingsKey() {
-    return `${this.componentInstanceId}.${MarketWatchSettings}`;
+    return `${ this.componentInstanceId }.${ MarketWatchSettings }`;
   }
 
   openWidget(item) {
@@ -1073,8 +1080,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       nzClassName: 'instrument-dialog',
       nzFooter: null,
       nzComponentParams: {
-       // accountId: this.account?.id,
-       connectionId: this.connection.id,
+        // accountId: this.account?.id,
+        connectionId: this.connection.id,
       }
     });
   }
@@ -1178,7 +1185,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   private _copyToNewTab() {
     const newTab = new Tab({
-      name: `Tab ${this.tabs.length + 1}`,
+      name: `Tab ${ this.tabs.length + 1 }`,
       columns: this.defaultColumns,
       data: [new InstrumentHolder(this.contextInstrument)],
     });
@@ -1273,11 +1280,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       this._dataGrid.startEditingAt(this.lastContextMenuPoint.x, this.lastContextMenuPoint.y);
       this._repository.rollInstrument(this.contextInstrument, { connectionId: this.connection.id })
         .toPromise().then(instrument => {
-          this.onInstrumentChanged(this.contextInstrument, instrument);
-          this._dataGrid.endEdit();
+        this.onInstrumentChanged(this.contextInstrument, instrument);
+        this._dataGrid.endEdit();
       }).catch(() => {
-          this._dataGrid.currentCell.updateValue(this._dataGrid.currentCell._value);
-          this._dataGrid.endEdit();
+        this._dataGrid.currentCell.updateValue(this._dataGrid.currentCell._value);
+        this._dataGrid.endEdit();
       });
     }
   }
@@ -1288,8 +1295,8 @@ function generateStyles(settings: MarketWatchSettings) {
   const ask = generateStyle('ask', settings);
   const positionStyle = {
     ...generateNewStatusesByPrefix({
-      [`${profitClass}BackgroundColor`]: settings.colors.positionUpColor,
-      [`${lossClass}BackgroundColor`]: settings.colors.positionDownColor,
+      [`${ profitClass }BackgroundColor`]: settings.colors.positionUpColor,
+      [`${ lossClass }BackgroundColor`]: settings.colors.positionDownColor,
     }, CellStatus.Hovered),
     color: settings.colors.positionTextColor,
   };
@@ -1302,27 +1309,27 @@ function generateStyles(settings: MarketWatchSettings) {
 
   const netChangeStyle = {
     ...generateNewStatusesByPrefix({
-      [`${profitClass}Color`]: settings.colors.netChangeUpColor,
-      [`${lossClass}Color`]: settings.colors.netChangeDownColor,
+      [`${ profitClass }Color`]: settings.colors.netChangeUpColor,
+      [`${ lossClass }Color`]: settings.colors.netChangeDownColor,
     }, CellStatus.Hovered),
-    [`hovered${profitClass}BackgroundColor`]: '#383A40',
-    [`hovered${lossClass}BackgroundColor`]: '#383A40',
-    [`hovered${profitClass}BorderColor`]: '#383A40',
-    [`hovered${lossClass}BorderColor`]: '#383A40',
-    [`${profitClass}BorderColor`]: '#1B1D22',
-    [`${lossClass}BorderColor`]: '#1B1D22',
+    [`hovered${ profitClass }BackgroundColor`]: '#383A40',
+    [`hovered${ lossClass }BackgroundColor`]: '#383A40',
+    [`hovered${ profitClass }BorderColor`]: '#383A40',
+    [`hovered${ lossClass }BorderColor`]: '#383A40',
+    [`${ profitClass }BorderColor`]: '#1B1D22',
+    [`${ lossClass }BorderColor`]: '#1B1D22',
   };
   const percentChangeStyle = {
     ...generateNewStatusesByPrefix({
-      [`${profitClass}Color`]: settings.colors.percentChangeUpColor,
-      [`${lossClass}Color`]: settings.colors.percentChangeDownColor,
-      [`hovered${profitClass}BackgroundColor`]: '#383A40',
-      [`hovered${lossClass}BackgroundColor`]: '#383A40',
+      [`${ profitClass }Color`]: settings.colors.percentChangeUpColor,
+      [`${ lossClass }Color`]: settings.colors.percentChangeDownColor,
+      [`hovered${ profitClass }BackgroundColor`]: '#383A40',
+      [`hovered${ lossClass }BackgroundColor`]: '#383A40',
     }, CellStatus.Hovered),
-    [`hovered${profitClass}BorderColor`]: '#383A40',
-    [`hovered${lossClass}BorderColor`]: '#383A40',
-    [`${profitClass}BorderColor`]: '#1B1D22',
-    [`${lossClass}BorderColor`]: '#1B1D22',
+    [`hovered${ profitClass }BorderColor`]: '#383A40',
+    [`hovered${ lossClass }BorderColor`]: '#383A40',
+    [`${ profitClass }BorderColor`]: '#1B1D22',
+    [`${ lossClass }BorderColor`]: '#1B1D22',
   };
 
   const generalStyles = {
@@ -1334,7 +1341,7 @@ function generateStyles(settings: MarketWatchSettings) {
     lastStyles = {
       ...generateNewStatusesByPrefix({
         highlightColor: '#fff',
-        [`highlight${settings.display.highlightType}`]: settings.colors.priceUpdateHighlight,
+        [`highlight${ settings.display.highlightType }`]: settings.colors.priceUpdateHighlight,
       }, CellStatus.Hovered)
     };
   }
@@ -1365,8 +1372,8 @@ const subtitleMap = {
 function generateStyle(prefix, settings) {
   return {
     ...generateNewStatusesByPrefix({
-      highlightColor: settings.colors[`${prefix}Color`],
-      highlightBackgroundColor: settings.colors[`${prefix}Background`],
+      highlightColor: settings.colors[`${ prefix }Color`],
+      highlightBackgroundColor: settings.colors[`${ prefix }Background`],
     }, CellStatus.Hovered)
   };
 }

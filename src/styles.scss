@@ -37,6 +37,10 @@ html {
   font-size: $baseFontSize;
 }
 
+label {
+  font-weight: 600;
+}
+
 .ant-modal.instrument-dialog .ant-modal-content {
   .ant-modal-body {
     padding: 0;

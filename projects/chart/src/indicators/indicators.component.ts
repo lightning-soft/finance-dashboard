@@ -52,6 +52,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         'VolumeBreakdown',
         'ZigZag',
       ],
+      expanded: true,
     },
     {
       name: 'General', indicators: [
@@ -199,7 +200,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   addIndicator(item) {
-    if (this.indicators.find((indicator) => indicator.name === item || indicator.instance.constructor.className === item))
+    if (this.indicators.find((indicator) => indicator.instance._name === item))
       return;
 
     const indicator = this.registeredIndicators[item];

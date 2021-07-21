@@ -42,6 +42,7 @@ interface GridStyles {
   gridHeaderBorderColor?: string;
   scrollSensetive?: number;
   rowHeight?: number;
+  headerHeight?: number;
   rowOffset?: number;
 }
 

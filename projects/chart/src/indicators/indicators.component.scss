@@ -872,11 +872,9 @@ formly-form {
       align-items: center;
       transition: all 0.3s;
       cursor: pointer;
-      margin-top: 7px;
+      margin-top: 2px;
+      line-height: 14px;
 
-      &:not(:first-child) {
-        margin-top: 3px;
-      }
 
       &:hover {
         background: $light3;
@@ -892,13 +890,14 @@ formly-form {
   .current-indicators {
     color: $text-60;
     font-size: 0.85rem;
-    margin-top: 3px;
+    margin-top: 2px;
     height: 22px;
     display: flex;
     align-items: center;
     padding-left: 4px;
     padding-right: 7px;
     border-radius: 2px;
+    line-height: 14px;
 
 
     &.selected {
@@ -913,10 +912,6 @@ formly-form {
       .icon-visible, .icon-bucket {
         opacity: 1;
       }
-    }
-
-    &:first-child {
-      margin-top: 10px;
     }
 
     .icon-visible {
@@ -939,7 +934,7 @@ formly-form {
   justify-content: space-between;
 
   &:not(:first-child) {
-    margin-top: 9px;
+    margin-top: 5px;
   }
 
   .arrow {
@@ -952,7 +947,7 @@ formly-form {
   }
 
   &.expanded {
-    color: #fff;
+    // color: #fff;
   }
 }
 
