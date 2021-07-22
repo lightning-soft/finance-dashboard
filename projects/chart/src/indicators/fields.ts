@@ -825,15 +825,15 @@ export const volumeProfileConfig: IFieldConfig[] = [
                 label: 'Bars'
               },
               {
-                value: 'minutes',
+                value: 'minute',
                 label: 'Minutes'
               },
               {
-                value: 'days',
+                value: 'day',
                 label: 'Days'
               },
               {
-                value: 'weeks',
+                value: 'week',
                 label: 'Weeks'
               },
               {
@@ -841,11 +841,11 @@ export const volumeProfileConfig: IFieldConfig[] = [
                 label: 'Month'
               },
               {
-                value: 'quarters',
+                value: 'quarter',
                 label: 'Quarters'
               },
               {
-                value: 'years',
+                value: 'year',
                 label: 'Years'
               },
               {
