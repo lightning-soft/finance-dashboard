@@ -1,0 +1,27 @@
+p {
+    color: white;
+}
+
+.selected {
+    display: grid;
+    grid-template-columns: calc(100% - 10px) 10px;
+    background: #1B1D22;
+    border-radius: 2px;
+    padding: 6px;
+}
+
+.selected p {
+    margin: 0;
+}
+
+.arrow {
+    transform: rotate(90deg);
+    padding: 4px;
+    height: 24px;
+    width: 16px;
+}
+
+.list {
+    max-height: 300px;
+    overflow-y: auto;
+}

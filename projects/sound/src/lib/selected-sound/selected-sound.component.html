@@ -1,0 +1,15 @@
+<div class="selected" nz-button nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomRight">
+    <p>{{ selectedSound }}</p>
+    <p class="arrow">></p>
+</div>
+<nz-dropdown-menu #menu="nzDropdownMenu" class="list">
+    <ul nz-menu>
+        <li nz-menu-item *ngFor="let sound of soundList" (click)="selecte(sound)">
+            <label class="custom-checkbox mb-1">
+                <input type="checkbox" formControlName="connectOnStartUp">
+                <span>{{ sound }}</span>
+            </label>
+            <img src="" alt="">
+        </li>
+    </ul>
+</nz-dropdown-menu>

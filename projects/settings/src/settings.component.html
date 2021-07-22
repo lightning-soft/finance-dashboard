@@ -4,30 +4,7 @@
     <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="activeTab = tab">{{tab}}</li>
   </ul>
 
-  <ul class="tab-content" *ngIf="activeTab === 'general'">
-    <!--   <li>
-         <div class="title">THEME</div>
-           <nz-select
-             class="select"
-             nzDropdownClassName="setting-dropdown"
-             nzSize="small"
-             [(ngModel)]="currentTheme"
-           >
-             <nz-option
-               *ngFor="let theme of themes"
-               [nzValue]="theme"
-               [nzLabel]="theme"
-             >
-             </nz-option>
-           </nz-select>
-           <i class="icon-arrow-dropdown"></i>
-       </li>-->
-    <!--    <li>
-          <div class="title">LANGUAGE</div>
-          <nz-select nzSize="small" class="select" ngModel="en-GB" nzDisabled>
-            <nz-option nzValue="en-GB" nzLabel="English"></nz-option>
-          </nz-select>
-        </li>-->
+  <ul class="tab-content" *ngIf="activeTab === TABS.GENERAL"> 
     <li>
       <nz-radio-group [nzSize]="'large'" [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
         <div>
@@ -39,7 +16,7 @@
       </nz-radio-group>
     </li>
   </ul>
-  <table class="tab-content table" *ngIf="activeTab === 'hotkeys'">
+  <table class="tab-content table" *ngIf="activeTab === TABS.HOTKEYS">
     <thead>
     <tr>
       <th>Functions</th>
@@ -52,7 +29,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let entry of hotkeys;let i = index ">
+    <tr *ngFor="let entry of hotkeys; let i = index">
       <td class="hotkey-name"><span class="d-flex align-items-center h-100">{{entry.name}}</span></td>
       <td class="hotkey-reader">
         <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)"></hotkey-input>
@@ -60,4 +37,5 @@
     </tr>
     </tbody>
   </table>
+  <lib-sound-tab-setting class="tab-content" *ngIf="activeTab === TABS.SOUNDS"></lib-sound-tab-setting>
 </div>

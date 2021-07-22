@@ -12,6 +12,12 @@ export enum SAVE_DALEY {
   MANUAL_SAVE = 'MANUAL_SAVE',
 }
 
+enum TABS {
+  GENERAL = 'general',
+  HOTKEYS = 'hotkeys',
+  SOUNDS = 'sounds'
+}
+
 const hotkeyStringRepresentation = {
   [HotkeyEvents.SavePage]: 'Save All Settings',
   // [HotkeyEvents.CenterAllWindows]: 'Center All Windows',
@@ -48,10 +54,11 @@ export class SettingsComponent implements OnInit {
 
   themes = [Themes.Dark, Themes.Light];
 
-  tabs = ['general', 'hotkeys'];
+  tabs = [TABS.GENERAL, TABS.HOTKEYS, TABS.SOUNDS];
 
-  activeTab = 'general';
+  activeTab = TABS.SOUNDS;
 
+  TABS = TABS;
 
   get currentTheme() {
     return this.settings.theme as Themes;
