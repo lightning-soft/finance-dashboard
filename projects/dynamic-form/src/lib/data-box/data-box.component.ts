@@ -70,6 +70,7 @@ export class DataBoxComponent extends FieldType implements AfterViewInit {
     const temp = this.types[previousIndex];
     this.types[previousIndex] = this.types[currentIndex];
     this.types[currentIndex] = temp;
-    this.dataBoxPlacement.patchValue(this.types.map(item => item.name));
+    const placement = this.types.reduce((total, item, index) => ({ ...total, [item.name]: index }), {});
+    this.dataBoxPlacement.patchValue(placement);
   }
 }
