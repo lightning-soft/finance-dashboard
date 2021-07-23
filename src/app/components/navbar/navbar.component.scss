@@ -242,6 +242,12 @@ $height: 36px;
   }
 }
 
+:host.electron {
+  .control {
+    display: flex;
+  }
+}
+
 .position-settings-button {
   width: 10px;
   display: flex;

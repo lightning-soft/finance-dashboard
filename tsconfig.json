@@ -32,6 +32,10 @@
         "dist/instrument-dialog/instrument-dialog",
         "dist/instrument-dialog"
       ],
+      "window-messanger": [
+        "dist/window-messanger/window-messanger",
+        "dist/window-messanger"
+      ]
     }
   },
   "references": [

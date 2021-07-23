@@ -30,7 +30,7 @@ export const handlers = {
 
     const now =  Date.now();
     const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > timeOffset && timeOffset < maxTimeOffset;
+    const hasDelay = timeDelay > timeOffset && timeDelay < maxTimeOffset;
     const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
     if (hasDelay && shouldSendNtf) {
       lastSentNotification = now;

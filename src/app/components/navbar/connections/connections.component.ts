@@ -15,7 +15,7 @@ import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { ConnectionsRepository, IConnection } from 'trading';
-import { isElectron } from '../navbar.component';
+import { isElectron } from '../../../is-electron';
 
 export const accountsOptions = {
   resizable: false,

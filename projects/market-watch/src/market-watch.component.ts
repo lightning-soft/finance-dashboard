@@ -851,14 +851,21 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     const showOrders = this.settings.display.showOrders;
     this._dataGrid.applyStyles({
       font: `${ fontWeight } 14px \"Open Sans\", sans-serif`,
-      headerHeight: ( showOrders ? extendedHeaderHeight : rowHeight)
+      headerHeight: (showOrders ? extendedHeaderHeight : rowHeight)
     });
 
-    this.builder.getMarketWatchItems().forEach(item => item.setShowDrawings(showOrders));
+    const marketWatchItems = this.builder.getMarketWatchItems();
+    marketWatchItems.forEach(item => item.setShowDrawings(showOrders));
+
     if (!showOrders) {
       this.builder.hideSubItems();
     } else if (!this.shouldShowAllOrders()) {
       this.builder.filterSubItems(item => this.createdOrders.includes(item.id));
+      marketWatchItems.forEach(item => {
+        const shouldExpand = (item.subItems as MarketWatchSubItem[])
+          .some(subItem => this.createdOrders.includes(subItem.order?.id));
+        item.setShowDrawings(shouldExpand);
+      });
     } else {
       this.showSubItems();
     }

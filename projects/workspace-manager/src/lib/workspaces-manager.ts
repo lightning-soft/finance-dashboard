@@ -36,6 +36,15 @@ export class WorkspacesManager {
     this.save$.next();
   }
 
+  getWindowById(workspaceId: Id, windowId: Id) {
+    return this.workspaces.value.find(item => item.id == workspaceId)
+      ?.windows.find(item => item.id == windowId);
+  }
+
+  getWorkspaceById(workspaceId: Id) {
+    return this.workspaces.value.find(item => item.id == workspaceId);
+  }
+
   private _handleStoreWorkspaces(workspaces: Workspace[]) {
     if (workspaces && workspaces.length) {
 
