@@ -3,6 +3,7 @@ import { IKeyBindingDTO } from 'keyboard';
 import { Workspace } from 'workspace-manager';
 import { NavbarPosition } from "./settings.service";
 import { IBaseTemplate } from "templates";
+import { ISound } from 'projects/sound/src/lib/sound.interface';
 
 export interface ICommand {
   readonly UIString: string;
@@ -24,4 +25,14 @@ export type SettingsData = {
   timezones: ITimezone[];
   localTimezoneTitle: string;
   templates: IBaseTemplate[];
+  connectedSound: ISound;
+  connectionLostSound: ISound;
+  orderFilledSound: ISound;
+  orderCancelledSound: ISound;
+  orderReplacedSound: ISound;
+  orderPendingSound: ISound;
+  orderRejectedSound: ISound;
+  targetFilledSound: ISound;
+  stopFilledSound: ISound;
+  alertSound: ISound;
 };

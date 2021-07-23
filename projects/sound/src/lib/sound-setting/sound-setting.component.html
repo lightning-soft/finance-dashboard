@@ -1,13 +1,13 @@
 <div class="setting-sound">
     <label class="custom-checkbox mb-1">
-        <input type="checkbox" formControlName="connectOnStartUp">
+        <input type="checkbox" [checked]="checked" (change)="checked = $event; save()">
         <span>{{ name }}</span>
     </label>
 
-    <lib-selected-sound [selectedSound]="selectedSound"></lib-selected-sound>
+    <lib-selected-sound [selectedSound]="selectedSound" [volume]="volume" (nativeSelect)="selectedSound = $event; save()"></lib-selected-sound>
 
     <div class="slider">
-        <nz-slider [nzTipFormatter]="formatter" [(ngModel)]="volume"></nz-slider>
+        <nz-slider [nzTipFormatter]="formatter" [(ngModel)]="volume" (ngModelChange)="save()"></nz-slider>
         <p class='volume-info'>{{ volume }}%</p>
     </div>
 </div>

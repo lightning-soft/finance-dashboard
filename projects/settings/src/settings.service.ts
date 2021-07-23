@@ -10,6 +10,7 @@ import { ITimezone } from 'timezones-clock';
 import { catchError } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from "templates";
+import { ISound } from 'projects/sound/src/lib/sound.interface';
 
 function createCommand(name: string, uiSstring: string = name): ICommand {
   return {
@@ -58,6 +59,66 @@ const defaultSettings: SettingsData = {
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
   templates: [],
+  connectedSound: {
+    name: "Connected",
+    checked: true,
+    selectedSound: "Apert",
+    volume: 80
+  },
+  connectionLostSound: {
+    name: "Connection Lost",
+    checked: true,
+    selectedSound: "Beam1",
+    volume: 80
+  },
+  orderFilledSound: {
+    name: "Order Filled",
+    checked: true,
+    selectedSound: "Ding",
+    volume: 100
+  },
+  orderCancelledSound: {
+    name: "Order Cancelled",
+    checked: true,
+    selectedSound: "Beep",
+    volume: 100
+  },
+  orderReplacedSound: {
+    name: "Order Replaced",
+    checked: true,
+    selectedSound: "Close",
+    volume: 100
+  },
+  orderPendingSound: {
+    name: "Order Pending",
+    checked: true,
+    selectedSound: "Blip2",
+    volume: 100
+  },
+  orderRejectedSound: {
+    name: "Order Rejected",
+    checked: true,
+    selectedSound: "Bullet",
+    volume: 100
+  },
+  targetFilledSound: {
+    name: "Target Filled",
+    checked: true,
+    selectedSound: "Cashreg",
+    volume: 80
+  },
+  stopFilledSound: {
+    name: "Stop Filled",
+    checked: true,
+    selectedSound: "Buzz",
+    volume: 100
+  },
+  alertSound: {
+    name: "Alert",
+    checked: true,
+    selectedSound: "Arrowhit",
+    volume: 100
+  },
 };
 
 @Injectable()
@@ -142,6 +203,46 @@ export class SettingsService {
   saveTemplates(templates: IBaseTemplate[]): void {
     console.log(templates);
     this._updateState({ templates });
+  }
+
+  saveConnectedSound(connectedSound: ISound): void {
+    this._updateState({ connectedSound });
+  }
+
+  saveConnectionLostSound(connectionLostSound: ISound): void {
+    this._updateState({ connectionLostSound });
+  }
+
+  saveOrderFilledSound(orderFilledSound: ISound): void {
+    this._updateState({ orderFilledSound });
+  }
+
+  saveOrderCancelledSound(orderCancelledSound: ISound): void {
+    this._updateState({ orderCancelledSound });
+  }
+
+  saveOrderReplacedSound(orderReplacedSound: ISound): void {
+    this._updateState({ orderReplacedSound });
+  }
+
+  saveOrderPendingSound(orderPendingSound: ISound): void {
+    this._updateState({ orderPendingSound });
+  }
+
+  saveOrderRejectedSound(orderRejectedSound: ISound): void {
+    this._updateState({ orderRejectedSound });
+  }
+
+  saveTargetFilledSound(targetFilledSound: ISound): void {
+    this._updateState({ targetFilledSound });
+  }
+
+  saveStopFilledSound(stopFilledSound: ISound): void {
+    this._updateState({ stopFilledSound });
+  }
+
+  saveAlertSound(alertSound: ISound): void {
+    this._updateState({ alertSound });
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {

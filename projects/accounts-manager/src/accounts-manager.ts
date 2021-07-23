@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
+import { Sound, SoundService } from 'projects/sound/src/lib/sound.service';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
@@ -41,6 +42,7 @@ export class AccountsManager implements ConnectionContainer {
     private _accountRepository: AccountRepository,
     private _webSocketService: ConenctionWebSocketService,
     private _notificationService: NotificationService,
+    private _soundService: SoundService,
   ) {
     (window as any).accounts = this;
   }
@@ -218,6 +220,8 @@ export class AccountsManager implements ConnectionContainer {
         concatMap(item => {
             item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
+            // this._soundService.play(Sound.CONNECTED);
+
             return this._connectionsRepository.updateItem((item)).pipe(
               map(_ => item),
               tap((conn) => {
@@ -245,6 +249,7 @@ export class AccountsManager implements ConnectionContainer {
     accountsListeners.notifyConnectionsDisconnected([connection], this._connections.filter(i => i.connected));
     accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
     this._closeWS(connection);
+    // this._soundService.play(Sound.CONNECTION_LOST);
   }
 
   disconnect(connection: IConnection): Observable<void> {

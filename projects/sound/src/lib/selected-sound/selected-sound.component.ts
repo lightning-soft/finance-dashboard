@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { SoundService } from '../sound.service';
 
 @Component({
   selector: 'lib-selected-sound',
   templateUrl: './selected-sound.component.html',
   styleUrls: ['./selected-sound.component.css']
 })
-export class SelectedSoundComponent implements OnInit {
+export class SelectedSoundComponent {
   @Input() selectedSound: string;
-  @Output() nativeSelect:  EventEmitter<string> = new EventEmitter<string>();
+  @Input() volume: number;
+  @Output() nativeSelect: EventEmitter<string> = new EventEmitter<string>();
 
   readonly soundList: any[] = [
     'Ahooga',
@@ -64,14 +66,15 @@ export class SelectedSoundComponent implements OnInit {
     'Whip'
   ];
 
-  constructor() { }
-
-  ngOnInit(): void {
-    console.log("Selected sound");
-  }
+  constructor(
+    public readonly soundService: SoundService
+  ) { }
 
   selecte(sound: string): void {
     this.selectedSound = sound;
   }
 
+  play(sound: string): void {
+    this.soundService.playByName(sound, this.volume);
+  }
 }

@@ -1,67 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { SettingsService } from 'settings';
+import { ISound } from '../sound.interface';
 
 @Component({
   selector: 'lib-sound-tab-setting',
   templateUrl: './sound-tab-setting.component.html',
   styleUrls: ['./sound-tab-setting.component.css']
 })
-export class SoundTabSettingComponent implements OnInit {
-  readonly settingName: { name: string; selectedSound: string; volume: number; }[] = [
-    {
-      name: "Connected",
-      selectedSound: "Apert",
-      volume: 80
-    },
-    {
-      name: "Connection Lost",
-      selectedSound: "Beam1",
-      volume: 80
-    },
-    {
-      name: "Order Filled",
-      selectedSound: "Ding",
-      volume: 100
-    },
-    {
-      name: "Order Cancelled",
-      selectedSound: "Beep",
-      volume: 100
-    },
-    {
-      name: "Order Replaced",
-      selectedSound: "Close",
-      volume: 100
-    },
-    {
-      name: "Order Pending",
-      selectedSound: "Blip2",
-      volume: 100
-    },
-    {
-      name: "Order Rejected",
-      selectedSound: "Bullet",
-      volume: 100
-    },
-    {
-      name: "Target Filled",
-      selectedSound: "Cashreg",
-      volume: 80
-    },
-    {
-      name: "Stop Filled",
-      selectedSound: "Buzz",
-      volume: 100
-    },
-    {
-      name: "Alert",
-      selectedSound: "Arrowhit",
-      volume: 100
-    },
-  ];
+export class SoundTabSettingComponent {
+  switchValue = true;
+  readonly settingName: ISound[] = [];
 
-  constructor() { }
+  constructor(
+    public readonly settingsService: SettingsService,
+  ) { 
+    const value = this.settingsService.settings.value;
 
-  ngOnInit(): void {
+    this.settingName = [
+      value?.connectedSound,
+      value?.connectionLostSound,
+      value?.orderFilledSound,
+      value?.orderCancelledSound,
+      value?.orderReplacedSound,
+      value?.orderPendingSound,
+      value?.orderRejectedSound,
+      value?.targetFilledSound,
+      value?.stopFilledSound,
+      value?.alertSound,
+    ];
   }
 
 }
