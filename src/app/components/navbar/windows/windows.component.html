@@ -11,7 +11,9 @@
                [nzValue]="window.id"
                *ngFor="let window of windows"
                nzCustomContent>
-      <div (click)="selectWindow(window.id)" class="workspace">
+      <div (click)="selectWindow(window.id)"
+           [class.is-opened]="isOpened(window.id)"
+           class="workspace">
         <div class="title">
           <label (click)="selectWindow(window.id)" class="radio-btn" nz-radio [nzValue]="window.id">{{ window.name }}</label>
         </div>

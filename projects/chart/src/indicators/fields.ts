@@ -1818,7 +1818,7 @@ export const zigZagConfig: IFieldConfig[] = [
       {
         key: 'dataBoxBackground',
         className: 'full-width',
-        fieldGroupClassName: 'two-rows d-grid',
+        fieldGroupClassName: 'two-rows d-grid p-0',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{ key: 'enabled', label: 'Data Box Background' }],
@@ -1829,7 +1829,7 @@ export const zigZagConfig: IFieldConfig[] = [
       {
         key: 'dataBoxBorder',
         className: 'full-width',
-        fieldGroupClassName: 'two-rows d-grid',
+        fieldGroupClassName: 'two-rows d-grid  p-0',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{ key: 'enabled', label: 'Data Box Border' }],
