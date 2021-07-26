@@ -25,6 +25,7 @@ export type SettingsData = {
   timezones: ITimezone[];
   localTimezoneTitle: string;
   templates: IBaseTemplate[];
+  sound: boolean;
   connectedSound?: ISound;
   connectionLostSound?: ISound;
   orderFilledSound?: ISound;

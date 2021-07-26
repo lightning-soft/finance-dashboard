@@ -25,8 +25,13 @@ export class SoundService {
   ) { }
 
   play(name: Sound): void {
-    const value = this._settingsService.settings.value[name];
+    const setting = this._settingsService.settings.value;
+    const value = setting[name];
     const volume = value.volume / 100 ?? 1;
+
+    const isPlay: boolean = setting.sound;
+
+    if (!value.checked || !isPlay) return;
 
     let audio;
     if (this._store.get(name)) {

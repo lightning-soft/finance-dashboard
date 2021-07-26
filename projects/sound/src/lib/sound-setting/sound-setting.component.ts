@@ -26,8 +26,6 @@ export class SoundSettingComponent {
   @Input() selectedSound: string;
   @Input() volume: number;
 
-  @Output() switchValue: EventEmitter<boolean> = new  EventEmitter<boolean>();
-
   constructor(
     private  readonly _settingsService: SettingsService
   ) { }
@@ -37,10 +35,7 @@ export class SoundSettingComponent {
   }
 
   changeCheckbox(value): void {
-    const isChecked = value?.target?.checked;
-
-    if (!isChecked) this.switchValue.emit(false);
-
+    this.checked = value?.target?.checked;
     this.save();
   }
 
