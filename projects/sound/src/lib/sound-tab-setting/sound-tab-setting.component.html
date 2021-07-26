@@ -1,1 +1,8 @@
-<lib-sound-setting *ngFor="let sound of settingName" [name]="sound.name" [selectedSound]="sound.selectedSound" [volume]="sound.volume"></lib-sound-setting>
+<div>
+    <h1>Sounds</h1>
+    <p>Off</p>
+    <nz-switch [(ngModel)]="switchValue"></nz-switch>
+    <p>On</p>
+</div>
+<hr>
+<lib-sound-setting *ngFor="let sound of settingName" [checked]="sound?.checked || switchValue" [name]="sound?.name" [selectedSound]="sound?.selectedSound" [volume]="sound?.volume" (switchValue)="switchValue = $event"></lib-sound-setting>

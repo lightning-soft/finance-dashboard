@@ -5,6 +5,8 @@ import { SoundSettingComponent } from './sound-setting/sound-setting.component';
 import { SelectedSoundComponent } from './selected-sound/selected-sound.component';
 import { CommonModule } from '@angular/common';
 import { NzDropDownModule, NzSelectModule, NzSliderModule } from 'ng-zorro-antd';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -14,9 +16,12 @@ import { NzDropDownModule, NzSelectModule, NzSliderModule } from 'ng-zorro-antd'
     CommonModule,
     NzSelectModule,
     NzSliderModule,
-    NzDropDownModule
+    NzDropDownModule,
+    NzSwitchModule,
+    FormsModule, 
+    ReactiveFormsModule 
   ],
   exports: [SoundComponent, SoundTabSettingComponent],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class SoundModule { }
