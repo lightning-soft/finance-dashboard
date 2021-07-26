@@ -1,6 +1,6 @@
 <div class="setting-sound">
     <label class="custom-checkbox mb-1">
-        <input type="checkbox" [checked]="checked" (change)="checked = $event; save()">
+        <input type="checkbox" [checked]="checked" (change)="changeCheckbox($event)">
         <span>{{ name }}</span>
     </label>
 

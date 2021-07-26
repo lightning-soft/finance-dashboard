@@ -56,7 +56,7 @@ export class SettingsComponent implements OnInit {
 
   tabs = [TABS.GENERAL, TABS.HOTKEYS, TABS.SOUNDS];
 
-  activeTab = TABS.SOUNDS;
+  activeTab = TABS.GENERAL;
 
   TABS = TABS;
 

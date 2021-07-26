@@ -2144,6 +2144,46 @@
           }
         }
       }
+    },
+    "window-messanger": {
+      "projectType": "library",
+      "root": "projects/window-messanger",
+      "sourceRoot": "projects/window-messanger/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/window-messanger/tsconfig.lib.json",
+            "project": "projects/window-messanger/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/window-messanger/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/window-messanger/src/test.ts",
+            "tsConfig": "projects/window-messanger/tsconfig.spec.json",
+            "karmaConfig": "projects/window-messanger/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/window-messanger/tsconfig.lib.json",
+              "projects/window-messanger/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "angular-starter",

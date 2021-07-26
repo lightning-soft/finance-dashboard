@@ -35,4 +35,5 @@ export type SettingsData = {
   targetFilledSound: ISound;
   stopFilledSound: ISound;
   alertSound: ISound;
+  sound: boolean;
 };

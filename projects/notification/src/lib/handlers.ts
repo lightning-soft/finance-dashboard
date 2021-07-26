@@ -1,6 +1,6 @@
 import { MessageTypes } from './enums';
 import { Notification } from './notification';
-import { AlertType, ConnectionId } from 'communication';
+import { AlertType } from 'communication';
 import { OrderStatus } from 'trading';
 // Need long import otherwise there is circular dependency
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
@@ -30,7 +30,7 @@ export const handlers = {
 
     const now =  Date.now();
     const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > timeOffset && timeOffset < maxTimeOffset;
+    const hasDelay = timeDelay > timeOffset && timeDelay < maxTimeOffset;
     const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
     if (hasDelay && shouldSendNtf) {
       lastSentNotification = now;
@@ -44,9 +44,6 @@ export const handlers = {
   },
 
   [MessageTypes.CONNECT]: (msg) => {
-    if (msg?.result?.connectionId !== ConnectionId.TradingSystem)
-      return;
-
     const { type, timestamp } = msg.result;
 
     let icon;

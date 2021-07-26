@@ -19,6 +19,22 @@
 
 .workspace {
   padding: 0;
+
+  &.is-opened {
+    .radio-btn {
+      pointer-events: none;
+    }
+
+    .icon-popup {
+      color: $primary;
+      pointer-events: none;
+    }
+
+    .icon-tool-delete {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
 }
 
 .ant-divider-horizontal {

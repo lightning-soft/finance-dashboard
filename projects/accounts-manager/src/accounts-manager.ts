@@ -42,9 +42,12 @@ export class AccountsManager implements ConnectionContainer {
     private _accountRepository: AccountRepository,
     private _webSocketService: ConenctionWebSocketService,
     private _notificationService: NotificationService,
-    private _soundService: SoundService,
   ) {
     (window as any).accounts = this;
+  }
+
+  private _getSoundService(): any {
+    return this._injector.get(SoundService);
   }
 
   getConnectionByAccountId(accountId: Id): IConnection {
@@ -218,15 +221,15 @@ export class AccountsManager implements ConnectionContainer {
     return this._connectionsRepository.connect(connection)
       .pipe(
         concatMap(item => {
-            item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
+          item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-            // this._soundService.play(Sound.CONNECTED);
+          this._getSoundService().play(Sound.CONNECTED);
 
-            return this._connectionsRepository.updateItem((item)).pipe(
-              map(_ => item),
-              tap((conn) => {
-                this.onUpdated(conn);
-              }),
+          return this._connectionsRepository.updateItem((item)).pipe(
+            map(_ => item),
+            tap((conn) => {
+              this.onUpdated(conn);
+            }),
           );
         }),
         tap((conn) => {
@@ -249,7 +252,7 @@ export class AccountsManager implements ConnectionContainer {
     accountsListeners.notifyConnectionsDisconnected([connection], this._connections.filter(i => i.connected));
     accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
     this._closeWS(connection);
-    // this._soundService.play(Sound.CONNECTION_LOST);
+    this._getSoundService().play(Sound.CONNECTION_LOST);
   }
 
   disconnect(connection: IConnection): Observable<void> {
@@ -316,7 +319,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${ connection.server }(${ connection.gateway })`;
+      connection.name = `${connection.server}(${connection.gateway})`;
     }
 
     this._connections = this._connections.concat(connection);

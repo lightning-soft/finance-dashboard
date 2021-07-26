@@ -12,9 +12,10 @@ export class SoundTabSettingComponent {
   readonly settingName: ISound[] = [];
 
   constructor(
-    public readonly settingsService: SettingsService,
-  ) { 
-    const value = this.settingsService.settings.value;
+    private readonly _settingsService: SettingsService,
+  ) {
+    const value = this._settingsService.settings.value;
+    this.switchValue = value?.sound;
 
     this.settingName = [
       value?.connectedSound,
@@ -28,6 +29,10 @@ export class SoundTabSettingComponent {
       value?.stopFilledSound,
       value?.alertSound,
     ];
+  }
+
+  save(): void {
+    this._settingsService.saveSound(this.switchValue);
   }
 
 }

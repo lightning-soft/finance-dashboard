@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
@@ -6,6 +6,7 @@ import { NotificationService } from 'notification';
 import { NavbarPosition, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
+import { isElectron } from '../../is-electron';
 
 @UntilDestroy()
 @Component({
@@ -13,7 +14,7 @@ import { Bounds, WindowManagerService } from 'window-manager';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent {
+export class NavbarComponent implements AfterViewInit {
   @Input() layout: LayoutComponent;
 
   public readonly navbarPosition = NavbarPosition;
@@ -43,6 +44,8 @@ export class NavbarComponent {
 
   timeout: number;
 
+  @HostBinding('class.electron') isElectron;
+
   constructor(
     private themeHandler: ThemesHandler,
     private _ngZone: NgZone,
@@ -65,6 +68,10 @@ export class NavbarComponent {
         }
         this._updateWindowsBounds();
       });
+  }
+
+  ngAfterViewInit() {
+    this.isElectron = isElectron();
   }
 
   @HostListener('mouseenter', ['$event'])
@@ -108,15 +115,6 @@ export class NavbarComponent {
 
   switchTheme() {
     this.themeHandler.toggleTheme();
-  }
-
-  openAccounts() {
-    this.layout.addComponent({
-      component: {
-        name: 'accounts',
-      },
-      maximizable: false,
-    });
   }
 
   private _updateWindowsBounds(): void {
@@ -179,36 +177,5 @@ export class NavbarComponent {
   private _isHostContainsElement(element: Element): boolean {
     return this.elementRef.nativeElement.contains(element);
   }
-
-  // openWorkspace() {
-  //   this.layout.addComponent({
-  //     component: {
-  //       name: 'workspace',
-  //     },
-
-  //     icon: 'icon-setting-gear',
-  //     maximizeBtn: false,
-  //   });
-  // }
 }
 
-declare var process;
-
-export function isElectron(): boolean {
-  // Renderer process
-  if (typeof window !== 'undefined' && typeof window['process'] === 'object' && window['process'].type === 'renderer') {
-    return true;
-  }
-
-  // Main process
-  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
-    return true;
-  }
-
-  // Detect the user agent when the `nodeIntegration` option is set to true
-  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
-    return true;
-  }
-
-  return false;
-}

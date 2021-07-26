@@ -11,15 +11,11 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
 import { environment } from 'environment';
-import { SaveLayoutConfigService } from '../save-layout-config.service';
-import { SaveLoaderService } from 'ui';
+import { SaveLayoutConfigService, saveLayoutKey } from '../save-layout-config.service';
 import { isEqual } from 'underscore';
 import { widgetList } from './component-options';
-import { isElectron } from '../navbar/navbar.component';
-
-enum WindowEvents {
-  Message = 'message'
-}
+import { WindowMessengerService } from 'window-messenger';
+import { isElectron } from '../../is-electron';
 
 @Component({
   selector: 'dashboard',
@@ -51,7 +47,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
     private saverService: SaveLayoutConfigService,
-    private loaderService: SaveLoaderService,
+    private windowMessengerService: WindowMessengerService,
   ) {
   }
 
@@ -59,10 +55,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
     this._setupSettings();
-
-    setTimeout(() => {
-      // this.layout.loadState([{"id":1612041491891,"x":30,"y":30,"width":500,"height":500,"component":{"state":{"columns":[{"name":"account","type":"string","title":"ACCOUNT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"price","type":"string","title":"PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"size","type":"string","title":"SIZE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"realized","type":"string","title":"REALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"unrealized","type":"string","title":"UNREALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"total","type":"string","title":"TOTAL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"instrumentName","type":"string","title":"INSTRUMENT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1}]},"name":"positions"},"order":0},{"id":1612041494039,"x":340,"y":334,"width":1572,"height":735,"component":{"state":{"columns":[{"name":"averageFillPrice","type":"string","title":"AVERAGE FILL PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"description","type":"string","title":"DESCRIPTION","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"duration","type":"string","title":"DURATION","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"filledQuantity","type":"string","title":"FILLED QUANTITY","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"quantity","type":"string","title":"QUANTITY","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"side","type":"string","title":"SIDE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"status","type":"string","title":"STATUS","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"type","type":"string","title":"TYPE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":8,"columnIndex":8,"rowIndex":-1},{"name":"symbol","type":"string","title":"SYMBOL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":9,"columnIndex":9,"rowIndex":-1},{"name":"fcmId","type":"string","title":"FCMID","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":10,"columnIndex":10,"rowIndex":-1},{"name":"ibId","type":"string","title":"IBID","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":11,"columnIndex":11,"rowIndex":-1},{"name":"identifier","type":"string","title":"IDENTIFIER","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":12,"columnIndex":12,"rowIndex":-1},{"name":"close","type":"string","title":"CLOSE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":13,"columnIndex":13,"rowIndex":-1}]},"name":"orders"},"order":1},{"id":1612041523539,"x":60,"y":60,"width":1683,"height":591,"component":{"state":{"columns":[{"name":"account","type":"string","title":"ACCOUNT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":0,"columnIndex":0,"rowIndex":-1},{"name":"price","type":"string","title":"PRICE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":1,"columnIndex":1,"rowIndex":-1},{"name":"size","type":"string","title":"SIZE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":2,"columnIndex":2,"rowIndex":-1},{"name":"realized","type":"string","title":"REALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":3,"columnIndex":3,"rowIndex":-1},{"name":"unrealized","type":"string","title":"UNREALIZED","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":4,"columnIndex":4,"rowIndex":-1},{"name":"total","type":"string","title":"TOTAL","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":5,"columnIndex":5,"rowIndex":-1},{"name":"instrumentName","type":"string","title":"INSTRUMENT","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":6,"columnIndex":6,"rowIndex":-1},{"name":"exchange","type":"string","title":"EXCHANGE","visible":true,"style":{"histogram":{"color":"#4895F5","enabled":true,"orientation":"left"},"color":"#D0D0D2","textAlign":"center"},"width":100,"index":7,"columnIndex":7,"rowIndex":-1}]},"name":"positions"},"order":2}])
-    }, 100);
 
     /*
     / For performance reason avoiding ng zone in some cases
@@ -93,19 +85,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     else {
       this._setupWorkspaces();
       this._subscribeOnKeys();
-
-      window.addEventListener(WindowEvents.Message, (event) => {
-        try {
-          const data = event.data;
-          if (typeof data !== 'string')
-            return;
-          const { workspaceId, windowId, state } = JSON.parse(data);
-          this._workspaceService.saveWindow(+workspaceId, +windowId, state);
-        } catch (err) {
-          console.error(err);
-        }
+      const unsubscribeCallback = this.windowMessengerService.subscribe(saveLayoutKey, (paylaod) => {
+        const { workspaceId, windowId, state } = paylaod;
+        this._workspaceService.saveWindow(+workspaceId, +windowId, state);
       });
+      this._subscriptions.push(unsubscribeCallback);
     }
+
+    this._workspaceService.workspaceInit
+      .pipe(
+        filter(item => item),
+        first(),
+        untilDestroyed(this),
+      ).subscribe(() => {
+      this._windowPopupManager.init(this._workspaceService.workspaces.value);
+    });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();

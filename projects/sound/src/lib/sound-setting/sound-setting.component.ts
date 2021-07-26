@@ -27,11 +27,16 @@ export class SoundSettingComponent {
   @Input() volume: number;
 
   constructor(
-    private  readonly _settingsService: SettingsService
+    private readonly _settingsService: SettingsService
   ) { }
 
   formatter(value: number): string {
     return `${value}%`;
+  }
+
+  changeCheckbox(value): void {
+    this.checked = value?.target?.checked;
+    this.save();
   }
 
   save() {
@@ -43,7 +48,7 @@ export class SoundSettingComponent {
     const volume = this.volume;
     const value: ISound = { name, checked, selectedSound, volume };
 
-    switch(name) {
+    switch (name) {
       case SoundSetting.CONNECTED:
         settingsService.saveConnectedSound(value);
         break;
@@ -73,6 +78,8 @@ export class SoundSettingComponent {
         break;
       case SoundSetting.ALERT:
         settingsService.saveAlertSound(value);
+        break;
+      default:
         break;
     }
   }

@@ -1,27 +1,40 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { SoundComponent } from './sound.component';
-import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
-import { SoundSettingComponent } from './sound-setting/sound-setting.component';
-import { SelectedSoundComponent } from './selected-sound/selected-sound.component';
 import { CommonModule } from '@angular/common';
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NzDropDownModule, NzSelectModule, NzSliderModule } from 'ng-zorro-antd';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SelectedSoundComponent } from './selected-sound/selected-sound.component';
+import { SoundSettingComponent } from './sound-setting/sound-setting.component';
+import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
+import { SoundService, SettingsStore } from './sound.service';
 
 
 
 @NgModule({
-  declarations: [SoundComponent, SoundTabSettingComponent, SoundSettingComponent, SelectedSoundComponent],
+  declarations: [SoundTabSettingComponent, SoundSettingComponent, SelectedSoundComponent],
   imports: [
     CommonModule,
     NzSelectModule,
     NzSliderModule,
     NzDropDownModule,
     NzSwitchModule,
-    FormsModule, 
-    ReactiveFormsModule 
+    FormsModule,
+    ReactiveFormsModule,
   ],
-  exports: [SoundComponent, SoundTabSettingComponent],
-  // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  exports: [SoundTabSettingComponent]
 })
-export class SoundModule { }
+export class SoundModule {
+
+  static forRoot(settingsStore: any): ModuleWithProviders<SoundModule> {
+    return {
+      ngModule: SoundModule,
+      providers: [
+        SoundService,
+        {
+          provide: SettingsStore,
+          useExisting: settingsStore,
+        }
+      ]
+    };
+  }
+}

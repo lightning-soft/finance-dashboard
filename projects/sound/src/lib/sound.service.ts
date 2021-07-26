@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { SettingsService } from 'settings';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export enum Sound {
   CONNECTED = 'connectedSound',
@@ -14,19 +13,24 @@ export enum Sound {
   ALERT = 'alertSound'
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+export const SettingsStore = new InjectionToken('SettingsStore');
+
+@Injectable()
 export class SoundService {
   private readonly _store = new Map();
 
   constructor(
-    private readonly _settingsService: SettingsService,
+    @Inject(SettingsStore) private readonly _settingsStore: any,
   ) { }
 
   play(name: Sound): void {
-    const value = this._settingsService.settings.value[name];
+    const setting = this._settingsStore.settings.value;
+    const value = setting[name];
     const volume = value.volume / 100 ?? 1;
+
+    const isPlay: boolean = setting.sound;
+
+    if (!value.checked || !isPlay) return;
 
     let audio;
     if (this._store.get(name)) {

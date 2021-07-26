@@ -92,6 +92,7 @@ export class RealOHLVFeed extends OHLVFeed {
         low: null,
         high: data[0].high,
         volume: 0,
+        date: new Date(),
         close: data[data.length - 1].close
       };
 
@@ -113,7 +114,7 @@ export class RealOHLVFeed extends OHLVFeed {
       ohlv.count += 1;
       ohlv.historyItem = dailyInfo as OHLVData;
       ohlv.historyItem.instrument = instrument;
-      ohlv.historyItem = normalizeHistoryItem(ohlv.historyItem, instrument);
+      ohlv.historyItem = normalizeHistoryItem(ohlv.historyItem);
       this._sendToSubscribers(ohlv.historyItem, connectionId);
     });
   }
@@ -146,6 +147,9 @@ export class RealOHLVFeed extends OHLVFeed {
     }
 
     let historyItem = this._ohlv[connectionId][trade.instrument.id].historyItem;
+    if (historyItem.date.getTime() > trade.timestamp)
+      return;
+
     historyItem.close = trade.price;
 
     if (trade.price < historyItem.low) {
@@ -156,8 +160,7 @@ export class RealOHLVFeed extends OHLVFeed {
       historyItem.high = trade.price;
     }
     historyItem.date = new Date(trade.timestamp);
-    historyItem.instrument = trade.instrument;
-    historyItem = normalizeHistoryItem(historyItem, trade.instrument);
+    historyItem = normalizeHistoryItem(historyItem);
     this._ohlv[connectionId][trade.instrument.id].historyItem = historyItem;
 
     this._sendToSubscribers(historyItem, connectionId);
@@ -174,7 +177,6 @@ export class RealOHLVFeed extends OHLVFeed {
 
     ohlvHandler.historyItem.volume = data.volume;
     const historyItem = ohlvHandler.historyItem;
-    historyItem.instrument = data.instrument;
     this._sendToSubscribers(historyItem, connectionId);
   }
 
@@ -185,9 +187,9 @@ export class RealOHLVFeed extends OHLVFeed {
   }
 }
 
-function normalizeHistoryItem(historyItem: OHLVData, instrument): OHLVData {
+function normalizeHistoryItem(historyItem: OHLVData): OHLVData {
   const data = { ...historyItem };
-  const precision = instrument.precision;
+  const precision = historyItem.instrument.precision;
   data.low = +data.low.toFixed(precision);
   data.high = +data.high.toFixed(precision);
   data.open = +data.open.toFixed(precision);

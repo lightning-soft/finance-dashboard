@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd';
 import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -6,7 +6,7 @@ import { Id } from 'communication';
 import { LayoutComponent, WindowPopupManager } from 'layout';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
-import { RenameModalComponent, ConfirmModalComponent, CreateModalComponent } from 'ui';
+import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 
 @Component({
   selector: 'windows',
@@ -123,7 +123,7 @@ export class WindowsComponent implements OnInit {
   }
 
   selectWindow(windowId: Id) {
-    if (this.currentWindowId !== windowId) {
+    if (this.currentWindowId !== windowId && !this.isOpened(windowId)) {
       this.updateWindow();
       this._workspacesService.switchWindow(windowId);
       this.isSelectOpened = false;
@@ -144,5 +144,9 @@ export class WindowsComponent implements OnInit {
 
   popupWindow(window: WorkspaceWindow) {
     this._windowPopupManager.openWindow(this.currentWorkspace, window);
+  }
+
+  isOpened(id: number | string) {
+    return this._windowPopupManager.isWindowOpened(this._workspacesService.getActiveWorkspace()?.id, id);
   }
 }

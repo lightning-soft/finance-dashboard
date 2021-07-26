@@ -59,6 +59,7 @@ const defaultSettings: SettingsData = {
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
   templates: [],
+  sound: true,
   connectedSound: {
     name: "Connected",
     checked: true,
@@ -203,6 +204,10 @@ export class SettingsService {
   saveTemplates(templates: IBaseTemplate[]): void {
     console.log(templates);
     this._updateState({ templates });
+  }
+
+  saveSound(sound: boolean): void {
+    this._updateState({ sound });
   }
 
   saveConnectedSound(connectedSound: ISound): void {
