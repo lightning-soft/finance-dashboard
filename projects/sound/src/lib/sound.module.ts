@@ -1,17 +1,16 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { SoundComponent } from './sound.component';
-import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
-import { SoundSettingComponent } from './sound-setting/sound-setting.component';
-import { SelectedSoundComponent } from './selected-sound/selected-sound.component';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NzDropDownModule, NzSelectModule, NzSliderModule } from 'ng-zorro-antd';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SelectedSoundComponent } from './selected-sound/selected-sound.component';
+import { SoundSettingComponent } from './sound-setting/sound-setting.component';
+import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
 
 
 
 @NgModule({
-  declarations: [SoundComponent, SoundTabSettingComponent, SoundSettingComponent, SelectedSoundComponent],
+  declarations: [SoundTabSettingComponent, SoundSettingComponent, SelectedSoundComponent],
   imports: [
     CommonModule,
     NzSelectModule,
@@ -21,7 +20,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule, 
     ReactiveFormsModule 
   ],
-  exports: [SoundComponent, SoundTabSettingComponent],
-  // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  exports: [SoundTabSettingComponent]
 })
 export class SoundModule { }
