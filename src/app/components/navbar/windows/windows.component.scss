@@ -27,6 +27,7 @@
 
     .icon-popup {
       color: $primary;
+      pointer-events: none;
     }
 
     .icon-tool-delete {
