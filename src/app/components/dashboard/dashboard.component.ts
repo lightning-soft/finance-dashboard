@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { KeyBinding, KeyboardListener } from 'keyboard';
-import { LayoutComponent, WindowPopupManager } from 'layout';
+import { LayoutComponent, saveCommand, WindowPopupManager } from 'layout';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -163,6 +163,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         first(),
         untilDestroyed(this))
       .subscribe(() => {
+        this.windowMessengerService.subscribe(saveCommand, () => {
+          this._save();
+        });
         const workspaceId = +this._windowPopupManager.workspaceId;
         this._workspaceService.switchWorkspace(workspaceId, false);
         const windowId = +this._windowPopupManager.windowId;
@@ -235,9 +238,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .subscribe(s => {
         this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
-
-        $('body').removeClass('navbarTop navbarBottom');
-        $('body').addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
+        const body = $('body');
+        body.removeClass('navbarTop navbarBottom');
+        body.addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
+        if (isElectron())
+          $('body').addClass('electron');
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)

@@ -1,5 +1,5 @@
 import { Cell, DataCell, NumberCell } from 'data-grid';
-import { IInstrument, IOrder } from 'trading';
+import { IInstrument, IOrder, OrderStatus } from 'trading';
 import { Id } from 'communication';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 import { ActionsCell } from './actions.cell';
@@ -55,7 +55,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
         cell.setStatusPrefix(this.getPrefix());
     });
     this.actions.setStatusPrefix(this.getPrefix());
-    this.actions.setState({ play: false, close: true, stop: false });
+    this.actions.setState({ play: false, close: true, stop: true });
     this.emptyCell.setStatusPrefix(this.getPrefix());
 
     if (order)
@@ -78,6 +78,9 @@ export class MarketWatchSubItem implements IMarketWatchItem {
 
     this.id = order.id;
     this.order = order;
+
+    const isStopped = order.status === OrderStatus.Stopped;
+    this.actions.setState({ play: isStopped, stop: !isStopped, close: true });
 
     this.side.updateValue(order.side.toUpperCase());
     this.side.changeStatus(order.side);
@@ -119,6 +122,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
     }
     this.symbol = this.actions;
   }
+
   clearRealtimeData() {
   }
 }
