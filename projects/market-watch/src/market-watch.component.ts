@@ -47,6 +47,7 @@ import {
   OrdersFeed,
   OrderSide,
   OrdersRepository,
+  OrderStatus,
   OrderType,
   PositionsFeed,
   PositionsRepository,
@@ -289,14 +290,25 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
             return;
 
           const action = data.item.checkAction(event);
+          const order = data.item?.order;
           switch (action) {
             case PerformedAction.Close:
-              this._ordersRepository.deleteItem(data.item.order).toPromise();
+              this._ordersRepository.deleteItem(order)
+                .toPromise().then(item => this._processOrders(item));
+              break;
+            case PerformedAction.Play:
+              this._ordersRepository.play(order).toPromise()
+                .then(item => {
+                  order.status = OrderStatus.Canceled;
+                  this._processOrders(order);
+                  this._processOrders(item);
+                });
+              break;
+            case PerformedAction.Stop:
+              this._ordersRepository.stop(order).toPromise()
+                .then(item => this._processOrders(item));
               break;
           }
-          console.log(action);
-          // #TODO for stop resume orders
-          console.log(data);
         }
       }
     ),
@@ -687,7 +699,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   }
 
   _processOrders(order) {
-    const item = this.builder.getInstrumentItem(order.instrument);
+    const item = this.builder.getInstrumentItem(order?.instrument);
 
     if (!item)
       return;

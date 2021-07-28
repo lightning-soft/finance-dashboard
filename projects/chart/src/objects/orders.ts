@@ -27,6 +27,7 @@ export class Orders extends ChartObjects<IOrder> {
       symbol: this._instance.instrument.symbol,
       exchange: this._instance.instrument.exchange,
       accountId: this._instance.accountId,
+      hideStopped: true,
     };
   }
 

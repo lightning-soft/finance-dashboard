@@ -11,7 +11,7 @@ import {
   RoundFormatter
 } from 'data-grid';
 import { TextAlign } from 'dynamic-form';
-import { IOrder, OrderSide } from 'trading';
+import { IOrder, OrderSide, OrderStatus } from 'trading';
 import { PriceStatus } from 'trading-ui';
 
 export enum OrderColumn {
@@ -36,7 +36,11 @@ export enum OrderColumn {
   identifier = 'identifier',
   close = 'close',
 }
+
 export const OrderColumnsArray = Object.values(OrderColumn);
+
+export const heldPrefixStatus = 'held';
+export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
@@ -140,12 +144,22 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   private _updateCellStatus(cell: Cell): void {
+    if (this.order.status === OrderStatus.Stopped)
+      cell.setStatusPrefix(heldPrefixStatus);
+
     cell.changeStatus(this.side.value.toLowerCase());
   }
 
   private _updateSelectedStatus(): void {
-    const selectedStatusName = this.isSelected ? CellStatus.Selected : CellStatus.None;
+    const selectedStatusName = this.getSelectedStatus();
     allColumns.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
+  }
+
+  private getSelectedStatus() {
+    if (this.order.status === OrderStatus.Stopped)
+      return this.isSelected ? StopSelectedStatus : heldPrefixStatus;
+
+    return this.isSelected ? CellStatus.Selected : CellStatus.None;
   }
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {

@@ -1089,7 +1089,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.orders = [];
-    this._ordersRepository.getItems({ accountId: this.accountId })
+    this._ordersRepository.getItems({ accountId: this.accountId, hideStopped: true })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
