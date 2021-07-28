@@ -12,7 +12,7 @@ export interface ISettingsApplier {
 
   getCloseSettingsConfig();
 
-  openSettings();
+  openSettings($event?: MouseEvent);
 
   closeSettings();
 }
@@ -39,14 +39,19 @@ export abstract class _SettingsApplier implements AfterViewInit, ISettingsApplie
       this.applySettings();
   }
 
-  openSettings() {
+  openSettings($event) {
     const { name, ...options } = this.getOpenSettingsConfig();
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item.visible && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this.closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if ($event) {
+        coords.x = $event.clientX;
+        coords.y =  $event.clientY;
+      }
       this.layout.addComponent({
         component: {
           name,
@@ -62,8 +67,10 @@ export abstract class _SettingsApplier implements AfterViewInit, ISettingsApplie
         removeIfExists: false,
         minimizable: false,
         maximizable: false,
+        ...coords,
         ...options,
       });
+    }
   }
 
   closeSettings() {

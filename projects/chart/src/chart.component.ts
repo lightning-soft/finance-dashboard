@@ -183,6 +183,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
+  contextEvent: MouseEvent;
+
   constructor(
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
@@ -425,6 +427,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleContextMenu = (e) => {
     const event = e.value.event.evt.originalEvent;
+    this.contextEvent = event;
     this.nzContextMenuService.create(event, this.menu);
   }
 
@@ -806,12 +809,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   openSettingsDialog(): void {
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this._closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if (this.contextEvent) {
+        coords.x = this.contextEvent.screenX;
+        coords.y = this.contextEvent.screenY;
+      }
       this.layout.addComponent({
         component: {
           name: chartSettings,
@@ -823,6 +831,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         closeBtn: true,
         single: false,
         width: 440,
+        ...coords,
         allowPopup: false,
         closableIfPopup: true,
         resizable: false,
@@ -830,6 +839,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         minimizable: false,
         maximizable: false,
       });
+    }
   }
 
   private _closeSettings() {
@@ -849,8 +859,7 @@ function setCandleBackground(barTheme, settings: IChartSettings) {
   }
   if (barTheme.downCandle.fill) {
     barTheme.downCandle.fill.fillColor = settings.general.downCandleColor;
-  }
-  else {
+  } else {
     barTheme.downCandle.border.strokeColor = settings.general.downCandleColor;
   }
 }
@@ -919,7 +928,8 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
 
   return theme;
 }
-function setBorderColor(barTheme, settings){
+
+function setBorderColor(barTheme, settings) {
   barTheme.upCandle.border.strokeColor = settings.general.upCandleBorderColor;
   barTheme.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
   barTheme.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
