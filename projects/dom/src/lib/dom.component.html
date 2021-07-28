@@ -14,7 +14,7 @@
   <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" [title]="'Clear'"
           class="wm-header-btn icon-dom-clear-all"></button>
 
-  <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings()">
+  <button [title]="'Settings'" class="wm-header-btn icon-setting-gear" (click)="openSettings($event)">
   </button>
   <button
     [title]="'Bracket'"
@@ -87,7 +87,7 @@
     <data-grid #grid
                [columns]="columns"
                [showSettingsInContextMenu]="true"
-               (settingsClicked)="openSettings()"
+               (settingsClicked)="openSettings($event)"
                [showHeaderPanelInContextMenu]="true"
                [(contextMenuState)]="dataGridMenuState"
                (columnUpdate)="onColumnUpdate($event)"

@@ -12,7 +12,7 @@
   [editComponentsFactory]="editComponentsFactory"
   (columnUpdate)="onColumnUpdate($event)"
   [showSettingsInContextMenu]="true"
-  (settingsClicked)="openSettings()"
+  (settingsClicked)="openSettings($event)"
   [styles]="gridStyles"
   (currentCellChanged)="currentCell = $event"
   [(contextMenuState)]="contextMenuState"
@@ -60,7 +60,7 @@
     <li (click)="rollSymbol()" nz-menu-item>Roll Symbol</li>
     <li (click)="currentTab && changeInstrument()" nz-menu-item>Change Symbol</li>
     <li nz-menu-divider></li>
-    <li (click)="openSettings()" nz-menu-item>Settings</li>
+    <li (click)="openSettings($event)" nz-menu-item>Settings</li>
   </ul>
 </nz-dropdown-menu>
 <nz-dropdown-menu #labelMenu="nzDropdownMenu">

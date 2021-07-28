@@ -1053,13 +1053,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     });
   }
 
-  openSettings() {
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+  openSettings($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this._closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if ($event) {
+        coords.x = $event.clientX;
+        coords.y =  $event.clientY;
+      }
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
@@ -1075,7 +1080,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         removeIfExists: false,
         minimizable: false,
         maximizable: false,
+        ...coords,
       });
+    }
   }
 
   private _getSettingsKey() {
@@ -1258,7 +1265,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     if (accountId)
       orderMarketWatchItem.accountId.updateValue(accountId);
-
     orderMarketWatchItem.applySettings(this.columnSettings);
     const item = this.builder.getInstrumentItem(instrument);
 

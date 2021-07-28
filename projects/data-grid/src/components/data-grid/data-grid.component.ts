@@ -537,8 +537,8 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     this.contextMenuStateChange.emit(this.contextMenuState);
   }
 
-  onSettingsClicked() {
-    this.settingsClicked.next();
+  onSettingsClicked($event) {
+    this.settingsClicked.next($event);
   }
 
   changeColumnVisibility(item: any, value: boolean) {

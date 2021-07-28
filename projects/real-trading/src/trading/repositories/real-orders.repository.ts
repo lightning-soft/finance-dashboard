@@ -61,7 +61,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     return this._http.post<IOrder>(this._getRESTURL(`${ order.id }/play`), null, {
       ...this.getApiHeadersByAccount(order.accountId ?? order.account?.id)
     }).pipe(
-      map((item: any) => item.result),
+      map((item: any) => this._mapResponseItem(item.result)),
       tap(item => this._onCreate(item))) as Observable<IOrder>;
   }
 
@@ -72,7 +72,8 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       map((item: any) => {
         const order = item.result;
         order.status = OrderStatus.Stopped;
-        return order;
+
+        return this._mapResponseItem(order);
       }),
       tap(item => this._onUpdate(item))) as Observable<IOrder>;
   }
@@ -195,6 +196,13 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
         },
       ),
     ));
+  }
+
+  _mapResponseItem(item: IOrder) {
+    if (item.instrument.description)
+      item.description = item.instrument.description;
+
+    return item;
   }
 
   protected _filter(item: IOrder, params: any = {}) {

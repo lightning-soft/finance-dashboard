@@ -2039,13 +2039,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._initialState = state;
   }
 
-  openSettings(hidden = false) {
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+  openSettings($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this._closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if ($event) {
+        coords.x = $event.clientX;
+        coords.y =  $event.clientY;
+      }
       this.layout.addComponent({
         component: {
           name: DomSettingsSelector,
@@ -2060,8 +2065,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         removeIfExists: false,
         minimizable: false,
         maximizable: false,
-        hidden,
+        ...coords,
       });
+    }
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
