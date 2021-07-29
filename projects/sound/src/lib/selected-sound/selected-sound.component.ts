@@ -75,6 +75,7 @@ export class SelectedSoundComponent {
   }
 
   play(sound: string): void {
-    this.soundService.playByName(sound, this.volume);
+    const procent = 100;
+    this.soundService.playByName(sound, this.volume / procent);
   }
 }

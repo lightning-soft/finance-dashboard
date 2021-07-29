@@ -36,22 +36,21 @@ export class SoundService {
     if (this._store.get(name)) {
       audio = this._store.get(name);
     } else {
-      audio = new Audio();
-      audio.src = `./assets/sounds/${value.name}.wav`;
-      audio.volume = volume;
-      audio.load();
+      audio = this.playByName(value.name, volume, false);
       this._store.set(name, audio);
     }
 
     audio.play();
   }
 
-  playByName(name: string, volume: number): void {
-    volume = volume / 100;
+  playByName(name: string, volume: number, play: boolean = true): HTMLAudioElement {
     const audio = new Audio();
     audio.src = `./assets/sounds/${name}.wav`;
     audio.volume = volume;
     audio.load();
-    audio.play();
+
+    if (play) audio.play();
+
+    return audio;
   }
 }
