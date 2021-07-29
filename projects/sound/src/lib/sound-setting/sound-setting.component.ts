@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { SettingsService } from 'settings';
+import { Component, Inject, InjectionToken, Input } from '@angular/core';
 import { ISound } from '../sound.interface';
+import { SettingsStore } from '../sound.service';
 
 export enum SoundSetting {
   CONNECTED = 'Connected',
@@ -27,7 +27,7 @@ export class SoundSettingComponent {
   @Input() volume: number;
 
   constructor(
-    private readonly _settingsService: SettingsService
+    @Inject(SettingsStore) private readonly _settingsStore: any,
   ) { }
 
   formatter(value: number): string {
@@ -40,7 +40,7 @@ export class SoundSettingComponent {
   }
 
   save() {
-    const settingsService = this._settingsService;
+    const settingsService = this._settingsStore;
 
     const name = this.name;
     const checked = this.checked;

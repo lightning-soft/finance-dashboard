@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { SettingsService } from 'settings';
+import { Component, Inject, InjectionToken } from '@angular/core';
 import { ISound } from '../sound.interface';
+import { SettingsStore } from '../sound.service';
 
 @Component({
   selector: 'lib-sound-tab-setting',
@@ -9,15 +9,15 @@ import { ISound } from '../sound.interface';
 })
 export class SoundTabSettingComponent {
   switchValue = true;
-  readonly settingName: ISound[] = [];
+  readonly settings: ISound[] = [];
 
   constructor(
-    private readonly _settingsService: SettingsService,
+    @Inject(SettingsStore) private readonly _settingsStore: any,
   ) {
-    const value = this._settingsService.settings.value;
+    const value = this._settingsStore.settings.value;
     this.switchValue = value?.sound;
 
-    this.settingName = [
+    this.settings = [
       value?.connectedSound,
       value?.connectionLostSound,
       value?.orderFilledSound,
@@ -32,7 +32,7 @@ export class SoundTabSettingComponent {
   }
 
   save(): void {
-    this._settingsService.saveSound(this.switchValue);
+    this._settingsStore.saveSound(this.switchValue);
   }
 
 }

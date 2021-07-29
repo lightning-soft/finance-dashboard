@@ -6,5 +6,5 @@
 </div>
 <hr>
 <div [ngClass]="!switchValue ? 'disabled' : ''">
-    <lib-sound-setting *ngFor="let sound of settingName" [isDisable]="!switchValue" [checked]="sound?.checked" [name]="sound?.name" [selectedSound]="sound?.selectedSound" [volume]="sound?.volume" (switchValue)="switchValue = $event"></lib-sound-setting>
+    <lib-sound-setting *ngFor="let sound of settings" [checked]="sound?.checked" [name]="sound?.name" [selectedSound]="sound?.selectedSound" [volume]="sound?.volume" (switchValue)="switchValue = $event"></lib-sound-setting>
 </div>
