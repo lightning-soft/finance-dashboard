@@ -31,7 +31,7 @@ export interface IRequest {
 export interface IBarsRequest extends IRequest {
   count: number;
   endDate?: Date;
-  fromDate?: Date;
+  startDate?: Date;
 }
 
 export interface IQuote {

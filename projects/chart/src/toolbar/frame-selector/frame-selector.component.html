@@ -1,0 +1,57 @@
+<div  class="frame-interval-template">
+  <div class="frame-interval-column"><span class='frame-column-title'> Interval</span>
+    <div class="frame-interval-options">
+      <nz-collapse nzAccordion nzExpandIconPosition="right" class="">
+        <nz-collapse-panel *ngFor="let option of intervalOptions"
+                           [nzHeader]="option.period">
+          <div *ngFor="let frame of option.timeFrames"
+               [class.selected]="isIntervalSelected(frame)"
+               (click)="timeFrame = frame" class="frame-interval-option">
+            {{getTimeFrame(frame)}}<i (click)="deleteInterval(frame, option)" class="icon-delete"></i></div>
+        </nz-collapse-panel>
+      </nz-collapse>
+      <div class="mt-3">
+        <div class='custom-frame-inputs'>
+          <nz-input-number [(ngModel)]="timeInterval" [nzMin]='1'></nz-input-number>
+          <nz-select nzDropdownClassName="text-capitalize" [(ngModel)]="timePeriodicity" [nzOptionHeightPx]='22'>
+            <nz-option *ngFor='let option of customIntervalOptions' [nzValue]='option'
+                       [nzLabel]="getTimeFrameLabel(option)"></nz-option>
+          </nz-select>
+        </div>
+        <button class="mt-2 w-100 add-btn"
+                nzSize="small" (click)="addFrameInterval()" nz-button nzType="primary">Add
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="frame-interval-column">
+    <span class='frame-column-title'> Period to load</span>
+    <div class="frame-interval-options">
+      <nz-collapse nzAccordion nzExpandIconPosition="right" class="">
+        <nz-collapse-panel *ngFor="let option of periodOptions" [nzHeader]="option.period">
+          <div *ngFor="let frame of option.timeFrames"
+               [class.selected]="isPeriodSelected(frame)"
+               [class.disabled]="frame.disabled"
+               (click)="!frame.disabled && selectTimePeriod(frame)" class="frame-interval-option">
+            {{getTimeFrame(frame)}}
+            <i (click)="$event.preventDefault(); deletePeriod(frame, option)" class="icon-delete"></i>
+          </div>
+        </nz-collapse-panel>
+      </nz-collapse>
+      <div class="mt-3">
+        <div class='custom-frame-inputs'>
+          <nz-input-number [(ngModel)]="peridInterval" [nzMin]='1'></nz-input-number>
+          <nz-select nzDropdownClassName="text-capitalize" [(ngModel)]="periodPeriodicity" [nzOptionHeightPx]='22'>
+            <nz-option *ngFor='let option of customPeriodOptions' [nzValue]='option'
+                       [nzLabel]="getTimeFrameLabel(option)"></nz-option>
+          </nz-select>
+        </div>
+        <button class="mt-2 w-100 add-btn"
+                (click)="addPeriod()"
+                nzSize="small" nz-button nzType="primary">Add
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

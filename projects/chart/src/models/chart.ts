@@ -39,6 +39,7 @@ export interface IBar {
   open: number;
   date: Date;
   volume: number;
+  ticksCount?: number;
   details?: IDetails[];
  /* isFalling: boolean;
   isRaising: boolean;
@@ -210,6 +211,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    * @deprecated since version 2.20
    */
   timeInterval: number;
+
+  startDate: Date;
+  endDate: Date;
   /**
    * The bars time frame.
    * @name timeFrame
@@ -503,6 +507,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   localize(element?: JQuery): void;
 
   localizeText(key: string, replace?: object): Promise<string>;
+
+
+  setDates(startDate: Date, endDate: Date): void;
 
   /**
    * Send bars request.
@@ -929,6 +936,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
          *  });
    */
   appendBars(bars: IBar | IBar[]): void;
+
+  /** Chart decide to update or add new bar */
+  processBar(bar: IBar, instrument: IInstrument): void;
 
   /**
    * Adds new chart panel.

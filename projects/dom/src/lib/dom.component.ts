@@ -195,6 +195,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 @AccountsListener()
 @BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+  MIN_LOADING_TIME = 400;
 
   get accountId() {
     return this.account?.id;
@@ -606,7 +607,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngAfterViewInit() {
-    this._handleResize();
+    // this._handleResize();
     // this._ordersRepository.actions
     //   .pipe(untilDestroyed(this))
     //   .subscribe((action) => this._handleOrdersRealtime(action));

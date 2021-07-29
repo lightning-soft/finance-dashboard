@@ -86,31 +86,44 @@
       ></instrument-select>
     </div>-->
 
-  <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
-    <nz-select
-      #frame
-      [(nzOpen)]="frameOpen"
-      [nzShowArrow]="false"
-      [compareWith]="compareTimeFrame"
-      [nzOptionHeightPx]="22"
-      nzDropdownClassName="toolbar-dropdown"
-      [(ngModel)]="timeFrame"
-      [nzCustomTemplate]="timeFrameTemplate"
-      nzSize="small"
-    >
-      <ng-template #timeFrameTemplate let-selected>
-        {{ getShortTimeFrame(selected.nzValue) }}
-      </ng-template>
-      <nz-option
-        *ngFor="let option of timeFrameOptions"
-        [nzValue]="option"
-        [nzLabel]="getTimeFrame(option)"
+  <!--  <div [class.tool-active]="frame.nzOpen" title="Frame Interval" class="tool">
+      <nz-select
+        #frame
+        [nzShowArrow]="false"
+        [compareWith]="compareTimeFrame"
+        [nzOptionHeightPx]="22"
+        nzDropdownClassName="toolbar-dropdown"
+        [(ngModel)]="timeFrame"
+        [nzCustomTemplate]="timeFrameTemplate"
+        nzSize="small"
       >
-      </nz-option>
-    </nz-select>
-    <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
+        <ng-template #timeFrameTemplate let-selected>
+          {{ getShortTimeFrame(selected.nzValue) }}
+        </ng-template>
+        <nz-option
+          *ngFor="let option of timeFrameOptions"
+          [nzValue]="option"
+          [nzLabel]="getTimeFrame(option)"
+        >
+        </nz-option>
+      </nz-select>
+      <i (click)="frame.setOpenState(true)" class="icon-arrow-down timeframe-icon"></i>
+    </div>
+  &ndash;&gt;-->
+  <div title="Frame Interval" class="tool frame-tool">
+    <button nz-button nz-popover
+            class="frame-button"
+            nzPopoverPlacement="bottomLeft"
+            nzPopoverOverlayClassName="chart-frame-interval" nzPopoverTrigger="click"
+            [nzPopoverMouseLeaveDelay]="0"
+            [(nzPopoverVisible)]="showFramePopover"
+            [nzPopoverContent]="frameIntervalTemplate">
+      <span *ngIf="timeFrame">
+        {{getShortTimeFrame(timeFrame)}}
+      </span>
+      <i class="icon-arrow-down"></i>
+    </button>
   </div>
-
   <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
     <nz-select
       #price
@@ -220,7 +233,11 @@
       </button>
     </nz-button-group>
   </div>
+</div>
 
-  <ng-template #defaultTemplate let-selected>
-    <span class="scx-icon icon-{{selected.nzValue}}"></span>
-  </ng-template>
+<ng-template #defaultTemplate let-selected>
+  <span class="scx-icon icon-{{selected.nzValue}}"></span>
+</ng-template>
+<ng-template #frameIntervalTemplate>
+  <frame-selector [chart]="chart"></frame-selector>
+</ng-template>

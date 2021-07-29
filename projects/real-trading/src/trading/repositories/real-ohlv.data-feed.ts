@@ -12,6 +12,7 @@ import {
 } from 'trading';
 import { AccountsManager } from 'accounts-manager';
 import { Id } from 'communication';
+import * as moment from "moment";
 
 const historyParams = {
   Periodicity: Periodicity.Hourly,
@@ -70,7 +71,8 @@ export class RealOHLVFeed extends OHLVFeed {
     }
 
     const now = new Date();
-    const barCount = now.getHours();
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
 
     this._tradeDatafeed.subscribe(instrument, connectionId);
     this._volumeDatafeed.subscribe(instrument, connectionId);
@@ -80,7 +82,8 @@ export class RealOHLVFeed extends OHLVFeed {
       Exchange: instrument.exchange,
       Symbol: instrument.symbol,
       ...historyParams,
-      barCount,
+      endDate: moment(now).format('YYYY-MM-DD HH:mm:ss'),
+      startDate: moment(startDate).format('YYYY-MM-DD HH:mm:ss'),
       connectionId
     }).toPromise().then(res => {
       const data = res.data;
