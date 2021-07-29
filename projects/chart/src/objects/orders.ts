@@ -21,6 +21,7 @@ export class Orders extends ChartObjects<IOrder> {
   protected _repository = this._injector.get(OrdersRepository);
   protected _modal: NzModalService;
   protected _dataFeed = this._injector.get(OrdersFeed);
+  protected _visible = false;
 
   get requestParams() {
     return {
@@ -196,6 +197,20 @@ export class Orders extends ChartObjects<IOrder> {
       kind: kindMap[item.type] || uncapitalize(item.type),
       state: statusMap[item.status],
     };
+  }
+
+  shouldBarBeVisible(): boolean {
+    return super.shouldBarBeVisible() && this._visible;
+  }
+
+  setVisibility(visible: boolean) {
+    if (this._visible !== visible) {
+      Object.values(this._barsMap).forEach((item: any) => {
+        if (!item.order.isOco)
+          item.visible = visible;
+      });
+      this._visible = visible;
+    }
   }
 }
 

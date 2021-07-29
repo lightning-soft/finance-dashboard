@@ -7,12 +7,12 @@ import {
   getHistogramOrientation,
   getHotkey,
   getNumber,
-  getSwitch,
   getTextAlign,
   IFieldConfig,
   wrapWithClass
 } from 'dynamic-form';
 import { wrapWithConfig } from 'projects/dynamic-form';
+import { orderFields } from 'base-order-form';
 
 
 function getHightlightColor() {
@@ -385,73 +385,7 @@ export const ltqFields: IFieldConfig[] = [
   }),
 ];
 
-function buttonApplier(selector, value) {
-  if (value) {
-    const buttonSelector = ` ${selector}, ${selector}:hover, ${selector}:focus, ${selector}:focus-within`;
-    return { [buttonSelector]: value };
-  }
-}
-
-export const orderAreaFields: IFieldConfig[] = [
-  new FieldConfig({
-    fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
-    label: 'Order Area',
-    fieldGroup: [
-      getColor('Buy Buttons Background Color', (background) => {
-        return buttonApplier('.cxl-buy', { background: `${background}!important` });
-      }),
-      getColor('Flat Buttons Background Color', (background) => {
-        return buttonApplier('.flatten', { background: `${background}!important` });
-      }),
-      getColor('Buy Buttons Font Color', (color) => {
-        return buttonApplier('.cxl-buy', { color });
-      }),
-      getColor('Flat Button Font Color', (color) => {
-        return buttonApplier('.flatten', { color });
-      }),
-      getColor('Sell Buttons Background Color', (background) => {
-        return buttonApplier('.cxl-sell', { background: `${background}!important` });
-      }),
-      getColor('Cancel Button Background Color', (background) => {
-        return buttonApplier('.cxl-all', { background: `${background}!important` });
-      }),
-      getColor('Sell Buttons Font Color', (color) => {
-        return buttonApplier('.cxl-sell', { color });
-      }),
-      getColor('Cancel Button Font Color', (color) => {
-        return buttonApplier('.cxl-all', { color });
-      }),
-      {
-        key: 'formSettings',
-        className: 'w-100 ml-1',
-        fieldGroup: [
-          getCheckboxes({
-            checkboxes: [
-              { key: 'showInstrumentChange', label: 'Show Instrument Change' },
-              { key: 'closePositionButton', label: 'Show Close Position Button' },
-              { key: 'showOHLVInfo', label: 'Show OHLV Info' },
-              { key: 'showFlattenButton', label: 'Show Flatten Button' },
-              {
-                key: 'showIcebergButton',
-                label: 'Show Iceberg Button',
-                config: { className: 'w-100 iceberg-checkbox' }
-              },
-            ]
-          }),
-          wrapWithClass(getCheckboxes({
-            checkboxes: [
-              { key: 'showPLInfo', label: 'Show PL Info' },
-              { key: 'roundPL', label: 'Round PL to whole numbers' },
-            ]
-          }), 'm-0'),
-          wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized PL',
-            { hideExpression: '!model.showPLInfo' }
-          ), 'ml-4'),
-        ],
-      }
-    ],
-  }),
-];
+export const orderAreaFields = [orderFields];
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',

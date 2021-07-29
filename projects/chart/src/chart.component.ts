@@ -54,7 +54,7 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
+import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
 
 declare let StockChartX: any;
@@ -114,7 +114,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _templatesSubscription: Subscription;
 
   private _account: IAccount;
-  private _settings: IChartSettings;
+  settings: IChartSettings;
 
   set account(value: IAccount) {
     this._account = value;
@@ -310,7 +310,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       stockChartXState: chart.saveState(),
       orderForm: this._sideForm.getState(),
       componentInstanceId: this.componentInstanceId,
-      settings: this._settings,
+      settings: this.settings,
     } as IChartState;
   }
 
@@ -363,7 +363,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
       .subscribe(value => {
-        chart.theme = getScxTheme(this._settings);
+        chart.theme = getScxTheme(this.settings);
         chart.setNeedsUpdate();
       });
 
@@ -519,6 +519,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Maximize:
       case LayoutNodeEvent.Restore:
       case LayoutNodeEvent.MakeVisible:
+        this.chart?.handleResize();
         this.setNeedUpdate();
         this.toolbar?.updateOffset();
         break;
@@ -550,7 +551,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   loadState(state?: IChartState): void {
-    this._settings = state?.settings;
+    this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
     this._sideForm?.loadState(state?.orderForm);
@@ -799,8 +800,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleSettingsChange(settings: IChartSettings) {
-    this._settings = settings;
-    this.chart.theme = getScxTheme(settings);
+    this.settings = settings;
+    const { trading } = settings;
+    const ordersEnabled = trading.trading.showWorkingOrders;
+    this._orders.setVisibility(ordersEnabled);
+    const { orderArea } = trading;
+    this.showOHLV = orderArea.formSettings.showOHLVInfo;
+    this.showChanges = orderArea.formSettings.showInstrumentChange;
+    const oldTheme = this.chart.theme;
+    const theme = getScxTheme(settings);
+
+    this.chart.theme = theme;
+    if (oldTheme.tradingPanel.tradingBarLength != theme.tradingPanel.tradingBarLength ||
+      theme.tradingPanel.tradingBarUnit != oldTheme.tradingPanel.tradingBarUnit) {
+      this.chart.handleResize();
+    }
     this.chart.setNeedsUpdate();
   }
 
@@ -825,12 +839,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           name: chartSettings,
           state: {
             linkKey: this._getSettingsKey(),
-            settings: this._settings,
+            settings: this.settings,
           }
         },
         closeBtn: true,
         single: false,
-        width: 440,
+        width: 618,
+        height: 475,
         ...coords,
         allowPopup: false,
         closableIfPopup: true,
@@ -847,6 +862,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const isSettingsComponent = Components.ChartSettings === item.type;
       return item.visible && isSettingsComponent && (item.options.componentState()?.state?.linkKey === this._getSettingsKey());
     });
+  }
+
+  updateInSettings() {
+    this.settings.trading.orderArea.formSettings.showOHLVInfo = this.showOHLV;
+    this.settings.trading.orderArea.formSettings.showInstrumentChange = this.showChanges;
+    this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
   }
 }
 
@@ -925,6 +946,13 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.valueScale.fill.fillColor = settings.general.valueScaleColor;
   theme.dateScale.fill.fillColor = settings.general.dateScaleColor;
   theme.chartPanel.grid.strokeColor = settings.general.gridColor;
+
+  theme.orderBar = settings.trading.ordersColors;
+
+  theme.tradingPanel = {
+    tradingBarLength: settings.trading.trading.tradingBarLength,
+    tradingBarUnit: settings.trading.trading.tradingBarUnit
+  };
 
   return theme;
 }

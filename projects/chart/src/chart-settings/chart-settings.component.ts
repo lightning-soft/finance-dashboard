@@ -1,8 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { FormGroup } from '@angular/forms';
-import { generalFields } from './settings-fields';
-import { IFieldConfig } from 'dynamic-form';
+import { generalFields, tradingFields } from './settings-fields';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as clone from 'lodash.clonedeep';
 import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
@@ -20,10 +19,24 @@ export interface ChartSettingsComponent extends ILayoutNode {
 @LayoutNode()
 export class ChartSettingsComponent implements AfterViewInit {
   form = new FormGroup({});
-  fieldsConfig: IFieldConfig[] = clone(generalFields);
   settings: IChartSettings;
 
+  menuItems = [
+    {
+      name: 'General',
+      config: clone(generalFields),
+      className: ''
+    },
+    {
+      name: 'Chart Trading',
+      config: clone(tradingFields),
+      className: 'chart-trading'
+    }
+  ];
+  currentItem = this.menuItems[0];
+
   private _linkKey: string;
+
 
   constructor() {
     this.setTabTitle('Settings Chart');
@@ -60,5 +73,10 @@ export class ChartSettingsComponent implements AfterViewInit {
       settings: clone(this.settings),
       linkKey: this._linkKey,
     };
+  }
+
+  selectItem(item) {
+    if (this.currentItem !== item)
+      this.currentItem = item;
   }
 }
