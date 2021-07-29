@@ -3,7 +3,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IBaseItem, IPaginationParams } from 'communication';
 import { Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNodeEvent } from 'layout';
-import { IQuote, Level1DataFeed, OnTradeFn } from 'trading';
+import { IQuote, Level1DataFeed, OnUpdateFn } from 'trading';
 import { ItemsComponent } from './items.component';
 import { StringHelper } from '../helpers';
 
