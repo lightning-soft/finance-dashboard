@@ -77,6 +77,24 @@
   }
 }
 
+.frame-button {
+  padding: 0;
+  padding-left: 2px;
+  padding-right: 14px;
+  display: flex;
+  text-transform: capitalize;
+  align-items: center;
+  width: 100%;
+  color: $text-80;
+  letter-spacing: -0.2px;
+
+  .icon-arrow-down {
+    font-size: 6px;
+    top: 12px;
+    right: 4px;
+  }
+}
+
 ::ng-deep {
   .drawing-menu {
     background: $light !important;
@@ -292,6 +310,10 @@
     top: 58% !important;
   }
 
+  .tool.frame-tool {
+    width: auto;
+  }
+
   .tool.select {
     width: 45px;
   }
@@ -381,3 +403,4 @@ i[class*="icon-"] {
     }
   }
 }
+
