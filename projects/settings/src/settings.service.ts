@@ -140,7 +140,6 @@ export class SettingsService {
   }
 
   saveTemplates(templates: IBaseTemplate[]): void {
-    console.log(templates);
     this._updateState({ templates });
   }
 

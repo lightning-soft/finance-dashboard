@@ -43,6 +43,7 @@
     [accountId]="accountId"
     [position]="position"
     [ocoStep]="ocoStep"
+    [domSettings]="settings.trading.orderArea"
     [orders]="orders"
     (actions)="handleFormAction($event)"
     [instrument]="instrument">
@@ -58,8 +59,8 @@
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul class="chart-menu-dropdown" nz-menu>
-    <li (click)="showOHLV = !showOHLV" nz-menu-item>{{showOHLV ? 'Hide' : 'Show'}} OHLV</li>
-    <li (click)="showChanges = !showChanges" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
+    <li (click)="showOHLV = !showOHLV; updateInSettings();" nz-menu-item>{{showOHLV ? 'Hide' : 'Show'}} OHLV</li>
+    <li (click)="showChanges = !showChanges; updateInSettings();" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
     <li nz-menu-divider></li>
     <li (click)="saveTemplate()" [nzDisabled]="!loadedTemplate" nz-menu-item>Save</li>
     <li (click)="createTemplate()" nz-menu-item>Save as ...</li>

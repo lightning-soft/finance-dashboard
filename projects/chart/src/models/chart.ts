@@ -744,6 +744,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    */
   layout(): void;
 
+  handleResize(): void;
+
   /**
    * Draws chart.
    * @method draw
