@@ -33,7 +33,7 @@ export class SoundService {
 
     const volume = value.volume / 100 ?? 1;
 
-    this.playByName(value.name, volume);
+    this.playByName(value.selectedSound, volume);
   }
 
   playByName(name: string, volume: number): void {

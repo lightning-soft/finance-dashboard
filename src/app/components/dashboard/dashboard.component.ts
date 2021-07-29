@@ -1,21 +1,33 @@
 import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, WindowPopupManager } from 'layout';
-import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
-import { Themes, ThemesHandler } from 'themes';
-import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
-import { Components } from '../../modules';
-import { TradeHandler } from '../navbar/trade-lock/trade-handle';
-import { accountsOptions } from '../navbar/connections/connections.component';
-import { filter, first } from 'rxjs/operators';
 import { NzConfigService } from 'ng-zorro-antd';
-import { environment } from 'environment';
-import { SaveLayoutConfigService, saveLayoutKey } from '../save-layout-config.service';
+import { filter, first } from 'rxjs/operators';
+import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
+import { SoundService, Sound } from 'sound';
+import { Themes, ThemesHandler } from 'themes';
+import { OrdersFeed } from 'trading';
 import { isEqual } from 'underscore';
-import { widgetList } from './component-options';
 import { WindowMessengerService } from 'window-messenger';
+import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
 import { isElectron } from '../../is-electron';
+import { Components } from '../../modules';
+import { accountsOptions } from '../navbar/connections/connections.component';
+import { TradeHandler } from '../navbar/trade-lock/trade-handle';
+import { SaveLayoutConfigService, saveLayoutKey } from '../save-layout-config.service';
+import { widgetList } from './component-options';
+import { OrderStatus } from 'trading';
+
+const OrderStatusToSound = {
+  [OrderStatus.Filled]: Sound.ORDER_FILLED,
+  [OrderStatus.Canceled]: Sound.ORDER_CANCELLED,
+  [OrderStatus.Rejected]: Sound.ORDER_REJECTED,
+  // [OrderStatus.Replaced]: Sound.ORDER_REPLACED,
+  [OrderStatus.Pending]: Sound.ORDER_PENDING,
+  [OrderStatus.Rejected]: Sound.ORDER_REJECTED,
+};
 
 @Component({
   selector: 'dashboard',
@@ -42,6 +54,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private readonly nzConfigService: NzConfigService,
     private _themesHandler: ThemesHandler,
     private _settingsService: SettingsService,
+    private _ordersFeed: OrdersFeed,
+    private _soundService: SoundService,
     public themeHandler: ThemesHandler,
     private trade: TradeHandler,
     private _windowPopupManager: WindowPopupManager,
@@ -55,6 +69,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
     this._setupSettings();
+    this._subscribeToOrders();
 
     /*
     / For performance reason avoiding ng zone in some cases
@@ -98,8 +113,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         first(),
         untilDestroyed(this),
       ).subscribe(() => {
-      this._windowPopupManager.init(this._workspaceService.workspaces.value);
-    });
+        this._windowPopupManager.init(this._workspaceService.workspaces.value);
+      });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
@@ -228,6 +243,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         const config = this._workspaceService.getConfig();
         this.layout.loadState(config, false);
       });
+  }
+
+  private _subscribeToOrders() {
+    this._ordersFeed.on((order) => {
+      const sound = OrderStatusToSound[order.status];
+      console.log('Order status', order.status);
+      if (sound != null) {
+        this._soundService.play(sound);
+      } else {
+        console.warn('Invalid sound', sound, ' for ', order.status);
+      }
+    });
   }
 
   private _setupSettings(): void {

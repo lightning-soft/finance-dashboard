@@ -5,6 +5,7 @@ import { Notification, NotificationStatus, NotificationType } from './notificati
 import { NotificationId } from './type';
 import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
+import { SoundService, Sound } from 'sound';
 
 
 @Injectable()
@@ -16,6 +17,7 @@ export class NotificationService extends NotifierService {
 
   constructor(
     private _webSocketService: WebSocketService,
+    private _soundService: SoundService,
   ) {
     super();
     this._webSocketService.on(WSEventType.Message, this._handleStream.bind(this));
@@ -37,6 +39,7 @@ export class NotificationService extends NotifierService {
   }
 
   addNotification(notification) {
+    this._soundService.play(Sound.ALERT);
     this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());
   }
@@ -66,7 +69,7 @@ export class NotificationService extends NotifierService {
     const notification = reducer(msg);
 
     if (notification) {
-        this.addNotification(notification);
+      this.addNotification(notification);
     }
   }
 

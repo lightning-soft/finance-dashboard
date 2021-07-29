@@ -1,6 +1,6 @@
 import { Id } from "communication";
 import { IInstrument } from "../models";
-import { OnTradeFn } from "./feed";
+import { OnUpdateFn } from "./feed";
 
 type UnsubscribeFn = () => void;
 type SubscribeFn = (quote: any) => void;
@@ -50,7 +50,7 @@ export abstract class DatafeedRepository<T> {
         console.log('unsubscribe', instrument);
     }
 
-    on(fn: OnTradeFn<T>): UnsubscribeFn {
+    on(fn: OnUpdateFn<T>): UnsubscribeFn {
         this._quoteSubscribers.push(fn);
 
         return () => this._quoteSubscribers.filter(i => i != fn);
