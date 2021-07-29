@@ -1,6 +1,5 @@
 import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 import { IChartConfig } from './chart.config';
-import { IInstrument } from 'trading';
 
 
 export enum ScxOrderAction {
@@ -936,9 +935,6 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
          *  });
    */
   appendBars(bars: IBar | IBar[]): void;
-
-  /** Chart decide to update or add new bar */
-  processBar(bar: IBar, instrument: IInstrument): void;
 
   /**
    * Adds new chart panel.
