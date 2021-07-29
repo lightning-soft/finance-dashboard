@@ -26,32 +26,28 @@ export class SoundService {
   play(name: Sound): void {
     const setting = this._settingsStore.settings.value;
     const value = setting[name];
-    const volume = value.volume / 100 ?? 1;
 
     const isPlay: boolean = setting.sound;
 
     if (!value.checked || !isPlay) return;
 
+    const volume = value.volume / 100 ?? 1;
+
+    this.playByName(value.name, volume);
+  }
+
+  playByName(name: string, volume: number): void {
     let audio;
     if (this._store.get(name)) {
       audio = this._store.get(name);
     } else {
       audio = new Audio();
-      audio.src = `./assets/sounds/${value.name}.wav`;
+      audio.src = `./assets/sounds/${name}.wav`;
       audio.volume = volume;
       audio.load();
       this._store.set(name, audio);
     }
 
-    audio.play();
-  }
-
-  playByName(name: string, volume: number): void {
-    volume = volume / 100;
-    const audio = new Audio();
-    audio.src = `./assets/sounds/${name}.wav`;
-    audio.volume = volume;
-    audio.load();
     audio.play();
   }
 }
