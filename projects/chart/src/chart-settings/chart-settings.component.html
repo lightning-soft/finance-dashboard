@@ -1,10 +1,19 @@
 <window-header (close)="saveState()" [window]="this"></window-header>
+<div class="settings-container">
+  <div class="menu">
+    <div *ngFor="let item of menuItems" (click)="selectItem(item)"
+         [class.active]="item === currentItem"
+         class="menu-item">{{item.name}}</div>
+  </div>
+  <cdk-virtual-scroll-viewport itemSize="">
+    <formly-form
+      class="{{currentItem.className}}"
+      [(model)]="settings"
+      [form]="form"
+      [fields]="currentItem.config"
+    >
+    </formly-form>
+  </cdk-virtual-scroll-viewport>
+</div>
 
-<cdk-virtual-scroll-viewport itemSize="">
-  <formly-form
-    [(model)]="settings"
-    [form]="form"
-    [fields]="fieldsConfig"
-  >
-  </formly-form>
-</cdk-virtual-scroll-viewport>
+

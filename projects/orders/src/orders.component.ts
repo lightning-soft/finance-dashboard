@@ -16,6 +16,7 @@ import {
   Column,
   DataGrid,
   DataGridHandler,
+  DateTimeFormatter,
   generateNewStatusesByPrefix
 } from 'data-grid';
 import { LayoutNode } from 'layout';
@@ -76,6 +77,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   groupBy = GroupByItem.None;
   groupByOptions = GroupByItem;
   menuVisible = false;
+  private _timeFormatter = new DateTimeFormatter();
 
   get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
@@ -88,6 +90,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
+
 
   defaultSettings = defaultSettings;
 
@@ -124,6 +127,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     { name: OrderColumn.triggerPrice, title: 'TRIG Price', tableViewName: 'Trigger Price' },
     { name: OrderColumn.duration, title: 'tif', tableViewName: 'TIF' },
     { name: OrderColumn.currentPrice, title: 'Cur Price', tableViewName: 'Current Price' },
+    { name: OrderColumn.timestamp, title: 'Time Placed' },
     { name: OrderColumn.averageFillPrice, title: 'AVG FILL', tableViewName: 'Average Fill Price' },
     OrderColumn.status,
     // OrderColumn.fcmId,
@@ -193,7 +197,11 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
     this.builder.setParams({
       order: 'asc',
-      wrap: (item: IOrder) => new OrderItem(item),
+      wrap: (item: IOrder) => {
+        const orderItem = new OrderItem(item);
+        orderItem.timeFormatter = this._timeFormatter;
+        return orderItem;
+      },
       groupBy: ['accountId', 'instrumentName'],
       unwrap: (item: OrderItem) => item.order,
       viewItemsFilter: null,
@@ -251,14 +259,15 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         this.builder.setParams({ viewItemsFilter: null });
         break;
       case Tab.Filled:
-       this.builder.setParams({ viewItemsFilter: i => i.order?.status === OrderStatus.Filled });
-       break;
+        this.builder.setParams({ viewItemsFilter: i => i.order?.status === OrderStatus.Filled });
+        break;
       case Tab.Working:
-       this.builder.setParams({ viewItemsFilter: i => {
-           console.log(orderWorkingStatuses.includes(i.order?.status));
-           return orderWorkingStatuses.includes(i.order?.status);
-         } });
-       break;
+        this.builder.setParams({
+          viewItemsFilter: i => {
+            return orderWorkingStatuses.includes(i.order?.status);
+          }
+        });
+        break;
     }
   }
 
@@ -318,7 +327,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   protected _handleUpdateItems(items: IOrder[]) {
-    super._handleUpdateItems(items.map(this._processOrder));
+    const stoppedItems = this.items.filter(item => item.order.status === OrderStatus.Stopped);
+    const filteredItems = items.filter(item => !(item.status === OrderStatus.Canceled &&
+      stoppedItems.some(stopped => stopped.order.id === item.id)));
+    super._handleUpdateItems(filteredItems.map(this._processOrder));
     this.detectChanges(true);
   }
 
@@ -332,22 +344,37 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   applySettings() {
-    const buyColor = this.settings.colors.buyTextColor;
-    const sellColor = this.settings.colors.sellTextColor;
+    const { colors, display } = this.settings;
+    const buyColor = colors.buyTextColor;
+    const sellColor = colors.sellTextColor;
+    const heldBuyColor = colors.heldbuyTextColor;
+    const heldSellColor = colors.heldsellTextColor;
+    const format = display.timestamp === 'Seconds' ? 'HH:mm:ss' : 'HH:mm:ss.SSSS';
+    if (format !== this._timeFormatter.dateFormat) {
+      this._timeFormatter.dateFormat = format;
+      this.builder.allItems.forEach(item => item.applySettings());
+    }
     this.columns = this.columns.map(item => {
       item.style.buyColor = buyColor;
       item.style.sellColor = sellColor;
-      item.style.hoveredbuyColor = buyColor;
-      item.style.hoveredsellColor = sellColor;
-
-      item.style.selectedbuyColor = buyColor;
-      item.style.selectedsellColor = sellColor;
-      item.style.hoveredselectedbuyColor = buyColor;
-      item.style.hoveredselectedsellColor = sellColor;
+      this._applyColors(item, sellColor, buyColor, '');
+      this._applyColors(item, heldSellColor, heldBuyColor, 'held');
 
       return item;
     });
     this.detectChanges(true);
+  }
+
+  private _applyColors(item, sellColor, buyColor, prefix) {
+    this._applyColor(item, buyColor, sellColor, prefix);
+    this._applyColor(item, buyColor, sellColor, `hovered${ prefix }`);
+    this._applyColor(item, buyColor, sellColor, `selected${ prefix }`);
+    this._applyColor(item, buyColor, sellColor, `hoveredselected${ prefix }`);
+  }
+
+  private _applyColor(item, buyColor, sellColor, prefix = '') {
+    item.style[`${ prefix }buyColor`] = buyColor;
+    item.style[`${ prefix }sellColor`] = sellColor;
   }
 
   openOrderForm() {

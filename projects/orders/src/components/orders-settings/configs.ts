@@ -1,4 +1,4 @@
-import { FieldConfig, getColor } from 'dynamic-form';
+import { FieldConfig, getColor, getLabel, getRadio } from 'dynamic-form';
 
 export const settingsField = [
   new FieldConfig({
@@ -8,20 +8,30 @@ export const settingsField = [
     fieldGroup: [
       getColor({ key: 'buyTextColor', label: 'Buy Row Text Color' }),
       getColor({ key: 'sellTextColor', label: 'Sell Row Text Color' }),
-      // getColor({ key: 'buyHeldTextColor', label: 'Buy Held Text Color' }),
-      // getColor({ key: 'sellHeldTextColor', label: 'Sell Held Text Color' }),
+      getColor({ key: 'heldbuyTextColor', label: 'Buy Held Text Color' }),
+      getColor({ key: 'heldsellTextColor', label: 'Sell Held Text Color' }),
     ],
   }),
-/*  new FieldConfig({
-    key: 'display',
-    label: 'Display',
-    className: 'mt-3',
-    fieldGroupClassName: 'd-flex flex-column',
-    fieldGroup: [
-      getLabel('Timestamp'),
-      getRadio('timestamp', ['Seconds', 'Miliseconds', 'Microseconds']),
-    ],
-  }),*/
+    new FieldConfig({
+      key: 'display',
+      label: 'Display',
+      className: 'mt-3',
+      fieldGroupClassName: 'd-flex flex-column',
+      fieldGroup: [
+        getLabel('Timestamp'),
+        getRadio('timestamp', ['Seconds', 'Milliseconds']),
+      ],
+    }),
 ];
 
-export const defaultSettings = { colors: { buyTextColor: 'rgba(72, 149, 245, 1)', sellTextColor: 'rgba(220, 50, 47, 1)' } };
+export const defaultSettings = {
+  colors: {
+    buyTextColor: 'rgba(72, 149, 245, 1)',
+    sellTextColor: 'rgba(220, 50, 47, 1)',
+    heldbuyTextColor: 'rgba(72, 149, 245, 0.8)',
+    heldsellTextColor: 'rgba(220, 50, 47, 0.8)',
+  },
+  display: {
+    timestamp: 'Milliseconds',
+  }
+};

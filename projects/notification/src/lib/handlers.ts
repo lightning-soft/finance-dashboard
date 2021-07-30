@@ -54,7 +54,7 @@ export const handlers = {
       message = 'Failed to connect';
     } else if (connectedAlerts.includes(type)) {
       icon = 'notication-connected';
-      message = 'Login Complete';
+      message = msg.result?.message ?? 'Login Complete';
     } else if (connectionsErrors.includes(type)) {
       icon = 'notication-disconnected';
       message = msg.result?.message ?? 'Connection Closed';

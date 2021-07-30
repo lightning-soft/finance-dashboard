@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { WebSocketService, WSEventType } from 'communication';
 import { Subject } from 'rxjs';
 import { Notification, NotificationStatus, NotificationType } from './notification';
@@ -17,7 +17,7 @@ export class NotificationService extends NotifierService {
 
   constructor(
     private _webSocketService: WebSocketService,
-    private _soundService: SoundService,
+    private _injector: Injector,
   ) {
     super();
     this._webSocketService.on(WSEventType.Message, this._handleStream.bind(this));
@@ -39,7 +39,7 @@ export class NotificationService extends NotifierService {
   }
 
   addNotification(notification) {
-    this._soundService.play(Sound.ALERT);
+    this._injector.get(SoundService).play(Sound.ALERT);
     this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());
   }

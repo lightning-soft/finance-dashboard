@@ -1,17 +1,22 @@
 import { Injectable, Injector } from '@angular/core';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { HistoryRepository, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
+import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
 import { IBar } from '../models';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
-import { StockChartXPeriodicity } from './TimeFrame';
+import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
+import * as moment from 'moment';
 
+const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
 declare let StockChartX: any;
+export const MAX_HISTORY_ITEMS = 10000;
+const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
   private _destroy = new Subject();
+  lastInterval;
 
   private _unsubscribeFns: VoidFunction[] = [];
   requestSubscriptions = new Map<number, Subscription>();
@@ -27,7 +32,8 @@ export class RithmicDatafeed extends Datafeed {
 
   send(request: IBarsRequest) {
     super.send(request);
-    this.subscribeToRealtime(request);
+    if (request.kind === 'bars')
+      this.subscribeToRealtime(request);
     this._loadData(request);
   }
 
@@ -41,72 +47,63 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   private _loadData(request: IBarsRequest) {
-    const { kind, count, chart } = request;
+    const { kind, chart } = request;
     const { instrument, timeFrame } = chart;
+    let { startDate, endDate } = request;
 
     if (!instrument) {
       this.cancel(request);
-
-      // throw new Error('Invalid instrument!');
-
       return;
     }
+
+    if (!endDate)
+      endDate = new Date();
+
+    if (!startDate)
+      startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(defaultTimePeriod));
+
+    if (kind === 'bars')
+      this.lastInterval = endDate.getTime() - startDate.getTime();
 
     if (kind === 'moreBars') {
-      this.cancel(request);
+      startDate = new Date(endDate.getTime() - this.lastInterval);
+      this.makeRequest(instrument, request, timeFrame, endDate, startDate);
 
       return;
     }
 
+    this.makeRequest(instrument, request, timeFrame, endDate, startDate);
+  }
+
+  makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
     const { symbol, exchange } = instrument;
 
     const params = {
       Symbol: symbol,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
-      BarSize: timeFrame.interval,
+      BarSize: this._convertInterval(timeFrame),
+      endDate: moment(endDate).format(dateFormat),
       accountId: this._account?.id,
-      BarCount: count ?? 500,
-      Skip: 0,
+      startDate: moment(startDate).format(dateFormat),
       PriceHistory: true,
     };
 
     const history$ = this._historyRepository.getItems(params).pipe(
-      tap((res) => {
-        if (this.isRequestAlive(request)) {
-          this.onRequestCompleted(request, res.data);
-          // this._webSocketService.connect(() => this.subscribeToRealtime(request)); // todo: test
-        }
-      }),
       catchError((err) => {
         this.cancel(request);
         return throwError(err);
       }),
     );
 
-    // const historyDetails$ = this._historyRepository.getItems({ ...params, PriceHistory: true }).pipe(
-    //   tap((res) => {
-    //     const { chart } = request;
-    //     const { dataManager } = chart;
-    //     const dates = dataManager.dateDataSeries.values as Date[];
-    //     const detailsDataSeries = dataManager.getDataSeries('.details');
-
-    //     res.data.forEach((item: any) => {
-    //       const index = dates.findIndex(date => +date === +item.date);
-
-    //       if (index > -1) {
-    //         detailsDataSeries.valueAtIndex(index, item.details);
-    //       }
-    //     });
-
-    //     chart.setNeedsUpdate();
-    //   }),
-    // );
-
     const subscription = concat(
       history$,
-      // historyDetails$,
     ).subscribe({
+      next: (res) => {
+        if (this.isRequestAlive(request)) {
+          this.onRequestCompleted(request, res.data);
+        }
+      },
       error: (err) => console.error(err),
     });
     this.requestSubscriptions.set(request.id, subscription);
@@ -140,14 +137,24 @@ export class RithmicDatafeed extends Datafeed {
         return 'Hourly';
       case StockChartXPeriodicity.MINUTE:
         return 'Minute';
+      case StockChartXPeriodicity.SECOND:
+        return 'Second';
+      case StockChartXPeriodicity.TICK:
+        return 'TICK';
       default:
-        throw new Error('Undefined periodicity ' + periodicity);
+        return 'Second';
     }
+  }
+
+  _convertInterval(frame: ITimeFrame): number {
+    if (customTimeFrames.includes(frame.periodicity)) {
+      return 1;
+    }
+    return frame.interval;
   }
 
   subscribeToRealtime(request: IBarsRequest) {
     const instrument = this._getInstrument(request);
-    const instrumentId = `${instrument.exchange}.${instrument.symbol}`;
 
     this._unsubscribe();
 
@@ -159,9 +166,8 @@ export class RithmicDatafeed extends Datafeed {
         return;
 
       const quoteInstrument = quote.instrument;
-      const quoteInstrumentId = `${quoteInstrument.exchange}.${quoteInstrument.symbol}`;
 
-      if (instrumentId === quoteInstrumentId) {
+      if (instrument.id === quoteInstrument.id) {
         const _quote: ChartQuote = {
           // Ask: quote.volume;
           // AskSize: number;
@@ -199,3 +205,6 @@ export class RithmicDatafeed extends Datafeed {
     this._unsubscribe();
   }
 }
+
+const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
+  StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK, StockChartXPeriodicity.REVS];

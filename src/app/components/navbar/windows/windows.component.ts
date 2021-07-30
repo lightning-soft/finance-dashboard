@@ -7,6 +7,7 @@ import { LayoutComponent, WindowPopupManager } from 'layout';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
+import { isElectron } from '../../../is-electron';
 
 @Component({
   selector: 'windows',
@@ -87,7 +88,8 @@ export class WindowsComponent implements OnInit {
   duplicate(id: any) {
     this.updateWindow();
     const window = this._workspacesService.duplicateWindow(id);
-    this.selectWindow(window.id);
+    if (!isElectron())
+      this.selectWindow(window.id);
   }
 
   createWindow() {
@@ -117,15 +119,19 @@ export class WindowsComponent implements OnInit {
         name: result.name,
         config,
       }));
-
-      this.selectWindow(workspaceWindow.id);
+      if (!isElectron())
+        this.selectWindow(workspaceWindow.id);
     });
   }
 
   selectWindow(windowId: Id) {
     if (this.currentWindowId !== windowId && !this.isOpened(windowId)) {
-      this.updateWindow();
-      this._workspacesService.switchWindow(windowId);
+      if (isElectron()) {
+        this.popupWindow(this._workspacesService.getWindowById(this.currentWorkspace.id, windowId));
+      } else {
+        this.updateWindow();
+        this._workspacesService.switchWindow(windowId);
+      }
       this.isSelectOpened = false;
     }
   }

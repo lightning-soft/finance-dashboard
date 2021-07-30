@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
-import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
+import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { Layout } from 'layout';
@@ -35,6 +35,10 @@ const periodicityMap = new Map([
   ['m', 'M'],
   ['y', 'Y'],
   ['w', 'W'],
+  ['revs', 'RV'],
+  ['r', 'RK'],
+  ['range', 'RG'],
+  ['v', 'V'],
 ]);
 
 @UntilDestroy()
@@ -56,7 +60,8 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   zoomDropdownVisible = false;
   crossOpen = false;
   priceOpen = false;
-  frameOpen = false;
+  showFramePopover = false;
+
 
   showToolbar = true;
   isDrawingsPinned = false;
@@ -132,8 +137,15 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   @HostBinding('class.opened')
   get isOpened() {
     return this.priceOpen || this.crossOpen ||
-      this.frameOpen || this.zoomDropdownVisible;
+      this.isDrawingsVisible ||
+      this.showFramePopover || this.zoomDropdownVisible;
   }
+
+
+  get timeFrame() {
+    return this.chart?.timeFrame;
+  }
+
 
   get instrument(): IInstrument {
     return this.chart?.instrument;
@@ -152,19 +164,6 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       };
       chart.sendBarsRequest();
     });
-  }
-
-  get timeFrame() {
-    return this.chart?.timeFrame;
-  }
-
-  set timeFrame(value) {
-    const chart = this.chart;
-    if (!chart)
-      return;
-
-    chart.timeFrame = value;
-    chart.sendBarsRequest();
   }
 
   get priceStyle() {
@@ -264,6 +263,10 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this._cdr.detectChanges();
   }
 
+  update() {
+    this.isDrawingsPinned = false;
+  }
+
   toggleDrawingVisible() {
     this.shouldDrawingBeOpened = !this.shouldDrawingBeOpened;
     if (this.shouldDrawingBeOpened && !this.isDrawingsPinned)
@@ -311,12 +314,6 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     } else {
       return false;
     }
-  }
-
-  getTimeFrame(timeFrame: ITimeFrame): string {
-    const label = TimeFrame.periodicityToString(timeFrame.periodicity);
-
-    return `${timeFrame.interval} ${label}`;
   }
 
   getShortTimeFrame(timeFrame: ITimeFrame): string {

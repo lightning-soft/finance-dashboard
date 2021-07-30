@@ -47,6 +47,7 @@ import {
   OrdersFeed,
   OrderSide,
   OrdersRepository,
+  OrderStatus,
   OrderType,
   PositionsFeed,
   PositionsRepository,
@@ -289,14 +290,25 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
             return;
 
           const action = data.item.checkAction(event);
+          const order = data.item?.order;
           switch (action) {
             case PerformedAction.Close:
-              this._ordersRepository.deleteItem(data.item.order).toPromise();
+              this._ordersRepository.deleteItem(order)
+                .toPromise().then(item => this._processOrders(item));
+              break;
+            case PerformedAction.Play:
+              this._ordersRepository.play(order).toPromise()
+                .then(item => {
+                  order.status = OrderStatus.Canceled;
+                  this._processOrders(order);
+                  this._processOrders(item);
+                });
+              break;
+            case PerformedAction.Stop:
+              this._ordersRepository.stop(order).toPromise()
+                .then(item => this._processOrders(item));
               break;
           }
-          console.log(action);
-          // #TODO for stop resume orders
-          console.log(data);
         }
       }
     ),
@@ -687,7 +699,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   }
 
   _processOrders(order) {
-    const item = this.builder.getInstrumentItem(order.instrument);
+    const item = this.builder.getInstrumentItem(order?.instrument);
 
     if (!item)
       return;
@@ -1041,13 +1053,18 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     });
   }
 
-  openSettings() {
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+  openSettings($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this._closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if ($event) {
+        coords.x = $event.clientX;
+        coords.y =  $event.clientY;
+      }
       this.layout.addComponent({
         component: {
           name: MarketWatchSettings,
@@ -1063,7 +1080,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         removeIfExists: false,
         minimizable: false,
         maximizable: false,
+        ...coords,
       });
+    }
   }
 
   private _getSettingsKey() {
@@ -1246,7 +1265,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     if (accountId)
       orderMarketWatchItem.accountId.updateValue(accountId);
-
     orderMarketWatchItem.applySettings(this.columnSettings);
     const item = this.builder.getInstrumentItem(instrument);
 

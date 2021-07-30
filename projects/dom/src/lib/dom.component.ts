@@ -195,6 +195,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 @AccountsListener()
 @BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+  MIN_LOADING_TIME = 400;
 
   get accountId() {
     return this.account?.id;
@@ -606,7 +607,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngAfterViewInit() {
-    this._handleResize();
+    // this._handleResize();
     // this._ordersRepository.actions
     //   .pipe(untilDestroyed(this))
     //   .subscribe((action) => this._handleOrdersRealtime(action));
@@ -1089,7 +1090,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this.orders = [];
-    this._ordersRepository.getItems({ accountId: this.accountId })
+    this._ordersRepository.getItems({ accountId: this.accountId, hideStopped: true })
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
@@ -2039,13 +2040,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._initialState = state;
   }
 
-  openSettings(hidden = false) {
-    const settingsExists = this.layout.findComponent((item: IWindow) => {
+  openSettings($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
       return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
-    if (settingsExists)
-      this._closeSettings();
-    else
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if ($event) {
+        coords.x = $event.clientX;
+        coords.y =  $event.clientY;
+      }
       this.layout.addComponent({
         component: {
           name: DomSettingsSelector,
@@ -2060,8 +2066,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         removeIfExists: false,
         minimizable: false,
         maximizable: false,
-        hidden,
+        ...coords,
       });
+    }
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {

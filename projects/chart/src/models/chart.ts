@@ -1,6 +1,5 @@
 import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 import { IChartConfig } from './chart.config';
-import { IInstrument } from 'trading';
 
 
 export enum ScxOrderAction {
@@ -39,6 +38,7 @@ export interface IBar {
   open: number;
   date: Date;
   volume: number;
+  ticksCount?: number;
   details?: IDetails[];
  /* isFalling: boolean;
   isRaising: boolean;
@@ -210,6 +210,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    * @deprecated since version 2.20
    */
   timeInterval: number;
+
+  startDate: Date;
+  endDate: Date;
   /**
    * The bars time frame.
    * @name timeFrame
@@ -504,6 +507,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
 
   localizeText(key: string, replace?: object): Promise<string>;
 
+
+  setDates(startDate: Date, endDate: Date): void;
+
   /**
    * Send bars request.
    * @method sendBarsRequest
@@ -737,6 +743,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    * @memberOf StockChartX.Chart#
    */
   layout(): void;
+
+  handleResize(): void;
 
   /**
    * Draws chart.
