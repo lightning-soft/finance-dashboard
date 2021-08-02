@@ -19,21 +19,21 @@ export class SoundTabSettingComponent {
     this.switchValue = value?.isPlay;
 
     this.settings = [
-      value?.connectedSound,
-      value?.connectionLostSound,
-      value?.orderFilledSound,
-      value?.orderCancelledSound,
-      value?.orderReplacedSound,
-      value?.orderPendingSound,
-      value?.orderRejectedSound,
-      value?.targetFilledSound,
-      value?.stopFilledSound,
-      value?.alertSound,
+      value?.connected,
+      value?.connectionLost,
+      value?.orderFilled,
+      value?.orderCancelled,
+      value?.orderReplaced,
+      value?.orderPending,
+      value?.orderRejected,
+      value?.targetFilled,
+      value?.stopFilled,
+      value?.alert,
     ];
   }
 
   save(): void {
-    this._settingsStore.saveSound(SoundSetting.IS_PLAY, this.switchValue);
+    this._settingsStore.saveSounds(SoundSetting.IS_PLAY, this.switchValue);
   }
 
 }

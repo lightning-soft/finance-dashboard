@@ -24,10 +24,10 @@ export class SoundService {
   ) { }
 
   play(name: Sound): void {
-    const setting = this._settingsStore.settings.value;
+    const setting = this._settingsStore.settings.value.sound;
     const value = setting[name];
 
-    const isPlay: boolean = setting.sound;
+    const isPlay: boolean = setting.isPlay;
 
     if (!value.checked || !isPlay) return;
 

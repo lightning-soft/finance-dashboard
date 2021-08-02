@@ -29,19 +29,6 @@ export enum HotkeyEvents {
   LockTrading = 'lockTrading',
 }
 
-export enum SoundType {
-  CONNECTED_SOUND = 'connectedSound',
-  CONNECTION_LOST_SOUND = 'connectionLostSound',
-  ORDER_FILLED_SOUND = 'orderFilledSound',
-  ORDER_CANCELLED_SOUND = 'orderCancelledSound',
-  ORDER_REPLACED_SOUND = 'orderReplacedSound',
-  ORDER_PENDING_SOUND = 'orderPendingSound',
-  ORDER_REJECTED_SOUND = 'orderRejectedSound',
-  TARGET_FILLED_SPUND = 'targetFilledSound',
-  STOP_FILLED_SOUND = 'stopFilledSound',
-  ALERT_SOUND = 'alertSound'
-}
-
 export const defaultHotkeyEntries = {
   [HotkeyEvents.SavePage]: new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)]).toDTO(),
 //  [HotkeyEvents.CenterAllWindows]:
@@ -220,7 +207,7 @@ export class SettingsService {
     this._updateState({ templates });
   }
 
-  saveSounds(type: SoundType, sound: ISound | boolean): void {
+  saveSounds(type: string, sound: ISound | boolean): void {
     let setting = this.settings.value.sound;
     setting[type] = sound;
     this._updateState({ sound: setting });

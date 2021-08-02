@@ -43,12 +43,14 @@ export class SoundSettingComponent {
   save() {
     const settingsService = this._settingsStore;
 
-    const name = this.name;
+    let name = this.name;
     const checked = this.checked;
     const selectedSound = this.selectedSound;
     const volume = this.volume;
     const value: ISound = { name, checked, selectedSound, volume };
 
-    settingsService.saveSound(name, value);
+    name = name.charAt(0).toLowerCase() + name.slice(1);
+    name = name.replace(" ", "");
+    settingsService.saveSounds(name, value);
   }
 }
