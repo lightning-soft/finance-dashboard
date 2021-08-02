@@ -16,6 +16,7 @@ import { isEqual } from 'underscore';
 import { widgetList } from './component-options';
 import { WindowMessengerService } from 'window-messenger';
 import { isElectron } from '../../is-electron';
+import { NotifierService } from 'notifier';
 
 @Component({
   selector: 'dashboard',
@@ -47,11 +48,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
     private saverService: SaveLayoutConfigService,
+    private _notifier: NotifierService,
     private windowMessengerService: WindowMessengerService,
   ) {
   }
 
   ngOnInit() {
+    this._settingsService.init()
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+      }, error => {
+        console.error(error);
+        this._notifier.showError('Something went wrong during loading settings');
+      });
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
     this._setupSettings();

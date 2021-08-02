@@ -7,7 +7,7 @@ import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from "templates";
 
@@ -70,20 +70,16 @@ export class SettingsService {
     private _settingStore: SettingsStore,
     private loaderService: SaveLoaderService,
   ) {
-    this._init();
   }
 
-  private _init(): void {
-    this._settingStore
+  public init() {
+    return this._settingStore
       .getItem()
       .pipe(
         catchError(() => {
           return of(defaultHotkeyEntries);
         }),
-      )
-      .subscribe(
-        (s: any) => s && this._updateState(s, false),
-        (e) => console.error(`Something goes wrong ${e.message}`)
+        tap((s: any) => s && this._updateState(s, false)),
       );
   }
 
