@@ -1,5 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule, NgZone } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -31,10 +31,12 @@ import { RealTradingModule } from 'real-trading';
 import { first } from 'rxjs/operators';
 import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
+import { TemplatesModule } from "templates";
 import { ThemesHandler } from 'themes';
+import { TimezonesClockModule } from 'timezones-clock';
+import { ModalsModule, SaveLoaderModule } from 'ui';
 import { WindowManagerModule } from 'window-manager';
 import { WorkspacesModule } from 'workspace-manager';
-import { TimezonesClockModule } from 'timezones-clock';
 import { AppConfig } from './app.config';
 import {
   AccountComponent,
@@ -50,12 +52,6 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
-import { SaveLoaderModule, ModalsModule } from 'ui';
-import { TemplatesModule } from "templates";
-
-/**
- *  Move declaration to enother file
- */
 function generateLoginLink(config): string {
 
   const { clientId, responseType, scope, redirectUri } = config;

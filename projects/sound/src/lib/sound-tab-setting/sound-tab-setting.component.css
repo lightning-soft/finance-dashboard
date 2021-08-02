@@ -1,0 +1,32 @@
+h1 {
+    display: inline-block;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 15px;
+    color: #FFFFFF;
+}
+
+hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+p {
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 11px;
+    line-height: 16px;
+    color: #D0D0D2;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    margin: 0px 4px;
+}
+
+.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.3;
+}

@@ -39,7 +39,7 @@ export enum OrderSide {
 }
 
 export enum OrderDuration {
-///  GTD = 'GTD',
+  ///  GTD = 'GTD',
   GTC = 'GTC',
   FOK = 'FOK',
   IOC = 'IOC',

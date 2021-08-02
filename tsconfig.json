@@ -32,6 +32,10 @@
         "dist/instrument-dialog/instrument-dialog",
         "dist/instrument-dialog"
       ],
+      "sound": [
+        "dist/sound/sound",
+        "dist/sound"
+      ],
       "window-messanger": [
         "dist/window-messanger/window-messanger",
         "dist/window-messanger"
@@ -239,12 +243,6 @@
     },
     {
       "path": "./projects/workspace/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/workspace/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/timezones-clock/tsconfig.lib.json"
     },
     {
       "path": "./projects/timezones-clock/tsconfig.spec.json"

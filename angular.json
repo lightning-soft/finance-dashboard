@@ -2105,6 +2105,46 @@
         }
       }
     },
+    "sound": {
+      "projectType": "library",
+      "root": "projects/sound",
+      "sourceRoot": "projects/sound/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/sound/tsconfig.lib.json",
+            "project": "projects/sound/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/sound/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/sound/src/test.ts",
+            "tsConfig": "projects/sound/tsconfig.spec.json",
+            "karmaConfig": "projects/sound/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/sound/tsconfig.lib.json",
+              "projects/sound/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
     "window-messanger": {
       "projectType": "library",
       "root": "projects/window-messanger",

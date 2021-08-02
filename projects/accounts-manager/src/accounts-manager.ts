@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
+import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
@@ -29,6 +30,8 @@ export class AccountsManager implements ConnectionContainer {
     this.__accounts = value.filter((a, index, arr) => arr.findIndex(i => i.id === a.id) === index);
   }
 
+  private _soundService: SoundService;
+
   private _wsIsOpened = false;
   private _wsHasError = false;
   private _accountsConnection = new Map();
@@ -43,6 +46,14 @@ export class AccountsManager implements ConnectionContainer {
     private _notificationService: NotificationService,
   ) {
     (window as any).accounts = this;
+  }
+
+  private _getSoundService(): any {
+    if (!this._soundService) {
+      this._soundService = this._injector.get(SoundService);
+    }
+
+    return this._soundService;
   }
 
   getConnectionByAccountId(accountId: Id): IConnection {
@@ -216,13 +227,15 @@ export class AccountsManager implements ConnectionContainer {
     return this._connectionsRepository.connect(connection)
       .pipe(
         concatMap(item => {
-            item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
+          item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-            return this._connectionsRepository.updateItem((item)).pipe(
-              map(_ => item),
-              tap((conn) => {
-                this.onUpdated(conn);
-              }),
+          this._getSoundService().play(Sound.CONNECTED);
+
+          return this._connectionsRepository.updateItem((item)).pipe(
+            map(_ => item),
+            tap((conn) => {
+              this.onUpdated(conn);
+            }),
           );
         }),
         tap((conn) => {
@@ -245,6 +258,7 @@ export class AccountsManager implements ConnectionContainer {
     accountsListeners.notifyConnectionsDisconnected([connection], this._connections.filter(i => i.connected));
     accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
     this._closeWS(connection);
+    this._getSoundService().play(Sound.CONNECTION_LOST);
   }
 
   disconnect(connection: IConnection): Observable<void> {
@@ -311,7 +325,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${ connection.server }(${ connection.gateway })`;
+      connection.name = `${connection.server}(${connection.gateway})`;
     }
 
     this._connections = this._connections.concat(connection);
