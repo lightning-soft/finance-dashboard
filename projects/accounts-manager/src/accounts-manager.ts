@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
-import { Sound, SoundService } from 'projects/sound/src/lib/sound.service';
+import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
@@ -46,8 +46,17 @@ export class AccountsManager implements ConnectionContainer {
     (window as any).accounts = this;
   }
 
+  private _serviceList = new Map();
+
   private _getSoundService(): any {
-    return this._injector.get(SoundService);
+    const nameService = 'SoundService';
+    const soundService = this._serviceList.get(nameService);
+    if (soundService)
+      return soundService;
+    
+    const service = this._injector.get(SoundService);
+    this._serviceList.set(nameService, service);
+    return service;
   }
 
   getConnectionByAccountId(accountId: Id): IConnection {

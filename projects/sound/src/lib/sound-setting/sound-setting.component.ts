@@ -1,18 +1,19 @@
-import { Component, Inject, InjectionToken, Input } from '@angular/core';
+import { Component, Inject, Input } from '@angular/core';
 import { ISound } from '../sound.interface';
 import { SettingsStore } from '../sound.service';
 
 export enum SoundSetting {
-  CONNECTED = 'Connected',
-  CONNECTION_LOST = 'Connection Lost',
-  ORDER_FILLED = 'Order Filled',
-  ORDER_CANCELLED = 'Order Cancelled',
-  ORDER_REPLACED = 'Order Replaced',
-  ORDER_PENDING = 'Order Pending',
-  ORDER_REJECTED = 'Order Rejected',
-  TARGET_FILLED = 'Target Filled',
-  STOP_FILLED = 'Stop Filled',
-  ALERT = 'Alert'
+  CONNECTED = 'connected',
+  CONNECTION_LOST = 'connectionLost',
+  ORDER_FILLED = 'orderFilled',
+  ORDER_CANCELLED = 'orderCancelled',
+  ORDER_REPLACED = 'orderReplaced',
+  ORDER_PENDING = 'orderPending',
+  ORDER_REJECTED = 'orderRejected',
+  TARGET_FILLED = 'targetFilled',
+  STOP_FILLED = 'stopFilled',
+  ALERT = 'alert',
+  IS_PLAY = 'isPlay'
 }
 
 @Component({
@@ -48,39 +49,6 @@ export class SoundSettingComponent {
     const volume = this.volume;
     const value: ISound = { name, checked, selectedSound, volume };
 
-    switch (name) {
-      case SoundSetting.CONNECTED:
-        settingsService.saveConnectedSound(value);
-        break;
-      case SoundSetting.CONNECTION_LOST:
-        settingsService.saveConnectionLostSound(value);
-        break;
-      case SoundSetting.ORDER_FILLED:
-        settingsService.saveOrderFilledSound(value);
-        break;
-      case SoundSetting.ORDER_CANCELLED:
-        settingsService.saveOrderCancelledSound(value);
-        break;
-      case SoundSetting.ORDER_REPLACED:
-        settingsService.saveOrderReplacedSound(value);
-        break;
-      case SoundSetting.ORDER_PENDING:
-        settingsService.saveOrderPendingSound(value);
-        break;
-      case SoundSetting.ORDER_REJECTED:
-        settingsService.saveOrderRejectedSound(value);
-        break;
-      case SoundSetting.TARGET_FILLED:
-        settingsService.saveTargetFilledSound(value);
-        break;
-      case SoundSetting.STOP_FILLED:
-        settingsService.saveStopFilledSound(value);
-        break;
-      case SoundSetting.ALERT:
-        settingsService.saveAlertSound(value);
-        break;
-      default:
-        break;
-    }
+    settingsService.saveSound(name, value);
   }
 }

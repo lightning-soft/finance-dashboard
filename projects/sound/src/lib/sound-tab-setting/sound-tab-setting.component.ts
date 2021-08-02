@@ -1,4 +1,5 @@
 import { Component, Inject, InjectionToken } from '@angular/core';
+import { SoundSetting } from '../sound-setting/sound-setting.component';
 import { ISound } from '../sound.interface';
 import { SettingsStore } from '../sound.service';
 
@@ -14,8 +15,8 @@ export class SoundTabSettingComponent {
   constructor(
     @Inject(SettingsStore) private readonly _settingsStore: any,
   ) {
-    const value = this._settingsStore.settings.value;
-    this.switchValue = value?.sound;
+    const value = this._settingsStore.settings.value.sound;
+    this.switchValue = value?.isPlay;
 
     this.settings = [
       value?.connectedSound,
@@ -32,7 +33,7 @@ export class SoundTabSettingComponent {
   }
 
   save(): void {
-    this._settingsStore.saveSound(this.switchValue);
+    this._settingsStore.saveSound(SoundSetting.IS_PLAY, this.switchValue);
   }
 
 }

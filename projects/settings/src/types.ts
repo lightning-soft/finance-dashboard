@@ -25,15 +25,17 @@ export type SettingsData = {
   timezones: ITimezone[];
   localTimezoneTitle: string;
   templates: IBaseTemplate[];
-  connectedSound: ISound;
-  connectionLostSound: ISound;
-  orderFilledSound: ISound;
-  orderCancelledSound: ISound;
-  orderReplacedSound: ISound;
-  orderPendingSound: ISound;
-  orderRejectedSound: ISound;
-  targetFilledSound: ISound;
-  stopFilledSound: ISound;
-  alertSound: ISound;
-  sound: boolean;
+  sound: {
+    connected: ISound;
+    connectionLost: ISound;
+    orderFilled: ISound;
+    orderCancelled: ISound;
+    orderReplaced: ISound;
+    orderPending: ISound;
+    orderRejected: ISound;
+    targetFilled: ISound;
+    stopFilled: ISound;
+    alert: ISound;
+    isPlay: boolean;
+  }
 };
