@@ -2,13 +2,13 @@ import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, View
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
-import { LayoutComponent, WindowPopupManager } from 'layout';
+import { LayoutComponent, saveCommand, WindowPopupManager } from 'layout';
 import { NzConfigService } from 'ng-zorro-antd';
 import { filter, first } from 'rxjs/operators';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
-import { SoundService, Sound } from 'sound';
+import { Sound, SoundService } from 'sound';
 import { Themes, ThemesHandler } from 'themes';
-import { OrdersFeed } from 'trading';
+import { OrdersFeed, OrderStatus } from 'trading';
 import { isEqual } from 'underscore';
 import { WindowMessengerService } from 'window-messenger';
 import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -18,7 +18,6 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { SaveLayoutConfigService, saveLayoutKey } from '../save-layout-config.service';
 import { widgetList } from './component-options';
-import { OrderStatus } from 'trading';
 
 const OrderStatusToSound = {
   [OrderStatus.Filled]: Sound.ORDER_FILLED,
@@ -178,6 +177,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         first(),
         untilDestroyed(this))
       .subscribe(() => {
+        this.windowMessengerService.subscribe(saveCommand, () => {
+          this._save();
+        });
         const workspaceId = +this._windowPopupManager.workspaceId;
         this._workspaceService.switchWorkspace(workspaceId, false);
         const windowId = +this._windowPopupManager.windowId;
@@ -262,9 +264,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .subscribe(s => {
         this.settings = { ...s };
         this.themeHandler.changeTheme(s.theme as Themes);
-
-        $('body').removeClass('navbarTop navbarBottom');
-        $('body').addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
+        const body = $('body');
+        body.removeClass('navbarTop navbarBottom');
+        body.addClass(s.navbarPosition === NavbarPosition.Top ? 'navbarTop' : 'navbarBottom');
+        if (isElectron())
+          $('body').addClass('electron');
 
         if (s.autoSave && s.autoSaveDelay) {
           if (this._autoSaveIntervalId)

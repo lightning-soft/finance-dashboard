@@ -5,14 +5,16 @@ import {
   CellStatus,
   CheckboxCell,
   DataCell,
+  DateCell,
   HoverableItem,
   IconCell,
   NumberCell,
   RoundFormatter
 } from 'data-grid';
 import { TextAlign } from 'dynamic-form';
-import { IOrder, OrderSide } from 'trading';
+import { IOrder, OrderSide, OrderStatus } from 'trading';
 import { PriceStatus } from 'trading-ui';
+import { DateTimeFormatter } from "../../../../data-grid/src/models/formatters/date-time.formatter";
 
 export enum OrderColumn {
   checkbox = 'checkbox',
@@ -25,6 +27,7 @@ export enum OrderColumn {
   duration = 'duration',
   filledQuantity = 'filledQuantity',
   quantity = 'quantity',
+  timestamp = 'timestamp',
   quantityRemain = 'quantityRemain',
   side = 'side',
   status = 'status',
@@ -36,7 +39,11 @@ export enum OrderColumn {
   identifier = 'identifier',
   close = 'close',
 }
+
 export const OrderColumnsArray = Object.values(OrderColumn);
+
+export const heldPrefixStatus = 'held';
+export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
@@ -47,12 +54,17 @@ const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 export class OrderItem extends HoverableItem implements IOrderItem {
   protected _priceFormatter = new RoundFormatter(this.order?.instrument.precision ?? 2);
 
+  set timeFormatter(formatter: DateTimeFormatter) {
+    this.timestamp.formatter = formatter;
+  }
+
   accountId = new DataCell({ withHoverStatus: true });
   exchange = new DataCell({ withHoverStatus: true });
   symbol = new DataCell({ withHoverStatus: true });
   fcmId = new DataCell({ withHoverStatus: true });
   identifier = new DataCell({ withHoverStatus: true });
   ibId = new DataCell({ withHoverStatus: true });
+  timestamp = new DateCell({ withHoverStatus: true, formatter: new DateTimeFormatter() });
   price = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
   triggerPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
   currentPrice = new NumberCell({ withHoverStatus: true });
@@ -98,6 +110,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
       OrderColumn.duration,
       OrderColumn.filledQuantity,
       OrderColumn.quantity,
+      OrderColumn.timestamp,
       OrderColumn.side,
       OrderColumn.status,
       OrderColumn.type
@@ -125,6 +138,10 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this.side.class = order.side === OrderSide.Buy ? PriceStatus.Up : PriceStatus.Down;
   }
 
+  applySettings() {
+    this.timestamp.updateValue(this.timestamp._value, true);
+  }
+
   changeStatus(): void {
     allColumns.forEach((item) => this._updateCellStatus(this[item]));
   }
@@ -140,12 +157,22 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   private _updateCellStatus(cell: Cell): void {
+    if (this.order.status === OrderStatus.Stopped)
+      cell.setStatusPrefix(heldPrefixStatus);
+
     cell.changeStatus(this.side.value.toLowerCase());
   }
 
   private _updateSelectedStatus(): void {
-    const selectedStatusName = this.isSelected ? CellStatus.Selected : CellStatus.None;
+    const selectedStatusName = this.getSelectedStatus();
     allColumns.forEach(field => (this[field] as Cell).setStatusPrefix(selectedStatusName));
+  }
+
+  private getSelectedStatus() {
+    if (this.order.status === OrderStatus.Stopped)
+      return this.isSelected ? StopSelectedStatus : heldPrefixStatus;
+
+    return this.isSelected ? CellStatus.Selected : CellStatus.None;
   }
 
   changeCheckboxHorizontalAlign(align: TextAlign): void {

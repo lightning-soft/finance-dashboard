@@ -41,7 +41,7 @@
       </ul>
 
     </li>
-    <li *ngIf="showSettingsInContextMenu" (click)="$event.preventDefault();onSettingsClicked()" class="menu-settings"
+    <li *ngIf="showSettingsInContextMenu" (click)="$event.preventDefault();onSettingsClicked($event)" class="menu-settings"
         nz-menu-item>Settings
     </li>
   </ul>

@@ -25,6 +25,7 @@ export class SaveLayoutConfigService {
       const hide = this._loaderService.showLoader();
       hide();
     } else if (this._workspaceService.getActiveWorkspace()) {
+      this._windowPopupManager.sendSaveCommand();
       await this._workspaceService.saveWorkspaces(this._workspaceService.getActiveWorkspace().id, config);
     }
   }

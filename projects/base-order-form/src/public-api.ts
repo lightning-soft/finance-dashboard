@@ -9,3 +9,4 @@ export * from './lib/sl-units/sl-units.component';
 export * from './lib/base-order-form.module';
 export * from './lib/side-order-form/side-order-form.component';
 export * from './lib/models/index';
+export * from './lib/fields';

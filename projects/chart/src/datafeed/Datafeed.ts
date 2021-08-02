@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { IAccount, OrderSide } from 'trading';
-import { IBar, IChart, IDetails } from '../models';
-import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind } from './models';
+import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
+import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
+import { IBar, IChart, IDetails } from '../models/chart';
 
 export type IDateFormat = (request: IRequest) => string;
 
@@ -31,6 +32,8 @@ export abstract class Datafeed implements IDatafeed {
    * @internal
    */
   private _requests = new Map<number, IRequest>();
+
+  private barHandler: IBarHandler;
 
   /**
    * @internal
@@ -62,21 +65,29 @@ export abstract class Datafeed implements IDatafeed {
    * @protected
    */
   protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
-    let chart = request.chart,
+    const chart = request.chart,
       dataManager = chart.dataManager,
       oldFirstVisibleRecord = chart.firstVisibleRecord,
       oldLastVisibleRecord = chart.lastVisibleRecord,
       oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0,
-      instrument = request.instrument;
+      instrument = chart.instrument;
+
+    if (!this.barHandler) {
+      this.barHandler = new BarHandler(request.chart);
+    }
 
     switch (request.kind) {
-      case RequestKind.BARS:
-        dataManager.clearBarDataSeries(instrument);
-        dataManager.appendInstrumentBars(instrument, bars);
+      case RequestKind.BARS: {
+        dataManager.clearBarDataSeries();
+        this.barHandler.clear();
+        bars.forEach(bar => this.barHandler.insertBar(bar));
         break;
-      case RequestKind.MORE_BARS:
-        dataManager.insertInstrumentBars(instrument, 0, bars);
+      }
+      case RequestKind.MORE_BARS: {
+        this.barHandler.clear();
+        bars.forEach(bar => this.barHandler.prependBar(bar));
         break;
+      }
       default:
         throw new Error(`Unknown request kind: ${ request.kind }`);
     }
@@ -164,58 +175,35 @@ export abstract class Datafeed implements IDatafeed {
   protected processQuote(request: IRequest, quote: IQuote): void {
     if (quote?.instrument?.symbol == null)
       return;
+    const { chart } = request;
+
+    if (!this.barHandler) {
+      this.barHandler = new BarHandler(chart);
+    }
 
     if (this.isRequestAlive(request)) {
       this._details = this._mergeRealtimeDetails(quote, this._details);
       return;
     }
 
-    const { chart } = request;
 
     // if instrument is null then you operate with main bars otherwise with others bars datasiries(compare instruments)
     const instrument = chart.instrument.symbol == quote.instrument.symbol ? null : quote.instrument;
-    let lastBar = this._getLastBar(chart, instrument);
+    const lastBar = this._getLastBar(chart, instrument);
 
     if (!lastBar)
       return;
-
-    if (this._details.length) {
-      this._mergeDetails(chart, instrument);
-
-      this._details = [];
-    }
-
-    let currentBarStartTimestamp = lastBar.date.getTime();
-    let nextBarStartTimestamp = <number>currentBarStartTimestamp + <number>chart.timeInterval;
-    const nextBarStartDate = new Date(nextBarStartTimestamp);
-    if (quote.date.getTime() < currentBarStartTimestamp || quote.price === 0)
-      return;
-
-    if (new Date(quote.date) >= nextBarStartDate || lastBar === null) {
-      // If there were no historical data and timestamp is in range of current time frame
-      if (lastBar === null && quote.date < nextBarStartDate)
-        nextBarStartTimestamp = currentBarStartTimestamp;
-
-      // If gap is more than one time frame
-      while (quote.date.getTime() >= <number>nextBarStartTimestamp + <number>chart.timeInterval)
-        nextBarStartTimestamp += chart.timeInterval;
-
-      // Create bar
+    if (!quote.side) {
       const bar = {
         open: quote.price,
         high: quote.price,
         low: quote.price,
         close: quote.price,
         volume: quote.volume,
-        date: new Date(nextBarStartTimestamp),
+        date: new Date(quote.date),
         details: this._mergeRealtimeDetails(quote),
       };
-
-      if (!instrument)
-        chart.appendBars(bar);
-      else
-        chart.dataManager.appendInstrumentBars(instrument, bar);
-
+      this.barHandler.processBar(bar);
       chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
     } else {
       lastBar.close = quote.price;
@@ -227,8 +215,8 @@ export abstract class Datafeed implements IDatafeed {
       if (lastBar.low > quote.price)
         lastBar.low = quote.price;
 
+      this.barHandler.processBar(lastBar);
       this._updateLastBarDetails(quote, chart, instrument);
-      this._updateLastBar(lastBar, chart, instrument);
 
       chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
     }
@@ -236,25 +224,14 @@ export abstract class Datafeed implements IDatafeed {
     chart.updateIndicators();
   }
 
-  private _updateLastBar(bar: IBar, chart: IChart, instrument?: IStockChartXInstrument): void {
-    const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '',
-      barDataSeries = chart.dataManager.barDataSeries(symbol);
-
-    barDataSeries.open.updateLast(bar.open);
-    barDataSeries.high.updateLast(bar.high);
-    barDataSeries.low.updateLast(bar.low);
-    barDataSeries.close.updateLast(bar.close);
-    barDataSeries.volume.updateLast(bar.volume);
-    barDataSeries.date.updateLast(bar.date);
-
-    chart.setNeedsUpdate();
-  }
-
   private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
-    const lastDetails = detailsDataSeries.lastValue as IDetails[];
+    const lastDetails = detailsDataSeries?.lastValue as IDetails[];
+    if (!lastDetails)
+      return;
+
     const details = this._mergeRealtimeDetails(quote, lastDetails);
 
     detailsDataSeries.updateLast(details);
@@ -341,19 +318,6 @@ export abstract class Datafeed implements IDatafeed {
   }
 
   protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
-    const symbol = instrument && instrument.symbol || '',
-      barDataSeries = chart.dataManager.barDataSeries(symbol, true);
-
-    if (barDataSeries.date.values.length === 0)
-      return null;
-
-    return {
-      open: barDataSeries.open.lastValue as number,
-      high: <number>barDataSeries.high.lastValue,
-      low: <number>barDataSeries.low.lastValue,
-      close: <number>barDataSeries.close.lastValue,
-      volume: <number>barDataSeries.volume.lastValue,
-      date: <Date>barDataSeries.date.lastValue
-    };
+    return chart.dataManager.getLastBar(instrument);
   }
 }

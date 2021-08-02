@@ -44,7 +44,8 @@ export class NavbarComponent implements AfterViewInit {
 
   timeout: number;
 
-  @HostBinding('class.electron') isElectron;
+  @HostBinding('class.electron')
+  isElectron = false;
 
   constructor(
     private themeHandler: ThemesHandler,

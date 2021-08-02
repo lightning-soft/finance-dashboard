@@ -9,14 +9,16 @@ import {
   NzAutocompleteModule,
   NzButtonModule,
   NzCheckboxModule,
+  NzCollapseModule,
   NzDropDownModule,
   NzFormModule,
   NzIconModule,
   NzInputModule,
   NzInputNumberModule,
+  NzPopoverModule,
   NzSelectModule,
   NzSwitchModule,
-  NzToolTipModule
+  NzToolTipModule,
 } from 'ng-zorro-antd';
 import { environment } from 'src/environments/environment';
 import { WindowHeaderModule } from 'window-header';
@@ -37,12 +39,14 @@ import { chartSettings } from './chart-settings/settings';
 import { FormlyModule } from '@ngx-formly/core';
 import { DataSelectModule } from 'data-select';
 import { SessionsSelectComponent } from './indicators/sessions-select/sessions-select.component';
+import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // const environment = { scxPath: '' };
 
 @NgModule({
   imports: [
+    NzPopoverModule,
     CommonModule,
     NzInputModule,
     NzAutocompleteModule,
@@ -94,6 +98,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ScrollingModule,
     NzSwitchModule,
     NzToolTipModule,
+    NzCollapseModule,
     NzCheckboxModule,
     OverlayModule,
     DataSelectModule,
@@ -113,6 +118,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ChartComponent,
     ToolbarComponent,
     IndicatorsComponent,
+    FrameSelectorComponent,
     OrdersPanelComponent,
     ConfirmOrderComponent,
     ChartSettingsComponent,

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ExcludeId, Id } from 'communication';
+import { ExcludeId, Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
@@ -57,17 +57,79 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     return res.result.filter((item: any) => this._filter(item, params));
   }
 
+  play(order: IOrder): Observable<IOrder> {
+    return this._http.post<IOrder>(this._getRESTURL(`${ order.id }/play`), null, {
+      ...this.getApiHeadersByAccount(order.accountId ?? order.account?.id)
+    }).pipe(
+      map((item: any) => this._mapResponseItem(item.result)),
+      tap(item => this._onCreate(item))) as Observable<IOrder>;
+  }
+
+  stop(order: IOrder): Observable<IOrder> {
+    return this._http.post<IOrder>(this._getRESTURL(`${ order.id }/stop`), null, {
+      ...this.getApiHeadersByAccount(order.accountId ?? order.account?.id)
+    }).pipe(
+      map((item: any) => {
+        const order = item.result;
+        order.status = OrderStatus.Stopped;
+
+        return this._mapResponseItem(order);
+      }),
+      tap(item => this._onUpdate(item))) as Observable<IOrder>;
+  }
+
+  getItems(params?: any): Observable<IPaginationResponse<IOrder>> {
+    if (!params.accounts && params.id && !params.hideStopped) {
+      return forkJoin([super.getItems(params), this.getStoppedItems(params)])
+        .pipe(
+          tap(response => console.log(response)),
+          map(item => {
+            const [ordersResponse, stoppedOrdersResponse] = item;
+            return {
+              requestParams: ordersResponse.requestParams,
+              data: [...ordersResponse.data, ...stoppedOrdersResponse.data.map(item => {
+                item.status = OrderStatus.Stopped;
+                return item;
+              })],
+            } as IPaginationResponse;
+          }));
+    }
+    return super.getItems(params);
+  }
+
+  getStoppedItems(params) {
+    return this._http.get<any>(this._getRESTURL(`${ params.id }/stopped`), {
+      ...params
+    }).pipe(
+      map((item: any) => ({ ...item, data: item.result }))
+    );
+  }
+
   deleteItem(item: IOrder | Id): Observable<any> {
     if (typeof item !== 'object')
       throw new Error('Invalid order');
 
+    const accountId = item?.accountId ?? item?.account?.id;
+
+    if (item.status === OrderStatus.Stopped)
+      return this._http.delete<IOrder>(this._getRESTURL(`${ item.id }/delete`), {
+        ...this.getApiHeadersByAccount(accountId),
+        params: {
+          AccountId: accountId,
+        } as any
+      }).pipe((res: any) => {
+        const order = res.result;
+        order.status = OrderStatus.Canceled;
+        return order;
+      });
+
     return this._http.post<IOrder>(
-      this._getRESTURL(`${item.id}/cancel`),
+      this._getRESTURL(`${ item.id }/cancel`),
       null,
       {
-        ...this.getApiHeadersByAccount(item?.accountId ?? item?.account?.id),
+        ...this.getApiHeadersByAccount(accountId),
         params: {
-          AccountId: item?.account?.id,
+          AccountId: accountId,
         } as any
       }
     );
@@ -134,6 +196,13 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
         },
       ),
     ));
+  }
+
+  _mapResponseItem(item: IOrder) {
+    if (item.instrument.description)
+      item.description = item.instrument.description;
+
+    return item;
   }
 
   protected _filter(item: IOrder, params: any = {}) {

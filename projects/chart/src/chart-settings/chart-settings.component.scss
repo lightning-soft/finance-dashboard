@@ -6,15 +6,113 @@ cdk-virtual-scroll-viewport {
   height: 100%;
 }
 
+.settings-container {
+  display: grid;
+  grid-template-columns: 173px 1fr;
+  grid-column-gap: 5px;
+  height: calc(100% - 22px);
+}
+
+.menu {
+  background: $secondary;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 10px;
+
+  &-item {
+    height: 24px;
+    font-size: 0.85rem;
+    color: $text-60;
+    cursor: pointer;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+    border-radius: 2px;
+    transition: all 0.3s;
+
+    &.active {
+      color: #fff;
+      background: $light;
+      cursor: default;
+    }
+  }
+}
+
 :host ::ng-deep {
-  .cdk-virtual-scroll-content-wrapper {
-    padding-left: 10px;
+  .text-color {
+    display: flex;
+    align-items: center;
+
+    color-picker {
+      width: 100%;
+    }
   }
 
-  .two-rows {
+  .settings-pl-info, .settings-pl-realized-info {
+    display: none;
+  }
+
+  .h-20 {
+    height: 20px;
+  }
+
+  .order-form-settings {
+    grid-column: 1 / span 2;
+
+    formly-group {
+      display: grid !important;
+    }
+  }
+
+  dynamic-select {
+    display: inline-block;
+    width: 100%;
+
+    nz-select-item {
+      line-height: 18px !important;
+    }
+  }
+
+  number-input .ant-input-number {
+    width: 52px;
+  }
+
+  .cdk-virtual-scroll-content-wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .two-rows, .order-bar-rows, .order-rows {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 6px;
+  }
+
+  .order-bar-rows {
+    grid-template-columns:113px 1fr 1fr;
+    grid-column-gap: 2px;
+    align-items: center;
+  }
+
+  .order-rows {
+    grid-template-columns: 49% 80px 20px 52px 43px;
+    width: 100%;
+    align-items: center;
+    grid-column-gap: 4px;
+  }
+
+  .color-without-label {
+    color-picker {
+      .color-wrapper {
+        width: 20px;
+        height: 20px;
+        padding-left: 5px;
+      }
+
+      .color-label {
+        display: none;
+      }
+    }
   }
 
   nz-form-item {
@@ -25,7 +123,6 @@ cdk-virtual-scroll-viewport {
       text-align: start;
       margin-bottom: 25px;
       border-bottom: 1px solid #383A40;
-      margin-right: 12px;
 
       label {
         font-weight: 600;
@@ -36,6 +133,14 @@ cdk-virtual-scroll-viewport {
         &:after {
           display: none;
         }
+      }
+    }
+  }
+
+  .chart-trading {
+    nz-form-item {
+      .ant-form-item-label {
+        margin-bottom: 8px;
       }
     }
   }

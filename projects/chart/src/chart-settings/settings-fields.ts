@@ -1,8 +1,16 @@
 import {
   FieldConfig,
-  getColor, getSelect, getSwitch,
+  getCheckboxes,
+  getColor,
+  getLabel,
+  getNumber,
+  getSelect,
+  getSwitch,
   IFieldConfig,
-} from "dynamic-form";
+  wrapWithClass,
+} from 'dynamic-form';
+import { OrderType } from 'trading';
+import { orderFields } from 'base-order-form';
 
 function disableExpression(field, expression: string) {
   return {
@@ -18,7 +26,7 @@ export const generalFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-          fieldGroupClassName: 'd-grid two-rows p-x-10 m-t-20',
+          fieldGroupClassName: 'd-grid two-rows m-t-20',
           fieldGroup: [
             getColor({ label: 'Up Candle Color', key: 'upCandleColor' }),
             getColor({ label: 'Down Candle Color', key: 'downCandleColor' }),
@@ -47,7 +55,7 @@ export const generalFields: IFieldConfig[] = [
       ),
       new FieldConfig({
           label: ' ',
-          fieldGroupClassName: 'd-grid two-rows p-x-10 p-b-15',
+          fieldGroupClassName: 'd-grid two-rows  p-b-15',
           fieldGroup: [
             getColor({ label: 'Gradient Color 1', key: 'gradient1' }),
             getColor({ label: 'Gradient Color 2', key: 'gradient2' }),
@@ -98,7 +106,7 @@ export const generalFields: IFieldConfig[] = [
             }),
             {
               ...getColor({ label: 'Text Color', key: 'textColor' }),
-                className: 'flex-grow-1 m-l-5'
+              className: 'flex-grow-1 text-color m-l-5'
             },
           ]
         },
@@ -106,4 +114,119 @@ export const generalFields: IFieldConfig[] = [
     ],
   }),
 ];
+const orderTypesList = [
+  {
+    key: OrderType.Limit.toLowerCase(),
+    label: 'Limit Orders'
+  },
+  {
+    key: OrderType.Market.toLowerCase(),
+    label: 'MT Orders'
+  },
+  {
+    key: 'stop', //OrderType.StopMarket,
+    label: 'SM Orders'
+  },
+  {
+    key: 'stopLimit',// OrderType.StopLimit,
+    label: 'Stop Limit',
+  },
+  {
+    key: 'oco',
+    label: 'OCO'
+  }
+];
 
+export const tradingFields: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'trading',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      new FieldConfig({
+        label: 'Trading',
+        className: 'mt-3 d-block',
+        fieldGroupClassName: 'd-grid two-rows p-x-7',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ key: 'showWorkingOrders', label: 'Show Working Orders' }],
+          }),
+          {
+            fieldGroupClassName: 'd-grid two-rows',
+            className: 'd-none',
+            fieldGroup: [
+              getLabel('PL Unit'),
+              getSelect({
+                key: 'plUnit',
+                options: [
+                  { label: 'Points', value: 'points' },
+                  { label: 'Currency', value: 'currency' },
+                  { label: 'Percent', value: 'percent' },
+                  { label: 'Pips', value: 'pips' },
+                  { label: 'Ticks', value: 'ticks' },
+                  { label: 'None', value: 'none' },
+                ],
+              })],
+          },
+          getCheckboxes({
+            extraConfig: {className: 'd-none'},
+            checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
+          }),
+          {
+            fieldGroupClassName: 'd-grid order-bar-rows',
+            fieldGroup: [
+              getLabel('Order Bar Length (of chart)'),
+              getNumber({
+                key: 'tradingBarLength',
+                min: 1,
+              }),
+              getSelect({
+                key: 'tradingBarUnit',
+                options: [
+                  { label: '%', value: 'percent' },
+                  { label: 'px', value: 'pixels' },
+                ],
+              }),
+            ],
+          },
+        ],
+      }),
+      new FieldConfig({
+        label: 'Order Type Colors',
+        key: 'ordersColors',
+        fieldGroupClassName: 'p-x-7',
+        fieldGroup: [
+          ...orderTypesList.map(item => getOrderTypeConfig(item.key, item.label)),
+        ],
+      }),
+      { ...orderFields, fieldGroupClassName: 'd-grid two-rows mb-4 p-x-7' },
+    ],
+  }),
+];
+
+function getOrderTypeConfig(key, label) {
+  return {
+    fieldGroupClassName: 'd-grid order-rows mt-1',
+    key,
+    fieldGroup: [
+      getLabel(label),
+      getSelect({
+        key: 'lineType',
+        options: [
+          { label: 'Solid', value: 'solid' },
+          { label: 'Dashed', value: 'dashed' },
+          { label: 'Dotted', value: 'dotted' }
+        ],
+      }),
+      wrapWithClass(getColor('lineColor'), 'color-without-label h-20'),
+      getNumber({
+        key: 'length',
+        min: 1,
+      }),
+      getSelect({
+        key: 'lengthUnit',
+        options: [{ label: '%', value: 'percents' },
+          { label: 'px', value: 'pixels' }],
+      }),
+    ],
+  };
+}

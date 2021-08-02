@@ -66,6 +66,7 @@ export enum OrderStatus {
   Filled = 'Filled',
   Canceled = 'Canceled',
   Rejected = 'Rejected',
+  Stopped = 'Stopped',
 }
 
 export interface IOrderParams extends IPaginationParams {

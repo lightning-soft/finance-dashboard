@@ -13,6 +13,7 @@ const windowResizeKey = 'windowResizeKey';
 const windowSettingsKey = 'windowSettingsKey';
 const windowCloseEvent = 'closeWindow';
 const windowMoveEvent = 'windowMoveEvent';
+export const saveCommand = 'saveCommand';
 
 export interface WindowPopupConfig {
   layoutConfig: any;
@@ -23,6 +24,7 @@ export interface WindowPopupConfig {
 @Injectable()
 export class WindowPopupManager {
   private _state = {};
+  windows = [];
 
   hideWindowHeaderInstruments = false;
 
@@ -238,7 +240,9 @@ export class WindowPopupManager {
       featuresArray.push(`${ key }=${ value }`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    return window.open(window.location.origin + '?' + queryParams.toString(), '_blank', featuresArray.join(', '));
+    const popup = window.open(window.location.origin + '?' + queryParams.toString(), '_blank', featuresArray.join(', '));
+    this.windows.push(popup);
+    return popup;
   }
 
   getConfig(): WindowPopupConfig {
@@ -258,6 +262,21 @@ export class WindowPopupManager {
 
   isWindowOpened(workspaceId, id: number | string) {
     return !!this._state[hash(id, workspaceId)];
+  }
+
+  sendSaveCommand() {
+    try {
+      const data = JSON.stringify({
+        type: saveCommand,
+      });
+      this.windows.forEach(item => {
+        if (!item.closed) {
+          item.postMessage(data);
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 
