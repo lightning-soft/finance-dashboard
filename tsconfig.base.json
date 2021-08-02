@@ -177,6 +177,9 @@
       ],
       "window-messenger": [
         "projects/window-messenger/index"
+      ],
+      "sound": [
+        "projects/sound/index"
       ]
     }
   }

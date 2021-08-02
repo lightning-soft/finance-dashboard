@@ -191,7 +191,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...this.selectedItem, ...data, broker: this.selectedBroker.name, ...userData };
+    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, ...userData };
   }
 
   create() {

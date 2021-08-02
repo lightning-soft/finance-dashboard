@@ -8,6 +8,7 @@ import { SettingsStore } from './setting-store';
 import { SettingsComponent } from './settings.component';
 import { SettingsService } from './settings.service';
 import { HotkeyInputModule } from 'hotkey-input';
+import { SoundModule } from 'sound';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { HotkeyInputModule } from 'hotkey-input';
     NzMessageServiceModule,
     HotkeyInputModule,
     NzButtonModule,
+    SoundModule.forRoot(SettingsService),
   ],
   exports: [
     SettingsComponent,

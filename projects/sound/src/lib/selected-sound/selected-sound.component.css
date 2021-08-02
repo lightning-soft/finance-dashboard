@@ -1,0 +1,56 @@
+p {
+    color: white;
+}
+
+li {
+    display: grid;
+    grid-template-columns: 1fr 20px;
+}
+
+.selected {
+    display: grid;
+    grid-template-columns: calc(100% - 10px) 10px;
+    background: #1B1D22;
+    border-radius: 2px;
+    padding: 6px;
+    height: 32px;
+}
+
+.selected p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.arrow {
+    transform: rotate(90deg);
+    padding: 4px;
+    height: 24px;
+    width: 16px;
+    font-size: 13px;
+}
+
+.ant-dropdown-menu, .ant-dropdown-menu-root, .ant-dropdown-menu-light, .ant-dropdown-menu-vertical, .ng-tns-c102-14 {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.icon-img, .icon-img-hover {
+    width: 16px;
+    margin: 2px;
+}
+
+.icon .icon-img {
+    display: block;
+}
+
+.icon .icon-img-hover {
+    display: none;
+}
+
+.icon:hover .icon-img {
+    display: none;
+}
+
+.icon:hover .icon-img-hover {
+    display: block;
+}
