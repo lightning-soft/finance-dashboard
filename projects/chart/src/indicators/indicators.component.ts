@@ -51,6 +51,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         'SessionStats',
         'VolumeBreakdown',
         'ZigZag',
+        // 'ZigZagOscillator'
       ],
       expanded: true,
     },

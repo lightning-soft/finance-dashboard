@@ -1866,6 +1866,97 @@ export const zigZagConfig: IFieldConfig[] = [
   }),
 ];
 
+export const zigZagOscilator: IFieldConfig[] = [
+  new FieldConfig({
+    label: 'Parameters',
+    key: 'params',
+    fieldGroupClassName: 'two-rows d-grid zig-zag',
+    fieldGroup: [
+      getNumber({ label: 'Min. Change (Ticks)', key: 'minChange' }),
+      getNumber({ label: 'Bar Width Text Thr..', key: 'barWidth' }),
+      getColor('Down Bars'),
+      getColor('Up Bars'),
+      getCheckboxes({
+        checkboxes: [{
+          key: 'fillBarGaps', label: 'Fill Bar Gaps'
+        }]
+      }),
+      getCheckboxes({
+        checkboxes: [
+          {
+            key: 'showChangeIn', label: 'Show Change in'
+          },
+        ],
+        additionalFields: [
+          getSelect({
+            options: [
+              { label: 'Points', value: 'points' },
+              { label: 'Ticks', value: 'ticks' },
+            ],
+          }),
+        ],
+        extraConfig: {
+          fieldGroupClassName: 'd-grid two-rows'
+        },
+      })
+    ],
+  }),
+  new FieldConfig({
+    label: 'Upper Band',
+    key: 'upperBand',
+    fieldGroupClassName: 'two-rows d-grid zig-zag',
+    className: 'mt-3 d-block',
+    fieldGroup: [
+      wrapWithClass(getColor('Color'), 'full-width half-width'),
+      getNumber({
+        label: 'Bottom (Points)',
+        key: 'bottomPoints',
+      }),
+      getNumber({
+        label: 'Top (Points)',
+        key: 'topPoints',
+      }),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Lower Band',
+    key: 'lowerBand',
+    className: 'mt-3 d-block',
+    fieldGroupClassName: 'two-rows d-grid zig-zag',
+    fieldGroup: [
+      wrapWithClass(getColor('Color'), 'full-width half-width'),
+      getNumber({
+        label: 'Bottom (Points)',
+        key: 'bottomPoints',
+      }),
+      getNumber({
+        label: 'Top (Points)',
+        key: 'topPoints',
+      }),
+    ],
+  }),
+];
+/*export const zigZagOscilatorSettings = {
+  lowerBand: {
+    bottomPoints: 4,
+    color: 'rgb(234,57,57,1)',
+    topPoints: 3,
+  },
+  params: {
+    barWidth: 3,
+    downBars: 'rgb(255,238,180,1)',
+    fillBarGaps: true,
+    minChange: 2,
+    showChangeIn: true,
+    upBars: 'rgb(120,198,255,1)',
+  },
+  upperBand: {
+    bottomPoints: 3,
+    color: 'rgb(0,178,172,1)',
+    topPoints: 4,
+  }
+};*/
+
 // export const zigZagSettings = {
 //   parameters: {
 //     backgroundColor: 'rgb(105,0,239,1)',
