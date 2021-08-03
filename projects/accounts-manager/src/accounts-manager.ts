@@ -229,7 +229,8 @@ export class AccountsManager implements ConnectionContainer {
         concatMap(item => {
           item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-          this._getSoundService().play(Sound.CONNECTED);
+          if (item.connected)
+            this._getSoundService().play(Sound.CONNECTED);
 
           return this._connectionsRepository.updateItem((item)).pipe(
             map(_ => item),
