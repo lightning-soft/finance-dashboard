@@ -167,41 +167,19 @@ export class TimeFrame {
     }
   }
 
-  public static timeFrameToTimePeriod(timeFrame: ITimeFrame) {
-    const today = new Date();
-    const prevDay = new Date(today.getTime() - TimeFrame.timeFrameToTimeInterval(timeFrame));
-    return calcBusinessDays(prevDay, today) * TimeSpan.MILLISECONDS_IN_DAY;
+  public static sortTimeFrames(timeFrames: ITimeFrame[]) {
+    return timeFrames.sort((a, b) => {
+      return transformFrame(a) - transformFrame(b);
+    });
   }
+
 }
 
-function calcBusinessDays(dDate1, dDate2) {         // input given as Date objects
-
-  let iWeeks, iDateDiff, iAdjust = 0;
-
-  if (dDate2 < dDate1) return -1;                 // error code if dates transposed
-
-  let iWeekday1 = dDate1.getDay();                // day of week
-  let iWeekday2 = dDate2.getDay();
-
-  iWeekday1 = (iWeekday1 == 0) ? 7 : iWeekday1;   // change Sunday from 0 to 7
-  iWeekday2 = (iWeekday2 == 0) ? 7 : iWeekday2;
-
-  if ((iWeekday1 > 5) && (iWeekday2 > 5)) iAdjust = 1;  // adjustment if both days on weekend
-
-  iWeekday1 = (iWeekday1 > 5) ? 5 : iWeekday1;    // only count weekdays
-  iWeekday2 = (iWeekday2 > 5) ? 5 : iWeekday2;
-
-  // calculate differnece in weeks (1000mS * 60sec * 60min * 24hrs * 7 days = 604800000)
-  iWeeks = Math.floor((dDate2.getTime() - dDate1.getTime()) / 604800000);
-
-  if (iWeekday1 <= iWeekday2) {
-    iDateDiff = (iWeeks * 5) + (iWeekday2 - iWeekday1);
-  } else {
-    iDateDiff = ((iWeeks + 1) * 5) - (iWeekday1 - iWeekday2);
+export function transformFrame(a: ITimeFrame) {
+  if ([StockChartXPeriodicity.TICK, StockChartXPeriodicity.RANGE,
+    StockChartXPeriodicity.VOLUME,
+    StockChartXPeriodicity.REVS, StockChartXPeriodicity.RENKO]) {
+    return a.interval;
   }
-
-  iDateDiff -= iAdjust                            // take into account both days on weekend
-
-  return (iDateDiff + 1);                         // add 1 because dates are inclusive
-
+  TimeFrame.timeFrameToTimeInterval(a);
 }

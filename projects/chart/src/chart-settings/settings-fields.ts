@@ -198,7 +198,10 @@ export const tradingFields: IFieldConfig[] = [
           ...orderTypesList.map(item => getOrderTypeConfig(item.key, item.label)),
         ],
       }),
-      { ...orderFields, fieldGroupClassName: 'd-grid two-rows mb-4 p-x-7' },
+      {
+        key: 'orderArea',
+        fieldGroup: [{ ...orderFields, key: 'settings', fieldGroupClassName: 'd-grid two-rows mb-4 p-x-7' }],
+      },
     ],
   }),
 ];

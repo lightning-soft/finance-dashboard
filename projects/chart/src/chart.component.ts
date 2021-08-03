@@ -294,10 +294,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   saveState(): IChartState {
     const { chart } = this;
 
-    if (!chart) {
+    if (!chart)
       return;
-    }
 
+    this.settings.trading.orderArea = this._sideForm.getState();
     return {
       showOHLV: this.showOHLV,
       showChanges: this.showChanges,
@@ -308,7 +308,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
-      orderForm: this._sideForm.getState(),
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
     } as IChartState;
@@ -360,6 +359,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
     chart.on(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
+    chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
       .subscribe(value => {
@@ -391,7 +391,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
            chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
          }*/
 
-        this._sideForm.loadState(state?.orderForm);
+        this._sideForm.loadState(state?.settings?.trading.orderArea);
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
@@ -423,6 +423,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleHideWaitingBar = (e) => {
     this.loading = false;
+  }
+  private _handleIndicatorRemoved = () => {
+    setTimeout(() => {
+      this.chart.setNeedsLayout();
+      this.chart.setNeedsUpdate(true);
+    });
   }
 
   private _handleContextMenu = (e) => {
@@ -554,7 +560,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
-    this._sideForm?.loadState(state?.orderForm);
+    this._sideForm?.loadState(state?.settings.trading.orderArea);
     if (state?.account) {
       this.account = state.account;
     }
@@ -588,6 +594,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.chart.off(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
       this.chart.off(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
       this.chart.off(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
+      this.chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
       this.chart.destroy();
     }
 
@@ -752,7 +759,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   checkIfTradingEnabled() {
     this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
-    this.setNeedUpdate();
+    this.chart.setNeedsUpdate(true);
   }
 
   saveTemplate(): void {
@@ -805,10 +812,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);
     const { orderArea } = trading;
-    this.showOHLV = orderArea.formSettings.showOHLVInfo;
-    this.showChanges = orderArea.formSettings.showInstrumentChange;
+    this.showOHLV = orderArea.settings.formSettings.showOHLVInfo;
+    this.showChanges = orderArea.settings.formSettings.showInstrumentChange;
     const oldTheme = this.chart.theme;
     const theme = getScxTheme(settings);
+    this._sideForm.loadState({ settings: settings.trading.orderArea.settings });
 
     this.chart.theme = theme;
     if (oldTheme.tradingPanel.tradingBarLength != theme.tradingPanel.tradingBarLength ||
