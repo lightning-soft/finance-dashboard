@@ -141,7 +141,7 @@ export class SettingsService {
       .getItem()
       .pipe(
         catchError(() => {
-          return of(defaultHotkeyEntries);
+          return of(defaultSettings);
         }),
         tap((s: any) => s && this._updateState(s, false)),
       );

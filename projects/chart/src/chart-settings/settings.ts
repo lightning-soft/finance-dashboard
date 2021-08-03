@@ -57,23 +57,35 @@ export const defaultChartSettings: IChartSettings = {
   },
   trading: {
     orderArea: {
-      buyButtonsBackgroundColor: '#4895F5',
-      flatButtonsBackgroundColor: '#51535A',
-      buyButtonsFontColor: '#fff',
-      flatButtonFontColor: '#D0D0D2',
-      sellButtonsBackgroundColor: '#C93B3B',
-      cancelButtonBackgroundColor: '#51535A',
-      sellButtonsFontColor: '#fff',
-      cancelButtonFontColor: '#fff',
-      formSettings: {
-        showInstrumentChange: false,
-        closePositionButton: true,
-        showOHLVInfo: false,
-        showFlattenButton: true,
-        showPLInfo: true,
-        showIcebergButton: true,
-        roundPL: false,
-        includeRealizedPL: false
+      formData: {
+        quantity: 10,
+      },
+      amountData: [
+        { value: 1 },
+        { black: true, value: 2 },
+        { value: 10 },
+        { value: 50 },
+        { value: 100 },
+      ],
+      settings: {
+        buyButtonsBackgroundColor: '#4895F5',
+        flatButtonsBackgroundColor: '#51535A',
+        buyButtonsFontColor: '#fff',
+        flatButtonFontColor: '#D0D0D2',
+        sellButtonsBackgroundColor: '#C93B3B',
+        cancelButtonBackgroundColor: '#51535A',
+        sellButtonsFontColor: '#fff',
+        cancelButtonFontColor: '#fff',
+        formSettings: {
+          showInstrumentChange: false,
+          closePositionButton: true,
+          showOHLVInfo: false,
+          showFlattenButton: true,
+          showPLInfo: true,
+          showIcebergButton: true,
+          roundPL: false,
+          includeRealizedPL: false
+        },
       },
     },
     ordersColors: {

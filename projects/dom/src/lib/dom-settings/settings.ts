@@ -1,11 +1,12 @@
 import { CellStatus, Column, DefaultScrollSensetive, generateNewStatusesByPrefix } from 'data-grid';
 import * as merge from 'deepmerge';
-import { TextAlign, HistogramOrientation } from 'dynamic-form';
+import { HistogramOrientation, TextAlign } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
+
 const DefaultClearInterval = 2500;
 
 export class DomSettings {
@@ -90,7 +91,7 @@ export class DomSettings {
       getKeyBindings([KeyCode.KEY_U, KeyCode.KEY_W]),
   };
   common: any = {
-    fontFamily:  '\"Open Sans\", sans-serif',
+    fontFamily: '\"Open Sans\", sans-serif',
     fontSize: 14,
     fontWeight: '',
     generalColors: {
@@ -129,24 +130,36 @@ export class DomSettings {
     textAlign: TextAlign.Center,
   };
   orderArea = {
-    buyButtonsBackgroundColor: '#4895F5',
-    flatButtonsBackgroundColor: '#51535A',
-    buyButtonsFontColor: '#fff',
-    flatButtonFontColor: '#D0D0D2',
-    sellButtonsBackgroundColor: '#C93B3B',
-    cancelButtonBackgroundColor: '#51535A',
-    sellButtonsFontColor: '#fff',
-    cancelButtonFontColor: '#fff',
-    formSettings: {
-      showInstrumentChange: true,
-      closePositionButton: true,
-      showOHLVInfo: true,
-      showFlattenButton: true,
-      showPLInfo: true,
-      showIcebergButton: true,
-      roundPL: false,
-      includeRealizedPL: false
+    amountButtons: [
+      { value: 1 },
+      { black: true, value: 2 },
+      { value: 10 },
+      { value: 50 },
+      { value: 100 },
+    ],
+    formData: {
+      quantity: 1,
     },
+    settings: {
+      buyButtonsBackgroundColor: '#4895F5',
+      flatButtonsBackgroundColor: '#51535A',
+      buyButtonsFontColor: '#fff',
+      flatButtonFontColor: '#D0D0D2',
+      sellButtonsBackgroundColor: '#C93B3B',
+      cancelButtonBackgroundColor: '#51535A',
+      sellButtonsFontColor: '#fff',
+      cancelButtonFontColor: '#fff',
+      formSettings: {
+        showInstrumentChange: true,
+        closePositionButton: true,
+        showOHLVInfo: true,
+        showFlattenButton: true,
+        showPLInfo: true,
+        showIcebergButton: true,
+        roundPL: false,
+        includeRealizedPL: false
+      },
+    }
   };
   price: any = {
     ...generateNewStatusesByPrefix({
@@ -332,7 +345,7 @@ export class DomSettings {
   merge(data: Partial<DomSettings>) {
     for (const key in data) {
       if (!this.hasOwnProperty(key) || key == '_columns' || key == 'columns') {
-        console.warn(`Check property ${key} in settings`);
+        console.warn(`Check property ${ key } in settings`);
         continue;
       }
 
@@ -346,7 +359,7 @@ export class DomSettings {
         Object.assign(column.style, data[key]);
         // console.log((window as any).grid?.scheme[0] == this.columns[0])
       } else {
-        console.warn(`Missing column ${key}`);
+        console.warn(`Missing column ${ key }`);
       }
       Object.assign(this[key], data[key]);
     }

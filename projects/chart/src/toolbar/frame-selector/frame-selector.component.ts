@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IChart, TimeFrame, ITimeFrame, StockChartXPeriodicity, MAX_HISTORY_ITEMS } from '../../models';
+import { IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../../models';
 import { NotifierService } from 'notifier';
 
 @Component({
@@ -31,8 +31,6 @@ export class FrameSelectorComponent {
     chart.timeFrame = value;
     this.updateChartBars();
   }
-
-
 
 
   set barCount(count: number) {
@@ -299,9 +297,7 @@ export class FrameSelectorComponent {
     const timeFrames = intervalOption.timeFrames;
     if (timeFrames && !timeFrames.some(item => compareTimeFrames(item, frame))) {
       timeFrames.push(frame);
-      intervalOption.timeFrames = timeFrames.sort((a, b) => {
-        return TimeFrame.timeFrameToTimeInterval(a) - TimeFrame.timeFrameToTimeInterval(b);
-      });
+      intervalOption.timeFrames = TimeFrame.sortTimeFrames(timeFrames);
     }
   }
 

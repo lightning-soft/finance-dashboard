@@ -62,8 +62,10 @@ type SideOrderForm = { [key in Partial<keyof IOrder>]: FormControl } & {
   takeProfit: FormControl;
 };
 
-export type SideOrderFormState = Partial<SideOrderForm> & {
+export interface SideOrderFormState {
   amountButtons?: IAmountButton[];
+  formData: { [key: string]: string };
+  settings: any;
 }
 
 @Component({
@@ -170,10 +172,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
     return this._settings;
   }
 
-  @Input() set domSettings(value) {
-    this._settings = value;
-  }
-
   @Input() set instrument(value: IInstrument) {
     if (value != null && !compareInstruments(this.instrument$.getValue(), value)) {
       this.instrument$.next(value);
@@ -247,16 +245,19 @@ export class SideOrderFormComponent extends BaseOrderForm {
     this.autoLoadData = false;
   }
 
-  loadState(state: SideOrderFormState): void {
-    this.form.patchValue(state ?? {});
+  loadState(state: Partial<SideOrderFormState>): void {
+    this.form.patchValue(state?.formData ?? {});
     if (state?.amountButtons)
       this.amountButtons = state.amountButtons;
+    if (state?.settings)
+      this._settings = state.settings;
   }
 
   getState(): SideOrderFormState {
     return {
-      quantity: (this.form.controls as SideOrderForm).quantity.value,
-      amountButtons: this.amountButtons
+      formData: { quantity: (this.form.controls as SideOrderForm).quantity.value },
+      amountButtons: this.amountButtons,
+      settings: this._settings,
     };
   }
 
