@@ -7,6 +7,7 @@ import { SelectedSoundComponent } from './selected-sound/selected-sound.componen
 import { SoundSettingComponent } from './sound-setting/sound-setting.component';
 import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
 import { SettingsStore, SoundService } from './sound.service';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
 
 
 
@@ -20,6 +21,7 @@ import { SettingsStore, SoundService } from './sound.service';
     NzSwitchModule,
     FormsModule,
     ReactiveFormsModule,
+    NzRadioModule,
   ],
   exports: [SoundTabSettingComponent]
 })
