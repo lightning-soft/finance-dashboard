@@ -655,6 +655,10 @@
       grid-column: 1 / span 2;
     }
 
+    .half-width {
+      width: calc(50% - 10px);
+    }
+
     .profile-settings {
       lib-color-select {
         margin-top: 24px;
@@ -817,6 +821,10 @@ formly-form {
   .zig-zag {
     grid-row-gap: 8px;
 
+    .half-width {
+      width: calc(50% - 8px);
+    }
+
     number-input .number-label {
       width: calc(50% + 25px);
     }
@@ -883,10 +891,12 @@ formly-form {
     }
   }
 }
+
 ::ng-deep {
   .cdk-drag-placeholder {
     display: none;
   }
+
   .current-indicators {
     color: $text-60;
     font-size: 0.85rem;
@@ -927,6 +937,7 @@ formly-form {
     }
   }
 }
+
 .indicator-group-item {
   font-size: 0.85rem;
   color: $text-60;
