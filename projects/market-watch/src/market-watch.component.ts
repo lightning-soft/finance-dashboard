@@ -1063,7 +1063,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       const coords: any = {};
       if ($event) {
         coords.x = $event.clientX;
-        coords.y =  $event.clientY;
+        coords.y = $event.clientY;
       }
       this.layout.addComponent({
         component: {
@@ -1089,13 +1089,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     return `${ this.componentInstanceId }.${ MarketWatchSettings }`;
   }
 
-  openWidget(item) {
+  openWidget(item, $event?) {
+    const coords = getCoord($event);
     this.layout.addComponent({
       component: {
         name: item.component,
         state: { instrument: this.contextInstrument },
       },
-      ...item.options
+      ...item.options,
+      ...coords
     });
   }
 
@@ -1178,7 +1180,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.broadcastData(marketWatchReceiveKey + this._getSettingsKey(), this.settings);
   }
 
-  openWidgetLinked(item, state = {}) {
+  openWidgetLinked(item, state = {}, event?) {
+    const coords = getCoord(event);
     this.layout.addComponent({
       component: {
         name: item.component,
@@ -1188,7 +1191,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           ...state,
         },
       },
-      ...item.options
+      ...item.options,
+      ...coords,
     });
   }
 
@@ -1401,4 +1405,10 @@ function generateStyle(prefix, settings) {
       highlightBackgroundColor: settings.colors[`${ prefix }Background`],
     }, CellStatus.Hovered)
   };
+}
+
+function getCoord(event?) {
+  if (!event)
+    return {};
+  return { x: event.clientX, y: event.clientY };
 }

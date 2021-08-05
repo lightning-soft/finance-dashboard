@@ -1,8 +1,9 @@
 import { ITimezone } from 'timezones-clock';
 import { IKeyBindingDTO } from 'keyboard';
 import { Workspace } from 'workspace-manager';
-import { NavbarPosition } from "./settings.service";
-import { IBaseTemplate } from "templates";
+import { NavbarPosition } from './settings.service';
+import { IBaseTemplate } from 'templates';
+import { ISound } from 'sound';
 
 export interface ICommand {
   readonly UIString: string;
@@ -24,4 +25,17 @@ export type SettingsData = {
   timezones: ITimezone[];
   localTimezoneTitle: string;
   templates: IBaseTemplate[];
+  sound: {
+    connected: ISound;
+    connectionLost: ISound;
+    orderFilled: ISound;
+    orderCancelled: ISound;
+    orderReplaced: ISound;
+    orderPending: ISound;
+    orderRejected: ISound;
+    targetFilled: ISound;
+    stopFilled: ISound;
+    alert: ISound;
+    isPlay: boolean;
+  }
 };

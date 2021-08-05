@@ -9,12 +9,13 @@ import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
 import { catchError, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
-import { IBaseTemplate } from "templates";
+import { IBaseTemplate } from 'templates';
+import { ISound } from 'sound';
 
-function createCommand(name: string, uiSstring: string = name): ICommand {
+function createCommand(name: string, UIString: string = name): ICommand {
   return {
     name,
-    UIString: uiSstring
+    UIString
   };
 }
 
@@ -30,8 +31,8 @@ export enum HotkeyEvents {
 
 export const defaultHotkeyEntries = {
   [HotkeyEvents.SavePage]: new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.KEY_S)]).toDTO(),
-//  [HotkeyEvents.CenterAllWindows]:
-//    new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.Space)]).toDTO(),
+  //  [HotkeyEvents.CenterAllWindows]:
+  //    new KeyBinding([KeyBindingPart.fromKeyCode(KeyCode.Ctrl), KeyBindingPart.fromKeyCode(KeyCode.Space)]).toDTO(),
   [HotkeyEvents.OpenOrderTicket]: new KeyBinding([]).toDTO(),
   [HotkeyEvents.OpenTradingDom]: new KeyBinding([]).toDTO(),
   [HotkeyEvents.OpenChart]: new KeyBinding([]).toDTO(),
@@ -58,6 +59,69 @@ const defaultSettings: SettingsData = {
   navbarPosition: NavbarPosition.Top,
   isNavbarHidden: false,
   templates: [],
+  sound: {
+    connected: {
+      name: "Connected",
+      checked: true,
+      selectedSound: "Apert",
+      volume: 80
+    },
+    connectionLost: {
+      name: "Connection Lost",
+      checked: true,
+      selectedSound: "Beam1",
+      volume: 80
+    },
+    orderFilled: {
+      name: "Order Filled",
+      checked: true,
+      selectedSound: "Ding",
+      volume: 100
+    },
+    orderCancelled: {
+      name: "Order Cancelled",
+      checked: true,
+      selectedSound: "Beep",
+      volume: 100
+    },
+    orderReplaced: {
+      name: "Order Replaced",
+      checked: true,
+      selectedSound: "Close",
+      volume: 100
+    },
+    orderPending: {
+      name: "Order Pending",
+      checked: true,
+      selectedSound: "Blip2",
+      volume: 100
+    },
+    orderRejected: {
+      name: "Order Rejected",
+      checked: true,
+      selectedSound: "Bullet",
+      volume: 100
+    },
+    targetFilled: {
+      name: "Target Filled",
+      checked: true,
+      selectedSound: "Cashreg",
+      volume: 80
+    },
+    stopFilled: {
+      name: "Stop Filled",
+      checked: true,
+      selectedSound: "Buzz",
+      volume: 100
+    },
+    alert: {
+      name: "Alert",
+      checked: true,
+      selectedSound: "Arrowhit",
+      volume: 100
+    },
+    isPlay: true
+  }
 };
 
 @Injectable()
@@ -77,7 +141,7 @@ export class SettingsService {
       .getItem()
       .pipe(
         catchError(() => {
-          return of(defaultHotkeyEntries);
+          return of(defaultSettings);
         }),
         tap((s: any) => s && this._updateState(s, false)),
       );
@@ -137,6 +201,12 @@ export class SettingsService {
 
   saveTemplates(templates: IBaseTemplate[]): void {
     this._updateState({ templates });
+  }
+
+  saveSounds(type: string, sound: ISound | boolean): void {
+    let setting = this.settings.value.sound;
+    setting[type] = sound;
+    this._updateState({ sound: setting });
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {

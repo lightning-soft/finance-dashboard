@@ -117,11 +117,11 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
         params: {
           AccountId: accountId,
         } as any
-      }).pipe((res: any) => {
+      }).pipe(map((res: any) => {
         const order = res.result;
         order.status = OrderStatus.Canceled;
         return order;
-      });
+      }));
 
     return this._http.post<IOrder>(
       this._getRESTURL(`${ item.id }/cancel`),

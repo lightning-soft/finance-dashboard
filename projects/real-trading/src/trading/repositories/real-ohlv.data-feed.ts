@@ -4,7 +4,7 @@ import {
   IInstrument,
   OHLVData,
   OHLVFeed,
-  OnTradeFn,
+  OnUpdateFn,
   Periodicity,
   TradeDataFeed,
   VolumeData,
@@ -22,7 +22,7 @@ const historyParams = {
 
 @Injectable()
 export class RealOHLVFeed extends OHLVFeed {
-  private _executors: OnTradeFn<OHLVData>[] = [];
+  private _executors: OnUpdateFn<OHLVData>[] = [];
 
   constructor(
     protected _injector: Injector,
@@ -46,7 +46,7 @@ export class RealOHLVFeed extends OHLVFeed {
     }
   } = {};
 
-  on(fn: OnTradeFn<OHLVData>) {
+  on(fn: OnUpdateFn<OHLVData>) {
     this._executors.push(fn);
 
     return () => {

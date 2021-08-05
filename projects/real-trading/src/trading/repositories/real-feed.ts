@@ -1,7 +1,7 @@
 import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
 import { IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
-import { Feed, OnTradeFn, UnsubscribeFn } from 'trading';
+import { Feed, OnUpdateFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
 
 export enum WSMessageTypes {
@@ -21,7 +21,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     }
   } = {};
   private _unsubscribeFns = {};
-  private _executors: OnTradeFn<T>[] = [];
+  private _executors: OnUpdateFn<T>[] = [];
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
@@ -33,16 +33,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     @Inject(WebSocketService) protected _webSocketService: WebSocketService,
     @Inject(AccountsManager) protected _accountsManager: AccountsManager,
   ) {
-    this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
+    this._webSocketService.on(WSEventType.Message, this._handleUpdate.bind(this));
   }
 
-  // initConnectionDeps() {
-  //   super.initConnectionDeps();
-
-  //   this._webSocketService.on(WSEventType.Message, this._handleTrade.bind(this));
-  // }
-
-  on(fn: OnTradeFn<T>): UnsubscribeFn {
+  on(fn: OnUpdateFn<T>): UnsubscribeFn {
     this._executors.push(fn);
 
     return () => {
@@ -118,7 +112,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     this._pendingRequests = [];
   }
 
-  protected _handleTrade(data, connectionId: Id): boolean {
+  protected _handleUpdate(data, connectionId: Id): boolean {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {

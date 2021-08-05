@@ -3,6 +3,7 @@ import { FieldConfig, getCheckboxes, getColor, getSwitch, IFieldConfig, wrapWith
 export const orderFields: IFieldConfig = new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     label: 'Order Area',
+    key: 'settings',
     fieldGroup: [
       getColor('Buy Buttons Background Color'),
       getColor('Flat Buttons Background Color'),

@@ -121,7 +121,7 @@
       <span *ngIf="timeFrame">
         {{getShortTimeFrame(timeFrame)}}
       </span>
-      <i class="icon-arrow-down"></i>
+      <i class="icon-arrow-down" [class.is-open]="showFramePopover"></i>
     </button>
   </div>
   <div [class.tool-active]="price.nzOpen" title="Bar Style" class="tool">
