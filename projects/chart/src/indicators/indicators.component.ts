@@ -16,6 +16,7 @@ import {
   VolumeBreakdown,
   VolumeProfile,
   ZigZag,
+  ZigZagOscillator,
 } from './indicators';
 
 declare const StockChartX: any;
@@ -51,7 +52,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         'SessionStats',
         'VolumeBreakdown',
         'ZigZag',
-        // 'ZigZagOscillator'
+        'ZigZagOscillator',
       ],
       expanded: true,
     },
@@ -213,6 +214,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       [StockChartX.SessionStats, SessionStats],
       [StockChartX.VolumeBreakdown, VolumeBreakdown],
       [StockChartX.ZigZag, ZigZag],
+      [StockChartX.ZigZagOscillator, ZigZagOscillator],
     ]);
 
     this.fetchIndicators();

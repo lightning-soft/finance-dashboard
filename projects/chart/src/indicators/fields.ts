@@ -1866,39 +1866,45 @@ export const zigZagConfig: IFieldConfig[] = [
   }),
 ];
 
-export const zigZagOscilator: IFieldConfig[] = [
+export const zigZagOscillatorConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Parameters',
-    key: 'params',
+    key: 'parameters',
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     fieldGroup: [
       getNumber({ label: 'Min. Change (Ticks)', key: 'minChange' }),
-      getNumber({ label: 'Bar Width Text Thr..', key: 'barWidth' }),
-      getColor('Down Bars'),
-      getColor('Up Bars'),
+      getNumber({ label: 'Bar Width Text Thr..', key: 'barWidthTextThreshold' }),
+      getColor({ key: 'downFillColor', label: 'Down Bars' }),
+      getColor({ key: 'upFillColor', label: 'Up Bars' }),
       getCheckboxes({
         checkboxes: [{
           key: 'fillBarGaps', label: 'Fill Bar Gaps'
         }]
       }),
-      getCheckboxes({
-        checkboxes: [
-          {
-            key: 'showChangeIn', label: 'Show Change in'
-          },
-        ],
-        additionalFields: [
-          getSelect({
-            options: [
-              { label: 'Points', value: 'points' },
-              { label: 'Ticks', value: 'ticks' },
+      {
+        key: 'showChange',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              {
+                key: 'enabled', label: 'Show Change in'
+              },
             ],
-          }),
-        ],
-        extraConfig: {
-          fieldGroupClassName: 'd-grid two-rows'
-        },
-      })
+            additionalFields: [
+              getSelect({
+                key: 'unit',
+                options: [
+                  { label: 'Points', value: 'points' },
+                  { label: 'Ticks', value: 'ticks' },
+                ],
+              }),
+            ],
+            extraConfig: {
+              fieldGroupClassName: 'd-grid two-rows'
+            },
+          })
+        ]
+      }
     ],
   }),
   new FieldConfig({
@@ -1907,14 +1913,14 @@ export const zigZagOscilator: IFieldConfig[] = [
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     className: 'mt-3 d-block',
     fieldGroup: [
-      wrapWithClass(getColor('Color'), 'full-width half-width'),
+      wrapWithClass(getColor({ key: 'strokeColor', label: 'Color' }), 'full-width half-width'),
       getNumber({
         label: 'Bottom (Points)',
-        key: 'bottomPoints',
+        key: 'bottom',
       }),
       getNumber({
         label: 'Top (Points)',
-        key: 'topPoints',
+        key: 'top',
       }),
     ],
   }),
@@ -1924,18 +1930,19 @@ export const zigZagOscilator: IFieldConfig[] = [
     className: 'mt-3 d-block',
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     fieldGroup: [
-      wrapWithClass(getColor('Color'), 'full-width half-width'),
+      wrapWithClass(getColor({ key: 'strokeColor', label: 'Color' }), 'full-width half-width'),
       getNumber({
         label: 'Bottom (Points)',
-        key: 'bottomPoints',
+        key: 'bottom',
       }),
       getNumber({
         label: 'Top (Points)',
-        key: 'topPoints',
+        key: 'top',
       }),
     ],
   }),
 ];
+
 /*export const zigZagOscilatorSettings = {
   lowerBand: {
     bottomPoints: 4,
