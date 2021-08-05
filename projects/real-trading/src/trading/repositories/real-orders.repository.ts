@@ -132,7 +132,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
           AccountId: accountId,
         } as any
       }
-    );
+    ).pipe(map((res: any) => res.result));
   }
 
   updateItem(item: IOrder, query?: any): Observable<IOrder> {
