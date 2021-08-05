@@ -39,13 +39,13 @@
   <ul class="market-watch-context-menu" nz-menu>
     <li nz-submenu nzTitle="Open">
       <ul class="market-watch-submenu">
-        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidget(item)" nz-menu-item>
+        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidget(item, $event)" nz-menu-item>
           <i class="{{item.icon}} widget-icon"></i>{{item.name}}</li>
       </ul>
     </li>
     <li nz-submenu nzTitle="Open Linked">
       <ul class="market-watch-submenu">
-        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidgetLinked(item)" nz-menu-item>
+        <li *ngFor="let item of widgets" (click)="contextInstrument && openWidgetLinked(item, {}, $event)" nz-menu-item>
           <i class="{{item.icon}} widget-icon"></i>{{item.name}}</li>
       </ul>
     </li>

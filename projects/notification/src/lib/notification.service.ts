@@ -7,7 +7,6 @@ import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
 import { SoundService, Sound } from 'sound';
 
-
 @Injectable()
 export class NotificationService extends NotifierService {
 

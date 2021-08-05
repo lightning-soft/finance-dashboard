@@ -11,7 +11,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import { FormActions, OcoStep, SideOrderFormComponent, SideOrderFormState } from 'base-order-form';
+import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -142,7 +142,6 @@ interface IDomState {
   columns: any;
   contextMenuState: any;
   account?: IAccount;
-  orderForm: SideOrderFormState;
   link: string | number;
 }
 
@@ -240,7 +239,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get domFormSettings() {
-    return this._settings.orderArea;
+    return this._settings.orderArea.settings;
   }
 
   get _tickSize() {
@@ -621,7 +620,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     );
 
     this._onInstrumentChange(this.instrument);
-    this.domForm.loadState(this._initialState.orderForm);
+    this.domForm?.loadState(this._settings.orderArea as any);
   }
 
   handleAccountChange(account: IAccount) {
@@ -772,7 +771,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const depth = settings.general?.marketDepth;
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
-
+    this.domForm?.loadState(this._settings.orderArea as any);
 
     // this._calculateDepth();
     this.refresh();
@@ -1983,13 +1982,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
+    this._settings.orderArea = this.domForm.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: this.domForm.getState()
     };
   }
 
@@ -2050,7 +2049,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const coords: any = {};
       if ($event) {
         coords.x = $event.clientX;
-        coords.y =  $event.clientY;
+        coords.y = $event.clientY;
       }
       this.layout.addComponent({
         component: {

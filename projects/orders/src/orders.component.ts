@@ -377,7 +377,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     item.style[`${ prefix }sellColor`] = sellColor;
   }
 
-  openOrderForm() {
+  openOrderForm($event: MouseEvent) {
     this.layout.addComponent({
       component: { name: Components.OrderForm },
       minHeight: 315,
@@ -385,6 +385,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       height: 315,
       width: 369,
       maximizable: false,
+      x: $event.clientX,
+      y: $event.clientY,
     });
   }
 

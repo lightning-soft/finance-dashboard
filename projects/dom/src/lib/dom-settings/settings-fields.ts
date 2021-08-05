@@ -90,7 +90,7 @@ export const commonFields: IFieldConfig[] = [
             if (value)
               return { ' .center-price td': { 'border-bottom-color': value } };
           }),
-         // getColor('Simulation Mode Warning Clr'),
+          // getColor('Simulation Mode Warning Clr'),
         ]
       }),
       {
@@ -253,7 +253,7 @@ export const generalFields: IFieldConfig[] = [
             ], extraConfig: { className: 'w-100' }
           }),
           {
-            templateOptions: { label: 'Auto Center Ticks',  min: 1, },
+            templateOptions: { label: 'Auto Center Ticks', min: 1, },
             key: 'autoCenterTicks',
             className: 'ml-0 mr-0',
             type: FieldType.Number,
@@ -279,7 +279,7 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         fieldGroup: [
           {
-            templateOptions: { label: 'Market Depth',  min: 1, },
+            templateOptions: { label: 'Market Depth', min: 1, },
             key: 'marketDepth',
             type: FieldType.Number,
           },
@@ -308,7 +308,7 @@ export const generalFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         fieldGroup: [
           {
-            templateOptions: { label: 'Clear Trades Timer Interval',  min: 1 },
+            templateOptions: { label: 'Clear Trades Timer Interval', min: 1 },
             key: 'clearTradersTimer',
             type: FieldType.Number,
           },
@@ -385,7 +385,7 @@ export const ltqFields: IFieldConfig[] = [
   }),
 ];
 
-export const orderAreaFields = [orderFields];
+export const orderAreaFields = [{ key: 'orderArea', fieldGroup: [orderFields] }];
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
@@ -447,7 +447,7 @@ function getDeltaFields(label: string) {
 
 function getDepthConfig(label: string) {
   return new FieldConfig({
-    label: `${label} Depth`,
+    label: `${ label } Depth`,
     key: label.toLowerCase(),
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
     fieldGroup: [
@@ -458,15 +458,15 @@ function getDepthConfig(label: string) {
       {
         ...getCheckboxes({
           checkboxes: [
-            { key: 'histogramEnabled', label: `${label} Depth Histogram` },
-            { key: 'highlightLarge', label: `Highlight Large ${label} Only` }]
+            { key: 'histogramEnabled', label: `${ label } Depth Histogram` },
+            { key: 'highlightLarge', label: `Highlight Large ${ label } Only` }]
         }),
         className: 'w-100 depth-checkboxes',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
       getHistogramOrientation(),
-      getNumber({ key: 'largeSize', label: `Large ${label} Size`, min: 1 }),
+      getNumber({ key: 'largeSize', label: `Large ${ label } Size`, min: 1 }),
       getTextAlign(),
     ]
   });
@@ -489,7 +489,7 @@ function getTotalFields(label: string, key: string) {
         getFontColor(),
         getHistogramColor(),
         getCheckboxes({
-          checkboxes: [{ key: 'histogramEnabled', label: `${label} Histogram` }], extraConfig: {
+          checkboxes: [{ key: 'histogramEnabled', label: `${ label } Histogram` }], extraConfig: {
             className: ' depth-checkboxes',
           }
         }),
@@ -629,25 +629,25 @@ function disableExpression(field, expression: string) {
 function getCurrentFields(suffix: string) {
   return [
     new FieldConfig({
-      label: `Current At ${suffix}`,
-      key: `current${suffix}`,
+      label: `Current At ${ suffix }`,
+      key: `current${ suffix }`,
       fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${suffix} Histogram` }] }),
+        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${ suffix } Histogram` }] }),
         getBackgroundColor(),
         wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
           className: 'color-levels',
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
-            .map(i => getColor({ label: `Level ${i}`, key: `level${i}BackgroundColor` })),
+            .map(i => getColor({ label: `Level ${ i }`, key: `level${ i }BackgroundColor` })),
         }), { key: null }),
         new FieldConfig({
           fieldGroupClassName: 'current-level',
           className: 'current-level-item',
           fieldGroup: [
             getFontColor(),
-            getColor({ label: `Inside ${suffix} Background Color`, key: 'insideBackgroundColor' }),
+            getColor({ label: `Inside ${ suffix } Background Color`, key: 'insideBackgroundColor' }),
             getHightlightColor(),
             getHistogramColor(),
             getTextAlign(),
@@ -658,11 +658,11 @@ function getCurrentFields(suffix: string) {
             fieldGroupClassName: '',
             className: 'mt-0',
             fieldGroup: [
-              getColor({ label: `Tail Inside ${suffix} Fore`, key: 'tailInsideColor' }),
+              getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
               wrapWithClass(getCheckboxes({
                   checkboxes: [{
                     key: `tailInsideBold`,
-                    label: `Tail Inside ${suffix} Bold`
+                    label: `Tail Inside ${ suffix } Bold`
                   }]
                 }),
                 'd-block tail-checkbox'),

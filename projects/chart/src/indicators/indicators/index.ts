@@ -1,4 +1,5 @@
 export * from './Indicator';
+export * from './DefaultIndicator';
 export * from './Footprint';
 export * from './VolumeProfile';
 export * from './CompositeProfile';
@@ -6,4 +7,4 @@ export * from './PriceStats';
 export * from './SessionStats';
 export * from './VolumeBreakdown';
 export * from './ZigZag';
-export * from './DefaultIndicator';
+export * from './ZigZagOscillator';

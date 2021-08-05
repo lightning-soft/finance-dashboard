@@ -30,6 +30,8 @@ export class AccountsManager implements ConnectionContainer {
     this.__accounts = value.filter((a, index, arr) => arr.findIndex(i => i.id === a.id) === index);
   }
 
+  private _soundService: SoundService;
+
   private _wsIsOpened = false;
   private _wsHasError = false;
   private _accountsConnection = new Map();
@@ -46,17 +48,12 @@ export class AccountsManager implements ConnectionContainer {
     (window as any).accounts = this;
   }
 
-  private _serviceList = new Map();
-
   private _getSoundService(): any {
-    const nameService = 'SoundService';
-    const soundService = this._serviceList.get(nameService);
-    if (soundService)
-      return soundService;
-    
-    const service = this._injector.get(SoundService);
-    this._serviceList.set(nameService, service);
-    return service;
+    if (!this._soundService) {
+      this._soundService = this._injector.get(SoundService);
+    }
+
+    return this._soundService;
   }
 
   getConnectionByAccountId(accountId: Id): IConnection {
@@ -232,7 +229,8 @@ export class AccountsManager implements ConnectionContainer {
         concatMap(item => {
           item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-          this._getSoundService().play(Sound.CONNECTED);
+          if (item.connected)
+            this._getSoundService().play(Sound.CONNECTED);
 
           return this._connectionsRepository.updateItem((item)).pipe(
             map(_ => item),

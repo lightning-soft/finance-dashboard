@@ -4,11 +4,12 @@ import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { LayoutComponent, saveCommand, WindowPopupManager } from 'layout';
 import { NzConfigService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import { filter, first } from 'rxjs/operators';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Sound, SoundService } from 'sound';
 import { Themes, ThemesHandler } from 'themes';
-import { OrdersFeed, OrderStatus } from 'trading';
+import { OrdersFeed, OrderStatus, OrderType } from 'trading';
 import { isEqual } from 'underscore';
 import { WindowMessengerService } from 'window-messenger';
 import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -23,7 +24,6 @@ const OrderStatusToSound = {
   [OrderStatus.Filled]: Sound.ORDER_FILLED,
   [OrderStatus.Canceled]: Sound.ORDER_CANCELLED,
   [OrderStatus.Rejected]: Sound.ORDER_REJECTED,
-  // [OrderStatus.Replaced]: Sound.ORDER_REPLACED,
   [OrderStatus.Pending]: Sound.ORDER_PENDING,
   [OrderStatus.Rejected]: Sound.ORDER_REJECTED,
 };
@@ -60,11 +60,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private _windowPopupManager: WindowPopupManager,
     private _workspaceService: WorkspacesManager,
     private saverService: SaveLayoutConfigService,
+    private _notifier: NotifierService,
     private windowMessengerService: WindowMessengerService,
   ) {
   }
 
   ngOnInit() {
+    this._settingsService.init()
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+      }, error => {
+        console.error(error);
+        this._notifier.showError('Something went wrong during loading settings');
+      });
     this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
     this._setupSettings();
@@ -249,7 +257,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private _subscribeToOrders() {
     this._ordersFeed.on((order) => {
-      const sound = OrderStatusToSound[order.status];
+      let sound;
+      if (order.status === OrderStatus.Filled && (order.type === OrderType.StopLimit || order.type === OrderType.StopMarket))
+        sound = Sound.STOP_FILLED;
+      else
+        sound = OrderStatusToSound[order.status];
+
       console.log('Order status', order.status);
       if (sound != null) {
         this._soundService.play(sound);
@@ -374,7 +387,7 @@ const keysAlwaysToHandle: number[][] = [
 ];
 
 function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
-  const element = <HTMLElement>event?.target;
+  const element = event?.target as HTMLElement;
 
   if (!element)
     return true;

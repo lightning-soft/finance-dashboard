@@ -1,9 +1,9 @@
 import { ITimezone } from 'timezones-clock';
 import { IKeyBindingDTO } from 'keyboard';
 import { Workspace } from 'workspace-manager';
-import { NavbarPosition } from "./settings.service";
-import { IBaseTemplate } from "templates";
-import { ISound } from 'projects/sound/src/lib/sound.interface';
+import { NavbarPosition } from './settings.service';
+import { IBaseTemplate } from 'templates';
+import { ISound } from 'sound';
 
 export interface ICommand {
   readonly UIString: string;

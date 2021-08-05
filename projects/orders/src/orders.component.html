@@ -67,7 +67,7 @@
       <button title="Duplicate" (click)="duplicateSelectedOrder()" [disabled]="selectedOrders.length !== 1">
         <i class="icon-duplicate"></i>
       </button>
-      <button (click)="openOrderForm()"><i class="icon-add"></i></button>
+      <button (click)="openOrderForm($event)"><i class="icon-add"></i></button>
 
       <!--      <div class="submit-buttons">-->
       <!--        <button><i class="icon-stop"></i></button>-->

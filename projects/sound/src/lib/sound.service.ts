@@ -1,16 +1,16 @@
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export enum Sound {
-  CONNECTED = 'connectedSound',
-  CONNECTION_LOST = 'connectionLostSound',
-  ORDER_FILLED = 'orderFilledSound',
-  ORDER_CANCELLED = 'orderCancelledSound',
-  ORDER_REPLACED = 'orderReplacedSound',
-  ORDER_PENDING = 'orderPendingSound',
-  ORDER_REJECTED = 'orderRejectedSound',
-  TARGET_FILLED = 'targetFilledSound',
-  STOP_FILLED = 'stopFilledSound',
-  ALERT = 'alertSound'
+  CONNECTED = 'connected',
+  CONNECTION_LOST = 'connectionLost',
+  ORDER_FILLED = 'orderFilled',
+  ORDER_CANCELLED = 'orderCancelled',
+  ORDER_REPLACED = 'orderReplaced',
+  ORDER_PENDING = 'orderPending',
+  ORDER_REJECTED = 'orderRejected',
+  TARGET_FILLED = 'targetFilled',
+  STOP_FILLED = 'stopFilled',
+  ALERT = 'alert'
 }
 
 export const SettingsStore = new InjectionToken('SettingsStore');
