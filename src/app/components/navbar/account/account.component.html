@@ -16,12 +16,16 @@
       nz-menu-item
     >
       <span [title]="userName" class=" text-ellipsis username">{{ userName }}</span>
- <!--     <button
-        class="icon-edit"
-        (click)="changeName()"
-      ></button>-->
+      <!--     <button
+             class="icon-edit"
+             (click)="changeName()"
+           ></button>-->
     </li>
-
+    <li class="change-name account-info"
+        (click)="openWindow()"
+        nz-menu-item>
+      <span class="text-ellipsis username  ">Account Info</span>
+    </li>
     <li class="divider"></li>
 
     <li

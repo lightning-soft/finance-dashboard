@@ -23,3 +23,4 @@ export * from './real-volume-datafeed';
 export * from './real-settle.data-feed';
 export * from './real-sessions.repository';
 export * from './real-timezones.repository';
+export * from './real-account-info.repository';

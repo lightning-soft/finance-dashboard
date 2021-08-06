@@ -180,6 +180,9 @@
       ],
       "sound": [
         "projects/sound/index"
+      ],
+      "account-info": [
+        "projects/account-info/index"
       ]
     }
   }

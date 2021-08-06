@@ -18,7 +18,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class TpUnitsComponent implements ControlValueAccessor {
   form = new FormGroup({
     takeProfit: new FormControl(false),
-    ticks: new FormControl(),
+    unitItem: new FormControl(),
     unit: new FormControl()
   });
   @Input() overlayClass = '';
@@ -26,11 +26,16 @@ export class TpUnitsComponent implements ControlValueAccessor {
   registerOnChange(fn: any): void {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
-      .subscribe(res => fn(res));
+      .subscribe(res => {
+        res[res.unit] = res.unitItem;
+        fn(res);
+      });
   }
+
   getTitle() {
-    return  `TP: ${this.form.getRawValue().ticks} ${this.form.value.unit}`;
+    return `TP: ${ this.form.getRawValue().unitItem } ${ this.form.value.unit }`;
   }
+
   registerOnTouched(fn: any): void {
   }
 
@@ -42,10 +47,13 @@ export class TpUnitsComponent implements ControlValueAccessor {
   }
 
   onValueChange($event: boolean) {
-    const { ticks } = this.form.controls;
-    if ($event)
-      ticks.enable();
-    else
-      ticks.disable();
+    const { unitItem, unit } = this.form.controls;
+    if ($event) {
+      unitItem.enable();
+      unit.enable();
+    } else {
+      unitItem.disable();
+      unit.disable();
+    }
   }
 }

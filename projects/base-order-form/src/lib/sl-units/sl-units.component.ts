@@ -1,10 +1,11 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { OrderType } from 'trading';
 
 export enum SlType {
-  MKT = 'MKT',
-  LMT = 'LMT',
+  MKT = OrderType.StopMarket,
+  LMT = OrderType.StopLimit,
 }
 
 @Component({
@@ -25,18 +26,22 @@ export class SlUnitsComponent implements ControlValueAccessor {
   slType = SlType;
   form = new FormGroup({
     stopLoss: new FormControl(false),
-    type: new FormControl(),
-    ticks: new FormControl(),
+    type: new FormControl(OrderType.Market),
+    unitItem: new FormControl(),
     unit: new FormControl(),
     amount: new FormControl(),
   });
+  isDisabled = true;
 
   @Input() overlayClass = '';
 
   registerOnChange(fn: any): void {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
-      .subscribe(res => fn(res));
+      .subscribe(res => {
+        res[res.unit] = res.unitItem;
+        fn(res);
+      });
   }
 
   registerOnTouched(fn: any): void {
@@ -50,7 +55,7 @@ export class SlUnitsComponent implements ControlValueAccessor {
   }
 
   updateType(type: SlType) {
-    this.form.patchValue({type});
+    this.form.patchValue({ type });
   }
 
   isCurrentType(type: SlType) {
@@ -58,14 +63,20 @@ export class SlUnitsComponent implements ControlValueAccessor {
   }
 
   onValueChange($event: boolean) {
-    const { ticks } = this.form.controls;
-    if ($event)
-      ticks.enable();
-    else
-      ticks.disable();
+    const { unitItem, unit, amount  } = this.form.controls;
+    const controls = [unitItem, unit, amount];
+    if ($event) {
+      this.isDisabled = false;
+      controls.forEach(item => item.enable());
+    }
+    else {
+      controls.forEach(item => item.disable());
+      this.isDisabled = true;
+
+    }
   }
 
   getTitle() {
-   return  `SL: ${this.form.getRawValue().ticks} ${this.form.value.unit}`;
+    return `SL: ${ this.form.getRawValue().unitItem } ${ this.form.value.unit }`;
   }
 }

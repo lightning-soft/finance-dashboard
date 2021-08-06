@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -34,7 +34,7 @@ const OrderStatusToSound = {
   styleUrls: ['./dashboard.component.scss'],
 })
 @UntilDestroy()
-export class DashboardComponent implements AfterViewInit, OnInit {
+export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild(LayoutComponent, { static: false }) layout: LayoutComponent;
 
   hasBeenSaved: boolean;
@@ -120,8 +120,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         first(),
         untilDestroyed(this),
       ).subscribe(() => {
-        this._windowPopupManager.init(this._workspaceService.workspaces.value);
-      });
+      this._windowPopupManager.init(this._workspaceService.workspaces.value);
+    });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
@@ -372,13 +372,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         ...widgetOptions.options
       });
     } else {
-      console.error(`Component ${component} not found, make sure spelling is correct`);
+      console.error(`Component ${ component } not found, make sure spelling is correct`);
     }
   }
 
   private async _save() {
     await this.saverService.save(this.layout.getState());
     this.hasBeenSaved = true;
+  }
+
+  ngOnDestroy() {
+    this._settingsService.destroy();
   }
 }
 
