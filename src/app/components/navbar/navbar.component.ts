@@ -7,6 +7,7 @@ import { NavbarPosition, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
 import { isElectron } from '../../is-electron';
+import { NotificationListComponent } from "notification-list";
 
 @UntilDestroy()
 @Component({
@@ -130,6 +131,7 @@ export class NavbarComponent implements AfterViewInit {
   }
 
   openNotificationsList(): void {
+    const sizes = NotificationListComponent.getSizes();
     this.layout.addComponent({
       component: {
         name: 'notification-list'
@@ -145,6 +147,7 @@ export class NavbarComponent implements AfterViewInit {
       maximizable: false,
       minimizable: false,
       resizable: true,
+      ...sizes,
     });
   }
 

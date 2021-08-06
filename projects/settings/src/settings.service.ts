@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, debounceTime, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from 'templates';
 import { ISound } from 'sound';
@@ -127,7 +127,10 @@ const defaultSettings: SettingsData = {
 @Injectable()
 @UntilDestroy()
 export class SettingsService {
+  private _unsubscribeFunctions = [];
+
   settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
+  private $updateState = new Subject<void>();
 
   constructor(
     public themeHandler: ThemesHandler,
@@ -137,6 +140,17 @@ export class SettingsService {
   }
 
   public init() {
+    this._unsubscribeFunctions.push(this.$updateState
+      .pipe(
+        debounceTime(100)
+      ).subscribe(() => {
+        const hide = this.loaderService.showLoader();
+        this._settingStore.setItem(this.settings.value).toPromise()
+          .finally(() => {
+            hide();
+          });
+      }));
+
     return this._settingStore
       .getItem()
       .pipe(
@@ -145,6 +159,10 @@ export class SettingsService {
         }),
         tap((s: any) => s && this._updateState(s, false)),
       );
+  }
+
+  public destroy() {
+    this._unsubscribeFunctions.forEach(item => item());
   }
 
   setAutoSave(delay?: number): void {
@@ -164,11 +182,7 @@ export class SettingsService {
   }
 
   saveState(): void {
-    const hide = this.loaderService.showLoader();
-    this._settingStore.setItem(this.settings.value).toPromise()
-      .finally(() => {
-        hide();
-      });
+    this.$updateState.next();
   }
 
   saveKeyBinding(hotkeys: HotkeyEntire) {

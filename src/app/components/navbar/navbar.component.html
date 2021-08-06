@@ -72,7 +72,7 @@
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
 
-    <app-account (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-account>
+    <app-account [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-account>
   </div>
   <div class="time">
     <app-clock [dropdownPlacement]="dropdownPlacementRightSide"

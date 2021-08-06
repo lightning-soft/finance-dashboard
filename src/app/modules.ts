@@ -13,6 +13,7 @@ export const Modules = {
   NotificationList: 'notification-list',
   SessionManager: 'session-manager',
   MarketWatch: 'market-watch',
+  AccountInfo: 'account-info',
 };
 
 export const Components = {
@@ -36,6 +37,7 @@ export const Components = {
   OrdersPanel: 'ordersPanel',
   MarketWatch: 'marketWatch',
   MarketWatchSettings: 'market-watch-settings',
+  AccountInfo: 'account-info',
 };
 
 export const modulesStore: IModules[] = [
@@ -118,5 +120,11 @@ export const modulesStore: IModules[] = [
       Components.MarketWatch,
       Components.MarketWatchSettings,
     ]
+  },
+  {
+    module: Modules.AccountInfo,
+    components: [
+      Components.AccountInfo
+    ],
   }
 ];

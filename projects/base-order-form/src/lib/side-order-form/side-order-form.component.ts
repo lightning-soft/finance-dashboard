@@ -280,12 +280,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
       duration: new FormControl(duration, Validators.required),
       stopLoss: new FormControl({
         stopLoss: false,
-        ticks: 10,
+        unitItem: 10,
         unit: 'ticks'
       }),
       takeProfit: new FormControl({
         takeProfit: false,
-        ticks: 12,
+        unitItem: 12,
         unit: 'ticks'
       }),
       amount: new FormControl(1),

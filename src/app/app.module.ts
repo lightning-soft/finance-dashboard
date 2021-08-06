@@ -1,5 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule, NgZone } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -23,7 +23,7 @@ import {
   NzToolTipModule
 } from 'ng-zorro-antd';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { en_US, NzI18nService, NZ_I18N } from 'ng-zorro-antd/i18n';
+import { en_US, NZ_I18N, NzI18nService } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NotificationModule } from 'notification';
@@ -52,6 +52,7 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+
 function generateLoginLink(config): string {
 
   const { clientId, responseType, scope, redirectUri } = config;
@@ -210,6 +211,10 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
         path: Modules.MarketWatch,
         loadChildren: () => import('market-watch').then(i => i.MarketWatchModule)
       },
+      {
+        path: Modules.AccountInfo,
+        loadChildren: () => import('account-info').then(i => i.AccountInfoModule),
+      }
     ], modulesStore),
     RouterModule.forRoot([
       {

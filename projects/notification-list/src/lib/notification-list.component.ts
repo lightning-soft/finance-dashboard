@@ -2,14 +2,13 @@ import { Component, NgZone } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { AuthService } from 'auth';
 import { ILayoutNode, LayoutNode } from 'layout';
-import {
-  NotificationService,
-  Notification
-} from 'notification';
+import { Notification, NotificationService } from 'notification';
 import * as moment from 'moment';
 
 export interface NotificationListComponent extends ILayoutNode {
 }
+
+const notificationListSize = 'notificationListSize';
 
 @UntilDestroy()
 @Component({
@@ -24,6 +23,14 @@ export class NotificationListComponent {
   visible = false;
   hasNotifications = false;
 
+  public static getSizes() {
+    try {
+      return JSON.parse(localStorage.getItem(notificationListSize));
+    } catch (e) {
+      return {};
+    }
+  }
+
   constructor(
     private _notificationService: NotificationService,
     private _ngZone: NgZone,
@@ -35,6 +42,7 @@ export class NotificationListComponent {
     });
     this.setTabTitle('Notifications');
     this.setTabIcon('icon-notification');
+    this.onRemove(this.destroy.bind(this));
   }
 
   private _handleNotifications(notifications: Notification[]): void {
@@ -54,6 +62,12 @@ export class NotificationListComponent {
 
   public acceptNotification(id) {
     this._notificationService.acceptNotification(id);
+  }
+
+  destroy() {
+    const height = this.layoutContainer.options.height;
+    const width = this.layoutContainer.options.width;
+    localStorage.setItem(notificationListSize, JSON.stringify({ height, width }));
   }
 }
 
