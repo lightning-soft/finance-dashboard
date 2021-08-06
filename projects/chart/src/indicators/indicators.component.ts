@@ -18,6 +18,7 @@ import {
   ZigZag,
   ZigZagOscillator,
 } from './indicators';
+import { customVolumeProfile } from "./fields";
 
 declare const StockChartX: any;
 
@@ -123,7 +124,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       ],
     }
   ];
-  selectedIndicator: any;
+  selectedIndicator: any = { config: customVolumeProfile, settings: {} };
   form: FormGroup;
   formValueChangesSubscription: Subscription;
   indicatorsDescriptions: {

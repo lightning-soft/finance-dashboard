@@ -5,6 +5,13 @@
 
 
   ::ng-deep {
+
+    .centralize-number {
+      number-input {
+        align-items: center;
+      }
+    }
+
     .reverse-switch-label {
       switch {
         flex-direction: row;
@@ -353,6 +360,42 @@
         width: 49%;
       }
 
+    }
+
+    .profile-type-select {
+      nz-form-item {
+        flex-direction: row;
+
+        .ant-form-item-label label {
+          margin-left: 0;
+          color: $text-80;
+          margin-right: 15px;
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .profile-hotkey {
+      .hotkey-wrapper {
+        label {
+          width: auto;
+          margin-right: 5px;
+          color: $text-80;
+        }
+
+        hotkey-input {
+          width: 68%;
+
+          .hotkey-input {
+            background: $light;
+            font-size: 0.55rem;
+            padding-left: 3px;
+            padding-right: 3px;
+            display: flex;
+            align-items: center;
+          }
+        }
+      }
     }
 
     color-picker {

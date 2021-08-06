@@ -110,12 +110,14 @@ export function generateKeyFromLabel(label) {
 export function getHotkey(config: any | string) {
   let label;
   let key;
+  let extraConfig = {};
   if (typeof config === 'string') {
     label = config;
     key = generateKeyFromLabel(config);
   } else {
     label = config.label;
     key = config.key;
+    extraConfig = config.extraConfig || {};
   }
   return {
     templateOptions: {
@@ -124,6 +126,7 @@ export function getHotkey(config: any | string) {
     className: 'mt-3 d-block',
     type: FieldType.Hotkey,
     key,
+    ...extraConfig,
   };
 }
 

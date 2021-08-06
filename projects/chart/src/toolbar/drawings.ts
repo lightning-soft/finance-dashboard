@@ -1,4 +1,4 @@
-const drawings =  [
+const drawings = [
   {
     icon: 'text',
     name: 'Text',
@@ -59,7 +59,7 @@ const drawings =  [
     if (typeof drawing === 'string')
       return { className: drawing, name: drawing };
 
-    return  drawing;
+    return drawing;
   });
   return item;
 });
