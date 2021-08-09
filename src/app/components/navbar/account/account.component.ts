@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AuthService } from 'auth';
 import { AppConfig } from 'src/app/app.config';
 
@@ -9,6 +9,7 @@ import { AppConfig } from 'src/app/app.config';
 })
 export class AccountComponent implements OnInit {
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
+  @Input() layout;
 
   isAuthenticated: boolean;
   userName: string;
@@ -61,4 +62,17 @@ export class AccountComponent implements OnInit {
     return `${config.url}connect/authorize?${data.toString()}`;
   }
 
+  openWindow() {
+    this.layout.addComponent({
+      component: {
+        name: 'account-info'
+      },
+      single: true,
+      height: 350,
+      width: 700,
+      allowPopup: false,
+      removeIfExists: true,
+      resizable: true,
+    });
+  }
 }

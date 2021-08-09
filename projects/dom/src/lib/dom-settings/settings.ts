@@ -255,6 +255,10 @@ export class DomSettings {
     ltq: true,
     poc: true,
     valueArea: true,
+    sessions: {
+      histogramEnabled: true,
+      overlayLineColor: '#fff',
+    },
   };
   orders: any = {
     backgroundColor: 'transparent',

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 import { ISession, SessionsRepository } from 'trading';
 
@@ -8,9 +8,15 @@ import { ISession, SessionsRepository } from 'trading';
   templateUrl: './sessions-select.component.html',
   styleUrls: ['./sessions-select.component.scss']
 })
-export class SessionsSelectComponent extends FieldType {
+export class SessionsSelectComponent extends FieldType implements AfterViewInit {
+  label = 'Session Template';
+
   constructor(public repository: SessionsRepository) {
     super();
+  }
+  ngAfterViewInit() {
+    if (this.field.templateOptions.label)
+      this.label = this.field.templateOptions.label;
   }
 
   handleSessionChange(session: ISession) {

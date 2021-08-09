@@ -819,11 +819,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._sideForm.loadState({ settings: settings.trading.orderArea.settings });
 
     this.chart.theme = theme;
+    let needAutoScale = false;
+
     if (oldTheme.tradingPanel.tradingBarLength != theme.tradingPanel.tradingBarLength ||
       theme.tradingPanel.tradingBarUnit != oldTheme.tradingPanel.tradingBarUnit) {
+      needAutoScale = true;
       this.chart.handleResize();
     }
-    this.chart.setNeedsUpdate();
+
+    this.chart.setNeedsUpdate(needAutoScale);
   }
 
   private _getSettingsKey() {

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ItemsComponent } from 'base-components';
+// need to fix circular dependency
+import { ItemsComponent } from 'projects/base-components/src/components/items.component';
 import { Repository } from 'communication';
 
 interface IDataSelectItemAction {
@@ -75,11 +76,11 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
     if (typeof item === 'object') {
       this.value = item.id;
     } else {
-      this.value = +item;
+      this.value = item;
 
       const items = this.default ? [this.default].concat(this.items) : this.items;
 
-      item = items.find(i => i.id === this.value);
+      item = items.find(i => i.id == this.value);
     }
 
     this.handleChange.emit(this.cloneItem(item));

@@ -37,6 +37,8 @@ button {
   }
 }
 
+
+
 .change-name {
   font-weight: 600;
   font-size: 0.9rem;
@@ -47,6 +49,10 @@ button {
 
   .username {
     display: block;
+  }
+
+  &.account-info {
+    cursor: pointer;
   }
 
   button {

@@ -11,6 +11,11 @@
   opacity: 0.5;
 }
 
+.amount-control {
+  height: 20px;
+  font-size: 0.8rem;
+}
+
 .stp-buttons {
   margin-bottom: 5px;
   justify-content: space-around;
@@ -22,7 +27,7 @@
   padding: 0;
   transition: all 0.3s;
   background: #1B1D22;
-  border: 1px solid transparent;
+  border: 1px solid transparent !important;
 
   &:not(:first-child) {
     margin-left: 6px;

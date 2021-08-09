@@ -109,15 +109,13 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
       delete value.iceQuantity;
     }
     if (value.stopLoss?.stopLoss) {
-      const { ticks } = value.stopLoss;
-      value.stopLoss = { quantity, ticks };
+      value.stopLoss.quantity = quantity;
     } else {
       delete value.stopLoss;
     }
 
     if (value.takeProfit?.takeProfit) {
-      const { ticks } = value.takeProfit;
-      value.takeProfit = { quantity, ticks };
+      value.takeProfit.quantity = quantity;
     } else {
       delete value.takeProfit;
     }

@@ -1,0 +1,13 @@
+:host {
+  ::ng-deep {
+    window-header {
+      .title {
+        color: #fff !important;
+      }
+    }
+  }
+}
+
+data-grid {
+  height: calc(100% - 21px);
+}

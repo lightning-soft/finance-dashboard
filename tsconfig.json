@@ -39,6 +39,10 @@
       "window-messanger": [
         "dist/window-messanger/window-messanger",
         "dist/window-messanger"
+      ],
+      "account-info": [
+        "dist/account-info/account-info",
+        "dist/account-info"
       ]
     }
   },
