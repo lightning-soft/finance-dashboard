@@ -98,11 +98,25 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   ngAfterViewInit() {
-    this.form.controls.connectOnStartUp.valueChanges.subscribe(connect => {
-      if (connect) {
-        this.userData?.form?.controls?.autoSavePassword?.setValue(true);
-      }
-    });
+    this.form.controls.connectOnStartUp.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe(connect => {
+        if (connect) {
+          this.selectedItem.autoSavePassword = true;
+          this.userData?.form?.controls?.autoSavePassword?.setValue(true);
+        }
+
+        this.selectedItem.connectOnStartUp = connect;
+      });
+  }
+
+  handleAutosavePasswordToggle(autosave: boolean): void {
+    if (!autosave) {
+      this.form.controls.connectOnStartUp.setValue(false);
+      this.selectedItem.connectOnStartUp = false;
+    }
+
+    this.selectedItem.autoSavePassword = autosave;
   }
 
   contextMenu($event: MouseEvent, menu: any): void {
@@ -110,6 +124,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   saveState(): AccountsState {
+    this._updateConnection({...this.selectedItem});
     return { selectedItem: this.selectedItem };
   }
 
@@ -119,6 +134,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       this.selectItem(selectedItem);
       this._updateSelectedItem();
     }
+  }
+
+  private _updateConnection(connection: IConnection): void {
+    this._accountsManager.updateItem({ ...connection })
+      .pipe(this.showItemLoader(connection), untilDestroyed(this))
+      .subscribe({
+        error: (error) => {
+          this._notifier.showError(error);
+        }
+      });
   }
 
   private _updateSelectedItem(): void {
@@ -172,7 +197,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       server = _server['name'];
 
     const { username, password, autoSavePassword, gateway, ...data } = item;
-    const userData = { username, password, server, gateway, autoSavePassword };
+    const userData = { username, password: autoSavePassword ? password : '', server, gateway, autoSavePassword };
     return { ...data, broker, userData };
   }
 
@@ -207,18 +232,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       );
   }
 
-  rename(name, item) {
-    this._accountsManager.rename(name, item)
-      .pipe(
-        this.showItemLoader(item),
-        untilDestroyed(this)
-      ).subscribe(
-        (response: any) => {
-        },
-        err => {
-          this._notifier.showError(err);
-        },
-      );
+  rename(name: string, item: IConnection): void {
+    this._updateConnection({ ...item, name });
   }
 
   connect() {

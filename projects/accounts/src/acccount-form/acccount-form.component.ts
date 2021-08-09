@@ -1,4 +1,4 @@
-import { Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
+import { Component, forwardRef, Injector, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { IPaginationResponse } from 'communication';
@@ -20,6 +20,20 @@ import { ItemsComponent } from 'base-components';
 })
 @UntilDestroy()
 export class AcccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
+  @Input() isSubmitted = false;
+
+  @Output() autosavePasswordToggle = new EventEmitter<boolean>();
+
+  passwordVisible = true;
+
+  form = new FormGroup({
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required),
+    server: new FormControl(null, Validators.required),
+    gateway: new FormControl(null, Validators.required),
+    autoSavePassword: new FormControl(false),
+  });
+
   get gateways() {
     return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
   }
@@ -31,18 +45,6 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   get isValid() {
     return this.form.valid;
   }
-
-  @Input() isSubmitted = false;
-
-  form = new FormGroup({
-    username: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required),
-    server: new FormControl(null, Validators.required),
-    gateway: new FormControl(null, Validators.required),
-    autoSavePassword: new FormControl(false),
-  });
-
-  passwordVisible = true;
 
   constructor(
     protected _repository: ConnectionsRepository,
@@ -69,6 +71,7 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   toggleAutoSave() {
     const autoSavePassword = !this.autoSave;
     this.form.patchValue({ autoSavePassword });
+    this.autosavePasswordToggle.emit(autoSavePassword);
   }
 
   getName(o) {
@@ -98,8 +101,10 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   }
 
   writeValue(obj: any): void {
-    if (obj)
-      this.form.patchValue(obj);
+    if (!obj)
+      return;
+
+    this.form.patchValue(obj);
   }
 
   setDisabledState(isDisabled: boolean) {

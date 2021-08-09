@@ -215,11 +215,9 @@ export class AccountsManager implements ConnectionContainer {
       .pipe(tap((conn) => this.onCreated(conn)));
   }
 
-  rename(name: string, connection: IConnection): Observable<IConnection> {
-    const _connection = { ...connection, name };
-
-    return this._connectionsRepository.updateItem(_connection)
-      .pipe(tap(() => this.onUpdated(_connection)));
+  updateItem(connection: IConnection): Observable<IConnection> {
+    return this._connectionsRepository.updateItem(connection)
+      .pipe(tap(() => this.onUpdated(connection)));
   }
 
   connect(connection: IConnection): Observable<IConnection> {
