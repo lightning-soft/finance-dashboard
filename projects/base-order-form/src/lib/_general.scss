@@ -14,7 +14,7 @@ button, button:hover, button:active, button:focus-within {
 
   &[disabled] {
     color: white;
-    border: none;
+    border: 1px solid transparent;
     opacity: 0.5;
   }
 }

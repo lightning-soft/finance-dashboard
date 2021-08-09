@@ -6,7 +6,9 @@ import { convertToColumn, ItemsBuilder, ItemsComponent } from 'base-components';
 import { AccountInfoItem } from './models/account-info';
 import { NotifierService } from 'notifier';
 import { AccountInfoColumnsEnum } from './models/account-info-columns.enum';
-import { DataGrid } from "data-grid";
+import { DataGrid } from 'data-grid';
+import { Storage } from 'storage';
+import { accountInfoSizeKey } from 'src/app/components';
 
 export interface AccountInfoComponent extends ILayoutNode {
 }
@@ -68,7 +70,7 @@ const headers = [
 ];
 
 @Component({
-  selector: 'lib-account-info',
+  selector: 'account-info',
   templateUrl: './account-info.component.html',
   styleUrls: [
     './account-info.component.scss',
@@ -78,6 +80,10 @@ const headers = [
 @LayoutNode()
 export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IAccountsListener {
   builder = new ItemsBuilder<AccountInfo, AccountInfoItem>();
+  contextMenuState = {
+    showColumnHeaders: true,
+    showHeaderPanel: true,
+  };
   columns = headers.map(item => convertToColumn(item, {
     textOverflow: false, textAlign: 'left',
     hoveredBackgroundColor: '#2B2D33',
@@ -94,9 +100,9 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
 
 
   constructor(protected _repository: AccountInfoRepository,
+              private _storage: Storage,
               protected _notifier: NotifierService) {
     super();
-    window['accountInfo'] = this;
   }
 
   ngOnInit(): void {
@@ -105,7 +111,26 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       wrap: (accountInfo) => new AccountInfoItem(accountInfo),
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
     });
+    this.onRemove(() => {
+      const height = this.layoutContainer.options.height;
+      const width = this.layoutContainer.options.width;
+      this._storage.setItem(accountInfoSizeKey, { height, width });
+    });
   }
+
+  saveState() {
+    return this._dataGrid.saveState();
+  }
+
+  loadState(state) {
+    if (state?.columns) {
+      this.columns = state.columns;
+    }
+    if (state?.contextMenuState) {
+      this.contextMenuState = state.contextMenuState;
+    }
+  }
+
 
   handleNodeEvent(name: LayoutNodeEvent) {
     switch (name) {

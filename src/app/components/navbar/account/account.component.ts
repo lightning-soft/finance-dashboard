@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AuthService } from 'auth';
 import { AppConfig } from 'src/app/app.config';
+import { Storage } from 'storage';
+
+export const accountInfoSizeKey = 'accountInfoSizeKey';
 
 @Component({
   selector: 'app-account',
@@ -18,7 +21,8 @@ export class AccountComponent implements OnInit {
 
   constructor(
     private _authService: AuthService,
-    private _appConfig: AppConfig
+    private _appConfig: AppConfig,
+    private _storage: Storage,
   ) { }
 
   ngOnInit(): void {
@@ -62,7 +66,8 @@ export class AccountComponent implements OnInit {
     return `${config.url}connect/authorize?${data.toString()}`;
   }
 
-  openWindow() {
+  openAccountInfo() {
+    const size = this._storage.getItem(accountInfoSizeKey);
     this.layout.addComponent({
       component: {
         name: 'account-info'
@@ -73,6 +78,7 @@ export class AccountComponent implements OnInit {
       allowPopup: false,
       removeIfExists: true,
       resizable: true,
+      ...size,
     });
   }
 }

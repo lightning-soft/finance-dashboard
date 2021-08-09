@@ -7,7 +7,7 @@ import { NavbarPosition, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
 import { isElectron } from '../../is-electron';
-import { NotificationListComponent } from "notification-list";
+import { NotificationListComponent } from 'notification-list';
 
 @UntilDestroy()
 @Component({
