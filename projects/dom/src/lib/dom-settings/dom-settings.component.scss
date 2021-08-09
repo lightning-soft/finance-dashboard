@@ -17,6 +17,28 @@ cdk-virtual-scroll-viewport {
      padding-right: 3px;*/
   }
 
+  .sessions {
+    sessions-select {
+      data-select {
+        display: grid;
+        grid-template-columns: 50% 49%;
+        justify-content: space-between;
+        margin-right: 8px;
+        align-items: self-end;
+        color: $text-80;
+
+        nz-select {
+          height: 20px !important;
+          font-size: 0.75rem !important;
+        }
+
+        .custom-form-control .ant-select-selector {
+          height: 20px !important;
+        }
+      }
+    }
+  }
+
   .depth-checkboxes {
     padding-left: 2px;
   }

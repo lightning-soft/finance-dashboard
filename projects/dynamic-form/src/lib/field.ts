@@ -31,6 +31,7 @@ export enum FieldType {
   ColumnSelector = 'columnSelector',
   Label = 'Label',
   DataBox = 'dataBox',
+  SessionsSelect = 'sessions-select',
 }
 
 export enum InputType {

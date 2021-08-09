@@ -46,6 +46,7 @@ import {
   compareInstruments,
   getPrice,
   getPriceSpecs,
+  HistoryRepository,
   IAccount,
   IInstrument,
   IOrder,
@@ -75,8 +76,8 @@ import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './do
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
-import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { VolumeCell } from './histogram';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe {
 }
@@ -246,6 +247,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.instrument?.tickSize ?? 0.25;
   }
 
+  eth;
+  rth;
+
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -255,6 +259,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
     private _volumeHistoryRepository: VolumeHistoryRepository,
+    private _historyRepository: HistoryRepository,
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
@@ -527,6 +532,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   protected _ttt = 0;
 
+  private _calcTickSize() {
+    const { ticksMultiplier, useCustomTickSize } = this._settings.general.commonView;
+    const multiplier = useCustomTickSize ? ticksMultiplier : 1;
+    return multiplier * this._tickSize;
+  }
+
   handleLinkData({ instrument, account }) {
     if (instrument)
       this.instrument = instrument;
@@ -651,7 +662,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const common = settings.common;
     const general = settings?.general;
-    const getFont = (fontWeight) => `${ fontWeight || '' } ${ common.fontSize }px ${ common.fontFamily }`;
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
     const hiddenColumns: any = {};
 
     const hasSplitOrdersChanged = this._settings.orders.split !== settings.orders.split;
@@ -740,8 +751,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${ key }${ _key }`] = obj[_key];
-          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
         }
       }
     }
@@ -759,6 +770,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.centralize();
       // this._calculateDepth();
     }
+    const sessions = this._settings.volume.sessions;
+    const { eth, rth } = sessions;
+
+    const oldEth = this.eth;
+    const oldRth = this.rth;
+    const hasSessionChanged = oldEth?.id !== eth?.id || oldRth?.id !== rth?.id;
+
+    this.eth = eth;
+    this.rth = rth;
 
     for (const i of this.items) {
       i.ltq.changeStatus('');
@@ -766,6 +786,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.currentAsk.changeStatus('');
       i.totalAsk.changeStatus('');
       i.totalBid.changeStatus('');
+      if (hasSessionChanged)
+        i.volume.recalculateVolume();
     }
 
     const depth = settings.general?.marketDepth;
@@ -773,8 +795,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
     this.domForm?.loadState(this._settings.orderArea as any);
 
-    // this._calculateDepth();
     this.refresh();
+    this._updateVolumeColumn();
     this.detectChanges(true);
   }
 
@@ -1016,12 +1038,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
-          for (const vol of res.data) {
-            const item = this._getItem(vol.price);
-            item.setVolume(vol.volume);
-          }
+          /*  for (const vol of res.data) {
+              const item = this._getItem(vol.price);
+              item.setVolume(vol.volume);
+            }*/
+          console.log('volumeHistory', res.data.reduce((total, item) => {
+            return total + item.volume;
+          }, 0));
 
-          this._updateVolumeColumn();
+          // this._updateVolumeColumn();
         },
         error => this.notifier.showError(error)
       );
@@ -1078,9 +1103,62 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this.refresh();
           this._fillPL();
           this._loadOrders();
-          this._loadVolumeHistory();
+          this.loadSessionsData();
         },
         error => this.notifier.showError(error)
+      );
+
+  }
+
+  loadSessionsData() {
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date();
+
+    const { symbol, exchange } = this._instrument;
+    const params = {
+      Symbol: symbol,
+      Exchange: exchange,
+      startDate, endDate,
+      barSize: 1,
+      periodicity: 'Minute',
+      accountId: this.accountId,
+      PriceHistory: true,
+    };
+
+    this._historyRepository.getItems(params)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        ({ data }) => {
+          let volumeItems = [];
+          this.items.forEach(item => item.volume.clear());
+
+          for (const item of data) {
+            for (const detail of item.details) {
+              volumeItems.push(({
+                date: item.date,
+                volume: detail.volume,
+                price: detail.price,
+              }));
+            }
+          }
+
+          volumeItems = volumeItems.sort((a, b) => a.date - b.date);
+          console.log('volumeItems', volumeItems);
+
+          for (const volumeData of volumeItems) {
+            const item = this._getItem(volumeData.price);
+            // item.volume.clear();
+            item.volume.updateValue(volumeData.volume, volumeData.date);
+          }
+          this._updateVolumeColumn();
+          // console.log('historyItems', this.volumeItems.reduce((total, item) => total + item.volume, 0));
+          // this.fillSessionVolume();
+        },
+        (err) => {
+          console.error(err);
+          this.notifier.showError('Error during fetching history data');
+        }
       );
   }
 
@@ -1105,9 +1183,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.account.id != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
+      if (order.account.id !== this.account.id || order.instrument?.id !== this.instrument?.id) continue;
 
-      this.items.forEach(item => item.removeOrder(order));
+      this.items.forEach(i => i.removeOrder(order));
       this._fillOrders(order);
 
       const item = this._getItem(getPrice(order));
@@ -1415,6 +1493,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let maxCurrentAsk = 0;
     let maxCurrentBid = 0;
 
+    let maxVolume = 0;
+    let maxSessionVolume = 0;
+
     const items = this.items;
 
     for (let i = 0; i < items.length; i++) {
@@ -1438,6 +1519,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       sum += value;
       priceSum += (value * item.lastPrice);
 
+      if (value > maxVolume)
+        maxVolume = value;
+
+      const ethVolume = item.volume.ethVolume;
+
+      if (ethVolume > maxSessionVolume)
+        maxSessionVolume = ethVolume;
+
       if (value > max) {
         max = value;
         pointOfControlIndex = i;
@@ -1452,9 +1541,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let valueAreaSum = 0;
     let item1: DomItem;
     let item2: DomItem;
-    let volume1: HistogramCell;
-    let volume2: HistogramCell;
-    const maxVolume = items[pointOfControlIndex]?.volume?._value || 0;
+    let volume1: VolumeCell;
+    let volume2: VolumeCell;
 
     while (!ended) {
       item1 = items[pointOfControlIndex + i];
@@ -1509,6 +1597,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
+      volume1?.setMaxEthVolume(maxSessionVolume);
+      volume2?.setMaxEthVolume(maxSessionVolume);
       volume1?.calcHist(maxVolume);
       volume2?.calcHist(maxVolume);
 
@@ -1857,24 +1947,60 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   afterDraw = (e, grid) => {
-    if (!this._settings.general?.commonView?.centerLine)
-      return;
+    const ctx = e.ctx;
+    let fn;
+
+    const centerLineEnabled = this._settings.general?.commonView?.centerLine;
+    const lastItemIndex = this.items.length - 1;
+    const volumeColumn = grid.schema.find(item => item.name == DOMColumns.Volume);
+
+    const enableEth = this._settings.volume.sessions.histogramEnabled;
+    let x;
+
+    if (enableEth)
+      grid.forEachColumn((column, columnX) => {
+        if (column.name == DOMColumns.Volume)
+          x = columnX;
+      });
+
+    const showColumnHeaders = grid.attributes.showColumnHeaders;
+    const headerHeight = grid.attributes.showColumnHeaders ? (grid.style.headerHeight || grid.style.rowHeight) : 0;
+    const height = grid.style.rowHeight + grid.style.rowOffset;
 
     grid.forEachRow((row, y) => {
-      if (!row.isCenter)
-        return;
+      if (enableEth && (!showColumnHeaders || y >= headerHeight))
+        this.drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x });
 
-      const ctx = e.ctx;
-      const width = e.ctx.canvas.width;
-      const rowHeight = grid.style.rowHeight;
-      y += rowHeight;
+      if (centerLineEnabled && row.isCenter) {
+        fn = () => {
+          const width = e.ctx.canvas.width;
+          const rowHeight = grid.style.rowHeight;
+          y += rowHeight;
 
-      ctx.beginPath();
-      ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
+          ctx.beginPath();
+          ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        };
+      }
     });
+
+    if (fn)
+      fn();
+  }
+
+  private drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x }) {
+    const index = row.index;
+    let prevVolume;
+    if (index !== 0)
+      prevVolume = this.items[index - 1].volume;
+
+    let nextVolume;
+    if (index !== lastItemIndex)
+      nextVolume = this.items[index + 1].volume;
+
+    VolumeCell.drawETH(ctx, row.volume, prevVolume, nextVolume, height, y, volumeColumn.width, x);
   }
 
   transformAccountLabel(label: string) {
@@ -2315,3 +2441,10 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
 
   return pl;
 }
+
+export function calculateDay(date, dayOfWeek) {
+  const currentDay = date.getDay();
+  const distance = dayOfWeek - currentDay;
+  return date.getDate() + distance;
+}
+
