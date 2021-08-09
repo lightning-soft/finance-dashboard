@@ -5,6 +5,7 @@ import { Notification, NotificationStatus, NotificationType } from './notificati
 import { NotificationId } from './type';
 import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
+import { SoundService, Sound } from 'sound';
 
 @Injectable()
 export class NotificationService extends NotifierService {
@@ -37,6 +38,7 @@ export class NotificationService extends NotifierService {
   }
 
   addNotification(notification) {
+    this._injector.get(SoundService).play(Sound.ALERT);
     this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());
   }

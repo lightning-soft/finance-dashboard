@@ -5,16 +5,15 @@
     </div>
     <nz-dropdown-menu #menu="nzDropdownMenu">
         <ul nz-menu>
-            <li nz-menu-item *ngFor="let sound of soundList" (click)="selecte(sound)">
-                <label class="custom-checkbox mb-1">
-                    <input type="checkbox" [checked]="sound === selectedSound">
-                    <span>{{ sound }}</span>
-                </label>
-                <div class="icon" (mouseenter)="play(sound)">
-                    <img class="icon-img" src="./assets/icon/listen.png" alt="">
-                    <img class="icon-img-hover" src="./assets/icon/listen-hover.png" alt="">
-                </div>
-            </li>
+            <nz-radio-group [(ngModel)]="selectedSound">
+                <li nz-menu-item *ngFor="let sound of soundList" (click)="selecte(sound)">
+                    <label nz-radio [nzValue]="sound">{{ sound }}</label>
+                    <div class="icon" (mouseenter)="play(sound)">
+                        <img class="icon-img" src="./assets/icon/listen.png" alt="">
+                        <img class="icon-img-hover" src="./assets/icon/listen-hover.png" alt="">
+                    </div>
+                </li>
+            </nz-radio-group>
         </ul>
     </nz-dropdown-menu>
 </div>
