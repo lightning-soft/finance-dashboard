@@ -1,2 +1,3 @@
 export * from './histogram.cell';
-export * from './histogram.component';
+export * from './volume.cell';
+export * from './total.cell';

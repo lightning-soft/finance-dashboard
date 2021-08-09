@@ -298,6 +298,16 @@ export function getCheckboxes(_config: any) {
   };
 }
 
+export function getSessionSelect(key, label) {
+  return {
+    type: FieldType.SessionsSelect,
+    key,
+    templateOptions: {
+      label,
+    },
+  };
+}
+
 export function getDataBox(key) {
   return {
     key,

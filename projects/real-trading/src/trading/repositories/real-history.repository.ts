@@ -7,6 +7,7 @@ import { HistoryRepository } from "trading";
 declare const moment: any;
 
 export interface IHistoryItem extends IBaseItem, IBar { }
+const requestFormat = 'YYYY-MM-DD HH:mm:ss';
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
@@ -31,6 +32,9 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
   }
 
   getItems(params: any) {
+    params.startDate = moment(params.startDate).format(requestFormat);
+    params.endDate = moment(params.endDate).format(requestFormat);
+
     if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.id) {

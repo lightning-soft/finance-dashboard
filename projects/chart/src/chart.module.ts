@@ -36,9 +36,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { LoaderModule, NullCalescingModule } from 'ui';
 import { ChartSettingsComponent } from './chart-settings/chart-settings.component';
 import { chartSettings } from './chart-settings/settings';
-import { FormlyModule } from '@ngx-formly/core';
 import { DataSelectModule } from 'data-select';
-import { SessionsSelectComponent } from './indicators/sessions-select/sessions-select.component';
 import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -102,14 +100,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     NzCheckboxModule,
     OverlayModule,
     DataSelectModule,
-    FormlyModule.forRoot({
-      types: [
-        {
-          name: 'sessions-select',
-          component: SessionsSelectComponent,
-        },
-      ],
-    }),
   ],
   exports: [
     ChartComponent
@@ -122,8 +112,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     OrdersPanelComponent,
     ConfirmOrderComponent,
     ChartSettingsComponent,
-    SessionsSelectComponent,
-  ],
+  ]
 })
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {

@@ -6,12 +6,10 @@ import { IBar } from '../models';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
-import * as moment from 'moment';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
 declare let StockChartX: any;
 export const MAX_HISTORY_ITEMS = 10000;
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
@@ -83,9 +81,9 @@ export class RithmicDatafeed extends Datafeed {
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: this._convertInterval(timeFrame),
-      endDate: moment(endDate).format(dateFormat),
+      endDate,
       accountId: this._account?.id,
-      startDate: moment(startDate).format(dateFormat),
+      startDate,
       PriceHistory: true,
     };
 

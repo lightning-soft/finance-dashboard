@@ -7,6 +7,7 @@ import {
   getHistogramOrientation,
   getHotkey,
   getNumber,
+  getSessionSelect,
   getTextAlign,
   IFieldConfig,
   wrapWithClass
@@ -83,7 +84,7 @@ export const commonFields: IFieldConfig[] = [
         fieldGroup: [
           getColor('Grid Line Color', (value) => {
             if (value)
-              return { ' td': { border: `1px solid ${value}` } };
+              return { ' td': { border: `1px solid ${ value }` } };
           }),
           getColor('Order Grid Line Color'),
           getColor('Center Line Color', (value) => {
@@ -533,7 +534,24 @@ export const volumeFields: IFieldConfig[] = [
           { key: 'ltq', label: 'Last Traded Qty (LTQ)' },
         ], extraConfig: { className: 'w-100 m-0' }, additionalFields: [getTextAlign()]
       }),
-
+      new FieldConfig({
+        key: 'sessions',
+        label: null,
+        fieldGroupClassName: '',
+        className: 'mx-0 w-100 sessions',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{
+              key: 'histogramEnabled', label: 'Overlay ETH on RTH',
+            }],
+            additionalFields: [
+              getColor('Overlay Line Color'),
+            ],
+          }),
+          wrapWithClass(getSessionSelect('rth', 'RTH Session Template'), 'mt-1 d-block'),
+          wrapWithClass(getSessionSelect('eth', 'ETH Session Template'), 'mt-1 d-block'),
+        ],
+      }),
 
       /*  getCheckboxes({
           checkboxes: [
