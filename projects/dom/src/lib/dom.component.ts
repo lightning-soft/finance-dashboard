@@ -1069,11 +1069,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           asks.sort((a, b) => b.price - a.price);
 
           if (asks.length || bids.length) {
-            let index = 0;
             let price = this._normalizePrice(asks[asks.length - 1]?.price);
             const tickSize = this._tickSize;
 
-            index = 0;
+
             price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
             this.fillData(price);
@@ -1353,6 +1352,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._customTickSize = ticksMultiplier;
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this._fillPL();
+    this.refresh(); // for fill correct index
     this.detectChanges();
   }
 
@@ -1690,10 +1690,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!items.length)
       this.fillData(trade.price);
 
+    item.handleQuote(trade);
+
     const isBid = trade.side === QuoteSide.Bid;
     const size = (isBid ? item.bid._value : item.ask._value) ?? 0;
-
-    item.handleQuote(trade);
 
     if ((isBid && item.isBidSum) || (!isBid && item.isAskSum)) {
       return;
