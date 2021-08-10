@@ -21,9 +21,6 @@ export class VolumeCell extends TotalCell {
       return;
     }
 
-    const prevStroke = ctx.strokeStyle;
-    ctx.beginPath();
-
     ctx.strokeStyle = settings.sessions.overlayLineColor;
 
     const isRightOrientation = settings.histogramOrientation === HistogramOrientation.Right;
@@ -32,9 +29,6 @@ export class VolumeCell extends TotalCell {
     else
       drawLeftHistogram(ctx, x, width, y, height, ethVolume, _maxEthVolume, prevVolumeCell?.ethVolume, nextVolumeCell?.ethVolume);
 
-    ctx.stroke();
-    ctx.strokeStyle = prevStroke;
-    currentVolumeCell.drawed = true;
   }
 
   setMaxEthVolume(value) {

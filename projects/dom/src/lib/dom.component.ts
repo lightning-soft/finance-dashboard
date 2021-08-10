@@ -1966,6 +1966,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const showColumnHeaders = grid.attributes.showColumnHeaders;
     const headerHeight = grid.attributes.showColumnHeaders ? (grid.style.headerHeight || grid.style.rowHeight) : 0;
     const height = grid.style.rowHeight + grid.style.rowOffset;
+    ctx.beginPath();
+    ctx.save();
 
     grid.forEachRow((row, y) => {
       if (enableEth && (!showColumnHeaders || y >= headerHeight))
@@ -1985,6 +1987,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         };
       }
     });
+    ctx.stroke();
+    ctx.restore();
 
     if (fn)
       fn();
