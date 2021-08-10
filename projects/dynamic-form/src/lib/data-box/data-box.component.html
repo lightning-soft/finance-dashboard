@@ -1,6 +1,6 @@
 <div (cdkDropListDropped)="entered($event)"
      cdkDropList>
-  <div *ngFor="let item of types">
+  <div *ngFor="let item of items">
     <ng-container [ngTemplateOutlet]="item.template"></ng-container>
   </div>
   <ng-template #delta>
@@ -11,11 +11,11 @@
       class="line-container root-line">
       <i
         class="icon-drag-and-drop"></i>
-      <label [formControl]="deltaControl" nz-checkbox>Delta</label>
+      <label [formControl]="formBox.get('delta.enabled')" nz-checkbox>Delta</label>
       <span class="colors">
-      <color-picker [field]="negativeColor"></color-picker>
-      <color-picker [field]="positiveColor"></color-picker>
-    </span>
+        <color-picker [field]="negativeColor"></color-picker>
+        <color-picker [field]="positiveColor"></color-picker>
+      </span>
     </div>
   </ng-template>
   <ng-template #volume>
@@ -26,7 +26,7 @@
       class="line-container root-line">
       <i
         class="icon-drag-and-drop"></i>
-      <label [formControl]="volumeControl" nz-checkbox>Volume</label>
+      <label [formControl]="formBox.get('volume.enabled')" nz-checkbox>Volume</label>
     </div>
   </ng-template>
   <ng-template #price>
@@ -37,10 +37,10 @@
       class="line-container root-line">
       <i
         class="icon-drag-and-drop"></i>
-      <label [formControl]="priceControl" nz-checkbox>Price</label>
+      <label [formControl]="formBox.get('price.enabled')" nz-checkbox>Price</label>
     </div>
   </ng-template>
-  <ng-template #priceChanged>
+  <ng-template #priceChange>
     <div
       cdkDrag
       cdkDragPreviewClass=""
@@ -48,10 +48,10 @@
       class="line-container root-line">
       <i
         class="icon-drag-and-drop"></i>
-      <label [formControl]="priceChangedControl" nz-checkbox>Price Changed</label>
-      <nz-select [formControl]="showInControl" [nzOptionHeightPx]="22">
-        <nz-option nzValue="showInPoints" nzLabel="Show in Points"></nz-option>
-        <nz-option nzValue="showInTicks" nzLabel="Show in Ticks"></nz-option>
+      <label [formControl]="formBox.get('priceChange.enabled')" nz-checkbox>Price Change</label>
+      <nz-select [formControl]="formBox.get('priceChange.unit')" [nzOptionHeightPx]="22">
+        <nz-option nzValue="points" nzLabel="Show in Points"></nz-option>
+        <nz-option nzValue="ticks" nzLabel="Show in Ticks"></nz-option>
       </nz-select>
     </div>
   </ng-template>
