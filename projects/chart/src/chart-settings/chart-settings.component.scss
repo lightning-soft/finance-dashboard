@@ -48,6 +48,35 @@ cdk-virtual-scroll-viewport {
     }
   }
 
+  .pl-info {
+    switch {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+
+      span {
+        margin-left: 0;
+        margin-right: 5px;
+      }
+    }
+
+    .select {
+      nz-form-item {
+        flex-direction: row;
+
+        nz-form-label {
+          margin-bottom: 0;
+          margin-right: 5px;
+
+          label {
+            padding-left: 0;
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+
   .settings-pl-info, .settings-pl-realized-info {
     display: none;
   }
@@ -82,23 +111,31 @@ cdk-virtual-scroll-viewport {
     padding-right: 10px;
   }
 
-  .two-rows, .order-bar-rows, .order-rows {
+  .two-rows, .order-bar-rows, .order-rows, .order-area-rows {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 6px;
   }
 
   .order-bar-rows {
-    grid-template-columns:113px 1fr 1fr;
+    grid-template-columns:86px 1fr 1fr;
     grid-column-gap: 2px;
     align-items: center;
   }
 
   .order-rows {
-    grid-template-columns: 49% 80px 20px 52px 43px;
+    grid-template-columns: 49% 20px 109px 52px;
     width: 100%;
     align-items: center;
-    grid-column-gap: 4px;
+    grid-column-gap: 5px;
+  }
+
+  .order-area-rows {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .oco-rows {
+    grid-column-gap: 5px;
   }
 
   .color-without-label {
@@ -122,13 +159,13 @@ cdk-virtual-scroll-viewport {
     .ant-form-item-label {
       text-align: start;
       margin-bottom: 25px;
-      border-bottom: 1px solid #383A40;
 
       label {
         font-weight: 600;
         line-height: 1;
         padding-left: 10px;
-        color: $text-40;
+        font-size: 0.85rem;
+        color: $text-80;
 
         &:after {
           display: none;

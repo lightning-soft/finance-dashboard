@@ -136,6 +136,7 @@ export class DomSettings {
       { value: 10 },
       { value: 50 },
       { value: 100 },
+      { value: 5 },
     ],
     formData: {
       quantity: 1,
@@ -150,15 +151,25 @@ export class DomSettings {
       sellButtonsFontColor: '#fff',
       cancelButtonFontColor: '#fff',
       formSettings: {
-        showInstrumentChange: true,
         closePositionButton: true,
-        showOHLVInfo: true,
-        showFlattenButton: true,
-        showPLInfo: true,
-        showIcebergButton: true,
+        includeRealizedPL: false,
         roundPL: false,
-        includeRealizedPL: false
+        showBracket: true,
+        showBuyButton: true,
+        showSellButton: true,
+        showCancelButton: true,
+        showFlattenButton: true,
+        showIcebergButton: true,
+        showInstrumentChange: true,
+        showOHLVInfo: true,
+        showPLInfo: true,
       },
+      tif: {
+        DAY: true,
+        FOK: true,
+        GTC: true,
+        IOC: true,
+      }
     }
   };
   price: any = {

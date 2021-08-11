@@ -1,3 +1,5 @@
+import { OrderDuration } from 'trading';
+
 export const chartReceiveKey = 'chartReceiveKey';
 export const chartSettings = 'chartSettings';
 
@@ -22,11 +24,7 @@ export interface IChartSettings {
       textColor: string;
     }
   };
-  trading: {
-    orderArea: any;
-    ordersColors: any;
-    trading: any;
-  };
+  trading: any;
 }
 
 export interface IChartSettingsState {
@@ -34,7 +32,8 @@ export interface IChartSettingsState {
   linkKey: string;
 }
 
-export const defaultChartSettings: IChartSettings = {
+export let defaultChartSettings: IChartSettings;
+defaultChartSettings = {
   general: {
     upCandleColor: '#4895F5',
     downCandleColor: '#C93B3B',
@@ -57,75 +56,104 @@ export const defaultChartSettings: IChartSettings = {
   },
   trading: {
     orderArea: {
-      formData: {
-        quantity: 10,
-      },
-      amountData: [
-        { value: 1 },
-        { black: true, value: 2 },
-        { value: 10 },
-        { value: 50 },
-        { value: 100 },
-      ],
       settings: {
-        buyButtonsBackgroundColor: '#4895F5',
-        flatButtonsBackgroundColor: '#51535A',
-        buyButtonsFontColor: '#fff',
-        flatButtonFontColor: '#D0D0D2',
-        sellButtonsBackgroundColor: '#C93B3B',
-        cancelButtonBackgroundColor: '#51535A',
-        sellButtonsFontColor: '#fff',
-        cancelButtonFontColor: '#fff',
-        formSettings: {
-          showInstrumentChange: false,
-          closePositionButton: true,
-          showOHLVInfo: false,
-          showFlattenButton: true,
-          showPLInfo: true,
-          showIcebergButton: true,
-          roundPL: false,
-          includeRealizedPL: false
+        cancelButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        closePositionButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        flatten: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        icebergButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#fff',
+        },
+        sellMarketButton: {
+          background: '#C93B3B',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        buyMarketButton: {
+          background: '#4895F5',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+
+      }
+    },
+    ordersColors: {
+      buy: {
+        limit: {
+          length: 1,
+          lineColor: '#4895F5',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#4895F5',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'dotted',
+        },
+      },
+      ocoStopLimit: '#FFFF00',
+      ocoStopOrder: '#FFFF00',
+      sell: {
+        limit: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'dotted',
         },
       },
     },
-    ordersColors: {
-      limit: {
-        lineType: 'dashed',
-        lineColor: 'rgb(255,161,109,1)',
-        length: 150,
-        lengthUnit: 'pixels'
-      },
-      market: {
-        lineType: 'dotted',
-        lineColor: 'rgb(101,231,13)',
-        length: 120,
-        lengthUnit: 'pixels'
-      },
-      stopLimit: {
-        lineType: 'dotted',
-        lineColor: 'rgb(58,234,228,1)',
-        length: 160,
-        lengthUnit: 'pixels'
-      },
-      stop: {
-        lineType: 'solid',
-        lineColor: 'rgb(72,149,245,1)',
-        length: 120,
-        lengthUnit: 'pixels'
-      },
-      oco: {
-        lineType: 'solid',
-        lineColor: '#BE3CB1',
-        length: 4,
-        lengthUnit: 'pixels'
-      }
+    tif: {
+      DAY: true,
+      FOK: true,
+      GTC: true,
+      IOC: true,
+      default: OrderDuration.DAY,
     },
     trading: {
-      chartMarker: true,
-      tradingBarUnit: 'pixels',
-      plUnit: 'points',
-      tradingBarLength: 40,
+      bracketButton: true,
+      orderBarLength: 100,
+      orderBarUnit: 'pixels',
+      showInstrumentChange: false,
+      showOHLVInfo: false,
       showWorkingOrders: true,
+      tradingBarLength: 40,
+      tradingBarUnit: 'pixels',
     }
   }
 };
