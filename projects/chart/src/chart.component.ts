@@ -56,6 +56,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
+import { ChangeDetectorRef } from '@angular/core';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -202,7 +203,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _modalService: NzModalService,
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
-    private _windowManager: WindowManagerService
+    private _windowManager: WindowManagerService,
+    private _changeDetectorRef: ChangeDetectorRef
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -263,15 +265,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleQuote(quote: IQuote) {
     if (quote.updateType === UpdateType.Undefined) {
-      this._zone.run(() => {
-        if (quote.side === QuoteSide.Ask) {
-          this.bestAskPrice = quote.price;
-          this.askSize = quote.volume;
-        } else {
-          this.bestBidPrice = quote.price;
-          this.bidSize = quote.volume;
-        }
-      });
+      if (quote.side === QuoteSide.Ask) {
+        this.bestAskPrice = quote.price;
+        this.askSize = quote.volume;
+      } else {
+        this.bestBidPrice = quote.price;
+        this.bidSize = quote.volume;
+      }
+      this._changeDetectorRef.detectChanges();
     }
   }
 
@@ -552,9 +553,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${ this.instrument.description }`;
+        name += ` - ${this.instrument.description}`;
       }
-      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
+      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
 
       return name;
     }
@@ -833,7 +834,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ chartSettings }`;
+    return `${this.componentInstanceId}.${chartSettings}`;
   }
 
   openSettingsDialog(): void {
