@@ -27,7 +27,10 @@
         </span>
       </span>
       <span class="{{isIceEnabled? 'd-flex': 'd-none'}} ice-button">
-        <button (click)="toggleIce()" nz-button class="ice-btn" [class.is-ice-active]="isIce">ICE</button>
+        <button (click)="toggleIce()"
+                [style.color]="setting.icebergFontColor"
+                [style.background]="setting.icebergBackgroundColor"
+                nz-button class="ice-btn" [class.is-ice-active]="isIce">ICE</button>
       </span>
       <span [class.d-none]="!isIceAmountVisible" class="ice-amount">
       <nz-input-number
@@ -62,7 +65,10 @@
         </span>
       </div>
       <span ice class="{{isIceEnabled? 'd-inline-block': 'd-none'}} ice-button">
-        <button [class.is-ice-active]="isIce" class="ice-btn" nz-button (click)="toggleIce()">ICE</button>
+        <button
+          [style.color]="setting.icebergFontColor"
+          [style.background]="setting.icebergBackgroundColor"
+          [class.is-ice-active]="isIce" class="ice-btn" nz-button (click)="toggleIce()">ICE</button>
       </span>
     </type-buttons>
 
@@ -73,7 +79,7 @@
       ></nz-option>
     </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-    <div [class.d-none]="!showUnits" class="ticks">
+    <div [class.d-none]="!showUnits || !setting.formSettings.showBracket" class="ticks">
       <sl-units formControlName="stopLoss"></sl-units>
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
@@ -86,27 +92,32 @@
         [style.color]="setting.sellButtonsFontColor"
         [style.background]="setting.sellButtonsBackgroundColor"
         [class.cxl-btn-disabled]="!sellQuantity"
+        [class.d-none]="!setting.formSettings.showSellButton"
         (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL
         <span *ngIf="sellQuantity" class="cxl-quantity">{{sellQuantity}}</span></button>
       <button
         [style.color]="setting.cancelButtonFontColor"
         [style.background]="setting.cancelButtonBackgroundColor"
         [class.cxl-btn-disabled]="!totalQuantity"
+        [class.d-none]="!setting.formSettings.showCancelButton"
         (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL
         <span *ngIf="totalQuantity" class="cxl-quantity">{{totalQuantity}}</span></button>
       <button [style.color]="setting.buyButtonsFontColor"
               [class.cxl-btn-disabled]="!buyQuantity"
+              [class.d-none]="!setting.formSettings.showBuyButton"
               [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY
         <span *ngIf="buyQuantity" class="cxl-quantity">{{buyQuantity}}</span></button>
     </div>
     <div class="bottom-btns">
       <button (click)="emit(FormActions.ClosePositions)"
               class="close-position-button"
+              [style.background]="setting.closePositionBackgroundColor"
+              [style.color]="setting.closePositionFontColor"
               [class.d-none]="!setting.formSettings.closePositionButton" nz-button>CLOSE
         POSITION
       </button>
       <button
-        [style.color]="setting.flatButtonFontColor"
+        [style.color]="setting.flatButtonsFontColor"
         [style.background]="setting.flatButtonsBackgroundColor"
         (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten" nz-button>
         FLATTEN

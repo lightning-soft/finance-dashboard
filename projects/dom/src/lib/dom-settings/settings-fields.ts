@@ -17,7 +17,7 @@ import { orderFields } from 'base-order-form';
 
 
 function getHightlightColor() {
-  return getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } }));
+  return getColor('Highlight Background Color');
 }
 
 function getBackgroundColor() {
@@ -82,15 +82,9 @@ export const commonFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
         className: 'w-100 ml-0 field-item',
         fieldGroup: [
-          getColor('Grid Line Color', (value) => {
-            if (value)
-              return { ' td': { border: `1px solid ${ value }` } };
-          }),
+          getColor('Grid Line Color'),
           getColor('Order Grid Line Color'),
-          getColor('Center Line Color', (value) => {
-            if (value)
-              return { ' .center-price td': { 'border-bottom-color': value } };
-          }),
+          getColor('Center Line Color'),
           // getColor('Simulation Mode Warning Clr'),
         ]
       }),

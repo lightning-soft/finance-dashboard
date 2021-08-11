@@ -297,7 +297,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart)
       return;
 
-    this.settings.trading.orderArea = this._sideForm.getState();
     return {
       showOHLV: this.showOHLV,
       showChanges: this.showChanges,
@@ -327,6 +326,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showChartForm = state?.showChartForm;
     if (state?.hasOwnProperty('showOrderConfirm'))
       this.showOrderConfirm = state?.showOrderConfirm;
+    if (state?.hasOwnProperty('settings'))
+      this.settings = state.settings;
 
     if (state?.hasOwnProperty('showChanges'))
       this.showChanges = state?.showChanges;
@@ -337,6 +338,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+
+    this._handleSettingsChange(this.settings);
+
     this.instrument = state?.instrument ?? {
       id: 'ESU1.CME',
       symbol: 'ESU1',
@@ -375,6 +379,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (!state) {
           return;
         }
+
         this.checkIfTradingEnabled();
 
         if (state.instrument && state.instrument.id != null) {
@@ -391,7 +396,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
            chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
          }*/
 
-        this._sideForm.loadState(state?.settings?.trading.orderArea);
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
@@ -560,7 +564,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
-    this._sideForm?.loadState(state?.settings.trading.orderArea);
     if (state?.account) {
       this.account = state.account;
     }
@@ -811,12 +814,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     const { trading } = settings;
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);
-    const { orderArea } = trading;
-    this.showOHLV = orderArea.settings.formSettings.showOHLVInfo;
-    this.showChanges = orderArea.settings.formSettings.showInstrumentChange;
+    this.showOHLV = trading.trading.showOHLVInfo;
+    this.showChanges = trading.trading.showInstrumentChange;
     const oldTheme = this.chart.theme;
     const theme = getScxTheme(settings);
-    this._sideForm.loadState({ settings: settings.trading.orderArea.settings });
+    this._sideForm.loadState({ settings: mapSettingsToSideFormState(settings) });
 
     this.chart.theme = theme;
     let needAutoScale = false;
@@ -877,8 +879,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   updateInSettings() {
-    this.settings.trading.orderArea.formSettings.showOHLVInfo = this.showOHLV;
-    this.settings.trading.orderArea.formSettings.showInstrumentChange = this.showChanges;
+    this.settings.trading.trading.showOHLVInfo = this.showOHLV;
+    this.settings.trading.trading.showInstrumentChange = this.showChanges;
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
   }
 }
@@ -960,6 +962,8 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.chartPanel.grid.strokeColor = settings.general.gridColor;
 
   theme.orderBar = settings.trading.ordersColors;
+  theme.orderBar.orderBarLength = settings.trading.trading.orderBarLength;
+  theme.orderBar.orderBarUnit = settings.trading.trading.orderBarUnit;
 
   theme.tradingPanel = {
     tradingBarLength: settings.trading.trading.tradingBarLength,
@@ -974,6 +978,41 @@ function setBorderColor(barTheme, settings) {
   barTheme.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
   barTheme.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
   barTheme.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
+}
+
+function mapSettingsToSideFormState(settings) {
+  const orderAreaSettings = settings.trading.orderArea.settings
+  const sideOrderSettings: any = {};
+  sideOrderSettings.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
+  sideOrderSettings.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;
+
+  sideOrderSettings.sellButtonsBackgroundColor = orderAreaSettings.sellMarketButton.background;
+  sideOrderSettings.sellButtonsFontColor = orderAreaSettings.sellMarketButton.font;
+
+  sideOrderSettings.flatButtonsBackgroundColor = orderAreaSettings.flatten.background;
+  sideOrderSettings.flatButtonsFontColor = orderAreaSettings.flatten.font;
+
+  sideOrderSettings.cancelButtonBackgroundColor = orderAreaSettings.cancelButton.background;
+  sideOrderSettings.cancelButtonFontColor = orderAreaSettings.cancelButton.font;
+
+  sideOrderSettings.closePositionFontColor = orderAreaSettings.closePositionButton.font;
+  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.closePositionButton.background;
+
+  sideOrderSettings.icebergFontColor = orderAreaSettings.icebergButton.font;
+  sideOrderSettings.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
+
+  sideOrderSettings.formSettings = {};
+  sideOrderSettings.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
+  sideOrderSettings.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
+  sideOrderSettings.formSettings.closePositionButton = orderAreaSettings.closePositionButton.enabled;
+  sideOrderSettings.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
+  sideOrderSettings.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
+  sideOrderSettings.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;
+  sideOrderSettings.formSettings.showBracket = settings.trading.trading.bracketButton;
+
+  sideOrderSettings.tif = settings.trading.tif;
+
+  return sideOrderSettings;
 }
 
 function transformPeriodicity(periodicity: string): string {
