@@ -1,4 +1,3 @@
-import { IHistoryItem } from './index';
 import { DataFeed } from './data-feed';
 import { IBar } from 'chart';
 import { IInstrument } from '../models';

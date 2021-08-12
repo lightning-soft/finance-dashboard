@@ -17,7 +17,7 @@ import { PriceCell } from './price.cell';
 import { TotalCell } from './histogram/total.cell';
 
 const LevelsCount = 9;
-export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${ i + 1 }`));
+export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
 export const TailInside = 'tailInside';
 
 export enum DOMColumns {
@@ -77,15 +77,16 @@ class OrdersCell extends HistogramCell {
     this.prepareOrder();
   }
 
-  hasOcoOrder(): boolean {
-    return !!this.ocoOrder;
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    if (side == null || this.side === side) {
+      if (this.ocoOrder)
+        this.ocoOrder = null;
+      this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
+      this.prepareOrder();
+      return true;
+    }
 
-  clearOcoOrder() {
-    if (this.ocoOrder)
-      this.ocoOrder = null;
-    this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
-    this.prepareOrder();
+    return false;
   }
 
   addOrder(order: IOrder) {
@@ -178,7 +179,7 @@ class OrdersCell extends HistogramCell {
       return;
 
     const type = this._order.type.replace(/[^A-Z]/g, '');
-    this._text = `${ this._order.quantity }${ type }`;
+    this._text = `${this._order.quantity}${type}`;
   }
 
   getPl(): number {
@@ -369,13 +370,16 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     this._item.askDelta.changeQuantity(quantity);
   }
 
-  hasOcoOrder() {
-    return this._item.sellOrders.hasOcoOrder() || this._item.buyOrders.hasOcoOrder();
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    let sellOrders = false;
+    let buyOrders = false;
 
-  clearOcoOrder() {
-    this._item.sellOrders.clearOcoOrder();
-    this._item.buyOrders.clearOcoOrder();
+    if (side !== QuoteSide.Ask)
+      sellOrders = this._item.sellOrders.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      buyOrders = this._item.buyOrders.clearOcoOrder(side);
+
+    return sellOrders || buyOrders;
   }
 
   addOrder(order: IOrder) {
@@ -445,7 +449,7 @@ class LevelCell extends HistogramCell {
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
       if (level <= LevelsCount) {
-        this.changeStatus(`level${ level }`);
+        this.changeStatus(`level${level}`);
       } else if (level >= LevelsCount + 1) {
         this.changeStatus('');
         this._levelTime = null;
@@ -881,21 +885,25 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
   }
 
-  clearOcoOrder() {
-    this.orders.clearOcoOrder();
-    this.bidDelta.clearOcoOrder();
-    this.askDelta.clearOcoOrder();
+  clearOcoOrder(side: QuoteSide): boolean {
+    const result = this.orders.clearOcoOrder(side);
+    if (side !== QuoteSide.Ask)
+      this.bidDelta.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      this.askDelta.clearOcoOrder(side);
+
+    return result;
   }
 
   dehighlight() {
     return Object.keys(this).forEach(key => this[key] && this[key].dehightlight && this[key].dehightlight());
   }
 
-/*  setVolume(volume: number) {
-    this.volume.updateValue(volume);
-    this.volume.dehightlight();
-    return { volume: this.volume._value };
-  }*/
+  /*  setVolume(volume: number) {
+      this.volume.updateValue(volume);
+      this.volume.dehightlight();
+      return { volume: this.volume._value };
+    }*/
 
   calculateLevel(): boolean {
     const ask = this.currentAsk.calculateLevel();
@@ -927,7 +935,7 @@ export class CustomDomItem extends DomItem {
   clearCross = false;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter,
-              snapshot: { [key: number]: DomItem }) {
+    snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();

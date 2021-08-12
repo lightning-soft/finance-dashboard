@@ -653,7 +653,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ DomSettingsSelector }`;
+    return `${this.componentInstanceId}.${DomSettingsSelector}`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -2272,11 +2272,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!item[column]?.canCancelOrder)
       return;
 
-    if (item.orders.hasOcoOrder()) {
-      this._clearOcoOrders();
+    let side = null;
+    let filter = (order) => true;
+
+    switch (column) {
+      case DOMColumns.AskDelta:
+      case DOMColumns.BuyOrders:
+        side = QuoteSide.Ask;
+        filter = (order) => order.side === OrderSide.Buy;
+        break;
+      case DOMColumns.BidDelta:
+      case DOMColumns.SellOrders:
+        side = QuoteSide.Bid;
+        filter = (order) => order.side === OrderSide.Sell;
+        break;
     }
-    if (item.orders?.orders?.length)
-      this._ordersRepository.deleteMany(item.orders.orders)
+
+    this._clearOcoOrders(side);
+    const orders = (item.orders?.orders ?? []).filter(filter);
+
+    if (orders.length)
+      this._ordersRepository.deleteMany(orders)
         .pipe(untilDestroyed(this))
         .subscribe(
           () => console.log('delete order'),
@@ -2317,11 +2333,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _clearOcoOrders() {
-    this.ocoStep = OcoStep.None;
-    this.secondOcoOrder = null;
-    this.firstOcoOrder = null;
-    this.items.forEach(item => item.clearOcoOrder());
+  _clearOcoOrders(side?: QuoteSide) {
+    if (this.items.every(item => item.clearOcoOrder(side) !== false)) {
+      this.ocoStep = OcoStep.None;
+      this.secondOcoOrder = null;
+      this.firstOcoOrder = null;
+    }
   }
 
   _createBuyMarketOrder() {
@@ -2370,7 +2387,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 
