@@ -1,3 +1,5 @@
+@import "~src/scss/variables";
+
 button, button:hover, button:active, button:focus-within {
   background: #383A40;
   border-radius: 2px;
@@ -37,7 +39,7 @@ button, button:hover, button:active, button:focus-within {
 }
 
 button:hover, button.selected {
-  border: 1px solid #4895F5;
+  border: 1px solid $primary;
 }
 
 .inner-buttons {

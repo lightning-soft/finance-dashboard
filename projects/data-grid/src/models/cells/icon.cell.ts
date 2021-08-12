@@ -117,7 +117,7 @@ function drawMoveUp(context) {
   ctx.fillRect(context.x, context.y, buttonSize, buttonSize);
   ctx.restore();
   ctx.beginPath();
-  ctx.strokeStyle = '#4895F5';
+  ctx.strokeStyle = '#0C62F7';
   const startX = context.x + 3;
   const startY = context.y + buttonSize - 5;
   ctx.moveTo(startX, startY);
