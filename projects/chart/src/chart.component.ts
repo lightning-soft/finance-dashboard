@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -56,7 +57,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { ChangeDetectorRef } from '@angular/core';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -281,6 +281,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this._tradeHandler.enableTrading();
     } else {
       this.isTradingEnabled = false;
+      this._tradeHandler.disableTrading();
     }
   }
 

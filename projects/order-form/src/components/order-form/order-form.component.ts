@@ -1,4 +1,4 @@
-import { Component, Injector, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
@@ -132,7 +132,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
     protected _injector: Injector,
-    private _zone: NgZone,
+    private _cd: ChangeDetectorRef,
   ) {
     super();
     this.autoLoadData = false;
@@ -149,15 +149,14 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.onRemove(
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
         if (quote.updateType === UpdateType.Undefined) {
-          this._zone.run(() => {
-            if (quote.side === QuoteSide.Ask) {
-              this.askPrice = quote.price.toFixed(this.precision);
-              this.askVolume = quote.volume;
-            } else {
-              this.bidVolume = quote.volume;
-              this.bidPrice = quote.price.toFixed(this.precision);
-            }
-          });
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = quote.price.toFixed(this.precision);
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = quote.price.toFixed(this.precision);
+          }
+          this._cd.detectChanges();
         }
       })),
       this._positionDatafeed.on(filterPositions(this, (pos, connectionId) => {
