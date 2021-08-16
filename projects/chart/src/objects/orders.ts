@@ -45,10 +45,10 @@ export class Orders extends ChartObjects<IOrder> {
   }
 
   _tradingSellAreaClicked = (event) => {
-    this._instance.createOrderWithConfirm({ side: OrderSide.Sell, price: event.value.price });
+    this._instance.createOrderWithConfirm({ side: OrderSide.Sell, price: event.value.price }, event.value.event);
   }
   _tradingBuyAreaClicked = (event) => {
-    this._instance.createOrderWithConfirm({ side: OrderSide.Buy, price: event.value.price });
+    this._instance.createOrderWithConfirm({ side: OrderSide.Buy, price: event.value.price }, event.value.event);
   }
 
   createOcoOrder(config) {
@@ -146,27 +146,39 @@ export class Orders extends ChartObjects<IOrder> {
   }
 
   private _cancelOrder = ({ value }) => {
-    const order = value.order;
-    if (!order) {
+    if (!value || !value.order)
       return;
-    }
+
+    const { order, event } = value;
+
+    this._instance.cancelOrderWithConfirm(order, event)
+      .then((res) => {
+        if (!res)
+          return;
+
+        const { create, dontShowAgain } = res;
+        this._instance.showCancelConfirm = !dontShowAgain;
+        if (!create)
+          return;
+
+        if (!order.id) {
+          value.remove();
+        } else {
+          this._repository.deleteItem(order)
+            .pipe(untilDestroyed(this._instance))
+            .subscribe(
+              (item) => {
+              },
+              err => {
+                this._notifier.showError('Fail to create order');
+              },
+            );
+        }
+      });
+
     if (order.isOco) {
       this._instance.clearOcoOrders();
       return;
-    }
-
-    if (!order.id) {
-      value.remove();
-    } else {
-      this._repository.deleteItem(order)
-        .pipe(untilDestroyed(this._instance))
-        .subscribe(
-          (item) => {
-          },
-          err => {
-            this._notifier.showError('Fail to create order');
-          },
-        );
     }
 
   }

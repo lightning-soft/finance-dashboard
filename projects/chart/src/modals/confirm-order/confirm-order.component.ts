@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { IOrder } from "trading";
 import { NzModalRef } from "ng-zorro-antd/modal";
 
@@ -7,14 +7,12 @@ import { NzModalRef } from "ng-zorro-antd/modal";
   templateUrl: './confirm-order.component.html',
   styleUrls: ['./confirm-order.component.scss']
 })
-export class ConfirmOrderComponent implements OnInit {
+export class ConfirmOrderComponent {
   order: IOrder;
   dontShowAgain = false;
+  prefix = '';
 
   constructor(private modal: NzModalRef) {
-  }
-
-  ngOnInit(): void {
   }
 
   submit() {
