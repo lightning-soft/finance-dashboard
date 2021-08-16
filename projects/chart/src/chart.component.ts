@@ -992,10 +992,8 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.orderBar.orderBarLength = settings.trading.trading.orderBarLength;
   theme.orderBar.orderBarUnit = settings.trading.trading.orderBarUnit;
 
-  theme.tradingPanel = {
-    tradingBarLength: settings.trading.trading.tradingBarLength,
-    tradingBarUnit: settings.trading.trading.tradingBarUnit
-  };
+  theme.tradingPanel.tradingBarLength = settings.trading.trading.tradingBarLength;
+  theme.tradingPanel.tradingBarUnit = settings.trading.trading.tradingBarUnit;
 
   return theme;
 }

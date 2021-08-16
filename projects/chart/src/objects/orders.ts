@@ -40,15 +40,11 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart.on(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart.on(StockChartX.OrderBarEvents.ORDER_SETTINGS_CLICKED, this._updateOrder);
     this._chart.on(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
-    this._chart.on(StockChartX.TradingPanelEvents.BUY_AREA_CONTEXT_MENU_CLICKED, this._tradingBuyAreaClicked);
-    this._chart.on(StockChartX.TradingPanelEvents.SELL_AREA_CONTEXT_MENU_CLICKED, this._tradingSellAreaClicked);
+    this._chart.on(StockChartX.TradingPanelEvents.TRADING_AREA_CLICKED, this._tradingAreaClicked);
   }
 
-  _tradingSellAreaClicked = (event) => {
-    this._instance.createOrderWithConfirm({ side: OrderSide.Sell, price: event.value.price }, event.value.event);
-  }
-  _tradingBuyAreaClicked = (event) => {
-    this._instance.createOrderWithConfirm({ side: OrderSide.Buy, price: event.value.price }, event.value.event);
+  _tradingAreaClicked = (event) => {
+    this._instance.createOrderWithConfirm({ side: sideMap[event.value.side], price: event.value.price }, event.value.event);
   }
 
   createOcoOrder(config) {
@@ -189,8 +185,7 @@ export class Orders extends ChartObjects<IOrder> {
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_PRICE_CHANGED, this._updatePrice);
     this._chart?.off(StockChartX.OrderBarEvents.ORDER_UPDATED, this._updateOrder);
     this._chart?.off(StockChartX.OrderBarEvents.CREATE_ORDER_SETTINGS_CLICKED, this._openDialog);
-    this._chart?.off(StockChartX.TradingPanelEvents.SELL_AREA_CONTEXT_MENU_CLICKED, this._tradingSellAreaClicked);
-    this._chart?.off(StockChartX.TradingPanelEvents.BUY_AREA_CONTEXT_MENU_CLICKED, this._tradingBuyAreaClicked);
+    this._chart?.off(StockChartX.TradingPanelEvents.TRADING_AREA_CLICKED, this._tradingAreaClicked);
   }
 
   protected _isValid(item: IOrder) {
@@ -224,6 +219,11 @@ export class Orders extends ChartObjects<IOrder> {
       this._visible = visible;
     }
   }
+}
+
+const sideMap = {
+  buy: OrderSide.Buy,
+  sell: OrderSide.Sell,
 }
 
 const statusMap = {
