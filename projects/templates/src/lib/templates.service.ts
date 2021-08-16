@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { IBaseTemplate } from "./models";
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable, of, Subscription, throwError } from "rxjs";
 import { SettingsService } from "settings";
 import { Id, Repository } from "base-components";
 import { ExcludeId, IPaginationResponse, RepositoryAction, RepositoryActionData } from "communication";
 
+@UntilDestroy()
 @Injectable()
 export class TemplatesService extends Repository<IBaseTemplate> {
   get templates(): IBaseTemplate[] {
@@ -52,7 +54,7 @@ export class TemplatesService extends Repository<IBaseTemplate> {
   }
 
   subscribe(callback: (data: RepositoryActionData<IBaseTemplate>) => void): Subscription {
-    return this._settingsService.settings.subscribe((data) => {
+    return this._settingsService.settings.pipe(untilDestroyed(this)).subscribe((data) => {
       callback({ action: RepositoryAction.Update, items: data.templates });
     });
   }

@@ -8,7 +8,10 @@
   [handlers]="handlers"
   [columns]="columns"
   [class.loading-block]="isLoading"
-  #grid
+  [loadedPresets]="loadedPresets"
+  (savePresets)="save()"
+  (createPresets)="createPresets(Components.Watchlist)"
+  #grid>
 >
   <instrument-select className="watchlist-instrument-select" (instrumentChange)='selectInstrument($event)'></instrument-select>
 </data-grid>

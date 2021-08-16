@@ -12,7 +12,7 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { Id, RepositoryActionData } from 'communication';
+import { ExcludeId, Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
   Cell,
@@ -32,6 +32,8 @@ import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import {
   AccountsListener,
   filterByAccountAndInstrument,
@@ -40,8 +42,11 @@ import {
   IHistoryItem,
   RealPositionsRepository
 } from 'real-trading';
+import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
+import { Components } from 'src/app/modules';
+import { TemplatesService } from 'templates';
 import {
   compareInstruments,
   getPrice,
@@ -72,6 +77,8 @@ import {
   VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
+import { LayoutPresets, IPresets } from 'templates';
+import { IDomPresets, IDomState } from '../models';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
@@ -79,7 +86,7 @@ import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } 
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
 
-export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
 
 export class DomItemMax {
@@ -136,16 +143,6 @@ export class DomItemMax {
 const ROWS = 800;
 const DOM_HOTKEYS = 'domHotkeys';
 
-interface IDomState {
-  instrument: IInstrument;
-  settings?: any;
-  componentInstanceId: number;
-  columns: any;
-  contextMenuState: any;
-  account?: IAccount;
-  link: string | number;
-}
-
 enum FormDirection {
   Left = 'window-left',
   Right = 'window-right',
@@ -191,6 +188,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
   templateUrl: './dom.component.html',
   styleUrls: ['./dom.component.scss'],
 })
+@LayoutPresets()
 @LayoutNode()
 @AccountsListener()
 @BindUnsubscribe()
@@ -250,6 +248,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   eth;
   rth;
 
+  Components = Components;
+
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -264,7 +264,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
     private _tradeHandler: TradeHandler,
-    protected _changeDetectorRef: ChangeDetectorRef
+    protected _changeDetectorRef: ChangeDetectorRef,
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
+    public readonly _notifier: NotifierService,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -631,8 +634,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     );
 
     this._onInstrumentChange(this.instrument);
-    this.domForm?.loadState(this._settings.orderArea as any);
+    this.domForm.loadState(this._initialState.orderForm);
   }
+
+  save(): void {
+    const presets: IDomPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.Dom
+    };
+
+    this.savePresets(presets);
+  }
+  
 
   handleAccountChange(account: IAccount) {
     this._loadData();
@@ -2114,12 +2128,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   saveState(): IDomState {
     this._settings.orderArea = this.domForm.getState() as any;
-    return {
+    return { 
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
+      orderForm: this.domForm.getState()
     };
   }
 

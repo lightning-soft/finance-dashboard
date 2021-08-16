@@ -22,6 +22,7 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
 
   opened = false;
   items = widgetList.filter(item => !item.hasTemplates);
+  itemsWithPresets = widgetList.filter(item => item.hasTemplates);
   bottomItems = bottomWidgetList;
   templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
@@ -46,21 +47,13 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
     runZoneWhenSubmenuToggle(this.submenu, this._zone);
   }
 
-  create(item): void {
+  create(item, template?: IBaseTemplate): void {
     this.layout.addComponent({
       component: {
         name: item.component,
-      },
-      ...item.options
-    });
-  }
-
-  openChart(template?: IBaseTemplate): void {
-    this.layout.addComponent({
-      component: {
-        name: Components.Chart,
         template
       },
+      ...item.options
     });
   }
 

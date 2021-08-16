@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostBinding, Injector, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
 import {
   convertToColumn,
   HeaderItem,
@@ -20,10 +20,13 @@ import {
   generateNewStatusesByPrefix
 } from 'data-grid';
 import { LayoutNode } from 'layout';
+import { NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import { AccountsListener, IAccountsListener } from 'real-trading';
 import { forkJoin, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Components } from 'src/app/modules';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   getPriceScecsForDuplicate,
   IAccount,
@@ -37,11 +40,12 @@ import {
   TradeDataFeed,
   TradePrint
 } from 'trading';
-import { ordersSettings } from './components/orders-settings/orders-settings.component';
+import { IOrdersPresets, IOrdersState } from '../models';
 import { defaultSettings } from './components/orders-settings/configs';
+import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
 
-export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier {
+export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier, IPresets<IOrdersState> {
 }
 
 enum Tab {
@@ -65,9 +69,10 @@ enum GroupByItem {
   styleUrls: ['./orders.component.scss'],
 })
 @LayoutNode()
+@LayoutPresets()
 @AccountsListener()
 @SettingsApplier()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements AfterViewInit, IAccountsListener {
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements OnDestroy, AfterViewInit, IAccountsListener {
   @ViewChild('grid', { static: false }) dataGrid: DataGrid;
 
   columns: Column[];
@@ -82,6 +87,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   get isGroupSelected() {
     return this.groupBy !== GroupByItem.None;
   }
+
+  Components = Components;
 
   builder = new ViewGroupItemsBuilder<IOrder, OrderItem>();
   activeTab: Tab = Tab.All;
@@ -188,6 +195,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
     private _tradeDataFeed: TradeDataFeed,
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
+    public readonly _notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;
@@ -549,5 +559,15 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     groupedItem.id = item;
     groupedItem.accountId.updateValue(item);
     return groupedItem;
+  }
+
+  save(): void {
+    const presets: IOrdersPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.Orders
+    };
+
+    this.savePresets(presets);
   }
 }

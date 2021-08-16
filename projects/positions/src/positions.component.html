@@ -22,7 +22,10 @@
            [showSettingsInContextMenu]="true"
            (settingsClicked)="openSettings()"
            [(contextMenuState)]="contextMenuState"
-           [columns]="columns"></data-grid>
+           [columns]="columns"
+           [loadedPresets]="loadedPresets"
+           (savePresets)="save()"
+           (createPresets)="createPresets(Components.Positions)"></data-grid>
 <div class="bottom-info">
   <span class="bottom-title">Total PL</span>
   <div [class.empty]="!totalPl" [class.negative]="totalPl < 0"
