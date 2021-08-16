@@ -119,8 +119,10 @@ export class WindowsComponent implements OnInit {
         name: result.name,
         config,
       }));
-      if (!isElectron())
+      this.save();
+      if (!isElectron()) {
         this.selectWindow(workspaceWindow.id);
+      }
     });
   }
 
