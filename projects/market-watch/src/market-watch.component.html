@@ -17,6 +17,9 @@
   (currentCellChanged)="currentCell = $event"
   [(contextMenuState)]="contextMenuState"
   [class.loading-block]="isLoading"
+  [loadedPresets]="loadedPresets"
+  (savePresets)="save()"
+  (createPresets)="createPresets(Components.MarketWatch)"
   #grid
 >
 </data-grid>

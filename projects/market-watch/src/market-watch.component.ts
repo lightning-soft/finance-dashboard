@@ -12,7 +12,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { convertToColumn, ItemsComponent } from 'base-components';
 import { OrderColumn } from 'base-order-form';
-import { Id } from 'communication';
+import { ExcludeId, Id } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
@@ -30,7 +30,7 @@ import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, NzSpinComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, filterByAccountsConnection, filterConnection, IConnectionsListener } from 'real-trading';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
   IAccount,
@@ -78,6 +78,8 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
+import { IMarketWatchPresets, IMarketWatchState } from '../models'; 
+import { TemplatesService, IPresets, LayoutPresets } from 'templates';
 
 const labelText = 'Indices';
 
@@ -158,18 +160,7 @@ const marketWatchOrderKeyLinking = 'marketWatchOrderKeyLinking';
 const ordersColumns = [MarketWatchColumns.Position, MarketWatchColumns.Bid,
   MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
 
-export interface MarketWatchComponent extends ILayoutNode {
-}
-
-export interface IMarketWatchState {
-  columns: Column[];
-  tabs: Tab[];
-  currentTabId: Id;
-  contextMenuState: any;
-  componentInstanceId: number;
-  settings;
-  accountId: Id;
-  createdOrders: Id[];
+export interface MarketWatchComponent extends ILayoutNode, IPresets<IMarketWatchState> {
 }
 
 @UntilDestroy()
@@ -179,6 +170,7 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
+@LayoutPresets()
 @AccountsListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements AfterViewInit, OnDestroy, IConnectionsListener {
   columns: Column[] = [];
@@ -210,6 +202,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   createdOrders = [];
 
   columnSettings;
+
+  Components = Components;
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<MarketWatchItem>({
@@ -490,10 +484,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     protected cd: ChangeDetectorRef,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
-    private _modalService: NzModalService,
+    public _modalService: NzModalService,
     private componentFactoryResolver: ComponentFactoryResolver,
-    protected _notifier: NotifierService,
+    public _notifier: NotifierService,
     protected _zone: NgZone,
+    public _templatesService: TemplatesService,
   ) {
     super();
     this.autoLoadData = false;
@@ -779,6 +774,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
+      columns: this.columns,
+      contextMenuState: this.contextMenuState,
+      accountId: this.accountId,
     };
   }
 
@@ -1316,6 +1314,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         this._dataGrid.endEdit();
       });
     }
+  }
+
+  save(): void {
+    const presets: IMarketWatchPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.MarketWatch
+    };
+
+    this.savePresets(presets);
   }
 }
 

@@ -1,14 +1,18 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsBuilder, ItemsComponent, StringHelper } from 'base-components';
-import { Id } from 'communication';
+import { ExcludeId, Id } from 'communication';
 import { ContextMenuService } from 'context-menu';
 import { CellClickDataGridHandler, Column, DataGrid } from 'data-grid';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
-import { NzContextMenuService } from 'ng-zorro-antd';
+import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import { finalize, first } from 'rxjs/operators';
+import { Components } from 'src/app/modules';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import { IInstrument, InstrumentsRepository, IQuote, Level1DataFeed } from 'trading';
 import { InstrumentSelectComponent } from '../../instrument-select/src/lib/instrument-select.component';
+import { IWatchListPresets, IWatchListState } from '../models';
 import { WatchlistItem } from './models/watchlist.item';
 
 const headers = [
@@ -23,13 +27,7 @@ const headers = [
   'close',
 ];
 
-export interface WatchlistComponent extends ILayoutNode { }
-
-export interface IWatchlistState {
-  componentName: string;
-  items?: string[];
-  columns: Column[];
-}
+export interface WatchlistComponent extends ILayoutNode, IPresets<IWatchListState> { }
 
 export type SubscribtionHandler = (data?: any) => void;
 
@@ -40,10 +38,15 @@ export type SubscribtionHandler = (data?: any) => void;
   styleUrls: ['./watchlist.component.scss'],
 })
 @LayoutNode()
-export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit {
+@LayoutPresets()
+export class WatchlistComponent extends ItemsComponent<IInstrument> implements OnInit, OnDestroy {
   columns: Column[];
 
   isLoading = false;
+
+  componentName = '';
+
+  Components = Components;
 
   builder = new ItemsBuilder<IInstrument, WatchlistItem>({
     wrap: (item) => new WatchlistItem(item),
@@ -74,7 +77,10 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
     protected cd: ChangeDetectorRef,
     private nzContextMenuService: NzContextMenuService,
     private contextMenuService: ContextMenuService,
-    protected _injector: Injector
+    protected _injector: Injector,
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
+    public readonly _notifier: NotifierService,
   ) {
     super();
     this.autoLoadData = false;
@@ -164,12 +170,13 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
 
   saveState() {
     return {
+      componentName: this.componentName,
       items: [...this.items.map(item => item.id)],
       columns: this.columns
     };
   }
 
-  loadState(state?: IWatchlistState): void {
+  loadState(state?: IWatchListState): void {
     if (state && state.items)
       this.loadInstruments(state.items);
 
@@ -188,5 +195,15 @@ export class WatchlistComponent extends ItemsComponent<IInstrument> implements O
         (response) => { this.addInstruments(response) },
         (error) => this._handleLoadingError(error),
       );
+  }
+
+  save(): void {
+    const presets: IWatchListPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.Watchlist
+    };
+
+    this.savePresets(presets);
   }
 }

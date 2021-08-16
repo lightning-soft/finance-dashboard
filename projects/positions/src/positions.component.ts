@@ -7,12 +7,14 @@ import {
   SettingsApplier,
   ViewGroupItemsBuilder
 } from 'base-components';
-import { Id, IPaginationResponse } from 'communication';
+import { ExcludeId, Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
+import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
 import { forkJoin } from 'rxjs';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   IAccount,
   InstrumentsRepository,
@@ -25,11 +27,12 @@ import {
   TradeDataFeed,
   TradePrint
 } from 'trading';
-import { PositionColumn, PositionItem } from './models/position.item';
-import { positionsSettings } from './positions-settings/positions-settings.component';
 import { Components } from '../../../src/app/modules';
-import { defaultSettings } from './positions-settings/field.config';
+import { IPositionsPresets, IPositionsState } from '../models';
 import { GroupedPositionItem, groupStatus } from './models/grouped-position.item';
+import { PositionColumn, PositionItem } from './models/position.item';
+import { defaultSettings } from './positions-settings/field.config';
+import { positionsSettings } from './positions-settings/positions-settings.component';
 
 const profitStyles = {
   // lossBackgroundColor: '#C93B3B',
@@ -57,7 +60,7 @@ const headers: HeaderItem<PositionColumn>[] = [
   { name: PositionColumn.close, hidden: true }
 ];
 
-export interface PositionsComponent extends RealtimeGridComponent<IPosition>, ISettingsApplier {
+export interface PositionsComponent extends RealtimeGridComponent<IPosition>, ISettingsApplier, IPresets<IPositionsState> {
 }
 
 enum GroupByItem {
@@ -72,6 +75,7 @@ enum GroupByItem {
   styleUrls: ['./positions.component.scss'],
 })
 @LayoutNode()
+@LayoutPresets()
 @AccountsListener()
 @SettingsApplier()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
@@ -96,6 +100,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       handler: (data) => this.delete(data.item),
     }),
   ];
+
+  Components = Components;
 
   private _columns: Column[] = [];
   private _status: PositionStatus = PositionStatus.Open;
@@ -134,11 +140,13 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     protected _repository: PositionsRepository,
     protected _injector: Injector,
     protected _dataFeed: PositionsFeed,
-    protected _notifier: NotifierService,
+    public readonly _notifier: NotifierService,
     protected _changeDetectorRef: ChangeDetectorRef,
     private _instrumentsRepository: InstrumentsRepository,
     private _tradeDataFeed: TradeDataFeed,
     private _levelOneDataFeed: Level1DataFeed,
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
   ) {
     super();
     this.autoLoadData = false;
@@ -312,7 +320,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     };
   }
 
-  loadState(state): void {
+  loadState(state: IPositionsState): void {
     if (state && state.columns)
       this._columns = state.columns;
 
@@ -345,6 +353,15 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     return { type: Components.PositionsSettings };
   }
 
+  save(): void {
+    const presets: IPositionsPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.Positions
+    };
+
+    this.savePresets(presets);
+  }
 }
 
 export function getPositionStyles(name, settings) {
