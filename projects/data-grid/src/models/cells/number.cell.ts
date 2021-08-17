@@ -111,6 +111,10 @@ export class NumberCell extends Cell {
   }
 
   protected _setValue(value: number) {
+    if (value < 0 && value > -0.01) {
+      value = 0;
+    }
+
     const settings: any = this.settings;
 
     if (!this.visible || this.ignoreZero && value === 0 || (settings.minToVisible != null && Math.abs(value) < settings.minToVisible))
