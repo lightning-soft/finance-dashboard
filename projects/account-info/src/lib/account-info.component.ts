@@ -107,6 +107,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
 
   ngOnInit(): void {
     this.setTabTitle('Account info');
+    this.setTabIcon('icon-account-info');
     this.builder.setParams({
       wrap: (accountInfo) => new AccountInfoItem(accountInfo),
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
