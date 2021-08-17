@@ -267,6 +267,17 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     );
   }
 
+  turnOffConnect(): void {
+    for (const broker of this.brokers) {
+      for (const item of this.getConnectionsByBroker(broker)) {
+        if (item.connected && !item.isDefault) {
+          this.makeDefault(item);
+          return;
+        }
+      }
+    }
+  }
+
   _disconnect(item: IConnection) {
     return this._accountsManager.disconnect(item)
       .pipe(this.showItemLoader(item), untilDestroyed(this));
