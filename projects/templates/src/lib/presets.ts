@@ -46,7 +46,7 @@ export abstract class _Presets<T> implements IPresets<T> {
         this._templatesService.subscribe((data) => {
             if (this.loadedPresets) return;
     
-            this.loadedPresets = data.items.find(i => this.loadedPresets.id === i.id);
+            this.loadedPresets = data.items.find(i => this.loadedPresets?.id === i?.id);
         });
     }
 
