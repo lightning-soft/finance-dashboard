@@ -1,12 +1,24 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnDestroy,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { widgetList, bottomWidgetList } from '../component-options';
+import { bottomWidgetList, widgetList } from '../component-options';
 import { IBaseTemplate, TemplatesService } from 'templates';
 import { NzModalService, NzSubMenuComponent } from 'ng-zorro-antd';
 import { Subscription } from 'rxjs';
 import { Components } from 'src/app/modules';
-import { RenameModalComponent, ConfirmModalComponent } from 'ui';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { getAccountInfoOptions } from '../../navbar/account/account.component';
+import { Storage } from 'storage';
 
 
 @UntilDestroy()
@@ -32,7 +44,8 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
     private _templatesService: TemplatesService,
     private _modalService: NzModalService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _zone: NgZone
+    private _zone: NgZone,
+    private _storage: Storage,
   ) {
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       this.templates = {};
@@ -41,6 +54,14 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
           [...this.templates[template.type], template] : [template];
       });
     });
+    this.items = [...this.items, {
+      icon: 'icon-account-info',
+      name: 'Account Info',
+      component: Components.AccountInfo,
+      get options() {
+        return getAccountInfoOptions(_storage);
+      }
+    }] as any;
   }
 
   ngAfterViewInit() {

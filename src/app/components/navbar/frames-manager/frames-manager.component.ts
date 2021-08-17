@@ -22,6 +22,7 @@ export class FramesManagerComponent {
     [Components.Dom, new Set()],
     [Components.OrderForm, new Set()],
     [Components.SessionManager, new Set()],
+    [Components.AccountInfo, new Set()],
     [Components.MarketWatch, new Set()],
   ];
 
@@ -36,6 +37,7 @@ export class FramesManagerComponent {
     [Components.Dom]: 'icon-widget-dom',
     [Components.OrderForm]: 'icon-widget-create-orders',
     [Components.SessionManager]: 'icon-clock',
+    [Components.AccountInfo]: 'icon-account-info',
     [Components.MarketWatch]: 'icon-widget-market-watch',
   };
 
