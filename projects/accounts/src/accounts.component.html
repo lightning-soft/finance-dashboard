@@ -153,16 +153,22 @@
           <div *ngIf="selectedItem.connected">
             <div class="p-3 bg-secondary rounded">
               <table>
-                <tr>
-                  <td>
-                    <span class="text-muted">Status:&nbsp;</span>
-                  </td>
-                  <td>
-               <span class="d-flex">
-                <span class="indicator indicator-table success mr-2"></span>
-                Connected
-              </span>
-                  </td>
+                <tr class="space-beetwen">
+                  <div>
+                    <td>
+                      <span class="text-muted">Status:&nbsp;</span>
+                    </td>
+                    <td>
+                      <span class="d-flex">
+                        <span class="indicator indicator-table success mr-2"></span>
+                        Connected
+                      </span>
+                    </td>
+                  </div>
+                  <div>
+                    <span>Default</span>
+                    <nz-switch nzSize="small" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : turnOffConnect()"></nz-switch>
+                  </div>
                 </tr>
                 <tr>
                   <td>
@@ -198,14 +204,6 @@
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
               (click)="disconnect(selectedItem)"
             >Disconnect
-            </button>
-            <button
-              nz-button
-              nzType="primary"
-              nzBlock
-              class="bg-secondary text-uppercase disconnect-button"
-              (click)="selectedItem.isDefault? null : makeDefault(selectedItem)"
-            >{{selectedItem.isDefault ? 'Already default' : 'Make default'}}
             </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">
