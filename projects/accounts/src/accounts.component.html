@@ -93,6 +93,9 @@
                            [isSubmitted]="isSubmitted"
                            #userData
                            [class.d-none]='splitConnections'
+                           [connectOnStartUp]="connectOnStartUp"
+                           (updateItem)="updateItem()"
+                           (turnOffAutoConnect)="turnOffAutoConnect()"
                            formControlName="userData"></acccount-form>
             <div *ngIf="splitConnections" class="d-flex split-form">
               <div class="split-form-item">
@@ -137,7 +140,7 @@
 
             <label class="custom-checkbox mb-1">
               <input
-                type="checkbox" formControlName="connectOnStartUp">
+                type="checkbox" formControlName="connectOnStartUp" [checked]="connectOnStartUp">
               <span>Connect on start up</span>
             </label>
             <button

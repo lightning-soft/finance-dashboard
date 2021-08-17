@@ -41,6 +41,10 @@ label {
   font-weight: 600;
 }
 
+.ant-switch:hover, .ant-switch:focus:hover {
+  box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
+}
+
 .ant-modal.instrument-dialog .ant-modal-content {
   .ant-modal-body {
     padding: 0;

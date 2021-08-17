@@ -44,8 +44,11 @@ export class NotificationService extends NotifierService {
   }
 
   public acceptNotification(notificationId: NotificationId): void {
-    const notification = this._notifications.find(n => n.id === notificationId);
-    notification.status = NotificationStatus.ACCEPTED;
+    const index = this._notifications.findIndex(n => n.id === notificationId);
+
+    if (index === -1) return;
+
+    this._notifications[index].status = NotificationStatus.ACCEPTED;
 
     this.notifications.next(this.getNotification());
   }
