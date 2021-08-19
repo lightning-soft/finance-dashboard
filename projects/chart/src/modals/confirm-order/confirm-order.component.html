@@ -1,9 +1,15 @@
-<div >
-  <div class="title">{{order.side}} {{order.type}} {{order.quantity}}
+<div>
+  <div class="title">{{prefix}} {{order.side}} {{order.type}} {{order.quantity}} ?
+  </div>
+  <div class="price" *ngIf="order.limitPrice != null">
+    Limit Price: {{order.limitPrice}}
+  </div>
+  <div class="price" *ngIf="order.stopPrice != null">
+    Stop Price: {{order.stopPrice}}
   </div>
   <label class="checkbox" nz-checkbox [(ngModel)]="dontShowAgain">Don't show it again</label>
 </div>
 <div class="footer">
   <button (click)="cancel()" class="cancel-button">No</button>
-  <button (click)="submit()" class="confirm-button" >Yes</button>
+  <button (click)="submit()" class="confirm-button">Yes</button>
 </div>
