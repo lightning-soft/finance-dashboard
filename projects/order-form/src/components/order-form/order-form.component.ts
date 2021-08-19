@@ -1,4 +1,4 @@
-import { Component, Injector, Input, NgZone, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
@@ -132,7 +132,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
     protected _injector: Injector,
-    private _changeDetectorRef: ChangeDetectorRef,
+    protected _changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
     this.autoLoadData = false;
@@ -156,6 +156,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
             this.bidVolume = quote.volume;
             this.bidPrice = quote.price.toFixed(this.precision);
           }
+
           this._changeDetectorRef.detectChanges();
         }
       })),

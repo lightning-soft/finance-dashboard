@@ -1,7 +1,8 @@
 export const environment = {
   production: true,
   config: 'config/config.prod.json',
-  scxPath: './assets/StockChartX/scripts/production/',
+  // scxPath: './assets/StockChartX/scripts/production/',
+  scxPath: './assets/StockChartX/scripts/develop/',
   application:
   {
     name: 'angular-starter',

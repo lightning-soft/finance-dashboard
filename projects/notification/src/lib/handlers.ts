@@ -9,6 +9,24 @@ const timeOffset = 3000;
 const notificationSendOffset = 3 * 60 * 1000;
 const maxTimeOffset = 10800000; // 3 hours
 
+const connectionMessage = {
+  History: null,
+  PnL: null,
+  message: '',
+  TradingSystem: null,
+  MarketData: null,
+  clear: function () {
+    this.History = null;
+    this.PnL = null;
+    this.TradingSystem = null;
+    this.MarketData = null;
+    this.message = '';
+  },
+  isFull: function () {
+    return this.History && this.PnL && this.TradingSystem && this.MarketData;
+  },
+};
+
 const errorAlerts = [
   AlertType.ServiceError,
   AlertType.ShutdownSignal,
@@ -28,7 +46,7 @@ export const handlers = {
     if (msg.type === RealtimeType.Bar)
       return;
 
-    const now =  Date.now();
+    const now = Date.now();
     const timeDelay = now - msg.result.timestamp;
     const hasDelay = timeDelay > timeOffset && timeDelay < maxTimeOffset;
     const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
@@ -44,7 +62,7 @@ export const handlers = {
   },
 
   [MessageTypes.CONNECT]: (msg) => {
-    const { type, timestamp } = msg.result;
+    const { type, timestamp, connectionId } = msg.result;
 
     let icon;
     let message;
@@ -63,7 +81,27 @@ export const handlers = {
       message = msg.result.message ?? '';
     }
 
-    return new Notification({
+    if (connectionMessage.hasOwnProperty(`${ connectionId }`)) {
+      connectionMessage[connectionId] = {};
+      connectionMessage.message += `${msg.result.message}\n`;
+
+      if (connectionMessage.isFull()) {
+        const notification = new Notification({
+          body: connectionMessage.message,
+          title: 'Connection',
+          icon,
+          type,
+          timestamp
+        });
+        connectionMessage.clear();
+        return notification;
+      }
+      return;
+
+    }
+
+
+    new Notification({
       body: message,
       type,
       title: 'Connection',
@@ -87,8 +125,8 @@ export const handlers = {
 
     return new Notification({
       type: msg.type,
-      title: `${msg.type} ${msg.result.status}`,
-      body: `${msg.result.type} ${msg.result.side} ${msg.result.quantity} ${msg.result.instrument.symbol}`,
+      title: `${ msg.type } ${ msg.result.status }`,
+      body: `${ msg.result.type } ${ msg.result.side } ${ msg.result.quantity } ${ msg.result.instrument.symbol }`,
       icon: 'notifcation-error'
     });
   }

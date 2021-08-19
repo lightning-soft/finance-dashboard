@@ -23,7 +23,8 @@ export class AccountComponent implements OnInit {
     private _authService: AuthService,
     private _appConfig: AppConfig,
     private _storage: Storage,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this._authService.isAuthorizedChange
@@ -67,18 +68,18 @@ export class AccountComponent implements OnInit {
   }
 
   openAccountInfo() {
-    const size = this._storage.getItem(accountInfoSizeKey);
     this.layout.addComponent({
       component: {
         name: 'account-info'
       },
-      single: true,
-      height: 350,
-      width: 700,
-      allowPopup: false,
-      removeIfExists: true,
-      resizable: true,
-      ...size,
+      ...getAccountInfoOptions(this._storage)
     });
   }
+}
+
+export function getAccountInfoOptions(storage: Storage) {
+  const size = storage.getItem(accountInfoSizeKey);
+  return {
+    ...size,
+  };
 }

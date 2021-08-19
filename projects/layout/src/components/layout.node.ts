@@ -63,7 +63,6 @@ export interface ILayoutNode {
   shouldOpenInNewWindow?();
 
   setZIndex?(index: number);
-
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -126,8 +125,13 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   handleDestroy() {
     console.log('handleDestroy', this.constructor.name);
-    if (this.componentRef)
-      this.componentRef.destroy();
+    if (this.componentRef) {
+      try {
+        this.componentRef.destroy();
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     if (Array.isArray(this.__onRemove)) {
       for (const fn of this.__onRemove) {

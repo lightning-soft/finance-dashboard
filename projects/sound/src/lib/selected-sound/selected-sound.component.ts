@@ -67,11 +67,12 @@ export class SelectedSoundComponent {
   ];
 
   constructor(
-    public readonly soundService: SoundService
+    public readonly soundService: SoundService,
   ) { }
 
-  selecte(sound: string): void {
+  select(sound: string): void {
     this.selectedSound = sound;
+    this.nativeSelect.emit(sound);
   }
 
   play(sound: string): void {

@@ -14,16 +14,15 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { TextAlign } from 'dynamic-form';
+import * as clone from 'lodash.clonedeep';
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { TransferItem } from 'ng-zorro-antd/transfer';
 import { Subject } from 'rxjs';
 import { Cell, ICell } from '../../models';
+import { Column } from '../types';
 import { IViewBuilderStore, ViewBuilderStore } from '../view-builder-store';
 import { CellClickDataGridHandler, DataGridHandler, Events, IHandlerData } from './data-grid.handler';
-import { Column } from '../types';
-import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
-import { TextAlign } from 'dynamic-form';
-import * as clone from 'lodash.clonedeep';
 
 declare function canvasDatagrid(params: any);
 
@@ -101,6 +100,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
+  @Input() templatesEnabled = true;
 
   @Input() editComponentsFactory: Function;
 
@@ -109,8 +109,6 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   private _items: T[] = [];
   private _alignOptions = [TextAlign.Left, TextAlign.Right, TextAlign.Center];
   private _prevActiveCell: Cell;
-
-  // private _subscribedEvents = [];
 
   @Input() public rowHeight = 19;
   public list: TransferItem[] = [];
@@ -173,9 +171,12 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Output()
   contextMenuStateChange = new EventEmitter<any>();
 
+  // presets
+  @Input() loadedPresets = false;
+  @Output() savePresets: EventEmitter<void> = new EventEmitter();
+  @Output() createPresets: EventEmitter<void> = new EventEmitter();
+
   constructor(
-    private modalService: NzModalService,
-    private viewContainerRef: ViewContainerRef,
     public _cd: ChangeDetectorRef,
     private _zone: NgZone,
     private container: ElementRef,
@@ -310,6 +311,14 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
 
     if (grid)
       grid.draw(force);
+  }
+
+  save(): void {
+    this.savePresets.emit();
+  }
+
+  saveAs(): void {
+    this.createPresets.emit();
   }
 
   ngAfterViewInit(): void {

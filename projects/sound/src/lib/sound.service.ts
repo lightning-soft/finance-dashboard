@@ -38,16 +38,21 @@ export class SoundService {
 
   playByName(name: string, volume: number): void {
     let audio;
-    if (this._store.get(name)) {
+    const sound = this._store.get(name);
+    if (sound && sound.volume === volume && sound.src === this._getUrlOfSound(name)) {
       audio = this._store.get(name);
     } else {
       audio = new Audio();
-      audio.src = `./assets/sounds/${name}.wav`;
+      audio.src = this._getUrlOfSound(name);
       audio.volume = volume;
       audio.load();
       this._store.set(name, audio);
     }
 
     audio.play();
+  }
+
+  private _getUrlOfSound(name: string): string {
+    return `./assets/sounds/${name}.wav`;
   }
 }

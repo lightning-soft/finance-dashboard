@@ -1,12 +1,23 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnDestroy,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { widgetList, bottomWidgetList } from '../component-options';
+import { bottomWidgetList, widgetList } from '../component-options';
 import { IBaseTemplate, TemplatesService } from 'templates';
 import { NzModalService, NzSubMenuComponent } from 'ng-zorro-antd';
 import { Subscription } from 'rxjs';
 import { Components } from 'src/app/modules';
-import { RenameModalComponent, ConfirmModalComponent } from 'ui';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { Storage } from 'storage';
 
 
 @UntilDestroy()
@@ -22,16 +33,25 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
 
   opened = false;
   items = widgetList.filter(item => !item.hasTemplates);
+  itemsWithPresets = widgetList.filter(item => item.hasTemplates);
   bottomItems = bottomWidgetList;
   templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
   private _templatesSubscription: Subscription;
+  componentNames = {
+    [Components.Chart]: 'Chart',
+    [Components.Orders]: 'Orders',
+    [Components.Positions]: 'Positions',
+    [Components.MarketWatch]: 'Market Watch',
+    [Components.Dom]: 'DOM',
+  };
 
   constructor(
     private _templatesService: TemplatesService,
     private _modalService: NzModalService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _zone: NgZone
+    private _zone: NgZone,
+    private _storage: Storage,
   ) {
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       this.templates = {};
@@ -40,27 +60,32 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
           [...this.templates[template.type], template] : [template];
       });
     });
+    this.items = [...this.items, {
+      icon: 'icon-account-info',
+      name: 'Account Info',
+      component: Components.AccountInfo,
+      options: {
+        single: true,
+        height: 350,
+        width: 700,
+        allowPopup: false,
+        removeIfExists: true,
+        resizable: true,
+      },
+    }] as any;
   }
 
   ngAfterViewInit() {
     runZoneWhenSubmenuToggle(this.submenu, this._zone);
   }
 
-  create(item): void {
+  create(item, template?: IBaseTemplate): void {
     this.layout.addComponent({
       component: {
         name: item.component,
-      },
-      ...item.options
-    });
-  }
-
-  openChart(template?: IBaseTemplate): void {
-    this.layout.addComponent({
-      component: {
-        name: Components.Chart,
         template
       },
+      ...item.options
     });
   }
 
@@ -99,7 +124,7 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
-        message: `Do you want to delete "${template.name}"?`,
+        message: `Do you want to delete "${ template.name }"?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       },
