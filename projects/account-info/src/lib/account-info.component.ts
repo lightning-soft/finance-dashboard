@@ -57,11 +57,11 @@ const headers = [
   },
   {
     name: AccountInfoColumnsEnum.OpenPnl,
-    title: 'Open Pnl'
+    title: 'Open Pl'
   },
   {
     name: AccountInfoColumnsEnum.ClosedPnl,
-    title: 'Сlosed Pnl',
+    title: 'Сlosed Pl',
   },
   {
     name: AccountInfoColumnsEnum.LossLimit,
