@@ -5,8 +5,8 @@
     </div>
     <nz-dropdown-menu #menu="nzDropdownMenu">
         <ul nz-menu>
-            <nz-radio-group [(ngModel)]="selectedSound">
-                <li nz-menu-item *ngFor="let sound of soundList" (click)="selecte(sound)">
+            <nz-radio-group [(ngModel)]="selectedSound" (ngModelChange)="select($event)">
+                <li nz-menu-item *ngFor="let sound of soundList">
                     <label nz-radio [nzValue]="sound">{{ sound }}</label>
                     <div class="icon" (mouseenter)="play(sound)">
                         <img class="icon-img" src="./assets/icon/listen.png" alt="">
