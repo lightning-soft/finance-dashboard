@@ -282,9 +282,9 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
-  makeDefault(item: IConnection): Observable<any> {
+  makeDefault(item: IConnection): Observable<any> | null {
     if (item.isDefault)
-      return;
+      return throwError('Connection is already default');
 
     const _connection = { ...item, isDefault: true };
     const defaultConnections = this._connections.filter(i => i.isDefault);

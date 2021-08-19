@@ -17,7 +17,6 @@ import { NzModalService, NzSubMenuComponent } from 'ng-zorro-antd';
 import { Subscription } from 'rxjs';
 import { Components } from 'src/app/modules';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
-import { getAccountInfoOptions } from '../../navbar/account/account.component';
 import { Storage } from 'storage';
 
 
@@ -39,6 +38,13 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
   templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
   private _templatesSubscription: Subscription;
+  componentNames = {
+    [Components.Chart]: 'Chart',
+    [Components.Orders]: 'Orders',
+    [Components.Positions]: 'Positions',
+    [Components.MarketWatch]: 'Market Watch',
+    [Components.Dom]: 'DOM',
+  };
 
   constructor(
     private _templatesService: TemplatesService,
@@ -58,9 +64,14 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
       icon: 'icon-account-info',
       name: 'Account Info',
       component: Components.AccountInfo,
-      get options() {
-        return getAccountInfoOptions(_storage);
-      }
+      options: {
+        single: true,
+        height: 350,
+        width: 700,
+        allowPopup: false,
+        removeIfExists: true,
+        resizable: true,
+      },
     }] as any;
   }
 
@@ -113,7 +124,7 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
-        message: `Do you want to delete "${template.name}"?`,
+        message: `Do you want to delete "${ template.name }"?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       },

@@ -8,7 +8,6 @@ import { IBaseTemplate } from './models';
 import { Component } from '@angular/core';
 import { saveData } from 'window-manager';
 import { Components } from 'src/app/modules';
-import { ILayoutNode } from 'layout';
 
 const { mixinDecorator } = MixinHelper;
 
@@ -45,7 +44,7 @@ export abstract class _Presets<T> implements IPresets<T> {
     ngAfterViewInit(): void {
         this._templatesService.subscribe((data) => {
             if (this.loadedPresets) return;
-    
+
             this.loadedPresets = data.items.find(i => this.loadedPresets?.id === i?.id);
         });
     }
@@ -101,5 +100,5 @@ export abstract class _Presets<T> implements IPresets<T> {
 }
 
 export function LayoutPresets() {
-    return mixinDecorator(_Presets);
+    return mixinDecorator(_Presets, ['ngAfterViewInit']);
 }

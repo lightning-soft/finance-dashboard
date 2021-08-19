@@ -94,7 +94,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
           this._updateSelectedItem();
         },
         err => this._notifier.showError(err)
-      ); 
+      );
   }
 
   ngAfterViewInit() {

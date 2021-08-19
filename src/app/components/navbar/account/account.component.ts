@@ -80,12 +80,6 @@ export class AccountComponent implements OnInit {
 export function getAccountInfoOptions(storage: Storage) {
   const size = storage.getItem(accountInfoSizeKey);
   return {
-    single: true,
-    height: 350,
-    width: 700,
-    allowPopup: false,
-    removeIfExists: true,
-    resizable: true,
     ...size,
   };
 }

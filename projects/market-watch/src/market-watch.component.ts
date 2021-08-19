@@ -12,7 +12,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { convertToColumn, ItemsComponent } from 'base-components';
 import { OrderColumn } from 'base-order-form';
-import { ExcludeId, Id } from 'communication';
+import { Id } from 'communication';
 import {
   Cell,
   CellClickDataGridHandler,
@@ -30,7 +30,7 @@ import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent, NzModalService, NzSpinComponent } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, filterByAccountsConnection, filterConnection, IConnectionsListener } from 'real-trading';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { buffer, debounceTime, skip, take } from 'rxjs/operators';
 import {
   IAccount,
@@ -78,8 +78,8 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
-import { IMarketWatchPresets, IMarketWatchState } from '../models'; 
-import { TemplatesService, IPresets, LayoutPresets } from 'templates';
+import { IMarketWatchPresets, IMarketWatchState } from '../models';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 
 const labelText = 'Indices';
 
@@ -340,7 +340,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   builder = new MarketWatchBuilder();
 
   private get defaultColumns() {
-    return headers.map((item: any) => convertToColumn(item, defaultStyles));
+    return headers.map((item: any) => convertToColumn(item, { ...defaultStyles, titleUpperCase: true }));
   }
 
   newInstrument$ = new Subject<IInstrument>();

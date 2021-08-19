@@ -27,7 +27,7 @@ export class WorkspacesManager {
       .getItems()
       .subscribe(
         (w) => this._handleStoreWorkspaces(w),
-        (e) => console.error(`Something goes wrong ${e.message}`)
+        (e) => console.error(`Something goes wrong ${ e.message }`)
       );
   }
 

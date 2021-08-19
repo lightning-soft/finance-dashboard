@@ -31,7 +31,7 @@
           </div>
         </li>
         <li nz-menu-divider class="divider"></li>
-        <li nz-menu-item class="side-navigation__item" (click)="create(item)">New Chart</li>
+        <li nz-menu-item class="side-navigation__item" (click)="create(item)">New {{componentNames[item.component]}}</li>
       </ul>
 
       <ng-template #chartSubmenuPresets>

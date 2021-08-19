@@ -12,7 +12,7 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { ExcludeId, Id, RepositoryActionData } from 'communication';
+import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
   Cell,
@@ -42,11 +42,10 @@ import {
   IHistoryItem,
   RealPositionsRepository
 } from 'real-trading';
-import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
-import { TemplatesService } from 'templates';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   compareInstruments,
   getPrice,
@@ -77,7 +76,6 @@ import {
   VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
-import { LayoutPresets, IPresets } from 'templates';
 import { IDomPresets, IDomState } from '../models';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
@@ -287,7 +285,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._lastBidItem = this._getItem(null);
     this._lastTradeItem = this._getItem(null);
 
-    this.columns = headers.map(convertToColumn);
+    this.columns = headers.map(item => convertToColumn(item));
 
     if (!environment.production) {
       this.columns.unshift(convertToColumn('_id'));
@@ -646,7 +644,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.savePresets(presets);
   }
-  
+
 
   handleAccountChange(account: IAccount) {
     this._loadData();
@@ -2128,7 +2126,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   saveState(): IDomState {
     this._settings.orderArea = this.domForm.getState() as any;
-    return { 
+    return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
