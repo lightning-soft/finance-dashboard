@@ -87,9 +87,15 @@ export class WindowsComponent implements OnInit {
 
   duplicate(id: any) {
     this.updateWindow();
-    const window = this._workspacesService.duplicateWindow(id);
-    if (!isElectron())
-      this.selectWindow(window.id);
+    if (isElectron()) {
+      this.save();
+    }
+    setTimeout(() => {
+      const window = this._workspacesService.duplicateWindow(id);
+      if (!isElectron())
+        this.selectWindow(window.id);
+    }, 50);
+
   }
 
   createWindow() {

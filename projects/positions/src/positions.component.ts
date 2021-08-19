@@ -7,7 +7,7 @@ import {
   SettingsApplier,
   ViewGroupItemsBuilder
 } from 'base-components';
-import { ExcludeId, Id, IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import { CellClickDataGridHandler, Column, DataGridHandler } from 'data-grid';
 import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
@@ -163,6 +163,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
       hoveredBackgroundColor: '#2B2D33',
       hoveredhighlightBackgroundColor: '#2B2D33',
       [`${groupStatus}BackgroundColor`]: '#24262C',
+      titleUpperCase: true,
     }));
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint, connectionId: Id) => {

@@ -17,6 +17,7 @@ const headers = [
   {
     name: AccountInfoColumnsEnum.Account,
     title: 'Account',
+    canHide: false,
   },
   {
     name: AccountInfoColumnsEnum.Name,
@@ -30,6 +31,10 @@ const headers = [
     title: 'Currency',
   },
   {
+    name: AccountInfoColumnsEnum.fcmId,
+    title: 'FCM ID'
+  },
+  {
     name: AccountInfoColumnsEnum.IbId,
     title: 'IB ID'
   },
@@ -39,21 +44,53 @@ const headers = [
     }
   },
   {
+    name: AccountInfoColumnsEnum.availableBuingPower,
+    title: 'Available Buing Power'
+  },
+  {
+    name: AccountInfoColumnsEnum.usedBuingPower,
+    title: 'Used Buing Power'
+  },
+  {
+    name: AccountInfoColumnsEnum.fcmId,
+    title: 'Reserved Buing Power'
+  },
+  {
     name: AccountInfoColumnsEnum.OpenPnl,
     title: 'Open Pnl'
   },
   {
     name: AccountInfoColumnsEnum.ClosedPnl,
-    title: 'Open Pnl'
+    title: 'Сlosed Pnl',
   },
   {
     name: AccountInfoColumnsEnum.LossLimit,
     title: 'Loss Limit',
   },
-  AccountInfoColumnsEnum.Position,
+  { name: AccountInfoColumnsEnum.Position, title: 'Position' },
+  /*  {
+      name: AccountInfoColumnsEnum.workingBuys,
+      title: 'Working Buys'
+    },
+    {
+      name: AccountInfoColumnsEnum.workingSell,
+      title: 'Working Sell'
+    },*/
   {
     name: AccountInfoColumnsEnum.CashOnHand,
     title: 'Cash On Hand',
+  },
+  {
+    name: AccountInfoColumnsEnum.impliedMarginReserved,
+    title: 'Implied Margin Reserved'
+  },
+  {
+    name: AccountInfoColumnsEnum.marginBalance,
+    title: 'Margin Balance'
+  },
+  {
+    name: AccountInfoColumnsEnum.reservedMargin,
+    title: 'Reserved Margin'
   },
   {
     name: AccountInfoColumnsEnum.BuyQty,
@@ -87,6 +124,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
   columns = headers.map(item => convertToColumn(item, {
     textOverflow: false, textAlign: 'left',
     hoveredBackgroundColor: '#2B2D33',
+    titleUpperCase: false
   }));
   gridStyles = {
     gridHeaderBorderColor: '#24262C',
@@ -113,10 +151,17 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
     });
     this.onRemove(() => {
-      const height = this.layoutContainer.options.height;
-      const width = this.layoutContainer.options.width;
-      this._storage.setItem(accountInfoSizeKey, { height, width });
+      const { x, y, height, width } = this.layoutContainer.options;
+      this._storage.setItem(accountInfoSizeKey, { layoutConfig: { height, width, x, y }, state: this.saveState() });
     });
+    const data = this._storage.getItem(accountInfoSizeKey);
+    this.loadState(data?.state);
+    if (data?.layoutConfig) {
+      this.layoutContainer.height = data?.layoutConfig.height;
+      this.layoutContainer.width = data?.layoutConfig.width;
+      this.layoutContainer.x = data.layoutConfig.x;
+      this.layoutContainer.y = data.layoutConfig.y;
+    }
   }
 
   saveState() {

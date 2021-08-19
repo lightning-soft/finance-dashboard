@@ -5,7 +5,8 @@ import {
   ElementRef,
   EventEmitter,
   HostBinding,
-  HostListener, Input,
+  HostListener,
+  Input,
   NgZone,
   OnDestroy,
   OnInit,
@@ -99,6 +100,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() onColumnResize = (e) => null;
   @Input() showColumnTitleOnHover: (column: Column) => boolean = () => true;
   @Input() styles: GridStyles;
+  @Input() templatesEnabled = true;
 
   @Input() editComponentsFactory: Function;
 

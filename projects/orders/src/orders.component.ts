@@ -230,6 +230,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       [`${ groupStatus }Color`]: '#fff',
       textOverflow: true,
       textAlign: 'left',
+      titleUpperCase: true,
     }));
     const column = this.columns.find(i => i.name == OrderColumn.description);
     column.style = { ...column.style, textOverflow: true };

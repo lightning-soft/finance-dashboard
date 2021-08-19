@@ -8,8 +8,7 @@ export class RealOrdersFeed extends RealFeed<IOrder> {
   type = RealtimeType.Order;
 
   protected _map(item: IOrder): any {
-    if (item.instrument.description)
-      item.description = item.instrument.description;
+    item.description = item.instrument.description ?? '';
 
     return super._map(item);
   }
