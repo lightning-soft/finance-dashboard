@@ -89,7 +89,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
       }
       default:
-        throw new Error(`Unknown request kind: ${ request.kind }`);
+        throw new Error(`Unknown request kind: ${request.kind}`);
     }
     chart.updateComputedDataSeries();
 
@@ -193,6 +193,7 @@ export abstract class Datafeed implements IDatafeed {
 
     if (!lastBar)
       return;
+
     if (!quote.side) {
       const bar = {
         open: quote.price,
@@ -222,6 +223,7 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     chart.updateIndicators();
+    chart.setNeedsUpdate();
   }
 
   private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
