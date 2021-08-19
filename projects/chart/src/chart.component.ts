@@ -101,6 +101,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showChartForm = true;
   enableOrderForm = false;
   showOrderConfirm = true;
+  showCancelConfirm = true;
 
   ocoStep = OcoStep.None;
   firstOcoOrder: IOrder;
@@ -190,7 +191,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
-    protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     private _ordersRepository: OrdersRepository,
@@ -306,6 +306,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       enableOrderForm: this.enableOrderForm,
       link: this.link,
       showOrderConfirm: this.showOrderConfirm,
+      showCancelConfirm: this.showCancelConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
@@ -328,6 +329,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showChartForm = state?.showChartForm;
     if (state?.hasOwnProperty('showOrderConfirm'))
       this.showOrderConfirm = state?.showOrderConfirm;
+    if (state?.hasOwnProperty('showCancelConfirm'))
+      this.showCancelConfirm = state?.showCancelConfirm;
     if (state?.hasOwnProperty('settings'))
       this.settings = state.settings;
 
@@ -656,30 +659,52 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.clearOcoOrders();
   }
 
-  createOrderWithConfirm(config: Partial<IOrder>) {
+  createOrderWithConfirm(config: Partial<IOrder>, event) {
     if (!this.isTradingEnabled)
       return;
 
     if (this.showOrderConfirm) {
       const dto = this._sideForm.getDto();
-      this._modalService.create({
-        nzClassName: 'confirm-order',
-        nzIconType: null,
-        nzContent: ConfirmOrderComponent,
-        nzFooter: null,
-        nzComponentParams: {
-          order: { ...dto, ...config },
-        }
-      }).afterClose.subscribe((res) => {
-        if (res) {
-          if (res.create)
-            this.createOrder(config);
-          this.showOrderConfirm = !res.dontShowAgain;
-        }
-      });
+      const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
+      this.createConfirmModal({
+        order: { ...dto, ...config, ...priceSpecs },
+      }, event).afterClose
+        .pipe(untilDestroyed(this))
+        .subscribe((res) => {
+          if (res) {
+            if (res.create)
+              this.createOrder(config);
+            this.showOrderConfirm = !res.dontShowAgain;
+          }
+        });
     } else {
       this.createOrder(config);
     }
+  }
+
+  async cancelOrderWithConfirm(order: IOrder, event) {
+    if (!this.showCancelConfirm)
+      return Promise.resolve({ create: true, dontShowAgain: !this.showCancelConfirm });
+
+    return this.createConfirmModal({
+      order,
+      prefix: 'Cancel'
+    }, event).afterClose.toPromise();
+  }
+
+  private createConfirmModal(params, event) {
+    return this._modalService.create({
+      nzClassName: 'confirm-order',
+      nzIconType: null,
+      nzContent: ConfirmOrderComponent,
+      nzFooter: null,
+      nzNoAnimation: true,
+      nzStyle: {
+        left: `${ event.evt.clientX }px`,
+        top: `${ event.evt.clientY }px`,
+      },
+      nzComponentParams: params
+    });
   }
 
   createOrder(config: Partial<IOrder>) {
@@ -967,10 +992,8 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.orderBar.orderBarLength = settings.trading.trading.orderBarLength;
   theme.orderBar.orderBarUnit = settings.trading.trading.orderBarUnit;
 
-  theme.tradingPanel = {
-    tradingBarLength: settings.trading.trading.tradingBarLength,
-    tradingBarUnit: settings.trading.trading.tradingBarUnit
-  };
+  theme.tradingPanel.tradingBarLength = settings.trading.trading.tradingBarLength;
+  theme.tradingPanel.tradingBarUnit = settings.trading.trading.tradingBarUnit;
 
   return theme;
 }

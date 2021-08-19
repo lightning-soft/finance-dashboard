@@ -538,14 +538,27 @@ side-form {
   }
 
   .confirm-order {
+    margin: 0;
     .ant-modal-content {
       width: 379px;
+      animation: fadeIn 0.3s;
 
       .ant-modal-body {
         padding: 30px 40px;
         width: 376px;
         min-width: 376px;
       }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.3) translateY(100px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
 
