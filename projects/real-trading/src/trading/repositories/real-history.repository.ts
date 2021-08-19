@@ -3,6 +3,8 @@ import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from "trading";
+import { map, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 declare const moment: any;
 
@@ -43,6 +45,33 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.Exchange = exchange;
     }
 
-    return super.getItems(params);
+    const { endDate } = params || {};
+
+    return super.getItems(params).pipe(
+      switchMap((res: any) => {
+        const arr = res?.data || [];
+        const lastItem = arr[arr.length - 1];
+        const lastDate = lastItem?.date;
+        const requestEndDate = endDate && new Date(endDate);
+
+        if (requestEndDate != null && lastItem != null && lastDate < requestEndDate)
+          return this.getItems({ ...params, startDate: lastDate, endDate: requestEndDate })
+            .pipe(
+              map((response: any) => {
+                const data = arr;
+
+                for (const item of (response.data || [])) {
+                  if (item.date > lastDate) {
+                    data.push(item);
+                  }
+                }
+
+                return { data };
+              }),
+            );
+
+        return of(res);
+      })
+    );
   }
 }

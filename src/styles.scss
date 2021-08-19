@@ -617,3 +617,9 @@ nz-input-number:not(.custom-form-control) {
     }
   }
 }
+
+// Fix scrolling issue on select(system select in connection dialog)
+.ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover), .ant-slider-rail,
+.ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover) {
+  background-color: transparent;
+}
