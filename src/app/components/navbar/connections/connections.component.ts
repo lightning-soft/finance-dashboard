@@ -90,11 +90,11 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   loadData(params?: any) {
   }
 
-  openAccounts(selectedItem: IConnection = null) {
+  openAccounts(selectedItem: IConnection = null, index = -1) {
     this.layout.addComponent({
       component: {
         name: 'accounts',
-        state: { selectedItem }
+        state: { selectedItem, selectItemIndex: index }
       },
       ...accountsOptions
     });
