@@ -5,8 +5,8 @@
   <div
     class="d-flex align-items-center   connection-item"
     (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
-    (click)="openAccounts(connection)"
-    *ngFor="let connection of items"
+    (click)="openAccounts(connection, index)"
+    *ngFor="let connection of items; let index = index"
   >
     <div class="indicator mr-2" [ngClass]="{
       'success': connection.connected,
@@ -51,8 +51,8 @@
         <li
           nz-menu-item
           class="d-flex transition align-items-center"
-          *ngFor="let connection of items"
-          (click)="openAccounts(connection)"
+          *ngFor="let connection of items; let index = index"
+          (click)="openAccounts(connection, index)"
           (contextmenu)="connectionContextMenu($event, connectionContextMenuDropdown, connection)"
         >
           <div
