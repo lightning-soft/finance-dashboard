@@ -18,6 +18,8 @@ export const saveCommand = 'saveCommand';
 export const highligtCommand = 'highligtCommand';
 export const closeCommand = 'closeCommand';
 
+const maxLocationOffset = -2000;
+
 export interface WindowPopupConfig {
   layoutConfig: any;
   hideWindowHeaderInstruments?: boolean;
@@ -120,7 +122,8 @@ export class WindowPopupManager {
     });
     this._windowMessengerService.subscribe(windowMoveEvent, ({ windowId, workspaceId, coords }) => {
       const bounds = this._state[hash(windowId, workspaceId)]?.bounds;
-      if (!bounds)
+      // need to check is user hid window
+      if (!bounds || coords.x < maxLocationOffset || coords.y < maxLocationOffset)
         return;
 
       bounds.x = coords.x;
