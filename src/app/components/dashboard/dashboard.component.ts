@@ -1,8 +1,19 @@
-import { AfterViewInit, Component, HostListener, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  Inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { environment } from 'environment';
 import { KeyBinding, KeyboardListener } from 'keyboard';
-import { LayoutComponent, saveCommand, WindowPopupManager } from 'layout';
+import { closeCommand, highligtCommand, LayoutComponent, saveCommand, WindowPopupManager } from 'layout';
 import { NzConfigService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { filter, first } from 'rxjs/operators';
@@ -19,6 +30,7 @@ import { accountsOptions } from '../navbar/connections/connections.component';
 import { TradeHandler } from '../navbar/trade-lock/trade-handle';
 import { SaveLayoutConfigService, saveLayoutKey } from '../save-layout-config.service';
 import { widgetList } from './component-options';
+import { DOCUMENT } from '@angular/common';
 
 const OrderStatusToSound = {
   [OrderStatus.Filled]: Sound.ORDER_FILLED,
@@ -46,6 +58,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   private _subscriptions = [];
 
   @ViewChild('defaultEmptyContainer', { static: true }) defaultEmptyContainer;
+  _active = false;
+
+  set isActive(value: boolean) {
+    if (value === this._active)
+      return;
+
+    this._active = value;
+    if (value)
+      this._renderer.addClass(this.document.body, 'highligt');
+    else
+      this._renderer.removeClass(this.document.body, 'highligt');
+  }
 
   constructor(
     private _zone: NgZone,
@@ -61,6 +85,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private _workspaceService: WorkspacesManager,
     private saverService: SaveLayoutConfigService,
     private _notifier: NotifierService,
+    private _cd: ChangeDetectorRef,
+    @Inject(DOCUMENT) private document: Document,
     private windowMessengerService: WindowMessengerService,
   ) {
   }
@@ -100,8 +126,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   ngAfterViewInit() {
     // prevent to show browser`s menu
     this._renderer.listen('document', 'contextmenu', (e: MouseEvent) => {
-      if (isInput(<HTMLElement>e.target))
-         e.preventDefault();
+      if (isInput(e.target as HTMLElement))
+        e.preventDefault();
     });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
@@ -148,6 +174,26 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       // For Safari
       return true;
     };
+    this.windowMessengerService.subscribe(closeCommand, () => {
+      window.close();
+    });
+    if (isElectron()) {
+      this.windowMessengerService.subscribe(highligtCommand, ({ workspaceId, windowId }) => {
+        if (!this._workspaceService.checkIfCurrentWindow(workspaceId, windowId))
+          return;
+
+        this.isActive = true;
+        setTimeout(() => {
+            this.isActive = false;
+        }, 2000);
+      });
+      window.addEventListener('focus', () => {
+        this.isActive = true;
+      });
+      window.addEventListener('blur', () => {
+        this.isActive = false;
+      });
+    }
   }
 
 
@@ -192,7 +238,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         untilDestroyed(this))
       .subscribe(() => {
         this.windowMessengerService.subscribe(saveCommand, () => {
-          this._save();
+          this.save();
         });
         const workspaceId = +this._windowPopupManager.workspaceId;
         this._workspaceService.switchWorkspace(workspaceId, false);
@@ -214,7 +260,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     this._workspaceService.save$
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        this._save();
+        this.save();
       });
 
     this._setupReloadWorkspaces();
@@ -293,7 +339,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
           if (this._autoSaveIntervalId)
             clearInterval(this._autoSaveIntervalId);
 
-          this._autoSaveIntervalId = setInterval(() => this._save(), s.autoSaveDelay);
+          this._autoSaveIntervalId = setInterval(() => this.save(), s.autoSaveDelay);
 
         } else if (this._autoSaveIntervalId) {
           clearInterval(this._autoSaveIntervalId);
@@ -336,7 +382,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   private handleCommand(command: HotkeyEvents) {
     switch (command) {
       case HotkeyEvents.SavePage: {
-        this._save();
+        this.save();
         break;
       }
       case HotkeyEvents.OpenChart: {
@@ -382,7 +428,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  private async _save() {
+  async save() {
     await this.saverService.save(this.layout.getState());
     this.hasBeenSaved = true;
   }
@@ -402,7 +448,7 @@ function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
   if (!element)
     return true;
 
-  return (isInput(element) && !element.classList.contains('hotkey-input')) ||
+  return (!isInput(element) && !element.classList.contains('hotkey-input')) ||
     keysAlwaysToHandle.some(i => isEqual(i, keys));
 }
 

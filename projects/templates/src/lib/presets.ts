@@ -75,7 +75,7 @@ export abstract class _Presets<T> implements IPresets<T> {
             nzContent: CreateModalComponent,
             nzWrapClassName: 'vertical-center-modal',
             nzComponentParams: {
-                name: 'Presets name',
+                name: 'Preset name',
             },
         });
 

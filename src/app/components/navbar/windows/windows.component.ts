@@ -117,25 +117,33 @@ export class WindowsComponent implements OnInit {
 
       let config = [];
       this.updateWindow();
+      if (isElectron())
+        this.save();
 
-      if (result.base)
-        config = this.windows.find(item => item.id === result.base)?.config;
+      const timeout = isElectron() ? 50 : 0;
+      setTimeout(() => {
+        if (result.base)
+          config = this.windows.find(item => item.id === result.base)?.config;
 
-      const workspaceWindow = this._workspacesService.createWindow(new WorkspaceWindow({
-        name: result.name,
-        config,
-      }));
-      this.save();
-      if (!isElectron()) {
-        this.selectWindow(workspaceWindow.id);
-      }
+        const workspaceWindow = this._workspacesService.createWindow(new WorkspaceWindow({
+          name: result.name,
+          config,
+        }));
+        this.save();
+        if (!isElectron()) {
+          this.selectWindow(workspaceWindow.id);
+        }
+      }, timeout);
     });
   }
 
   selectWindow(windowId: Id) {
-    if (this.currentWindowId !== windowId && !this.isOpened(windowId)) {
+    if (this.currentWindowId !== windowId) {
       if (isElectron()) {
-        this.popupWindow(this._workspacesService.getWindowById(this.currentWorkspace.id, windowId));
+        if (!this.isOpened(windowId))
+          this.popupWindow(this._workspacesService.getWindowById(this.currentWorkspace.id, windowId));
+        else
+          this._windowPopupManager.highlightWindow(this.currentWorkspace.id, windowId);
       } else {
         this.updateWindow();
         this._workspacesService.switchWindow(windowId);

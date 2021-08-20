@@ -41,6 +41,19 @@ label {
   font-weight: 600;
 }
 
+body.electron {
+  border: 1px solid $darkBackground;
+  border-top: 1px solid $light;
+ // transition: border 0.3s;
+  &.navbarBottom{
+    border-top: 1px solid $darkBackground;
+    border-bottom: 1px solid $light;
+  }
+  &.highligt {
+    border: 1px solid $primary;
+  }
+}
+
 .ant-switch:hover, .ant-switch:focus:hover {
   box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
 }

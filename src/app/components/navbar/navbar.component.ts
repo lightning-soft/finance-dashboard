@@ -1,4 +1,14 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  HostListener,
+  Input,
+  NgZone,
+  Output
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
@@ -23,6 +33,7 @@ export class NavbarComponent implements AfterViewInit {
   public isNavbarHidden = false;
   private navbarActive = false;
   private isInsideDropdownOpened = false;
+  @Output() save = new EventEmitter();
 
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
@@ -180,6 +191,10 @@ export class NavbarComponent implements AfterViewInit {
 
   private _isHostContainsElement(element: Element): boolean {
     return this.elementRef.nativeElement.contains(element);
+  }
+
+  saveWindow() {
+    this.save.emit();
   }
 }
 
