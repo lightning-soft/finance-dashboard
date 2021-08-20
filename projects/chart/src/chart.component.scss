@@ -161,9 +161,12 @@ side-form {
         width: 20px;
         background-position: center;
         background-size: 16px;
+        background-repeat: no-repeat;
 
         &.active {
+          background-color: $lighter;
           color: $primary !important;
+          background-size: 12px;
         }
 
         &:not(:first-child) {
@@ -539,6 +542,7 @@ side-form {
 
   .confirm-order {
     margin: 0;
+
     .ant-modal-content {
       width: 379px;
       animation: fadeIn 0.3s;

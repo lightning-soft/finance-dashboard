@@ -188,6 +188,15 @@
       align-items: center;
       padding: 3px 0 3px 4px;
 
+      &.ant-dropdown-menu-submenu-title-disabled, &.ant-dropdown-menu-item-disabled {
+        color: rgba($text-80, 0.3);
+
+        &:hover {
+          color: rgba($text-80, 0.3);
+          background: transparent;
+        }
+      }
+
       .ant-dropdown-menu-submenu-arrow {
         right: 2px;
       }

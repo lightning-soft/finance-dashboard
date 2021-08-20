@@ -274,4 +274,8 @@ export class WorkspacesManager {
   updateWorkspaces() {
     this.workspaces.next(this.workspaces.value);
   }
+
+  checkIfCurrentWindow(workspaceId: any, windowId: any) {
+    return this.getActiveWorkspace()?.id === workspaceId && this.getCurrentWindow()?.id === windowId;
+  }
 }

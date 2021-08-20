@@ -1,12 +1,12 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { LayoutComponent } from 'layout';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { Workspace, WorkspaceId, WorkspacesManager } from 'workspace-manager';
 import { SettingsService } from 'settings';
 import { FormControl } from '@angular/forms';
 import { Id } from 'communication';
-import { ConfirmModalComponent, RenameModalComponent, CreateModalComponent } from 'ui';
+import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 
 @Component({
   selector: 'app-workspace',
@@ -29,6 +29,7 @@ export class WorkspaceComponent implements OnInit {
     private _workspacesService: WorkspacesManager,
     private _modalService: NzModalService,
     private _settingsService: SettingsService,
+    private  _windowPopupManager: WindowPopupManager,
     private _notificationService: NotifierService,
   ) {
   }
@@ -101,6 +102,7 @@ export class WorkspaceComponent implements OnInit {
       this.activeWorkspaceId = $event;
       this.formControl.patchValue($event);
       this._workspacesService.switchWorkspace(this.activeWorkspaceId);
+      this._windowPopupManager.sendCloseCommand();
     } else {
       const modal = this._modalService.create({
         nzTitle: 'Saving workspace',
@@ -120,6 +122,7 @@ export class WorkspaceComponent implements OnInit {
         if (result) {
           this.activeWorkspaceId = $event;
           this.formControl.patchValue($event);
+          this._windowPopupManager.sendCloseCommand();
           this._workspacesService.switchWorkspace(this.activeWorkspaceId, result.confirmed);
         }
       });
