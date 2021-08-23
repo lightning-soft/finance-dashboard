@@ -24,13 +24,13 @@
             <div>
 
               <div
-                *ngFor="let item of getConnectionsByBroker(broker)"
+                *ngFor="let item of getConnectionsByBroker(broker); let index = index"
                 class="selectable-item pl-4 mt-1"
                 (contextmenu)="contextMenu($event, contentTemplate)"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
                 [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
-                (click)="selectItem(item)"
+                (click)="selectItem(item, index)"
               >
                 <ng-container *ngIf="!item.rename">
                   <div [title]="item.name" class="position-relative">

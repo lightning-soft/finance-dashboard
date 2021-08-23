@@ -132,7 +132,17 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
   //   "tironeLevels", "speedLines", "gannFan", "trendAngle"];
 
-  drawingInstruments = drawings;
+  drawingInstruments = drawings.map(item => {
+    const formattedName = this.transformToUIName(item);
+    const classItem = this.transformToClassName(item);
+    return {
+      ...item, className: classItem, formattedName, items: item.items.map(subItem => {
+        const formattedSubName = this.transformToUIName(subItem);
+        const classSubItem = this.transformToClassName(subItem);
+        return { ...subItem, className: classSubItem, formattedName: formattedSubName };
+      }),
+    };
+  });
 
   @HostBinding('class.opened')
   get isOpened() {
@@ -247,7 +257,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     const overlayContainer = this._overlayRef?.hostElement?.parentElement;
     setTimeout(() => {
       if (overlayContainer)
-      overlayContainer.style.zIndex = String(this.window.z);
+        overlayContainer.style.zIndex = String(this.window.z);
     });
   }
 
@@ -317,7 +327,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   }
 
   getShortTimeFrame(timeFrame: ITimeFrame): string {
-    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
+    return `${ timeFrame.interval } ${ periodicityMap.get(timeFrame.periodicity) }`;
   }
 
   compareInstrumentDialog() {
@@ -419,6 +429,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
   public transformToClassName(drawing: any): string {
     const str = drawing?.className ?? drawing;
+    if (typeof str !== 'string')
+      return '';
+
     const className = str.replace(/[A-Z]/g, '-$&').toLowerCase();
     return className;
   }
