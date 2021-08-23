@@ -8,6 +8,10 @@
 
 $toolbarMargin: 4px;
 
+loader {
+  z-index: 100;
+}
+
 .form-header {
   font-size: 0.7rem;
   line-height: 1rem;

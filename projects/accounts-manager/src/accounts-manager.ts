@@ -12,6 +12,7 @@ import { accountsListeners } from '../../real-trading/src/connection/accounts-li
 
 @Injectable()
 export class AccountsManager implements ConnectionContainer {
+
   private get _connections(): IConnection[] {
     return this.connectionsChange.value;
   }
@@ -264,7 +265,21 @@ export class AccountsManager implements ConnectionContainer {
     this._getSoundService().play(Sound.CONNECTION_LOST);
   }
 
+  disconnectById(connectionId: string) {
+    if (!connectionId)
+      return;
+
+    this.disconnect(this._connections.find(i => i.id === connectionId))
+      .subscribe(
+        i => console.log('Successfully disconnect'),
+        err => console.error('Error disconnect ', err),
+      );
+  }
+
   disconnect(connection: IConnection): Observable<void> {
+    if (!connection)
+      return of();
+
     const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
 
     return this._connectionsRepository.disconnect(connection)
