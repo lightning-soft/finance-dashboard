@@ -101,6 +101,7 @@ export class AuthService {
     const { url } = this._appConfig.identity;
     this.storage.setItem(refreshTokenKey, '');
     this.storage.setItem(idToken, '');
+    this._windowPopupManager.sendCloseCommand();
     return this._http.get(`${url}account/logout`, {})
       .pipe(tap(res => this._unauthorize()));
   }
