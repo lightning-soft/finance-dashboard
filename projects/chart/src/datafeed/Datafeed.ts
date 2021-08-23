@@ -38,12 +38,12 @@ export abstract class Datafeed implements IDatafeed {
   /**
    * @internal
    */
-  protected _details: IDetails[] = [];
+  protected _account: IAccount;
 
   /**
    * @internal
    */
-  protected _account: IAccount;
+  private _quotes: IQuote[] = [];
 
   /**
    * Executes request post cancel actions (e.g. hides waiting bar).
@@ -52,8 +52,6 @@ export abstract class Datafeed implements IDatafeed {
    * @protected
    */
   protected onRequstCanceled(request: IBarsRequest) {
-    this._details = [];
-
     if (this._requests.size === 0)
       request.chart.hideWaitingBar();
   }
@@ -65,12 +63,14 @@ export abstract class Datafeed implements IDatafeed {
    * @protected
    */
   protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
-    const chart = request.chart,
-      dataManager = chart.dataManager,
-      oldFirstVisibleRecord = chart.firstVisibleRecord,
-      oldLastVisibleRecord = chart.lastVisibleRecord,
-      oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0,
-      instrument = chart.instrument;
+    this._requests.delete(request.id);
+
+    const chart = request.chart;
+    const dataManager = chart.dataManager;
+    const oldFirstVisibleRecord = chart.firstVisibleRecord;
+    const oldLastVisibleRecord = chart.lastVisibleRecord;
+    const oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0;
+    const instrument = chart.instrument;
 
     if (!this.barHandler) {
       this.barHandler = new BarHandler(request.chart);
@@ -81,6 +81,12 @@ export abstract class Datafeed implements IDatafeed {
         dataManager.clearBarDataSeries();
         this.barHandler.clear();
         bars.forEach(bar => this.barHandler.insertBar(bar));
+        if (Array.isArray(this._quotes)) {
+          for (const quote of this._quotes) {
+            this.processQuote(request, quote);
+          }
+        }
+        this._quotes = [];
         break;
       }
       case RequestKind.MORE_BARS: {
@@ -109,8 +115,6 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, { request, bars });
-
-    this._requests.delete(request.id);
 
     chart.hideWaitingBar();
     chart.updateIndicators();
@@ -171,10 +175,14 @@ export abstract class Datafeed implements IDatafeed {
     return this._requests.has(request.id);
   }
 
+  private _accomulateQuotes(quote: IQuote) {
+    this._quotes.push(quote);
+  }
 
   protected processQuote(request: IRequest, quote: IQuote): void {
     if (quote?.instrument?.symbol == null)
       return;
+
     const { chart } = request;
 
     if (!this.barHandler) {
@@ -182,10 +190,9 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     if (this.isRequestAlive(request)) {
-      this._details = this._mergeRealtimeDetails(quote, this._details);
+      this._accomulateQuotes(quote);
       return;
     }
-
 
     // if instrument is null then you operate with main bars otherwise with others bars datasiries(compare instruments)
     const instrument = chart.instrument.symbol == quote.instrument.symbol ? null : quote.instrument;
@@ -195,6 +202,11 @@ export abstract class Datafeed implements IDatafeed {
       return;
 
     if (!quote.side) {
+      console.log('quote.side', quote.side, quote);
+      const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
+      const barDataSeries = chart.dataManager.barDataSeries(symbol);
+      const detailsDataSeries = barDataSeries.details;
+      const lastDetails = detailsDataSeries?.lastValue as IDetails[];
       const bar = {
         open: quote.price,
         high: quote.price,
@@ -202,13 +214,13 @@ export abstract class Datafeed implements IDatafeed {
         close: quote.price,
         volume: quote.volume,
         date: new Date(quote.date),
-        details: this._mergeRealtimeDetails(quote),
+        details: lastDetails,
       };
       this.barHandler.processBar(bar);
       chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
     } else {
       lastBar.close = quote.price;
-      lastBar.volume += quote.volume;
+      lastBar.volume = quote.volume;
 
       if (lastBar.high < quote.price)
         lastBar.high = quote.price;
@@ -230,20 +242,32 @@ export abstract class Datafeed implements IDatafeed {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
-    const lastDetails = detailsDataSeries?.lastValue as IDetails[];
-    if (!lastDetails)
+    if (!detailsDataSeries)
       return;
 
-    const details = this._mergeRealtimeDetails(quote, lastDetails);
+    let lastDetails = detailsDataSeries.lastValue as IDetails[];
+    if (!lastDetails) {
+      detailsDataSeries.setValue(detailsDataSeries.length - 1, []);
+      lastDetails = detailsDataSeries.lastValue as IDetails[];
+    }
+
+    const details = handleNewQuote(quote, lastDetails);
 
     detailsDataSeries.updateLast(details);
   }
 
-  private _mergeRealtimeDetails(quote: IQuote, details: IDetails[] = null): IDetails[] {
-    const { volume, tradesCount: _tradesCount, price } = quote;
-    const tradesCount = _tradesCount ?? volume;
+  protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
+    return chart.dataManager.getLastBar(instrument);
+  }
+}
 
-    const tmpItem: IDetails = {
+function handleNewQuote(quote: IQuote, details: IDetails[]) {
+  const { volume, tradesCount: _tradesCount, price } = quote;
+  const tradesCount = _tradesCount ?? volume;
+  let item = details.find(i => i.price === price);
+
+  if (!item) {
+    item = {
       bidInfo: {
         volume: 0,
         tradesCount: 0
@@ -257,69 +281,22 @@ export abstract class Datafeed implements IDatafeed {
       price
     };
 
-    switch (quote.side) {
-      case OrderSide.Sell:
-        tmpItem.bidInfo.volume = volume;
-        tmpItem.bidInfo.tradesCount = tradesCount;
-        break;
-      case OrderSide.Buy:
-        tmpItem.askInfo.volume = volume;
-        tmpItem.askInfo.tradesCount = tradesCount;
-        break;
-    }
-
-    if (!Array.isArray(details) || !details.length) {
-      return [tmpItem];
-    }
-
-    const item = details.find(i => i.price === price);
-
-    if (!item) {
-      details.push(tmpItem);
-
-      return details;
-    }
-
-    switch (quote.side) {
-      case OrderSide.Sell:
-        item.bidInfo.volume += volume;
-        item.bidInfo.tradesCount += tradesCount;
-        break;
-      case OrderSide.Buy:
-        item.askInfo.volume += volume;
-        item.askInfo.tradesCount += tradesCount;
-        break;
-    }
-
-    item.volume += volume;
-    item.tradesCount += tradesCount;
-
-    return details;
+    details.push(item);
   }
 
-  private _mergeDetails(chart: IChart, instrument?: IStockChartXInstrument) {
-    const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
-    const barDataSeries = chart.dataManager.barDataSeries(symbol);
-    const detailsDataSeries = barDataSeries.details;
-    const lastDetails = detailsDataSeries.lastValue as IDetails[];
-
-    this._details.forEach(tmpItem => {
-      const item = lastDetails.find(i => i.price === tmpItem.price);
-
-      if (item) {
-        item.bidInfo.volume += tmpItem.bidInfo.volume;
-        item.bidInfo.tradesCount += tmpItem.bidInfo.tradesCount;
-        item.askInfo.volume += tmpItem.askInfo.volume;
-        item.askInfo.tradesCount += tmpItem.askInfo.tradesCount;
-        item.volume += tmpItem.volume;
-        item.tradesCount += tmpItem.tradesCount;
-      }
-    });
-
-    detailsDataSeries?.updateLast(lastDetails);
+  switch (quote.side) {
+    case OrderSide.Sell:
+      item.bidInfo.volume += volume;
+      item.bidInfo.tradesCount += tradesCount;
+      break;
+    case OrderSide.Buy:
+      item.askInfo.volume += volume;
+      item.askInfo.tradesCount += tradesCount;
+      break;
   }
 
-  protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
-    return chart.dataManager.getLastBar(instrument);
-  }
+  item.volume += volume;
+  item.tradesCount += tradesCount;
+
+  return details;
 }
