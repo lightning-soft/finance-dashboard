@@ -84,18 +84,24 @@ async function initIdentityAccount(authService: AuthService, config: AppConfig, 
         if (windowPopupManager.isPopup())
           window.close();
         else
-          location.replace(generateLoginLink(config.identity));
+          navigateToIdentity(config.identity);
       });
 
     if (!authService.isAuthorized) {
       if (windowPopupManager.isPopup())
         window.close();
       else
-        location.replace(generateLoginLink(config.identity));
+        navigateToIdentity(config.identity);
     }
   }
 }
 
+function navigateToIdentity(config) {
+  const isOnline = window.navigator.onLine;
+
+  if (isOnline)
+    location.replace(generateLoginLink(config));
+}
 
 export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService, windowPopupManager: WindowPopupManager) {
   return async () => {
