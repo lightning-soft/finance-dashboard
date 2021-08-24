@@ -164,6 +164,7 @@ abstract class _AccountListener extends _AccountsListener implements IConnection
     if (this.account == null && accounts.length && selectFirstAsDefault) {
       this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
+    this.onAccountChanged();
   }
 
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
@@ -172,6 +173,10 @@ abstract class _AccountListener extends _AccountsListener implements IConnection
     if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectDefault && allAccounts.length) {
       this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
+    this.onAccountChanged();
+  }
+
+  onAccountChanged() {
   }
 }
 

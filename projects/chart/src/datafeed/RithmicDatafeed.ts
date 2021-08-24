@@ -160,7 +160,7 @@ export class RithmicDatafeed extends Datafeed {
 
     this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, this._account.connectionId));
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint, connectionId) => {
-      if (connectionId !== this._account.connectionId)
+      if (connectionId !== this._account?.connectionId)
         return;
 
       const quoteInstrument = quote.instrument;

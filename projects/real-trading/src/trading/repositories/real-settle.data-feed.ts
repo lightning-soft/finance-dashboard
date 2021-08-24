@@ -20,7 +20,7 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
           fn(value, connectionId);
         }
       }
-    return super.on(fn);
+      return super.on(fn);
   }
 
   protected _handleUpdate(data, connectionId) {
