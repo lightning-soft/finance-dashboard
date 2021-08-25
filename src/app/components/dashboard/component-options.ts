@@ -61,6 +61,20 @@ export const widgetList = [
     options: orderFormOptions,
     hasInstrument: true,
   },
+  {
+    icon: 'icon-account-info',
+    name: 'Account Info',
+    component: Components.AccountInfo,
+    hasTemplates: true,
+    options: {
+      single: true,
+      height: 350,
+      width: 700,
+      allowPopup: false,
+      removeIfExists: true,
+      resizable: true,
+    },
+  }
 ];
 
 export const bottomWidgetList = [

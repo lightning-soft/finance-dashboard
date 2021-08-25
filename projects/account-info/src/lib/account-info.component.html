@@ -5,6 +5,8 @@
   [(contextMenuState)]="contextMenuState"
   [items]="builder.items"
   [styles]="gridStyles"
-  [templatesEnabled]="false"
-  [columns]="columns">
+  [columns]="columns"
+  [loadedPresets]="loadedPresets"
+  (savePresets)="save()"
+  (createPresets)="createPresets(Components.AccountInfo)">>
 </data-grid>

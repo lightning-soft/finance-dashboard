@@ -9,8 +9,12 @@ import { AccountInfoColumnsEnum } from './models/account-info-columns.enum';
 import { DataGrid } from 'data-grid';
 import { Storage } from 'storage';
 import { accountInfoSizeKey } from 'src/app/components';
+import { Components } from 'src/app/modules';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
+import { IAccountInfoPresets, IAccountInfoState } from '../models';
+import { NzModalService } from 'ng-zorro-antd';
 
-export interface AccountInfoComponent extends ILayoutNode {
+export interface AccountInfoComponent extends ILayoutNode, IPresets<IAccountInfoState> {
 }
 
 const headers = [
@@ -115,6 +119,7 @@ const headers = [
 })
 @AccountsListener()
 @LayoutNode()
+@LayoutPresets()
 export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IAccountsListener {
   builder = new ItemsBuilder<AccountInfo, AccountInfoItem>();
   contextMenuState = {
@@ -136,10 +141,14 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
 
   @ViewChild('dataGrid', { static: true }) _dataGrid: DataGrid;
 
+  Components = Components;
+
 
   constructor(protected _repository: AccountInfoRepository,
               private _storage: Storage,
-              protected _notifier: NotifierService) {
+              public readonly _notifier: NotifierService,
+              public readonly _templatesService: TemplatesService,
+              public readonly _modalService: NzModalService,) {
     super();
   }
 
@@ -168,7 +177,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     return this._dataGrid.saveState();
   }
 
-  loadState(state) {
+  loadState(state: IAccountInfoState) {
     if (state?.columns) {
       this.columns = state.columns;
     }
@@ -189,6 +198,16 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
         this._handleResize();
         break;
     }
+  }
+
+  save(): void {
+    const presets: IAccountInfoPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.AccountInfo
+    };
+
+    this.savePresets(presets);
   }
 
   private _handleResize() {

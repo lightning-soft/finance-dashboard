@@ -60,19 +60,6 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
           [...this.templates[template.type], template] : [template];
       });
     });
-    this.items = [...this.items, {
-      icon: 'icon-account-info',
-      name: 'Account Info',
-      component: Components.AccountInfo,
-      options: {
-        single: true,
-        height: 350,
-        width: 700,
-        allowPopup: false,
-        removeIfExists: true,
-        resizable: true,
-      },
-    }] as any;
   }
 
   ngAfterViewInit() {
