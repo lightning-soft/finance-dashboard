@@ -480,7 +480,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       useWaitingBar: false,
       autoLoad: false,
       showInstrumentWatermark: false,
-      incomePrecision: state?.instrument.precision ?? 2,
+      incomePrecision: state?.instrument?.precision ?? 2,
       stayInDrawingMode: false,
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)

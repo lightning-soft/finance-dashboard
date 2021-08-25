@@ -34,10 +34,14 @@ export interface IndicatorsComponent extends ILayoutNode {
 })
 @LayoutNode()
 @UntilDestroy()
-export class IndicatorsComponent implements OnInit, OnDestroy {
+export class IndicatorsComponent implements OnInit {
   link: any;
   chart: IChart;
-  indicators: any[] = [];
+
+  get indicators(): any[] {
+    return this.chart?.indicators ?? [];
+  }
+
   allExpanded = false;
   registeredIndicators = [];
   searchControl = new FormControl('', Validators.required);
@@ -133,7 +137,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     }[];
   } = {};
 
-  private _constructorsMap: WeakMap<any, new(...args: any[]) => Indicator>;
+  private _constructorsMap: WeakMap<any, new (...args: any[]) => Indicator>;
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -194,19 +198,23 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   addIndicator(item) {
-    if (this.indicators.find((indicator) => indicator.instance._name === item))
+    if (this.chart.indicators.find((i) => i._name === item))
       return;
 
-    const indicator = this.registeredIndicators[item];
-    this.chart.addIndicators(new indicator);
+    const _constructor = this.registeredIndicators[item];
+    const indicator = new _constructor();
+    this._applyZIndex();
+    this.chart.addIndicators(indicator);
     this.chart.setNeedsUpdate();
+
+    this.selectIndicator(indicator);
   }
 
   private _handleChart(chart: IChart) {
     if (!chart)
       return;
 
-    this._constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
+    this._constructorsMap = new WeakMap<any, new (...args: any[]) => Indicator>([
       [StockChartX.Footprint, Footprint],
       [StockChartX.VolumeProfile, VolumeProfile],
       [StockChartX.CompositeProfile, CompositeProfile],
@@ -218,64 +226,23 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     ]);
 
     this.fetchIndicators();
-    chart.indicators?.forEach(indicator => {
-      this._addIndicator(indicator);
-    });
-    chart.on(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
-    chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
   }
 
   removeIndicator(item: any) {
     const { chart } = this;
 
-    chart.removeIndicators(item.instance);
+    this._applyZIndex();
+    chart.removeIndicators(item);
     chart.setNeedsUpdate();
-  }
-
-  private _handleAddIndicator = (event: any) => {
-    this._addIndicator(event.value);
-    this._selectLastIndicator();
-  }
-
-  private _selectLastIndicator() {
-    const indicators = this.indicators;
-    this.selectIndicator(indicators[indicators.length - 1]);
-  }
-
-  private _handleRemoveIndicator = (event: any) => {
-    this._removeIndicator(event.value);
-  }
-
-  private _addIndicator(instance: any) {
-    const Constructor = this._constructorsMap.get(instance.constructor) || DefaultIndicator;
-
-    this.indicators.push(new Constructor(instance));
   }
 
   removeAll() {
     const { chart } = this;
 
     this.indicators.forEach((item) => {
-      chart.removeIndicators(item.instance);
+      chart.removeIndicators(item);
     });
     chart.setNeedsUpdate();
-  }
-
-  private _removeIndicator(instance: any) {
-    this.indicators = this.indicators.filter(indicator => indicator.instance !== instance);
-
-    if (this.selectedIndicator?.instance === instance) {
-      delete this.selectedIndicator;
-    }
-  }
-
-  ngOnDestroy() {
-    const { chart } = this;
-
-    if (chart) {
-      chart.off(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
-      chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
-    }
   }
 
   expand(group) {
@@ -306,7 +273,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       const contentPromises = contentKeys.map(contentKey => {
         return StockChartX.Localization.localizeText(
           this.chart,
-          `indicator.${ name }.help.${ key }.${ contentKey }`,
+          `indicator.${name}.help.${key}.${contentKey}`,
           { defaultValue: null },
         );
       });
@@ -333,9 +300,18 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
 
   dropped({ previousIndex, currentIndex }) {
     ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
-    ArrayHelper.swapItems(this.chart.indicators, previousIndex, currentIndex);
-
+    this._applyZIndex();
     this.chart.updateIndicators();
+    this.chart.setNeedsLayout();
     this.chart.setNeedsUpdate();
+  }
+
+  private _applyZIndex() {
+    for (let i = 0; i < this.indicators.length; i++) {
+      if (!this.indicators[i])
+        continue;
+
+      this.indicators[i].zIndex = 1000 - i;
+    }
   }
 }
