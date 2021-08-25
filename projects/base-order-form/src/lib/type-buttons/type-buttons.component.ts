@@ -1,10 +1,11 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface ITypeButton {
   label: string;
   value: any;
   selectable: boolean;
+  visible: boolean;
   black?: boolean;
   className?: string;
   onClick?: () => void;

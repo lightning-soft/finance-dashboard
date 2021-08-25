@@ -226,16 +226,16 @@ export class SideOrderFormComponent extends BaseOrderForm {
     { value: 100 }, { value: 5 }
   ];
   _typeButtons: ITypeButton[] = [
-    { label: 'LMT', black: true, value: OrderType.Limit, selectable: true },
-    { label: 'STP MKT', value: OrderType.StopMarket, black: true, selectable: true },
+    { label: 'LMT', visible: true, black: true, value: OrderType.Limit, selectable: true },
+    { label: 'STP MKT', visible: true, value: OrderType.StopMarket, black: true, selectable: true },
     {
-      label: 'OCO', value: 'OCO', className: 'oco', selectable: false, onClick: () => {
+      label: 'OCO', visible: true, value: 'OCO', className: 'oco', selectable: false, onClick: () => {
         this.emit(FormActions.CreateOcoOrder);
       }, contextMenu: () => {
         this.emit(FormActions.CancelOcoOrder);
       }, black: true
     },
-    { label: 'STP LMT', value: OrderType.StopLimit, black: true, selectable: true },
+    { label: 'STP LMT', visible: true, value: OrderType.StopLimit, black: true, selectable: true },
     // { label: 'MIT', value: OrderType.MIT },
     // { label: 'LIT', value: OrderType.LIT },
 
@@ -249,11 +249,11 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   tifButtons: ITypeButton[] = [
-    { label: 'DAY', black: true, value: OrderDuration.DAY, selectable: true },
+    { label: 'DAY', visible: true, black: true, value: OrderDuration.DAY, selectable: true },
     // { label: 'GTD', value: OrderDuration.GTD, selectable: true },
-    { label: 'GTC', black: true, value: OrderDuration.GTC, selectable: true, },
-    { label: 'FOK', black: true, value: OrderDuration.FOK, selectable: true },
-    { label: 'IOC', black: true, value: OrderDuration.IOC, selectable: true },
+    { label: 'GTC', visible: true, black: true, value: OrderDuration.GTC, selectable: true, },
+    { label: 'FOK', visible: true, black: true, value: OrderDuration.FOK, selectable: true },
+    { label: 'IOC', visible: true, black: true, value: OrderDuration.IOC, selectable: true },
   ];
   editIceAmount = false;
   isLoadedAtFirst = false;
@@ -279,12 +279,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
         this.form.patchValue({ duration: state.settings.tif.default });
         this.isLoadedAtFirst = true;
       }
-      this._settings = {...this._settings, ...state.settings };
+      this._settings = { ...this._settings, ...state.settings };
       const tif = this._settings.tif;
       this.tifButtons = this.tifButtons.map(item => {
         const selectable = tif[item.value];
         item.selectable = selectable;
-        item.disabled = !selectable;
+        item.visible = selectable;
         return item;
       });
     }
