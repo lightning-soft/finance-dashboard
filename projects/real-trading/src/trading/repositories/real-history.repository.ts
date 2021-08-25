@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IBaseItem } from 'communication';
+import { IBaseItem, IPaginationResponse } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from "trading";
@@ -26,10 +26,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       high: item.highPrice,
       low: item.lowPrice,
       volume: item.volume,
-      details: (item.details ?? []).map(i => ({
-        ...i,
-        tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
-      })),
+      details: item.details ?? [],
     };
   }
 
@@ -48,16 +45,20 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     const { endDate } = params || {};
 
     return super.getItems(params).pipe(
-      switchMap((res: any) => {
+      switchMap((res: IPaginationResponse<IHistoryItem>) => {
         const arr = res?.data || [];
         const lastItem = arr[arr.length - 1];
         const lastDate = lastItem?.date;
         const requestEndDate = endDate && new Date(endDate);
 
-        if (requestEndDate != null && lastItem != null && lastDate < requestEndDate)
+        if (requestEndDate != null && lastItem != null && lastDate < requestEndDate) {
+          lastItem.details = lastItem.details.filter(details => {
+            return lastItem.low <= details.price && details.price <= lastItem.high;
+          });
+
           return this.getItems({ ...params, startDate: lastDate, endDate: requestEndDate })
             .pipe(
-              map((response: any) => {
+              map((response: IPaginationResponse<IHistoryItem>) => {
                 const data = arr;
 
                 for (const item of (response.data || [])) {
@@ -69,6 +70,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
                 return { data };
               }),
             );
+        }
 
         return of(res);
       })
