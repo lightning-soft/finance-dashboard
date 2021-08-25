@@ -1,13 +1,17 @@
 import { Injectable, Injector } from '@angular/core';
 import { Id } from 'communication';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { IConnection } from 'trading';
 import { CommunicationConfig } from '../http';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
 import { WebSocketService } from './web-socket.service';
+import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
 
+const delayOffset = 3000;
+const notificationSendOffset = 3 * 60 * 1000;
+const maxTimeOffset = 10800000; // 3 hours
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +19,8 @@ import { WebSocketService } from './web-socket.service';
 export class ConenctionWebSocketService {
   connection: IConnection;
   connection$ = new BehaviorSubject<boolean>(false);
+  reconnection$ = new Subject<IConnection>();
+  lastSentNotification = 0;
 
   get connected(): boolean {
     return this.connection$.value;
@@ -48,10 +54,10 @@ export class ConenctionWebSocketService {
 
       return {
         ..._statistic,
-        upTime: `${upTime} sec`,
-        avarageMessages: `${(_statistic.messages / upTime).toFixed(2)} messages/sec`,
-        avarageEvents: `${(_statistic.events / upTime).toFixed(2)} events/sec`,
-        eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
+        upTime: `${ upTime } sec`,
+        avarageMessages: `${ (_statistic.messages / upTime).toFixed(2) } messages/sec`,
+        avarageEvents: `${ (_statistic.events / upTime).toFixed(2) } events/sec`,
+        eventsInMessages: `${ _statistic.events / _statistic.messages } events/sec`,
       };
     };
   }
@@ -228,7 +234,24 @@ export class ConenctionWebSocketService {
       this.connection$.next(true);
     }
 
+    this._checkConnectionDelay(payload);
+
     this._executeListeners(WSEventType.Message, payload);
+  }
+
+  private _checkConnectionDelay(msg) {
+    if (msg.type === RealtimeType.Bar)
+      return;
+
+    const now = Date.now();
+    const timeDelay = now - msg.result.timestamp;
+    const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
+    const shouldSendNtf = now > this.lastSentNotification + notificationSendOffset;
+    if (hasDelay && shouldSendNtf) {
+      this.lastSentNotification = now;
+      this.reconnection$.next(this.connection);
+      this._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now } });
+    }
   }
 
   private _addEventListeners() {
