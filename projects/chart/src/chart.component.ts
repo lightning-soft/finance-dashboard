@@ -1014,7 +1014,7 @@ function setBorderColor(barTheme, settings) {
 }
 
 function mapSettingsToSideFormState(settings) {
-  const orderAreaSettings = settings.trading.orderArea.settings
+  const orderAreaSettings = settings.trading.orderArea.settings;
   const sideOrderSettings: any = {};
   sideOrderSettings.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
   sideOrderSettings.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;

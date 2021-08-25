@@ -269,8 +269,8 @@ export const tradingFields: IFieldConfig[] = [
               getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
               getOrderAreaItemSettings('Show Liquidate Button', 'closePositionButton'),
               getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
-              getOrderAreaItemSettings('Show Buy Market Button', 'buyMarketButton'),
-              getOrderAreaItemSettings('Show Sell Market Button', 'sellMarketButton'),
+              getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
+              getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),
               getOrderAreaItemSettings('Show Cancel All Button', 'cancelButton'),
             ]
           },

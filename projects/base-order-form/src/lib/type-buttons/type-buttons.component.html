@@ -1,12 +1,15 @@
 <div class="inner-buttons">
-  <button
-    [class.black-btn]="item.black"
-    [class.selected]="isCurrentValue(item)"
-    (click)="onClick(item)"
-    [disabled]="item.disabled"
-    (contextmenu)="$event.preventDefault(); item.contextMenu && item.contextMenu()"
-    class="{{item.className}}"
-    nz-button *ngFor="let item of typeButtons">{{item.label}}</button>
+  <ng-container *ngFor="let item of typeButtons">
+    <button
+      *ngIf="item.visible"
+      [class.black-btn]="item.black"
+      [class.selected]="isCurrentValue(item)"
+      (click)="onClick(item)"
+      [disabled]="item.disabled"
+      (contextmenu)="$event.preventDefault(); item.contextMenu && item.contextMenu()"
+      class="{{item.className}}"
+      nz-button>{{item.label}}</button>
+  </ng-container>
   <ng-content select="[ice]"></ng-content>
   <ng-content select="[iceAmount]"></ng-content>
   <ng-content select="[marketAmount]"></ng-content>
