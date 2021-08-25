@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { AccountsListener, IAccountsListener, } from 'real-trading';
 import { AccountInfo, AccountInfoRepository, IAccount } from 'trading';
@@ -160,8 +160,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
     });
     this.onRemove(() => {
-      const { x, y, height, width } = this.layoutContainer.options;
-      this._storage.setItem(accountInfoSizeKey, { layoutConfig: { height, width, x, y }, state: this.saveState() });
+      this.onClose();
     });
     const data = this._storage.getItem(accountInfoSizeKey);
     this.loadState(data?.state);
@@ -184,6 +183,12 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     if (state?.contextMenuState) {
       this.contextMenuState = state.contextMenuState;
     }
+  }
+
+  @HostListener('beforeunload')
+  onClose() {
+    const { x, y, height, width } = this.layoutContainer.options;
+    this._storage.setItem(accountInfoSizeKey, { layoutConfig: { height, width, x, y }, state: this.saveState() });
   }
 
 

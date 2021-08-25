@@ -18,6 +18,8 @@ import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
 import { isElectron } from '../../is-electron';
 import { NotificationListComponent } from 'notification-list';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @UntilDestroy()
 @Component({
@@ -32,6 +34,7 @@ export class NavbarComponent implements AfterViewInit {
   public isNewNotification: boolean;
   public isNavbarHidden = false;
   private navbarActive = false;
+  private navbarActive$ = new Subject<boolean>();
   private isInsideDropdownOpened = false;
   @Output() save = new EventEmitter();
 
@@ -81,20 +84,26 @@ export class NavbarComponent implements AfterViewInit {
         }
         this._updateWindowsBounds();
       });
+    this.navbarActive$
+      .pipe(
+        debounceTime(100),
+        untilDestroyed(this)
+      ).subscribe((res) => {
+        this._setNavBarActive(res);
+      });
   }
 
   ngAfterViewInit() {
     this.isElectron = isElectron();
   }
 
-  @HostListener('mouseenter', ['$event'])
-  @HostListener('mouseleave', ['$event'])
+  // @HostListener('mouseenter', ['$event'])
+  @HostListener('document:mousemove', ['$event'])
   @HostListener('document:click', ['$event'])
   mouseMove(event: any) {
-    const active = event.type === 'mouseenter'
-      || (event.type === 'mouseleave' && this._isInBounds(event as HTMLElement))
+    const active = // event.type === 'mouseenter' ||
+      (event.type === 'mousemove' && this._isInBounds(event as HTMLElement))
       || (event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement));
-
     if (this.navbarActive !== active) {
       if (!active)
         this.timeout = setTimeout(() => this.setNavBarActive(active), 500);
@@ -115,7 +124,11 @@ export class NavbarComponent implements AfterViewInit {
     }
   }
 
-  setNavBarActive(active) {
+  setNavBarActive(active: boolean) {
+    this.navbarActive$.next(active);
+  }
+
+  private _setNavBarActive(active) {
     this._ngZone.run(() => {
       this.navbarActive = active;
       this._updateWindowsBounds();
