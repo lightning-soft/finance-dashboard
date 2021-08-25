@@ -5,10 +5,6 @@ import { OrderStatus } from 'trading';
 // Need long import otherwise there is circular dependency
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
 
-const timeOffset = 3000;
-const notificationSendOffset = 3 * 60 * 1000;
-const maxTimeOffset = 10800000; // 3 hours
-
 const connectionMessage = {
   History: null,
   PnL: null,
@@ -39,26 +35,18 @@ const connectionsErrors = [
 
 const connectedAlerts = [AlertType.ConnectionOpened, AlertType.LoginComplete];
 
-let lastSentNotification = 0;
 
 export const handlers = {
   DEFAULT: (msg) => {
-    if (msg.type === RealtimeType.Bar)
+    if (msg.type !== RealtimeType.Delay)
       return;
 
-    const now = Date.now();
-    const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > timeOffset && timeDelay < maxTimeOffset;
-    const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
-    if (hasDelay && shouldSendNtf) {
-      lastSentNotification = now;
-      return new Notification({
-        body: `Check your internet connection. Delay is ${ timeDelay / 1000 }s.`,
+    return new Notification({
+        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
         title: 'Connection',
-        timestamp: now,
+        timestamp: msg.result.now,
         icon: 'notication-default',
       });
-    }
   },
 
   [MessageTypes.CONNECT]: (msg) => {
@@ -83,7 +71,7 @@ export const handlers = {
 
     if (connectionMessage.hasOwnProperty(`${ connectionId }`)) {
       connectionMessage[connectionId] = {};
-      connectionMessage.message += `${msg.result.message}\n`;
+      connectionMessage.message += `${ msg.result.message }\n`;
 
       if (connectionMessage.isFull()) {
         const notification = new Notification({

@@ -4,7 +4,7 @@ import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communic
 import { NotificationService } from 'notification';
 import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
@@ -137,6 +137,12 @@ export class AccountsManager implements ConnectionContainer {
 
   private _initWS(connection: IConnection) {
     const webSocketService = this._webSocketService.get(connection);
+    const subscription = webSocketService.reconnection$.pipe(switchMap((conn) => this.reconnect(conn)))
+      .subscribe((conn) => {
+        this._notificationService.showSuccess('Reconnected');
+      }, () => {
+        this._notificationService.showSuccess('Error during');
+      }, () => subscription.unsubscribe());
 
     webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
     webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
@@ -297,6 +303,11 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
+  reconnect(connection: IConnection) {
+    return this.disconnect(connection)
+      .pipe(switchMap(item => this.connect(connection)));
+  }
+
   makeDefault(item: IConnection): Observable<any> | null {
     if (item.isDefault)
       return throwError('Connection is already default');
@@ -343,7 +354,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
+      connection.name = `${ connection.server }(${ connection.gateway })`;
     }
 
     this._connections = this._connections.concat(connection);
