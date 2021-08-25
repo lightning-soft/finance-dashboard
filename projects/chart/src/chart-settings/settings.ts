@@ -25,6 +25,11 @@ export interface IChartSettings {
     }
   };
   trading: any;
+  valueScale?: {
+    valueScale: {
+      pixelsPrice: number;
+    }
+  }
 }
 
 export interface IChartSettingsState {
@@ -154,6 +159,11 @@ defaultChartSettings = {
       showWorkingOrders: true,
       tradingBarLength: 40,
       tradingBarUnit: 'pixels',
+    }
+  },
+  valueScale: {
+    valueScale: {
+      pixelsPrice: 0
     }
   }
 };

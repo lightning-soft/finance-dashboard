@@ -1,7 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { FormGroup } from '@angular/forms';
-import { generalFields, tradingFields } from './settings-fields';
+import { generalFields, tradingFields, valueScale } from './settings-fields';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as clone from 'lodash.clonedeep';
 import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
@@ -31,6 +31,11 @@ export class ChartSettingsComponent implements AfterViewInit {
       name: 'Chart Trading',
       config: clone(tradingFields),
       className: 'chart-trading'
+    },
+    {
+      name: 'Value Scale',
+      config: clone(valueScale),
+      className: 'value-scale'
     }
   ];
   currentItem = this.menuItems[0];
