@@ -239,7 +239,7 @@ export class ConenctionWebSocketService {
 
   private _removeEventListeners() {
     this._forEachEventListener((event, listener) => {
-      this._websocket.removeEventListener(event, listener());
+      this._websocket.removeEventListener(event, listener);
     });
   }
 
