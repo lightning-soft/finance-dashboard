@@ -374,3 +374,28 @@ function getOrderTypeConfig(key, label) {
     ],
   };
 }
+
+export const valueScale: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'valueScale',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      new FieldConfig({
+        label: 'Value Scale',
+        className: 'mt-3 d-block',
+        fieldGroupClassName: 'd-grid two-rows p-x-7',
+        fieldGroup: [
+          {
+            fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
+            fieldGroup: [
+              getLabel('Pixel Price'),
+              getNumber({
+                key: 'pixelsPrice',
+              }),
+            ],
+          }
+        ],
+      }),
+    ],
+  }),
+];

@@ -790,6 +790,10 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
 
   _updateHoverRecord(x: number): void;
 
+  setPixelsPrice(pixels: number): void;
+
+  getPixelsPrice(): number;
+
   /**
    * Returns bar data series.
    * @method barDataSeries

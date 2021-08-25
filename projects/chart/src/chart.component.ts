@@ -57,6 +57,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
+import { isObject } from '@ngx-formly/core/lib/utils';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -854,6 +855,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       theme.tradingPanel.tradingBarUnit != oldTheme.tradingPanel.tradingBarUnit) {
       needAutoScale = true;
       this.chart.handleResize();
+    }
+
+    const pixelsPrice = settings?.valueScale?.valueScale.pixelsPrice ?? 0;
+    if (pixelsPrice) {
+      this.chart.setPixelsPrice(pixelsPrice);
+    } else {
+      this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
     }
 
     this.chart.setNeedsUpdate(needAutoScale);
