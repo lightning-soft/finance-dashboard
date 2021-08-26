@@ -137,14 +137,14 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this._updateCellProfitStatus(this.total);
 
     if (position.side === Side.Closed) {
-      this._closed = false;
+      this._closed = true;
       this.unrealized.clear();
       if (this.realized._value === 0)
         this.realized.clear();
       if (this.total._value === 0)
         this.total.clear();
     } else {
-      this._closed = true;
+      this._closed = false;
     }
   }
 

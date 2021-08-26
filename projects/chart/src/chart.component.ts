@@ -701,8 +701,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       nzFooter: null,
       nzNoAnimation: true,
       nzStyle: {
-        left: `${ event.evt.clientX }px`,
-        top: `${ event.evt.clientY }px`,
+        left: `${event.evt.clientX}px`,
+        top: `${event.evt.clientY}px`,
       },
       nzComponentParams: params
     });

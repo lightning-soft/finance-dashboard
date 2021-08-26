@@ -29,7 +29,7 @@ export interface IChartSettings {
     valueScale: {
       pixelsPrice: number;
     }
-  }
+  };
 }
 
 export interface IChartSettingsState {
