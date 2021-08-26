@@ -861,6 +861,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (pixelsPrice) {
       this.chart.setPixelsPrice(pixelsPrice);
     } else {
+      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 }};
       this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
     }
 
