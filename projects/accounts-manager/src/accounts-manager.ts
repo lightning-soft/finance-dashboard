@@ -283,7 +283,7 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   disconnect(connection: IConnection): Observable<void> {
-    if (!connection)
+    if (!connection || !connection.connected)
       return of();
 
     const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
