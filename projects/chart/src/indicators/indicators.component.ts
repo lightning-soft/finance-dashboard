@@ -127,7 +127,7 @@ export class IndicatorsComponent implements OnInit {
       ],
     }
   ];
-  selectedIndicator: any;
+  selectedIndicator: Indicator;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
   indicatorsDescriptions: {
@@ -137,7 +137,7 @@ export class IndicatorsComponent implements OnInit {
     }[];
   } = {};
 
-  private _constructorsMap: WeakMap<any, new (...args: any[]) => Indicator>;
+  private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -154,11 +154,15 @@ export class IndicatorsComponent implements OnInit {
   }
 
   isSelected(item: any) {
-    return this.selectedIndicator === item;
+    return this.selectedIndicator.instance === item;
   }
 
   selectIndicator(item: any) {
-    this.selectedIndicator = item;
+    const _constructor = this._constructorsMap.get(item.className);
+    if (!_constructor)
+      return;
+
+    this.selectedIndicator = new _constructor(item);
 
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
@@ -214,15 +218,15 @@ export class IndicatorsComponent implements OnInit {
     if (!chart)
       return;
 
-    this._constructorsMap = new WeakMap<any, new (...args: any[]) => Indicator>([
-      [StockChartX.Footprint, Footprint],
-      [StockChartX.VolumeProfile, VolumeProfile],
-      [StockChartX.CompositeProfile, CompositeProfile],
-      [StockChartX.PriceStats, PriceStats],
-      [StockChartX.SessionStats, SessionStats],
-      [StockChartX.VolumeBreakdown, VolumeBreakdown],
-      [StockChartX.ZigZag, ZigZag],
-      [StockChartX.ZigZagOscillator, ZigZagOscillator],
+    this._constructorsMap = new Map<any, new (...args: any[]) => Indicator>([
+      [StockChartX.Footprint.className, Footprint],
+      [StockChartX.VolumeProfile.className, VolumeProfile],
+      [StockChartX.CompositeProfile.className, CompositeProfile],
+      [StockChartX.PriceStats.className, PriceStats],
+      [StockChartX.SessionStats.className, SessionStats],
+      [StockChartX.VolumeBreakdown.className, VolumeBreakdown],
+      [StockChartX.ZigZag.className, ZigZag],
+      [StockChartX.ZigZagOscillator.className, ZigZagOscillator],
     ]);
 
     this.fetchIndicators();
