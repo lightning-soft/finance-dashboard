@@ -77,6 +77,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         if (!this.selectedItem && connections.length) {
           const index = 0;
           this.selectItem(connections[index], index);
+        } else {
+          this._updateSelectedItem();
         }
         this.expandBrokers();
       });
@@ -137,7 +139,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   saveState(): AccountsState {
-    this._updateConnection({...this.selectedItem});
+    this._updateConnection({ ...this.selectedItem });
     return { selectedItem: this.selectedItem };
   }
 
@@ -232,7 +234,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, ...userData };
+    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, name: this.selectedItem.name, ...userData };
   }
 
   create() {
@@ -331,7 +333,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Do you want to delete ${item.name}?`,
+      nzContent: `Do you want to delete ${ item.name }?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
@@ -341,7 +343,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
-            () => this.selectItem(null),
+            () => {
+              const index = 0;
+              this.selectItem(this.builder.items[index], index);
+            },
             err => this._notifier.showError(err),
           );
       },

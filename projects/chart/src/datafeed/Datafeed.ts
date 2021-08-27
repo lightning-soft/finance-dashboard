@@ -201,39 +201,18 @@ export abstract class Datafeed implements IDatafeed {
     if (!lastBar)
       return;
 
-    if (!quote.side) {
-      console.log('quote.side', quote.side, quote);
-      const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
-      const barDataSeries = chart.dataManager.barDataSeries(symbol);
-      const detailsDataSeries = barDataSeries.details;
-      const lastDetails = detailsDataSeries?.lastValue as IDetails[];
-      const bar = {
-        open: quote.price,
-        high: quote.price,
-        low: quote.price,
-        close: quote.price,
-        volume: quote.volume,
-        date: new Date(quote.date),
-        details: lastDetails,
-      };
-      this.barHandler.processBar(bar);
-      chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
-    } else {
-      lastBar.close = quote.price;
-      lastBar.volume = quote.volume;
+    const bar = {
+      open: quote.price,
+      high: quote.price,
+      low: quote.price,
+      close: quote.price,
+      volume: quote.volume,
+      date: new Date(quote.date),
+    };
+    this.barHandler.processBar(bar);
+    chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
 
-      if (lastBar.high < quote.price)
-        lastBar.high = quote.price;
-
-      if (lastBar.low > quote.price)
-        lastBar.low = quote.price;
-
-      this.barHandler.processBar(lastBar);
-      this._updateLastBarDetails(quote, chart, instrument);
-
-      chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
-    }
-
+    this._updateLastBarDetails(quote, chart, instrument);
     chart.updateIndicators();
     chart.setNeedsUpdate();
   }
