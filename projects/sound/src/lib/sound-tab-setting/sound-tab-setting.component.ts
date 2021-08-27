@@ -23,12 +23,12 @@ export class SoundTabSettingComponent {
       value?.connectionLost,
       value?.orderFilled,
       value?.orderCancelled,
-      value?.orderReplaced,
+      // value?.orderReplaced,
       value?.orderPending,
       value?.orderRejected,
-      value?.targetFilled,
+      // value?.targetFilled,
       value?.stopFilled,
-      value?.alert,
+      // value?.alert,
     ];
   }
 
