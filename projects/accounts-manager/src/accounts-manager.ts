@@ -294,6 +294,9 @@ export class AccountsManager implements ConnectionContainer {
         tap(() => this.onUpdated(updatedConnection)),
         tap(() => this._onDisconnected(connection)),
         catchError((err: HttpErrorResponse) => {
+          if (err.message === 'No connection!')
+            this._onDisconnected(connection);
+
           if (err.status === 401) {
             this.onUpdated(updatedConnection);
             return of(null);
@@ -354,7 +357,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${ connection.server }(${ connection.gateway })`;
+      connection.name = `${connection.server}(${connection.gateway})`;
     }
 
     this._connections = this._connections.concat(connection);

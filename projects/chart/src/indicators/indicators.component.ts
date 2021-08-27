@@ -154,13 +154,15 @@ export class IndicatorsComponent implements OnInit {
   }
 
   isSelected(item: any) {
-    return this.selectedIndicator.instance === item;
+    return this.selectedIndicator?.instance === item;
   }
 
   selectIndicator(item: any) {
     const _constructor = this._constructorsMap.get(item.className);
-    if (!_constructor)
+    if (!_constructor) {
+      this.selectedIndicator = null;
       return;
+    }
 
     this.selectedIndicator = new _constructor(item);
 
@@ -303,7 +305,7 @@ export class IndicatorsComponent implements OnInit {
   }
 
   dropped({ previousIndex, currentIndex }) {
-    ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
+    // ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
     this._applyZIndex();
     this.chart.updateIndicators();
     this.chart.setNeedsLayout();
