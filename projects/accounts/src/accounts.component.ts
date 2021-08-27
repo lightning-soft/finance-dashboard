@@ -343,7 +343,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
-            () => this.selectItem(null),
+            () => {
+              const index = 0;
+              this.selectItem(this.builder.items[index], index);
+            },
             err => this._notifier.showError(err),
           );
       },
