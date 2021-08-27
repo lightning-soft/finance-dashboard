@@ -131,6 +131,7 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
     this._groups = {};
 
     super.replaceItems(items);
+    this._updateFiltered();
 
     if (this._groupItemsParams) {
       this.groupItems(

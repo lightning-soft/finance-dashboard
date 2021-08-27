@@ -4,24 +4,10 @@ import { AlertType } from 'communication';
 import { OrderStatus } from 'trading';
 // Need long import otherwise there is circular dependency
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
+import { ConnectionMessageAggregate } from './connection-message.aggregate';
 
-const connectionMessage = {
-  History: null,
-  PnL: null,
-  message: '',
-  TradingSystem: null,
-  MarketData: null,
-  clear: function () {
-    this.History = null;
-    this.PnL = null;
-    this.TradingSystem = null;
-    this.MarketData = null;
-    this.message = '';
-  },
-  isFull: function () {
-    return this.History && this.PnL && this.TradingSystem && this.MarketData;
-  },
-};
+const successConnectionMessage = new ConnectionMessageAggregate();
+const failureConnectionMessage = new ConnectionMessageAggregate();
 
 const errorAlerts = [
   AlertType.ServiceError,
@@ -42,11 +28,11 @@ export const handlers = {
       return;
 
     return new Notification({
-        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
-        title: 'Connection',
-        timestamp: msg.result.now,
-        icon: 'notication-default',
-      });
+      body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
+      title: 'Connection',
+      timestamp: msg.result.now,
+      icon: 'notication-default',
+    });
   },
 
   [MessageTypes.CONNECT]: (msg) => {
@@ -69,27 +55,14 @@ export const handlers = {
       message = msg.result.message ?? '';
     }
 
-    if (connectionMessage.hasOwnProperty(`${ connectionId }`)) {
-      connectionMessage[connectionId] = {};
-      connectionMessage.message += `${ msg.result.message }\n`;
+    const params = { msg, connectionId, icon, type, timestamp };
+    if (type === AlertType.LoginComplete)
+      return getConnectionNotification(successConnectionMessage, params);
 
-      if (connectionMessage.isFull()) {
-        const notification = new Notification({
-          body: connectionMessage.message,
-          title: 'Connection',
-          icon,
-          type,
-          timestamp
-        });
-        connectionMessage.clear();
-        return notification;
-      }
-      return;
+    if (type === AlertType.ConnectionClosed)
+      return getConnectionNotification(failureConnectionMessage, params);
 
-    }
-
-
-    new Notification({
+    return new Notification({
       body: message,
       type,
       title: 'Connection',
@@ -119,6 +92,27 @@ export const handlers = {
     });
   }
 };
+
+function getConnectionNotification(aggregate, { msg, connectionId, icon, type, timestamp }) {
+  if (aggregate.hasOwnProperty(`${ connectionId }`)) {
+    aggregate[connectionId] = {};
+    aggregate.message += `${ msg.result.message }\n`;
+
+    if (aggregate.isFull()) {
+      const notification = new Notification({
+        body: aggregate.message,
+        title: 'Connection',
+        icon,
+        type,
+        timestamp
+      });
+      aggregate.clear();
+      return notification;
+    }
+    return false;
+
+  }
+}
 
 export const reducer = (msg) => {
   const handler = handlers[msg.type] || handlers.DEFAULT;

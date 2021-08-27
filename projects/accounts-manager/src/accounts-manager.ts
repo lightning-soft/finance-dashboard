@@ -141,7 +141,7 @@ export class AccountsManager implements ConnectionContainer {
       .subscribe((conn) => {
         this._notificationService.showSuccess('Reconnected');
       }, () => {
-        this._notificationService.showSuccess('Error during');
+        this._notificationService.showError('Error during reconnection');
       }, () => subscription.unsubscribe());
 
     webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
