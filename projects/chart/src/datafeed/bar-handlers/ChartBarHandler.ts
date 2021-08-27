@@ -28,9 +28,11 @@ export abstract class ChartBarHandler implements IBarHandler {
 
       return;
     }
+
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
       this.addBar(bar);
+      this.updateLastBar(lastBar);
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
     }

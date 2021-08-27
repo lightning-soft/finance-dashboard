@@ -57,7 +57,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { isObject } from '@ngx-formly/core/lib/utils';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
