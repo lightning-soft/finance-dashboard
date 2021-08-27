@@ -154,7 +154,7 @@ export class IndicatorsComponent implements OnInit {
   }
 
   isSelected(item: any) {
-    return this.selectedIndicator.instance === item;
+    return this.selectedIndicator?.instance === item;
   }
 
   selectIndicator(item: any) {
