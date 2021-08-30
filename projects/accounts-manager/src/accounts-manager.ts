@@ -301,6 +301,7 @@ export class AccountsManager implements ConnectionContainer {
 
           if (err.status === 401) {
             this.onUpdated(updatedConnection);
+            this._onDisconnected(updatedConnection);
             return of(null);
           } else
             return throwError(err);

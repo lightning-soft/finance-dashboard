@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { IBaseItem, IPaginationResponse } from 'communication';
+import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from "trading";
-import { map, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 declare const moment: any;
 
-export interface IHistoryItem extends IBaseItem, IBar { }
+export interface IHistoryItem extends IBaseItem, IBar {
+}
+
 const requestFormat = 'YYYY-MM-DD HH:mm:ss';
 
 @Injectable()
@@ -31,10 +31,14 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
   }
 
   getItems(params: any) {
-    params.startDate = moment(params.startDate).format(requestFormat);
-    params.endDate = moment(params.endDate).format(requestFormat);
+    if (typeof params.startDate !== 'number')
+      params.startDate = params.startDate?.getTime();
+    if (typeof params.endDate !== 'number')
+      params.endDate = params.endDate.getTime();
 
-    if (params?.Symbol) {
+    if (params?.productCode)
+      params.id = params.productCode;
+    else if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.id) {
       const [symbol, exchange] = params.id.split('.');
@@ -45,11 +49,11 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     const { endDate } = params || {};
 
     return super.getItems(params).pipe(
-      switchMap((res: IPaginationResponse<IHistoryItem>) => {
+/*      switchMap((res: IPaginationResponse<IHistoryItem>) => {
         const arr = res?.data || [];
         const lastItem = arr[arr.length - 1];
-        const lastDate = lastItem?.date;
-        const requestEndDate = endDate && new Date(endDate);
+        const lastDate = lastItem?.date.getTime();
+        const requestEndDate = endDate && new Date(endDate).getTime();
 
         if (requestEndDate != null && lastItem != null && lastDate < requestEndDate) {
           lastItem.details = lastItem.details.filter(details => {
@@ -62,7 +66,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
                 const data = arr;
 
                 for (const item of (response.data || [])) {
-                  if (item.date > lastDate) {
+                  if (item.date.getTime() > lastDate) {
                     data.push(item);
                   }
                 }
@@ -73,7 +77,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
         }
 
         return of(res);
-      })
+      })*/
     );
   }
 }
