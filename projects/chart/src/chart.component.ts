@@ -279,9 +279,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   toggleTrading(): void {
     if (!this.isTradingEnabled) {
       this._tradeHandler.enableTrading();
+      this.isTradingEnabled = true;
     } else {
       this.isTradingEnabled = false;
-      this._tradeHandler.disableTrading();
+      this._tradeHandler.showDisableTradingAlert();
     }
   }
 

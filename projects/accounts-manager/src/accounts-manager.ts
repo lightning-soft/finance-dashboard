@@ -209,8 +209,10 @@ export class AccountsManager implements ConnectionContainer {
     connection.connected = false;
 
     this._connectionsRepository.updateItem(connection)
-      .pipe(tap(() => this.onUpdated(connection)))
-      .subscribe();
+      .pipe(
+        tap(() => this.onUpdated(connection)),
+        tap(() => this._onDisconnected(connection))
+      ).subscribe();
 
   }
 
