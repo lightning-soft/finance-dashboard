@@ -349,6 +349,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       id: 'ESU1.CME',
       symbol: 'ESU1',
       exchange: 'CME',
+      productCode: 'ES',
       tickSize: 0.25,
       precision: 2,
       company: this._getInstrumentCompany(),

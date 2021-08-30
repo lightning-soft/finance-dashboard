@@ -74,10 +74,10 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
-    const { symbol, exchange } = instrument;
+    const { exchange, productCode } = instrument;
 
     const params = {
-      Symbol: symbol,
+      productCode,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: this._convertInterval(timeFrame),

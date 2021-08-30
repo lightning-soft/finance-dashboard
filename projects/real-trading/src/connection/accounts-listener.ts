@@ -170,7 +170,7 @@ abstract class _AccountListener extends _AccountsListener implements IConnection
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectDefault && allAccounts.length) {
+    if (disconnectedAccounts.some(account => this.account?.id === account.id) && this.selectDefault && allAccounts.length) {
       this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
     this.onAccountChanged();

@@ -23,6 +23,7 @@ import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
 import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
 import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
+import { IStockChartXInstrument } from 'chart';
 
 declare const StockChartX;
 
@@ -171,7 +172,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       chart.instrument = {
         ...instrument,
         company: '',
-      };
+      } as IStockChartXInstrument;
       chart.sendBarsRequest();
     });
   }

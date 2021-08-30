@@ -6,6 +6,7 @@ export interface IInstrument extends IBaseItem {
   exchange: string;
   tickSize: number;
   contractSize?: number;
+  productCode?: string;
   increment?: number; // get one only
   precision?: number; // get one only
 }
