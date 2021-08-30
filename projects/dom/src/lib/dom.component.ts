@@ -1419,6 +1419,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     this._counter++;
     const prevltqItem = this._lastTradeItem;
+    const prevHandled = !prevltqItem || prevltqItem.price == null;
     let needCentralize = false;
     const max = this._max;
     // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
@@ -1463,7 +1464,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
-    if (!prevltqItem || needCentralize)
+    if (!prevHandled || needCentralize)
       this.centralize();
 
     this._lastTrade = trade;

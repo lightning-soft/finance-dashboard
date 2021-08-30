@@ -39,6 +39,7 @@ import { chartSettings } from './chart-settings/settings';
 import { DataSelectModule } from 'data-select';
 import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { InfoComponent } from './info/info.component';
 
 // const environment = { scxPath: '' };
 
@@ -112,6 +113,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     OrdersPanelComponent,
     ConfirmOrderComponent,
     ChartSettingsComponent,
+    InfoComponent,
   ]
 })
 export class ChartModule implements LazyModule {

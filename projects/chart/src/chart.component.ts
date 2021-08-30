@@ -57,6 +57,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
+import { InfoComponent } from './info/info.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -169,10 +170,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
-  bestAskPrice: number;
-  bestBidPrice: number;
-  bidSize: number;
-  askSize: number;
+  @ViewChild(InfoComponent)
+  info: InfoComponent;
 
   position: IPosition;
   private _orders: Orders;
@@ -264,15 +263,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleQuote(quote: IQuote) {
-    if (quote.updateType === UpdateType.Undefined) {
-      if (quote.side === QuoteSide.Ask) {
-        this.bestAskPrice = quote.price;
-        this.askSize = quote.volume;
-      } else {
-        this.bestBidPrice = quote.price;
-        this.bidSize = quote.volume;
-      }
-      this._changeDetectorRef.detectChanges();
+    if (quote.updateType !== UpdateType.Undefined)
+      return;
+
+    const bestQuote = { price: this.getQuoteInfo(quote.price), volume: quote.volume };
+    if (quote.side === QuoteSide.Ask) {
+      this.info.handleBestAsk(bestQuote);
+    } else {
+      this.info.handleBestBid(bestQuote);
     }
   }
 
@@ -861,7 +859,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (pixelsPrice) {
       this.chart.setPixelsPrice(pixelsPrice);
     } else {
-      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 }};
+      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 } };
       this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
     }
 
