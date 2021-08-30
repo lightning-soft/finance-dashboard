@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TradeHandler } from './trade-handle';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { filter, skip } from 'rxjs/operators';
+import { skip } from 'rxjs/operators';
 
 type Alert = {
   visible: boolean,
@@ -49,13 +49,22 @@ export class TradeLockComponent {
       skip(2),
       untilDestroyed(this),
     ).subscribe(() => {
-      if (this.timerId) {
-        clearTimeout(this.timerId);
-        this.timerId = null;
-      }
-      this.alert = this.unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
-      this.timerId = setTimeout(() => this.alert.visible = false, 1500);
+      this.showAlert(this.unlocked);
     });
+    this.tradeHandler.tradingNotifier$
+      .pipe(untilDestroyed(this))
+      .subscribe((value: boolean) => {
+        this.showAlert(value);
+      });
+  }
+
+  showAlert(unlocked: boolean) {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+    this.alert = unlocked ? Object.assign({}, unlock) : Object.assign({}, lock);
+    this.timerId = setTimeout(() => this.alert.visible = false, 1500);
   }
 
   toggleTrading(): void {

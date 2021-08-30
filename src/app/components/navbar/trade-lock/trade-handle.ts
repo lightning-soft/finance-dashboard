@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { SettingsService } from 'settings';
 import { skip, take } from 'rxjs/operators';
 
@@ -8,6 +8,7 @@ import { skip, take } from 'rxjs/operators';
 })
 export class TradeHandler {
   isTradingEnabled$ = new BehaviorSubject<boolean>(true);
+  tradingNotifier$ = new Subject<boolean>();
 
   get tradingEnabled() {
     return this.isTradingEnabled$.value;
@@ -30,6 +31,10 @@ export class TradeHandler {
 
   disableTrading(): void {
     this._setEnabledState(false);
+  }
+
+  showDisableTradingAlert() {
+    this.tradingNotifier$.next(false);
   }
 
   private _setEnabledState(enabled: boolean): void {

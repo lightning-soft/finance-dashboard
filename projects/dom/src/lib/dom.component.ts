@@ -2111,7 +2111,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._tradeHandler.enableTrading();
     } else {
       this.isTradingEnabled = false;
-      this._tradeHandler.disableTrading();
+      this._tradeHandler.showDisableTradingAlert();
     }
   }
 
