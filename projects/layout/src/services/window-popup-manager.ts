@@ -165,6 +165,11 @@ export class WindowPopupManager {
     return params?.workspaceId;
   }
 
+  get windowName() {
+    const params = this._route.snapshot.queryParams;
+    return params?.windowName;
+  }
+
   get windowId() {
     const params = this._route.snapshot.queryParams;
     return params?.windowId;
@@ -234,6 +239,7 @@ export class WindowPopupManager {
     queryParams.append('popup', 'true');
     queryParams.append('workspaceId', `${ workspace.id }`);
     queryParams.append('windowId', `${ workspaceWindow.id }`);
+    queryParams.append('windowName', `${ workspaceWindow.name }`);
 
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
     this.onWindowOpened(workspace, workspaceWindow, bounds);
@@ -311,6 +317,11 @@ export class WindowPopupManager {
       if (mainKey !== key)
         delete this._state[key];
     }
+  }
+
+  getWindowName() {
+    if (this.isPopup())
+      return this.windowName;
   }
 }
 

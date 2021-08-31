@@ -3,9 +3,7 @@ import { BarAction, ChartBarHandler } from './ChartBarHandler';
 
 export class TimeFrameBarHandler extends ChartBarHandler {
 
-  _processRealtimeBar(bar: IBar) {
-    const lastBar = this.getLastBar();
-
+  _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     const currentBarStartTimestamp = lastBar.date.getTime();
     let nextBarStartTimestamp = (currentBarStartTimestamp as number) + (this.chart.timeInterval as number);
     const nextBarStartDate = new Date(nextBarStartTimestamp);
@@ -33,15 +31,5 @@ export class TimeFrameBarHandler extends ChartBarHandler {
   }
 
   protected _calculateBarAction(bar) {
-  }
-
-  prependBar(bar: IBar) {
-    if (!this.lastPrependedBar) {
-      this.lastPrependedBarIndex = 0;
-    } else {
-      this.lastPrependedBarIndex++;
-    }
-    this.chart.dataManager.insertBars(this.lastPrependedBarIndex, bar);
-    this.lastPrependedBar = bar;
   }
 }

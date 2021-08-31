@@ -5,6 +5,7 @@ import {
   getLabel,
   getNumber,
   getSelect,
+  getSessionSelect,
   getSwitch,
   IFieldConfig,
   wrapWithClass,
@@ -148,7 +149,12 @@ const orderTypesList = [
     label: `${ OrderSide.Sell } Stop Limit`,
   },
 ];
-
+export const sessionFields: IFieldConfig[] = [
+  {
+    key: 'session',
+    fieldGroup: [wrapWithClass(getSessionSelect('sessionTemplate', 'Session Template'), 'mt-4 mx-3 d-block')]
+  },
+];
 export const tradingFields: IFieldConfig[] = [
   new FieldConfig({
     key: 'trading',

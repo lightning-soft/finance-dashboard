@@ -8,8 +8,8 @@ import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
+const MAX_HISTORY_ITEMS = 10000;
 declare let StockChartX: any;
-export const MAX_HISTORY_ITEMS = 10000;
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
@@ -18,6 +18,7 @@ export class RithmicDatafeed extends Datafeed {
 
   private _unsubscribeFns: VoidFunction[] = [];
   requestSubscriptions = new Map<number, Subscription>();
+  private _isMoreBarsActive = false;
 
   constructor(
     protected _injector: Injector,
@@ -64,12 +65,14 @@ export class RithmicDatafeed extends Datafeed {
       this.lastInterval = endDate.getTime() - startDate.getTime();
 
     if (kind === 'moreBars') {
+      this._isMoreBarsActive = true;
       startDate = new Date(endDate.getTime() - this.lastInterval);
       this.makeRequest(instrument, request, timeFrame, endDate, startDate);
 
       return;
     }
 
+    this._isMoreBarsActive = false;
     this.makeRequest(instrument, request, timeFrame, endDate, startDate);
   }
 
@@ -110,6 +113,7 @@ export class RithmicDatafeed extends Datafeed {
   protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
     super.onRequestCompleted(request, bars);
     this.requestSubscriptions.delete(request.id);
+    this._isMoreBarsActive = false;
   }
 
   cancel(request: IRequest) {

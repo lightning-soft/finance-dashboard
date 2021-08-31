@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { IAccount, OrderSide } from 'trading';
+import { IAccount, ISession, OrderSide } from 'trading';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
 import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
 import { IBar, IChart, IDetails } from '../models/chart';
+import { BarAction } from './bar-handlers/ChartBarHandler';
+import { isInTimeRange } from 'session-manager';
 
 export type IDateFormat = (request: IRequest) => string;
 
@@ -28,12 +30,16 @@ export abstract class Datafeed implements IDatafeed {
    */
   private static _requestId = 0;
 
+  protected _session;
+
+  protected _historyItems = [];
+
   /**
    * @internal
    */
   private _requests = new Map<number, IRequest>();
 
-  private barHandler: IBarHandler;
+  protected barHandler: IBarHandler;
 
   /**
    * @internal
@@ -44,6 +50,31 @@ export abstract class Datafeed implements IDatafeed {
    * @internal
    */
   private _quotes: IQuote[] = [];
+
+
+  setSession(session: ISession, chart) {
+    const oldSession = this._session;
+    this._session = session;
+    if (oldSession?.id !== session?.id) {
+      this._recalculateData(chart);
+    }
+  }
+
+  private _recalculateData(chart) {
+    if (!this.barHandler)
+      return;
+
+    chart.dataManager.clearBarDataSeries();
+    const historyItems = [];
+    for (let i = 0; i < this._historyItems.length; i++) {
+      const historyItem = this._historyItems[i];
+      if (isInTimeRange(historyItem.date, this._session.workingTimes)) {
+        historyItems.push(historyItem);
+      }
+    }
+    chart.dataManager.appendBars(this.barHandler.processBars(historyItems));
+    chart.setNeedsUpdate(true);
+  }
 
   /**
    * Executes request post cancel actions (e.g. hides waiting bar).
@@ -79,8 +110,10 @@ export abstract class Datafeed implements IDatafeed {
     switch (request.kind) {
       case RequestKind.BARS: {
         dataManager.clearBarDataSeries();
+        this._historyItems = bars;
         this.barHandler.clear();
-        bars.forEach(bar => this.barHandler.insertBar(bar));
+        const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
+        request.chart.dataManager.appendBars(this.barHandler.processBars(filteredBars));
         if (Array.isArray(this._quotes)) {
           for (const quote of this._quotes) {
             this.processQuote(request, quote);
@@ -91,7 +124,10 @@ export abstract class Datafeed implements IDatafeed {
       }
       case RequestKind.MORE_BARS: {
         this.barHandler.clear();
-        bars.forEach(bar => this.barHandler.prependBar(bar));
+        this._historyItems = [...bars, ...this._historyItems];
+        const preparedBars = this.barHandler.prependBars(
+          bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes)));
+        request.chart.dataManager.insertBars(0, preparedBars);
         break;
       }
       default:
@@ -209,12 +245,35 @@ export abstract class Datafeed implements IDatafeed {
       volume: quote.volume,
       date: new Date(quote.date),
     };
-    this.barHandler.processBar(bar);
+    this._processBar(bar);
     chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
 
     this._updateLastBarDetails(quote, chart, instrument);
     chart.updateIndicators();
     chart.setNeedsUpdate();
+  }
+
+  private _processBar(bar) {
+    if (isInTimeRange(bar.date, this._session?.workingTimes)) {
+      const barResult = this.barHandler.processBar(bar);
+      if (barResult.action === BarAction.Add) {
+        this._historyItems.push(barResult.bar);
+      } else if (barResult.action === BarAction.Update) {
+        const lastBar = this._historyItems[this._historyItems.length - 1];
+        const barData = barResult.bar;
+        lastBar.close = barData.close;
+        if (barData.high > lastBar.high) {
+          lastBar.high = barData.high;
+        }
+        if (barData.low < lastBar.low) {
+          lastBar.low = barData.low;
+        }
+        lastBar.volume += barData.volume;
+        this._historyItems[this._historyItems.length - 1] = lastBar;
+      }
+    } else {
+      this._historyItems.push(bar);
+    }
   }
 
   private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {

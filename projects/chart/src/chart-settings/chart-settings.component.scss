@@ -39,6 +39,10 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+  data-select {
+    font-size: 0.8rem;
+  }
+
   .text-color {
     display: flex;
     align-items: center;

@@ -9,8 +9,6 @@ declare const moment: any;
 export interface IHistoryItem extends IBaseItem, IBar {
 }
 
-const requestFormat = 'YYYY-MM-DD HH:mm:ss';
-
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
   protected get suffix(): string {
@@ -31,13 +29,18 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
   }
 
   getItems(params: any) {
+    if (!params.endDate)
+      params.endDate = new Date();
+
     if (typeof params.startDate !== 'number')
       params.startDate = params.startDate?.getTime();
     if (typeof params.endDate !== 'number')
       params.endDate = params.endDate.getTime();
 
-    if (params?.productCode)
+    if (params?.productCode) {
       params.id = params.productCode;
+      delete params.productCode;
+    }
     else if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.id) {
@@ -45,8 +48,6 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.id = symbol;
       params.Exchange = exchange;
     }
-
-    const { endDate } = params || {};
 
     return super.getItems(params).pipe(
 /*      switchMap((res: IPaginationResponse<IHistoryItem>) => {

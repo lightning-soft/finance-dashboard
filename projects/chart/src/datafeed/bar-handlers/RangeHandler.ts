@@ -4,8 +4,7 @@ import { IBar } from 'chart';
 export class RangeBarHandler extends ChartBarHandler {
   calculatePrependedBar = CalculationBarType.Last;
 
-  _processRealtimeBar(bar: IBar) {
-    const lastBar = this.getLastBar();
+  _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     return this._calculateBarAction(lastBar);
   }
 
