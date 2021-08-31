@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
-import { HistoryRepository } from "trading";
+import { HistoryRepository } from 'trading';
+import { of } from 'rxjs';
+import { hist } from './history';
 
 declare const moment: any;
 
@@ -47,6 +49,8 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     }
 
     const { endDate } = params || {};
+
+    // return of({ data: hist.map(i => this._mapResponseItem(i)), total: hist.length });
 
     return super.getItems(params).pipe(
 /*      switchMap((res: IPaginationResponse<IHistoryItem>) => {
