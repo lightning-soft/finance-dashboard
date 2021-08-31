@@ -202,7 +202,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   setInstrument(instrument: IInstrument) {
     this.instrument = instrument;
-    this._formatter.updateDigits(instrument.precision);
+    this._formatter.updateDigits(instrument?.precision ?? 2);
     this.symbol.updateValue(instrument.symbol);
   }
 
