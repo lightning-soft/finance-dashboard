@@ -19,6 +19,7 @@ export const Modules = {
 export const Components = {
   Chart: 'chart',
   ChartSettings: 'chartSettings',
+  ChartVolumeSettings: 'customVolumeProfileSettings',
   Indicators: 'indicators',
   Watchlist: 'watchlist',
   Positions: 'positions',
@@ -48,6 +49,7 @@ export const modulesStore: IModules[] = [
       Components.Indicators,
       Components.OrdersPanel,
       Components.ChartSettings,
+      Components.ChartVolumeSettings
     ]
   },
   {

@@ -1,0 +1,20 @@
+<window-header (close)="saveState()" [window]="this"></window-header>
+<div class="settings-container">
+  <div class="menu">
+    <div *ngFor="let item of menuItems" (click)="selectItem(item)"
+         [class.active]="item === currentItem"
+         class="menu-item">{{item.name}} <span class="actions ml-auto"><i (click)="rename()" class="icon-edit"></i><i (click)="delete()" class="icon-delete"></i></span>
+    </div>
+  </div>
+  <cdk-virtual-scroll-viewport itemSize="">
+    <formly-form
+      class="{{currentItem.className}}"
+      [(model)]="currentItem.settings"
+      [form]="form"
+      [fields]="config"
+    >
+    </formly-form>
+  </cdk-virtual-scroll-viewport>
+</div>
+
+

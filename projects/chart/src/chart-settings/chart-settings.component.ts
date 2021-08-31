@@ -6,6 +6,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as clone from 'lodash.clonedeep';
 import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
 import { mergeDeep } from 'base-components';
+import { customVolumeProfile } from '../volume-profile-custom-settings/config';
 
 export interface ChartSettingsComponent extends ILayoutNode {
 }
@@ -20,6 +21,7 @@ export interface ChartSettingsComponent extends ILayoutNode {
 export class ChartSettingsComponent implements AfterViewInit {
   form = new FormGroup({});
   settings: IChartSettings;
+  config = customVolumeProfile;
 
   menuItems = [
     {

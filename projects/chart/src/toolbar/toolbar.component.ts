@@ -13,7 +13,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
 import { Coords, EVENTS, IWindow } from 'window-manager';
@@ -23,6 +23,7 @@ import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
 import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
 import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 
 declare const StockChartX;
 
@@ -185,6 +186,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
+              private _modalService: NzModalService,
               private _overlay: Overlay) {
   }
 
@@ -247,7 +249,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     const overlayContainer = this._overlayRef?.hostElement?.parentElement;
     setTimeout(() => {
       if (overlayContainer)
-      overlayContainer.style.zIndex = String(this.window.z);
+        overlayContainer.style.zIndex = String(this.window.z);
     });
   }
 
@@ -317,7 +319,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   }
 
   getShortTimeFrame(timeFrame: ITimeFrame): string {
-    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
+    return `${ timeFrame.interval } ${ periodicityMap.get(timeFrame.periodicity) }`;
   }
 
   compareInstrumentDialog() {
@@ -426,5 +428,44 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   toggleForm() {
     this.enableOrderForm = !this.enableOrderForm;
     this.enableOrderFormChange.emit(this.enableOrderForm);
+  }
+
+  createVolumeProfile() {
+
+  }
+
+  editCustomProfile() {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result !== '') {
+      }
+    });
+  }
+
+  deleteVolumeProfile() {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+      }
+    });
   }
 }

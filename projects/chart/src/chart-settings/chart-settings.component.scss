@@ -1,42 +1,4 @@
-@import "~src/scss/variables";
-
-cdk-virtual-scroll-viewport {
-  padding-top: 20px;
-  background-color: $secondary;
-  height: 100%;
-}
-
-.settings-container {
-  display: grid;
-  grid-template-columns: 173px 1fr;
-  grid-column-gap: 5px;
-  height: calc(100% - 22px);
-}
-
-.menu {
-  background: $secondary;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 10px;
-
-  &-item {
-    height: 24px;
-    font-size: 0.85rem;
-    color: $text-60;
-    cursor: pointer;
-    padding-left: 8px;
-    display: flex;
-    align-items: center;
-    border-radius: 2px;
-    transition: all 0.3s;
-
-    &.active {
-      color: #fff;
-      background: $light;
-      cursor: default;
-    }
-  }
-}
+@import "../settings";
 
 :host ::ng-deep {
   .text-color {

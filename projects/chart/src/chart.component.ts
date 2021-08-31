@@ -43,7 +43,7 @@ import {
   QuoteSide,
   UpdateType
 } from 'trading';
-import { CreateModalComponent } from 'ui';
+import { CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
@@ -56,6 +56,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
+import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -92,7 +93,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   link: string;
 
   get chartLink() {
-    return `chart-${this.link}`;
+    return `chart-${ this.link }`;
   }
 
   directions = ['window-left', 'window-right'];
@@ -181,7 +182,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._orders.items;
   }
 
-  @ViewChild('menu') menu: NzDropdownMenuComponent;
+   @ViewChild('menu') menu: NzDropdownMenuComponent;
+  // @ViewChild('customVolumeProfile') menu: NzDropdownMenuComponent;
 
   contextEvent: MouseEvent;
 
@@ -836,7 +838,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   openSettingsDialog(): void {
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartSettings &&  item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
     if (widget)
       widget.focus();
@@ -869,6 +871,40 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  openVolumeSettingsDialog() {
+    const widget = this.layout.findComponent((item: IWindow) => {
+      return item.type === Components.ChartVolumeSettings &&  item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+    });
+    if (widget)
+      widget.focus();
+    else {
+      const coords: any = {};
+      if (this.contextEvent) {
+        coords.x = this.contextEvent.screenX;
+        coords.y = this.contextEvent.screenY;
+      }
+      this.layout.addComponent({
+        component: {
+          name: customVolumeProfileSettings,
+          state: {
+            linkKey: this._getSettingsKey(),
+          }
+        },
+        closeBtn: true,
+        single: false,
+        width: 618,
+        height: 475,
+        ...coords,
+        allowPopup: false,
+        closableIfPopup: true,
+        resizable: false,
+        removeIfExists: false,
+        minimizable: false,
+        maximizable: false,
+      });
+    }
+  }
+
   private _closeSettings() {
     this.layout.removeComponents((item) => {
       const isSettingsComponent = Components.ChartSettings === item.type;
@@ -880,6 +916,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings.trading.orderArea.formSettings.showOHLVInfo = this.showOHLV;
     this.settings.trading.orderArea.formSettings.showInstrumentChange = this.showChanges;
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
+
+  saveAsCustomVolume() {
+    const modal = this._modalService.create({
+      nzTitle: 'Save as',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result !== '') {
+      }
+    });
   }
 }
 

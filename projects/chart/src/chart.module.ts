@@ -41,6 +41,10 @@ import { DataSelectModule } from 'data-select';
 import { SessionsSelectComponent } from './indicators/sessions-select/sessions-select.component';
 import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import {
+  customVolumeProfileSettings,
+  VolumeProfileCustomSettingsComponent
+} from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 
 // const environment = { scxPath: '' };
 
@@ -123,6 +127,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ConfirmOrderComponent,
     ChartSettingsComponent,
     SessionsSelectComponent,
+    VolumeProfileCustomSettingsComponent,
   ],
 })
 export class ChartModule implements LazyModule {
@@ -131,7 +136,8 @@ export class ChartModule implements LazyModule {
       chart: ChartComponent,
       indicators: IndicatorsComponent,
       ordersPanel: OrdersPanelComponent,
-      [chartSettings]: ChartSettingsComponent
+      [chartSettings]: ChartSettingsComponent,
+      [customVolumeProfileSettings]: VolumeProfileCustomSettingsComponent,
     };
   }
 }
