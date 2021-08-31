@@ -141,10 +141,6 @@ export class CSVDatafeed extends Datafeed {
       const values = line.split(this.separator),
         date = moment(values[0], format).toDate();
 
-      if (request.endDate && date >= request.endDate) {
-        break;
-      }
-
       const bar = {
         date,
         open: parseFloat(values[1]),

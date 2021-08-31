@@ -12,7 +12,9 @@ export interface IBarHandler {
 
   processBar(bar: IBar);
 
-  prependBar(bar: IBar);
+  processBars(bars: IBar[]): IBar[];
+
+  prependBars(bars: IBar[]);
 
   clear(): void;
 }
@@ -68,14 +70,19 @@ export class BarHandler implements IBarHandler {
     handler?.insertBar(bar);
   }
 
-  prependBar(bar: IBar) {
-    const handler = this.getHandler();
-    handler?.prependBar(bar);
-  }
-
   processBar(bar: IBar) {
     const handler = this.getHandler();
-    handler?.processBar(bar);
+    return handler?.processBar(bar);
+  }
+
+  processBars(bars: IBar[]): IBar[] {
+    const handler = this.getHandler();
+    return handler?.processBars(bars);
+  }
+
+  prependBars(bars: IBar[]) {
+    const handler = this.getHandler();
+    return handler?.prependBars(bars);
   }
 
   clear() {
