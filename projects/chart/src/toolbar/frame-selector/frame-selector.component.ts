@@ -32,13 +32,6 @@ export class FrameSelectorComponent {
     this.updateChartBars();
   }
 
-
-  set barCount(count: number) {
-    if (!this.chart)
-      return;
-    this.chart.sendBarsRequest();
-  }
-
   private _timePeriod: ITimeFrame = { periodicity: StockChartXPeriodicity.WEEK, interval: 3 };
 
   get timePeriod() {

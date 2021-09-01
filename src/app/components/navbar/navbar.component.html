@@ -49,7 +49,7 @@
   <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
   <windows [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></windows>
-
+  <span *ngIf="windowName" class="window-name">{{windowName}}</span>
   <app-connections [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-connections>
 
   <div class="preferences">

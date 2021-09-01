@@ -69,19 +69,19 @@ export class RealOHLVFeed extends OHLVFeed {
       return;
     }
 
-    const now = new Date();
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-
     this._tradeDatafeed.subscribe(instrument, connectionId);
     this._volumeDatafeed.subscribe(instrument, connectionId);
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
 
     this._historyRepository.getItems({
       id: instrument.id,
       Exchange: instrument.exchange,
       Symbol: instrument.symbol,
       ...historyParams,
-      endDate: now,
+      endDate,
       startDate,
       connectionId
     }).toPromise().then(res => {

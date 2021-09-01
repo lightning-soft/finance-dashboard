@@ -35,6 +35,7 @@ import {
   IOrder,
   IPosition,
   IQuote,
+  ISession,
   Level1DataFeed,
   OHLVFeed,
   OrderSide,
@@ -87,6 +88,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+
+  session: ISession;
 
   @Input() window: IWindow;
 
@@ -838,6 +841,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleSettingsChange(settings: IChartSettings) {
     this.settings = settings;
+    const session = settings.session?.sessionTemplate;
+
+    if (this.session?.id != session?.id) {
+      this.datafeed.setSession(session, this.chart);
+    }
     const { trading } = settings;
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);

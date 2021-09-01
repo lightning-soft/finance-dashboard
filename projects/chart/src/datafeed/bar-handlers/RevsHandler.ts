@@ -4,8 +4,7 @@ import { IBar } from 'chart';
 export class RevsBarHandler extends ChartBarHandler {
   calculatePrependedBar = CalculationBarType.Mapped;
 
-  _processRealtimeBar(bar: IBar) {
-    const lastBar = this._mapLastBar(bar);
+  _processRealtimeBar(bar: IBar, lastBar = this._mapLastBar(bar)) {
     return this._calculateBarAction(lastBar);
   }
 

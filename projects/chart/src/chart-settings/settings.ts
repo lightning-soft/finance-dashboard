@@ -1,4 +1,4 @@
-import { OrderDuration } from 'trading';
+import { ISession, OrderDuration } from 'trading';
 
 export const chartReceiveKey = 'chartReceiveKey';
 export const chartSettings = 'chartSettings';
@@ -25,6 +25,9 @@ export interface IChartSettings {
     }
   };
   trading: any;
+  session: {
+    sessionTemplate: ISession;
+  };
   valueScale?: {
     valueScale: {
       pixelsPrice: number;
@@ -160,6 +163,9 @@ defaultChartSettings = {
       tradingBarLength: 40,
       tradingBarUnit: 'pixels',
     }
+  },
+  session: {
+    sessionTemplate: null,
   },
   valueScale: {
     valueScale: {

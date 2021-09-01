@@ -1,6 +1,7 @@
 import { IHistogramSettings } from './histogram.cell';
 import { TotalCell } from './total.cell';
 import { HistogramOrientation } from 'dynamic-form';
+import { isInTimeRange } from 'session-manager';
 
 interface IVolumeSettings extends IHistogramSettings {
   sessions: any;
@@ -45,12 +46,12 @@ export class VolumeCell extends TotalCell {
 
     this.addToHistoryItem(value, date);
 
-    if (this.isInTimeRange(date, sessions?.eth?.workingTimes)) {
+    if (isInTimeRange(date, sessions?.eth?.workingTimes)) {
       this._addEthVolume(value);
       changedEth = true;
     }
 
-    if (this.isInTimeRange(date, sessions?.rth?.workingTimes)) {
+    if (isInTimeRange(date, sessions?.rth?.workingTimes)) {
       changedRth = super.updateValue(value);
     }
 
@@ -73,25 +74,16 @@ export class VolumeCell extends TotalCell {
     }
   }
 
-  isInTimeRange(date, workingTimes) {
-    if (!workingTimes)
-      return true;
 
-    const currentDay = date.getDay();
-    const time = getTimeFromDate(date);
-    return workingTimes.some(({ endDay, endTime, startDay, startTime }) =>
-      (currentDay < endDay || (currentDay === endDay && time <= endTime)) &&
-      (currentDay > startDay || (currentDay === startDay && time >= startTime)));
-  }
 
   recalculateVolume() {
     let volume = 0;
     let sessionVolume = 0;
     this.volumeItems.forEach(item => {
-      if (this.isInTimeRange(item.date, this.settings.sessions.rth.workingTimes)) {
+      if (isInTimeRange(item.date, this.settings.sessions.rth.workingTimes)) {
         volume += item.volume;
       }
-      if (this.isInTimeRange(item.date, this.settings.sessions.eth.workingTimes)) {
+      if (isInTimeRange(item.date, this.settings.sessions.eth.workingTimes)) {
         sessionVolume += item.volume;
       }
     }, 0);
@@ -118,10 +110,7 @@ export class VolumeCell extends TotalCell {
   }
 }
 
-export function getTimeFromDate(date: Date) {
-  return ((date.getHours() * 3600)
-    + (date.getMinutes() * 60)) * 1000;
-}
+
 
 function drawRightHistogram(ctx, x, width, y, height, ethVolume, _maxEthVolume, prevEthVolume, nextEthVolume) {
   const startX = x + width - (width * ethVolume / _maxEthVolume);

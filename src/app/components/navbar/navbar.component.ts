@@ -7,10 +7,11 @@ import {
   HostListener,
   Input,
   NgZone,
+  OnInit,
   Output
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
 import { NotificationService } from 'notification';
 import { NavbarPosition, SettingsService } from 'settings';
@@ -27,7 +28,7 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements AfterViewInit {
+export class NavbarComponent implements AfterViewInit, OnInit {
   @Input() layout: LayoutComponent;
 
   public readonly navbarPosition = NavbarPosition;
@@ -37,6 +38,7 @@ export class NavbarComponent implements AfterViewInit {
   private navbarActive$ = new Subject<boolean>();
   private isInsideDropdownOpened = false;
   @Output() save = new EventEmitter();
+  windowName: string;
 
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
@@ -69,6 +71,7 @@ export class NavbarComponent implements AfterViewInit {
     private settingsService: SettingsService,
     private elementRef: ElementRef,
     private windowManagerService: WindowManagerService,
+    private _windowPopupManager: WindowPopupManager,
   ) {
     this.isNewNotification = !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
@@ -91,6 +94,9 @@ export class NavbarComponent implements AfterViewInit {
       ).subscribe((res) => {
         this._setNavBarActive(res);
       });
+  }
+  ngOnInit(){
+    this.windowName = this._windowPopupManager.getWindowName();
   }
 
   ngAfterViewInit() {
