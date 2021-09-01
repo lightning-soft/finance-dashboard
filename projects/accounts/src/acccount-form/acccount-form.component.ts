@@ -1,10 +1,11 @@
-import { Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Injector, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
 import { ConnectionsRepository } from 'trading';
 import { ItemsComponent } from 'base-components';
+import { SAVE_DALEY, SettingsService } from 'settings';
 
 @Component({
   selector: 'acccount-form',
@@ -20,6 +21,24 @@ import { ItemsComponent } from 'base-components';
 })
 @UntilDestroy()
 export class AcccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
+  @Input() isSubmitted = false;
+
+  @Output() autosavePasswordToggle = new EventEmitter<boolean>();
+
+  passwordVisible = true;
+
+  connectOnStartUp = false;
+  @Output() turnOffAutoConnect = new EventEmitter<boolean>();
+  @Output() updateItem = new EventEmitter<boolean>();
+
+  form = new FormGroup({
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required),
+    server: new FormControl(null, Validators.required),
+    gateway: new FormControl(null, Validators.required),
+    autoSavePassword: new FormControl(false),
+  });
+
   get gateways() {
     return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
   }
@@ -32,21 +51,10 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
     return this.form.valid;
   }
 
-  @Input() isSubmitted = false;
-
-  form = new FormGroup({
-    username: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required),
-    server: new FormControl(null, Validators.required),
-    gateway: new FormControl(null, Validators.required),
-    autoSavePassword: new FormControl(false),
-  });
-
-  passwordVisible = true;
-
   constructor(
     protected _repository: ConnectionsRepository,
     protected _injector: Injector,
+    private readonly _settingsService: SettingsService,
   ) {
     super();
     this.config.autoLoadData = {
@@ -69,6 +77,14 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   toggleAutoSave() {
     const autoSavePassword = !this.autoSave;
     this.form.patchValue({ autoSavePassword });
+
+    if (!autoSavePassword) {
+      this.turnOffAutoConnect.emit(!this.connectOnStartUp);
+      this.connectOnStartUp = !this.connectOnStartUp;
+    }
+
+    this.updateItem.emit(true);
+    this.autosavePasswordToggle.emit(autoSavePassword);
   }
 
   getName(o) {
@@ -98,8 +114,10 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   }
 
   writeValue(obj: any): void {
-    if (obj)
-      this.form.patchValue(obj);
+    if (!obj)
+      return;
+
+    this.form.patchValue(obj);
   }
 
   setDisabledState(isDisabled: boolean) {

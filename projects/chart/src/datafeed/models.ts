@@ -6,6 +6,7 @@ export interface IStockChartXInstrument extends IBaseItem {
   company: string;
   exchange: string;
   tickSize: number;
+  productCode: string;
   description?: string;
   digits?: number;
   precision?: number;
@@ -29,9 +30,10 @@ export interface IRequest {
 }
 
 export interface IBarsRequest extends IRequest {
-  count: number;
-  endDate?: Date;
-  startDate?: Date;
+  barCount: number;
+  startDate: Date;
+  endDate: Date;
+  skip: 0;
 }
 
 export interface IQuote {

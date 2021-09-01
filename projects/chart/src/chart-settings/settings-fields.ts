@@ -5,12 +5,12 @@ import {
   getLabel,
   getNumber,
   getSelect,
+  getSessionSelect,
   getSwitch,
   IFieldConfig,
   wrapWithClass,
 } from 'dynamic-form';
-import { OrderType } from 'trading';
-import { orderFields } from 'base-order-form';
+import { OrderDuration, OrderSide, OrderType } from 'trading';
 
 function disableExpression(field, expression: string) {
   return {
@@ -116,27 +116,45 @@ export const generalFields: IFieldConfig[] = [
 ];
 const orderTypesList = [
   {
-    key: OrderType.Limit.toLowerCase(),
-    label: 'Limit Orders'
+    key: `${ OrderSide.Buy.toLowerCase() }.${ OrderType.Limit.toLowerCase() }`,
+    label: `${ OrderSide.Buy } Limit Orders`
   },
   {
-    key: OrderType.Market.toLowerCase(),
-    label: 'MT Orders'
+    key: `${ OrderSide.Buy.toLowerCase() }.${ OrderType.Market.toLowerCase() }`,
+    label: `${ OrderSide.Buy } MT Orders`
   },
   {
-    key: 'stop', //OrderType.StopMarket,
-    label: 'SM Orders'
+    key: `${ OrderSide.Buy.toLowerCase() }.stop`, //OrderType.StopMarket,
+    label: `${ OrderSide.Buy } SM Orders`
   },
   {
-    key: 'stopLimit',// OrderType.StopLimit,
-    label: 'Stop Limit',
+    key: `${ OrderSide.Buy.toLowerCase() }.stopLimit`,// OrderType.StopLimit,
+    label: `${ OrderSide.Buy } Stop Limit`,
   },
-  {
-    key: 'oco',
-    label: 'OCO'
-  }
-];
 
+  {
+    key: `${ OrderSide.Sell.toLowerCase() }.${ OrderType.Limit.toLowerCase() }`,
+    label: `${ OrderSide.Sell } Limit Orders`
+  },
+  {
+    key: `${ OrderSide.Sell.toLowerCase() }.${ OrderType.Market.toLowerCase() }`,
+    label: `${ OrderSide.Sell } MT Orders`
+  },
+  {
+    key: `${ OrderSide.Sell.toLowerCase() }.stop`, //OrderType.StopMarket,
+    label: `${ OrderSide.Sell } SM Orders`
+  },
+  {
+    key: `${ OrderSide.Sell.toLowerCase() }.stopLimit`,// OrderType.StopLimit,
+    label: `${ OrderSide.Sell } Stop Limit`,
+  },
+];
+export const sessionFields: IFieldConfig[] = [
+  {
+    key: 'session',
+    fieldGroup: [wrapWithClass(getSessionSelect('sessionTemplate', 'Session Template'), 'mt-4 mx-3 d-block')]
+  },
+];
 export const tradingFields: IFieldConfig[] = [
   new FieldConfig({
     key: 'trading',
@@ -150,13 +168,45 @@ export const tradingFields: IFieldConfig[] = [
           getCheckboxes({
             checkboxes: [{ key: 'showWorkingOrders', label: 'Show Working Orders' }],
           }),
+          getCheckboxes({
+            extraConfig: {
+              fieldGroupClassName: '',
+            },
+            checkboxes: [
+              { key: 'showInstrumentChange', label: 'Show Instrument Change' },
+              { key: 'showOHLVInfo', label: 'Show OHLV Info' },
+              { key: 'bracketButton', label: 'Bracket Button' },
+            ]
+          }),
           {
-            fieldGroupClassName: 'd-grid two-rows',
-            className: 'd-none',
+            fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
             fieldGroup: [
-              getLabel('PL Unit'),
+              getLabel('Order Bar Length'),
+              getNumber({
+                key: 'orderBarLength',
+                min: 1,
+              }),
+              getSelect({
+                key: 'orderBarUnit',
+                options: [
+                  { label: '%', value: 'percent' },
+                  { label: 'px', value: 'pixels' },
+                ],
+              }),
+            ],
+          },
+    /*      getCheckboxes({
+            extraConfig: { className: 'pl-info' },
+            checkboxes: [
+              { key: 'showPl', label: 'Show P/L Info' },
+            ],
+            additionalFields: [
+              getSwitch('includeRealized', 'Include Realized P/L'),
+              getSwitch('roundToWhole', 'Round to whole numbers'),
               getSelect({
                 key: 'plUnit',
+                label: 'PL Unit',
+                className: 'select',
                 options: [
                   { label: 'Points', value: 'points' },
                   { label: 'Currency', value: 'currency' },
@@ -165,46 +215,146 @@ export const tradingFields: IFieldConfig[] = [
                   { label: 'Ticks', value: 'ticks' },
                   { label: 'None', value: 'none' },
                 ],
-              })],
-          },
-          getCheckboxes({
-            extraConfig: {className: 'd-none'},
-            checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
-          }),
+              })
+            ],
+          }),*/
           {
-            fieldGroupClassName: 'd-grid order-bar-rows',
             fieldGroup: [
-              getLabel('Order Bar Length (of chart)'),
-              getNumber({
-                key: 'tradingBarLength',
-                min: 1,
-              }),
-              getSelect({
-                key: 'tradingBarUnit',
-                options: [
-                  { label: '%', value: 'percent' },
-                  { label: 'px', value: 'pixels' },
+              {
+                fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
+                fieldGroup: [
+                  getLabel('Order Entry Width'),
+                  getNumber({
+                    key: 'tradingBarLength',
+                    min: 1,
+                  }),
+                  getSelect({
+                    key: 'tradingBarUnit',
+                    options: [
+                      { label: '%', value: 'percent' },
+                      { label: 'px', value: 'pixels' },
+                    ],
+                  }),
                 ],
-              }),
+              },
+
             ],
           },
+    /*      getCheckboxes({
+            // extraConfig: {className: 'd-none'},
+            checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
+          }),*/
         ],
       }),
       new FieldConfig({
         label: 'Order Type Colors',
         key: 'ordersColors',
-        fieldGroupClassName: 'p-x-7',
+        className: 'd-block mt-4',
+        fieldGroupClassName: 'p-x-7 d-block',
         fieldGroup: [
           ...orderTypesList.map(item => getOrderTypeConfig(item.key, item.label)),
+          {
+            fieldGroupClassName: 'd-grid mt-2 oco-rows two-rows',
+            fieldGroup: [
+              getColor({ label: 'OCO Limit Border', key: 'ocoStopLimit' }),
+              getColor({ label: 'OCO Stop Border', key: 'ocoStopOrder' }),
+            ],
+          },
         ],
       }),
-      {
+      new FieldConfig({
         key: 'orderArea',
-        fieldGroup: [{ ...orderFields, key: 'settings', fieldGroupClassName: 'd-grid two-rows mb-4 p-x-7' }],
-      },
+        label: 'Order Area',
+        className: 'mb-4 mt-4 d-block',
+        fieldGroupClassName: 'p-x-7 d-block',
+        fieldGroup: [
+          {
+            key: 'settings',
+            fieldGroupClassName: 'd-block',
+            fieldGroup: [
+              getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
+              getOrderAreaItemSettings('Show Liquidate Button', 'closePositionButton'),
+              getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
+              getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
+              getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),
+              getOrderAreaItemSettings('Show Cancel All Button', 'cancelButton'),
+            ]
+          },
+        ],
+      }),
+      new FieldConfig({
+        label: 'TIF',
+        key: 'tif',
+        className: 'd-block mb-4',
+        fieldGroup: [
+          getLabel('Default TIF'),
+          getSelect({
+            key: 'default',
+            options: [
+              {
+                label: 'DAY',
+                value: OrderDuration.DAY
+              },
+              {
+                label: 'IOC',
+                value: OrderDuration.IOC,
+              },
+              {
+                label: 'FOK',
+                value: OrderDuration.FOK,
+              },
+              {
+                label: 'GTC',
+                value: OrderDuration.GTC,
+              }
+            ],
+          }),
+          getCheckboxes({
+            extraConfig: {
+              fieldGroupClassName: 'd-grid two-rows',
+            },
+            checkboxes: [
+              {
+                key: OrderDuration.DAY,
+                label: 'Show DAY (Day Order)',
+              },
+              {
+                key: OrderDuration.GTC,
+                label: 'Show GTC (Good-Till-Cancel)',
+              },
+              {
+                key: OrderDuration.FOK,
+                label: 'Show FOK (Fill-Or-Kill)',
+              },
+              {
+                key: OrderDuration.IOC,
+                label: 'Show IOC (Immediate-Or-Cancel)',
+              },
+            ]
+          }),
+        ],
+      }),
     ],
   }),
 ];
+
+function getOrderAreaItemSettings(label, key) {
+  return {
+    key,
+    className: 'd-block mt-1',
+    fieldGroupClassName: 'd-grid order-area-rows',
+    fieldGroup: [
+      getCheckboxes({
+        checkboxes: [{
+          label,
+          key: 'enabled',
+        }]
+      }),
+      getColor('Font'),
+      getColor('Background'),
+    ],
+  };
+}
 
 function getOrderTypeConfig(key, label) {
   return {
@@ -212,6 +362,8 @@ function getOrderTypeConfig(key, label) {
     key,
     fieldGroup: [
       getLabel(label),
+      wrapWithClass(getColor('lineColor'), 'color-without-label h-20'),
+
       getSelect({
         key: 'lineType',
         options: [
@@ -220,16 +372,36 @@ function getOrderTypeConfig(key, label) {
           { label: 'Dotted', value: 'dotted' }
         ],
       }),
-      wrapWithClass(getColor('lineColor'), 'color-without-label h-20'),
       getNumber({
         key: 'length',
         min: 1,
-      }),
-      getSelect({
-        key: 'lengthUnit',
-        options: [{ label: '%', value: 'percents' },
-          { label: 'px', value: 'pixels' }],
+        max: 10,
       }),
     ],
   };
 }
+
+export const valueScale: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'valueScale',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      new FieldConfig({
+        label: 'Value Scale',
+        className: 'mt-3 d-block',
+        fieldGroupClassName: 'd-grid two-rows p-x-7',
+        fieldGroup: [
+          {
+            fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
+            fieldGroup: [
+              getLabel('Pixel Price'),
+              getNumber({
+                key: 'pixelsPrice',
+              }),
+            ],
+          }
+        ],
+      }),
+    ],
+  }),
+];

@@ -19,14 +19,13 @@
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
       <ul class="drawing-menu" nz-menu [style.left.px]="drawingMenuOffset.x" [style.top.px]="drawingMenuOffset.y">
-        <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item
+        <li (click)="addDrawing(drawing)" [title]="drawing.formattedName" nz-menu-item
             *ngFor="let drawing of lastUsedDrawings">
-          <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>
+          <span class="scx-icon icon-drawing-{{drawing.className}}"></span>
         </li>
         <li *ngIf="lastUsedDrawings.length" class=" toolbar divider"></li>
         <li [title]="chart?.stayInDrawingMode? 'Leave Draw Mode': 'Stay in Draw Mode'" nz-menu-item
             (click)="stayInDragMode()">
-
           <i
             [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
@@ -52,10 +51,10 @@
             <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
             <ul class="toolbar-submenu">
               <li *ngFor="let item of drawingInstrument.items" nz-menu-item
-                  data-name="{{transformToUIName(item.name)}}"
-                  (click)="addDrawing(item.name)">
-                <span class="scx-icon icon-drawing-{{transformToClassName(item.className)}}"></span>
-                <span class="drawing-instrument-name">{{transformToUIName(item.name)}}</span>
+                  data-name="{{item.formattedName}}"
+                  (click)="addDrawing(item)">
+                <span class="scx-icon icon-drawing-{{item.className}}"></span>
+                <span class="drawing-instrument-name">{{item.formattedName}}</span>
               </li>
             </ul>
           </li>
@@ -64,7 +63,7 @@
             <li nz-menu-item
                 [title]="drawingInstrument.name"
                 (click)="addDrawing(drawingInstrument.items[0])">
-              <i class="scx-icon icon-drawing-{{transformToClassName(drawingInstrument.items[0].className)}}"></i>
+              <i class="scx-icon icon-drawing-{{drawingInstrument.items[0].className}}"></i>
             </li>
           </ng-template>
         </ng-container>

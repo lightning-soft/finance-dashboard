@@ -27,7 +27,7 @@ export class WorkspacesManager {
       .getItems()
       .subscribe(
         (w) => this._handleStoreWorkspaces(w),
-        (e) => console.error(`Something goes wrong ${e.message}`)
+        (e) => console.error(`Something goes wrong ${ e.message }`)
       );
   }
 
@@ -238,6 +238,7 @@ export class WorkspacesManager {
     const window = workspace.windows.find(item => item.id === windowId);
     const newWindow = new WorkspaceWindow(window);
     workspace.windows.push(newWindow);
+    this.save();
     return newWindow;
   }
 
@@ -272,5 +273,9 @@ export class WorkspacesManager {
 
   updateWorkspaces() {
     this.workspaces.next(this.workspaces.value);
+  }
+
+  checkIfCurrentWindow(workspaceId: any, windowId: any) {
+    return this.getActiveWorkspace()?.id === workspaceId && this.getCurrentWindow()?.id === windowId;
   }
 }

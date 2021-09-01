@@ -96,7 +96,10 @@
                [afterDraw]="afterDraw"
                [sizeChanged]="onResize.bind(this)"
                [onColumnResize]="onColumnResize.bind(this)"
-               [handlers]="handlers">
+               [handlers]="handlers"
+               [loadedPresets]="loadedPresets"
+               (savePresets)="save()"
+               (createPresets)="createPresets(Components.Dom)">
     </data-grid>
   </div>
 

@@ -47,12 +47,7 @@
     (actions)="handleFormAction($event)"
     [instrument]="instrument">
     <div class="form-header" headerContent>
-      <div>
-        A: {{getQuoteInfo(bestAskPrice) | nullCoalescing}} {{askSize | nullCoalescing}}
-      </div>
-      <div>
-        B: {{getQuoteInfo(bestBidPrice) | nullCoalescing}} {{bidSize | nullCoalescing}}
-      </div>
+      <info-component headerContent></info-component>
     </div>
   </side-form>
 </div>

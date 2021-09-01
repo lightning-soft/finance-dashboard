@@ -15,8 +15,7 @@ export class RenkoBarHandler extends ChartBarHandler {
     (bar.close <= (lastBar.open - offset)) ? BarAction.Add : BarAction.Update;
   }
 
-  protected _processRealtimeBar(bar: IBar): BarAction {
-    const lastBar = this.getLastBar();
+  protected _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()): BarAction {
     return this.__calculateBarAction(bar, lastBar);
   }
 }

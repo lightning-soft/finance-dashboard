@@ -49,7 +49,7 @@
   <!-- <div class="spacer">&nbsp;</div>-->
   <!-- </div> -->
   <windows [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></windows>
-
+  <span *ngIf="windowName" class="window-name">{{windowName}}</span>
   <app-connections [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-connections>
 
   <div class="preferences">
@@ -71,6 +71,11 @@
       (click)="openNotificationsList(); $event.target.blur()" class="icon-notification  navbar-button">
       <i *ngIf="isNewNotification" class="icon-ellipse"></i>
     </button>
+
+    <button
+      [title]="'Save'"
+      (click)="saveWindow(); $event.target.blur()" class="icon-save navbar-button"
+    ></button>
 
     <app-account [layout]="layout" (handleToggleDropdown)="handleInsideDropdownToggle($event)"></app-account>
   </div>

@@ -132,5 +132,8 @@
              [items]="items"
              [handlers]="handlers"
              [columns]="columns"
+             [loadedPresets]="loadedPresets"
+             (savePresets)="save()"
+             (createPresets)="createPresets(Components.Orders)"
   ></data-grid>
 </ng-template>

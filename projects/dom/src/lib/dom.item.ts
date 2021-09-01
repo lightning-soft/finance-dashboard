@@ -12,8 +12,9 @@ import {
 } from 'data-grid';
 import { IOrder, IQuote, OrderSide, OrderStatus, OrderType, QuoteSide, TradePrint, UpdateType } from 'trading';
 import { DomSettings } from './dom-settings/settings';
-import { HistogramCell } from './histogram';
+import { HistogramCell, VolumeCell } from './histogram';
 import { PriceCell } from './price.cell';
+import { TotalCell } from './histogram/total.cell';
 
 const LevelsCount = 9;
 export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
@@ -76,15 +77,16 @@ class OrdersCell extends HistogramCell {
     this.prepareOrder();
   }
 
-  hasOcoOrder(): boolean {
-    return !!this.ocoOrder;
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    if (side == null || this.side === side) {
+      if (this.ocoOrder)
+        this.ocoOrder = null;
+      this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
+      this.prepareOrder();
+      return true;
+    }
 
-  clearOcoOrder() {
-    if (this.ocoOrder)
-      this.ocoOrder = null;
-    this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
-    this.prepareOrder();
+    return false;
   }
 
   addOrder(order: IOrder) {
@@ -141,7 +143,7 @@ class OrdersCell extends HistogramCell {
     }
 
     if (this._order?.type === OrderType.Limit
-        && (value < this._quantitySequence || this._quantitySequence == null)) {
+      && (value < this._quantitySequence || this._quantitySequence == null)) {
       this._quantitySequence = value;
       this.drawed = false;
     }
@@ -268,26 +270,6 @@ class OrdersCell extends HistogramCell {
   }
 }
 
-class TotalCell extends HistogramCell {
-  updateValue(value: number) {
-    return super.updateValue((this._value ?? 0) + (value ?? 0));
-  }
-
-  hightlight() {
-    if (this.settings.highlightLarge && this._value < (this.settings.largeSize || 0)) {
-      return;
-    }
-
-    super.hightlight();
-  }
-
-  clear() {
-    this.hist = 0;
-    this._histValue = 0;
-    super.clear();
-  }
-}
-
 class LtqCell extends HistogramCell {
   updateValue(value: number) {
     if ((this.settings as any).accumulateTrades != false)
@@ -388,13 +370,16 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     this._item.askDelta.changeQuantity(quantity);
   }
 
-  hasOcoOrder() {
-    return this._item.sellOrders.hasOcoOrder() || this._item.buyOrders.hasOcoOrder();
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    let sellOrders = false;
+    let buyOrders = false;
 
-  clearOcoOrder() {
-    this._item.sellOrders.clearOcoOrder();
-    this._item.buyOrders.clearOcoOrder();
+    if (side !== QuoteSide.Ask)
+      sellOrders = this._item.sellOrders.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      buyOrders = this._item.buyOrders.clearOcoOrder(side);
+
+    return sellOrders || buyOrders;
   }
 
   addOrder(order: IOrder) {
@@ -572,7 +557,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   currentBid: LevelCell;
   totalAsk: HistogramCell;
   totalBid: HistogramCell;
-  volume: HistogramCell;
+  volume: VolumeCell;
   askDelta: OrdersCell;
   bidDelta: OrdersCell;
   notes: Cell = new DataCell();
@@ -627,7 +612,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
     this.currentBid = new LevelCell({ settings: settings.currentBid, hightlightOnChange: false });
     this.totalAsk = new TotalCell({ settings: settings.totalAsk });
     this.totalBid = new TotalCell({ settings: settings.totalBid });
-    this.volume = new TotalCell({ settings: settings.volume });
+    this.volume = new VolumeCell({ settings: settings.volume });
     this.askDelta = new OrdersCell({
       strategy: AddClassStrategy.NONE,
       ignoreZero: true,
@@ -714,6 +699,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
       this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
     }
+    this.volume.updateValue(trade.volume, new Date(trade.timestamp));
 
     this.calculateLevel();
   }
@@ -796,7 +782,6 @@ export class DomItem extends HoverableItem implements IBaseItem {
     if (this.ltq.updateValue(volume)) {
       this.ltq.changeStatus(!prevValue ? side : CellStatus.Highlight);
 
-      this.volume.updateValue(volume);
       this._updatePriceStatus();
 
       return true;
@@ -900,21 +885,25 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
   }
 
-  clearOcoOrder() {
-    this.orders.clearOcoOrder();
-    this.bidDelta.clearOcoOrder();
-    this.askDelta.clearOcoOrder();
+  clearOcoOrder(side: QuoteSide): boolean {
+    const result = this.orders.clearOcoOrder(side);
+    if (side !== QuoteSide.Ask)
+      this.bidDelta.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      this.askDelta.clearOcoOrder(side);
+
+    return result;
   }
 
   dehighlight() {
     return Object.keys(this).forEach(key => this[key] && this[key].dehightlight && this[key].dehightlight());
   }
 
-  setVolume(volume: number) {
-    this.volume.updateValue(volume);
-    this.volume.dehightlight();
-    return { volume: this.volume._value };
-  }
+  /*  setVolume(volume: number) {
+      this.volume.updateValue(volume);
+      this.volume.dehightlight();
+      return { volume: this.volume._value };
+    }*/
 
   calculateLevel(): boolean {
     const ask = this.currentAsk.calculateLevel();
@@ -945,7 +934,8 @@ export class CustomDomItem extends DomItem {
 
   clearCross = false;
 
-  constructor(index, settings: DomSettings, _priceFormatter: IFormatter, snapshot: { [key: number]: DomItem }) {
+  constructor(index, settings: DomSettings, _priceFormatter: IFormatter,
+    snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();
@@ -993,6 +983,7 @@ export class CustomDomItem extends DomItem {
     let totalAsk = 0;
     let totalBid = 0;
     let volume = 0;
+    let sessionVolume = 0;
 
     for (const price in snapshot) {
       if (snapshot.hasOwnProperty(price)) {
@@ -1003,6 +994,7 @@ export class CustomDomItem extends DomItem {
         totalAsk += (data.totalAsk._value ?? 0);
         totalBid += (data.totalBid._value ?? 0);
         volume += (data.volume._value ?? 0);
+        sessionVolume += (data.volume.ethVolume ?? 0);
 
         if (this.bid._value < 0)
           console.log('negative');
@@ -1014,6 +1006,7 @@ export class CustomDomItem extends DomItem {
     this.totalAsk.reset(totalAsk);
     this.totalBid.reset(totalBid);
     this.volume.reset(volume);
+    this.volume.resetSessionVolume(sessionVolume);
   }
 
   setBidSum(value) {

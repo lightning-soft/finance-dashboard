@@ -147,7 +147,7 @@ export class TimeFrame {
       case StockChartXPeriodicity.REVS:
       case StockChartXPeriodicity.RENKO:
       case StockChartXPeriodicity.RANGE:
-        return TimeSpan.MILLISECONDS_IN_HOUR;
+        return TimeSpan.MILLISECONDS_IN_SECOND;
       case StockChartXPeriodicity.SECOND:
         return timeFrame.interval * TimeSpan.MILLISECONDS_IN_SECOND;
       case StockChartXPeriodicity.MINUTE:

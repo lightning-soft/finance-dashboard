@@ -5,6 +5,7 @@ import { Notification, NotificationStatus, NotificationType } from './notificati
 import { NotificationId } from './type';
 import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
+import { SoundService, Sound } from 'sound';
 
 @Injectable()
 export class NotificationService extends NotifierService {
@@ -37,13 +38,17 @@ export class NotificationService extends NotifierService {
   }
 
   addNotification(notification) {
+    this._injector.get(SoundService).play(Sound.ALERT);
     this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());
   }
 
   public acceptNotification(notificationId: NotificationId): void {
-    const notification = this._notifications.find(n => n.id === notificationId);
-    notification.status = NotificationStatus.ACCEPTED;
+    const index = this._notifications.findIndex(n => n.id === notificationId);
+
+    if (index === -1) return;
+
+    this._notifications[index].status = NotificationStatus.ACCEPTED;
 
     this.notifications.next(this.getNotification());
   }

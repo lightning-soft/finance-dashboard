@@ -4,7 +4,7 @@ import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communic
 import { NotificationService } from 'notification';
 import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
@@ -12,6 +12,7 @@ import { accountsListeners } from '../../real-trading/src/connection/accounts-li
 
 @Injectable()
 export class AccountsManager implements ConnectionContainer {
+
   private get _connections(): IConnection[] {
     return this.connectionsChange.value;
   }
@@ -136,6 +137,12 @@ export class AccountsManager implements ConnectionContainer {
 
   private _initWS(connection: IConnection) {
     const webSocketService = this._webSocketService.get(connection);
+    const subscription = webSocketService.reconnection$.pipe(switchMap((conn) => this.reconnect(conn)))
+      .subscribe((conn) => {
+        this._notificationService.showSuccess('Reconnected');
+      }, () => {
+        this._notificationService.showError('Error during reconnection');
+      }, () => subscription.unsubscribe());
 
     webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
     webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
@@ -202,8 +209,10 @@ export class AccountsManager implements ConnectionContainer {
     connection.connected = false;
 
     this._connectionsRepository.updateItem(connection)
-      .pipe(tap(() => this.onUpdated(connection)))
-      .subscribe();
+      .pipe(
+        tap(() => this.onUpdated(connection)),
+        tap(() => this._onDisconnected(connection))
+      ).subscribe();
 
   }
 
@@ -215,11 +224,13 @@ export class AccountsManager implements ConnectionContainer {
       .pipe(tap((conn) => this.onCreated(conn)));
   }
 
-  rename(name: string, connection: IConnection): Observable<IConnection> {
-    const _connection = { ...connection, name };
-
-    return this._connectionsRepository.updateItem(_connection)
-      .pipe(tap(() => this.onUpdated(_connection)));
+  updateItem(item: IConnection): Observable<IConnection> {
+    return this._connectionsRepository.updateItem((item)).pipe(
+      map(_ => item),
+      tap((conn) => {
+        this.onUpdated(conn);
+      }),
+    );
   }
 
   connect(connection: IConnection): Observable<IConnection> {
@@ -262,7 +273,21 @@ export class AccountsManager implements ConnectionContainer {
     this._getSoundService().play(Sound.CONNECTION_LOST);
   }
 
+  disconnectById(connectionId: string) {
+    if (!connectionId)
+      return;
+
+    this.disconnect(this._connections.find(i => i.id === connectionId))
+      .subscribe(
+        i => console.log('Successfully disconnect'),
+        err => console.error('Error disconnect ', err),
+      );
+  }
+
   disconnect(connection: IConnection): Observable<void> {
+    if (!connection || !connection.connected)
+      return of();
+
     const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
 
     return this._connectionsRepository.disconnect(connection)
@@ -271,8 +296,12 @@ export class AccountsManager implements ConnectionContainer {
         tap(() => this.onUpdated(updatedConnection)),
         tap(() => this._onDisconnected(connection)),
         catchError((err: HttpErrorResponse) => {
+          if (err.message === 'No connection!')
+            this._onDisconnected(connection);
+
           if (err.status === 401) {
             this.onUpdated(updatedConnection);
+            this._onDisconnected(updatedConnection);
             return of(null);
           } else
             return throwError(err);
@@ -280,9 +309,14 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
-  makeDefault(item: IConnection): Observable<any> {
+  reconnect(connection: IConnection) {
+    return this.disconnect(connection)
+      .pipe(switchMap(item => this.connect(connection)));
+  }
+
+  makeDefault(item: IConnection): Observable<any> | null {
     if (item.isDefault)
-      return;
+      return throwError('Connection is already default');
 
     const _connection = { ...item, isDefault: true };
     const defaultConnections = this._connections.filter(i => i.isDefault);

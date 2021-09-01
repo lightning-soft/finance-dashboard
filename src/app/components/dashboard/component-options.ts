@@ -23,24 +23,14 @@ export const widgetList = [
     component: Components.Positions,
     options: {
       minWidth: 384,
-    }
-  },
-  {
-    icon: 'icon-widget-orders',
-    name: 'Orders',
-    component: Components.Orders
-  },
-  {
-    icon: 'icon-widget-create-orders',
-    name: 'Add orders',
-    component: Components.OrderForm,
-    options: orderFormOptions,
-    hasInstrument: true,
+    },
+    hasTemplates: true,
   },
   {
     icon: 'icon-widget-market-watch',
     name: 'Market Watch',
     component: Components.MarketWatch,
+    hasTemplates: true,
   },
   // {
   //   icon: 'icon-widget-watchlist',
@@ -55,8 +45,36 @@ export const widgetList = [
     options: {
       width: 500,
       minWidth: 470,
-    }
+    },
+    hasTemplates: true,
   },
+  {
+    icon: 'icon-widget-orders',
+    name: 'Orders',
+    component: Components.Orders,
+    hasTemplates: true,
+  },
+  {
+    icon: 'icon-widget-create-orders',
+    name: 'Add orders',
+    component: Components.OrderForm,
+    options: orderFormOptions,
+    hasInstrument: true,
+  },
+  {
+    icon: 'icon-account-info',
+    name: 'Account Info',
+    component: Components.AccountInfo,
+    hasTemplates: true,
+    options: {
+      single: true,
+      height: 350,
+      width: 700,
+      allowPopup: false,
+      removeIfExists: true,
+      resizable: true,
+    },
+  }
 ];
 
 export const bottomWidgetList = [

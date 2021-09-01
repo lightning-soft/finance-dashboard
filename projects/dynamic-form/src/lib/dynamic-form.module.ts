@@ -31,6 +31,8 @@ import { ColumnSelectorComponent } from './column-selector/column-selector.compo
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LabelComponent } from './label/label.component';
 import { DataBoxComponent } from './data-box/data-box.component';
+import { SessionsSelectComponent } from './sessions-select/sessions-select.component';
+import { DataSelectModule } from 'data-select';
 
 const formlyComponents = [
   {
@@ -68,35 +70,43 @@ const formlyComponents = [
   },
   {
     name: FieldType.DataBox, component: DataBoxComponent,
-  }
+  },
+  {
+    name: FieldType.SessionsSelect,
+    component: SessionsSelectComponent,
+  },
 ];
 
 @NgModule({
-  declarations: [ColorPickerComponent, NumberInputComponent, TextAlignComponent,
+  declarations: [
+    ColorPickerComponent, NumberInputComponent, TextAlignComponent,
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent,
-    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent, DataBoxComponent],
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        FormsModule,
-        FormlyModule.forRoot({
-            types: formlyComponents,
-        }),
-        HotkeyInputModule,
-        FormlyNgZorroAntdModule,
-        NzInputModule,
-        NzSwitchModule,
-        NzSelectModule,
-        NzDividerModule,
-        NzInputNumberModule,
-        NzDatePickerModule,
-        NzDropDownModule,
-        NzSliderModule,
-        StorageModule,
-        NzCheckboxModule,
-        NzFormModule,
-        DragDropModule,
-    ],
+    SessionsSelectComponent,
+    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent, DataBoxComponent
+  ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DataSelectModule,
+    FormsModule,
+    FormlyModule.forRoot({
+      types: formlyComponents,
+    }),
+    HotkeyInputModule,
+    FormlyNgZorroAntdModule,
+    NzInputModule,
+    NzSwitchModule,
+    NzSelectModule,
+    NzDividerModule,
+    NzInputNumberModule,
+    NzDatePickerModule,
+    NzDropDownModule,
+    NzSliderModule,
+    StorageModule,
+    NzCheckboxModule,
+    NzFormModule,
+    DragDropModule,
+  ],
   exports: [FormlyModule]
 })
 export class DynamicFormModule {

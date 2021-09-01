@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { IAccount, OrderSide } from 'trading';
+import { IAccount, ISession, OrderSide } from 'trading';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
 import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
 import { IBar, IChart, IDetails } from '../models/chart';
+import { BarAction } from './bar-handlers/ChartBarHandler';
+import { isInTimeRange } from 'session-manager';
 
 export type IDateFormat = (request: IRequest) => string;
 
@@ -28,22 +30,51 @@ export abstract class Datafeed implements IDatafeed {
    */
   private static _requestId = 0;
 
+  protected _session;
+
+  protected _historyItems = [];
+
   /**
    * @internal
    */
   private _requests = new Map<number, IRequest>();
 
-  private barHandler: IBarHandler;
-
-  /**
-   * @internal
-   */
-  protected _details: IDetails[] = [];
+  protected barHandler: IBarHandler;
 
   /**
    * @internal
    */
   protected _account: IAccount;
+
+  /**
+   * @internal
+   */
+  private _quotes: IQuote[] = [];
+
+
+  setSession(session: ISession, chart) {
+    const oldSession = this._session;
+    this._session = session;
+    if (oldSession?.id !== session?.id) {
+      this._recalculateData(chart);
+    }
+  }
+
+  private _recalculateData(chart) {
+    if (!this.barHandler)
+      return;
+
+    chart.dataManager.clearBarDataSeries();
+    const historyItems = [];
+    for (let i = 0; i < this._historyItems.length; i++) {
+      const historyItem = this._historyItems[i];
+      if (isInTimeRange(historyItem.date, this._session.workingTimes)) {
+        historyItems.push(historyItem);
+      }
+    }
+    chart.dataManager.appendBars(this.barHandler.processBars(historyItems));
+    chart.setNeedsUpdate(true);
+  }
 
   /**
    * Executes request post cancel actions (e.g. hides waiting bar).
@@ -52,8 +83,6 @@ export abstract class Datafeed implements IDatafeed {
    * @protected
    */
   protected onRequstCanceled(request: IBarsRequest) {
-    this._details = [];
-
     if (this._requests.size === 0)
       request.chart.hideWaitingBar();
   }
@@ -65,12 +94,14 @@ export abstract class Datafeed implements IDatafeed {
    * @protected
    */
   protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
-    const chart = request.chart,
-      dataManager = chart.dataManager,
-      oldFirstVisibleRecord = chart.firstVisibleRecord,
-      oldLastVisibleRecord = chart.lastVisibleRecord,
-      oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0,
-      instrument = chart.instrument;
+    this._requests.delete(request.id);
+
+    const chart = request.chart;
+    const dataManager = chart.dataManager;
+    const oldFirstVisibleRecord = chart.firstVisibleRecord;
+    const oldLastVisibleRecord = chart.lastVisibleRecord;
+    const oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0;
+    const instrument = chart.instrument;
 
     if (!this.barHandler) {
       this.barHandler = new BarHandler(request.chart);
@@ -79,17 +110,28 @@ export abstract class Datafeed implements IDatafeed {
     switch (request.kind) {
       case RequestKind.BARS: {
         dataManager.clearBarDataSeries();
+        this._historyItems = bars;
         this.barHandler.clear();
-        bars.forEach(bar => this.barHandler.insertBar(bar));
+        const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
+        request.chart.dataManager.appendBars(this.barHandler.processBars(filteredBars));
+        if (Array.isArray(this._quotes)) {
+          for (const quote of this._quotes) {
+            this.processQuote(request, quote);
+          }
+        }
+        this._quotes = [];
         break;
       }
       case RequestKind.MORE_BARS: {
         this.barHandler.clear();
-        bars.forEach(bar => this.barHandler.prependBar(bar));
+        this._historyItems = [...bars, ...this._historyItems];
+        const preparedBars = this.barHandler.prependBars(
+          bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes)));
+        request.chart.dataManager.insertBars(0, preparedBars);
         break;
       }
       default:
-        throw new Error(`Unknown request kind: ${ request.kind }`);
+        throw new Error(`Unknown request kind: ${request.kind}`);
     }
     chart.updateComputedDataSeries();
 
@@ -109,8 +151,6 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     chart.fireValueChanged(StockChartX.ChartEvent.HISTORY_LOADED, { request, bars });
-
-    this._requests.delete(request.id);
 
     chart.hideWaitingBar();
     chart.updateIndicators();
@@ -171,10 +211,14 @@ export abstract class Datafeed implements IDatafeed {
     return this._requests.has(request.id);
   }
 
+  private _accomulateQuotes(quote: IQuote) {
+    this._quotes.push(quote);
+  }
 
   protected processQuote(request: IRequest, quote: IQuote): void {
     if (quote?.instrument?.symbol == null)
       return;
+
     const { chart } = request;
 
     if (!this.barHandler) {
@@ -182,10 +226,9 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     if (this.isRequestAlive(request)) {
-      this._details = this._mergeRealtimeDetails(quote, this._details);
+      this._accomulateQuotes(quote);
       return;
     }
-
 
     // if instrument is null then you operate with main bars otherwise with others bars datasiries(compare instruments)
     const instrument = chart.instrument.symbol == quote.instrument.symbol ? null : quote.instrument;
@@ -193,55 +236,76 @@ export abstract class Datafeed implements IDatafeed {
 
     if (!lastBar)
       return;
-    if (!quote.side) {
-      const bar = {
-        open: quote.price,
-        high: quote.price,
-        low: quote.price,
-        close: quote.price,
-        volume: quote.volume,
-        date: new Date(quote.date),
-        details: this._mergeRealtimeDetails(quote),
-      };
-      this.barHandler.processBar(bar);
-      chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
-    } else {
-      lastBar.close = quote.price;
-      lastBar.volume += quote.volume;
 
-      if (lastBar.high < quote.price)
-        lastBar.high = quote.price;
+    const bar = {
+      open: quote.price,
+      high: quote.price,
+      low: quote.price,
+      close: quote.price,
+      volume: quote.volume,
+      date: new Date(quote.date),
+    };
+    this._processBar(bar);
+    chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
 
-      if (lastBar.low > quote.price)
-        lastBar.low = quote.price;
-
-      this.barHandler.processBar(lastBar);
-      this._updateLastBarDetails(quote, chart, instrument);
-
-      chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
-    }
-
+    this._updateLastBarDetails(quote, chart, instrument);
     chart.updateIndicators();
+    chart.setNeedsUpdate();
+  }
+
+  private _processBar(bar) {
+    if (isInTimeRange(bar.date, this._session?.workingTimes)) {
+      const barResult = this.barHandler.processBar(bar);
+      if (barResult.action === BarAction.Add) {
+        this._historyItems.push(barResult.bar);
+      } else if (barResult.action === BarAction.Update) {
+        const lastBar = this._historyItems[this._historyItems.length - 1];
+        const barData = barResult.bar;
+        lastBar.close = barData.close;
+        if (barData.high > lastBar.high) {
+          lastBar.high = barData.high;
+        }
+        if (barData.low < lastBar.low) {
+          lastBar.low = barData.low;
+        }
+        lastBar.volume += barData.volume;
+        this._historyItems[this._historyItems.length - 1] = lastBar;
+      }
+    } else {
+      this._historyItems.push(bar);
+    }
   }
 
   private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
-    const lastDetails = detailsDataSeries?.lastValue as IDetails[];
-    if (!lastDetails)
+    if (!detailsDataSeries)
       return;
 
-    const details = this._mergeRealtimeDetails(quote, lastDetails);
+    let lastDetails = detailsDataSeries.lastValue as IDetails[];
+    if (!lastDetails) {
+      detailsDataSeries.setValue(detailsDataSeries.length - 1, []);
+      lastDetails = detailsDataSeries.lastValue as IDetails[];
+    }
+
+    const details = handleNewQuote(quote, lastDetails);
 
     detailsDataSeries.updateLast(details);
   }
 
-  private _mergeRealtimeDetails(quote: IQuote, details: IDetails[] = null): IDetails[] {
-    const { volume, tradesCount: _tradesCount, price } = quote;
-    const tradesCount = _tradesCount ?? volume;
+  protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
+    return chart.dataManager.getLastBar(instrument);
+  }
+}
 
-    const tmpItem: IDetails = {
+function handleNewQuote(quote: IQuote, details: IDetails[]) {
+  const { volume, tradesCount: _tradesCount, price } = quote;
+  const tradesCount = _tradesCount ?? volume;
+  let item = details.find(i => i.price === price);
+
+  if (!item) {
+    item = {
       bidInfo: {
         volume: 0,
         tradesCount: 0
@@ -255,69 +319,22 @@ export abstract class Datafeed implements IDatafeed {
       price
     };
 
-    switch (quote.side) {
-      case OrderSide.Sell:
-        tmpItem.bidInfo.volume = volume;
-        tmpItem.bidInfo.tradesCount = tradesCount;
-        break;
-      case OrderSide.Buy:
-        tmpItem.askInfo.volume = volume;
-        tmpItem.askInfo.tradesCount = tradesCount;
-        break;
-    }
-
-    if (!Array.isArray(details) || !details.length) {
-      return [tmpItem];
-    }
-
-    const item = details.find(i => i.price === price);
-
-    if (!item) {
-      details.push(tmpItem);
-
-      return details;
-    }
-
-    switch (quote.side) {
-      case OrderSide.Sell:
-        item.bidInfo.volume += volume;
-        item.bidInfo.tradesCount += tradesCount;
-        break;
-      case OrderSide.Buy:
-        item.askInfo.volume += volume;
-        item.askInfo.tradesCount += tradesCount;
-        break;
-    }
-
-    item.volume += volume;
-    item.tradesCount += tradesCount;
-
-    return details;
+    details.push(item);
   }
 
-  private _mergeDetails(chart: IChart, instrument?: IStockChartXInstrument) {
-    const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
-    const barDataSeries = chart.dataManager.barDataSeries(symbol);
-    const detailsDataSeries = barDataSeries.details;
-    const lastDetails = detailsDataSeries.lastValue as IDetails[];
-
-    this._details.forEach(tmpItem => {
-      const item = lastDetails.find(i => i.price === tmpItem.price);
-
-      if (item) {
-        item.bidInfo.volume += tmpItem.bidInfo.volume;
-        item.bidInfo.tradesCount += tmpItem.bidInfo.tradesCount;
-        item.askInfo.volume += tmpItem.askInfo.volume;
-        item.askInfo.tradesCount += tmpItem.askInfo.tradesCount;
-        item.volume += tmpItem.volume;
-        item.tradesCount += tmpItem.tradesCount;
-      }
-    });
-
-    detailsDataSeries?.updateLast(lastDetails);
+  switch (quote.side) {
+    case OrderSide.Sell:
+      item.bidInfo.volume += volume;
+      item.bidInfo.tradesCount += tradesCount;
+      break;
+    case OrderSide.Buy:
+      item.askInfo.volume += volume;
+      item.askInfo.tradesCount += tradesCount;
+      break;
   }
 
-  protected _getLastBar(chart: IChart, instrument?: IStockChartXInstrument): IBar {
-    return chart.dataManager.getLastBar(instrument);
-  }
+  item.volume += volume;
+  item.tradesCount += tradesCount;
+
+  return details;
 }

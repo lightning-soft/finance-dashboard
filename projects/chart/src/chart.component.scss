@@ -8,6 +8,11 @@
 
 $toolbarMargin: 4px;
 
+loader {
+  z-index: 100;
+  top: 22px;
+}
+
 .form-header {
   font-size: 0.7rem;
   line-height: 1rem;
@@ -161,9 +166,12 @@ side-form {
         width: 20px;
         background-position: center;
         background-size: 16px;
+        background-repeat: no-repeat;
 
         &.active {
+          background-color: $lighter;
           color: $primary !important;
+          background-size: 12px;
         }
 
         &:not(:first-child) {
@@ -538,14 +546,28 @@ side-form {
   }
 
   .confirm-order {
+    margin: 0;
+
     .ant-modal-content {
       width: 379px;
+      animation: fadeIn 0.3s;
 
       .ant-modal-body {
         padding: 30px 40px;
         width: 376px;
         min-width: 376px;
       }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.3) translateY(100px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
 

@@ -36,6 +36,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   splitConnections = false;
   @ViewChild('userData') userData: AcccountFormComponent;
   isSubmitted = false;
+  connectOnStartUp = true;
+
+  selectItemIndex = -1;
 
   constructor(
     protected _accountsManager: AccountsManager,
@@ -71,8 +74,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         this.builder.replaceItems(connections);
-        const items = this.builder.items;
-        this.selectedItem = this.selectedItem ? { ...items.find(i => i.id === this.selectedItem?.id) } : items[0];
+        if (!this.selectedItem && connections.length) {
+          const index = 0;
+          this.selectItem(connections[index], index);
+        } else {
+          this._updateSelectedItem();
+        }
         this.expandBrokers();
       });
 
@@ -86,9 +93,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
             return;
           }
           if (this.builder.items.length >= maxAccountsPerConnection) {
-            this.selectItem(this.builder.items[0]);
-          } else if (this.brokers.length)
-            this.openCreateForm(null, this.brokers[0]);
+            const index = 0;
+            this.selectItem(this.builder.items[index], index);
+          } else if (this.brokers.length) {
+            const index = 0;
+            this.openCreateForm(null, this.brokers[index]);
+          }
 
           this.expandBrokers();
           this._updateSelectedItem();
@@ -98,11 +108,30 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   ngAfterViewInit() {
-    this.form.controls.connectOnStartUp.valueChanges.subscribe(connect => {
-      if (connect) {
-        this.userData?.form?.controls?.autoSavePassword?.setValue(true);
-      }
-    });
+    this.form.controls.connectOnStartUp.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe(connect => {
+        this.connectOnStartUp = connect;
+        if (connect) {
+          this.selectedItem.autoSavePassword = true;
+          this.userData?.form?.controls?.autoSavePassword?.setValue(true);
+        }
+
+        this.selectedItem.connectOnStartUp = connect;
+      });
+  }
+
+  handleAutosavePasswordToggle(autosave: boolean): void {
+    if (!autosave) {
+      this.form.controls.connectOnStartUp.setValue(false);
+      this.selectedItem.connectOnStartUp = false;
+    }
+
+    this.selectedItem.autoSavePassword = autosave;
+  }
+
+  turnOffAutoConnect(): void {
+    this.connectOnStartUp = false;
   }
 
   contextMenu($event: MouseEvent, menu: any): void {
@@ -110,6 +139,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   saveState(): AccountsState {
+    this._updateConnection({ ...this.selectedItem });
     return { selectedItem: this.selectedItem };
   }
 
@@ -121,6 +151,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
+  private _updateConnection(connection: IConnection): void {
+    this._accountsManager.updateItem({ ...connection })
+      .pipe(this.showItemLoader(connection), untilDestroyed(this))
+      .subscribe({
+        error: (error) => {
+          this._notifier.showError(error);
+        }
+      });
+  }
+
   private _updateSelectedItem(): void {
     if (this.selectedItem) {
       const item = this.builder.items.find(data => data.id === this.selectedItem.id);
@@ -130,7 +170,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   getConnectionsByBroker(broker: IBroker): IConnection[] {
-    return this.builder.getItems('broker', broker.name);
+    return this.builder.getItems('broker', broker?.name);
   }
 
   canAddAccount(broker: IBroker): boolean {
@@ -152,11 +192,14 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
   openCreateForm(event: MouseEvent, broker: IBroker): void {
     event?.stopPropagation();
-    if (this.canAddAccount(broker))
-      this.selectItem({ broker: broker.name } as IConnection);
+    if (this.canAddAccount(broker)) {
+      const item = { broker: broker.name } as IConnection
+      this.selectItem(item);
+    }
   }
 
-  selectItem(item: IConnection): void {
+  selectItem(item: IConnection, index = -1): void {
+    this.selectItemIndex = index;
     this.selectedItem = item;
     this.expandBrokers();
     this.isSubmitted = false;
@@ -172,7 +215,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       server = _server['name'];
 
     const { username, password, autoSavePassword, gateway, ...data } = item;
-    const userData = { username, password, server, gateway, autoSavePassword };
+    const userData = { username, password: autoSavePassword ? password : '', server, gateway, autoSavePassword };
     return { ...data, broker, userData };
   }
 
@@ -191,7 +234,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, ...userData };
+    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, name: this.selectedItem.name, ...userData };
   }
 
   create() {
@@ -207,18 +250,22 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       );
   }
 
-  rename(name, item) {
-    this._accountsManager.rename(name, item)
-      .pipe(
-        this.showItemLoader(item),
-        untilDestroyed(this)
-      ).subscribe(
-        (response: any) => {
-        },
-        err => {
-          this._notifier.showError(err);
-        },
-      );
+  rename(name: string, item: IConnection): void {
+    this._updateConnection({ ...item, name });
+  }
+
+  updateItem() {
+    return this._accountsManager.updateItem(this.getValue())
+      .pipe(this.showItemLoader(this.selectedItem),
+        tap((item: any) => {
+          if (!item.error)
+            this.selectedItem = item;
+          else {
+            this._notifier.showError('Failed to save item');
+          }
+        }),
+        untilDestroyed(this),
+      ).toPromise();
   }
 
   connect() {
@@ -245,11 +292,34 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       );
   }
 
-  makeDefault(item: IConnection) {
+  makeDefault(item: IConnection, index = -1) {
     this._accountsManager.makeDefault(item).subscribe(
-      (response: any) => null,
+      (response: any) => {
+        this._updateSelectItemIndex(item);
+
+        const itemList = this.getConnectionsByBroker(this.selectedBroker);
+        if (index !== -1) this.selectItemIndex = index;
+        this.selectItem(itemList[this.selectItemIndex], this.selectItemIndex);
+      },
       err => this._notifier.showError(err),
     );
+  }
+
+  private _updateSelectItemIndex(item: IConnection): void {
+    if (this.selectItemIndex === -1) {
+      this.selectItemIndex = this.getConnectionsByBroker(this.selectedBroker).findIndex(i => i.name === item.name);
+    }
+  }
+
+  turnOffConnect(): void {
+    for (const broker of this.brokers) {
+      for (const item of this.getConnectionsByBroker(broker)) {
+        if (item.connected && !item.isDefault) {
+          this.makeDefault(item, this.selectItemIndex);
+          return;
+        }
+      }
+    }
   }
 
   _disconnect(item: IConnection) {
@@ -263,7 +333,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Do you want to delete ${item.name}?`,
+      nzContent: `Do you want to delete ${ item.name }?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
@@ -273,7 +343,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         this._accountsManager.deleteConnection(item)
           .pipe(this.showItemLoader(item), untilDestroyed(this))
           .subscribe(
-            () => this.selectItem(null),
+            () => {
+              const index = 0;
+              this.selectItem(this.builder.items[index], index);
+            },
             err => this._notifier.showError(err),
           );
       },

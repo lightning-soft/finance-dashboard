@@ -148,7 +148,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       ...this.getApiHeadersByAccount(item.accountId ?? dto.accountId),
       params: query
     }).pipe(
-      map((response: any) => response.result),
+      map((response: any) => this._mapResponseItem(response.result)),
       tap(this._onUpdate),
     );
   }
@@ -199,8 +199,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   }
 
   _mapResponseItem(item: IOrder) {
-    if (item.instrument.description)
-      item.description = item.instrument.description;
+    item.description = item.instrument.description ?? '';
 
     return item;
   }

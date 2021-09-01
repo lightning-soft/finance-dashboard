@@ -119,7 +119,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {
-        'Api-Key': apiKey,
+        'Api-Key': apiKey ?? '',
       },
     });
   }

@@ -6,12 +6,10 @@ import { IBar } from '../models';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
-import * as moment from 'moment';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
+const MAX_HISTORY_ITEMS = 10000;
 declare let StockChartX: any;
-export const MAX_HISTORY_ITEMS = 10000;
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
@@ -20,6 +18,7 @@ export class RithmicDatafeed extends Datafeed {
 
   private _unsubscribeFns: VoidFunction[] = [];
   requestSubscriptions = new Map<number, Subscription>();
+  private _isMoreBarsActive = false;
 
   constructor(
     protected _injector: Injector,
@@ -66,26 +65,28 @@ export class RithmicDatafeed extends Datafeed {
       this.lastInterval = endDate.getTime() - startDate.getTime();
 
     if (kind === 'moreBars') {
+      this._isMoreBarsActive = true;
       startDate = new Date(endDate.getTime() - this.lastInterval);
       this.makeRequest(instrument, request, timeFrame, endDate, startDate);
 
       return;
     }
 
+    this._isMoreBarsActive = false;
     this.makeRequest(instrument, request, timeFrame, endDate, startDate);
   }
 
   makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
-    const { symbol, exchange } = instrument;
+    const { exchange, productCode } = instrument;
 
     const params = {
-      Symbol: symbol,
+      productCode,
       Exchange: exchange,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: this._convertInterval(timeFrame),
-      endDate: moment(endDate).format(dateFormat),
+      endDate,
       accountId: this._account?.id,
-      startDate: moment(startDate).format(dateFormat),
+      startDate,
       PriceHistory: true,
     };
 
@@ -112,6 +113,7 @@ export class RithmicDatafeed extends Datafeed {
   protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
     super.onRequestCompleted(request, bars);
     this.requestSubscriptions.delete(request.id);
+    this._isMoreBarsActive = false;
   }
 
   cancel(request: IRequest) {
@@ -162,7 +164,7 @@ export class RithmicDatafeed extends Datafeed {
 
     this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, this._account.connectionId));
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint, connectionId) => {
-      if (connectionId !== this._account.connectionId)
+      if (connectionId !== this._account?.connectionId)
         return;
 
       const quoteInstrument = quote.instrument;

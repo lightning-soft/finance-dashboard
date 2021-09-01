@@ -138,11 +138,10 @@ export function getHistogramColor(label = 'Histogram Color', key = 'histogramCol
     type: FieldType.Color,
     default: histogramBackgroundColor,
     templateOptions: { label },
-    getCss: (value) => ({ ' .histogram': { background: (value && value[key]) ?? histogramBackgroundColor } }),
   };
 }
 
-export function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn) {
+export function getColor(label: string | any) {
   const _label = typeof label === 'string' ? label : label.label;
 
   if (!label)
@@ -153,23 +152,11 @@ export function getColor(label: string | any, cssAttrOrFn?: string | EjectCssFn)
   if (!key)
     key = lowerFirstLetter(_label.replace(/ /g, ''));
 
-  if (!cssAttrOrFn)
-    cssAttrOrFn = label.attr;
-
-  if (!cssAttrOrFn)
-    cssAttrOrFn = label.getCss;
-
-  if (!cssAttrOrFn)
-    cssAttrOrFn = _label.replace(/ /g, '-').toLowerCase();
-
   return {
     key,
     name: key,
     type: FieldType.Color,
     templateOptions: { label: _label },
-    getCss: typeof cssAttrOrFn == 'function'
-      ? (value) => (cssAttrOrFn as Function)((value && value[key]))
-      : (value) => ({ [cssAttrOrFn as string]: (value && value[key]) }),
   };
 }
 
@@ -298,6 +285,16 @@ export function getCheckboxes(_config: any) {
       };
     }), ...additionalFields],
     ...extraConfig,
+  };
+}
+
+export function getSessionSelect(key, label) {
+  return {
+    type: FieldType.SessionsSelect,
+    key,
+    templateOptions: {
+      label,
+    },
   };
 }
 

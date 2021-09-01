@@ -24,6 +24,7 @@ import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position
 import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { IStockChartXInstrument } from 'chart';
 
 declare const StockChartX;
 
@@ -133,7 +134,17 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
   //   "tironeLevels", "speedLines", "gannFan", "trendAngle"];
 
-  drawingInstruments = drawings;
+  drawingInstruments = drawings.map(item => {
+    const formattedName = this.transformToUIName(item);
+    const classItem = this.transformToClassName(item);
+    return {
+      ...item, className: classItem, formattedName, items: item.items.map(subItem => {
+        const formattedSubName = this.transformToUIName(subItem);
+        const classSubItem = this.transformToClassName(subItem);
+        return { ...subItem, className: classSubItem, formattedName: formattedSubName };
+      }),
+    };
+  });
 
   @HostBinding('class.opened')
   get isOpened() {
@@ -162,7 +173,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       chart.instrument = {
         ...instrument,
         company: '',
-      };
+      } as IStockChartXInstrument;
       chart.sendBarsRequest();
     });
   }
@@ -421,6 +432,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
   public transformToClassName(drawing: any): string {
     const str = drawing?.className ?? drawing;
+    if (typeof str !== 'string')
+      return '';
+
     const className = str.replace(/[A-Z]/g, '-$&').toLowerCase();
     return className;
   }

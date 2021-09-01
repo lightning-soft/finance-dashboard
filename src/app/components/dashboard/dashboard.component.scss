@@ -7,11 +7,14 @@ $nav-height: 42px;
   height: 100%;
 }
 
+:host-context(.electron) app-navbar {
+  width: calc(100% - 2px);
+}
+
 .empty-container {
   color: $text-60;
   font-size: 0.8rem;
 }
-
 
 
 app-navbar {

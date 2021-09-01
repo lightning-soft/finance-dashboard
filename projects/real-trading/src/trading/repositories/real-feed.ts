@@ -1,8 +1,9 @@
 import { Inject, Injectable, Injector } from '@angular/core';
 import { AccountsManager } from 'accounts-manager';
-import { IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
-import { Feed, OnUpdateFn, UnsubscribeFn } from 'trading';
+import { AlertType, ConnectionId, IBaseItem, Id, WebSocketService, WSEventType } from 'communication';
+import { Feed, IInstrument, OnUpdateFn, UnsubscribeFn } from 'trading';
 import { RealtimeType } from './realtime';
+import { MessageTypes } from 'notification';
 
 export enum WSMessageTypes {
   SUBSCRIBE = 'subscribe',
@@ -15,18 +16,20 @@ export enum WSMessageTypes {
 export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
   private _subscriptions: {
-    [hash: string]: {
-      count: number,
-      payload: object,
+    [connectionId: string]: {
+      [instrumentId: string]: {
+        count: number,
+        payload: object,
+      }
     }
   } = {};
   private _unsubscribeFns = {};
-  private _executors: OnUpdateFn<T>[] = [];
+  private _executors: OnUpdateFn<T> [] = [];
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
 
-  private _pendingRequests = [];
+  private _pendingRequests = {} as any;
 
   constructor(
     protected _injector: Injector,
@@ -56,68 +59,103 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     const items = Array.isArray(data) ? data : [data];
 
     items.forEach(item => {
-      if (!item) {
+      if (!item)
         return;
-      }
 
       const subscriptions = this._subscriptions;
-      const hash = this._getHash(item, connectionId);
+      if (!subscriptions[connectionId])
+        subscriptions[connectionId] = {} as any;
+
+      if (!subscriptions[connectionId][item.id])
+        subscriptions[connectionId][item.id] = {} as any;
 
       if (type === this.subscribeType) {
-        if (!subscriptions[hash]?.hasOwnProperty('count'))
-          subscriptions[hash] = {} as any;
-        subscriptions[hash].count = (subscriptions[hash]?.count || 0) + 1;
-        if (subscriptions[hash].count === 1) {
+        if (!subscriptions[connectionId][item.id]?.hasOwnProperty('count'))
+          subscriptions[connectionId][item.id] = {} as any;
+
+        const subs =  subscriptions[connectionId][item.id];
+        subs.count = (subs?.count || 0) + 1;
+        if (subs.count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
-          this._unsubscribeFns[hash] = () => this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
-          subscriptions[hash].payload = dto;
-          // if (this.connection?.connected)
-          this._webSocketService.send({ Type: type, ...dto }, connectionId);
-          // else
-          //   this.createPendingRequest(type, dto);
+
+          if (!this._unsubscribeFns[connectionId])
+            this._unsubscribeFns[connectionId] = {};
+
+          this._unsubscribeFns[connectionId][item.id] = () =>
+            this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
+          subs.payload = dto;
+          const connection = this._accountsManager.getConnection(connectionId);
+
+          if (connection?.connected)
+            this._webSocketService.send({ Type: type, ...dto }, connectionId);
+          else
+            this.createPendingRequest(type, dto, connectionId);
         }
       } else {
-        if (!subscriptions[hash])
+        const subs = subscriptions[connectionId][item.id];
+        if (subs)
           return;
-        subscriptions[hash].count = (subscriptions[hash]?.count || 1) - 1;
-        if (subscriptions[hash].count === 0) {
-          if (this._unsubscribeFns[hash]) {
-            this._unsubscribeFns[hash]();
-            delete this._unsubscribeFns[hash];
+
+        subs.count = (subs?.count || 1) - 1;
+        if (subs.count === 0) {
+          if (this._unsubscribeFns[connectionId] && this._unsubscribeFns[connectionId][item.id]) {
+            this._unsubscribeFns[connectionId][item.id]();
+            delete this._unsubscribeFns[connectionId][item.id];
           }
         }
       }
     });
   }
 
-  // private createPendingRequest(type, payload) {
-  //   this._pendingRequests.push(() => this.send({ Type: type, ...payload }));
-  // }
+  private createPendingRequest(type, payload, connectionId) {
+    if (this._pendingRequests[connectionId] == null)
+      this._pendingRequests[connectionId] = [];
 
-  protected _getHash(instrument: I, connectionId: Id) {
-    return `${connectionId}/${instrument.id}`;
+    this._pendingRequests[connectionId].push(() => this._webSocketService.send({ Type: type, ...payload }, connectionId));
   }
 
-  // protected _getFromHash(hash: string): I {
-  //   const [symbol, exchange] = hash.split('.');
+  protected _getHash(instrument: IInstrument, connectionId: Id) {
+    return `${ connectionId }/${ instrument.id }`;
+  }
 
-  //   return {
-  //     symbol,
-  //     exchange
-  //   } as any;
-  // }
+// protected _getFromHash(hash: string): I {
+//   const [symbol, exchange] = hash.split('.');
 
-  protected _onSucessfulyConnect() {
-    this._pendingRequests.forEach(fn => fn());
-    this._pendingRequests = [];
+//   return {
+//     symbol,
+//     exchange
+//   } as any;
+// }
+
+  protected _onSucessfulyConnect(connectionId: Id) {
+    const pendingRequests = this._pendingRequests[connectionId];
+    if (!pendingRequests)
+      return;
+
+    pendingRequests.forEach(fn => fn());
+    this._pendingRequests[connectionId] = [];
+  }
+
+  _onDisconnect(connectionId: Id) {
+    const subscriptions = this._subscriptions[connectionId];
+    if (!subscriptions)
+      return;
+
+    this._pendingRequests[connectionId] = [];
+    Object.values(subscriptions)
+      .map(item => this.createPendingRequest(WSMessageTypes.SUBSCRIBE, item.payload, connectionId));
   }
 
   protected _handleUpdate(data, connectionId: Id): boolean {
     const { type, result } = data;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
-      this._onSucessfulyConnect();
+      this._onSucessfulyConnect(connectionId);
       return;
+    }
+
+    if (type === MessageTypes.CONNECT && result.connectionId === ConnectionId.MarketData && result.type == AlertType.ConnectionClosed) {
+      this._onDisconnect(connectionId);
     }
 
     if (type !== this.type || !result || !this._filter(result))

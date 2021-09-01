@@ -32,6 +32,8 @@ import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, IStateProvider, LayoutNode, LayoutNodeEvent } from 'layout';
+import { NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
 import {
   AccountsListener,
   filterByAccountAndInstrument,
@@ -42,10 +44,13 @@ import {
 } from 'real-trading';
 import { finalize } from 'rxjs/operators';
 import { TradeHandler } from 'src/app/components';
+import { Components } from 'src/app/modules';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   compareInstruments,
   getPrice,
   getPriceSpecs,
+  HistoryRepository,
   IAccount,
   IInstrument,
   IOrder,
@@ -71,14 +76,15 @@ import {
   VolumeHistoryRepository
 } from 'trading';
 import { IWindow, WindowManagerService } from 'window-manager';
+import { IDomPresets, IDomState } from '../models';
 import { DomSettingsSelector, IDomSettingsEvent, receiveSettingsKey } from './dom-settings/dom-settings.component';
 import { DomSettings } from './dom-settings/settings';
 import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
-import { HistogramCell } from './histogram/histogram.cell';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
+import { VolumeCell } from './histogram';
 
-export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe {
+export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
 
 export class DomItemMax {
@@ -135,16 +141,6 @@ export class DomItemMax {
 const ROWS = 800;
 const DOM_HOTKEYS = 'domHotkeys';
 
-interface IDomState {
-  instrument: IInstrument;
-  settings?: any;
-  componentInstanceId: number;
-  columns: any;
-  contextMenuState: any;
-  account?: IAccount;
-  link: string | number;
-}
-
 enum FormDirection {
   Left = 'window-left',
   Right = 'window-right',
@@ -190,11 +186,11 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
   templateUrl: './dom.component.html',
   styleUrls: ['./dom.component.scss'],
 })
+@LayoutPresets()
 @LayoutNode()
 @AccountsListener()
 @BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
-  MIN_LOADING_TIME = 400;
 
   get accountId() {
     return this.account?.id;
@@ -246,6 +242,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.instrument?.tickSize ?? 0.25;
   }
 
+  eth;
+  rth;
+
+  Components = Components;
+
   constructor(
     private _ordersRepository: OrdersRepository,
     private _positionsRepository: PositionsRepository,
@@ -255,11 +256,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     private _levelOneDatafeed: Level1DataFeed,
     private _tradeDatafeed: TradeDataFeed,
     private _volumeHistoryRepository: VolumeHistoryRepository,
+    private _historyRepository: HistoryRepository,
     protected _injector: Injector,
     private _ohlvFeed: OHLVFeed,
     private _windowManagerService: WindowManagerService,
     private _tradeHandler: TradeHandler,
-    protected _changeDetectorRef: ChangeDetectorRef
+    protected _changeDetectorRef: ChangeDetectorRef,
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
+    public readonly _notifier: NotifierService,
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -279,7 +284,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._lastBidItem = this._getItem(null);
     this._lastTradeItem = this._getItem(null);
 
-    this.columns = headers.map(convertToColumn);
+    this.columns = headers.map(item => convertToColumn(item));
 
     if (!environment.production) {
       this.columns.unshift(convertToColumn('_id'));
@@ -527,6 +532,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   protected _ttt = 0;
 
+  private _calcTickSize() {
+    const { ticksMultiplier, useCustomTickSize } = this._settings.general.commonView;
+    const multiplier = useCustomTickSize ? ticksMultiplier : 1;
+    return multiplier * this._tickSize;
+  }
+
   handleLinkData({ instrument, account }) {
     if (instrument)
       this.instrument = instrument;
@@ -606,7 +617,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   ngAfterViewInit() {
-    // this._handleResize();
+    this._handleResize();
     // this._ordersRepository.actions
     //   .pipe(untilDestroyed(this))
     //   .subscribe((action) => this._handleOrdersRealtime(action));
@@ -620,8 +631,19 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     );
 
     this._onInstrumentChange(this.instrument);
-    this.domForm?.loadState(this._settings.orderArea as any);
+    this.domForm.loadState(this._initialState.orderForm);
   }
+
+  save(): void {
+    const presets: IDomPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.Dom
+    };
+
+    this.savePresets(presets);
+  }
+
 
   handleAccountChange(account: IAccount) {
     this._loadData();
@@ -642,7 +664,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ DomSettingsSelector }`;
+    return `${this.componentInstanceId}.${DomSettingsSelector}`;
   }
 
   private _linkSettings = (settings: DomSettings) => {
@@ -651,7 +673,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const common = settings.common;
     const general = settings?.general;
-    const getFont = (fontWeight) => `${ fontWeight || '' } ${ common.fontSize }px ${ common.fontFamily }`;
+    const getFont = (fontWeight) => `${fontWeight || ''} ${common.fontSize}px ${common.fontFamily}`;
     const hiddenColumns: any = {};
 
     const hasSplitOrdersChanged = this._settings.orders.split !== settings.orders.split;
@@ -740,8 +762,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       for (const _key in obj) {
         if (obj.hasOwnProperty(_key)) {
-          deltaStyles[`${ key }${ _key }`] = obj[_key];
-          deltaStyles[`${ key }${ capitalizeFirstLetter(_key) }`] = obj[_key];
+          deltaStyles[`${key}${_key}`] = obj[_key];
+          deltaStyles[`${key}${capitalizeFirstLetter(_key)}`] = obj[_key];
         }
       }
     }
@@ -759,6 +781,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.centralize();
       // this._calculateDepth();
     }
+    const sessions = this._settings.volume.sessions;
+    const { eth, rth } = sessions;
+
+    const oldEth = this.eth;
+    const oldRth = this.rth;
+    const hasSessionChanged = oldEth?.id !== eth?.id || oldRth?.id !== rth?.id;
+
+    this.eth = eth;
+    this.rth = rth;
 
     for (const i of this.items) {
       i.ltq.changeStatus('');
@@ -766,6 +797,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.currentAsk.changeStatus('');
       i.totalAsk.changeStatus('');
       i.totalBid.changeStatus('');
+      if (hasSessionChanged)
+        i.volume.recalculateVolume();
     }
 
     const depth = settings.general?.marketDepth;
@@ -773,8 +806,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
     this.domForm?.loadState(this._settings.orderArea as any);
 
-    // this._calculateDepth();
     this.refresh();
+    this._updateVolumeColumn();
     this.detectChanges(true);
   }
 
@@ -1016,12 +1049,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
-          for (const vol of res.data) {
-            const item = this._getItem(vol.price);
-            item.setVolume(vol.volume);
-          }
+          /*  for (const vol of res.data) {
+              const item = this._getItem(vol.price);
+              item.setVolume(vol.volume);
+            }*/
+          console.log('volumeHistory', res.data.reduce((total, item) => {
+            return total + item.volume;
+          }, 0));
 
-          this._updateVolumeColumn();
+          // this._updateVolumeColumn();
         },
         error => this.notifier.showError(error)
       );
@@ -1044,11 +1080,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           asks.sort((a, b) => b.price - a.price);
 
           if (asks.length || bids.length) {
-            let index = 0;
             let price = this._normalizePrice(asks[asks.length - 1]?.price);
             const tickSize = this._tickSize;
 
-            index = 0;
+
             price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
             this.fillData(price);
@@ -1078,9 +1113,62 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this.refresh();
           this._fillPL();
           this._loadOrders();
-          this._loadVolumeHistory();
+          this.loadSessionsData();
         },
         error => this.notifier.showError(error)
+      );
+
+  }
+
+  loadSessionsData() {
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date();
+
+    const { symbol, exchange } = this._instrument;
+    const params = {
+      Symbol: symbol,
+      Exchange: exchange,
+      startDate, endDate,
+      barSize: 1,
+      periodicity: 'Minute',
+      accountId: this.accountId,
+      PriceHistory: true,
+    };
+
+    this._historyRepository.getItems(params)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        ({ data }) => {
+          let volumeItems = [];
+          this.items.forEach(item => item.volume.clear());
+
+          for (const item of data) {
+            for (const detail of item.details) {
+              volumeItems.push(({
+                date: item.date,
+                volume: detail.volume,
+                price: detail.price,
+              }));
+            }
+          }
+
+          volumeItems = volumeItems.sort((a, b) => a.date - b.date);
+          console.log('volumeItems', volumeItems);
+
+          for (const volumeData of volumeItems) {
+            const item = this._getItem(volumeData.price);
+            // item.volume.clear();
+            item.volume.updateValue(volumeData.volume, volumeData.date);
+          }
+          this._updateVolumeColumn();
+          // console.log('historyItems', this.volumeItems.reduce((total, item) => total + item.volume, 0));
+          // this.fillSessionVolume();
+        },
+        (err) => {
+          console.error(err);
+          this.notifier.showError('Error during fetching history data');
+        }
       );
   }
 
@@ -1105,9 +1193,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.account.id != this.account.id || order.instrument?.id !== this.instrument?.id) continue;
+      if (order.account.id !== this.account.id || order.instrument?.id !== this.instrument?.id) continue;
 
-      this.items.forEach(item => item.removeOrder(order));
+      this.items.forEach(i => i.removeOrder(order));
       this._fillOrders(order);
 
       const item = this._getItem(getPrice(order));
@@ -1275,6 +1363,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._customTickSize = ticksMultiplier;
     grid.scrollTop = centerIndex * grid.rowHeight - visibleRows / 2 * grid.rowHeight;
     this._fillPL();
+    this.refresh(); // for fill correct index
     this.detectChanges();
   }
 
@@ -1330,6 +1419,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     this._counter++;
     const prevltqItem = this._lastTradeItem;
+    const prevHandled = !prevltqItem || prevltqItem.price == null;
     let needCentralize = false;
     const max = this._max;
     // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
@@ -1374,7 +1464,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
-    if (!prevltqItem || needCentralize)
+    if (!prevHandled || needCentralize)
       this.centralize();
 
     this._lastTrade = trade;
@@ -1415,6 +1505,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let maxCurrentAsk = 0;
     let maxCurrentBid = 0;
 
+    let maxVolume = 0;
+    let maxSessionVolume = 0;
+
     const items = this.items;
 
     for (let i = 0; i < items.length; i++) {
@@ -1438,6 +1531,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       sum += value;
       priceSum += (value * item.lastPrice);
 
+      if (value > maxVolume)
+        maxVolume = value;
+
+      const ethVolume = item.volume.ethVolume;
+
+      if (ethVolume > maxSessionVolume)
+        maxSessionVolume = ethVolume;
+
       if (value > max) {
         max = value;
         pointOfControlIndex = i;
@@ -1452,9 +1553,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let valueAreaSum = 0;
     let item1: DomItem;
     let item2: DomItem;
-    let volume1: HistogramCell;
-    let volume2: HistogramCell;
-    const maxVolume = items[pointOfControlIndex]?.volume?._value || 0;
+    let volume1: VolumeCell;
+    let volume2: VolumeCell;
 
     while (!ended) {
       item1 = items[pointOfControlIndex + i];
@@ -1509,6 +1609,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
 
+      volume1?.setMaxEthVolume(maxSessionVolume);
+      volume2?.setMaxEthVolume(maxSessionVolume);
       volume1?.calcHist(maxVolume);
       volume2?.calcHist(maxVolume);
 
@@ -1600,10 +1702,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!items.length)
       this.fillData(trade.price);
 
+    item.handleQuote(trade);
+
     const isBid = trade.side === QuoteSide.Bid;
     const size = (isBid ? item.bid._value : item.ask._value) ?? 0;
-
-    item.handleQuote(trade);
 
     if ((isBid && item.isBidSum) || (!isBid && item.isAskSum)) {
       return;
@@ -1857,24 +1959,64 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   afterDraw = (e, grid) => {
-    if (!this._settings.general?.commonView?.centerLine)
-      return;
+    const ctx = e.ctx;
+    let fn;
+
+    const centerLineEnabled = this._settings.general?.commonView?.centerLine;
+    const lastItemIndex = this.items.length - 1;
+    const volumeColumn = grid.schema.find(item => item.name == DOMColumns.Volume);
+
+    const enableEth = this._settings.volume.sessions.histogramEnabled;
+    let x;
+
+    if (enableEth)
+      grid.forEachColumn((column, columnX) => {
+        if (column.name == DOMColumns.Volume)
+          x = columnX;
+      });
+
+    const showColumnHeaders = grid.attributes.showColumnHeaders;
+    const headerHeight = grid.attributes.showColumnHeaders ? (grid.style.headerHeight || grid.style.rowHeight) : 0;
+    const height = grid.style.rowHeight + grid.style.rowOffset;
+    ctx.beginPath();
+    ctx.save();
 
     grid.forEachRow((row, y) => {
-      if (!row.isCenter)
-        return;
+      if (enableEth && (!showColumnHeaders || y >= headerHeight))
+        this.drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x });
 
-      const ctx = e.ctx;
-      const width = e.ctx.canvas.width;
-      const rowHeight = grid.style.rowHeight;
-      y += rowHeight;
+      if (centerLineEnabled && row.isCenter) {
+        fn = () => {
+          const width = e.ctx.canvas.width;
+          const rowHeight = grid.style.rowHeight;
+          y += rowHeight;
 
-      ctx.beginPath();
-      ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
+          ctx.beginPath();
+          ctx.strokeStyle = this._settings.common?.generalColors?.centerLineColor;
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        };
+      }
     });
+    ctx.stroke();
+    ctx.restore();
+
+    if (fn)
+      fn();
+  }
+
+  private drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x }) {
+    const index = row.index;
+    let prevVolume;
+    if (index !== 0)
+      prevVolume = this.items[index - 1].volume;
+
+    let nextVolume;
+    if (index !== lastItemIndex)
+      nextVolume = this.items[index + 1].volume;
+
+    VolumeCell.drawETH(ctx, row.volume, prevVolume, nextVolume, height, y, volumeColumn.width, x);
   }
 
   transformAccountLabel(label: string) {
@@ -1970,6 +2112,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._tradeHandler.enableTrading();
     } else {
       this.isTradingEnabled = false;
+      this._tradeHandler.showDisableTradingAlert();
     }
   }
 
@@ -1989,6 +2132,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
+      orderForm: this.domForm.getState()
     };
   }
 
@@ -2146,11 +2290,27 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!item[column]?.canCancelOrder)
       return;
 
-    if (item.orders.hasOcoOrder()) {
-      this._clearOcoOrders();
+    let side = null;
+    let filter = (order) => true;
+
+    switch (column) {
+      case DOMColumns.AskDelta:
+      case DOMColumns.BuyOrders:
+        side = QuoteSide.Ask;
+        filter = (order) => order.side === OrderSide.Buy;
+        break;
+      case DOMColumns.BidDelta:
+      case DOMColumns.SellOrders:
+        side = QuoteSide.Bid;
+        filter = (order) => order.side === OrderSide.Sell;
+        break;
     }
-    if (item.orders?.orders?.length)
-      this._ordersRepository.deleteMany(item.orders.orders)
+
+    this._clearOcoOrders(side);
+    const orders = (item.orders?.orders ?? []).filter(filter);
+
+    if (orders.length)
+      this._ordersRepository.deleteMany(orders)
         .pipe(untilDestroyed(this))
         .subscribe(
           () => console.log('delete order'),
@@ -2191,11 +2351,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _clearOcoOrders() {
-    this.ocoStep = OcoStep.None;
-    this.secondOcoOrder = null;
-    this.firstOcoOrder = null;
-    this.items.forEach(item => item.clearOcoOrder());
+  _clearOcoOrders(side?: QuoteSide) {
+    if (this.items.every(item => item.clearOcoOrder(side) !== false)) {
+      this.ocoStep = OcoStep.None;
+      this.secondOcoOrder = null;
+      this.firstOcoOrder = null;
+    }
   }
 
   _createBuyMarketOrder() {
@@ -2244,7 +2405,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 
@@ -2315,3 +2476,10 @@ export function calculatePL(position: IPosition, price: number, tickSize: number
 
   return pl;
 }
+
+export function calculateDay(date, dayOfWeek) {
+  const currentDay = date.getDay();
+  const distance = dayOfWeek - currentDay;
+  return date.getDate() + distance;
+}
+

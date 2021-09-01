@@ -211,8 +211,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    */
   timeInterval: number;
 
-  startDate: Date;
-  endDate: Date;
+  setBarCount(value: number);
+
   /**
    * The bars time frame.
    * @name timeFrame
@@ -789,6 +789,10 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   applyTheme(): void;
 
   _updateHoverRecord(x: number): void;
+
+  setPixelsPrice(pixels: number): void;
+
+  getPixelsPrice(): number;
 
   /**
    * Returns bar data series.

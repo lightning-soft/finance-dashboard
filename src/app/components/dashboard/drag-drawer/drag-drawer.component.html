@@ -10,15 +10,16 @@
   <ul nz-menu class="side-navigation">
     <li nz-menu-item
         nz-submenu
+        *ngFor="let item of itemsWithPresets; let index = index"
         (nzOpenChange)="handleSubmenuOpenChange()"
-        (click)="openChart()"
-        [nzTitle]="chartSubmenuTemplate"
+        (click)="create(item)"
+        [nzTitle]="chartSubmenuPresets"
         class="side-navigation__item chart-submenu">
-      <ul *ngIf="templates[components.Chart]?.length">
+      <ul *ngIf="templates[item.component]?.length">
         <li nz-menu-item
             class="side-navigation__item submenu-item"
-            *ngFor="let template of templates[components.Chart]"
-            (click)="openChart(template)">
+            *ngFor="let template of templates[item.component]"
+            (click)="create(item, template)">
           <div class="title">
             {{template.name}}
           </div>
@@ -30,12 +31,13 @@
           </div>
         </li>
         <li nz-menu-divider class="divider"></li>
-        <li nz-menu-item class="side-navigation__item" (click)="openChart()">New Chart</li>
+        <li nz-menu-item class="side-navigation__item" (click)="create(item)">New {{componentNames[item.component]}}</li>
       </ul>
 
-      <ng-template #chartSubmenuTemplate>
-        <i class="icon-widget-chart"></i>
-        <span>Chart</span>
+      <ng-template #chartSubmenuPresets>
+        <i class="{{item.icon}}"></i>
+
+        <span>{{item.name}}</span>
       </ng-template>
     </li>
     <li

@@ -1855,7 +1855,7 @@ export const zigZagConfig: IFieldConfig[] = [
     key: 'dataBox',
     fieldGroupClassName: '',
     fieldGroup: [
-      wrapWithClass(getDataBox('dataBoxParams'), 'data-box-border'),
+      wrapWithClass(getDataBox('fields'), 'data-box-border'),
       getCheckboxes({
         extraConfig: {
           className: 'mt-2 d-block',

@@ -1,5 +1,6 @@
 @import "../../../scss/dark.theme";
 @import "themes/index";
+
 $height: 36px;
 
 :host {
@@ -39,6 +40,12 @@ $height: 36px;
       }
     }
   }
+}
+
+.window-name {
+  font-size: 0.9rem;
+  line-height: 1;
+  user-select: none;
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -175,6 +182,10 @@ $height: 36px;
           left: 50%;
           top: 23%;
         }
+
+        &.icon-save {
+          display: none;
+        }
       }
     }
   }
@@ -239,6 +250,16 @@ $height: 36px;
     font-size: 5px;
     margin-top: 3px;
     margin-left: 12px;
+  }
+}
+
+:host {
+  &.window-navbar .navigation-bar .preferences {
+    ::ng-deep button {
+      &.icon-save {
+        display: flex;
+      }
+    }
   }
 }
 

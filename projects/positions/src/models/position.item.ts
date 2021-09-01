@@ -87,6 +87,8 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     return this.position && this.position.id;
   }
 
+  private _closed = false;
+
   constructor(public position?: IPosition) {
     super();
     if (!position) {
@@ -121,7 +123,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       PositionColumn.buyVolume,
     ];
 
-    for (let key of fields) {
+    for (const key of fields) {
       this[key].updateValue(position[key]);
     }
 
@@ -133,9 +135,23 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     this._updateCellProfitStatus(this.unrealized);
     this._updateCellProfitStatus(this.realized);
     this._updateCellProfitStatus(this.total);
+
+    if (position.side === Side.Closed) {
+      this._closed = true;
+      this.unrealized.clear();
+      if (this.realized._value === 0)
+        this.realized.clear();
+      if (this.total._value === 0)
+        this.total.clear();
+    } else {
+      this._closed = false;
+    }
   }
 
   public updateUnrealized(trade: TradePrint, connectionId: Id) {
+    if (this._closed)
+      return;
+
     const position = this.position;
     const instrument = this._instrument;
 

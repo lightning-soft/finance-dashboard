@@ -1,4 +1,4 @@
-import { Column, DataCell, HoverableItem, NumberCell } from 'data-grid';
+import { Column, DataCell, HoverableItem, NumberCell, RoundFormatter } from 'data-grid';
 import { AccountInfo } from 'trading';
 import { Id } from 'communication';
 import { accountInfoColumnsArray, AccountInfoColumnsEnum } from './account-info-columns.enum';
@@ -12,25 +12,50 @@ const accountInfoProps = [AccountInfoColumnsEnum.AccountBalance, AccountInfoColu
 export class AccountInfoItem extends HoverableItem {
   id: Id;
 
-  accountBalance: NumberCell = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
-  closedPnl: NumberCell = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  openPnl: NumberCell = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  cashOnHand = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  position = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  buyQty = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  sellQty = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
+  private _formatter = new RoundFormatter(2);
+
+  accountBalance: NumberCell = new NumberCell({
+    withHoverStatus: true, hightlightOnChange: false,
+    formatter: this._formatter
+  });
+  closedPnl: NumberCell = new NumberCell({
+    withHoverStatus: true,
+    hightlightOnChange: false,
+    formatter: this._formatter
+  });
+  openPnl: NumberCell = new NumberCell({
+    withHoverStatus: true, hightlightOnChange: false,
+    formatter: this._formatter
+  });
+  cashOnHand = new NumberCell({
+    withHoverStatus: true, hightlightOnChange: false,
+    formatter: this._formatter
+  });
+  position = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
+  buyQty = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
+  sellQty = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
   account = new DataCell({ withHoverStatus: true });
   name = new DataCell({ withHoverStatus: true });
   currency = new DataCell({ withHoverStatus: true });
   fcmId = new DataCell({ withHoverStatus: true });
   ibId = new DataCell({ withHoverStatus: true });
-  lossLimit = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
-  autoLiquidateThreshold = new NumberCell({ withHoverStatus: true,  hightlightOnChange: false });
+  lossLimit = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
+  autoLiquidateThreshold = new NumberCell({ withHoverStatus: true, hightlightOnChange: false });
+
+  unavalableCell = new DataCell({ withHoverStatus: true });
+  availableBuingPower = this.unavalableCell;
+  reservedBuingPower = this.unavalableCell;
+  usedBuingPower = this.unavalableCell;
+  impliedMarginReserved = this.unavalableCell;
+  marginBalance = this.unavalableCell;
+  reservedMargin = this.unavalableCell;
 
   constructor(public accountInfo?: AccountInfo) {
     super();
     if (accountInfo)
       this.update(accountInfo);
+
+    this.unavalableCell.updateValue('Not supported On Rithmic');
   }
 
   update(accountInfo: AccountInfo) {

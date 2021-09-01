@@ -3,6 +3,10 @@
   [items]="items"
 
   [handlers]="handlers"
+
+  [loadedPresets]="loadedPresets"
+  (savePresets)="save()"
+  (createPresets)="createPresets(Components.OrdersPanel)">
 ></data-grid>
 <div class="button-container">
   <button class="dark-button">Cancel

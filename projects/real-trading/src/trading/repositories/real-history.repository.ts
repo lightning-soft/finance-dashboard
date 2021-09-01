@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
-import { HistoryRepository } from "trading";
+import { HistoryRepository } from 'trading';
+import { of } from 'rxjs';
+import { hist } from './history';
 
 declare const moment: any;
 
-export interface IHistoryItem extends IBaseItem, IBar { }
+export interface IHistoryItem extends IBaseItem, IBar {
+}
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
@@ -23,15 +26,24 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       high: item.highPrice,
       low: item.lowPrice,
       volume: item.volume,
-      details: (item.details ?? []).map(i => ({
-        ...i,
-        tradesCount: i.bidInfo.tradesCount + i.askInfo.tradesCount,
-      })),
+      details: item.details ?? [],
     };
   }
 
   getItems(params: any) {
-    if (params?.Symbol) {
+    if (!params.endDate)
+      params.endDate = new Date();
+
+    if (typeof params.startDate !== 'number')
+      params.startDate = params.startDate?.getTime();
+    if (typeof params.endDate !== 'number')
+      params.endDate = params.endDate.getTime();
+
+    if (params?.productCode) {
+      params.id = params.productCode;
+      delete params.productCode;
+    }
+    else if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.id) {
       const [symbol, exchange] = params.id.split('.');
@@ -39,6 +51,40 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.Exchange = exchange;
     }
 
-    return super.getItems(params);
+    const { endDate } = params || {};
+
+    // return of({ data: hist.map(i => this._mapResponseItem(i)), total: hist.length });
+
+    return super.getItems(params).pipe(
+/*      switchMap((res: IPaginationResponse<IHistoryItem>) => {
+        const arr = res?.data || [];
+        const lastItem = arr[arr.length - 1];
+        const lastDate = lastItem?.date.getTime();
+        const requestEndDate = endDate && new Date(endDate).getTime();
+
+        if (requestEndDate != null && lastItem != null && lastDate < requestEndDate) {
+          lastItem.details = lastItem.details.filter(details => {
+            return lastItem.low <= details.price && details.price <= lastItem.high;
+          });
+
+          return this.getItems({ ...params, startDate: lastDate, endDate: requestEndDate })
+            .pipe(
+              map((response: IPaginationResponse<IHistoryItem>) => {
+                const data = arr;
+
+                for (const item of (response.data || [])) {
+                  if (item.date.getTime() > lastDate) {
+                    data.push(item);
+                  }
+                }
+
+                return { data };
+              }),
+            );
+        }
+
+        return of(res);
+      })*/
+    );
   }
 }

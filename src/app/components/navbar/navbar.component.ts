@@ -1,13 +1,26 @@
-import { AfterViewInit, Component, ElementRef, HostBinding, HostListener, Input, NgZone } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  HostListener,
+  Input,
+  NgZone,
+  OnInit,
+  Output
+} from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { LayoutComponent } from 'layout';
+import { LayoutComponent, WindowPopupManager } from 'layout';
 import { NzPlacementType } from 'ng-zorro-antd';
 import { NotificationService } from 'notification';
 import { NavbarPosition, SettingsService } from 'settings';
 import { Themes, ThemesHandler } from 'themes';
 import { Bounds, WindowManagerService } from 'window-manager';
 import { isElectron } from '../../is-electron';
-import { NotificationListComponent } from "notification-list";
+import { NotificationListComponent } from 'notification-list';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @UntilDestroy()
 @Component({
@@ -15,14 +28,17 @@ import { NotificationListComponent } from "notification-list";
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements AfterViewInit {
+export class NavbarComponent implements AfterViewInit, OnInit {
   @Input() layout: LayoutComponent;
 
   public readonly navbarPosition = NavbarPosition;
   public isNewNotification: boolean;
   public isNavbarHidden = false;
   private navbarActive = false;
+  private navbarActive$ = new Subject<boolean>();
   private isInsideDropdownOpened = false;
+  @Output() save = new EventEmitter();
+  windowName: string;
 
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
@@ -55,6 +71,7 @@ export class NavbarComponent implements AfterViewInit {
     private settingsService: SettingsService,
     private elementRef: ElementRef,
     private windowManagerService: WindowManagerService,
+    private _windowPopupManager: WindowPopupManager,
   ) {
     this.isNewNotification = !!this.notificationService.getNotification().length;
     this.notificationService.notifications.subscribe(n => {
@@ -70,20 +87,29 @@ export class NavbarComponent implements AfterViewInit {
         }
         this._updateWindowsBounds();
       });
+    this.navbarActive$
+      .pipe(
+        debounceTime(100),
+        untilDestroyed(this)
+      ).subscribe((res) => {
+        this._setNavBarActive(res);
+      });
+  }
+  ngOnInit(){
+    this.windowName = this._windowPopupManager.getWindowName();
   }
 
   ngAfterViewInit() {
     this.isElectron = isElectron();
   }
 
-  @HostListener('mouseenter', ['$event'])
-  @HostListener('mouseleave', ['$event'])
+  // @HostListener('mouseenter', ['$event'])
+  @HostListener('document:mousemove', ['$event'])
   @HostListener('document:click', ['$event'])
   mouseMove(event: any) {
-    const active = event.type === 'mouseenter'
-      || (event.type === 'mouseleave' && this._isInBounds(event as HTMLElement))
+    const active = // event.type === 'mouseenter' ||
+      (event.type === 'mousemove' && this._isInBounds(event as HTMLElement))
       || (event.type === 'click' && this._isHostContainsElement(event.target as HTMLElement));
-
     if (this.navbarActive !== active) {
       if (!active)
         this.timeout = setTimeout(() => this.setNavBarActive(active), 500);
@@ -104,7 +130,11 @@ export class NavbarComponent implements AfterViewInit {
     }
   }
 
-  setNavBarActive(active) {
+  setNavBarActive(active: boolean) {
+    this.navbarActive$.next(active);
+  }
+
+  private _setNavBarActive(active) {
     this._ngZone.run(() => {
       this.navbarActive = active;
       this._updateWindowsBounds();
@@ -180,6 +210,10 @@ export class NavbarComponent implements AfterViewInit {
 
   private _isHostContainsElement(element: Element): boolean {
     return this.elementRef.nativeElement.contains(element);
+  }
+
+  saveWindow() {
+    this.save.emit();
   }
 }
 

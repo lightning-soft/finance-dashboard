@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -34,6 +35,7 @@ import {
   IOrder,
   IPosition,
   IQuote,
+  ISession,
   Level1DataFeed,
   OHLVFeed,
   OrderSide,
@@ -57,6 +59,7 @@ import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
 import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { InfoComponent } from './info/info.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -87,6 +90,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
 
+  session: ISession;
+
   @Input() window: IWindow;
 
   chart: IChart;
@@ -101,6 +106,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showChartForm = true;
   enableOrderForm = false;
   showOrderConfirm = true;
+  showCancelConfirm = true;
 
   ocoStep = OcoStep.None;
   firstOcoOrder: IOrder;
@@ -168,10 +174,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
-  bestAskPrice: number;
-  bestBidPrice: number;
-  bidSize: number;
-  askSize: number;
+  @ViewChild(InfoComponent)
+  info: InfoComponent;
 
   position: IPosition;
   private _orders: Orders;
@@ -191,7 +195,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
-    protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     private _ordersRepository: OrdersRepository,
@@ -204,7 +207,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _modalService: NzModalService,
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
-    private _windowManager: WindowManagerService
+    private _windowManager: WindowManagerService,
+    private _changeDetectorRef: ChangeDetectorRef
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -264,24 +268,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleQuote(quote: IQuote) {
-    if (quote.updateType === UpdateType.Undefined) {
-      this._zone.run(() => {
-        if (quote.side === QuoteSide.Ask) {
-          this.bestAskPrice = quote.price;
-          this.askSize = quote.volume;
-        } else {
-          this.bestBidPrice = quote.price;
-          this.bidSize = quote.volume;
-        }
-      });
+    if (quote.updateType !== UpdateType.Undefined)
+      return;
+
+    const bestQuote = { price: this.getQuoteInfo(quote.price), volume: quote.volume };
+    if (quote.side === QuoteSide.Ask) {
+      this.info.handleBestAsk(bestQuote);
+    } else {
+      this.info.handleBestBid(bestQuote);
     }
   }
 
   toggleTrading(): void {
     if (!this.isTradingEnabled) {
       this._tradeHandler.enableTrading();
+      this.isTradingEnabled = true;
     } else {
       this.isTradingEnabled = false;
+      this._tradeHandler.showDisableTradingAlert();
     }
   }
 
@@ -299,7 +303,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart)
       return;
 
-    this.settings.trading.orderArea = this._sideForm.getState();
     return {
       showOHLV: this.showOHLV,
       showChanges: this.showChanges,
@@ -307,6 +310,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       enableOrderForm: this.enableOrderForm,
       link: this.link,
       showOrderConfirm: this.showOrderConfirm,
+      showCancelConfirm: this.showCancelConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
@@ -329,6 +333,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showChartForm = state?.showChartForm;
     if (state?.hasOwnProperty('showOrderConfirm'))
       this.showOrderConfirm = state?.showOrderConfirm;
+    if (state?.hasOwnProperty('showCancelConfirm'))
+      this.showCancelConfirm = state?.showCancelConfirm;
+    if (state?.hasOwnProperty('settings'))
+      this.settings = state.settings;
 
     if (state?.hasOwnProperty('showChanges'))
       this.showChanges = state?.showChanges;
@@ -339,10 +347,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+
+    this._handleSettingsChange(this.settings);
+
     this.instrument = state?.instrument ?? {
       id: 'ESU1.CME',
       symbol: 'ESU1',
       exchange: 'CME',
+      productCode: 'ES',
       tickSize: 0.25,
       precision: 2,
       company: this._getInstrumentCompany(),
@@ -377,6 +389,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (!state) {
           return;
         }
+
         this.checkIfTradingEnabled();
 
         if (state.instrument && state.instrument.id != null) {
@@ -393,7 +406,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
            chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
          }*/
 
-        this._sideForm.loadState(state?.settings?.trading.orderArea);
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
@@ -473,7 +485,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       useWaitingBar: false,
       autoLoad: false,
       showInstrumentWatermark: false,
-      incomePrecision: state?.instrument.precision ?? 2,
+      incomePrecision: state?.instrument?.precision ?? 2,
       stayInDrawingMode: false,
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
@@ -550,9 +562,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const timeFrame = this.chart.timeFrame;
       let name = this.instrument.symbol;
       if (this.instrument.description) {
-        name += ` - ${ this.instrument.description }`;
+        name += ` - ${this.instrument.description}`;
       }
-      name += `, ${ timeFrame.interval }${ transformPeriodicity(timeFrame.periodicity) }`;
+      name += `, ${timeFrame.interval}${transformPeriodicity(timeFrame.periodicity)}`;
 
       return name;
     }
@@ -562,7 +574,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
-    this._sideForm?.loadState(state?.settings.trading.orderArea);
     if (state?.account) {
       this.account = state.account;
     }
@@ -653,30 +664,52 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.clearOcoOrders();
   }
 
-  createOrderWithConfirm(config: Partial<IOrder>) {
+  createOrderWithConfirm(config: Partial<IOrder>, event) {
     if (!this.isTradingEnabled)
       return;
 
     if (this.showOrderConfirm) {
       const dto = this._sideForm.getDto();
-      this._modalService.create({
-        nzClassName: 'confirm-order',
-        nzIconType: null,
-        nzContent: ConfirmOrderComponent,
-        nzFooter: null,
-        nzComponentParams: {
-          order: { ...dto, ...config },
-        }
-      }).afterClose.subscribe((res) => {
-        if (res) {
-          if (res.create)
-            this.createOrder(config);
-          this.showOrderConfirm = !res.dontShowAgain;
-        }
-      });
+      const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
+      this.createConfirmModal({
+        order: { ...dto, ...config, ...priceSpecs },
+      }, event).afterClose
+        .pipe(untilDestroyed(this))
+        .subscribe((res) => {
+          if (res) {
+            if (res.create)
+              this.createOrder(config);
+            this.showOrderConfirm = !res.dontShowAgain;
+          }
+        });
     } else {
       this.createOrder(config);
     }
+  }
+
+  async cancelOrderWithConfirm(order: IOrder, event) {
+    if (!this.showCancelConfirm)
+      return Promise.resolve({ create: true, dontShowAgain: !this.showCancelConfirm });
+
+    return this.createConfirmModal({
+      order,
+      prefix: 'Cancel'
+    }, event).afterClose.toPromise();
+  }
+
+  private createConfirmModal(params, event) {
+    return this._modalService.create({
+      nzClassName: 'confirm-order',
+      nzIconType: null,
+      nzContent: ConfirmOrderComponent,
+      nzFooter: null,
+      nzNoAnimation: true,
+      nzStyle: {
+        left: `${event.evt.clientX}px`,
+        top: `${event.evt.clientY}px`,
+      },
+      nzComponentParams: params
+    });
   }
 
   createOrder(config: Partial<IOrder>) {
@@ -810,15 +843,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleSettingsChange(settings: IChartSettings) {
     this.settings = settings;
+    const session = settings.session?.sessionTemplate;
+
+    if (this.session?.id != session?.id) {
+      this.datafeed.setSession(session, this.chart);
+    }
     const { trading } = settings;
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);
-    const { orderArea } = trading;
-    this.showOHLV = orderArea.settings.formSettings.showOHLVInfo;
-    this.showChanges = orderArea.settings.formSettings.showInstrumentChange;
+    this.showOHLV = trading.trading.showOHLVInfo;
+    this.showChanges = trading.trading.showInstrumentChange;
     const oldTheme = this.chart.theme;
     const theme = getScxTheme(settings);
-    this._sideForm.loadState({ settings: settings.trading.orderArea.settings });
+    this._sideForm.loadState({ settings: mapSettingsToSideFormState(settings) });
 
     this.chart.theme = theme;
     let needAutoScale = false;
@@ -829,11 +866,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.chart.handleResize();
     }
 
+    const pixelsPrice = settings?.valueScale?.valueScale.pixelsPrice ?? 0;
+    if (pixelsPrice) {
+      this.chart.setPixelsPrice(pixelsPrice);
+    } else {
+      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 } };
+      this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
+    }
+
     this.chart.setNeedsUpdate(needAutoScale);
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ chartSettings }`;
+    return `${this.componentInstanceId}.${chartSettings}`;
   }
 
   openSettingsDialog(): void {
@@ -913,8 +958,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   updateInSettings() {
-    this.settings.trading.orderArea.formSettings.showOHLVInfo = this.showOHLV;
-    this.settings.trading.orderArea.formSettings.showInstrumentChange = this.showChanges;
+    this.settings.trading.trading.showOHLVInfo = this.showOHLV;
+    this.settings.trading.trading.showInstrumentChange = this.showChanges;
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
   }
 
@@ -1014,11 +1059,11 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.chartPanel.grid.strokeColor = settings.general.gridColor;
 
   theme.orderBar = settings.trading.ordersColors;
+  theme.orderBar.orderBarLength = settings.trading.trading.orderBarLength;
+  theme.orderBar.orderBarUnit = settings.trading.trading.orderBarUnit;
 
-  theme.tradingPanel = {
-    tradingBarLength: settings.trading.trading.tradingBarLength,
-    tradingBarUnit: settings.trading.trading.tradingBarUnit
-  };
+  theme.tradingPanel.tradingBarLength = settings.trading.trading.tradingBarLength;
+  theme.tradingPanel.tradingBarUnit = settings.trading.trading.tradingBarUnit;
 
   return theme;
 }
@@ -1028,6 +1073,41 @@ function setBorderColor(barTheme, settings) {
   barTheme.downCandle.border.strokeColor = settings.general.downCandleBorderColor;
   barTheme.upCandle.border.strokeEnabled = settings.general.upCandleBorderColorEnabled;
   barTheme.downCandle.border.strokeEnabled = settings.general.downCandleBorderColorEnabled;
+}
+
+function mapSettingsToSideFormState(settings) {
+  const orderAreaSettings = settings.trading.orderArea.settings;
+  const sideOrderSettings: any = {};
+  sideOrderSettings.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
+  sideOrderSettings.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;
+
+  sideOrderSettings.sellButtonsBackgroundColor = orderAreaSettings.sellMarketButton.background;
+  sideOrderSettings.sellButtonsFontColor = orderAreaSettings.sellMarketButton.font;
+
+  sideOrderSettings.flatButtonsBackgroundColor = orderAreaSettings.flatten.background;
+  sideOrderSettings.flatButtonsFontColor = orderAreaSettings.flatten.font;
+
+  sideOrderSettings.cancelButtonBackgroundColor = orderAreaSettings.cancelButton.background;
+  sideOrderSettings.cancelButtonFontColor = orderAreaSettings.cancelButton.font;
+
+  sideOrderSettings.closePositionFontColor = orderAreaSettings.closePositionButton.font;
+  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.closePositionButton.background;
+
+  sideOrderSettings.icebergFontColor = orderAreaSettings.icebergButton.font;
+  sideOrderSettings.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
+
+  sideOrderSettings.formSettings = {};
+  sideOrderSettings.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
+  sideOrderSettings.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
+  sideOrderSettings.formSettings.closePositionButton = orderAreaSettings.closePositionButton.enabled;
+  sideOrderSettings.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
+  sideOrderSettings.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
+  sideOrderSettings.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;
+  sideOrderSettings.formSettings.showBracket = settings.trading.trading.bracketButton;
+
+  sideOrderSettings.tif = settings.trading.tif;
+
+  return sideOrderSettings;
 }
 
 function transformPeriodicity(periodicity: string): string {
