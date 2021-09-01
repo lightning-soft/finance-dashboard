@@ -1,27 +1,32 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { ArrayHelper, StringHelper } from 'base-components';
+import { StringHelper } from 'base-components';
+import { environment } from 'environment';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { IChart } from '../models';
 import {
+  BarStats,
   CompositeProfile,
-  DefaultIndicator,
-  Footprint,
+  CustomVolumeProfile, Footprint,
   Indicator,
   PriceStats,
   SessionStats,
   VolumeBreakdown,
   VolumeProfile,
   ZigZag,
-  ZigZagOscillator,
+  ZigZagOscillator
 } from './indicators';
+import { VWAP } from './indicators/VWAP';
 
 declare const StockChartX: any;
 
 const EVENTS_SUFFIX = '.scxComponent';
+
+const urlSearchParams = new URLSearchParams(window.location.search);
+const isDev = !environment.production || urlSearchParams.get('test') === 'true';
 
 export interface IndicatorsComponent extends ILayoutNode {
 }
@@ -57,6 +62,11 @@ export class IndicatorsComponent implements OnInit {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
+        ...(isDev ? [
+          'VWAP',
+          'BarStats',
+          'CustomVolumeProfile',
+        ] : [])
       ],
       expanded: true,
     },
@@ -229,6 +239,9 @@ export class IndicatorsComponent implements OnInit {
       [StockChartX.VolumeBreakdown.className, VolumeBreakdown],
       [StockChartX.ZigZag.className, ZigZag],
       [StockChartX.ZigZagOscillator.className, ZigZagOscillator],
+      [StockChartX.BarStats.className, BarStats],
+      [StockChartX.VWAP.className, VWAP],
+      [StockChartX.CustomVolumeProfile.className, CustomVolumeProfile],
     ]);
 
     this.fetchIndicators();
