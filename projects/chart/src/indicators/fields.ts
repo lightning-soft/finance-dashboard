@@ -1214,8 +1214,15 @@ const groupsRows = ['Delta',
   },
   {
     label: 'Sell Volume', hasBackground: true
-  }, 'Delta% Day',
-  'Buy% Volume', 'Sell% Volume', 'Delta Max', 'Delta Min', 'Delta Finish'];
+  }, { label: 'Delta% Day', key: 'deltaPercentDay', hasBackground: false },
+  {
+    label: 'Buy% Volume',
+    hasBackground: false,
+    key: 'buyPercentVolume'
+  }, {
+    label: 'Sell% Volume', hasBackground: false,
+    key: 'sellPercentVolume'
+  }, 'Delta Max', 'Delta Min', 'Delta Finish'];
 
 export const barStatsConfig = [
   new FieldConfig({
@@ -1254,7 +1261,7 @@ export const barStatsConfig = [
     ],
   }),
   new FieldConfig({
-    key: 'groupsRows ',
+    key: 'groupsRows',
     label: 'Groups rows',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-flex flex-column',
@@ -1266,7 +1273,7 @@ export const barStatsConfig = [
         type: FieldType.DragAndDrop,
         fieldGroup: groupsRows.map(item => getGroupRow(item)),
       },
-      wrapWithClass(getCheckboxes({ checkboxes: [{key: 'ticks', label: 'Ticks'}] }), 'mt-1'),
+      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1'),
     ],
   }),
   new FieldConfig({
@@ -1296,11 +1303,12 @@ export const barStatsConfig = [
 
 function getGroupRow(title: string | { label, hasBackground }) {
   const label = typeof title === 'string' ? title : title.label;
+  const key = (title as any).key ?? (title as string).toLowerCase().replace(/ /g, '');
   const hasBackground = (title as { hasBackground }).hasBackground;
   const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
     getColor('Negative')];
   return {
-    key: label.toLowerCase(),
+    key,
     fieldGroupClassName: 'd-grid three-rows',
     className: '',
     fieldGroup: [
