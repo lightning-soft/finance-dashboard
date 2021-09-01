@@ -40,6 +40,8 @@ import { DataSelectModule } from 'data-select';
 import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { InfoComponent } from './info/info.component';
+import { RepeatGroupComponent } from './indicators/repeat-group/repeat-group.component';
+import { FormlyModule } from '@ngx-formly/core';
 
 // const environment = { scxPath: '' };
 
@@ -65,10 +67,10 @@ import { InfoComponent } from './info/info.component';
     LazyAssetsModule.forConfig({
       scripts: [
         {
-          src: `${environment.scxPath}StockChartX.min.js`,
+          src: `${ environment.scxPath }StockChartX.min.js`,
           charset: 'iso-8859-1'
         }, {
-          src: `${environment.scxPath}StockChartX.UI.min.js`,
+          src: `${ environment.scxPath }StockChartX.UI.min.js`,
           charset: 'iso-8859-1'
         }, {
           src: `./assets/StockChartX/scripts/StockChartX.External.min.js`
@@ -101,6 +103,14 @@ import { InfoComponent } from './info/info.component';
     NzCheckboxModule,
     OverlayModule,
     DataSelectModule,
+    FormlyModule.forChild({
+      types: [
+        {
+          name: 'repeat-group',
+          component: RepeatGroupComponent,
+        },
+      ],
+    }),
   ],
   exports: [
     ChartComponent
@@ -114,6 +124,7 @@ import { InfoComponent } from './info/info.component';
     ConfirmOrderComponent,
     ChartSettingsComponent,
     InfoComponent,
+    RepeatGroupComponent,
   ]
 })
 export class ChartModule implements LazyModule {

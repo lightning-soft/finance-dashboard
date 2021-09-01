@@ -5,6 +5,38 @@
 
 
   ::ng-deep {
+    .wvap-duration.session-template {
+      label {
+        display: none;
+      }
+
+      data-select {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .bar-stats-border {
+      border: 1px solid $lighter;
+      padding: 12px 8px;
+      position: relative;
+
+      &:before {
+        display: block;
+        content: "Header";
+        position: absolute;
+        left: 18px;
+        top: -9px;
+        font-size: 0.75rem;
+        background: #1B1D22;
+        padding-left: 7px;
+        padding-right: 7px;
+      }
+
+      &.bar-font-stats-border:before {
+        content: "Font";
+      }
+    }
+
     .reverse-switch-label {
       switch {
         flex-direction: row;
@@ -544,12 +576,21 @@
       }
     }
 
-    .two-rows, .three-rows, .font-rows, .four-rows, .liner-rows, .band-rows, .average-period-rows, .zero-line-rows {
+    .two-rows, .three-rows, .font-rows, .group-row, .four-rows, .liner-rows, .band-rows, .average-period-rows, .zero-line-rows {
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 10px;
       grid-row-gap: 6px;
       padding-left: 2px;
       padding-right: 2px;
+    }
+
+    .group-row {
+      grid-template-columns: 2fr 1fr 1fr;
+      align-items: center;
+
+      .ant-input-number {
+        width: 73px;
+      }
     }
 
     .average-period-rows {
@@ -736,6 +777,11 @@
 }
 
 ::ng-deep {
+  .group-preview-class formly-group {
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 10px;
+  }
+
   .indicator-tooltip .ant-tooltip-inner {
     background: $light;
     color: $text-60;

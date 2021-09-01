@@ -28,6 +28,10 @@
   margin: 0 15px;
   background: transparent;
   padding: 0;
+  transition: 0.3s color;
+  &:hover {
+    color: #fff;
+  }
 
   &:not(&:last-child) {
     &:after {

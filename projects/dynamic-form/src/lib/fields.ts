@@ -335,7 +335,7 @@ export function getLineSelector(_config) {
 
 export function getNumber(_config: any) {
   const config: any = {
-    key: '', label: null, important: true, unit: 'px',
+    key: '', label: null,
     min: null,
     max: null,
   };
