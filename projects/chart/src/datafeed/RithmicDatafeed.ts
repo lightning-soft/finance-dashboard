@@ -159,12 +159,16 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
 
     this._unsubscribe();
+    const connId = this._account.connectionId;
+    if (connId == null)
+      return;
 
-    this._tradeDataFeed.subscribe(instrument, this._account.connectionId);
 
-    this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, this._account.connectionId));
+    this._tradeDataFeed.subscribe(instrument, connId);
+
+    this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, connId));
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint, connectionId) => {
-      if (connectionId !== this._account?.connectionId)
+      if (connectionId !== connId)
         return;
 
       const quoteInstrument = quote.instrument;
@@ -209,4 +213,4 @@ export class RithmicDatafeed extends Datafeed {
 }
 
 const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
-  StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK, StockChartXPeriodicity.REVS];
+StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK, StockChartXPeriodicity.REVS];
