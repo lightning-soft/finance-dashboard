@@ -1307,7 +1307,7 @@ export const barStatsConfig = [
 
 function getGroupRow(title: string | { label, hasBackground }) {
   const label = typeof title === 'string' ? title : title.label;
-  const key = (title as any).key ?? (title as string).toLowerCase().replace(/ /g, '');
+  const key = (title as any).key ?? ((title as any).label ?? title as string ?? '').toLowerCase().replace(/ /g, '');
   const hasBackground = (title as { hasBackground }).hasBackground;
   const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
     getColor('Negative')];
