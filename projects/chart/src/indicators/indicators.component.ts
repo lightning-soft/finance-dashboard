@@ -17,9 +17,9 @@ import {
   VolumeBreakdown,
   VolumeProfile,
   ZigZag,
-  ZigZagOscillator
+  ZigZagOscillator,
+  VWAP
 } from './indicators';
-import { VWAP } from './indicators/VWAP';
 
 declare const StockChartX: any;
 
