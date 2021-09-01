@@ -1,5 +1,6 @@
 import {
   FieldConfig,
+  FieldType,
   getCheckboxes,
   getColor,
   getColorSelect,
@@ -45,11 +46,11 @@ const tradingOptions = [
   }
 ];
 
-function getSessionsSelect(key = 'session') {
+function getSessionsSelect(key = 'session', config = { className: 'select full-width session-template' }) {
   return {
     key,
     type: 'sessions-select',
-    className: 'select full-width session-template',
+    className: `${ config.className }`,
   };
 }
 
@@ -1204,8 +1205,122 @@ export const compositeProfileConfig: IFieldConfig[] = [
 
     ],
   }),
-
 ];
+
+const groupsRows = ['Delta',
+  {
+    label: 'Volume',
+    hasBackground: true
+  }, 'Delta day',
+  {
+    label: 'Buy Volume',
+    hasBackground: true
+  },
+  {
+    label: 'Sell Volume', hasBackground: true
+  }, { label: 'Delta% Day', key: 'deltaPercentDay', hasBackground: false },
+  {
+    label: 'Buy% Volume',
+    hasBackground: false,
+    key: 'buyPercentVolume'
+  }, {
+    label: 'Sell% Volume', hasBackground: false,
+    key: 'sellPercentVolume'
+  }, 'Delta Max', 'Delta Min', 'Delta Finish'];
+
+export const barStatsConfig = [
+  new FieldConfig({
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
+    fieldGroup: [
+      getNumber({ key: 'rowHeight', label: 'Row Height', min: 0, }),
+      {
+        className: 'full-width bar-stats-border mt-1 d-block',
+        fieldGroupClassName: 'd-grid three-rows',
+        fieldGroup: [
+          getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }),
+          getColor('Text Color'),
+          getColor('Back Color'),
+        ],
+      },
+      {
+        className: 'full-width bar-stats-border bar-font-stats-border mt-2 d-block',
+        fieldGroupClassName: 'd-grid font-rows',
+        fieldGroup: [
+          wrapWithClass(getColor('Font Color'), 'color-without-label'),
+          getSelect({ key: 'font', options: [{ label: 'Open Sans', key: 'openSans' }] }),
+          getSelect({
+            key: 'font', options: [
+              { key: '400', label: 'Regular' },
+              { key: '700', label: 'Bold' },
+            ]
+          }),
+          getNumber({
+            key: 'fontSize',
+            min: 0,
+          })
+        ],
+      },
+    ],
+  }),
+  new FieldConfig({
+    key: 'groupsRows',
+    label: 'Groups rows',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'd-flex flex-column',
+    fieldGroup: [
+      {
+        templateOptions: {
+          dragPreviewClass: 'group-preview-class',
+        },
+        type: FieldType.DragAndDrop,
+        fieldGroup: groupsRows.map(item => getGroupRow(item)),
+      },
+      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1'),
+    ],
+  }),
+  new FieldConfig({
+    label: 'Groups with a trade volume filter',
+    key: 'groupsTradeVolumeFilter',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      {
+        type: 'repeat-group',
+        templateOptions: {
+          addText: 'Add',
+        },
+        fieldArray: {
+          className: 'mt-1 d-block',
+          fieldGroupClassName: 'd-grid group-row',
+          fieldGroup: [
+            getInput({ key: 'name' }),
+            getNumber({ min: 0, key: 'min' }),
+            getNumber({ min: 0, key: 'max' }),
+          ],
+        },
+      }
+    ],
+  }),
+];
+
+
+function getGroupRow(title: string | { label, hasBackground }) {
+  const label = typeof title === 'string' ? title : title.label;
+  const key = (title as any).key ?? (title as string).toLowerCase().replace(/ /g, '');
+  const hasBackground = (title as { hasBackground }).hasBackground;
+  const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
+    getColor('Negative')];
+  return {
+    key,
+    fieldGroupClassName: 'd-grid three-rows',
+    className: '',
+    fieldGroup: [
+      getCheckboxes({ checkboxes: [{ key: 'enabled', label }] }),
+      ...colors,
+    ],
+  } as any;
+}
 
 export const priceStatsConfig: IFieldConfig[] = [
   new FieldConfig({
@@ -1727,10 +1842,7 @@ export const vwapConfig: IFieldConfig[] = [
           label: 'Custom Times'
         }],
         additionalFields: [
-          getSelect({
-            key: 'duration',
-            options: tradingOptions,
-          }),
+          getSessionsSelect('duration', { className: 'wvap-duration select session-template' }),
         ],
         extraConfig: {
           fieldGroupClassName: 'd-grid two-rows'

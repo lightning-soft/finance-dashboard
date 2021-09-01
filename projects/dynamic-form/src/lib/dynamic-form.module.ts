@@ -33,6 +33,7 @@ import { LabelComponent } from './label/label.component';
 import { DataBoxComponent } from './data-box/data-box.component';
 import { SessionsSelectComponent } from './sessions-select/sessions-select.component';
 import { DataSelectModule } from 'data-select';
+import { DragAndDropComponent } from './drag-and-drop/drag-and-drop.component';
 
 const formlyComponents = [
   {
@@ -75,6 +76,7 @@ const formlyComponents = [
     name: FieldType.SessionsSelect,
     component: SessionsSelectComponent,
   },
+  { name: FieldType.DragAndDrop, component: DragAndDropComponent },
 ];
 
 @NgModule({
@@ -82,7 +84,7 @@ const formlyComponents = [
     ColorPickerComponent, NumberInputComponent, TextAlignComponent,
     SwitchComponent, HotkeyComponent, SelectComponent, ColorSelectComponent,
     SessionsSelectComponent,
-    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent, DataBoxComponent
+    LineSelectorComponent, DatepickerComponent, ColumnSelectorComponent, LabelComponent, DataBoxComponent, DragAndDropComponent
   ],
   imports: [
     CommonModule,

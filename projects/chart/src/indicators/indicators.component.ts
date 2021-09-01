@@ -10,7 +10,8 @@ import { IChart } from '../models';
 import {
   BarStats,
   CompositeProfile,
-  CustomVolumeProfile, Footprint,
+  CustomVolumeProfile,
+  Footprint,
   Indicator,
   PriceStats,
   SessionStats,
@@ -183,6 +184,7 @@ export class IndicatorsComponent implements OnInit {
         debounceTime(10),
         untilDestroyed(this))
       .subscribe(() => {
+        console.log(this.selectedIndicator.settings);
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
       });
   }

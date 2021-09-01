@@ -1,0 +1,10 @@
+.drag-container {
+  display: grid;
+  grid-template-columns: 1fr 16px;
+  column-gap: 10px;
+  margin-top: 8px;
+}
+.icon-drag-and-drop {
+  font-size: 12px;
+  cursor: grab;
+}

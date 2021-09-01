@@ -4,6 +4,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormlyModule } from '@ngx-formly/core';
 import { AccountSelectModule } from 'account-select';
 import { BaseOrderFormModule } from 'base-order-form';
 import { DataGridModule } from 'data-grid';
@@ -35,6 +36,7 @@ import { ChartSettingsComponent } from './chart-settings/chart-settings.componen
 import { chartSettings } from './chart-settings/settings';
 import { ChartComponent } from './chart.component';
 import { IndicatorsComponent } from './indicators/indicators.component';
+import { RepeatGroupComponent } from './indicators/repeat-group/repeat-group.component';
 import { InfoComponent } from './info/info.component';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
@@ -69,10 +71,10 @@ import {
     LazyAssetsModule.forConfig({
       scripts: [
         {
-          src: `${environment.scxPath}StockChartX.min.js`,
+          src: `${ environment.scxPath }StockChartX.min.js`,
           charset: 'iso-8859-1'
         }, {
-          src: `${environment.scxPath}StockChartX.UI.min.js`,
+          src: `${ environment.scxPath }StockChartX.UI.min.js`,
           charset: 'iso-8859-1'
         }, {
           src: `./assets/StockChartX/scripts/StockChartX.External.min.js`
@@ -105,6 +107,14 @@ import {
     NzCheckboxModule,
     OverlayModule,
     DataSelectModule,
+    FormlyModule.forChild({
+      types: [
+        {
+          name: 'repeat-group',
+          component: RepeatGroupComponent,
+        },
+      ],
+    }),
   ],
   exports: [
     ChartComponent
@@ -119,6 +129,7 @@ import {
     ChartSettingsComponent,
     VolumeProfileCustomSettingsComponent,
     InfoComponent,
+    RepeatGroupComponent,
   ]
 })
 export class ChartModule implements LazyModule {
