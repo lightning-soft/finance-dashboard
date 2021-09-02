@@ -365,14 +365,14 @@ function getBand(key) {
     key,
     fieldGroupClassName: 'd-grid band-rows',
     fieldGroup: [
-      getCheckboxes({ checkboxes: [{ label: `Bands at` }] }),
+      getCheckboxes({ checkboxes: [{ key: 'isShow', label: `Bands at` }] }),
       getNumber({
-        key: 'stdDev', label: 'StdDev',
+        key: 'coefficient', label: 'StdDev',
         className: 'reverse-number-label regular-number-label',
         min: 1,
       }),
-      wrapWithClass(getColor('Color'), 'color-without-label'),
-      getLineSelector({ key: 'line' }),
+      wrapWithClass(getColor('strokeColor'), 'color-without-label'),
+      getLineSelector({ key: 'styleLine' }),
     ]
   };
 }
@@ -1807,32 +1807,33 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroup: [
       new FieldConfig({
         label: 'Style',
-        key: 'style',
+        key: 'styleLine',
         className: 'style',
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
           wrapWithClass(getSelect({
+            key: 'lineStyle',
             options: [
               {
-                label: 'Line, Connected', value: 'lineConnected'
+                label: 'Line, Connected', value: 'connected'
               },
               {
-                label: 'Line, Continuous', value: 'lineContinuous'
+                label: 'Line, Continuous', value: 'continious'
               },
               {
-                label: 'Line, Stepped', value: 'lineStepped'
+                label: 'Line, Stepped', value: 'stepped'
               },
               {
-                label: 'Price Box, Solid', value: 'priceBoxSolid'
+                label: 'Price Box, Solid', value: 'solid'
               },
               {
-                label: 'Price Box, Hollow', value: 'priceBoxHollow'
+                label: 'Price Box, Hollow', value: 'hollow'
               },
             ]
           }), 'max-width-85'),
-          wrapWithClass(getColor('color'), 'color-without-label'),
+          wrapWithClass(getColor('strokeColor'), 'color-without-label'),
           getLineSelector({
-            key: 'line'
+            key: 'lineStyle'
           }),
         ]
       }),
@@ -1877,9 +1878,9 @@ export const vwapConfig: IFieldConfig[] = [
     key: 'bands',
     className: 'mt-3',
     fieldGroup: [
-      getBand(1),
-      getBand(2),
-      getBand(3),
+      getBand('band1'),
+      getBand('band2'),
+      getBand('band3'),
     ],
   }),
   new FieldConfig({
@@ -1889,9 +1890,10 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroupClassName: 'd-grid two-rows regular-label hide-border-bottom',
     fieldGroup: [
       getCheckboxes({
-        checkboxes: [{ label: 'Show VWAP Label', key: 'showLabel' }],
+        checkboxes: [{ label: 'Show VWAP Label', key: 'isShowVWAPLabel' }],
       }),
       getNumber({
+        key: 'lebelLineLength',
         label: 'Label Line Length',
         min: 1,
       }),
