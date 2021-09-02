@@ -30,7 +30,7 @@
             [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
         </li>
-        <li nz-submenu [nzTitle]="customDrawingTemplate">
+        <li nz-submenu [nzTitle]="customDrawingTemplate" *ngIf="isDev">
           <ul>
             <li (click)="createVolumeProfile()" nz-menu-item>New</li>
             <li nz-menu-divider></li>

@@ -26,9 +26,6 @@ declare const StockChartX: any;
 
 const EVENTS_SUFFIX = '.scxComponent';
 
-const urlSearchParams = new URLSearchParams(window.location.search);
-const isDev = !environment.production || urlSearchParams.get('test') === 'true';
-
 export interface IndicatorsComponent extends ILayoutNode {
 }
 
@@ -63,7 +60,7 @@ export class IndicatorsComponent implements OnInit {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
-        ...(isDev ? [
+        ...(environment.isDev ? [
           'VWAP',
           'BarStats',
         ] : [])

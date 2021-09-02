@@ -25,6 +25,7 @@ import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { IStockChartXInstrument } from 'chart';
+import { environment } from 'environment';
 
 declare const StockChartX;
 
@@ -50,6 +51,8 @@ const periodicityMap = new Map([
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements PortalOutlet, AfterViewInit {
+  isDev = environment.isDev;
+
   @Input() link: any;
   @Input() enableOrderForm = false;
   @Input() window: IWindow;
