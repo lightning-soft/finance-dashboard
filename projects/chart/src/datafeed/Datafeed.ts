@@ -170,6 +170,7 @@ export abstract class Datafeed implements IDatafeed {
   send(request: IRequest) {
     this._requests.set(request.id, request);
 
+    console.log('request ', request);
     request.chart.showWaitingBar();
   }
 
@@ -180,6 +181,7 @@ export abstract class Datafeed implements IDatafeed {
    * @memberOf StockChartX.Datafeed#
    */
   cancel(request: IRequest) {
+    console.log('request end', request);
     this._requests.delete(request.id);
     this.onRequstCanceled(request as IBarsRequest);
   }

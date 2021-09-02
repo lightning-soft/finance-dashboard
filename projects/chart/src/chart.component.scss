@@ -1079,3 +1079,20 @@ instrument-select {
     border: none !important;
   }
 }
+
+::ng-deep {
+  .custom-volume-profile-templates {
+    .ant-dropdown-menu-submenu-title {
+      padding: 2px 6px;
+
+    }
+
+    & > .anticon:first-child, .ant-dropdown-menu-item > span > .anticon:first-child, .ant-dropdown-menu-submenu-title > .anticon:first-child, .ant-dropdown-menu-submenu-title > span > .anticon:first-child {
+      font-size: 8px;
+    }
+  }
+
+  .custom-volume-profile-subitems {
+    min-width: 75px;
+  }
+}

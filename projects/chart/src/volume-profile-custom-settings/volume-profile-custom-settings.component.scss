@@ -1,0 +1,30 @@
+@import "../settings";
+@import "../indicators.settings";
+
+.menu {
+  min-width: 1px;
+  margin-top: 3px;
+}
+
+.menu-item {
+  .actions {
+    opacity: 0;
+    transition: 0.3s;
+    margin-right: 6px;
+
+    i {
+      font-size: 10px;
+      cursor: pointer;
+
+      &:not(:first-child) {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  &:hover {
+    .actions {
+      opacity: 1;
+    }
+  }
+}

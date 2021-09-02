@@ -13,7 +13,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
 import { Layout } from 'layout';
 import { Components } from 'src/app/modules';
 import { Coords, EVENTS, IWindow } from 'window-manager';
@@ -23,7 +23,9 @@ import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
 import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
 import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { IStockChartXInstrument } from 'chart';
+import { environment } from 'environment';
 
 declare const StockChartX;
 
@@ -49,6 +51,8 @@ const periodicityMap = new Map([
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements PortalOutlet, AfterViewInit {
+  isDev = environment.isDev;
+
   @Input() link: any;
   @Input() enableOrderForm = false;
   @Input() window: IWindow;
@@ -194,8 +198,12 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.chart.crossHairType = value;
   }
 
+  @Output()
+  createCustomVolumeProfile = new EventEmitter();
+
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
+              private _modalService: NzModalService,
               private _overlay: Overlay) {
   }
 
@@ -440,5 +448,44 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   toggleForm() {
     this.enableOrderForm = !this.enableOrderForm;
     this.enableOrderFormChange.emit(this.enableOrderForm);
+  }
+
+  createVolumeProfile() {
+    this.createCustomVolumeProfile.emit();
+  }
+
+  editCustomProfile() {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result !== '') {
+      }
+    });
+  }
+
+  deleteVolumeProfile() {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+      }
+    });
   }
 }

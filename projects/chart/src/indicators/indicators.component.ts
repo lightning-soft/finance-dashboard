@@ -10,7 +10,8 @@ import { IChart } from '../models';
 import {
   BarStats,
   CompositeProfile,
-  CustomVolumeProfile, Footprint,
+  CustomVolumeProfile,
+  Footprint,
   Indicator,
   PriceStats,
   SessionStats,
@@ -24,9 +25,6 @@ import { VWAP } from './indicators/VWAP';
 declare const StockChartX: any;
 
 const EVENTS_SUFFIX = '.scxComponent';
-
-const urlSearchParams = new URLSearchParams(window.location.search);
-const isDev = !environment.production || urlSearchParams.get('test') === 'true';
 
 export interface IndicatorsComponent extends ILayoutNode {
 }
@@ -44,7 +42,7 @@ export class IndicatorsComponent implements OnInit {
   chart: IChart;
 
   get indicators(): any[] {
-    return this.chart?.indicators ?? [];
+    return (this.chart?.indicators ?? []).filter(i => i.className !== StockChartX.CustomVolumeProfile.className);
   }
 
   allExpanded = false;
@@ -62,10 +60,9 @@ export class IndicatorsComponent implements OnInit {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
-        ...(isDev ? [
+        ...(environment.isDev ? [
           'VWAP',
           'BarStats',
-          'CustomVolumeProfile',
         ] : [])
       ],
       expanded: true,
@@ -183,6 +180,7 @@ export class IndicatorsComponent implements OnInit {
         debounceTime(10),
         untilDestroyed(this))
       .subscribe(() => {
+        console.log(this.selectedIndicator.settings);
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
       });
   }
@@ -214,7 +212,7 @@ export class IndicatorsComponent implements OnInit {
   }
 
   addIndicator(item) {
-    if (this.chart.indicators.find((i) => i._name === item))
+    if (this.indicators.find((i) => i._name === item))
       return;
 
     const _constructor = this.registeredIndicators[item];

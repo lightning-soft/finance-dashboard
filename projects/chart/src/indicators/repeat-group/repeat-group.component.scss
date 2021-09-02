@@ -1,0 +1,19 @@
+@import "../../../../../src/scss/variables";
+
+i.icon-delete {
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.group {
+  display: grid;
+  grid-template-columns: 1fr 30px;
+}
+
+button {
+  background: $light3;
+  outline: none;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 3px 20px;
+}

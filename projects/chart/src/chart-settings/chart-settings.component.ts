@@ -1,11 +1,11 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { ILayoutNode, LayoutNode } from 'layout';
 import { FormGroup } from '@angular/forms';
-import { generalFields, sessionFields, tradingFields, valueScale } from './settings-fields';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { mergeDeep } from 'base-components';
+import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
-import { mergeDeep } from 'base-components';
+import { generalFields, sessionFields, tradingFields, valueScale } from './settings-fields';
 
 export interface ChartSettingsComponent extends ILayoutNode {
 }

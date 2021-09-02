@@ -19,6 +19,7 @@ export const Modules = {
 export enum Components {
   Chart = 'chart',
   ChartSettings = 'chartSettings',
+  ChartVolumeSettings = 'customVolumeProfileSettings',
   Indicators = 'indicators',
   Watchlist = 'watchlist',
   Positions = 'positions',
@@ -38,7 +39,7 @@ export enum Components {
   MarketWatch = 'marketWatch',
   MarketWatchSettings = 'market-watch-settings',
   AccountInfo = 'account-info',
-};
+}
 
 export const modulesStore: IModules[] = [
   {
@@ -48,6 +49,7 @@ export const modulesStore: IModules[] = [
       Components.Indicators,
       Components.OrdersPanel,
       Components.ChartSettings,
+      Components.ChartVolumeSettings
     ]
   },
   {

@@ -2,59 +2,41 @@
 
 
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
-  <instrument-select
-    class="mr-2"
-    placeholder="Symbol"
-    [(instrument)]="instrument"
-    [account]="account"
-  ></instrument-select>
-  <account-select #select  [(account)]="account"></account-select>
+  <instrument-select class="mr-2" placeholder="Symbol" [(instrument)]="instrument" [account]="account">
+  </instrument-select>
+  <account-select #select [(account)]="account"></account-select>
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
-    <i *ngFor="let item of directions" (click)="currentDirection = item"
-       [class.active]="currentDirection === item"
-       class="icon-{{item}} direction window-icon"></i>
+    <i *ngFor="let item of directions" (click)="currentDirection = item" [class.active]="currentDirection === item"
+      class="icon-{{item}} direction window-icon"></i>
     <i (click)="showChartForm = !showChartForm; setNeedUpdate()" [class.active]="showChartForm"
-       [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
-    <i (click)="toggleTrading()"
-       [class.icon-lock]="!isTradingEnabled"
-       [class.icon-unlock]="isTradingEnabled"
-       [title]="isTradingEnabled ? 'Unlock' : 'Lock'"
-       class="lock"></i>
+      [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
+    <i (click)="toggleTrading()" [class.icon-lock]="!isTradingEnabled" [class.icon-unlock]="isTradingEnabled"
+      [title]="isTradingEnabled ? 'Unlock' : 'Lock'" class="lock"></i>
   </div>
 
 </window-header>
 <div class="component-container {{currentDirection}}">
-  <div [class.hide-oclc]="!showOHLV"
-       [class.hide-changes]="!showChanges"
-       class="chart-container">
-    <app-toolbar
-      *ngIf="window"
-      [(enableOrderForm)]="enableOrderForm"
-      (enableOrderFormChange)="checkIfTradingEnabled()"
-      [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart"
-      [window]="window"
+  <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">
+    <app-toolbar *ngIf="window" (createCustomVolumeProfile)="createCustomVolumeProfile()"
+      [(enableOrderForm)]="enableOrderForm" (enableOrderFormChange)="checkIfTradingEnabled()"
+      [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart" [window]="window"
       [link]="chartLink"></app-toolbar>
     <div class="chart" #chartContainer></div>
   </div>
 
-  <side-form
-    #domForm
-    [class.d-none]="!showChartForm || !enableOrderForm"
-    [accountId]="accountId"
-    [position]="position"
-    [ocoStep]="ocoStep"
-    [orders]="orders"
-    (actions)="handleFormAction($event)"
-    [instrument]="instrument">
+  <side-form #domForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId" [position]="position"
+    [ocoStep]="ocoStep" [orders]="orders" (actions)="handleFormAction($event)" [instrument]="instrument">
     <div class="form-header" headerContent>
       <info-component headerContent></info-component>
     </div>
   </side-form>
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <ul class="chart-menu-dropdown" nz-menu>
+  <ul class="chart-menu-dropdown" nz-menu *ngIf="!activeIndicator">
     <li (click)="showOHLV = !showOHLV; updateInSettings();" nz-menu-item>{{showOHLV ? 'Hide' : 'Show'}} OHLV</li>
-    <li (click)="showChanges = !showChanges; updateInSettings();" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}} Changes</li>
+    <li (click)="showChanges = !showChanges; updateInSettings();" nz-menu-item>{{showChanges ? 'Hide' : 'Show'}}
+      Changes
+    </li>
     <li nz-menu-divider></li>
     <li (click)="saveTemplate()" [nzDisabled]="!loadedTemplate" nz-menu-item>Save</li>
     <li (click)="createTemplate()" nz-menu-item>Save as ...</li>
@@ -63,5 +45,21 @@
      -->
     <li nz-menu-divider></li>
     <li nz-menu-item (click)="openSettingsDialog()">Settings</li>
+  </ul>
+
+  <ul class="chart-menu-dropdown" nz-menu *ngIf="activeIndicator">
+    <li (click)="openVolumeSettingsDialog()" nz-menu-item>Settings</li>
+    <li nz-menu-divider></li>
+    <li class="custom-volume-profile-templates" nz-submenu [nzTitle]="'Templates'">
+      <ul class="custom-volume-profile-subitems">
+        <li nz-menu-item>BuyVolProf</li>
+        <li nz-menu-item>SellVolProf</li>
+      </ul>
+    </li>
+    <li nz-menu-item>Save</li>
+    <li (click)="saveAsCustomVolume()" nz-menu-item>Save as</li>
+    <li nz-menu-divider></li>
+    <li nz-menu-item>Delete</li>
+
   </ul>
 </nz-dropdown-menu>

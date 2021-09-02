@@ -30,6 +30,17 @@
             [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
         </li>
+        <li nz-submenu [nzTitle]="customDrawingTemplate" *ngIf="isDev">
+          <ul>
+            <li (click)="createVolumeProfile()" nz-menu-item>New</li>
+            <li nz-menu-divider></li>
+            <li class="custom-drawing-menu-item" nz-menu-item>BuyVolProf Shift + B <span class="actions"><i (click)="editCustomProfile()" class="icon-edit"></i> <i (click)="deleteVolumeProfile()" class="icon-close-window"></i></span></li>
+            <li class="custom-drawing-menu-item" nz-menu-item>SellVolProf Shift + A <span class="actions"><i (click)="editCustomProfile()" class="icon-edit"></i> <i (click)="deleteVolumeProfile()" class="icon-close-window"></i></span></li>
+          </ul>
+        </li>
+        <ng-template #customDrawingTemplate>
+          <i class="icon-custom-drawings"></i>
+        </ng-template>
         <ng-container *ngFor="let drawingInstrument of drawingInstruments">
           <li nz-submenu
               *ngIf="!hasOneDrawing(drawingInstrument); else oneItemTemplate"
