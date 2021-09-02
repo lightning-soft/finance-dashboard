@@ -195,6 +195,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.chart.crossHairType = value;
   }
 
+  @Output()
+  createCustomVolumeProfile = new EventEmitter();
+
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
               private _modalService: NzModalService,
@@ -445,7 +448,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   }
 
   createVolumeProfile() {
-
+    this.createCustomVolumeProfile.emit();
   }
 
   editCustomProfile() {

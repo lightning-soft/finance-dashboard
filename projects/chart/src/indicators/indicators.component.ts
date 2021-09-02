@@ -45,7 +45,7 @@ export class IndicatorsComponent implements OnInit {
   chart: IChart;
 
   get indicators(): any[] {
-    return this.chart?.indicators ?? [];
+    return (this.chart?.indicators ?? []).filter(i => i.className !== StockChartX.CustomVolumeProfile.className);
   }
 
   allExpanded = false;
@@ -66,7 +66,6 @@ export class IndicatorsComponent implements OnInit {
         ...(isDev ? [
           'VWAP',
           'BarStats',
-          'CustomVolumeProfile',
         ] : [])
       ],
       expanded: true,
@@ -216,7 +215,7 @@ export class IndicatorsComponent implements OnInit {
   }
 
   addIndicator(item) {
-    if (this.chart.indicators.find((i) => i._name === item))
+    if (this.indicators.find((i) => i._name === item))
       return;
 
     const _constructor = this.registeredIndicators[item];
