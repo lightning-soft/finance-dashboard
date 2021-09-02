@@ -1234,8 +1234,9 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border mt-1 d-block',
         fieldGroupClassName: 'd-grid three-rows',
+        key: 'header',
         fieldGroup: [
-          getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }),
+          wrapWithClass(getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }), 'position-select'),
           getColor('Text Color'),
           getColor('Back Color'),
         ],
@@ -1243,13 +1244,20 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border bar-font-stats-border mt-2 d-block',
         fieldGroupClassName: 'd-grid font-rows',
+        key: 'font',
         fieldGroup: [
           wrapWithClass(getColor('Font Color'), 'color-without-label'),
-          getSelect({ key: 'font', options: [{ label: 'Open Sans', key: 'openSans' }] }),
           getSelect({
-            key: 'font', options: [
-              { key: '400', label: 'Regular' },
-              { key: '700', label: 'Bold' },
+            key: 'fontFamily',
+            options: [{ label: 'Open Sans', value: '\"Open Sans\", sans-serif' },
+              { label: 'Monospace', value: 'monospace' },
+              { label: 'Sans Serif', value: 'sans-serif' },
+              { label: 'Arial', value: 'Arial' }]
+          }),
+          getSelect({
+            key: 'fontStyle', options: [
+              { value: '400', label: 'Regular' },
+              { value: '700', label: 'Bold' },
             ]
           }),
           getNumber({
@@ -1273,7 +1281,7 @@ export const barStatsConfig = [
         type: FieldType.DragAndDrop,
         fieldGroup: groupsRows.map(item => getGroupRow(item)),
       },
-      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1'),
+      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1 ml-1'),
     ],
   }),
   new FieldConfig({
