@@ -159,7 +159,7 @@ export class RithmicDatafeed extends Datafeed {
     const instrument = this._getInstrument(request);
 
     this._unsubscribe();
-    const connId = this._account.connectionId;
+    const connId = this._account?.connectionId;
     if (connId == null)
       return;
 

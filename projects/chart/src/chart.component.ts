@@ -60,6 +60,7 @@ import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } 
 import * as clone from 'lodash.clonedeep';
 import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
+import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -96,9 +97,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   chart: IChart;
   link: string;
+  activeIndicator: any;
 
   get chartLink() {
-    return `chart-${ this.link }`;
+    return `chart-${this.link}`;
   }
 
   directions = ['window-left', 'window-right'];
@@ -186,8 +188,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._orders.items;
   }
 
-   @ViewChild('menu') menu: NzDropdownMenuComponent;
-  // @ViewChild('customVolumeProfile') menu: NzDropdownMenuComponent;
+  @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   contextEvent: MouseEvent;
 
@@ -219,6 +220,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this._handleOHLV(ohlv))),
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote) => this._handleQuote(quote))),
     );
+  }
+
+  createCustomVolumeProfile() {
+    const indicator = new StockChartX.CustomVolumeProfile();
+    this.chart.addIndicators(indicator);
+    indicator.start();
+    this.chart.setNeedsUpdate();
   }
 
   async ngAfterViewInit() {
@@ -446,8 +454,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleContextMenu = (e) => {
+    this.activeIndicator = this.chart.indicators.find(i => i.isActive);
+
     const event = e.value.event.evt.originalEvent;
     this.contextEvent = event;
+
     this.nzContextMenuService.create(event, this.menu);
   }
 
@@ -883,7 +894,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   openSettingsDialog(): void {
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartSettings &&  item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
     if (widget)
       widget.focus();
@@ -918,7 +929,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   openVolumeSettingsDialog() {
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartVolumeSettings &&  item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartVolumeSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
     });
     if (widget)
       widget.focus();
