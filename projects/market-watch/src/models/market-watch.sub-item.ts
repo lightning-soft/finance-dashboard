@@ -1,4 +1,4 @@
-import { Cell, DataCell, NumberCell } from 'data-grid';
+import { Cell, DataCell, NumberCell, RoundFormatter } from 'data-grid';
 import { IInstrument, IOrder, OrderStatus } from 'trading';
 import { Id } from 'communication';
 import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
@@ -8,6 +8,7 @@ import { OrderColumnsArray } from 'base-order-form';
 const prefix = 'order';
 
 export class MarketWatchSubItem implements IMarketWatchItem {
+  private _formatter = new RoundFormatter(2);
   id: Id;
   order: IOrder;
   priceEnabledStatus = 'Price';
@@ -19,7 +20,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
   side: Cell = new DataCell();
   quantity: NumberCell = new NumberCell();
   type: DataCell = new DataCell();
-  price: NumberCell = new NumberCell({ hightlightOnChange: false });
+  price: NumberCell = new NumberCell({ hightlightOnChange: false, formatter: this._formatter });
   triggerPrice: NumberCell = new NumberCell({ hightlightOnChange: false });
   averageFillPrice: NumberCell = new NumberCell();
   duration: DataCell = new DataCell();
