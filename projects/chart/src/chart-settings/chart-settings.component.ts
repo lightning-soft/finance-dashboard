@@ -46,6 +46,9 @@ export class ChartSettingsComponent implements AfterViewInit {
 
   private _linkKey: string;
 
+  get linkKey() {
+    return this._linkKey;
+  }
 
   constructor() {
     this.setTabTitle('Settings Chart');

@@ -58,7 +58,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
 import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
 
@@ -597,6 +597,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       layoutContainer: this.layoutContainer,
       handleLinkData: this._handleSettingsChange.bind(this),
     });
+    this.addLinkObserver({
+      link: this._getCustomVolumeProfileKey(),
+      layoutContainer: this.layoutContainer,
+      handleLinkData: this._handleCustomVolumeProfileSettingsChange.bind(this),
+    });
   }
 
   loadTemplate(template: IChartTemplate): void {
@@ -852,6 +857,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private _handleCustomVolumeProfileSettingsChange(settings: any) {
+    console.log(settings);
+  }
+
   private _handleSettingsChange(settings: IChartSettings) {
     this.settings = settings;
     const session = settings.session?.sessionTemplate;
@@ -892,10 +901,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this.componentInstanceId}.${chartSettings}`;
   }
 
+  private _getCustomVolumeProfileKey() {
+    return `${this._getSettingsKey()}.cvp`;
+  }
+
   openSettingsDialog(): void {
+    const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
     });
+
     if (widget)
       widget.focus();
     else {
@@ -908,7 +923,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         component: {
           name: chartSettings,
           state: {
-            linkKey: this._getSettingsKey(),
+            linkKey,
             settings: this.settings,
           }
         },
@@ -928,12 +943,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   openVolumeSettingsDialog() {
+    if (!this.activeIndicator)
+      return;
+
+    const linkKey = this._getCustomVolumeProfileKey();
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartVolumeSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartVolumeSettings && (item.component as any).linkKey === linkKey;
     });
-    if (widget)
+    if (widget) {
       widget.focus();
-    else {
+      console.log('w', widget);
+    } else {
       const coords: any = {};
       if (this.contextEvent) {
         coords.x = this.contextEvent.screenX;
@@ -943,7 +963,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         component: {
           name: customVolumeProfileSettings,
           state: {
-            linkKey: this._getSettingsKey(),
+            linkKey,
+            indicator: {
+              settings: this.activeIndicator?.settings,
+            },
           }
         },
         closeBtn: true,

@@ -1,14 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { customVolumeProfile } from './config';
 import { FormGroup } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { mergeDeep } from 'base-components';
+import * as clone from 'lodash.clonedeep';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
 
 export interface VolumeProfileCustomSettingsComponent extends ILayoutNode {
+}
+
+
+export interface ICustomVolumeProfileSettingsState {
+  indicator: {
+    settings: any
+  };
+  linkKey: string;
 }
 
 @Component({
@@ -17,17 +28,23 @@ export interface VolumeProfileCustomSettingsComponent extends ILayoutNode {
   styleUrls: ['./volume-profile-custom-settings.component.scss']
 })
 @LayoutNode()
-export class VolumeProfileCustomSettingsComponent implements OnInit {
+@UntilDestroy()
+export class VolumeProfileCustomSettingsComponent implements OnInit, AfterViewInit {
   menuItems = [
-    { name: 'BuyVolProf', className: '', settings: {} },
-    {
-      name: 'SellVolProf',
-      className: '',
-      settings: {}
-    }];
-  currentItem = this.menuItems[0];
+    { name: 'BuyVolProf', settings: {} },
+    { name: 'SellVolProf', settings: {} }
+  ];
+
   config = customVolumeProfile;
   form = new FormGroup({});
+
+  settings: any = {};
+
+  private _linkKey: string;
+
+  get linkKey() {
+    return this._linkKey;
+  }
 
   constructor(
     private _modalService: NzModalService,
@@ -36,6 +53,38 @@ export class VolumeProfileCustomSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.setTabTitle('Drawing Objects');
+  }
+
+  loadState(state: ICustomVolumeProfileSettingsState): void {
+    console.log(state);
+    this._linkKey = state?.linkKey;
+
+    // TODO: Transform general.vaCorrelation to percents and back
+    this.settings = denormalizeSettings(state.indicator.settings);
+
+    this.addLinkObserver({
+      link: this._linkKey,
+      handleLinkData: (data) => {
+        if (!data)
+          return;
+
+        try {
+          console.log('data', data);
+          this.settings = denormalizeSettings(data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    this.form.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe((value) => {
+        this.settings = mergeDeep(this.settings, clone(value));
+        this.broadcastData(this._linkKey, normalizeSettings(this.settings));
+      });
   }
 
   saveState() {
@@ -80,4 +129,37 @@ export class VolumeProfileCustomSettingsComponent implements OnInit {
       }
     });
   }
+}
+
+function changeSettings(value: any, fn) {
+  return clone({
+    ...value,
+    general: {
+      ...value.general,
+      vaCorrelation: fn(value?.general?.vaCorrelation),
+    },
+    profileSettings: {
+      ...value.profileSettings,
+      widthCorrelation: fn(value?.profileSettings?.widthCorrelation),
+      vaInsideOpacity: fn(value?.profileSettings?.vaInsideOpacity),
+      vaOutsideOpacity: fn(value?.profileSettings?.vaOutsideOpacity),
+    }
+  });
+}
+
+function denormalizeSettings(value: any) {
+  return changeSettings(value, toPercent);
+}
+
+function normalizeSettings(value: any) {
+  return changeSettings(value, fromPercent);
+}
+
+
+function toPercent(value) {
+  return (value ?? 0) * 100;
+}
+
+function fromPercent(value) {
+  return value == null ? 0 : value / 100;
 }

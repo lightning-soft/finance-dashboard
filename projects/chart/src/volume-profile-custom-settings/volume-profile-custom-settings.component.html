@@ -8,8 +8,7 @@
   </div>
   <cdk-virtual-scroll-viewport itemSize="">
     <formly-form
-      class="{{currentItem.className}}"
-      [(model)]="currentItem.settings"
+      [(model)]="settings"
       [form]="form"
       [fields]="config"
     >

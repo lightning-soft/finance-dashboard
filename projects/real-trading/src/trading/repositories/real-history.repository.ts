@@ -53,7 +53,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
 
     const { endDate } = params || {};
 
-    // return of({ data: hist.map(i => this._mapResponseItem(i)), total: hist.length });
+    return of({ data: hist.map(i => this._mapResponseItem(i)), requestParams: params,  total: hist.length, pageCount: 1, page: 1 } as any);
 
     return super.getItems(params).pipe(
 /*      switchMap((res: IPaginationResponse<IHistoryItem>) => {

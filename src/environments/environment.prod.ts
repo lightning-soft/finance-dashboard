@@ -12,5 +12,5 @@ export const environment = {
     bootstrap: 'Bootstrap 4.5.0',
     fontawesome: 'Font Awesome 5.14.0',
   },
-  isDev: urlSearchParams.get('test') === 'true',
+  isDev: urlSearchParams.get('dev') === 'true',
 };

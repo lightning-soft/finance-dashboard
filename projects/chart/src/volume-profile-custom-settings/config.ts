@@ -17,9 +17,14 @@ export const customVolumeProfile = [
     fieldGroupClassName: 'two-rows d-grid hide-border-bottom',
     fieldGroup: [
       getSelect({
-        key: 'type', label: 'Profile Type',
+        key: 'type',
+        label: 'Profile Type',
         className: 'profile-type-select',
         options: [
+          {
+            value: 'price',
+            label: 'Price' // TODO: need investigate
+          },
           {
             value: 'volume',
             label: 'Volume'
@@ -38,11 +43,10 @@ export const customVolumeProfile = [
           },
         ],
       }),
-      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
-      getTextAlign('align', 'Profile Alignment',
-        { className: 'profile-alignment' }),
+      getNumber({ label: 'Value Area, %', key: 'vaCorrelation', min: 0, max: 100 }),
+      getTextAlign('align', 'Profile Alignment', { className: 'profile-alignment' }),
       {},
-      getHotkey({ label: 'Draw VPC', extraConfig: { className: 'profile-hotkey' }, key: 'drawVPC' }),
+      getHotkey({ label: 'Draw VPC', extraConfig: { className: 'profile-hotkey' }, key: 'drawVPC' }), // TODO: Implement command
     ],
   }),
   new FieldConfig({
@@ -57,6 +61,7 @@ export const customVolumeProfile = [
         className: 'd-flex flex-column justify-content-end',
         options: [
           {
+            key: 'color',
             label: 'Profile Color',
             value: { type: 'profileColor', value: '#a0a0a0' },
           },
@@ -75,21 +80,21 @@ export const customVolumeProfile = [
         ]
       }),
       getColor('Profile Color'),
-      getNumber({ label: 'Profile width, %', min: 1, key: 'width', }),
+      getNumber({ label: 'Profile width, %', min: 1, max: 100, key: 'widthCorrelation', }),
       {},
       getNumber({
         label: 'Inside VA Opacity,%',
         min: 1,
         max: 100,
         className: 'centralize-number',
-        key: 'insideVAOpacity',
+        key: 'vaInsideOpacity',
       }),
       getNumber({
         label: 'Outside VA Opacity,%',
         min: 1,
         max: 100,
         className: 'centralize-number',
-        key: 'outsideVAOpacity',
+        key: 'vaOutsideOpacity',
       }),
     ],
   }),
@@ -97,7 +102,7 @@ export const customVolumeProfile = [
     label: 'POC and Value Area Lines',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows',
-    key: 'areaLines',
+    key: 'lines',
     fieldGroup: [
       {
         wrappers: ['form-field'],
@@ -123,11 +128,11 @@ export const customVolumeProfile = [
         className: 'full-width',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ label: 'Show POC Price', value: 'showPocPrice' }],
+            checkboxes: [{ label: 'Show POC Price', value: 'showPocPrice', key: 'current.poc.labelEnabled' }],
             extraConfig: { fieldGroupClassName: 'd-flex justify-content-end', className: 'full-width' }
           }),
           getCheckboxes({
-            checkboxes: [{ label: 'Show VA Prices ', value: 'showVAPrice' }],
+            checkboxes: [{ label: 'Show VA Prices ', value: 'showVAPrice', key: 'current.va.labelEnabled' }],
             extraConfig: { fieldGroupClassName: 'd-flex justify-content-end' }
           })],
         fieldGroupClassName: 'd-grid three-rows'
