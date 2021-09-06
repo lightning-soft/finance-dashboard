@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { Themes, ThemesHandler } from 'themes';
 import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
-import { catchError, debounceTime, tap } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from 'templates';
 import { ISound } from 'sound';
@@ -61,63 +61,63 @@ const defaultSettings: SettingsData = {
   templates: [],
   sound: {
     connected: {
-      name: "Connected",
+      name: 'Connected',
       checked: true,
-      selectedSound: "Apert",
+      selectedSound: 'Apert',
       volume: 80
     },
     connectionLost: {
-      name: "Connection Lost",
+      name: 'Connection Lost',
       checked: true,
-      selectedSound: "Beam1",
+      selectedSound: 'Beam1',
       volume: 80
     },
     orderFilled: {
-      name: "Order Filled",
+      name: 'Order Filled',
       checked: true,
-      selectedSound: "Ding",
+      selectedSound: 'Ding',
       volume: 100
     },
     orderCancelled: {
-      name: "Order Cancelled",
+      name: 'Order Cancelled',
       checked: true,
-      selectedSound: "Beep",
+      selectedSound: 'Beep',
       volume: 100
     },
     orderReplaced: {
-      name: "Order Replaced",
+      name: 'Order Replaced',
       checked: true,
-      selectedSound: "Close",
+      selectedSound: 'Close',
       volume: 100
     },
     orderPending: {
-      name: "Order Pending",
+      name: 'Order Pending',
       checked: true,
-      selectedSound: "Blip2",
+      selectedSound: 'Blip2',
       volume: 100
     },
     orderRejected: {
-      name: "Order Rejected",
+      name: 'Order Rejected',
       checked: true,
-      selectedSound: "Bullet",
+      selectedSound: 'Bullet',
       volume: 100
     },
     targetFilled: {
-      name: "Target Filled",
+      name: 'Target Filled',
       checked: true,
-      selectedSound: "Cashreg",
+      selectedSound: 'Cashreg',
       volume: 80
     },
     stopFilled: {
-      name: "Stop Filled",
+      name: 'Stop Filled',
       checked: true,
-      selectedSound: "Buzz",
+      selectedSound: 'Buzz',
       volume: 100
     },
     alert: {
-      name: "Alert",
+      name: 'Alert',
       checked: true,
-      selectedSound: "Arrowhit",
+      selectedSound: 'Arrowhit',
       volume: 100
     },
     isPlay: true
@@ -131,6 +131,10 @@ export class SettingsService {
 
   settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
   private $updateState = new Subject<void>();
+
+  private get _settings() {
+    return this.settings.value;
+  }
 
   constructor(
     public themeHandler: ThemesHandler,
@@ -159,6 +163,24 @@ export class SettingsService {
         }),
         tap((s: any) => s && this._updateState(s, false)),
       );
+  }
+
+  getItem(): Observable<SettingsData> {
+    return this._settingStore.getItem();
+  }
+
+  get<T = any>(key: string): Observable<T> {
+    return (this._settings ? of(this._settings) : this.getItem()).pipe(map(s => s[key]));
+  }
+
+  set<T = any>(key: string, value: T): Observable<void> {
+    return (this._settings ? of(this._settings) : this.getItem()).pipe(
+      mergeMap(settings => this._settingStore.setItem({
+        ...settings,
+        [key]: value
+      }),
+      ),
+    );
   }
 
   public destroy() {

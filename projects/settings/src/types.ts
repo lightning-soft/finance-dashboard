@@ -4,6 +4,7 @@ import { Workspace } from 'workspace-manager';
 import { NavbarPosition } from './settings.service';
 import { IBaseTemplate } from 'templates';
 import { ISound } from 'sound';
+import { IVolumeTemplate } from 'chart';
 
 export interface ICommand {
   readonly UIString: string;
@@ -37,5 +38,6 @@ export type SettingsData = {
     stopFilled: ISound;
     alert: ISound;
     isPlay: boolean;
-  }
+  };
+  volumeProfileTemplates?: IVolumeTemplate[],
 };

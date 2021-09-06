@@ -4,3 +4,4 @@ export * from './models/index';
 export * from './datafeed/index';
 export * from './chart-settings/chart-settings.component';
 export * from './orders-panel/orders-panel.component';
+export * from './volume-profile-custom-settings/volume-profile-templates.repository';

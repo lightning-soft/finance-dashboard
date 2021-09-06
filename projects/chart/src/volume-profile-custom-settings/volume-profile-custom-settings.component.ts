@@ -1,12 +1,14 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { customVolumeProfile } from './config';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NzModalService } from 'ng-zorro-antd';
-import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { mergeDeep } from 'base-components';
+import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
+import { NzModalService } from 'ng-zorro-antd';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { ItemsComponent } from 'base-components';
+import { customVolumeProfile } from './config';
+import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
@@ -29,13 +31,10 @@ export interface ICustomVolumeProfileSettingsState {
 })
 @LayoutNode()
 @UntilDestroy()
-export class VolumeProfileCustomSettingsComponent implements OnInit, AfterViewInit {
-  menuItems = [
-    { name: 'BuyVolProf', settings: {} },
-    { name: 'SellVolProf', settings: {} }
-  ];
+export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolumeTemplate> implements OnInit, AfterViewInit {
+  menuItems = [];
 
-  config = customVolumeProfile;
+  formConfig = customVolumeProfile;
   form = new FormGroup({});
 
   settings: any = {};
@@ -48,10 +47,19 @@ export class VolumeProfileCustomSettingsComponent implements OnInit, AfterViewIn
 
   constructor(
     private _modalService: NzModalService,
+    protected _repository: VolumeProfileTemplatesRepository,
   ) {
+    super();
+    this.autoLoadData = {
+      onInit: true,
+      onParamsChange: false,
+      onQueryParamsChange: false,
+      onConnectionChange: false,
+    };
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.setTabTitle('Drawing Objects');
   }
 
@@ -59,7 +67,6 @@ export class VolumeProfileCustomSettingsComponent implements OnInit, AfterViewIn
     console.log(state);
     this._linkKey = state?.linkKey;
 
-    // TODO: Transform general.vaCorrelation to percents and back
     this.settings = denormalizeSettings(state.indicator.settings);
 
     this.addLinkObserver({
@@ -91,8 +98,8 @@ export class VolumeProfileCustomSettingsComponent implements OnInit, AfterViewIn
 
   }
 
-  selectItem(item: { name: string }) {
-
+  selectItem(item: IVolumeTemplate) {
+    this.settings = denormalizeSettings(item.settings);
   }
 
   rename() {

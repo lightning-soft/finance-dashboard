@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AccountsManager, AccountsManagerModule } from 'accounts-manager';
 import { AuthModule, AuthService } from 'auth';
+import { VolumeProfileTemplatesRepository } from 'chart';
 import { CacheInterceptor, CommunicationConfig, CommunicationModule } from 'communication';
 import { ConfigModule } from 'config';
 import { ContextMenuModule } from 'context-menu';
@@ -31,7 +32,7 @@ import { RealTradingModule } from 'real-trading';
 import { first } from 'rxjs/operators';
 import { SettingsModule } from 'settings';
 import { environment } from 'src/environments/environment';
-import { TemplatesModule } from "templates";
+import { TemplatesModule } from 'templates';
 import { ThemesHandler } from 'themes';
 import { TimezonesClockModule } from 'timezones-clock';
 import { ModalsModule, SaveLoaderModule } from 'ui';
@@ -240,6 +241,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
   ],
   providers: [
     ThemesHandler,
+    VolumeProfileTemplatesRepository,
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
