@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnDestroy, Injector } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { FakeRepository } from 'communication';
 import { Observable, of, Subscription } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
@@ -19,6 +19,7 @@ const DefaultTemplates = [
 @Injectable({ providedIn: 'root' })
 export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemplate> implements OnDestroy {
   private _subscriptions: Subscription;
+  private _inited;
 
   constructor(private _settingsService: SettingsService) {
     super();
@@ -26,7 +27,23 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   protected async _init() {
-    setTimeout(() => { super._init(); });
+    if (this._inited !== undefined)
+      return;
+
+    this._inited = null;
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        super._init()
+          .then(data => {
+            resolve(data);
+            this._inited = true;
+          })
+          .catch(e => {
+            reject(e);
+            this._inited = undefined;
+          });
+      });
+    });
   }
 
   private _getTemplates(): Observable<IVolumeTemplate[]> {
@@ -68,6 +85,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   async _getItems() {
+    await this._init();
     return this._getTemplates().toPromise();
   }
 

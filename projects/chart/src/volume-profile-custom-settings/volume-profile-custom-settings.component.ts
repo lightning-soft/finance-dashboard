@@ -56,6 +56,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       onQueryParamsChange: false,
       onConnectionChange: false,
     };
+
   }
 
   ngOnInit(): void {

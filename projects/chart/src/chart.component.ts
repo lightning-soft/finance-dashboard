@@ -61,6 +61,7 @@ import * as clone from 'lodash.clonedeep';
 import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
 import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
+import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -209,7 +210,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
     private _windowManager: WindowManagerService,
-    private _changeDetectorRef: ChangeDetectorRef
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
