@@ -225,7 +225,7 @@ export abstract class Datafeed implements IDatafeed {
       this.barHandler = new BarHandler(chart);
     }
 
-    if (this.isRequestAlive(request)) {
+    if (request.kind === 'bars' && this.isRequestAlive(request)) {
       this._accomulateQuotes(quote);
       return;
     }

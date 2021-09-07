@@ -1222,7 +1222,7 @@ const groupsRows = ['Delta',
   }, {
     label: 'Sell% Volume', hasBackground: false,
     key: 'sellPercentVolume'
-  }, 'Delta Max', 'Delta Min', 'Delta Finish'];
+  }, 'Delta Max', 'Delta Min', 'Delta Finish', { label: 'Ticks', key: 'ticks', noColors: true, }];
 
 export const barStatsConfig = [
   new FieldConfig({
@@ -1236,7 +1236,12 @@ export const barStatsConfig = [
         fieldGroupClassName: 'd-grid three-rows',
         key: 'header',
         fieldGroup: [
-          wrapWithClass(getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }), 'position-select'),
+          wrapWithClass(getSelect({
+            key: 'position', label: 'Position', options: [
+              { value: 'left', label: 'Left' },
+              { value: 'right', label: 'Right' },
+            ]
+          }), 'position-select'),
           getColor('Text Color'),
           getColor('Back Color'),
         ],
@@ -1281,7 +1286,6 @@ export const barStatsConfig = [
         type: FieldType.DragAndDrop,
         fieldGroup: groupsRows.map(item => getGroupRow(item)),
       },
-      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1 ml-1'),
     ],
   }),
   new FieldConfig({
@@ -1299,8 +1303,8 @@ export const barStatsConfig = [
           fieldGroupClassName: 'd-grid group-row',
           fieldGroup: [
             getInput({ key: 'name' }),
-            getNumber({ min: 0, key: 'min' }),
-            getNumber({ min: 0, key: 'max' }),
+            getNumber({ min: 0, key: 'min', placeholder: 'Min. Trade Vol.' }),
+            getNumber({ min: 0, key: 'max', placeholder: 'Max. Trade Vol.' }),
           ],
         },
       }
@@ -1313,8 +1317,12 @@ function getGroupRow(title) {
   const label = typeof title === 'string' ? title : title.label;
   const key = title.key ?? label.toLowerCase().replace(/ /g, '');
   const hasBackground = (title as { hasBackground }).hasBackground;
-  const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
-    getColor('Negative')];
+  let colors = [];
+  const noColors = (title as any).noColors === true;
+  if (!noColors) {
+    colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
+      getColor('Negative')];
+  }
   return {
     key,
     fieldGroupClassName: 'd-grid three-rows',

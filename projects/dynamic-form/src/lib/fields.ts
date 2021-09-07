@@ -335,16 +335,19 @@ export function getLineSelector(_config) {
 
 export function getNumber(_config: any) {
   const config: any = {
-    key: '', label: null,
+    key: '',
+    placeholder: '',
+    label: null,
     min: null,
     max: null,
   };
   Object.assign(config, _config);
-  const { key, important, unit, label, ...extraConfig } = config;
+  const { key, important, placeholder, unit, label, ...extraConfig } = config;
   return {
     key,
     type: FieldType.Number,
     templateOptions: {
+      placeholder,
       label,
       min: config.min,
       max: config.max,
