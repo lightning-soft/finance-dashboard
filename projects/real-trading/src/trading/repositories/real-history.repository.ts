@@ -3,13 +3,16 @@ import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from 'trading';
-import { of } from 'rxjs';
-import { hist } from './history';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { fromPromise } from 'rxjs/internal-compatibility';
 
 declare const moment: any;
 
 export interface IHistoryItem extends IBaseItem, IBar {
 }
+
+const requestOffset = 1000; // 1s
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
@@ -30,7 +33,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     };
   }
 
-  getItems(params: any) {
+  getItems(params: any): Observable<any> {
     if (!params.endDate)
       params.endDate = new Date();
 
@@ -42,49 +45,56 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
     if (params?.productCode) {
       params.id = params.productCode;
       delete params.productCode;
-    }
-    else if (params?.Symbol) {
+    } else if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.id) {
       const [symbol, exchange] = params.id.split('.');
       params.id = symbol;
-      params.Exchange = exchange;
+      params.Exchange = exchange || params.Exchange;
     }
 
-    const { endDate } = params || {};
-
     // return of({ data: hist.map(i => this._mapResponseItem(i)), total: hist.length });
+    if (params.Periodicity === 'TICK')
+      return fromPromise(this._getItems(params));
 
-    return super.getItems(params).pipe(
-/*      switchMap((res: IPaginationResponse<IHistoryItem>) => {
-        const arr = res?.data || [];
-        const lastItem = arr[arr.length - 1];
-        const lastDate = lastItem?.date.getTime();
-        const requestEndDate = endDate && new Date(endDate).getTime();
+    return super.getItems(params);
+  }
 
-        if (requestEndDate != null && lastItem != null && lastDate < requestEndDate) {
-          lastItem.details = lastItem.details.filter(details => {
-            return lastItem.low <= details.price && details.price <= lastItem.high;
-          });
+  private async _getItems(params: any): Promise<{ data: any }> {
+    try {
+      let { startDate, endDate } = params;
+      const data = [];
+      let isOver = false;
+      do {
+        await super.getItems({ ...params, startDate }).pipe(
+          tap((res) => {
+            const arr = res?.data || [];
+            if (!arr.length) {
+              isOver = true;
+              return;
+            }
 
-          return this.getItems({ ...params, startDate: lastDate, endDate: requestEndDate })
-            .pipe(
-              map((response: IPaginationResponse<IHistoryItem>) => {
-                const data = arr;
+            const lastItem = arr[arr.length - 1];
+            const newStartDate = lastItem?.date.getTime();
+            if (newStartDate === startDate) {
+              isOver = true;
+              return;
+            }
 
-                for (const item of (response.data || [])) {
-                  if (item.date.getTime() > lastDate) {
-                    data.push(item);
-                  }
-                }
-
-                return { data };
-              }),
-            );
-        }
-
-        return of(res);
-      })*/
-    );
+            for (const item of (arr || [])) {
+              if (item.date.getTime() > startDate) {
+                data.push(item);
+              }
+            }
+            startDate = newStartDate;
+          }),
+        ).toPromise();
+      }
+      while (!isOver && endDate > startDate);
+      return { data };
+    } catch (err) {
+      console.log(err);
+      return { data: [] };
+    }
   }
 }
