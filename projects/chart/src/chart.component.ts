@@ -437,7 +437,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     let charts = [];
 
-    if (!environment.production) {
+    if (!environment.isDev) {
       if (!(window as any).charts) {
         (window as any).charts = [];
       }
