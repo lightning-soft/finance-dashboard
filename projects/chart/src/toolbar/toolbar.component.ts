@@ -475,7 +475,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.loadedCustomeVolumeProfile.emit(template);
   }
 
-  editCustomProfile() {
+  editCustomProfile(template: IBaseTemplate): void {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -487,13 +487,15 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       },
     });
 
-    modal.afterClose.subscribe(result => {
-      if (result && result !== '') {
-      }
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._templatesService.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  deleteVolumeProfile() {
+  deleteVolumeProfile(template: IBaseTemplate): void {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -506,6 +508,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
+        this._templatesService.deleteItem(template.id).subscribe();
       }
     });
   }
