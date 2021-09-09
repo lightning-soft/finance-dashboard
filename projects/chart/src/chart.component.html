@@ -18,6 +18,7 @@
 <div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">
     <app-toolbar *ngIf="window" (createCustomVolumeProfile)="createCustomVolumeProfile()"
+      (loadedCustomeVolumeProfile)="loadCustomeVolumeTemplate($event)"
       [(enableOrderForm)]="enableOrderForm" (enableOrderFormChange)="checkIfTradingEnabled()"
       [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart" [window]="window"
       [link]="chartLink"></app-toolbar>
@@ -50,13 +51,13 @@
   <ul class="chart-menu-dropdown" nz-menu *ngIf="activeIndicator">
     <li (click)="openVolumeSettingsDialog()" nz-menu-item>Settings</li>
     <li nz-menu-divider></li>
-    <li class="custom-volume-profile-templates" nz-submenu [nzTitle]="'Templates'">
+    <li class="custom-volume-profile-templates" nz-submenu nzTitle="Templates">
       <ul class="custom-volume-profile-subitems">
         <li nz-menu-item>BuyVolProf</li>
         <li nz-menu-item>SellVolProf</li>
       </ul>
     </li>
-    <li nz-menu-item>Save</li>
+    <li (click)="saveCustomVolume()" nz-menu-item>Save</li>
     <li (click)="saveAsCustomVolume()" nz-menu-item>Save as</li>
     <li nz-menu-divider></li>
     <li nz-menu-item>Delete</li>

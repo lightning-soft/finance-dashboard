@@ -56,7 +56,7 @@ export const customVolumeProfile = [
     fieldGroupClassName: 'two-rows d-grid',
     fieldGroup: [
       getColorSelect({
-        key: 'color',
+        key: 'profileColor',
         label: 'Profile Type',
         className: 'd-flex flex-column justify-content-end',
         options: [

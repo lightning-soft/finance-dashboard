@@ -19,3 +19,8 @@ export interface IChartState extends IScxComponentState {
   settings: IChartSettings;
 }
 export type IChartTemplate = IBaseTemplate<IChartState>;
+
+export interface ICustomeVolumeState {
+  settings: any;
+}
+export type ICustomeVolumeTemaplate = IBaseTemplate<ICustomeVolumeState>;

@@ -39,6 +39,7 @@ export enum Components {
   MarketWatch = 'marketWatch',
   MarketWatchSettings = 'market-watch-settings',
   AccountInfo = 'account-info',
+  CustomVolumeProfile = 'custom-volume-profile'
 }
 
 export const modulesStore: IModules[] = [
