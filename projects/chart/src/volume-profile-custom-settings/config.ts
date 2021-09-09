@@ -51,7 +51,7 @@ export const customVolumeProfile = [
   }),
   new FieldConfig({
     label: 'Profile Settings',
-    key: 'profileSettings',
+    key: 'profile',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'two-rows d-grid',
     fieldGroup: [
