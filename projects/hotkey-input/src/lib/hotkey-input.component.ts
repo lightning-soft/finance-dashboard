@@ -34,9 +34,8 @@ export class HotkeyInputComponent implements ControlValueAccessor {
     if (this.isKeyboardRecording && $event instanceof KeyboardEvent) {
       $event.preventDefault();
       this.keyboardListener.handle($event);
-      return true;
+      return false;
     }
-    return false;
   }
 
   changeHotkey($event: MouseEvent) {
@@ -75,7 +74,7 @@ export class HotkeyInputComponent implements ControlValueAccessor {
     if (emit) {
       this.valueChange.emit(value);
       if (this.onChange)
-        this.onChange(value.toDTO());
+        this.onChange(value?.toDTO());
     }
   }
 

@@ -7,7 +7,7 @@
     <lib-selected-sound [selectedSound]="selectedSound" [volume]="volume" (nativeSelect)="selectedSound = $event; save();"></lib-selected-sound>
 
     <div class="slider">
-        <nz-slider [nzTipFormatter]="formatter" [(ngModel)]="volume" (ngModelChange)="save()"></nz-slider>
+        <nz-slider [nzTipFormatter]="formatter" [(ngModel)]="volume" (nzOnAfterChange)="save()"></nz-slider>
         <p class='volume-info'>{{ volume }}%</p>
     </div>
 </div>

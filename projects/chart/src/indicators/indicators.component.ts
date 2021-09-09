@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { StringHelper } from 'base-components';
@@ -18,9 +18,9 @@ import {
   VolumeBreakdown,
   VolumeProfile,
   ZigZag,
-  ZigZagOscillator
+  ZigZagOscillator,
+  VWAP
 } from './indicators';
-import { VWAP } from './indicators/VWAP';
 
 declare const StockChartX: any;
 
@@ -143,8 +143,14 @@ export class IndicatorsComponent implements OnInit {
       content: string[];
     }[];
   } = {};
+  descriptionEnabled: {
+    [key: string]: boolean;
+  }  = {};
 
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
+
+  constructor(private cd: ChangeDetectorRef) {
+  }
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -303,6 +309,8 @@ export class IndicatorsComponent implements OnInit {
         title: StringHelper.capitalize(keys[i]),
         content,
       }));
+      this.descriptionEnabled[name] = sections.some(item => item.length);
+      this.cd.detectChanges();
     });
   }
 

@@ -13,7 +13,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate } from 'chart/models';
+import { IChartState, IChartTemplate, ICustomeVolumeTemaplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -58,9 +58,10 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
 import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
+import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -174,6 +175,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadedTemplate: IChartTemplate;
   isTradingEnabled = true;
 
+  loadedCustomeVolumeTemplate: any;
+
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
   @ViewChild(InfoComponent)
@@ -192,6 +195,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   contextEvent: MouseEvent;
 
+  _customeVolumeSetting: any;
+
   constructor(
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
@@ -209,7 +214,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
     private _windowManager: WindowManagerService,
-    private _changeDetectorRef: ChangeDetectorRef
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -222,10 +228,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  createCustomVolumeProfile() {
+  createCustomVolumeProfile(settings?: any) {
     const indicator = new StockChartX.CustomVolumeProfile();
+
     this.chart.addIndicators(indicator);
     indicator.start();
+
+    if (settings) {
+      indicator.settings = settings;
+    }
+
     this.chart.setNeedsUpdate();
   }
 
@@ -425,7 +437,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     let charts = [];
 
-    if (!environment.production) {
+    if (!environment.isDev) {
       if (!(window as any).charts) {
         (window as any).charts = [];
       }
@@ -597,11 +609,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       layoutContainer: this.layoutContainer,
       handleLinkData: this._handleSettingsChange.bind(this),
     });
+    this.addLinkObserver({
+      link: this._getCustomVolumeProfileKey(),
+      layoutContainer: this.layoutContainer,
+      handleLinkData: this._handleCustomVolumeProfileSettingsChange.bind(this),
+    });
   }
 
   loadTemplate(template: IChartTemplate): void {
     this.loadedTemplate = template;
     this.loadState(template.state);
+  }
+
+  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+    this.loadedCustomeVolumeTemplate = template;
+    this.createCustomVolumeProfile(template.state.settings);
   }
 
   ngOnDestroy(): void {
@@ -724,8 +746,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrder(config: Partial<IOrder>) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this._notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };
@@ -852,6 +876,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private _handleCustomVolumeProfileSettingsChange(settings: any) {
+    this.activeIndicator.settings = settings;
+  }
+
   private _handleSettingsChange(settings: IChartSettings) {
     this.settings = settings;
     const session = settings.session?.sessionTemplate;
@@ -892,10 +920,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this.componentInstanceId}.${chartSettings}`;
   }
 
+  private _getCustomVolumeProfileKey() {
+    return `${this._getSettingsKey()}.cvp`;
+  }
+
   openSettingsDialog(): void {
+    const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
     });
+
     if (widget)
       widget.focus();
     else {
@@ -908,7 +942,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         component: {
           name: chartSettings,
           state: {
-            linkKey: this._getSettingsKey(),
+            linkKey,
             settings: this.settings,
           }
         },
@@ -928,12 +962,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   openVolumeSettingsDialog() {
+    if (!this.activeIndicator)
+      return;
+
+    const linkKey = this._getCustomVolumeProfileKey();
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.ChartVolumeSettings && item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartVolumeSettings && (item.component as any).linkKey === linkKey;
     });
-    if (widget)
+    if (widget) {
       widget.focus();
-    else {
+      console.log('w', widget);
+    } else {
       const coords: any = {};
       if (this.contextEvent) {
         coords.x = this.contextEvent.screenX;
@@ -943,7 +982,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         component: {
           name: customVolumeProfileSettings,
           state: {
-            linkKey: this._getSettingsKey(),
+            linkKey,
+            indicator: {
+              settings: this.activeIndicator?.settings,
+            },
           }
         },
         closeBtn: true,
@@ -974,7 +1016,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
   }
 
-  saveAsCustomVolume() {
+  saveCustomVolume(): void {
+    if (!this.loadedCustomeVolumeTemplate)
+      return;
+
+    const template: ICustomeVolumeTemaplate = {
+      state: { settings: this.activeIndicator?.settings },
+      id: this.loadedCustomeVolumeTemplate.id,
+      name: this.loadedCustomeVolumeTemplate.name,
+      type: Components.CustomVolumeProfile
+    };
+
+    this._templatesService.updateItem(template).subscribe(() => {
+      this.loadedCustomeVolumeTemplate = template;
+    }, error => this._notifier.showError(error, 'Failed to save Template'));
+  }
+
+  saveAsCustomVolume(): void {
     const modal = this._modalService.create({
       nzTitle: 'Save as',
       nzContent: RenameModalComponent,
@@ -987,8 +1045,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
     modal.afterClose.subscribe(result => {
-      if (result && result !== '') {
-      }
+      if (!result)
+        return;
+
+      const template: ExcludeId<ICustomeVolumeTemaplate> = {
+        state: { settings: this.activeIndicator?.settings },
+        name: result,
+        type: Components.CustomVolumeProfile
+      };
+      this._templatesService.createItem(template).subscribe((template) => {
+        this.loadedCustomeVolumeTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 }

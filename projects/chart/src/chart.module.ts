@@ -46,6 +46,7 @@ import {
   customVolumeProfileSettings,
   VolumeProfileCustomSettingsComponent
 } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 // const environment = { scxPath: '' };
 
@@ -130,7 +131,7 @@ import {
     VolumeProfileCustomSettingsComponent,
     InfoComponent,
     RepeatGroupComponent,
-  ]
+  ],
 })
 export class ChartModule implements LazyModule {
   get components(): ComponentStore {
