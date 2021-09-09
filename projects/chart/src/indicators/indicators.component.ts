@@ -60,10 +60,8 @@ export class IndicatorsComponent implements OnInit {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
-        ...(environment.isDev ? [
-          'VWAP',
-          'BarStats',
-        ] : [])
+        'VWAP',
+        'BarStats',
       ],
       expanded: true,
     },
@@ -145,7 +143,7 @@ export class IndicatorsComponent implements OnInit {
   } = {};
   descriptionEnabled: {
     [key: string]: boolean;
-  }  = {};
+  } = {};
 
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
 
