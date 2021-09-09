@@ -444,9 +444,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.broadcastData(this.chartLink, chart);
 
-    let charts = [];
-
-    if (!environment.isDev) {
+    if (environment.isDev) {
+      let charts = [];
       if (!(window as any).charts) {
         (window as any).charts = [];
       }

@@ -223,10 +223,10 @@ export class IndicatorsComponent implements OnInit {
 
     const _constructor = this.registeredIndicators[item];
     const indicator = new _constructor();
-    this._applyZIndex();
     this.chart.addIndicators(indicator);
     this.chart.setNeedsUpdate();
 
+    this._applyZIndex();
     this.selectIndicator(indicator);
   }
 
