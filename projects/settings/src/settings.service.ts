@@ -254,6 +254,5 @@ export class SettingsService {
     } catch (err) {
       console.error(settings);
     }
-
   }
 }

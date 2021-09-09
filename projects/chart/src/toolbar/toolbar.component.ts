@@ -234,6 +234,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
     this._templatesService.subscribe((data) => {
+      this.customeVolumeTemplate = [];
       (data?.items || []).forEach(template => {
         if (template.type !== Components.CustomVolumeProfile) {
           return;

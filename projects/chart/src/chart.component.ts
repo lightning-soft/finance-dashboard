@@ -45,7 +45,7 @@ import {
   QuoteSide,
   UpdateType
 } from 'trading';
-import { CreateModalComponent, RenameModalComponent } from 'ui';
+import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
@@ -1068,9 +1068,47 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  editCustomProfile(template: IBaseTemplate): void {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._templatesService.updateItem({ ...template, name }).subscribe();
+    });
+  }
+
+  deleteVolumeProfile(template: IBaseTemplate): void {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+        this._templatesService.deleteItem(template.id).subscribe();
+      }
+    });
+  }
+
   private _loadTemplateList(): void {
-    this.customeVolumeTemplate = [];
     this._templatesService.subscribe((data) => {
+      this.customeVolumeTemplate = [];
       (data?.items || []).forEach(template => {
         if (template.type !== Components.CustomVolumeProfile) {
           return;
