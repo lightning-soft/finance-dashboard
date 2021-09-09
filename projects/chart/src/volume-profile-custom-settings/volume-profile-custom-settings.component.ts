@@ -10,6 +10,7 @@ import { ItemsComponent } from 'base-components';
 import { customVolumeProfile } from './config';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
 import { Observable } from 'rxjs';
+import { IBaseTemplate, TemplatesService } from 'templates';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
@@ -49,6 +50,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   constructor(
     private _modalService: NzModalService,
     protected _repository: VolumeProfileTemplatesRepository,
+    private _templatesService: TemplatesService,
   ) {
     super();
     this.autoLoadData = {
@@ -104,7 +106,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
     this.settings = denormalizeSettings(item.settings);
   }
 
-  rename() {
+  rename(template: IBaseTemplate) {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -116,13 +118,15 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       },
     });
 
-    modal.afterClose.subscribe(result => {
-      if (result && result !== '') {
-      }
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._templatesService.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  delete() {
+  delete(template: IBaseTemplate) {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -135,6 +139,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
+        this._templatesService.deleteItem(template.id).subscribe();
       }
     });
   }

@@ -25,7 +25,10 @@ export class SettingsStore implements ISettingsStore {
     return this.settingsRepository.getItems()
       .pipe(
         map((item: any) => item.settings),
-        tap((settings) => this._settings = settings)
+        tap((settings) => {
+          this._settings = settings;
+          this.hasSettings = true;
+        })
       ) as any;
   }
 
@@ -36,7 +39,6 @@ export class SettingsStore implements ISettingsStore {
       return this.settingsRepository.updateItem({ settings });
     else {
       return this.settingsRepository.createItem({ settings });
-
     }
   }
 }

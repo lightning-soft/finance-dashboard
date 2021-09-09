@@ -25,7 +25,7 @@ import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
 import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { environment } from 'src/environments/environment';
-import { TemplatesService } from 'templates';
+import { IBaseTemplate, TemplatesService } from 'templates';
 import { ThemesHandler } from 'themes';
 import {
   compareInstruments,
@@ -45,7 +45,7 @@ import {
   QuoteSide,
   UpdateType
 } from 'trading';
-import { CreateModalComponent, RenameModalComponent } from 'ui';
+import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
@@ -118,6 +118,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
   incomePercentage: number;
+
+  customeVolumeTemplate: IBaseTemplate[] = [];
 
   showOHLV = true;
   showChanges = true;
@@ -228,7 +230,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  createCustomVolumeProfile(settings?: any) {
+  createCustomVolumeProfile(settings?: any): void {
     const indicator = new StockChartX.CustomVolumeProfile();
 
     this.chart.addIndicators(indicator);
@@ -238,6 +240,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       indicator.settings = settings;
     }
 
+    this.chart.setNeedsUpdate();
+  }
+
+  removeCustomeVolumeProfile(): void {
+    this.chart.removeIndicators(this.activeIndicator);
     this.chart.setNeedsUpdate();
   }
 
@@ -256,6 +263,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (this.loadedTemplate)
         this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
     });
+
+    this._loadTemplateList();
   }
 
   private _updateOHLVData() {
@@ -1029,6 +1038,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._templatesService.updateItem(template).subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
+      this._loadTemplateList();
     }, error => this._notifier.showError(error, 'Failed to save Template'));
   }
 
@@ -1055,7 +1065,59 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       };
       this._templatesService.createItem(template).subscribe((template) => {
         this.loadedCustomeVolumeTemplate = template;
+        this._loadTemplateList();
       }, error => this._notifier.showError(error, 'Failed to create Template'));
+    });
+  }
+
+  editCustomProfile(template: IBaseTemplate): void {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._templatesService.updateItem({ ...template, name }).subscribe();
+    });
+  }
+
+  deleteVolumeProfile(template: IBaseTemplate): void {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+        this._templatesService.deleteItem(template.id).subscribe();
+      }
+    });
+  }
+
+  private _loadTemplateList(): void {
+    this._templatesService.subscribe((data) => {
+      this.customeVolumeTemplate = [];
+      (data?.items || []).forEach(template => {
+        if (template.type !== Components.CustomVolumeProfile) {
+          return;
+        }
+
+        this.customeVolumeTemplate.push(template);
+      });
     });
   }
 }
