@@ -9,6 +9,7 @@ import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { ItemsComponent } from 'base-components';
 import { customVolumeProfile } from './config';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
+import { Observable } from 'rxjs';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
@@ -65,7 +66,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   }
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
-    console.log(state);
+    console.log('state', state);
     this._linkKey = state?.linkKey;
 
     this.settings = denormalizeSettings(state.indicator.settings);

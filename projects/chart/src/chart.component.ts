@@ -13,7 +13,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate } from 'chart/models';
+import { IChartState, IChartTemplate, ICustomeVolumeTemaplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -175,6 +175,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadedTemplate: IChartTemplate;
   isTradingEnabled = true;
 
+  loadedCustomeVolumeTemplate: any;
+
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
   @ViewChild(InfoComponent)
@@ -192,6 +194,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild('menu') menu: NzDropdownMenuComponent;
 
   contextEvent: MouseEvent;
+
+  _customeVolumeSetting: any;
 
   constructor(
     public injector: Injector,
@@ -224,10 +228,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  createCustomVolumeProfile() {
+  createCustomVolumeProfile(settings?: any) {
     const indicator = new StockChartX.CustomVolumeProfile();
+
     this.chart.addIndicators(indicator);
     indicator.start();
+
+    if (settings) {
+      indicator.settings = settings;
+    }
+
     this.chart.setNeedsUpdate();
   }
 
@@ -611,6 +621,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadState(template.state);
   }
 
+  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+    this.loadedCustomeVolumeTemplate = template;
+    this.createCustomVolumeProfile(template.state.settings);
+  }
+
   ngOnDestroy(): void {
     this.destroy();
   }
@@ -862,7 +877,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleCustomVolumeProfileSettingsChange(settings: any) {
-    console.log(settings);
+    this.activeIndicator.settings = settings;
   }
 
   private _handleSettingsChange(settings: IChartSettings) {
@@ -1001,7 +1016,23 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
   }
 
-  saveAsCustomVolume() {
+  saveCustomVolume(): void {
+    if (!this.loadedCustomeVolumeTemplate)
+      return;
+
+    const template: ICustomeVolumeTemaplate = {
+      state: { settings: this.activeIndicator?.settings },
+      id: this.loadedCustomeVolumeTemplate.id,
+      name: this.loadedCustomeVolumeTemplate.name,
+      type: Components.CustomVolumeProfile
+    };
+
+    this._templatesService.updateItem(template).subscribe(() => {
+      this.loadedCustomeVolumeTemplate = template;
+    }, error => this._notifier.showError(error, 'Failed to save Template'));
+  }
+
+  saveAsCustomVolume(): void {
     const modal = this._modalService.create({
       nzTitle: 'Save as',
       nzContent: RenameModalComponent,
@@ -1014,8 +1045,17 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
     modal.afterClose.subscribe(result => {
-      if (result && result !== '') {
-      }
+      if (!result)
+        return;
+
+      const template: ExcludeId<ICustomeVolumeTemaplate> = {
+        state: { settings: this.activeIndicator?.settings },
+        name: result,
+        type: Components.CustomVolumeProfile
+      };
+      this._templatesService.createItem(template).subscribe((template) => {
+        this.loadedCustomeVolumeTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 }

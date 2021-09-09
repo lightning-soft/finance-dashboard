@@ -26,6 +26,8 @@ import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { IStockChartXInstrument } from 'chart';
 import { environment } from 'environment';
+import { IBaseTemplate, TemplatesService } from 'templates';
+import { ICustomeVolumeTemaplate } from '../models';
 
 declare const StockChartX;
 
@@ -127,6 +129,8 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   private _overlayRef: OverlayRef;
   private _positionStrategy: FlexibleConnectedPositionStrategy;
 
+  customeVolumeTemplate: IBaseTemplate[] = [];
+
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
   }
@@ -201,10 +205,13 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   @Output()
   createCustomVolumeProfile = new EventEmitter();
 
+  @Output() loadedCustomeVolumeProfile = new EventEmitter<ICustomeVolumeTemaplate>();
+
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
               private _modalService: NzModalService,
-              private _overlay: Overlay) {
+              private _overlay: Overlay,
+              private _templatesService: TemplatesService) {
   }
 
   ngAfterViewInit() {
@@ -225,6 +232,16 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
+
+    this._templatesService.subscribe((data) => {
+      (data?.items || []).forEach(template => {
+        if (template.type !== Components.CustomVolumeProfile) {
+          return;
+        }
+
+        this.customeVolumeTemplate.push(template);
+      });
+    });
   }
 
   // #region OverlayRef
@@ -452,6 +469,10 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
   createVolumeProfile() {
     this.createCustomVolumeProfile.emit();
+  }
+
+  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+    this.loadedCustomeVolumeProfile.emit(template);
   }
 
   editCustomProfile() {
