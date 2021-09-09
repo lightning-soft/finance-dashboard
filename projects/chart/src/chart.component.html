@@ -53,6 +53,7 @@
     <li nz-menu-divider></li>
     <li class="custom-volume-profile-templates" nz-submenu nzTitle="Templates">
       <ul class="custom-volume-profile-subitems">
+        <li *ngFor="let template of customeVolumeTemplate" class="custom-drawing-menu-item" (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i (click)="editCustomProfile()" class="icon-edit"></i> <i (click)="deleteVolumeProfile()" class="icon-close-window"></i></span></li>
         <li nz-menu-item>BuyVolProf</li>
         <li nz-menu-item>SellVolProf</li>
       </ul>
@@ -60,7 +61,7 @@
     <li (click)="saveCustomVolume()" nz-menu-item>Save</li>
     <li (click)="saveAsCustomVolume()" nz-menu-item>Save as</li>
     <li nz-menu-divider></li>
-    <li nz-menu-item>Delete</li>
+    <li (click)="removeCustomeVolumeProfile()" nz-menu-item>Delete</li>
 
   </ul>
 </nz-dropdown-menu>
