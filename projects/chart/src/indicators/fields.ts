@@ -1226,7 +1226,7 @@ const groupsRows = ['Delta',
   }, {
     label: 'Sell% Volume', hasBackground: false,
     key: 'sellPercentVolume'
-  }, 'Delta Max', 'Delta Min', 'Delta Finish'];
+  }, 'Delta Max', 'Delta Min', 'Delta Finish', { label: 'Ticks', key: 'ticks', noColors: true, }];
 
 export const barStatsConfig = [
   new FieldConfig({
@@ -1238,8 +1238,14 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border mt-1 d-block',
         fieldGroupClassName: 'd-grid three-rows',
+        key: 'header',
         fieldGroup: [
-          getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }),
+          wrapWithClass(getSelect({
+            key: 'position', label: 'Position', options: [
+              { value: 'left', label: 'Left' },
+              { value: 'right', label: 'Right' },
+            ]
+          }), 'position-select'),
           getColor('Text Color'),
           getColor('Back Color'),
         ],
@@ -1247,13 +1253,20 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border bar-font-stats-border mt-2 d-block',
         fieldGroupClassName: 'd-grid font-rows',
+        key: 'font',
         fieldGroup: [
           wrapWithClass(getColor('Font Color'), 'color-without-label'),
-          getSelect({ key: 'font', options: [{ label: 'Open Sans', key: 'openSans' }] }),
           getSelect({
-            key: 'font', options: [
-              { key: '400', label: 'Regular' },
-              { key: '700', label: 'Bold' },
+            key: 'fontFamily',
+            options: [{ label: 'Open Sans', value: '\"Open Sans\", sans-serif' },
+              { label: 'Monospace', value: 'monospace' },
+              { label: 'Sans Serif', value: 'sans-serif' },
+              { label: 'Arial', value: 'Arial' }]
+          }),
+          getSelect({
+            key: 'fontStyle', options: [
+              { value: '400', label: 'Regular' },
+              { value: '700', label: 'Bold' },
             ]
           }),
           getNumber({
@@ -1277,7 +1290,6 @@ export const barStatsConfig = [
         type: FieldType.DragAndDrop,
         fieldGroup: groupsRows.map(item => getGroupRow(item)),
       },
-      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1'),
     ],
   }),
   new FieldConfig({
@@ -1295,8 +1307,8 @@ export const barStatsConfig = [
           fieldGroupClassName: 'd-grid group-row',
           fieldGroup: [
             getInput({ key: 'name' }),
-            getNumber({ min: 0, key: 'min' }),
-            getNumber({ min: 0, key: 'max' }),
+            getNumber({ min: 0, key: 'min', placeholder: 'Min. Trade Vol.' }),
+            getNumber({ min: 0, key: 'max', placeholder: 'Max. Trade Vol.' }),
           ],
         },
       }
@@ -1305,12 +1317,16 @@ export const barStatsConfig = [
 ];
 
 
-function getGroupRow(title: string | { label, hasBackground }) {
+function getGroupRow(title) {
   const label = typeof title === 'string' ? title : title.label;
   const key = (title as any).key ?? ((title as any).label ?? title as string ?? '').toLowerCase().replace(/ /g, '');
   const hasBackground = (title as { hasBackground }).hasBackground;
-  const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
-    getColor('Negative')];
+  let colors = [];
+  const noColors = (title as any).noColors === true;
+  if (!noColors) {
+    colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
+      getColor('Negative')];
+  }
   return {
     key,
     fieldGroupClassName: 'd-grid three-rows',

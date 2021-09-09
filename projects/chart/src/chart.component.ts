@@ -731,8 +731,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrder(config: Partial<IOrder>) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this._notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };

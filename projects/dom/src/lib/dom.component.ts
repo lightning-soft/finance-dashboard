@@ -2215,8 +2215,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this.notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     if (!this._domForm.valid) {
       this.notifier.showError('Please fill all required fields in form');

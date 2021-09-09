@@ -2,6 +2,7 @@
                  [nzMin]="this.field.templateOptions.min"
                  [disabled]="field.templateOptions?.disabled"
                  [(ngModel)]="value"
+                 [nzPlaceHolder]="to.placeholder"
                  [formlyAttributes]="field"
 ></nz-input-number>
 <span *ngIf="field.templateOptions?.label" class="number-label">{{field.templateOptions?.label}}</span>
