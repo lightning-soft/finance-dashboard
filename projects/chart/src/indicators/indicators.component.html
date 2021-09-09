@@ -28,7 +28,7 @@
             </li>
             <div *ngIf="group.expanded">
               <div (click)="addIndicator(indicator)" class="indicator-item"
-                   nz-tooltip [nzTooltipTitle]="description"
+                   nz-tooltip [nzTooltipTitle]="descriptionEnabled[indicator] && description"
                    (mouseenter)="fetchDescription(indicator)"
                    nzPlacement="rightTop"
                    [nzTooltipOverlayClassName]="'indicator-tooltip'"
