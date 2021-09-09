@@ -1271,9 +1271,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     const item = this.builder.getInstrumentItem(instrument);
 
     if (item.ask._value != null)
-      orderMarketWatchItem.triggerPrice.updateValue(+item.ask._value.toFixed(orderMarketWatchItem.instrument.precision));
+      orderMarketWatchItem.triggerPrice.updateValue(item.ask._value);
     if (item.bid._value != null)
-      orderMarketWatchItem.price.updateValue(+item.bid._value.toFixed(orderMarketWatchItem.instrument.precision));
+      orderMarketWatchItem.price.updateValue(item.bid._value);
 
     item.subItems.unshift(orderMarketWatchItem);
     item.setHasCreatingOrder(true);
