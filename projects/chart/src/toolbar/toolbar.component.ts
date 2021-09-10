@@ -24,7 +24,7 @@ import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position
 import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
-import { IStockChartXInstrument } from 'chart';
+import { IStockChartXInstrument, IVolumeTemplate, VolumeProfileTemplatesRepository } from 'chart';
 import { environment } from 'environment';
 import { IBaseTemplate, TemplatesService } from 'templates';
 import { ICustomeVolumeTemaplate } from '../models';
@@ -211,7 +211,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
               private elementRef: ElementRef,
               private _modalService: NzModalService,
               private _overlay: Overlay,
-              private _templatesService: TemplatesService) {
+              private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository) {
   }
 
   ngAfterViewInit() {
@@ -233,15 +233,8 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
-    this._templatesService.subscribe((data) => {
-      this.customeVolumeTemplate = [];
-      (data?.items || []).forEach(template => {
-        if (template.type !== Components.CustomVolumeProfile) {
-          return;
-        }
-
-        this.customeVolumeTemplate.push(template);
-      });
+    this._volumeProfileTemplatesRepository.subscribe((data) => {
+      this.customeVolumeTemplate = data?.items || [];
     });
   }
 
@@ -476,7 +469,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.loadedCustomeVolumeProfile.emit(template);
   }
 
-  editCustomProfile(template: IBaseTemplate): void {
+  editCustomProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -492,11 +485,11 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       if (!name)
         return;
 
-      this._templatesService.updateItem({ ...template, name }).subscribe();
+      this._volumeProfileTemplatesRepository.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  deleteVolumeProfile(template: IBaseTemplate): void {
+  deleteVolumeProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -509,7 +502,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._templatesService.deleteItem(template.id).subscribe();
+        this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
       }
     });
   }

@@ -61,7 +61,7 @@ import * as clone from 'lodash.clonedeep';
 import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
 import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
-import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -1027,14 +1027,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!this.loadedCustomeVolumeTemplate)
       return;
 
-    const template: ICustomeVolumeTemaplate = {
-      state: { settings: this.activeIndicator?.settings },
+    const template: IVolumeTemplate = {
       id: this.loadedCustomeVolumeTemplate.id,
       name: this.loadedCustomeVolumeTemplate.name,
-      type: Components.CustomVolumeProfile
+      settings: this.activeIndicator?.settings
     };
 
-    this._templatesService.updateItem(template).subscribe(() => {
+    this._volumeProfileTemplatesRepository.updateItem(template).subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
       this._loadTemplateList();
     }, error => this._notifier.showError(error, 'Failed to save Template'));
@@ -1056,19 +1055,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (!result)
         return;
 
-      const template: ExcludeId<ICustomeVolumeTemaplate> = {
-        state: { settings: this.activeIndicator?.settings },
+      const template: IVolumeTemplate = {
+        id: Date.now().toString(),
         name: result,
-        type: Components.CustomVolumeProfile
+        settings: this.activeIndicator?.settings,
       };
-      this._templatesService.createItem(template).subscribe((template) => {
+      this._volumeProfileTemplatesRepository.createItem(template).subscribe((template) => {
         this.loadedCustomeVolumeTemplate = template;
         this._loadTemplateList();
       }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 
-  editCustomProfile(template: IBaseTemplate): void {
+  editCustomProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -1084,11 +1083,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (!name)
         return;
 
-      this._templatesService.updateItem({ ...template, name }).subscribe();
+      this._volumeProfileTemplatesRepository.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  deleteVolumeProfile(template: IBaseTemplate): void {
+  deleteVolumeProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -1101,21 +1100,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._templatesService.deleteItem(template.id).subscribe();
+        this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
       }
     });
   }
 
   private _loadTemplateList(): void {
-    this._templatesService.subscribe((data) => {
-      this.customeVolumeTemplate = [];
-      (data?.items || []).forEach(template => {
-        if (template.type !== Components.CustomVolumeProfile) {
-          return;
-        }
-
-        this.customeVolumeTemplate.push(template);
-      });
+    this._volumeProfileTemplatesRepository.subscribe((data) => {
+      this.customeVolumeTemplate = data?.items || [];
     });
   }
 }

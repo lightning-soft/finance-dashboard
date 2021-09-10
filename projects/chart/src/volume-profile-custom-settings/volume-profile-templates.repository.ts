@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { FakeRepository } from 'communication';
-import { Observable, of, Subscription } from 'rxjs';
+import { from, Observable, of, Subscription } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { SettingsService } from 'settings';
 
@@ -26,12 +26,12 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
     this._subscriptions = this.actions.subscribe(() => this._save());
   }
 
-  protected async _init() {
+  protected async _init(): Promise<void> {
     if (this._inited !== undefined)
       return;
 
     this._inited = null;
-    await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         super._init()
           .then(data => {
@@ -85,8 +85,14 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   async _getItems() {
-    await this._init();
-    return this._getTemplates().toPromise();
+    // return this._init().then(() => {
+      return this._getTemplates().toPromise();
+    // });
+    // return this._getTemplates().toPromise();
+  }
+
+  getItems(params): Observable<any> {
+    return from(this._init()).pipe(mergeMap(() => super.getItems(params)));
   }
 
   ngOnDestroy(): void {
