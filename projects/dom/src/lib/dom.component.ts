@@ -1129,6 +1129,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const params = {
       Symbol: symbol,
       Exchange: exchange,
+      productCode: this._instrument.productCode,
       startDate, endDate,
       barSize: 1,
       periodicity: 'Minute',
@@ -2169,6 +2170,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         tickSize: 0.25,
         precision: 2,
         contractSize: 50,
+        productCode: 'ES',
         symbol: 'ESU1',
       };
     // for debug purposes

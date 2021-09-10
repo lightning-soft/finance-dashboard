@@ -155,6 +155,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     }
 
     if (type === MessageTypes.CONNECT && result.connectionId === ConnectionId.MarketData && result.type == AlertType.ConnectionClosed) {
+      console.log('disconnect', connectionId);
       this._onDisconnect(connectionId);
     }
 
