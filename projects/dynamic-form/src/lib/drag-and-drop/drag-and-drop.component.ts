@@ -9,12 +9,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 })
 export class DragAndDropComponent extends FieldType implements OnInit {
   ngOnInit() {
-  /*  const value = Object.entries<any>(this.model).sort(([, a], [, b]) => a.order - b.order)
-      .reduce(( result, [key, item], ) => {
-        result[key] = item;
-        return result;
-      }, {});
-    this.formControl.patchValue(value, { emitEvent: false });*/
+    this.field.fieldGroup = this.field.fieldGroup.sort((a, b) =>
+      a.model.order - b.model.order);
   }
 
   drop(event: CdkDragDrop<string[]>) {
