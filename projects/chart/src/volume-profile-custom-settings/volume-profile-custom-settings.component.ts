@@ -1,15 +1,13 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { mergeDeep } from 'base-components';
+import { ItemsComponent, mergeDeep } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { NzModalService } from 'ng-zorro-antd';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
-import { ItemsComponent } from 'base-components';
 import { customVolumeProfile } from './config';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
-import { Observable } from 'rxjs';
 import { IBaseTemplate, TemplatesService } from 'templates';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
@@ -59,7 +57,6 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       onQueryParamsChange: false,
       onConnectionChange: false,
     };
-
   }
 
   ngOnInit(): void {
@@ -154,11 +151,11 @@ function changeSettings(value: any, fn) {
       ...value.general,
       vaCorrelation: fn(value?.general?.vaCorrelation),
     },
-    profileSettings: {
-      ...value.profileSettings,
-      widthCorrelation: fn(value?.profileSettings?.widthCorrelation),
-      vaInsideOpacity: fn(value?.profileSettings?.vaInsideOpacity),
-      vaOutsideOpacity: fn(value?.profileSettings?.vaOutsideOpacity),
+    profile: {
+      ...value.profile,
+      widthCorrelation: fn(value?.profile?.widthCorrelation),
+      vaInsideOpacity: fn(value?.profile?.vaInsideOpacity),
+      vaOutsideOpacity: fn(value?.profile?.vaOutsideOpacity),
     }
   });
 }

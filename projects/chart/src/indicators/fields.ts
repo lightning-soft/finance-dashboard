@@ -365,14 +365,14 @@ function getBand(key) {
     key,
     fieldGroupClassName: 'd-grid band-rows',
     fieldGroup: [
-      getCheckboxes({ checkboxes: [{ label: `Bands at` }] }),
+      getCheckboxes({ checkboxes: [{ key: 'isShow', label: `Bands at` }] }),
       getNumber({
-        key: 'stdDev', label: 'StdDev',
+        key: 'coefficient', label: 'StdDev',
         className: 'reverse-number-label regular-number-label',
         min: 1,
       }),
-      wrapWithClass(getColor('Color'), 'color-without-label'),
-      getLineSelector({ key: 'line' }),
+      wrapWithClass(getColor('strokeColor'), 'color-without-label'),
+      getLineSelector({ key: 'styleLine' }),
     ]
   };
 }
@@ -1226,7 +1226,7 @@ const groupsRows = ['Delta',
   }, {
     label: 'Sell% Volume', hasBackground: false,
     key: 'sellPercentVolume'
-  }, 'Delta Max', 'Delta Min', 'Delta Finish'];
+  }, 'Delta Max', 'Delta Min', 'Delta Finish', { label: 'Ticks', key: 'ticks', noColors: true, }];
 
 export const barStatsConfig = [
   new FieldConfig({
@@ -1238,8 +1238,14 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border mt-1 d-block',
         fieldGroupClassName: 'd-grid three-rows',
+        key: 'header',
         fieldGroup: [
-          getSelect({ key: 'position', label: 'Position', options: [{ key: 'left', label: 'Left' }] }),
+          wrapWithClass(getSelect({
+            key: 'position', label: 'Position', options: [
+              { value: 'left', label: 'Left' },
+              { value: 'right', label: 'Right' },
+            ]
+          }), 'position-select'),
           getColor('Text Color'),
           getColor('Back Color'),
         ],
@@ -1247,13 +1253,20 @@ export const barStatsConfig = [
       {
         className: 'full-width bar-stats-border bar-font-stats-border mt-2 d-block',
         fieldGroupClassName: 'd-grid font-rows',
+        key: 'font',
         fieldGroup: [
           wrapWithClass(getColor('Font Color'), 'color-without-label'),
-          getSelect({ key: 'font', options: [{ label: 'Open Sans', key: 'openSans' }] }),
           getSelect({
-            key: 'font', options: [
-              { key: '400', label: 'Regular' },
-              { key: '700', label: 'Bold' },
+            key: 'fontFamily',
+            options: [{ label: 'Open Sans', value: '\"Open Sans\", sans-serif' },
+              { label: 'Monospace', value: 'monospace' },
+              { label: 'Sans Serif', value: 'sans-serif' },
+              { label: 'Arial', value: 'Arial' }]
+          }),
+          getSelect({
+            key: 'fontStyle', options: [
+              { value: '400', label: 'Regular' },
+              { value: '700', label: 'Bold' },
             ]
           }),
           getNumber({
@@ -1277,7 +1290,6 @@ export const barStatsConfig = [
         type: FieldType.DragAndDrop,
         fieldGroup: groupsRows.map(item => getGroupRow(item)),
       },
-      wrapWithClass(getCheckboxes({ checkboxes: [{ key: 'ticks', label: 'Ticks' }] }), 'mt-1'),
     ],
   }),
   new FieldConfig({
@@ -1295,8 +1307,8 @@ export const barStatsConfig = [
           fieldGroupClassName: 'd-grid group-row',
           fieldGroup: [
             getInput({ key: 'name' }),
-            getNumber({ min: 0, key: 'min' }),
-            getNumber({ min: 0, key: 'max' }),
+            getNumber({ min: 0, key: 'min', placeholder: 'Min. Trade Vol.' }),
+            getNumber({ min: 0, key: 'max', placeholder: 'Max. Trade Vol.' }),
           ],
         },
       }
@@ -1305,12 +1317,16 @@ export const barStatsConfig = [
 ];
 
 
-function getGroupRow(title: string | { label, hasBackground }) {
+function getGroupRow(title) {
   const label = typeof title === 'string' ? title : title.label;
   const key = (title as any).key ?? ((title as any).label ?? title as string ?? '').toLowerCase().replace(/ /g, '');
   const hasBackground = (title as { hasBackground }).hasBackground;
-  const colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
-    getColor('Negative')];
+  let colors = [];
+  const noColors = (title as any).noColors === true;
+  if (!noColors) {
+    colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
+      getColor('Negative')];
+  }
   return {
     key,
     fieldGroupClassName: 'd-grid three-rows',
@@ -1807,32 +1823,33 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroup: [
       new FieldConfig({
         label: 'Style',
-        key: 'style',
+        key: 'styleLine',
         className: 'style',
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
           wrapWithClass(getSelect({
+            key: 'lineStyle',
             options: [
               {
-                label: 'Line, Connected', value: 'lineConnected'
+                label: 'Line, Connected', value: 'connected'
               },
               {
-                label: 'Line, Continuous', value: 'lineContinuous'
+                label: 'Line, Continuous', value: 'continious'
               },
               {
-                label: 'Line, Stepped', value: 'lineStepped'
+                label: 'Line, Stepped', value: 'stepped'
               },
               {
-                label: 'Price Box, Solid', value: 'priceBoxSolid'
+                label: 'Price Box, Solid', value: 'solid'
               },
               {
-                label: 'Price Box, Hollow', value: 'priceBoxHollow'
+                label: 'Price Box, Hollow', value: 'hollow'
               },
             ]
           }), 'max-width-85'),
-          wrapWithClass(getColor('color'), 'color-without-label'),
+          wrapWithClass(getColor('strokeColor'), 'color-without-label'),
           getLineSelector({
-            key: 'line'
+            key: 'lineStyle'
           }),
         ]
       }),
@@ -1877,9 +1894,9 @@ export const vwapConfig: IFieldConfig[] = [
     key: 'bands',
     className: 'mt-3',
     fieldGroup: [
-      getBand(1),
-      getBand(2),
-      getBand(3),
+      getBand('band1'),
+      getBand('band2'),
+      getBand('band3'),
     ],
   }),
   new FieldConfig({
@@ -1889,9 +1906,10 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroupClassName: 'd-grid two-rows regular-label hide-border-bottom',
     fieldGroup: [
       getCheckboxes({
-        checkboxes: [{ label: 'Show VWAP Label', key: 'showLabel' }],
+        checkboxes: [{ label: 'Show VWAP Label', key: 'isShowVWAPLabel' }],
       }),
       getNumber({
+        key: 'lebelLineLength',
         label: 'Label Line Length',
         min: 1,
       }),

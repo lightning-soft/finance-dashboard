@@ -12,28 +12,16 @@ export interface IVolumeTemplate {
 
 const STORE_KEY = 'volumeProfileTemplates';
 const DefaultTemplates = [
-  {
-    id: 'buyVolProf', name: 'BuyVolProf', settings: {
-      general: {
-        vaCorrelation: 0, type: undefined, align: 'right', drawVPC: {
-          parts: [
-            { keyCode: 89 },
-            { keyCode: 85 },
-          ]
-
-        }
-      }
-    },
-    graphics: { summaryEnabled: true, showPrices: null },
-    profileSettings: { widthCorrelation: 0 },
-  },
-  { id: 'sellVolProf', name: 'SellVolProf', settings: {} }
+  { id: 'buyVolProf', name: 'Buy Vol Prof', settings: {} },
+  { id: 'sellVolProf', name: 'Sell Vol Prof', settings: {} }
 ];
 
 @Injectable({ providedIn: 'root' })
 export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemplate> implements OnDestroy {
   private _subscriptions: Subscription;
   private _inited;
+
+  _request: Promise<any>;
 
   constructor(private _settingsService: SettingsService) {
     super();
@@ -42,10 +30,10 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
   protected async _init(): Promise<void> {
     if (this._inited !== undefined)
-      return;
+      return this._request;
 
     this._inited = null;
-    return new Promise((resolve, reject) => {
+    this._request = new Promise((resolve, reject) => {
       setTimeout(() => {
         super._init()
           .then(data => {
@@ -58,6 +46,8 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
           });
       });
     });
+
+    return this._request;
   }
 
   private _getTemplates(): Observable<IVolumeTemplate[]> {
@@ -72,7 +62,8 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
       return of(items);
     } else {
-      return this._settingsService.get(STORE_KEY).pipe(mergeMap((items: IVolumeTemplate[]) => {
+      return this._settingsService.get(STORE_KEY).
+        pipe(mergeMap((items: IVolumeTemplate[]) => {
           if (!Array.isArray(items) || !items.length) {
             items = DefaultTemplates;
           }
@@ -84,7 +75,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
           return of(items);
         }),
-      );
+        );
     }
   }
 
@@ -104,7 +95,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
     // return this._getTemplates().toPromise();
   }
 
-  getItems(params = {}): Observable<any> {
+  getItems(params: any = {}): Observable<any> {
     return from(this._init()).pipe(mergeMap(() => super.getItems(params)));
   }
 

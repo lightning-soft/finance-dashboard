@@ -1,3 +1,8 @@
+import { Overlay } from '@angular/cdk/overlay';
+import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
+import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { PortalOutlet } from '@angular/cdk/portal/portal';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -10,24 +15,17 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { Layout } from 'layout';
+import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
+import { Components } from 'src/app/modules';
 import { IInstrument } from 'trading';
 import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
-import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
-import { Layout } from 'layout';
-import { Components } from 'src/app/modules';
-import { Coords, EVENTS, IWindow } from 'window-manager';
-import { TemplatePortal } from '@angular/cdk/portal';
-import { Overlay } from '@angular/cdk/overlay';
-import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
-import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
-import { PortalOutlet } from '@angular/cdk/portal/portal';
 import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { IStockChartXInstrument, IVolumeTemplate, VolumeProfileTemplatesRepository } from 'chart';
-import { environment } from 'environment';
-import { IBaseTemplate } from 'templates';
-import { ICustomeVolumeTemaplate } from '../models';
+import { ItemsComponent } from 'base-components';
+import { Coords, EVENTS, IWindow } from "window-manager";
 
 declare const StockChartX;
 
@@ -52,9 +50,7 @@ const periodicityMap = new Map([
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent implements PortalOutlet, AfterViewInit {
-  isDev = environment.isDev;
-
+export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements PortalOutlet, AfterViewInit {
   @Input() link: any;
   @Input() enableOrderForm = false;
   @Input() window: IWindow;
@@ -68,7 +64,6 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   crossOpen = false;
   priceOpen = false;
   showFramePopover = false;
-
 
   showToolbar = true;
   isDrawingsPinned = false;
@@ -123,13 +118,13 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     markers: 'Arrow with Markers',
     crossBars: 'Crosshairs',
   };
+
   shouldDrawingBeOpened = false;
   drawingMenuOffset: Coords = { x: 0, y: 0 };
+
   private _windowCoordsSnapshot: Coords;
   private _overlayRef: OverlayRef;
   private _positionStrategy: FlexibleConnectedPositionStrategy;
-
-  customeVolumeTemplate: IBaseTemplate[] = [];
 
   get isDrawingsVisible() {
     return this.isDrawingsPinned || this.shouldDrawingBeOpened;
@@ -205,18 +200,27 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   @Output()
   createCustomVolumeProfile = new EventEmitter();
 
-  @Output() loadedCustomeVolumeProfile = new EventEmitter<ICustomeVolumeTemaplate>();
+  @Output() loadedCustomeVolumeProfile = new EventEmitter<IVolumeTemplate>();
 
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
               private _modalService: NzModalService,
               private _overlay: Overlay,
-              private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository) {
+              protected _repository: VolumeProfileTemplatesRepository) {
+      super();
+      this.autoLoadData = {
+        onInit: true,
+        onParamsChange: false,
+        onQueryParamsChange: false,
+        onConnectionChange: false,
+      };
+
+      (window as any).tool = this;
   }
 
   ngAfterViewInit() {
     (this.dropDownDirective as any).overlayRef = this;
-
+    this.loadData();
     this._positionStrategy = this._overlay
       .position()
       .flexibleConnectedTo((this.dropDownDirective as any).elementRef.nativeElement)
@@ -233,9 +237,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
-    this._volumeProfileTemplatesRepository.getItems().subscribe((data) => {
-      this.customeVolumeTemplate = data?.items || [];
-    });
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
   }
 
   // #region OverlayRef
@@ -347,7 +351,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   }
 
   getShortTimeFrame(timeFrame: ITimeFrame): string {
-    return `${ timeFrame.interval } ${ periodicityMap.get(timeFrame.periodicity) }`;
+    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
   }
 
   compareInstrumentDialog() {
@@ -465,7 +469,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.createCustomVolumeProfile.emit();
   }
 
-  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+  loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeProfile.emit(template);
   }
 
@@ -485,7 +489,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       if (!name)
         return;
 
-      this._volumeProfileTemplatesRepository.updateItem({ ...template, name }).subscribe();
+      this._repository.updateItem({ ...template, name }).subscribe();
     });
   }
 
@@ -502,7 +506,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
+        this._repository.deleteItem(+template.id).subscribe();
       }
     });
   }

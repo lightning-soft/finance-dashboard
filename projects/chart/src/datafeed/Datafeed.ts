@@ -139,6 +139,7 @@ export abstract class Datafeed implements IDatafeed {
     if (instrument) {
       barsCount = Math.round(chart.lastVisibleIndex - chart.firstVisibleIndex);
     }
+    console.log('barsCount', barsCount);
 
     // if !instrument then load bars for chart, not for compare
     if (!instrument) {
@@ -227,7 +228,7 @@ export abstract class Datafeed implements IDatafeed {
       this.barHandler = new BarHandler(chart);
     }
 
-    if (this.isRequestAlive(request)) {
+    if (request.kind === 'bars' && this.isRequestAlive(request)) {
       this._accomulateQuotes(quote);
       return;
     }

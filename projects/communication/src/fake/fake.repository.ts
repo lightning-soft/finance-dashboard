@@ -33,6 +33,10 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
     }
 
     this._id = id;
+
+    if (isNaN(this._id)) {
+      this._id = 0;
+    }
   }
 
   protected abstract async _getItems(): Promise<T[]>;
@@ -54,7 +58,7 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
       return throwError('Invalid item');
     }
 
-    const _item: T = { ...item, id: ++this._id } as T;
+    const _item: T = { ...item, id: this._getNextId() } as T;
     this._store[_item.id] = _item;
 
     return this._wrapDataInObservable(_item)
@@ -111,5 +115,17 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
 
   protected _wrapDataInObservable(data): Observable<any> {
     return of(data).pipe(delay(this.delay));
+  }
+
+  protected _getNextId() {
+    const id = ++this._id;
+
+    if (isNaN(id))
+      this._id = 0;
+
+    if (this._store[id])
+      return this._getNextId();
+
+    return id;
   }
 }

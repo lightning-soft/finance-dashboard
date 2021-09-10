@@ -77,7 +77,7 @@ export class RealOHLVFeed extends OHLVFeed {
     startDate.setHours(0, 0, 0, 0);
 
     this._historyRepository.getItems({
-      id: instrument.id,
+      productCode: instrument.productCode,
       Exchange: instrument.exchange,
       Symbol: instrument.symbol,
       ...historyParams,

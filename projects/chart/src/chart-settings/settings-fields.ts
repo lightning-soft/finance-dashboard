@@ -4,6 +4,7 @@ import {
   getColor,
   getLabel,
   getNumber,
+  getRadio,
   getSelect,
   getSessionSelect,
   getSwitch,
@@ -394,6 +395,7 @@ export const valueScale: IFieldConfig[] = [
           {
             fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
             fieldGroup: [
+              getRadio('isAutomatic', [{ label: 'Automatic', value: 'automatic' }, { label: 'Pixel / Price', value: 'pixels-price' }]),
               getLabel('Pixel Price'),
               getNumber({
                 key: 'pixelsPrice',

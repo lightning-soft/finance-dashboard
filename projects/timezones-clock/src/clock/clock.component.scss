@@ -29,8 +29,13 @@
   background: transparent;
   padding: 0;
   transition: 0.3s color;
+
   &:hover {
     color: #fff;
+
+    .time, .zone {
+      color: #fff;
+    }
   }
 
   &:not(&:last-child) {
@@ -48,12 +53,14 @@
     max-width: 130px;
     color: $text-60;
     white-space: nowrap;
+    transition: 0.3s color;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .time {
     color: $text-80;
+    transition: 0.3s color;
     margin-left: 5px;
   }
 }

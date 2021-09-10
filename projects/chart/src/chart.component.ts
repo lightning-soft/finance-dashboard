@@ -13,7 +13,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate, ICustomeVolumeTemaplate } from 'chart/models';
+import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
@@ -25,7 +25,7 @@ import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
 import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { environment } from 'src/environments/environment';
-import { IBaseTemplate, TemplatesService } from 'templates';
+import { TemplatesService } from 'templates';
 import { ThemesHandler } from 'themes';
 import {
   compareInstruments,
@@ -47,6 +47,13 @@ import {
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
+import {
+  chartReceiveKey,
+  chartSettings,
+  defaultChartSettings,
+  IChartSettings,
+  IsAutomaticPixelPrice
+} from './chart-settings/settings';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
@@ -56,15 +63,14 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
+import { KeyBinding, KeyboardListener } from "keyboard";
 import {
   IVolumeTemplate,
   VolumeProfileTemplatesRepository
-} from './volume-profile-custom-settings/volume-profile-templates.repository';
-import { KeyboardListener } from 'keyboard';
+} from "./volume-profile-custom-settings/volume-profile-templates.repository";
+import { customVolumeProfileSettings } from "./volume-profile-custom-settings/volume-profile-custom-settings.component";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -123,8 +129,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
   incomePercentage: number;
-
-  customeVolumeTemplate: IBaseTemplate[] = [];
 
   showOHLV = true;
   showChanges = true;
@@ -270,6 +274,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
     this._loadTemplateList();
+    this._subscribeToHotKey();
   }
 
   private _updateOHLVData() {
@@ -449,9 +454,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.broadcastData(this.chartLink, chart);
 
-    let charts = [];
-
-    if (!environment.production) {
+    if (environment.isDev) {
+      let charts = [];
       if (!(window as any).charts) {
         (window as any).charts = [];
       }
@@ -593,11 +597,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return false;
     }
     this.keysStack.handle(event);
-    this.customeVolumeTemplate.forEach(item => {
+    this.toolbar.items.forEach(item => {
       const hotkey = item.settings.general?.drawVPC;
       if (hotkey) {
-        // untested
-        if (this.keysStack.equals(hotkey))
+        const keyBinding = KeyBinding.fromDTO(hotkey);
+        if (this.keysStack.equals(keyBinding))
           this.createCustomVolumeProfile();
       }
     });
@@ -652,9 +656,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadState(template.state);
   }
 
-  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+  loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
-    this.createCustomVolumeProfile(template.state.settings);
+    this.createCustomVolumeProfile(template.settings);
   }
 
   ngOnDestroy(): void {
@@ -769,16 +773,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       nzFooter: null,
       nzNoAnimation: true,
       nzStyle: {
-        left: `${ event.evt.clientX }px`,
-        top: `${ event.evt.clientY }px`,
+        left: `${event.evt.clientX}px`,
+        top: `${event.evt.clientY}px`,
       },
       nzComponentParams: params
     });
   }
 
   createOrder(config: Partial<IOrder>) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this._notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };
@@ -899,9 +905,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         name: result.name,
         type: Components.Chart
       };
-      this._templatesService.createItem(template).subscribe((template) => {
-        this.loadedTemplate = template;
-      }, error => this._notifier.showError(error, 'Failed to create Template'));
+      this._templatesService.createItem(template).subscribe(
+        (template) => {
+          this.loadedTemplate = template;
+        },
+        error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 
@@ -935,22 +943,37 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     const pixelsPrice = settings?.valueScale?.valueScale.pixelsPrice ?? 0;
-    if (pixelsPrice) {
-      this.chart.setPixelsPrice(pixelsPrice);
-    } else {
-      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 } };
-      this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
+    const isAutomatic = settings?.valueScale?.valueScale?.isAutomatic;
+    this.chart.setPixelsPrice(pixelsPrice);
+
+    switch (isAutomatic) {
+      case IsAutomaticPixelPrice.AUTOMATIC:
+        this.chart.setPixelsPrice(0);
+        setTimeout(() => {
+          this.chart.setNeedsUpdate(true);
+        });
+        break;
+      case IsAutomaticPixelPrice.PIXELS_PRICE:
+        this.chart.setPixelsPrice(pixelsPrice);
+        break;
+      default:
+        break;
     }
+
+    if (!this.settings.valueScale) {
+      this.settings.valueScale = { valueScale: { pixelsPrice: 0, isAutomatic: IsAutomaticPixelPrice.AUTOMATIC } };
+    }
+    this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
 
     this.chart.setNeedsUpdate(needAutoScale);
   }
 
   private _getSettingsKey() {
-    return `${ this.componentInstanceId }.${ chartSettings }`;
+    return `${this.componentInstanceId}.${chartSettings}`;
   }
 
   private _getCustomVolumeProfileKey() {
-    return `${ this._getSettingsKey() }.cvp`;
+    return `${this._getSettingsKey()}.cvp`;
   }
 
   openSettingsDialog(): void {
@@ -1055,10 +1078,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       settings: this.activeIndicator?.settings
     };
 
-
     this._volumeProfileTemplatesRepository.updateItem(template).subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
-      this._loadTemplateList();
     }, error => this._notifier.showError(error, 'Failed to save Template'));
   }
 
@@ -1085,7 +1106,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       };
       this._volumeProfileTemplatesRepository.createItem(template).subscribe((template) => {
         this.loadedCustomeVolumeTemplate = template;
-        this._loadTemplateList();
       }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
@@ -1129,10 +1149,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadTemplateList(): void {
-    this._volumeProfileTemplatesRepository.getItems({}).subscribe((data) => {
-      console.log(data);
-      this.customeVolumeTemplate = data?.data || [];
-    });
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
+  }
+
+  private _subscribeToHotKey(): void {
+
   }
 }
 
