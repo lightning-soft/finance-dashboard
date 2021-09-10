@@ -186,6 +186,7 @@ export class IndicatorsComponent implements OnInit {
       .subscribe(() => {
         console.log(this.selectedIndicator.settings);
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
+        this.chart.setNeedsUpdate();
       });
   }
 
