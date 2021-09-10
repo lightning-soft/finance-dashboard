@@ -13,19 +13,21 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate, ICustomeVolumeTemaplate } from 'chart/models';
+import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
+import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NotifierService } from 'notifier';
+import { filterByConnectionAndInstrument } from 'real-trading';
 import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
 import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { environment } from 'src/environments/environment';
-import { IBaseTemplate, TemplatesService } from 'templates';
+import { TemplatesService } from 'templates';
 import { ThemesHandler } from 'themes';
 import {
   compareInstruments,
@@ -47,21 +49,18 @@ import {
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
+import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings, IsAutomaticPixelPrice } from './chart-settings/settings';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
+import { InfoComponent } from './info/info.component';
 import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings, IsAutomaticPixelPrice } from './chart-settings/settings';
-import * as clone from 'lodash.clonedeep';
-import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
-import { InfoComponent } from './info/info.component';
-import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
-import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -118,8 +117,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   lastHistoryItem: Partial<IHistoryItem> = null;
   income: number;
   incomePercentage: number;
-
-  customeVolumeTemplate: IBaseTemplate[] = [];
 
   showOHLV = true;
   showChanges = true;
@@ -265,6 +262,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
     this._loadTemplateList();
+    this._subscribeToHotKey();
   }
 
   private _updateOHLVData() {
@@ -629,9 +627,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadState(template.state);
   }
 
-  loadCustomeVolumeTemplate(template: ICustomeVolumeTemaplate): void {
+  loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
-    this.createCustomVolumeProfile(template.state.settings);
+    this.createCustomVolumeProfile(template.settings);
   }
 
   ngOnDestroy(): void {
@@ -878,9 +876,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         name: result.name,
         type: Components.Chart
       };
-      this._templatesService.createItem(template).subscribe((template) => {
-        this.loadedTemplate = template;
-      }, error => this._notifier.showError(error, 'Failed to create Template'));
+      this._templatesService.createItem(template).subscribe(
+        (template) => {
+          this.loadedTemplate = template;
+        },
+        error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 
@@ -1043,16 +1043,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!this.loadedCustomeVolumeTemplate)
       return;
 
-    const template: ICustomeVolumeTemaplate = {
-      state: { settings: this.activeIndicator?.settings },
+    const template: IVolumeTemplate = {
       id: this.loadedCustomeVolumeTemplate.id,
       name: this.loadedCustomeVolumeTemplate.name,
-      type: Components.CustomVolumeProfile
+      settings: this.activeIndicator?.settings
     };
 
-    this._templatesService.updateItem(template).subscribe(() => {
+    this._volumeProfileTemplatesRepository.updateItem(template).subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
-      this._loadTemplateList();
     }, error => this._notifier.showError(error, 'Failed to save Template'));
   }
 
@@ -1072,19 +1070,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (!result)
         return;
 
-      const template: ExcludeId<ICustomeVolumeTemaplate> = {
-        state: { settings: this.activeIndicator?.settings },
+      const template: IVolumeTemplate = {
+        id: Date.now().toString(),
         name: result,
-        type: Components.CustomVolumeProfile
+        settings: this.activeIndicator?.settings,
       };
-      this._templatesService.createItem(template).subscribe((template) => {
+      this._volumeProfileTemplatesRepository.createItem(template).subscribe((template) => {
         this.loadedCustomeVolumeTemplate = template;
-        this._loadTemplateList();
       }, error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 
-  editCustomProfile(template: IBaseTemplate): void {
+  editCustomProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -1100,11 +1097,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (!name)
         return;
 
-      this._templatesService.updateItem({ ...template, name }).subscribe();
+      this._volumeProfileTemplatesRepository.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  deleteVolumeProfile(template: IBaseTemplate): void {
+  deleteVolumeProfile(template: IVolumeTemplate): void {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -1117,22 +1114,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._templatesService.deleteItem(template.id).subscribe();
+        this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
       }
     });
   }
 
   private _loadTemplateList(): void {
-    this._templatesService.subscribe((data) => {
-      this.customeVolumeTemplate = [];
-      (data?.items || []).forEach(template => {
-        if (template.type !== Components.CustomVolumeProfile) {
-          return;
-        }
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
+  }
 
-        this.customeVolumeTemplate.push(template);
-      });
-    });
+  private _subscribeToHotKey(): void {
+
   }
 }
 

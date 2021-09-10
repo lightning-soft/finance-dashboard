@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { FakeRepository } from 'communication';
-import { Observable, of, Subscription } from 'rxjs';
+import { from, Observable, of, Subscription } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { SettingsService } from 'settings';
 
@@ -12,8 +12,8 @@ export interface IVolumeTemplate {
 
 const STORE_KEY = 'volumeProfileTemplates';
 const DefaultTemplates = [
-  { id: 'buyVolProf', name: 'BuyVolProf', settings: {} },
-  { id: 'sellVolProf', name: 'SellVolProf', settings: {} }
+  { id: 'buyVolProf', name: 'Buy Vol Prof', settings: {} },
+  { id: 'sellVolProf', name: 'Sell Vol Prof', settings: {} }
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -21,17 +21,19 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   private _subscriptions: Subscription;
   private _inited;
 
+  _request: Promise<any>;
+
   constructor(private _settingsService: SettingsService) {
     super();
     this._subscriptions = this.actions.subscribe(() => this._save());
   }
 
-  protected async _init() {
+  protected async _init(): Promise<void> {
     if (this._inited !== undefined)
-      return;
+      return this._request;
 
     this._inited = null;
-    await new Promise((resolve, reject) => {
+    this._request = new Promise((resolve, reject) => {
       setTimeout(() => {
         super._init()
           .then(data => {
@@ -44,6 +46,8 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
           });
       });
     });
+
+    return this._request;
   }
 
   private _getTemplates(): Observable<IVolumeTemplate[]> {
@@ -85,8 +89,14 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   async _getItems() {
-    await this._init();
+    // return this._init().then(() => {
     return this._getTemplates().toPromise();
+    // });
+    // return this._getTemplates().toPromise();
+  }
+
+  getItems(params): Observable<any> {
+    return from(this._init()).pipe(mergeMap(() => super.getItems(params)));
   }
 
   ngOnDestroy(): void {
