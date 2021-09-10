@@ -98,13 +98,22 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       .pipe(untilDestroyed(this))
       .subscribe((value) => {
         this.settings = mergeDeep(this.settings, clone(value));
+        const template = {
+          ...this._selectedItem,
+          settings: normalizeSettings(this.settings),
+        };
+
+        if (template.id != null) {
+          this._repository.updateItem(template).subscribe(
+            () => console.log('Updated'),
+            err => console.error('Updated err', err),
+          );
+        }
+
         this.broadcastData(this._linkKey,
           {
             identificator: this._identificator,
-            template: {
-              ...this._selectedItem,
-              settings: normalizeSettings(this.settings),
-            }
+            template,
           }
         );
       });
