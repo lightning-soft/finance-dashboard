@@ -3,6 +3,12 @@ import { ISession, OrderDuration } from 'trading';
 export const chartReceiveKey = 'chartReceiveKey';
 export const chartSettings = 'chartSettings';
 
+export enum IsAutomaticPixelPrice {
+  AUTOMATIC = 'automatic',
+  PIXELS_PRICE = 'pixels-price'
+  
+}
+
 export interface IChartSettings {
   general: {
     upCandleColor: string;
@@ -31,6 +37,7 @@ export interface IChartSettings {
   valueScale?: {
     valueScale: {
       pixelsPrice: number;
+      isAutomatic: string;
     }
   };
 }
@@ -169,7 +176,8 @@ defaultChartSettings = {
   },
   valueScale: {
     valueScale: {
-      pixelsPrice: 0
+      pixelsPrice: 0,
+      isAutomatic: IsAutomaticPixelPrice.AUTOMATIC
     }
   }
 };

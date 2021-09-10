@@ -5,6 +5,12 @@
 
 
   ::ng-deep {
+    .position-select {
+      label {
+        margin-right: 4px;
+      }
+    }
+
     .wvap-duration.session-template {
       label {
         display: none;

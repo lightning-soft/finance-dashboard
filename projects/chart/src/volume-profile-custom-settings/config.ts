@@ -51,31 +51,30 @@ export const customVolumeProfile = [
   }),
   new FieldConfig({
     label: 'Profile Settings',
-    key: 'profileSettings',
+    key: 'profile',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'two-rows d-grid',
     fieldGroup: [
       getColorSelect({
-        key: 'profileColor',
+        key: 'color',
         label: 'Profile Type',
         className: 'd-flex flex-column justify-content-end',
         options: [
           {
-            key: 'color',
             label: 'Profile Color',
-            value: { type: 'profileColor', value: '#a0a0a0' },
+            value: { type: 'profileColor', value: '#a0a0a0', id: 'profileColor' },
           },
           {
             label: 'Heat Map',
-            value: { type: 'heatMap', value: '#a0a0a0' },
+            value: { type: 'heatMap', value: '#a0a0a0', id: 'heatMap'  },
           },
           {
             label: 'Custom Blend',
-            value: { type: 'customBlend', value: '#a0a0a0' },
+            value: { type: 'customBlend', value: '#a0a0a0', id: 'customBlend'  },
           },
           {
             label: 'FP Shading',
-            value: { type: 'fpShading', value: '#a0a0a0' },
+            value: { type: 'fpShading', value: '#a0a0a0', id: 'fpShading'  },
           }
         ]
       }),

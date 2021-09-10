@@ -56,7 +56,7 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
+import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings, IsAutomaticPixelPrice } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
 import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
@@ -444,9 +444,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this.broadcastData(this.chartLink, chart);
 
-    let charts = [];
-
-    if (!environment.production) {
+    if (environment.isDev) {
+      let charts = [];
       if (!(window as any).charts) {
         (window as any).charts = [];
       }
@@ -755,8 +754,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   createOrder(config: Partial<IOrder>) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this._notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };
@@ -913,12 +914,27 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
 
     const pixelsPrice = settings?.valueScale?.valueScale.pixelsPrice ?? 0;
-    if (pixelsPrice) {
-      this.chart.setPixelsPrice(pixelsPrice);
-    } else {
-      if (!this.settings.valueScale) this.settings.valueScale = { valueScale: { pixelsPrice: 0 } };
-      this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
+    const isAutomatic = settings?.valueScale?.valueScale?.isAutomatic;
+    this.chart.setPixelsPrice(pixelsPrice);
+
+    switch (isAutomatic) {
+      case IsAutomaticPixelPrice.AUTOMATIC:
+        this.chart.setPixelsPrice(0);
+        setTimeout(() => {
+          this.chart.setNeedsUpdate(true);
+        });
+        break;
+      case IsAutomaticPixelPrice.PIXELS_PRICE:
+        this.chart.setPixelsPrice(pixelsPrice);
+        break;
+      default:
+        break;
     }
+
+    if (!this.settings.valueScale) {
+      this.settings.valueScale = { valueScale: { pixelsPrice: 0, isAutomatic: IsAutomaticPixelPrice.AUTOMATIC } };
+    }
+    this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
 
     this.chart.setNeedsUpdate(needAutoScale);
   }

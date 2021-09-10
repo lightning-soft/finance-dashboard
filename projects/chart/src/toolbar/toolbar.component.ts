@@ -53,8 +53,6 @@ const periodicityMap = new Map([
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements PortalOutlet, AfterViewInit {
-  isDev = environment.isDev;
-
   @Input() link: any;
   @Input() enableOrderForm = false;
   @Input() window: IWindow;

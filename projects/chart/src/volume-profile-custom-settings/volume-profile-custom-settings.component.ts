@@ -154,11 +154,11 @@ function changeSettings(value: any, fn) {
       ...value.general,
       vaCorrelation: fn(value?.general?.vaCorrelation),
     },
-    profileSettings: {
-      ...value.profileSettings,
-      widthCorrelation: fn(value?.profileSettings?.widthCorrelation),
-      vaInsideOpacity: fn(value?.profileSettings?.vaInsideOpacity),
-      vaOutsideOpacity: fn(value?.profileSettings?.vaOutsideOpacity),
+    profile: {
+      ...value.profile,
+      widthCorrelation: fn(value?.profile?.widthCorrelation),
+      vaInsideOpacity: fn(value?.profile?.vaInsideOpacity),
+      vaOutsideOpacity: fn(value?.profile?.vaOutsideOpacity),
     }
   });
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { StringHelper } from 'base-components';
@@ -18,9 +18,9 @@ import {
   VolumeBreakdown,
   VolumeProfile,
   ZigZag,
-  ZigZagOscillator
+  ZigZagOscillator,
+  VWAP
 } from './indicators';
-import { VWAP } from './indicators/VWAP';
 
 declare const StockChartX: any;
 
@@ -60,10 +60,8 @@ export class IndicatorsComponent implements OnInit {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
-        ...(environment.isDev ? [
-          'VWAP',
-          'BarStats',
-        ] : [])
+        'VWAP',
+        'BarStats',
       ],
       expanded: true,
     },
@@ -143,8 +141,14 @@ export class IndicatorsComponent implements OnInit {
       content: string[];
     }[];
   } = {};
+  descriptionEnabled: {
+    [key: string]: boolean;
+  } = {};
 
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
+
+  constructor(private cd: ChangeDetectorRef) {
+  }
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -182,6 +186,7 @@ export class IndicatorsComponent implements OnInit {
       .subscribe(() => {
         console.log(this.selectedIndicator.settings);
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
+        this.chart.setNeedsUpdate();
       });
   }
 
@@ -217,10 +222,10 @@ export class IndicatorsComponent implements OnInit {
 
     const _constructor = this.registeredIndicators[item];
     const indicator = new _constructor();
-    this._applyZIndex();
     this.chart.addIndicators(indicator);
     this.chart.setNeedsUpdate();
 
+    this._applyZIndex();
     this.selectIndicator(indicator);
   }
 
@@ -303,6 +308,8 @@ export class IndicatorsComponent implements OnInit {
         title: StringHelper.capitalize(keys[i]),
         content,
       }));
+      this.descriptionEnabled[name] = sections.some(item => item.length);
+      this.cd.detectChanges();
     });
   }
 
