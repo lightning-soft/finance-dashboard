@@ -233,9 +233,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
-    this._volumeProfileTemplatesRepository.subscribe((data) => {
-      this.customeVolumeTemplate = data?.items || [];
-    });
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
   }
 
   // #region OverlayRef

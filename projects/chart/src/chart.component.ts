@@ -265,6 +265,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
 
     this._loadTemplateList();
+    this._subscribeToHotKey();
   }
 
   private _updateOHLVData() {
@@ -1106,9 +1107,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadTemplateList(): void {
-    this._volumeProfileTemplatesRepository.subscribe((data) => {
-      this.customeVolumeTemplate = data?.items || [];
-    });
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
+  }
+
+  private _subscribeToHotKey(): void {
+
   }
 }
 
