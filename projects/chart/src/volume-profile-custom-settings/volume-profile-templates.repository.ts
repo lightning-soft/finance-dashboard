@@ -12,7 +12,21 @@ export interface IVolumeTemplate {
 
 const STORE_KEY = 'volumeProfileTemplates';
 const DefaultTemplates = [
-  { id: 'buyVolProf', name: 'BuyVolProf', settings: {} },
+  {
+    id: 'buyVolProf', name: 'BuyVolProf', settings: {
+      general: {
+        vaCorrelation: 0, type: undefined, align: 'right', drawVPC: {
+          parts: [
+            { keyCode: 89 },
+            { keyCode: 85 },
+          ]
+
+        }
+      }
+    },
+    graphics: { summaryEnabled: true, showPrices: null },
+    profileSettings: { widthCorrelation: 0 },
+  },
   { id: 'sellVolProf', name: 'SellVolProf', settings: {} }
 ];
 
@@ -58,8 +72,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
       return of(items);
     } else {
-      return this._settingsService.get(STORE_KEY).
-        pipe(mergeMap((items: IVolumeTemplate[]) => {
+      return this._settingsService.get(STORE_KEY).pipe(mergeMap((items: IVolumeTemplate[]) => {
           if (!Array.isArray(items) || !items.length) {
             items = DefaultTemplates;
           }
@@ -71,7 +84,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
           return of(items);
         }),
-        );
+      );
     }
   }
 
@@ -86,12 +99,12 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
   async _getItems() {
     // return this._init().then(() => {
-      return this._getTemplates().toPromise();
+    return this._getTemplates().toPromise();
     // });
     // return this._getTemplates().toPromise();
   }
 
-  getItems(params): Observable<any> {
+  getItems(params = {}): Observable<any> {
     return from(this._init()).pipe(mergeMap(() => super.getItems(params)));
   }
 

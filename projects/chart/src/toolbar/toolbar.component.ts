@@ -26,7 +26,7 @@ import drawings from './drawings';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { IStockChartXInstrument, IVolumeTemplate, VolumeProfileTemplatesRepository } from 'chart';
 import { environment } from 'environment';
-import { IBaseTemplate, TemplatesService } from 'templates';
+import { IBaseTemplate } from 'templates';
 import { ICustomeVolumeTemaplate } from '../models';
 
 declare const StockChartX;
@@ -233,7 +233,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
-    this._volumeProfileTemplatesRepository.subscribe((data) => {
+    this._volumeProfileTemplatesRepository.getItems().subscribe((data) => {
       this.customeVolumeTemplate = data?.items || [];
     });
   }

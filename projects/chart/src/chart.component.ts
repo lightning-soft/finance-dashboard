@@ -58,10 +58,13 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
 import * as clone from 'lodash.clonedeep';
-import { customVolumeProfileSettings, VolumeProfileCustomSettingsComponent } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { InfoComponent } from './info/info.component';
-import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
-import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import {
+  IVolumeTemplate,
+  VolumeProfileTemplatesRepository
+} from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { KeyboardListener } from 'keyboard';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -103,6 +106,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   get chartLink() {
     return `chart-${this.link}`;
   }
+
+  keysStack: KeyboardListener = new KeyboardListener();
 
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
@@ -559,7 +564,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.refresh();
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
+  handleNodeEvent(name: LayoutNodeEvent, data) {
     switch (name) {
       case LayoutNodeEvent.Close:
       case LayoutNodeEvent.Destroy:
@@ -578,7 +583,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Move:
         this.toolbar.updateOffset();
         break;
+      case LayoutNodeEvent.Event:
+        return this._handleKey(data);
     }
+  }
+
+  private _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return false;
+    }
+    this.keysStack.handle(event);
+    this.customeVolumeTemplate.forEach(item => {
+      const hotkey = item.settings.general?.drawVPC;
+      if (hotkey) {
+        // untested
+        if (this.keysStack.equals(hotkey))
+          this.createCustomVolumeProfile();
+      }
+    });
   }
 
   handleLinkData(data: any) {
@@ -747,8 +769,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       nzFooter: null,
       nzNoAnimation: true,
       nzStyle: {
-        left: `${event.evt.clientX}px`,
-        top: `${event.evt.clientY}px`,
+        left: `${ event.evt.clientX }px`,
+        top: `${ event.evt.clientY }px`,
       },
       nzComponentParams: params
     });
@@ -924,11 +946,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _getSettingsKey() {
-    return `${this.componentInstanceId}.${chartSettings}`;
+    return `${ this.componentInstanceId }.${ chartSettings }`;
   }
 
   private _getCustomVolumeProfileKey() {
-    return `${this._getSettingsKey()}.cvp`;
+    return `${ this._getSettingsKey() }.cvp`;
   }
 
   openSettingsDialog(): void {
@@ -1033,6 +1055,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       settings: this.activeIndicator?.settings
     };
 
+
     this._volumeProfileTemplatesRepository.updateItem(template).subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
       this._loadTemplateList();
@@ -1106,8 +1129,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _loadTemplateList(): void {
-    this._volumeProfileTemplatesRepository.subscribe((data) => {
-      this.customeVolumeTemplate = data?.items || [];
+    this._volumeProfileTemplatesRepository.getItems({}).subscribe((data) => {
+      console.log(data);
+      this.customeVolumeTemplate = data?.data || [];
     });
   }
 }
