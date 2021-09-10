@@ -20,9 +20,8 @@ export interface VolumeProfileCustomSettingsComponent extends ILayoutNode {
 
 
 export interface ICustomVolumeProfileSettingsState {
-  indicator: {
-    settings: any
-  };
+  identificator: any;
+  template: Partial<IVolumeTemplate>;
   linkKey: string;
 }
 
@@ -42,6 +41,8 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   settings: any = {};
 
   private _linkKey: string;
+  private _selectedItem: IVolumeTemplate;
+  private _identificator: any; // scx indicator or volume template
 
   get linkKey() {
     return this._linkKey;
@@ -70,19 +71,21 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
     console.log('state', state);
+    this.selectItem(state.template as IVolumeTemplate);
     this._linkKey = state?.linkKey;
-
-    this.settings = denormalizeSettings(state.indicator.settings);
+    this._identificator = state.identificator;
 
     this.addLinkObserver({
       link: this._linkKey,
+      listener: this,
       handleLinkData: (data) => {
         if (!data)
           return;
 
         try {
           console.log('data', data);
-          this.settings = denormalizeSettings(data);
+          this.selectItem(state.template as IVolumeTemplate);
+          this._identificator = state.identificator;
         } catch (error) {
           console.error(error);
         }
@@ -95,7 +98,15 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       .pipe(untilDestroyed(this))
       .subscribe((value) => {
         this.settings = mergeDeep(this.settings, clone(value));
-        this.broadcastData(this._linkKey, normalizeSettings(this.settings));
+        this.broadcastData(this._linkKey,
+          {
+            identificator: this._identificator,
+            template: {
+              ...this._selectedItem,
+              settings: normalizeSettings(this.settings),
+            }
+          }
+        );
       });
   }
 
@@ -104,6 +115,8 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   }
 
   selectItem(item: IVolumeTemplate) {
+    this._identificator = item;
+    this._selectedItem = item;
     this.settings = denormalizeSettings(item.settings);
   }
 

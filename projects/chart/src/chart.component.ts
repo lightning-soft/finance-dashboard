@@ -61,6 +61,7 @@ import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -227,14 +228,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  createCustomVolumeProfile(settings?: any): void {
+  createCustomVolumeProfile(template: IVolumeTemplate): void {
     const indicator = new StockChartX.CustomVolumeProfile();
 
     this.chart.addIndicators(indicator);
     indicator.start();
 
-    if (settings) {
-      indicator.settings = settings;
+    if (template?.settings) {
+      indicator.settings = template.settings;
+      indicator.templateId = template.id;
     }
 
     this.chart.setNeedsUpdate();
@@ -629,7 +631,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
-    this.createCustomVolumeProfile(template.settings);
+    this.createCustomVolumeProfile(template);
   }
 
   ngOnDestroy(): void {
@@ -884,8 +886,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private _handleCustomVolumeProfileSettingsChange(settings: any) {
-    this.activeIndicator.settings = settings;
+  private _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
+    if (data == null)
+      return;
+
+    if (data?.template?.id) {
+      const indicators = this.chart.indicators.filter(i => i instanceof StockChartX.CustomVolumeProfile && i.templateId == data.template.id);
+      for (const indicator of indicators) {
+        indicator.settings = data.template.settings;
+      }
+    } else {
+      const indicator = this.chart.indicators.find(i => i === data.identificator);
+
+      if (indicator) {
+        indicator.settings = data.template.settings;
+      }
+    }
   }
 
   private _handleSettingsChange(settings: IChartSettings) {
@@ -1006,7 +1022,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           name: customVolumeProfileSettings,
           state: {
             linkKey,
-            indicator: {
+            identificator: this.activeIndicator,
+            template: {
+              id: this.activeIndicator.templateId,
               settings: this.activeIndicator?.settings,
             },
           }

@@ -1,4 +1,5 @@
 export interface ILinkNode<T = any> {
+  listener?: any;
   link: number | string;
   layoutContainer?: { visible: boolean };
   handleLinkData?(data: T);
@@ -30,7 +31,7 @@ export class LinkDataObserver {
     this._freeze = true;
     for (const node of this._nodes) {
       const visible = node.layoutContainer?.visible ?? true;
-      if (node.link === data.link && visible && node !== data.creator && node.handleLinkData)
+      if (node.link === data.link && visible && (node.listener ?? node) !== data.creator && node.handleLinkData)
         node.handleLinkData(data.data);
     }
 
