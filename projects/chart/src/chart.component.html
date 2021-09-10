@@ -17,11 +17,10 @@
 </window-header>
 <div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">
-    <app-toolbar *ngIf="window" (createCustomVolumeProfile)="createCustomVolumeProfile()"
-      (loadedCustomeVolumeProfile)="loadCustomeVolumeTemplate($event)"
-      [(enableOrderForm)]="enableOrderForm" (enableOrderFormChange)="checkIfTradingEnabled()"
-      [class.location-up]="!showChanges && !showOHLV" [layout]="layout" [chart]="chart" [window]="window"
-      [link]="chartLink"></app-toolbar>
+    <app-toolbar #toolbar *ngIf="window" (createCustomVolumeProfile)="createCustomVolumeProfile()"
+      (loadedCustomeVolumeProfile)="loadCustomeVolumeTemplate($event)" [(enableOrderForm)]="enableOrderForm"
+      (enableOrderFormChange)="checkIfTradingEnabled()" [class.location-up]="!showChanges && !showOHLV"
+      [layout]="layout" [chart]="chart" [window]="window" [link]="chartLink"></app-toolbar>
     <div class="chart" #chartContainer></div>
   </div>
 
@@ -53,9 +52,10 @@
     <li nz-menu-divider></li>
     <li class="custom-volume-profile-templates" nz-submenu nzTitle="Templates">
       <ul class="custom-volume-profile-subitems">
-        <li *ngFor="let template of customeVolumeTemplate" class="custom-drawing-menu-item" (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i (click)="editCustomProfile(template)" class="icon-edit"></i> <i (click)="deleteVolumeProfile(template)" class="icon-close-window"></i></span></li>
-        <li nz-menu-item>BuyVolProf</li>
-        <li nz-menu-item>SellVolProf</li>
+        <li *ngFor="let template of toolbar.items" class="custom-drawing-menu-item"
+          (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i
+              (click)="editCustomProfile(template)" class="icon-edit"></i> <i (click)="deleteVolumeProfile(template)"
+              class="icon-close-window"></i></span></li>
       </ul>
     </li>
     <li (click)="saveCustomVolume()" nz-menu-item>Save</li>
