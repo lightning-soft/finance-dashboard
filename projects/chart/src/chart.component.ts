@@ -260,6 +260,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (this.loadedTemplate)
         this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
     });
+
+    this._loadTemplateList();
+    this._subscribeToHotKey();
   }
 
   private _updateOHLVData() {
@@ -1114,6 +1117,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
       }
     });
+  }
+
+  private _loadTemplateList(): void {
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
+  }
+
+  private _subscribeToHotKey(): void {
+
   }
 }
 
