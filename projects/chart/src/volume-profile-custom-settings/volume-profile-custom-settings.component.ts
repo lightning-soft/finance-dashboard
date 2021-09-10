@@ -59,12 +59,13 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       onQueryParamsChange: false,
       onConnectionChange: false,
     };
-
   }
 
   ngOnInit(): void {
     super.ngOnInit();
     this.setTabTitle('Drawing Objects');
+
+    (window as any).bla = this;
   }
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
