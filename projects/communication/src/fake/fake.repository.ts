@@ -77,7 +77,7 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
   }
 
   deleteItem(id: number): Observable<any> {
-    if (id == null || !this._store[id]) {
+    if (!this._store[id]) {
       return throwError(`Invalid item id - ${id}`);
     }
 

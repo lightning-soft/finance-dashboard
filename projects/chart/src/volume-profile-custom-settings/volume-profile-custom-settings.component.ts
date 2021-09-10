@@ -1,16 +1,15 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { mergeDeep } from 'base-components';
+import { ItemsComponent, mergeDeep } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { NzModalService } from 'ng-zorro-antd';
+import { debounceTime } from 'rxjs/operators';
+import { IBaseTemplate, TemplatesService } from 'templates';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
-import { ItemsComponent } from 'base-components';
 import { customVolumeProfile } from './config';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
-import { Observable } from 'rxjs';
-import { IBaseTemplate, TemplatesService } from 'templates';
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
@@ -51,7 +50,6 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   constructor(
     private _modalService: NzModalService,
     protected _repository: VolumeProfileTemplatesRepository,
-    private _templatesService: TemplatesService,
   ) {
     super();
     this.autoLoadData = {
@@ -95,7 +93,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
   ngAfterViewInit() {
     this.form.valueChanges
-      .pipe(untilDestroyed(this))
+      .pipe(untilDestroyed(this), debounceTime(100))
       .subscribe((value) => {
         this.settings = mergeDeep(this.settings, clone(value));
         const template = {
@@ -129,7 +127,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
     this.settings = denormalizeSettings(item.settings);
   }
 
-  rename(template: IBaseTemplate) {
+  rename(template: IVolumeTemplate) {
     const modal = this._modalService.create({
       nzTitle: 'Edit name',
       nzContent: RenameModalComponent,
@@ -145,11 +143,11 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       if (!name)
         return;
 
-      this._templatesService.updateItem({ ...template, name }).subscribe();
+      this._repository.updateItem({ ...template, name }).subscribe();
     });
   }
 
-  delete(template: IBaseTemplate) {
+  delete(template: IVolumeTemplate) {
     const modal = this._modalService.create({
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
@@ -162,7 +160,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._templatesService.deleteItem(template.id).subscribe();
+        this._repository.deleteItem(template.id as any).subscribe();
       }
     });
   }
