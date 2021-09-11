@@ -346,19 +346,15 @@ export function getNumber(_config: any) {
   };
   Object.assign(config, _config);
   const { key, important, placeholder, unit, label, ...extraConfig } = config;
-  const input = {
+  return {
     key,
-    type: FieldType.Input,
+    type: FieldType.Number,
     templateOptions: {
       placeholder,
       label,
-      type: FieldType.Number,
       min: config.min,
       max: config.max,
-      step: 1
     },
     ...extraConfig,
   };
-  console.log(input);
-  return input;
 }

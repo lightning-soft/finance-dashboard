@@ -1,6 +1,7 @@
 <nz-input-number [nzSize]="'small'"
                  [nzMin]="this.field.templateOptions.min"
                  [disabled]="field.templateOptions?.disabled"
+                 [nzMax]="this.field.templateOptions.max"
                  [(ngModel)]="value"
                  [nzPlaceHolder]="to.placeholder"
                  [formlyAttributes]="field"
