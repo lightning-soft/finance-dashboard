@@ -831,187 +831,167 @@ export const volumeProfileConfig: IFieldConfig[] = [
     label: 'General',
     fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
     fieldGroup: [
-      // {
-      //   key: 'period',
-      //   wrappers: ['form-field'],
-      //   templateOptions: {
-      //     label: 'Profile Period',
-      //   },
-      //   className: 'w-100 full-width profile-period hide-border-bottom ',
-      //   fieldGroupClassName: 'd-flex align-items-end period-items',
-      //   fieldGroup: [
-      //     wrapWithConfig(
-      //       getSelect({
-      //         key: 'type',
-      //         options: [{
-      //           value: 'last',
-      //           label: 'Last'
-      //         },
-      //           {
-      //             value: 'every',
-      //             label: 'Every'
-      //           }
-      //         ]
-      //       }), {
-      //         hideExpression: 'model.unit === "toPresent"',
-      //       }),
-      //     wrapWithConfig(getNumber({
-      //       key: 'value',
-      //       min: 0,
-      //     }), {
-      //       hideExpression: 'model.unit === "toPresent"',
-      //     }),
-      //     wrapWithConfig(getDatePicker('date'), {
-      //       hideExpression: 'model.unit !== "toPresent"',
-      //     }),
-      //     getSelect({
-      //       key: 'unit',
-      //       options: [
-      //         {
-      //           value: 'bars',
-      //           label: 'Bars'
-      //         },
-      //         {
-      //           value: 'minute',
-      //           label: 'Minutes'
-      //         },
-      //         {
-      //           value: 'day',
-      //           label: 'Days'
-      //         },
-      //         {
-      //           value: 'week',
-      //           label: 'Weeks'
-      //         },
-      //         {
-      //           value: 'month',
-      //           label: 'Month'
-      //         },
-      //         {
-      //           value: 'quarter',
-      //           label: 'Quarters'
-      //         },
-      //         {
-      //           value: 'year',
-      //           label: 'Years'
-      //         },
-      //         {
-      //           value: 'toPresent',
-      //           label: 'To Present'
-      //         },
-      //         {
-      //           value: 'allBars',
-      //           label: 'All Bars'
-      //         },
-      //         {
-      //           value: 'visibleBars',
-      //           label: 'Visible Bars'
-      //         },
-      //       ],
-      //     }),
+      {
+        key: 'period',
+        wrappers: ['form-field'],
+        templateOptions: {
+          label: 'Profile Period',
+        },
+        className: 'w-100 full-width profile-period hide-border-bottom ',
+        fieldGroupClassName: 'd-flex align-items-end period-items',
+        fieldGroup: [
+          wrapWithConfig(
+            getSelect({
+              key: 'type',
+              options: [{
+                value: 'last',
+                label: 'Last'
+              },
+                {
+                  value: 'every',
+                  label: 'Every'
+                }
+              ]
+            }), {
+              hideExpression: 'model.unit === "toPresent"',
+            }),
+          wrapWithConfig(getNumber({
+            key: 'value',
+            min: 0,
+          }), {
+            hideExpression: 'model.unit === "toPresent"',
+          }),
+          wrapWithConfig(getDatePicker('date'), {
+            hideExpression: 'model.unit !== "toPresent"',
+          }),
+          getSelect({
+            key: 'unit',
+            options: [
+              {
+                value: 'bars',
+                label: 'Bars'
+              },
+              {
+                value: 'minute',
+                label: 'Minutes'
+              },
+              {
+                value: 'day',
+                label: 'Days'
+              },
+              {
+                value: 'week',
+                label: 'Weeks'
+              },
+              {
+                value: 'month',
+                label: 'Month'
+              },
+              {
+                value: 'quarter',
+                label: 'Quarters'
+              },
+              {
+                value: 'year',
+                label: 'Years'
+              },
+              {
+                value: 'toPresent',
+                label: 'To Present'
+              },
+              {
+                value: 'allBars',
+                label: 'All Bars'
+              },
+              {
+                value: 'visibleBars',
+                label: 'Visible Bars'
+              },
+            ],
+          }),
 
-      //   ],
-      // },
-      // getSelect({
-      //   key: 'type', label: 'Profile Type',
-      //   className: 'split-select',
-      //   options: [{
-      //     value: 'volume',
-      //     label: 'Volume'
-      //   },
-      //     {
-      //       value: 'tradesCount',
-      //       label: 'Ticks'
-      //     },
-      //     {
-      //       value: 'price',
-      //       label: 'Price'
-      //     },
-      //   ],
-      // }),
-      // {
-        // key: 'hide',
-        // fieldGroupClassName: 'd-flex',
-        // fieldGroup: [
-        //   getCheckboxes({
-        //     checkboxes: [
-        //       { label: 'Hide', key: 'enabled' },
-        //     ]
-        //   }),
-        //   getSelect({
-        //     key: 'value',
-        //     className: 'w-100',
-        //     options: [
-        //       {
-        //         value: 'lastProfile',
-        //         label: 'Last Profile'
-        //       },
-        //       {
-        //         value: 'allProfiles',
-        //         label: 'All Profiles'
-        //       },
-        //     ],
-        //   }),
-        // ],
-      // },
+        ],
+      },
+      getSelect({
+        key: 'type', label: 'Profile Type',
+        className: 'split-select',
+        options: [{
+          value: 'volume',
+          label: 'Volume'
+        },
+          {
+            value: 'tradesCount',
+            label: 'Ticks'
+          },
+          {
+            value: 'price',
+            label: 'Price'
+          },
+        ],
+      }),
+      {
+        key: 'hide',
+        fieldGroupClassName: 'd-flex',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [
+              { label: 'Hide', key: 'enabled' },
+            ]
+          }),
+          getSelect({
+            key: 'value',
+            className: 'w-100',
+            options: [
+              {
+                value: 'lastProfile',
+                label: 'Last Profile'
+              },
+              {
+                value: 'allProfiles',
+                label: 'All Profiles'
+              },
+            ],
+          }),
+        ],
+      },
       getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
-      // {
-      //   key: 'smoothed',
-      //   fieldGroupClassName: 'd-flex align-items-center smooth-price',
-      //   fieldGroup: [
-      //     getCheckboxes({
-      //       checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
-      //     }),
-      //     getNumber({
-      //       key: 'value',
-      //       label: 'Prices',
-      //       min: 0,
-      //     }),
-      //   ],
-      // },
-      // getTextAlign('align', 'Profile Alignment',
-      //   { className: 'profile-alignment' }),
-      // getNumber({
-      //   key: 'calculateXProfiles',
-      //   label: 'Calculate X profiles',
-      //   min: 1,
-      //   className: 'calculate-profiles'
-      // }),
-      // {
-      //   className: 'w-100  full-width',
-      //   key: 'customTickSize',
-      //   fieldGroupClassName: 'd-grid two-rows',
-      //   fieldGroup: [
-      //     getCheckboxes({
-      //       checkboxes: [{
-      //         label: 'Use custom tick size',
-      //         key: 'enabled'
-      //       }]
-      //     }),
-      //     wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-      //       { className: 'tickPerPrice' }),
-      //   ],
-      // },
       {
-        key: 'name',
-        type: 'input',
-        templateOptions: {
-          label: 'Name (required)',
-          required: true,
-        },
+        key: 'smoothed',
+        fieldGroupClassName: 'd-flex align-items-center smooth-price',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
+          }),
+          getNumber({
+            key: 'value',
+            label: 'Prices',
+            min: 0,
+          }),
+        ],
       },
+      getTextAlign('align', 'Profile Alignment',
+        { className: 'profile-alignment' }),
+      getNumber({
+        key: 'calculateXProfiles',
+        label: 'Calculate X profiles',
+        min: 1,
+        className: 'calculate-profiles'
+      }),
       {
-        key: 'age',
-        type: 'input',
-        templateOptions: {
-          label: 'Age (min= 18, max= 40)',
-          type: 'number',
-          min: 18,
-          max: 40,
-          required: true,
-        },
+        className: 'w-100  full-width',
+        key: 'customTickSize',
+        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroup: [
+          getCheckboxes({
+            checkboxes: [{
+              label: 'Use custom tick size',
+              key: 'enabled'
+            }]
+          }),
+          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
+            { className: 'tickPerPrice' }),
+        ],
       },
-      // },
     ],
   }),
   new FieldConfig({
