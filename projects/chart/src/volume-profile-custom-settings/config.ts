@@ -121,7 +121,7 @@ export const customVolumeProfile = [
         className: 'full-width',
         fieldGroup: [
           getInnerValueArea('Current', 'current'),
-          getInnerValueArea('Developing', 'developing')],
+          getInnerValueArea('Developing', 'dev')],
       },
       {
         className: 'full-width',
