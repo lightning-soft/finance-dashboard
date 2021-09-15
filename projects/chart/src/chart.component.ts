@@ -15,7 +15,7 @@ import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
-import { KeyBinding, KeyboardListener } from "keyboard";
+import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
@@ -50,7 +50,13 @@ import {
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
-import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings, IsAutomaticPixelPrice } from './chart-settings/settings';
+import {
+  chartReceiveKey,
+  chartSettings,
+  defaultChartSettings,
+  IChartSettings,
+  IsAutomaticPixelPrice
+} from './chart-settings/settings';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { InfoComponent } from './info/info.component';
@@ -61,7 +67,10 @@ import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
-import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import {
+  IVolumeTemplate,
+  VolumeProfileTemplatesRepository
+} from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -594,7 +603,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (hotkey) {
         const keyBinding = KeyBinding.fromDTO(hotkey);
         if (this.keysStack.equals(keyBinding))
-          this.createCustomVolumeProfile();
+          this.createCustomVolumeProfile(item);
       }
     });
   }

@@ -67,7 +67,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
     console.log('state', state);
-    this.selectItem(state.template as IVolumeTemplate);
+    this.selectItem(state?.template as IVolumeTemplate);
     this._linkKey = state?.linkKey;
     this._identificator = state.identificator;
 
@@ -87,6 +87,14 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
         }
       }
     });
+  }
+
+  saveState() {
+    return {
+      link: this._linkKey,
+      template: this._selectedItem,
+     //  identificator: this._identificator
+    };
   }
 
   ngAfterViewInit() {
@@ -115,14 +123,11 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       });
   }
 
-  saveState() {
-
-  }
-
   selectItem(item: IVolumeTemplate) {
     this._identificator = item;
     this._selectedItem = item;
-    this.settings = denormalizeSettings(item.settings);
+    if (item?.settings)
+      this.settings = denormalizeSettings(item.settings);
   }
 
   rename(template: IVolumeTemplate) {
