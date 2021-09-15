@@ -1,3 +1,4 @@
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import {
   FieldConfig,
   FieldType,
@@ -285,7 +286,7 @@ export function getInnerValueArea(label, key) {
               { key: 'enabled', label: '' },
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithClass(getColor({ key: 'strokeTheme.strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' }),
         ]
       },
@@ -298,7 +299,7 @@ export function getInnerValueArea(label, key) {
               { key: 'enabled', label: '' },
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithClass(getColor({ key: 'strokeTheme.strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' })]
       }
     ]
@@ -991,7 +992,6 @@ export const volumeProfileConfig: IFieldConfig[] = [
             { className: 'tickPerPrice' }),
         ],
       },
-
     ],
   }),
   new FieldConfig({

@@ -6,7 +6,6 @@ import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { NzModalService } from 'ng-zorro-antd';
 import { debounceTime } from 'rxjs/operators';
-import { IBaseTemplate, TemplatesService } from 'templates';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { customVolumeProfile } from './config';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-templates.repository';
@@ -63,8 +62,6 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   ngOnInit(): void {
     super.ngOnInit();
     this.setTabTitle('Drawing Objects');
-
-    (window as any).bla = this;
   }
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
