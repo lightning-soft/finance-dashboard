@@ -15,6 +15,7 @@ import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
+import { KeyBinding, KeyboardListener } from "keyboard";
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
@@ -61,7 +62,6 @@ import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
-import { CustomVolumeProfile } from './indicators/indicators/CustomVolumeProfile';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -103,6 +103,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   get chartLink() {
     return `chart-${this.link}`;
   }
+
+  keysStack: KeyboardListener = new KeyboardListener();
 
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
@@ -558,7 +560,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.refresh();
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
+  handleNodeEvent(name: LayoutNodeEvent, data) {
     switch (name) {
       case LayoutNodeEvent.Close:
       case LayoutNodeEvent.Destroy:
@@ -577,7 +579,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Move:
         this.toolbar.updateOffset();
         break;
+      case LayoutNodeEvent.Event:
+        return this._handleKey(data);
     }
+  }
+
+  private _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return false;
+    }
+    this.keysStack.handle(event);
+    this.toolbar.items.forEach(item => {
+      const hotkey = item.settings.general?.drawVPC;
+      if (hotkey) {
+        const keyBinding = KeyBinding.fromDTO(hotkey);
+        if (this.keysStack.equals(keyBinding))
+          this.createCustomVolumeProfile();
+      }
+    });
   }
 
   handleLinkData(data: any) {
@@ -631,7 +650,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
-    this.createCustomVolumeProfile(template);
+
+    this.createCustomVolumeProfile(template.settings);
   }
 
   ngOnDestroy(): void {

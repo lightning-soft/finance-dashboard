@@ -15,10 +15,10 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { ItemsComponent } from 'base-components';
 import { Layout } from 'layout';
 import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
 import { Components } from 'src/app/modules';
-import { IBaseTemplate } from 'templates';
 import { IInstrument } from 'trading';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { Coords, EVENTS, IWindow } from 'window-manager';
@@ -27,7 +27,6 @@ import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
 import { IChart } from '../models/chart';
 import { IVolumeTemplate, VolumeProfileTemplatesRepository } from '../volume-profile-custom-settings/volume-profile-templates.repository';
 import drawings from './drawings';
-import { ItemsComponent } from 'base-components';
 
 declare const StockChartX;
 

@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { StringHelper } from 'base-components';
-import { environment } from 'environment';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -17,9 +16,9 @@ import {
   SessionStats,
   VolumeBreakdown,
   VolumeProfile,
+  VWAP,
   ZigZag,
-  ZigZagOscillator,
-  VWAP
+  ZigZagOscillator
 } from './indicators';
 
 declare const StockChartX: any;

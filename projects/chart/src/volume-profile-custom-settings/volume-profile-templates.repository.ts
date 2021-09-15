@@ -95,7 +95,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
     // return this._getTemplates().toPromise();
   }
 
-  getItems(params): Observable<any> {
+  getItems(params: any = {}): Observable<any> {
     return from(this._init()).pipe(mergeMap(() => super.getItems(params)));
   }
 

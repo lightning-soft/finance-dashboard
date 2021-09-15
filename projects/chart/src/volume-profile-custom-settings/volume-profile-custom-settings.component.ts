@@ -12,7 +12,6 @@ import { IVolumeTemplate, VolumeProfileTemplatesRepository } from './volume-prof
 
 export const customVolumeProfileSettings = 'customVolumeProfileSettings';
 
-
 export interface VolumeProfileCustomSettingsComponent extends ILayoutNode {
 }
 
@@ -62,6 +61,8 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   ngOnInit(): void {
     super.ngOnInit();
     this.setTabTitle('Drawing Objects');
+
+    (window as any).bla = this;
   }
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
