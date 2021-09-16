@@ -248,5 +248,8 @@
   <span class="scx-icon icon-{{selected.nzValue}}"></span>
 </ng-template>
 <ng-template #frameIntervalTemplate>
-  <frame-selector [chart]="chart"></frame-selector>
+  <frame-selector
+    (intervalAdded)="onIntervalAdded($event)"
+    (intervalAdded)="onPeriodAdded($event)"
+    [intervalOptions]="intervalOptions" [periodOptions]="periodOptions" [chart]="chart"></frame-selector>
 </ng-template>
