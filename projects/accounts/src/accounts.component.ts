@@ -33,7 +33,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   selectedItem: IConnection;
   brokers: IBroker[];
   selectedBroker: IBroker;
-  splitConnections = false;
+  isConnecting = true;
   @ViewChild('userData') userData: AcccountFormComponent;
   isSubmitted = false;
   connectOnStartUp = true;
@@ -51,6 +51,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   ) {
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
+    this._accountsManager.isConnecting$
+      .pipe(untilDestroyed(this))
+      .subscribe((value) => {
+        this.isConnecting = value;
+      });
     this.form = this.fb.group({
       id: [null],
       name: [null],
@@ -181,7 +186,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     if (!Array.isArray(this.brokers) || !this.selectedItem)
       return;
 
-    this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker)
+    this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker);
   }
 
   handleBrockerClick($event, broker: IBroker): void {
@@ -193,7 +198,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   openCreateForm(event: MouseEvent, broker: IBroker): void {
     event?.stopPropagation();
     if (this.canAddAccount(broker)) {
-      const item = { broker: broker.name } as IConnection
+      const item = { broker: broker.name } as IConnection;
       this.selectItem(item);
     }
   }
@@ -207,12 +212,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   convertItemToFormValue(item: IConnection, broker: IBroker) {
-    const _server = item.server;
+    const _server: any = item.server;
     let server;
     if (typeof _server === 'string')
       server = _server;
     else if ((typeof _server === 'object'))
-      server = _server['name'];
+      server = _server.name;
 
     const { username, password, autoSavePassword, gateway, ...data } = item;
     const userData = { username, password: autoSavePassword ? password : '', server, gateway, autoSavePassword };
@@ -220,6 +225,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   handleSubmit(): void {
+    if (this.isConnecting)
+      return;
+
     this.isSubmitted = true;
     if (!this.userData?.isValid) {
       return;
@@ -234,7 +242,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   getValue() {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return { ...this.selectedItem, ...data, broker: this.selectedBroker?.name, name: this.selectedItem.name, ...userData };
+    return {
+      ...this.selectedItem, ...data,
+      broker: this.selectedBroker?.name,
+      name: this.selectedItem.name, ...userData
+    };
   }
 
   create() {
