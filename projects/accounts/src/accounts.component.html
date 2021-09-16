@@ -92,38 +92,10 @@
             <acccount-form (autosavePasswordToggle)="handleAutosavePasswordToggle($event)"
                            [isSubmitted]="isSubmitted"
                            #userData
-                           [class.d-none]='splitConnections'
                            [connectOnStartUp]="connectOnStartUp"
                            (updateItem)="updateItem()"
                            (turnOffAutoConnect)="turnOffAutoConnect()"
                            formControlName="userData"></acccount-form>
-            <div *ngIf="splitConnections" class="d-flex split-form">
-              <div class="split-form-item">
-                <span class="split-form-title">Marker Data</span> <span class="switch-container"><span>Off</span>
-                <nz-switch
-                  [ngModel]="true"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="toggleFormConnection($event, 'marketConnection')" nzSize="small"></nz-switch>
-                <span>On</span></span>
-                <acccount-form formControlName="marketConnection"
-                ></acccount-form>
-              </div>
-              <div class="split-form-item">
-
-                <span class="split-form-title">Orders</span>
-                <span class="switch-container">
-                <span>Off</span>
-                <nz-switch
-                  [ngModel]="true"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="toggleFormConnection($event, 'orderConnection')"
-                  nzSize="small"></nz-switch>
-                <span>On</span>
-                </span>
-
-                <acccount-form formControlName="orderConnection"></acccount-form>
-              </div>
-            </div>
             <!-- <label class="split-connection">
               <span class="split-title">Split Connection</span>
 
@@ -148,6 +120,7 @@
               nzType="primary"
               tabindex="1"
               (keydown.enter)="handleSubmit()"
+              [class.is-disabled]="isConnecting"
               nzBlock
               class="ant-btn connect-button ant-btn-primary text-uppercase mt-3 mb-4"
             >Connect
@@ -204,8 +177,9 @@
               nzType="primary"
               nzBlock
               class="bg-secondary text-uppercase disconnect-button"
+              [class.is-disabled]="isConnecting"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-              (click)="disconnect(selectedItem)"
+              (click)="!isConnecting && disconnect(selectedItem)"
             >Disconnect
             </button>
           </div>
