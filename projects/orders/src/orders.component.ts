@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import {
   convertToColumn,
   HeaderItem,
@@ -73,7 +73,7 @@ enum GroupByItem {
 @AccountsListener()
 @SettingsApplier()
 export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements OnDestroy, AfterViewInit, IAccountsListener {
-  @ViewChild('grid', { static: false }) dataGrid: DataGrid;
+  @ViewChildren(DataGrid) dataGrids: QueryList<DataGrid>;
 
   columns: Column[];
   orderTypes = [allTypes, ...Object.values(OrderType)];
@@ -286,6 +286,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     super._handleResponse(this._processOrders(response), params);
     this.updateCheckboxState(this.contextMenuState);
   }
+  protected _handleResize() {
+    this.dataGrids?.forEach(item => item.resize());
+  }
 
   protected _transformDataFeedItem(item) {
     return this._processOrder(item);
@@ -315,7 +318,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   saveState() {
-    return { ...this.dataGrid.saveState(), settings: this.settings, componentInstanceId: this.componentInstanceId };
+    return { ...this.dataGrids?.first.saveState(), settings: this.settings, componentInstanceId: this.componentInstanceId };
   }
 
   loadState(state): void {
@@ -350,7 +353,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     if (!force && (this._updatedAt + this._upadateInterval) > now)
       return;
 
-    this.dataGrid.detectChanges(force);
+    this.dataGrids?.forEach(item => item.detectChanges(force));
     this._updatedAt = now;
   }
 
