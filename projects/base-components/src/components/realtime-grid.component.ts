@@ -65,7 +65,7 @@ export class RealtimeGridComponent<T extends IBaseItem, P extends IPaginationPar
   }
 
   // @SynchronizeFrames()
-  private _handleResize() {
+  protected _handleResize() {
     this.dataGrid?.resize();
   }
 
