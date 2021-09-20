@@ -2164,14 +2164,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESU1.CME',
+        id: 'ESZ1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
         contractSize: 50,
         productCode: 'ES',
-        symbol: 'ESU1',
+        symbol: 'ESZ1',
       };
     // for debug purposes
 
