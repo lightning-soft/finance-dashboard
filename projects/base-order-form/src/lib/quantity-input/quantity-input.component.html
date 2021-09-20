@@ -18,8 +18,11 @@
 
     <nz-input-number *ngIf="item.edit"
                      [nzMin]="0"
+                     tabindex="1"
                      (keyup.enter)="updateItem(item); item.edit = false"
                      (focusout)="updateItem(item); item.edit = false"
+                     [nzAutoFocus]="true"
+                     (nzBlur)="updateItem(item); item.edit = false"
                      [(ngModel)]="item.value">
     </nz-input-number>
   </ng-container>

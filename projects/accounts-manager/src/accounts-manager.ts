@@ -34,7 +34,7 @@ export class AccountsManager implements ConnectionContainer {
 
   private _soundService: SoundService;
 
-  private _wsIsOpened = false;
+  private _wsIsOpened = {};
   private _wsHasError = false;
   private _accountsConnection = new Map();
 
@@ -148,6 +148,7 @@ export class AccountsManager implements ConnectionContainer {
     webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
     webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
     webSocketService.on(WSEventType.Error, this._wsHandleError.bind(this));
+    webSocketService.on(WSEventType.Close, this._wsHandleClose.bind(this));
 
     webSocketService.connect();
 
@@ -170,18 +171,18 @@ export class AccountsManager implements ConnectionContainer {
     }
   }
 
-  private _wsHandleOpen() {
-    if (!this._wsIsOpened) {
-      this._wsIsOpened = true;
-      return;
+  private _wsHandleOpen(event, connectionId) {
+    if (!this._wsIsOpened[connectionId]) {
+      this._wsIsOpened[connectionId] = true;
+      const conn = this._connections.find(item => item.id === connectionId);
+      this._wsHasError = false;
+      this._notificationService.showSuccess(`Connection ${ conn.name } restored.`);
     }
-
-    this._wsHasError = false;
-
-    this._notificationService.showSuccess('Connection restored.');
   }
 
   private _wsHandleError(event: ErrorEvent, connection: IConnection) {
+    delete this._wsIsOpened[connection.id];
+
     if (this._wsHasError) {
       return;
     }
@@ -196,6 +197,10 @@ export class AccountsManager implements ConnectionContainer {
         error: true,
       });
     }
+  }
+
+  private _wsHandleClose(event, connId) {
+    delete this._wsIsOpened[connId];
   }
 
   private _deactivateConnection(connectionId: string): void {
@@ -370,7 +375,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
+      connection.name = `${ connection.server }(${ connection.gateway })`;
     }
 
     this._connections = this._connections.concat(connection);

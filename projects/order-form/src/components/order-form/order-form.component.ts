@@ -32,6 +32,7 @@ interface OrderFormState {
   link: string | number;
   orderLink?: string;
   account?: IAccount;
+  amountButtons: any[];
 }
 
 export interface OrderFormComponent extends ILayoutNode, IUnsubscribe {
@@ -214,19 +215,21 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (state?.link != null) {
       this.link = state.link;
     }
-    if (state?.orderLink) {
+    if (state?.orderLink)
       this.orderLink = state.orderLink;
-    }
+    if (state?.amountButtons)
+      this.amountButtons = state.amountButtons;
+
     if (state?.instrument)
       this.instrument = state.instrument;
     else
       this.instrument = {
-        id: 'ESU1.CME',
+        id: 'ESZ1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: 'ESU1',
+        symbol: 'ESZ1',
       };
 
     if (state?.account)
@@ -250,7 +253,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   saveState(): OrderFormState {
-    return { instrument: this.instrument, link: this.link, orderLink: this.orderLink };
+    return { instrument: this.instrument, link: this.link, amountButtons: this.amountButtons, orderLink: this.orderLink };
   }
 
   closePositions() {

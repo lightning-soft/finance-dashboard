@@ -391,8 +391,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._handleSettingsChange(this.settings);
 
     this.instrument = state?.instrument ?? {
-      id: 'ESU1.CME',
-      symbol: 'ESU1',
+      id: 'ESZ1.CME',
+      symbol: 'ESZ1',
       exchange: 'CME',
       productCode: 'ES',
       tickSize: 0.25,

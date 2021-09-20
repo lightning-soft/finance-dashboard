@@ -144,8 +144,6 @@ export class ConenctionWebSocketService {
 
   close() {
     this._websocket.close();
-
-    this._removeEventListeners();
   }
 
   on(type: WSEventType, listener: IWSListener): IWSListenerUnsubscribe {
@@ -179,6 +177,7 @@ export class ConenctionWebSocketService {
       },
       close: (event: CloseEvent) => {
         this._executeListeners(WSEventType.Close, event);
+        this._removeEventListeners();
 
         this.connection$.next(false);
       },

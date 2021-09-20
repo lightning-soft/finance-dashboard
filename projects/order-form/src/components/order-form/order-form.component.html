@@ -22,7 +22,7 @@
     </div>
     <div>
       <quantity-input [ngModel]="quantity"
-                      [allowEdit]="false"
+                      [allowEdit]="true"
                       [ngModelOptions]="{standalone: true}"
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>

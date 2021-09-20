@@ -563,7 +563,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
       closableIfPopup: true,
       minimizable: false,
       single: true,
-      removeIfExists: true,
+      removeIfExists: false,
     });
   }
 
