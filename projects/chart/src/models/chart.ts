@@ -23,10 +23,10 @@ export interface IDetails {
 }
 
 export interface IOHLVData {
-  open: number;
-  high: number;
-  low: number;
-  volume: number;
+  open: number | string;
+  high: number | string;
+  low: number | string;
+  volume: number | string;
   income: number;
   incomePercentage: number;
 }

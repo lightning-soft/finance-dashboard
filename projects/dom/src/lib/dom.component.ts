@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostBinding,
   Injector,
+  OnDestroy,
   OnInit,
   ViewChild
 } from '@angular/core';
@@ -190,7 +191,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 @LayoutNode()
 @AccountsListener()
 @BindUnsubscribe()
-export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState> {
+export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState>, OnDestroy {
 
   get accountId() {
     return this.account?.id;

@@ -13,6 +13,16 @@
       display: flex !important;
       border: 1px solid transparent !important;
       align-items: center;
+
+      &:hover {
+        box-shadow: 0 0 0 1px $primary;
+      }
+    }
+
+    &.ant-select-focused {
+      nz-select-top-control{
+        box-shadow: 0 0 0 1px $primary !important;
+      }
     }
   }
 }
