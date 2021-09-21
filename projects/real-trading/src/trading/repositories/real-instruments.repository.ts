@@ -24,7 +24,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       })
       .pipe(
         map(response => response.result.map(item => {
-          item.id = `${ item.symbol }.${ item.exchange }`
+          item.id = `${item.symbol}.${item.exchange}`
           return item;
         })),
         map(result => {
@@ -64,12 +64,12 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       mergeMap((result: any) => {
         if (!result) {
           console.error(result);
-          return throwError(`Invalid response, ${ result }`);
+          return throwError(`Invalid response, ${result}`);
         }
 
         return of({
           ...result,
-          id: `${ result.symbol }.${ result.exchange }`,
+          id: `${result.symbol}.${result.exchange}`,
           tickSize: result.increment ?? 0.01,
         });
       }),
@@ -84,9 +84,10 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
     return super.getItems(_params).pipe(
       map((res: any) => {
-        const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description }) => {
+        const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description, ...rest }) => {
           return {
-            id: `${ symbol }.${ exchange }`,
+            ...rest,
+            id: `${symbol}.${exchange}`,
             symbol,
             description,
             exchange,

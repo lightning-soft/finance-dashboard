@@ -30,6 +30,10 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   send(request: IBarsRequest) {
+    // for omit loading
+    if (request?.kind === 'moreBars')
+      return;
+
     super.send(request);
     if (request.kind === 'bars')
       this.subscribeToRealtime(request);
