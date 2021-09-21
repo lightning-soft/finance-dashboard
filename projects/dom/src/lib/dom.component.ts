@@ -1040,29 +1040,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._loadData();
   }
 
-  protected _loadVolumeHistory() {
-    if (!this.accountId || !this._instrument)
-      return;
-
-    const { symbol, exchange } = this._instrument;
-    this._volumeHistoryRepository.getItems({ symbol, exchange, accountId: this.accountId })
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        res => {
-          /*  for (const vol of res.data) {
-              const item = this._getItem(vol.price);
-              item.setVolume(vol.volume);
-            }*/
-          console.log('volumeHistory', res.data.reduce((total, item) => {
-            return total + item.volume;
-          }, 0));
-
-          // this._updateVolumeColumn();
-        },
-        error => this.notifier.showError(error)
-      );
-  }
-
   protected _loadOrderBook() {
     if (!this.accountId || !this._instrument)
       return;
@@ -1163,7 +1140,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             item.volume.updateValue(volumeData.volume, volumeData.date);
           }
           this._updateVolumeColumn();
-          // console.log('historyItems', this.volumeItems.reduce((total, item) => total + item.volume, 0));
           // this.fillSessionVolume();
         },
         (err) => {
@@ -1420,10 +1396,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     this._counter++;
     const prevltqItem = this._lastTradeItem;
-    const prevHandled = !prevltqItem || prevltqItem.price == null;
+    const prevHandled = prevltqItem && prevltqItem.price != null;
     let needCentralize = false;
     const max = this._max;
-    // console.log('_handleTrade', prevltqItem?.lastPrice, Date.now() - trade.timestamp, trade.price, trade.volume);
+
     const _item = this._getItem(trade.price);
 
     if (prevltqItem?.lastPrice !== trade.price) {
@@ -1628,7 +1604,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
       if (poc)
         items[pointOfControlIndex].volume.changeStatus('pointOfControl');
-      // console.log(pointOfControlIndex);
     }
 
   }
@@ -2065,7 +2040,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return false;
     }
     this.keysStack.handle(event);
-    // console.log('this.keysStack', this.keysStack.hashCode());
     const keyBinding = Object.entries(this._settings.hotkeys)
       .filter(([name, item]) => item)
       .map(([name, item]) => [name, KeyBinding.fromDTO(item as any)])
