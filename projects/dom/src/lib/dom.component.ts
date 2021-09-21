@@ -1132,7 +1132,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           }
 
           volumeItems = volumeItems.sort((a, b) => a.date - b.date);
-          console.log('volumeItems', volumeItems);
 
           for (const volumeData of volumeItems) {
             const item = this._getItem(volumeData.price);
