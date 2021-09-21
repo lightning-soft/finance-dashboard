@@ -4,7 +4,7 @@ import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communic
 import { NotificationService } from 'notification';
 import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, mergeMap, switchMap, tap, debounceTime, shareReplay } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
@@ -38,6 +38,9 @@ export class AccountsManager implements ConnectionContainer {
   private _accountsConnection = new Map();
 
   connectionsChange = new BehaviorSubject<IConnection[]>([]);
+
+  private _updateConnectionsMap: { [key: string]: BehaviorSubject<IConnection> } = {};
+  private _requests: { [key: string]: Observable<IConnection> } = {};
 
   constructor(
     protected _injector: Injector,
@@ -175,7 +178,7 @@ export class AccountsManager implements ConnectionContainer {
       this._wsIsOpened[connectionId] = true;
       const conn = this._connections.find(item => item.id === connectionId);
       this._wsHasError = false;
-      this._notificationService.showSuccess(`Connection ${ conn?.name ?? '' } restored.`);
+      this._notificationService.showSuccess(`Connection ${conn?.name ?? ''} restored.`);
     }
   }
 
@@ -213,12 +216,12 @@ export class AccountsManager implements ConnectionContainer {
 
     connection.connected = false;
 
-    this._connectionsRepository.updateItem(connection)
-      .pipe(
-        tap(() => this.onUpdated(connection)),
-        tap(() => this._onDisconnected(connection))
-      ).subscribe();
-
+    this.updateItem(connection)
+      .pipe(tap(() => this._onDisconnected(connection)))
+      .subscribe(
+        () => console.log('Successfully deactivate'),
+        (err) => console.error('Deactivate error ', err),
+      );
   }
 
   createConnection(connection: IConnection): Observable<IConnection> {
@@ -230,12 +233,37 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
-    return this._connectionsRepository.updateItem((item)).pipe(
-      map(_ => item),
-      tap((conn) => {
-        this.onUpdated(conn);
-      }),
-    );
+    if (this._updateConnectionsMap[item.id] == null) {
+      const id = item.id;
+      const clear = () => {
+        const sub = this._updateConnectionsMap[id];
+        if (!sub)
+          return;
+
+        sub.complete();
+        delete this._requests[id];
+        delete this._updateConnectionsMap[id];
+      };
+
+      const subject = new BehaviorSubject<any>(item);
+      this._updateConnectionsMap[id] = subject;
+      this._requests[id] = subject.pipe(
+        debounceTime(50),
+        switchMap((i) => this._connectionsRepository.updateItem((i))),
+        map(() => subject.value),
+        tap((i) => this.onUpdated(i)),
+        shareReplay(),
+        tap(clear),
+        catchError(err => {
+          clear();
+          return throwError(err);
+        }),
+      );
+    }
+
+    this._updateConnectionsMap[item.id].next(item);
+
+    return this._requests[item.id];
   }
 
   connect(connection: IConnection): Observable<IConnection> {
@@ -248,12 +276,7 @@ export class AccountsManager implements ConnectionContainer {
           if (item.connected)
             this._getSoundService().play(Sound.CONNECTED);
 
-          return this._connectionsRepository.updateItem((item)).pipe(
-            map(_ => item),
-            tap((conn) => {
-              this.onUpdated(conn);
-            }),
-          );
+          return this.updateItem((item));
         }),
         tap((conn) => {
           if (conn.connected) {
@@ -297,8 +320,7 @@ export class AccountsManager implements ConnectionContainer {
 
     return this._connectionsRepository.disconnect(connection)
       .pipe(
-        concatMap(() => this._connectionsRepository.updateItem(updatedConnection)),
-        tap(() => this.onUpdated(updatedConnection)),
+        concatMap(() => this.updateItem(updatedConnection)),
         tap(() => {
           this._onDisconnected(connection);
           this._notificationService.showError('Connection is closed');
@@ -331,10 +353,8 @@ export class AccountsManager implements ConnectionContainer {
 
     const needUpdate = defaultConnections.map(i => ({ ...i, isDefault: false })).concat(_connection);
 
-    return forkJoin(
-      needUpdate.map(i => this._connectionsRepository.updateItem(i)
-        .pipe(tap(() => this.onUpdated(i))))
-    ).pipe(tap(() => this._onDefaultChanged(item)));
+    return forkJoin(needUpdate.map(i => this.updateItem(i)))
+      .pipe(tap(() => this._onDefaultChanged(item)));
   }
 
   private _onDefaultChanged(item) {
@@ -360,15 +380,12 @@ export class AccountsManager implements ConnectionContainer {
   toggleFavourite(connection: IConnection): Observable<IConnection> {
     const _connection = { ...connection, favourite: !connection.favourite };
 
-    return this._connectionsRepository.updateItem(_connection)
-      .pipe(
-        tap(() => this.onUpdated(_connection)),
-      );
+    return this.updateItem(_connection);
   }
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${ connection.server }(${ connection.gateway })`;
+      connection.name = `${connection.server}(${connection.gateway})`;
     }
 
     this._connections = this._connections.concat(connection);
