@@ -93,7 +93,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         }
       } else {
         const subs = subscriptions[connectionId][item.id];
-        if (subs)
+        if (!subs)
           return;
 
         subs.count = (subs?.count || 1) - 1;

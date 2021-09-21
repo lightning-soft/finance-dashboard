@@ -71,6 +71,7 @@ import {
   IVolumeTemplate,
   VolumeProfileTemplatesRepository
 } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { RoundFormatter } from 'data-grid';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -94,6 +95,7 @@ export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 @BindUnsubscribe()
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
+  private _formatter = new RoundFormatter(2);
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
@@ -159,6 +161,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument?.id === instrument.id)
       return;
 
+    this._formatter.updateDigits(instrument?.precision ?? 2);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
     this.chart.incomePrecision = instrument.precision ?? 2;
@@ -286,9 +289,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
     this.chart.updateOHLVData({
       volume: this.lastHistoryItem?.volume,
-      high: this.lastHistoryItem?.high,
-      low: this.lastHistoryItem?.low,
-      open: this.lastHistoryItem?.open,
+      high:  this._formatter.format(this.lastHistoryItem?.high),
+      low: this._formatter.format(this.lastHistoryItem?.low),
+      open: this._formatter.format(this.lastHistoryItem?.open),
       income: this.income,
       incomePercentage: this.incomePercentage,
     });
