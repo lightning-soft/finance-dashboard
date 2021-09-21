@@ -12,7 +12,6 @@ import { accountsListeners } from '../../real-trading/src/connection/accounts-li
 
 @Injectable()
 export class AccountsManager implements ConnectionContainer {
-  isConnecting$ = new BehaviorSubject<boolean>(false);
 
   private get _connections(): IConnection[] {
     return this.connectionsChange.value;
@@ -176,7 +175,7 @@ export class AccountsManager implements ConnectionContainer {
       this._wsIsOpened[connectionId] = true;
       const conn = this._connections.find(item => item.id === connectionId);
       this._wsHasError = false;
-      this._notificationService.showSuccess(`Connection ${ conn.name } restored.`);
+      this._notificationService.showSuccess(`Connection ${ conn?.name ?? '' } restored.`);
     }
   }
 
@@ -240,7 +239,6 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   connect(connection: IConnection): Observable<IConnection> {
-    this.isConnecting$.next(true);
     const defaultConnection = this._connections.find(item => item.isDefault);
     return this._connectionsRepository.connect(connection)
       .pipe(
@@ -262,7 +260,6 @@ export class AccountsManager implements ConnectionContainer {
             this._initWS(conn);
             this._fetchAccounts(conn);
           }
-          this.isConnecting$.next(false);
         }),
         tap(() => accountsListeners.notifyConnectionsConnected([connection],
           this._connections.filter(i => i.connected)))
@@ -297,7 +294,6 @@ export class AccountsManager implements ConnectionContainer {
       return of();
 
     const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
-    this.isConnecting$.next(true);
 
     return this._connectionsRepository.disconnect(connection)
       .pipe(
@@ -306,13 +302,10 @@ export class AccountsManager implements ConnectionContainer {
         tap(() => {
           this._onDisconnected(connection);
           this._notificationService.showError('Connection is closed');
-          this.isConnecting$.next(false);
         }),
         catchError((err: HttpErrorResponse) => {
           if (err.message === 'No connection!')
             this._onDisconnected(connection);
-
-          this.isConnecting$.next(false);
 
           if (err.status === 401) {
             this.onUpdated(updatedConnection);

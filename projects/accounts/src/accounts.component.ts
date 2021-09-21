@@ -33,7 +33,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   selectedItem: IConnection;
   brokers: IBroker[];
   selectedBroker: IBroker;
-  isConnecting = true;
   @ViewChild('userData') userData: AcccountFormComponent;
   isSubmitted = false;
   connectOnStartUp = true;
@@ -51,11 +50,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   ) {
     this.setTabTitle('Connections');
     this.setTabIcon('icon-signal');
-    this._accountsManager.isConnecting$
-      .pipe(untilDestroyed(this))
-      .subscribe((value) => {
-        this.isConnecting = value;
-      });
     this.form = this.fb.group({
       id: [null],
       name: [null],
@@ -225,9 +219,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   handleSubmit(): void {
-    if (this.isConnecting)
-      return;
-
     this.isSubmitted = true;
     if (!this.userData?.isValid) {
       return;

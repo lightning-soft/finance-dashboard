@@ -120,7 +120,6 @@
               nzType="primary"
               tabindex="1"
               (keydown.enter)="handleSubmit()"
-              [class.is-disabled]="isConnecting"
               nzBlock
               class="ant-btn connect-button ant-btn-primary text-uppercase mt-3 mb-4"
             >Connect
@@ -177,9 +176,8 @@
               nzType="primary"
               nzBlock
               class="bg-secondary text-uppercase disconnect-button"
-              [class.is-disabled]="isConnecting"
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-              (click)="!isConnecting && disconnect(selectedItem)"
+              (click)="disconnect(selectedItem)"
             >Disconnect
             </button>
           </div>

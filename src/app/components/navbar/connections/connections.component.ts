@@ -47,7 +47,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   contextMenuConnection: IConnection;
   isConnectionsDropdownOpened = false;
   connectionsListHeight: number;
-  isConnecting = false;
 
   protected _clearOnDisconnect = false;
   maxConnections = 2;
@@ -80,11 +79,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       .subscribe(connections => {
         this.hasConnectedConnections = connections.some(item => item.connected);
         this.builder.replaceItems(connections);
-      });
-    this._accountsManager.isConnecting$
-      .pipe(untilDestroyed(this))
-      .subscribe((value) => {
-        this.isConnecting = value;
       });
   }
   ngAfterViewInit() {
