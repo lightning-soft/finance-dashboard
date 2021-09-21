@@ -54,10 +54,10 @@ export class ConenctionWebSocketService {
 
       return {
         ..._statistic,
-        upTime: `${ upTime } sec`,
-        avarageMessages: `${ (_statistic.messages / upTime).toFixed(2) } messages/sec`,
-        avarageEvents: `${ (_statistic.events / upTime).toFixed(2) } events/sec`,
-        eventsInMessages: `${ _statistic.events / _statistic.messages } events/sec`,
+        upTime: `${upTime} sec`,
+        avarageMessages: `${(_statistic.messages / upTime).toFixed(2)} messages/sec`,
+        avarageEvents: `${(_statistic.events / upTime).toFixed(2)} events/sec`,
+        eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
       };
     };
   }
@@ -95,6 +95,7 @@ export class ConenctionWebSocketService {
   destroy(connection: IConnection) {
     this.get(connection).close();
     this._service.unregister(this.connection.id, this);
+    this._setListeners();
     this.connection$.next(false);
   }
 
