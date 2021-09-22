@@ -65,12 +65,39 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     this.item.timezoneId = timezone.id;
   }
 
-  createWorkingTime(startDay = 1, endDay = 1) {
-    this.item.workingTimes.push({
-      startDay,
-      startTime: this.utcStartTime,
-      endDay,
-      endTime: this.utcEndTime,
+  createWorkingTime() {
+    if (!this.item.workingTimes.length) {
+      this.item.workingTimes.push({
+        startDay: 1,
+        startTime: this.utcStartTime,
+        endDay: 2,
+        endTime: this.utcEndTime,
+      });
+    } else {
+      const lastDay = this.item.workingTimes[this.item.workingTimes.length - 1];
+      this.item.workingTimes.push({
+        startDay: lastDay.endDay % this.days.length,
+        startTime: this.utcStartTime,
+        endDay: (lastDay.endDay + 1) % this.days.length,
+        endTime: this.utcEndTime,
+      });
+    }
+  }
+
+  createMissingWorkingTime() {
+    const shouldAddDays = [false, false, false, false, false];
+    this.item.workingTimes.forEach((item, index) => {
+      shouldAddDays[item.endDay] = false;
+      shouldAddDays[item.startDay] = false;
+    });
+    shouldAddDays.forEach((value, index) => {
+      if (value)
+      this.item.workingTimes.push({
+        startDay: index + 1,
+        startTime: this.utcStartTime,
+        endDay: index + 1,
+        endTime: this.utcEndTime,
+      });
     });
   }
 
