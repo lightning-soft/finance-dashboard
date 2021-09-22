@@ -1,3 +1,4 @@
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import {
   FieldConfig,
   getCheckboxes,
@@ -10,6 +11,7 @@ import {
   getSwitch,
   IFieldConfig,
   wrapWithClass,
+  wrapWithConfig,
 } from 'dynamic-form';
 import { OrderDuration, OrderSide, OrderType } from 'trading';
 
@@ -397,9 +399,18 @@ export const valueScale: IFieldConfig[] = [
             fieldGroup: [
               getRadio('isAutomatic', [{ label: 'Automatic', value: 'automatic' }, { label: 'Pixel / Price', value: 'pixels-price' }]),
               getLabel('Pixel Price'),
-              getNumber({
-                key: 'pixelsPrice',
-              }),
+              wrapWithConfig(
+                getNumber({
+                  key: 'pixelsPrice',
+                }),
+                {
+                  expressionProperties: {
+                    'templateOptions.disabled': (model: any, formState: any, field: FormlyFieldConfig) => {
+                      return model.isAutomatic === 'automatic';
+                    },
+                  },
+                }
+              )
             ],
           }
         ],
