@@ -22,10 +22,12 @@ export class NumberInputComponent extends FieldType implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.field.templateOptions?.max != null)
-      this.max = this.field.templateOptions.max;
-    if (this.field.templateOptions?.min != null)
-      this.min = this.field.templateOptions.min;
+    const templateOptions = this.field.templateOptions;
+
+    if (templateOptions?.max != null)
+      this.max = templateOptions.max;
+    if (templateOptions?.min != null)
+      this.min = templateOptions.min;
   }
 
 
