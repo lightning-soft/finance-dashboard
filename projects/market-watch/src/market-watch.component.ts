@@ -498,7 +498,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     this.columns = this.defaultColumns;
     this.componentInstanceId = Date.now();
-    // (window as any).mw = this;
 
     this.setTabIcon('icon-widget-market-watch');
     this.setTabTitle('MarketWatch');

@@ -79,7 +79,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     this._instrument = value;
 
-    if (this.price)
+    if (this.price != null)
       this.price = roundToTickSize(this.price, this._instrument.tickSize);
 
     const { symbol, exchange } = value;
@@ -363,12 +363,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const currentPrice = this.price || 0;
-    const tickSize = this.instrument?.tickSize || 0.1;
+    const tickSize = this.instrument?.tickSize || 1;
     const _newPrice = currentPrice + tickSize;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
       roundToTickSize(_newPrice, tickSize);
 
-    this.price = +newPrice.toFixed(this.precision);
+    this.price = +newPrice.toFixed(this.precision || 1);
     this.handlePriceChange();
   }
 
@@ -376,14 +376,14 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.shouldDisablePrice)
       return;
 
-    const tickSize = this.instrument?.tickSize || 0.1;
+    const tickSize = this.instrument?.tickSize || 1;
     const currentPrice = this.price || 0;
     const _newPrice = currentPrice - tickSize;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
       roundToTickSize(_newPrice, tickSize, 'floor');
 
     if (newPrice >= 0)
-      this.price = +newPrice.toFixed(this.precision);
+      this.price = +newPrice.toFixed(this.precision || 1);
 
     this.handlePriceChange();
   }

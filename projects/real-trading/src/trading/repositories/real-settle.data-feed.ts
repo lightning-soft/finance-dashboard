@@ -26,7 +26,6 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
   protected _handleUpdate(data, connectionId) {
     const result = super._handleUpdate(data, connectionId);
     if (result) {
-      // #TODO save last value by connection id and instrument
       const settleData = this._getResult(data);
       if (!this._lastValue[connectionId]) {
         this._lastValue[connectionId] = {};
