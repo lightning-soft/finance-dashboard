@@ -109,7 +109,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
         error: false,
         connectionData: res.result,
       })),
-      catchError(() => of({ ...item, error: true })),
+      catchError((err) => of({ ...item, error: true, err })),
     );
   }
 
