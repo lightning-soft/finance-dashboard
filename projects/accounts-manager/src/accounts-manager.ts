@@ -273,8 +273,10 @@ export class AccountsManager implements ConnectionContainer {
         concatMap(item => {
           item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-          if (item.connected)
+          if (item.connected) {
             this._getSoundService().play(Sound.CONNECTED);
+            item.error = false;
+          }
 
           return this.updateItem((item));
         }),
@@ -290,13 +292,13 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   private _onDisconnected(connection: IConnection) {
-    const disconectedAccounts = this._accounts.filter(account => account.connectionId === connection.id);
+    const disconnectedAccounts = this._accounts.filter(account => account.connectionId === connection.id);
     this._accounts = this._accounts.filter(account => account.connectionId !== connection.id);
-    for (const account of disconectedAccounts) {
+    for (const account of disconnectedAccounts) {
       this._accountsConnection.delete(account.id);
     }
     accountsListeners.notifyConnectionsDisconnected([connection], this._connections.filter(i => i.connected));
-    accountsListeners.notifyAccountsDisconnected(disconectedAccounts, this._accounts);
+    accountsListeners.notifyAccountsDisconnected(disconnectedAccounts, this._accounts);
     this._closeWS(connection);
     this._getSoundService().play(Sound.CONNECTION_LOST);
   }
