@@ -253,6 +253,7 @@ export abstract class Datafeed implements IDatafeed {
 
     this._updateLastBarDetails(quote, chart, instrument);
     chart.updateIndicators();
+    chart.updateComputedDataSeries();
     chart.setNeedsUpdate();
   }
 
