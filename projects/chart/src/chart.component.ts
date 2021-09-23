@@ -72,6 +72,7 @@ import {
   VolumeProfileTemplatesRepository
 } from './volume-profile-custom-settings/volume-profile-templates.repository';
 import { RoundFormatter } from 'data-grid';
+import { SettingsItems } from './chart-settings/chart-settings.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -289,7 +290,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
     this.chart.updateOHLVData({
       volume: this.lastHistoryItem?.volume,
-      high:  this._formatter.format(this.lastHistoryItem?.high),
+      high: this._formatter.format(this.lastHistoryItem?.high),
       low: this._formatter.format(this.lastHistoryItem?.low),
       open: this._formatter.format(this.lastHistoryItem?.open),
       income: this.income,
@@ -416,6 +417,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
     chart.on(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
+    chart.on(StockChartX.ValueScaleEvents.ContextMenu, this._handleValueScaleContextMenu);
     chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
@@ -485,6 +487,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.chart.setNeedsLayout();
       this.chart.setNeedsUpdate(true);
     });
+  }
+
+  private _handleValueScaleContextMenu = (e) => {
+    this.contextEvent = e.target.evt.originalEvent;
+    this.openSettingsDialog(SettingsItems.ValueScale);
+    this._selectValueScale();
   }
 
   private _handleContextMenu = (e) => {
@@ -681,6 +689,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.chart.off(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
       this.chart.off(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
       this.chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
+      this.chart.off(StockChartX.ValueScaleEvents.ContextMenu, this._handleValueScaleContextMenu);
       this.chart.destroy();
     }
 
@@ -995,7 +1004,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this._getSettingsKey()}.cvp`;
   }
 
-  openSettingsDialog(): void {
+  openSettingsDialog(menuItem?: SettingsItems): void {
     const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
       return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
@@ -1015,6 +1024,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           state: {
             linkKey,
             settings: this.settings,
+            menuItem,
           }
         },
         closeBtn: true,
@@ -1030,6 +1040,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         maximizable: false,
       });
     }
+  }
+
+  private _selectValueScale(): void {
+    const linkKey = this._getSettingsKey();
+    this.broadcastData(chartReceiveKey + linkKey, { type: SettingsItems.ValueScale });
   }
 
   openVolumeSettingsDialog() {

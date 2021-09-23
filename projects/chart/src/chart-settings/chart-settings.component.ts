@@ -10,6 +10,19 @@ import { generalFields, sessionFields, tradingFields, valueScale } from './setti
 export interface ChartSettingsComponent extends ILayoutNode {
 }
 
+export enum SettingsItems {
+  General,
+  ChartTrading,
+  TradingHours,
+  ValueScale,
+}
+
+const valueScaleMenuItem = {
+  name: 'Value Scale',
+  config: clone(valueScale),
+  className: 'value-scale'
+};
+
 @UntilDestroy()
 @Component({
   selector: 'chart-settings',
@@ -34,13 +47,9 @@ export class ChartSettingsComponent implements AfterViewInit {
     },
     {
       name: 'Trading Hours',
-      config: sessionFields
+      config: clone(sessionFields)
     },
-    {
-      name: 'Value Scale',
-      config: clone(valueScale),
-      className: 'value-scale'
-    }
+    valueScaleMenuItem
   ];
   currentItem = this.menuItems[0];
 
@@ -67,10 +76,17 @@ export class ChartSettingsComponent implements AfterViewInit {
   loadState(state: IChartSettingsState): void {
     this.settings = state?.settings ? state.settings : clone(defaultChartSettings);
     this._linkKey = state?.linkKey;
+    if (state.menuItem != null) {
+      this.selectItem(this.menuItems[state.menuItem]);
+    }
 
     this.addLinkObserver({
       link: chartReceiveKey + this._linkKey,
       handleLinkData: (data) => {
+        if (data.type === SettingsItems.ValueScale) {
+          this.selectItem(valueScaleMenuItem);
+          return;
+        }
         try {
           this.settings = clone(data);
         } catch (error) {

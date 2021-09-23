@@ -1,4 +1,5 @@
 import { ISession, OrderDuration } from 'trading';
+import { SettingsItems } from 'chart';
 
 export const chartReceiveKey = 'chartReceiveKey';
 export const chartSettings = 'chartSettings';
@@ -6,7 +7,7 @@ export const chartSettings = 'chartSettings';
 export enum IsAutomaticPixelPrice {
   AUTOMATIC = 'automatic',
   PIXELS_PRICE = 'pixels-price'
-  
+
 }
 
 export interface IChartSettings {
@@ -45,6 +46,7 @@ export interface IChartSettings {
 export interface IChartSettingsState {
   settings: IChartSettings;
   linkKey: string;
+  menuItem?: SettingsItems;
 }
 
 export let defaultChartSettings: IChartSettings;
