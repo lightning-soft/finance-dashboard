@@ -4,7 +4,7 @@ import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communic
 import { NotificationService } from 'notification';
 import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, switchMap, tap, debounceTime, shareReplay } from 'rxjs/operators';
+import { catchError, concatMap, debounceTime, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
@@ -274,7 +274,6 @@ export class AccountsManager implements ConnectionContainer {
           item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
           if (item.connected) {
-            this._getSoundService().play(Sound.CONNECTED);
             item.error = false;
           }
 
@@ -284,6 +283,7 @@ export class AccountsManager implements ConnectionContainer {
           if (conn.connected) {
             this._initWS(conn);
             this._fetchAccounts(conn);
+            this._getSoundService().play(Sound.CONNECTED);
           }
         }),
         tap(() => accountsListeners.notifyConnectionsConnected([connection],

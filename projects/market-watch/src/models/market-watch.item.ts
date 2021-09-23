@@ -1,5 +1,14 @@
 import { IBaseItem, Id } from 'communication';
-import { AddClassStrategy, Cell, Column, getProfitStatus, HoverableItem, NumberCell, RoundFormatter } from 'data-grid';
+import {
+  AddClassStrategy,
+  Cell,
+  Column,
+  getProfitStatus,
+  HoverableItem,
+  NumberCell,
+  ProfitStatus,
+  RoundFormatter
+} from 'data-grid';
 import {
   IInstrument,
   IOrder,
@@ -17,6 +26,7 @@ import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
 import { MarketWatchColumnsArray } from '../market-watch-columns.enum';
+import { CalculationFormatter } from '../formatters/calculation.formatter';
 
 export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarketWatchItem {
   id: Id;
@@ -27,23 +37,41 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   private _ohlv: OHLVData;
   private _formatter = new RoundFormatter(2);
   private _percentFormatter = new RoundFormatter(2);
+  private _calcFormatter = new CalculationFormatter(2);
 
   symbol: SymbolCell = new SymbolCell({ withHoverStatus: true });
   pos: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, withHoverStatus: true });
   last: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
-  netChange: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, formatter: this._formatter, withHoverStatus: true });
+  netChange: Cell = new NumberCell({
+    strategy: AddClassStrategy.RELATIVE_ZERO,
+    ignoreZero: false,
+    formatter: this._calcFormatter, withHoverStatus: true
+  });
   percentChange: Cell = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
+    ignoreZero: false,
     formatter: this._percentFormatter, withHoverStatus: true
   });
   workingBuys: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, withHoverStatus: true });
   bidQuantity: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_PREV_VALUE, withHoverStatus: true });
-  bid: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
-  ask: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  bid: NumberCell = new NumberCell({
+    strategy: AddClassStrategy.NONE,
+    formatter: this._formatter,
+    withHoverStatus: true
+  });
+  ask: NumberCell = new NumberCell({
+    strategy: AddClassStrategy.NONE,
+    formatter: this._formatter,
+    withHoverStatus: true
+  });
   askQuantity: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_PREV_VALUE, withHoverStatus: true });
   workingSells: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, withHoverStatus: true });
   volume: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, withHoverStatus: true });
-  settle: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  settle: NumberCell = new NumberCell({
+    strategy: AddClassStrategy.NONE,
+    formatter: this._formatter,
+    withHoverStatus: true
+  });
   high: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
   low: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
   open: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
@@ -71,7 +99,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   protected _getPropertiesForHover(column: Column): string[] {
     return MarketWatchColumnsArray;
-  };
+  }
 
   clearRealtimeData() {
     this.pos.clear();
@@ -160,8 +188,8 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
     this.netChange.updateValue(income);
     this.percentChange.updateValue(income / settle * 100);
 
-    this.netChange.changeStatus(getProfitStatus(this.netChange));
-    this.percentChange.changeStatus(getProfitStatus(this.percentChange));
+    this.netChange.changeStatus(getProfitStatus(this.netChange, ProfitStatus.InProfit));
+    this.percentChange.changeStatus(getProfitStatus(this.percentChange, ProfitStatus.InProfit));
   }
 
   updateExpanded() {
@@ -195,7 +223,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   handlePosition(position: IPosition) {
     this.pos.updateValue(position.buyVolume - position.sellVolume);
-    this.pos.changeStatus(getProfitStatus(this.pos));
+    this.pos.changeStatus(getProfitStatus(this.pos, ProfitStatus.InProfit));
   }
 
   handleVolume(volumeData: VolumeData) {
@@ -205,6 +233,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   setInstrument(instrument: IInstrument) {
     this.instrument = instrument;
     this._formatter.updateDigits(instrument?.precision ?? 2);
+    this._calcFormatter.updateDigits(instrument?.precision ?? 2);
     this.symbol.updateValue(instrument.symbol);
   }
 

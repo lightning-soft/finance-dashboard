@@ -11,8 +11,7 @@ export enum ProfitStatus {
   Loss = 'loss',
   None = ''
 }
-export function getProfitStatus(cell) {
-  let status = ProfitStatus.None;
+export function getProfitStatus(cell, status = ProfitStatus.None) {
 
   if (cell.class === ProfitClass.DOWN)
     status = ProfitStatus.Loss;
@@ -111,9 +110,7 @@ export class NumberCell extends Cell {
   }
 
   protected _setValue(value: number) {
-    if (value < 0 && value > -0.01) {
-      value = 0;
-    }
+
 
     const settings: any = this.settings;
 

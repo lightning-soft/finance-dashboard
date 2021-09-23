@@ -82,7 +82,6 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     if (!params.accounts && params.id && !params.hideStopped) {
       return forkJoin([super.getItems(params), this.getStoppedItems(params)])
         .pipe(
-          tap(response => console.log(response)),
           map(item => {
             const [ordersResponse, stoppedOrdersResponse] = item;
             return {

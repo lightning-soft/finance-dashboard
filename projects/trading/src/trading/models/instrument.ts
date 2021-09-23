@@ -19,7 +19,8 @@ export const compareInstruments = (a: IInstrument, b: IInstrument) => {
 };
 
 export function roundToTickSize(price: number, tickSize: number, strategy: 'ceil' | 'round' | 'floor' = 'ceil') {
-  const multiplier = 1 / tickSize;
+  const multiplier = tickSize === 0 ? 1 : (1 / tickSize);
+
   switch (strategy) {
     case 'ceil':
       return Math.ceil(price * multiplier) / multiplier;
