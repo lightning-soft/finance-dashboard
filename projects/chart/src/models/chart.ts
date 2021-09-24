@@ -27,7 +27,7 @@ export interface IOHLVData {
   high: number | string;
   low: number | string;
   volume: number | string;
-  income: number;
+  income: number | string;
   incomePercentage: number;
 }
 

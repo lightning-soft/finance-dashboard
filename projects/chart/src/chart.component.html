@@ -54,7 +54,8 @@
       <ul class="custom-volume-profile-subitems">
         <li *ngFor="let template of toolbar.items" class="custom-drawing-menu-item"
           (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i
-              (click)="editCustomProfile(template)" class="icon-edit"></i> <i (click)="deleteVolumeProfile(template)"
+              (click)="editCustomProfile(template)" class="icon-edit"></i>
+          <i *ngIf="!template.isDefault" (click)="deleteVolumeProfile(template)"
               class="icon-close-window"></i></span></li>
       </ul>
     </li>

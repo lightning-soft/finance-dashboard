@@ -66,7 +66,6 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   }
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
-    console.log('state', state);
     this.selectItem(state?.template as IVolumeTemplate);
     this._linkKey = state?.linkKey;
     this._identificator = state.identificator;
@@ -80,8 +79,8 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
         try {
           console.log('data', data);
-          this.selectItem(state.template as IVolumeTemplate);
-          this._identificator = state.identificator;
+          this.selectItem(data.template as IVolumeTemplate);
+          this._identificator = data.identificator;
         } catch (error) {
           console.error(error);
         }

@@ -70,6 +70,8 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   priceOpen = false;
   showFramePopover = false;
 
+  timePeriod = { periodicity: StockChartXPeriodicity.WEEK, interval: 3 };
+
   showToolbar = true;
   isDrawingsPinned = false;
   lastUsedDrawings = [];
@@ -684,7 +686,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
 
     modal.afterClose.subscribe(result => {
       if (result && result.confirmed) {
-        this._repository.deleteItem(+template.id).subscribe();
+        this._repository.deleteItem(template.id).subscribe();
       }
     });
   }

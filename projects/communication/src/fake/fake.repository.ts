@@ -76,7 +76,7 @@ export abstract class FakeRepository<T extends IBaseItem> extends Repository<T> 
       .pipe(tap((v) => this._onUpdate(v)));
   }
 
-  deleteItem(id: number): Observable<any> {
+  deleteItem(id: number | string): Observable<any> {
     if (!this._store[id]) {
       return throwError(`Invalid item id - ${id}`);
     }

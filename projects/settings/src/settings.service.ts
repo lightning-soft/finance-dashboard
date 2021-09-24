@@ -7,7 +7,7 @@ import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
-import { catchError, debounceTime, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, debounceTime, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from 'templates';
 import { ISound } from 'sound';
@@ -169,18 +169,19 @@ export class SettingsService {
     return this._settingStore.getItem();
   }
 
-  get<T = any>(key: string): Observable<T> {
-    return (this._settings ? of(this._settings) : this.getItem()).pipe(map(s => s[key]));
+  get<T = any>(key: string) {
+    return this.settings.value[key];
   }
 
-  set<T = any>(key: string, value: T): Observable<void> {
-    return (this._settings ? of(this._settings) : this.getItem()).pipe(
+  set<T = any>(key: string, value: T){
+    this._updateState({[key]: value});
+/*    return (this._settings ? of(this._settings) : this.getItem()).pipe(
       mergeMap(settings => this._settingStore.setItem({
         ...settings,
         [key]: value
       }),
       ),
-    );
+    );*/
   }
 
   public destroy() {

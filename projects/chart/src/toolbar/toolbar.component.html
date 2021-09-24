@@ -34,7 +34,7 @@
           <ul>
             <li (click)="createVolumeProfile()" nz-menu-item>New</li>
             <li nz-menu-divider></li>
-            <li *ngFor="let template of items" class="custom-drawing-menu-item" (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i (click)="editCustomProfile(template)" class="icon-edit"></i> <i (click)="deleteVolumeProfile(template)" class="icon-close-window"></i></span></li>
+            <li *ngFor="let template of items" class="custom-drawing-menu-item" (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span class="actions"><i (click)="editCustomProfile(template)" class="icon-edit"></i> <i *ngIf="!template.isDefault" (click)="deleteVolumeProfile(template)" class="icon-close-window"></i></span></li>
           </ul>
         </li>
         <ng-template #customDrawingTemplate>
@@ -252,5 +252,6 @@
   <frame-selector
     (intervalAdded)="onIntervalAdded($event)"
     (periodAdded)="onPeriodAdded($event)"
+    [(timePeriod)]="timePeriod"
     [intervalOptions]="intervalOptions" [periodOptions]="periodOptions" [chart]="chart"></frame-selector>
 </ng-template>
