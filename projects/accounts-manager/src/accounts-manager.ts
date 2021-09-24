@@ -87,8 +87,8 @@ export class AccountsManager implements ConnectionContainer {
     await this._fetchConnections();
     for (const conn of this._connections.filter(i => i.connectOnStartUp))
       this.connect(conn).subscribe(
-        () => console.log('Successfully conected', conn),
-        (err) => console.error('Conected error', conn, err),
+        () => console.log('Successfully connected', conn),
+        (err) => console.error('Connected error', conn, err),
       );
 
     return this._connections;
@@ -141,11 +141,14 @@ export class AccountsManager implements ConnectionContainer {
   private _initWS(connection: IConnection) {
     const webSocketService = this._webSocketService.get(connection);
     const subscription = webSocketService.reconnection$.pipe(switchMap((conn) => this.reconnect(conn)))
-      .subscribe((conn) => {
-        this._notificationService.showSuccess('Reconnected');
-      }, () => {
-        this._notificationService.showError('Error during reconnection');
-      }, () => subscription.unsubscribe());
+      .subscribe(
+        (conn) => {
+          this._notificationService.showSuccess('Reconnected');
+        },
+        (err) => {
+          this._notificationService.showError(err, 'Error during reconnection');
+        },
+        () => subscription.unsubscribe());
 
     webSocketService.on(WSEventType.Message, this._wsHandleMessage.bind(this));
     webSocketService.on(WSEventType.Open, this._wsHandleOpen.bind(this));
@@ -191,7 +194,7 @@ export class AccountsManager implements ConnectionContainer {
 
     this._wsHasError = true;
 
-    this._notificationService.showError('Connection lost. Check your internet connection.');
+    this._notificationService.showError(event, 'Connection lost. Check your internet connection.');
 
     if (connection?.connected) {
       this.onUpdated({
@@ -277,6 +280,10 @@ export class AccountsManager implements ConnectionContainer {
             item.error = false;
           }
 
+          if (item.error) {
+            this._notificationService.showError(item.err, 'Connection connect error');
+          }
+
           return this.updateItem((item));
         }),
         tap((conn) => {
@@ -325,7 +332,10 @@ export class AccountsManager implements ConnectionContainer {
         concatMap(() => this.updateItem(updatedConnection)),
         tap(() => {
           this._onDisconnected(connection);
-          this._notificationService.showError('Connection is closed');
+          if (connection.error)
+            this._notificationService.showError(connection.err, 'Connection is closed');
+          else
+            this._notificationService.showSuccess('Connection is closed');
         }),
         catchError((err: HttpErrorResponse) => {
           if (err.message === 'No connection!')
