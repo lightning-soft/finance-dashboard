@@ -28,12 +28,6 @@ function getFontColor() {
   return getColor({ key: 'color', label: 'Font Color' });
 }
 
-const histogramFields = [
-  getColor('Background Color'),
-  getFontColor(),
-  getHistogramColor(),
-  // getColor('Highlight Background Color', (value) => ({ ':hover': { 'background-color': value } })),
-];
 export const commonFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Font',

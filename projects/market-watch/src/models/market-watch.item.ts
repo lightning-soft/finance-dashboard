@@ -223,7 +223,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   handlePosition(position: IPosition) {
     this.pos.updateValue(position.buyVolume - position.sellVolume);
-    this.pos.changeStatus(getProfitStatus(this.pos, ProfitStatus.InProfit));
+    this.pos.changeStatus(getProfitStatus(this.pos));
   }
 
   handleVolume(volumeData: VolumeData) {

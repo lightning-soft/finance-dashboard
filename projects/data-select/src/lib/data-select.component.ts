@@ -20,6 +20,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() default?: any;
   @Input() value?: any;
   @Input('repository') protected _repository: Repository;
+  @Input() autoSelectFirst = true;
   @Input() withActions = false;
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();
@@ -100,6 +101,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
 
   protected _handleResponse(response, params) {
     super._handleResponse(response, params);
+    if (!this.autoSelectFirst)
+      return;
 
     if (this.value != null) {
       this.handleValueChange();
