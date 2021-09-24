@@ -264,7 +264,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
           if (!item.error)
             this.selectedItem = item;
           else {
-            this._notifier.showError('Failed to save item');
+            this._notifier.showError(item.err, 'Failed to save item');
           }
         }),
         untilDestroyed(this),
@@ -277,9 +277,6 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         tap((item: any) => {
           if (!item.error)
             this.selectedItem = item;
-          else {
-            this._notifier.showError('Failed to connect');
-          }
         }),
         untilDestroyed(this),
       ).toPromise();
@@ -336,7 +333,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Do you want to delete ${ item.name }?`,
+      nzContent: `Do you want to delete ${item.name}?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
