@@ -53,7 +53,7 @@
       <cdk-virtual-scroll-viewport cdkDropList
                                    (cdkDropListDropped)="dropped($event)"
                                    class="mt-0" itemSize="">
-        <li *ngFor="let item of (indicators?.reverse() || [])"
+        <li *ngFor="let item of indicators"
             (click)="selectIndicator(item)"
             cdkDrag
             cdkDragPreviewClass=""

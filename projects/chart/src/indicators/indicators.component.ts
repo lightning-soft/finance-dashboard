@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { StringHelper } from 'base-components';
+import { ArrayHelper, StringHelper } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -41,7 +41,7 @@ export class IndicatorsComponent implements OnInit {
   chart: IChart;
 
   get indicators(): any[] {
-    return (this.chart?.indicators ?? []).filter(i => i.className !== StockChartX.CustomVolumeProfile.className);
+    return (this.chart?.indicators ?? []).filter(i => i.className !== StockChartX.CustomVolumeProfile.className)?.reverse() || [];
   }
 
   allExpanded = false;
@@ -183,7 +183,6 @@ export class IndicatorsComponent implements OnInit {
         debounceTime(10),
         untilDestroyed(this))
       .subscribe(() => {
-        console.log(this.selectedIndicator.settings);
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
         this.chart.setNeedsUpdate();
       });
@@ -322,19 +321,20 @@ export class IndicatorsComponent implements OnInit {
   }
 
   dropped({ previousIndex, currentIndex }) {
-    // ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
-    this._applyZIndex();
+    const indicators = this.indicators;
+    ArrayHelper.swapItems(indicators, previousIndex, currentIndex);
+    this._applyZIndex(indicators);
     this.chart.updateIndicators();
     this.chart.setNeedsLayout();
     this.chart.setNeedsUpdate();
   }
 
-  private _applyZIndex() {
-    for (let i = 0; i < this.indicators.length; i++) {
-      if (!this.indicators[i])
+  private _applyZIndex(indicators = this.indicators) {
+    for (let i = 0; i < indicators.length; i++) {
+      if (!indicators[i])
         continue;
 
-      this.indicators[i].zIndex = 1000 - i;
+      indicators[i].zIndex = 1000 - i;
     }
   }
 }

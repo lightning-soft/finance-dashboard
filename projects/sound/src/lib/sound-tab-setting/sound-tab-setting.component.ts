@@ -1,4 +1,4 @@
-import { Component, Inject, InjectionToken } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { SoundSetting } from '../sound-setting/sound-setting.component';
 import { ISound } from '../sound.interface';
 import { SettingsStore } from '../sound.service';
@@ -28,7 +28,7 @@ export class SoundTabSettingComponent {
       value?.orderRejected,
       // value?.targetFilled,
       value?.stopFilled,
-      // value?.alert,
+      value?.alert,
     ];
   }
 

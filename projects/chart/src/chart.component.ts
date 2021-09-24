@@ -293,7 +293,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       high: this._formatter.format(this.lastHistoryItem?.high),
       low: this._formatter.format(this.lastHistoryItem?.low),
       open: this._formatter.format(this.lastHistoryItem?.open),
-      income: this.income,
+      income: this._formatter.format(this.income),
       incomePercentage: this.incomePercentage,
     });
   }
@@ -927,9 +927,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
+  private async _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
     if (data == null)
       return;
+
+    const isValid = await this._volumeProfileTemplatesRepository.validateHotkeyTemplate(data.template);
+
+    if (!isValid) {
+      data.template.settings.general.drawVPC = null;
+      this._notifier.showError('You can\'t set hotkey that is already taken');
+      this.broadcastData(this._getCustomVolumeProfileKey(), data);
+      return;
+    }
 
     if (data?.template?.id) {
       const indicators = this.chart.indicators.filter(i => i instanceof StockChartX.CustomVolumeProfile && i.templateId == data.template.id);

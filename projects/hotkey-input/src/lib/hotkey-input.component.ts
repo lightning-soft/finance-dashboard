@@ -1,4 +1,4 @@
-import { Component, forwardRef, HostListener, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, forwardRef, HostListener, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { KeyBinding, SettingsKeyboardListener } from 'keyboard';
 
@@ -95,6 +95,8 @@ export class HotkeyInputComponent implements ControlValueAccessor {
   writeValue(obj: any): void {
     if (obj)
       this.value = KeyBinding.fromDTO(obj);
+    else
+      this.value = null;
   }
 
   saveHotkey() {

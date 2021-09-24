@@ -35,16 +35,22 @@ export class FrameSelectorComponent {
     this.updateChartBars();
   }
 
-  private _timePeriod: ITimeFrame = { periodicity: StockChartXPeriodicity.WEEK, interval: 3 };
+  private _timePeriod: ITimeFrame;
 
   get timePeriod() {
     return this._timePeriod;
   }
 
-  set timePeriod(value) {
+  @Input() set timePeriod(value) {
+    if (value === this._timePeriod)
+      return;
+
     this._timePeriod = value;
+    this.timePeriodChange.emit(value);
     this.updateChartBars();
   }
+
+  @Output() timePeriodChange = new EventEmitter();
 
   customPeriodOptions = [StockChartXPeriodicity.DAY,
     StockChartXPeriodicity.WEEK, StockChartXPeriodicity.MONTH,
@@ -70,7 +76,7 @@ export class FrameSelectorComponent {
 
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = this.getTimeFrameLabel(timeFrame.periodicity);
-    return `${timeFrame.interval} ${label}`;
+    return `${ timeFrame.interval } ${ label }`;
   }
 
   getTimeFrameLabel(periodicity) {
@@ -104,6 +110,9 @@ export class FrameSelectorComponent {
   }
 
   updateChartBars() {
+    if (this.timeFrame == null || this.timeFrame == null)
+      return;
+
     const periodTime = TimeFrame.timeFrameToTimeInterval(this.timePeriod);
     const intervalTime = TimeFrame.timeFrameToTimeInterval(this.timeFrame);
     const endDate = new Date();
