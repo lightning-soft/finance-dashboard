@@ -79,11 +79,12 @@ export class VolumeCell extends TotalCell {
   recalculateVolume() {
     let volume = 0;
     let sessionVolume = 0;
+    const sessions = this.settings.sessions;
     this.volumeItems.forEach(item => {
-      if (isInTimeRange(item.date, this.settings.sessions.rth.workingTimes)) {
+      if (isInTimeRange(item.date, sessions?.rth?.workingTimes)) {
         volume += item.volume;
       }
-      if (isInTimeRange(item.date, this.settings.sessions.eth.workingTimes)) {
+      if (isInTimeRange(item.date, sessions?.eth?.workingTimes)) {
         sessionVolume += item.volume;
       }
     }, 0);

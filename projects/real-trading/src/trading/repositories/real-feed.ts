@@ -73,7 +73,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         if (!subscriptions[connectionId][item.id]?.hasOwnProperty('count'))
           subscriptions[connectionId][item.id] = {} as any;
 
-        const subs =  subscriptions[connectionId][item.id];
+        const subs = subscriptions[connectionId][item.id];
         subs.count = (subs?.count || 0) + 1;
         if (subs.count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
@@ -85,11 +85,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
             this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
           subs.payload = dto;
           const connection = this._accountsManager.getConnection(connectionId);
-
-          if (connection?.connected)
-            this._webSocketService.send({ Type: type, ...dto }, connectionId);
-          else
-            this.createPendingRequest(type, dto, connectionId);
+          this._createSubscribeRequest(connection, type, item, dto);
         }
       } else {
         const subs = subscriptions[connectionId][item.id];
@@ -100,11 +96,22 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         if (subs.count === 0) {
           if (this._unsubscribeFns[connectionId] && this._unsubscribeFns[connectionId][item.id]) {
             this._unsubscribeFns[connectionId][item.id]();
+            this._createUnsubscribeRequest(connectionId, item);
             delete this._unsubscribeFns[connectionId][item.id];
           }
         }
       }
     });
+  }
+
+  protected _createSubscribeRequest(connection, type, item, dto) {
+    if (connection?.connected)
+      this._webSocketService.send({ Type: type, ...dto }, connection.id);
+    else
+      this.createPendingRequest(type, dto, connection.id);
+  }
+  protected _createUnsubscribeRequest(connectionId, item) {
+    this._unsubscribeFns[connectionId][item.id]();
   }
 
   private createPendingRequest(type, payload, connectionId) {
