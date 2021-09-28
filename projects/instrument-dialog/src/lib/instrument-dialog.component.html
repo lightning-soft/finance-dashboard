@@ -4,18 +4,19 @@
     <input [formControl]="formControl" nzSize="small" type="text" nz-input/>
   </nz-input-group>
 </nz-form-control>
-<nz-tabset  #inputElement [(nzSelectedIndex)]="tabIndex">
+<nz-tabset #inputElement [nzSelectedIndex]="tabIndex" (nzSelectedIndexChange)="tabChanged($event)">
   <nz-tab nzTitle="All">
   </nz-tab>
   <nz-tab nzTitle="Futures">
   </nz-tab>
-  <!--
-  <nz-tab nzTitle="Stocks">
+  <nz-tab nzTitle="FutureOption">
   </nz-tab>
-  <nz-tab nzTitle="Option">
+  <nz-tab nzTitle="FutureOptionStrategy">
   </nz-tab>
-  <nz-tab nzTitle="Crypto">
-  </nz-tab>-->
+  <nz-tab nzTitle="FutureStrategy">
+  </nz-tab>
+  <nz-tab nzTitle="Spread">
+  </nz-tab>
 </nz-tabset>
 <cdk-virtual-scroll-viewport (scrolledIndexChange)="onScroll($event)" [itemSize]="27">
   <table>
@@ -23,7 +24,7 @@
         (click)="selectInstrument(item)"
         class="instrument-item">
       <td [title]="item.symbol" class="symbol">{{item.symbol}}</td>
-      <td [title]="item.description" class="description">{{item.description}}</td>
+      <td [title]="item.description" class="description">{{item.description}} ({{item.stringTypeRepresentation}})</td>
       <td class="exchange">{{item.exchange}}</td>
     </tr>
   </table>

@@ -57,6 +57,13 @@ export class GroupItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T>
       this._filteredItems = this._items;
     }
   }
+
+  removeWhere(filter: (item: VM) => boolean) {
+    super.removeWhere(filter);
+    this._updateFiltered();
+    this.updateGroupedItems();
+  }
+
   addItems(items: T[]) {
     super.addItems(items);
     this._updateFiltered();

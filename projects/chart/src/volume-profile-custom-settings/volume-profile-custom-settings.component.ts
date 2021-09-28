@@ -38,7 +38,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   settings: any = {};
 
   private _linkKey: string;
-  private _selectedItem: IVolumeTemplate;
+  selectedItem: IVolumeTemplate;
   private _identificator: any; // scx indicator or volume template
 
   get linkKey() {
@@ -91,7 +91,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   saveState() {
     return {
       link: this._linkKey,
-      template: this._selectedItem,
+      template: this.selectedItem,
      //  identificator: this._identificator
     };
   }
@@ -102,7 +102,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
       .subscribe((value) => {
         this.settings = mergeDeep(this.settings, clone(value));
         const template = {
-          ...this._selectedItem,
+          ...this.selectedItem,
           settings: normalizeSettings(this.settings),
         };
 
@@ -124,7 +124,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
   selectItem(item: IVolumeTemplate) {
     this._identificator = item;
-    this._selectedItem = item;
+    this.selectedItem = item;
     if (item?.settings)
       this.settings = denormalizeSettings(item.settings);
   }
