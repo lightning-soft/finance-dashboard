@@ -1,11 +1,21 @@
 import { IBaseItem } from 'communication';
 
+export enum InstrumentType {
+  Future = 'Future',
+  FutureOption = 'FutureOption',
+  FutureOptionStrategy = 'FutureOptionStrategy',
+  FutureStrategy = 'FutureStrategy',
+  Spread = 'Spread'
+}
+
 export interface IInstrument extends IBaseItem {
   symbol: string;
   description?: string;
   exchange: string;
   tickSize: number;
   contractSize?: number;
+  type?: InstrumentType;
+  stringTypeRepresentation?: string;
   productCode?: string;
   increment?: number; // get one only
   precision?: number; // get one only

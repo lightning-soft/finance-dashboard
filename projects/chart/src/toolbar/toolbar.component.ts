@@ -692,19 +692,19 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   }
 
   onIntervalAdded(frame: any) {
-       const intervalOption = this.intervalOptions
-     .find(item => {
-       return item.periodicities.includes(frame.periodicity);
-     });
-   const timeFrames = intervalOption.timeFrames;
-   if (timeFrames && !timeFrames.some(item => compareTimeFrames(item, frame))) {
-     timeFrames.push(frame);
-     intervalOption.timeFrames = TimeFrame.sortTimeFrames(timeFrames);
-   }
+    const intervalOption = this.intervalOptions
+      .find(item => {
+        return item.periodicities.includes(frame.periodicity);
+      });
+    const timeFrames = intervalOption.timeFrames;
+    if (timeFrames && !timeFrames.some(item => compareTimeFrames(item, frame))) {
+      timeFrames.push(frame);
+      intervalOption.timeFrames = TimeFrame.sortTimeFrames(timeFrames);
+    }
   }
 
   onPeriodAdded(frame: any) {
-       const period = this.periodOptions.find(item => item.periodicity === frame.periodicity);
+    const period = this.periodOptions.find(item => item.periodicity === frame.periodicity);
     const timeFrames = period?.timeFrames;
     if (timeFrames && !timeFrames.some(item => item.interval === frame.interval)) {
       timeFrames.push(frame);

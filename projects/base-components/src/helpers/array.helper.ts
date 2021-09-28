@@ -4,4 +4,10 @@ export class ArrayHelper {
     arr[i] = arr[j];
     arr[j] = temp;
   }
+
+  static shiftItems(arr: any[], previousIndex: number, currentIndex: number) {
+    const element = arr[previousIndex];
+    arr.splice(previousIndex, 1);
+    arr.splice(currentIndex, 0, element);
+  }
 }

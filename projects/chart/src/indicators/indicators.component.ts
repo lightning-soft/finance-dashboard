@@ -322,7 +322,7 @@ export class IndicatorsComponent implements OnInit {
 
   dropped({ previousIndex, currentIndex }) {
     const indicators = this.indicators;
-    ArrayHelper.swapItems(indicators, previousIndex, currentIndex);
+    ArrayHelper.shiftItems(indicators, previousIndex, currentIndex);
     this._applyZIndex(indicators);
     this.chart.updateIndicators();
     this.chart.setNeedsLayout();

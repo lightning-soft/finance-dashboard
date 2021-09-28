@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'drag-and-drop',
@@ -21,7 +21,7 @@ export class DragAndDropComponent extends FieldType implements OnInit {
     this.model[firstField.key as string].order = this.model[secondField.key as string].order;
     this.model[secondField.key as string].order = temp;
     this.form.patchValue(this.model);
-
-    moveItemInArray(this.field.fieldGroup, event.previousIndex, event.currentIndex);
+    this.field.fieldGroup = this.field.fieldGroup.sort((a, b) =>
+      a.model.order - b.model.order);
   }
 }

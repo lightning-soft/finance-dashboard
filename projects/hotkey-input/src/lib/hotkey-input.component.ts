@@ -78,12 +78,6 @@ export class HotkeyInputComponent implements ControlValueAccessor {
     }
   }
 
-  getKeyStringTitle() {
-    if (this.value)
-      return this.value.toUIString();
-    return '';
-  }
-
 
   registerOnChange(fn: any): void {
     this.onChange = fn;

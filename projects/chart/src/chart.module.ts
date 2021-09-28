@@ -46,7 +46,7 @@ import {
   customVolumeProfileSettings,
   VolumeProfileCustomSettingsComponent
 } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
-import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import { HotkeyInputModule } from 'hotkey-input';
 
 // const environment = { scxPath: '' };
 
@@ -108,6 +108,7 @@ import { VolumeProfileTemplatesRepository } from './volume-profile-custom-settin
     NzCheckboxModule,
     OverlayModule,
     DataSelectModule,
+    HotkeyInputModule,
     FormlyModule.forChild({
       types: [
         {

@@ -63,6 +63,7 @@
       width: calc(#{$table-width} - #{$symbolWidth} - #{$exchangeWidth});
       white-space: nowrap;
       overflow: hidden;
+      margin-left: 3px;
       text-overflow: ellipsis;
     }
 

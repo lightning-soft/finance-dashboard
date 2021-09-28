@@ -85,19 +85,28 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
   }
 
   createMissingWorkingTime() {
-    const shouldAddDays = [false, false, false, false, false];
-    this.item.workingTimes.forEach((item, index) => {
-      shouldAddDays[item.endDay] = false;
-      shouldAddDays[item.startDay] = false;
+    const shouldAddDays = [true, true, true, true, true, true, true];
+    this.item.workingTimes.forEach((item) => {
+      if (item.endDay >= item.startDay) {
+        for (let i = item.startDay; i <= item.endDay; i++) {
+          shouldAddDays[i] = false;
+        }
+      } else {
+        shouldAddDays.map((value, index) => {
+          if (item.startDay >= index || item.endDay <= index)
+            return false;
+          return value;
+        });
+      }
     });
     shouldAddDays.forEach((value, index) => {
-      if (value)
-      this.item.workingTimes.push({
-        startDay: index + 1,
-        startTime: this.utcStartTime,
-        endDay: index + 1,
-        endTime: this.utcEndTime,
-      });
+      if (value && index !== 0 && index !== shouldAddDays.length - 1)
+        this.item.workingTimes.push({
+          startDay: index,
+          startTime: this.utcStartTime,
+          endDay: index,
+          endTime: this.utcEndTime,
+        });
     });
   }
 

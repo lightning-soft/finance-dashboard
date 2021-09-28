@@ -1,14 +1,15 @@
 import { Component, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ItemsComponent } from 'base-components';
-import { IInstrument, InstrumentsRepository } from 'trading';
+import { IInstrument, InstrumentsRepository, InstrumentType } from 'trading';
 import { FormControl } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { debounceTime } from 'rxjs/operators';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Subject } from 'rxjs';
-import { Id } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import { Storage } from 'storage';
+import { NotifierService } from 'notifier';
 
 const instrumentDialogStorageKey = 'instrumentDialogStorageKey';
 
@@ -30,6 +31,8 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
   accountId: Id;
   connectionId: Id;
   theEnd = false;
+  typeArray = [null, InstrumentType.Future, InstrumentType.FutureOption,
+    InstrumentType.FutureOptionStrategy, InstrumentType.FutureStrategy, InstrumentType.Spread];
 
 
   @ViewChild(CdkVirtualScrollViewport)
@@ -43,6 +46,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
   constructor(protected _injector: Injector,
               private _modal: NzModalRef,
               private _storage: Storage,
+              protected _notifier: NotifierService,
               protected _repository: InstrumentsRepository) {
     super();
     this.autoLoadData = { onConnectionChange: true };
@@ -85,6 +89,29 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
     this.loadData(this.query);
   }
 
+  loadData(params?: any) {
+    const type = this.typeArray[this.tabIndex];
+    if (type != null)
+      params.type = this.typeArray[this.tabIndex];
+    else
+      delete params.type;
+
+    super.loadData(params);
+  }
+
+  protected _handleResponse(response: IPaginationResponse<IInstrument>, params: any = {}) {
+    super._handleResponse(response, params);
+    if (!this.items.length)
+      return;
+
+    const firstItem = this.items[0];
+    const isOneType = this.items.every((item) => item.type === firstItem.type);
+    if (this.query.criteria !== '' && isOneType && this.typeArray[this.tabIndex] !== firstItem.type) {
+      const index = this.typeArray.findIndex((value) => value === firstItem.type);
+      this.tabChanged(index);
+    }
+  }
+
   selectInstrument(item: any) {
     this._modal.close(item);
   }
@@ -105,4 +132,8 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
     this._storage.setItem(instrumentDialogStorageKey, query);
   }
 
+  tabChanged($event: number) {
+    this.tabIndex = $event;
+    this.search();
+  }
 }

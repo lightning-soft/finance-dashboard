@@ -142,8 +142,8 @@ const DefaultTemplates = [
         customTickSize: { enabled: false, value: 5 },
         drawVPC: {
           parts: [
-            { keyCode: 66 },
-            { keyCode: 86 }
+            { keyCode: 17 },
+            { keyCode: 66 }
           ]
         },
         hide: { enabled: false, value: 'lastProfile' },
@@ -445,8 +445,8 @@ const DefaultTemplates = [
         customTickSize: { enabled: false, value: 5 },
         drawVPC: {
           parts: [
-            { keyCode: 83 },
-            { keyCode: 86 }
+            { keyCode: 17 },
+            { keyCode: 83 }
           ]
         },
         hide: { enabled: false, value: 'lastProfile' },
