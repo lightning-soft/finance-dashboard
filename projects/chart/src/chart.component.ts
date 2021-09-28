@@ -125,6 +125,181 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   showOrderConfirm = true;
   showCancelConfirm = true;
 
+  intervalOptions = [
+    {
+      active: false,
+      period: 'AMS REVS Bar',
+      periodicities: [StockChartXPeriodicity.REVS],
+      timeFrames: [{
+        interval: 4, periodicity: StockChartXPeriodicity.REVS,
+      },
+        { interval: 8, periodicity: StockChartXPeriodicity.REVS },
+        { interval: 12, periodicity: StockChartXPeriodicity.REVS },
+        { interval: 16, periodicity: StockChartXPeriodicity.REVS },
+      ]
+    },
+    {
+      active: false,
+      period: 'Seconds',
+      periodicities: [StockChartXPeriodicity.SECOND],
+      timeFrames: [
+        /*    {
+              interval: 1, periodicity: StockChartXPeriodicity.SECOND,
+            },
+            { interval: 5, periodicity: StockChartXPeriodicity.SECOND },
+            { interval: 15, periodicity: StockChartXPeriodicity.SECOND },*/
+        { interval: 30, periodicity: StockChartXPeriodicity.SECOND },
+        { interval: 40, periodicity: StockChartXPeriodicity.SECOND },
+      ]
+    },
+    {
+      active: false,
+      period: 'Minutes',
+      periodicities: [StockChartXPeriodicity.MINUTE],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 3, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 5, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 15, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 30, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+      ],
+    },
+    {
+      active: false,
+      period: 'Hours',
+      periodicities: [StockChartXPeriodicity.HOUR],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.HOUR,
+
+        },
+        {
+          interval: 2, periodicity: StockChartXPeriodicity.HOUR,
+        },
+        {
+          interval: 3, periodicity: StockChartXPeriodicity.HOUR,
+        },
+        {
+          interval: 4, periodicity: StockChartXPeriodicity.HOUR,
+        }
+      ]
+    },
+    {
+      active: false,
+      period: 'Days',
+      periodicities: [StockChartXPeriodicity.DAY, StockChartXPeriodicity.WEEK, StockChartXPeriodicity.YEAR],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.DAY,
+        },
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.WEEK,
+        },
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.MONTH,
+        }
+      ]
+    },
+    {
+      active: false,
+      period: 'Range',
+      periodicities: [StockChartXPeriodicity.RANGE],
+      timeFrames: [{
+        interval: 5, periodicity: StockChartXPeriodicity.RANGE,
+      },
+        { interval: 10, periodicity: StockChartXPeriodicity.RANGE },
+        { interval: 15, periodicity: StockChartXPeriodicity.RANGE },
+      ]
+    },
+    {
+      active: false,
+      period: 'Renko',
+      periodicities: [StockChartXPeriodicity.RENKO],
+      timeFrames: [{
+        interval: 4, periodicity: StockChartXPeriodicity.RENKO,
+      },
+        { interval: 5, periodicity: StockChartXPeriodicity.RENKO },
+        { interval: 10, periodicity: StockChartXPeriodicity.RENKO },
+      ]
+    },
+
+    {
+      active: false,
+      period: 'Volume',
+      periodicities: [StockChartXPeriodicity.VOLUME],
+      timeFrames: [{
+        interval: 1000, periodicity: StockChartXPeriodicity.VOLUME,
+      },
+        { interval: 2500, periodicity: StockChartXPeriodicity.VOLUME },
+        { interval: 5000, periodicity: StockChartXPeriodicity.VOLUME }
+      ]
+    },
+    {
+      active: false,
+      period: 'Ticks',
+      periodicities: [StockChartXPeriodicity.TICK],
+      timeFrames: [
+        { interval: 500, periodicity: StockChartXPeriodicity.TICK },
+        { interval: 1000, periodicity: StockChartXPeriodicity.TICK },
+        { interval: 5000, periodicity: StockChartXPeriodicity.TICK },
+
+      ]
+    },
+
+  ];
+  periodOptions =  [
+    {
+      period: 'Days',
+      active: false,
+      periodicity: StockChartXPeriodicity.DAY,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.DAY },
+        { interval: 3, periodicity: StockChartXPeriodicity.DAY },
+        { interval: 5, periodicity: StockChartXPeriodicity.DAY },
+
+      ]
+    },
+    {
+      period: 'Weeks',
+      active: false,
+      periodicity: StockChartXPeriodicity.WEEK,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.WEEK },
+        { interval: 2, periodicity: StockChartXPeriodicity.WEEK },
+        { interval: 3, periodicity: StockChartXPeriodicity.WEEK },
+      ]
+    },
+    {
+      period: 'Months',
+      active: false,
+      periodicity: StockChartXPeriodicity.MONTH,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.MONTH },
+        { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
+        { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
+      ]
+    },
+    {
+      period: 'Years',
+      active: false,
+      periodicity: StockChartXPeriodicity.YEAR,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
+        { interval: 2, periodicity: StockChartXPeriodicity.YEAR },
+      ]
+    },
+  ];
+
   ocoStep = OcoStep.None;
   firstOcoOrder: IOrder;
   secondOcoOrder: IOrder;
@@ -358,6 +533,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
       stockChartXState: chart.saveState(),
+      intervalOptions: this.toolbar.intervalOptions,
+      periodOptions: this.toolbar.periodOptions,
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
     } as IChartState;
@@ -650,6 +827,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (state?.componentInstanceId) {
       this.componentInstanceId = state.componentInstanceId;
     }
+    if (state?.intervalOptions)
+      this.intervalOptions = state.intervalOptions;
+    if (state?.periodOptions)
+      this.periodOptions = state.periodOptions;
 
     this.addLinkObserver({
       link: this._getSettingsKey(),
