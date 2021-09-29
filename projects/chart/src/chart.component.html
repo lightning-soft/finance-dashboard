@@ -7,25 +7,27 @@
   <account-select #select [(account)]="account"></account-select>
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item" [class.active]="currentDirection === item"
-      class="icon-{{item}} direction window-icon"></i>
+       class="icon-{{item}} direction window-icon"></i>
     <i (click)="showChartForm = !showChartForm; setNeedUpdate()" [class.active]="showChartForm"
-      [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
+       [title]="showChartForm? 'Hide': 'Show' + ' order area'" class="icon-widget-orders"></i>
     <i (click)="toggleTrading()" [class.icon-lock]="!isTradingEnabled" [class.icon-unlock]="isTradingEnabled"
-      [title]="isTradingEnabled ? 'Unlock' : 'Lock'" class="lock"></i>
+       [title]="isTradingEnabled ? 'Unlock' : 'Lock'" class="lock"></i>
   </div>
 
 </window-header>
 <div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">
     <app-toolbar #toolbar *ngIf="window" (createCustomVolumeProfile)="createCustomVolumeProfile()"
-      (loadedCustomeVolumeProfile)="loadCustomeVolumeTemplate($event)" [(enableOrderForm)]="enableOrderForm"
-      (enableOrderFormChange)="checkIfTradingEnabled()" [class.location-up]="!showChanges && !showOHLV"
-      [layout]="layout" [chart]="chart" [window]="window" [link]="chartLink"></app-toolbar>
+                 [intervalOptions]="intervalOptions"
+                 [periodOptions]="periodOptions"
+                 (loadedCustomeVolumeProfile)="loadCustomeVolumeTemplate($event)" [(enableOrderForm)]="enableOrderForm"
+                 (enableOrderFormChange)="checkIfTradingEnabled()" [class.location-up]="!showChanges && !showOHLV"
+                 [layout]="layout" [chart]="chart" [window]="window" [link]="chartLink"></app-toolbar>
     <div class="chart" #chartContainer></div>
   </div>
 
   <side-form #domForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId" [position]="position"
-    [ocoStep]="ocoStep" [orders]="orders" (actions)="handleFormAction($event)" [instrument]="instrument">
+             [ocoStep]="ocoStep" [orders]="orders" (actions)="handleFormAction($event)" [instrument]="instrument">
     <div class="form-header" headerContent>
       <info-component headerContent></info-component>
     </div>
@@ -53,10 +55,11 @@
     <li class="custom-volume-profile-templates" nz-submenu nzTitle="Templates">
       <ul class="custom-volume-profile-subitems">
         <li *ngFor="let template of toolbar.items" class="custom-drawing-menu-item"
-          (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span *ngIf="!template.isDefault" class="actions"><i
-              (click)="editCustomProfile(template)" class="icon-edit"></i>
-          <i  *ngIf="!template.isDefault" (click)="deleteVolumeProfile(template)"
-              class="icon-close-window"></i></span></li>
+            (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span
+          *ngIf="!template.isDefault" class="actions"><i
+          (click)="editCustomProfile(template)" class="icon-edit"></i>
+          <i *ngIf="!template.isDefault" (click)="deleteVolumeProfile(template)"
+             class="icon-close-window"></i></span></li>
       </ul>
     </li>
     <li (click)="saveCustomVolume()" nz-menu-item>Save</li>

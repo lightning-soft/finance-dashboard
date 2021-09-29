@@ -17,6 +17,8 @@ export interface IChartState extends IScxComponentState {
   account?: IAccount;
   componentInstanceId: number;
   settings: IChartSettings;
+  intervalOptions?: any;
+  periodOptions?: any;
 }
 export type IChartTemplate = IBaseTemplate<IChartState>;
 
