@@ -12,24 +12,20 @@ stages:
         paths:
             - node_modules/
 
-.develop:
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_TAG == null
-
 install:
     stage: install
-    extends:
-        - .libs-cache
-        - .develop
+    rules:
+        - if: $CI_COMMIT_TAG == null
+    extends: .libs-cache
     script:
         - npm i
 
 build-web-ssr:
     stage: build
+    rules:
+        - if: $CI_COMMIT_TAG == null
     tags:
         - docker
-    extends:
-        .develop
     cache:
         paths:
             - dist/
@@ -47,8 +43,8 @@ deploy-latest:
     services:
         - registry.gitlab.com/docker.hub/docker:dind
     image: registry.gitlab.com/docker.hub/docker:latest
-    extends:
-        .develop
+    rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     cache:
         paths:
             - dist/
@@ -61,13 +57,19 @@ deploy-latest:
     tags:
         - docker
 
-
-deploy-stage:
+deploy-stage-from-latest:
   stage: deploy
+  image: docker:latest
+  services:
+      - docker:dind
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_TAG != null
+      - if: $CI_COMMIT_TAG != null
   script:
-    - echo only on tags
-    - echo $CI_COMMIT_TAG
-    - env
-
+      - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
+      - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+      - docker pull $CONTAINER_IMAGE:latest
+      - docker tag $CONTAINER_IMAGE:latest $CONTAINER_IMAGE:stage
+      - docker push $CONTAINER_IMAGE:stage
+      - docker logout
+  tags:
+      - docker
