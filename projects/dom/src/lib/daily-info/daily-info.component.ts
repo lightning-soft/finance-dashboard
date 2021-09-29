@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { InstrumentFormatter } from 'data-grid';
 import { IHistoryItem, IInstrument } from 'trading';
-import { RoundFormatter } from "data-grid";
 
 interface IFormattedHistoryItem {
   high: string;
@@ -16,7 +16,7 @@ interface IFormattedHistoryItem {
   styleUrls: ['./daily-info.component.scss']
 })
 export class DailyInfoComponent {
-  private _formatter = new RoundFormatter(2);
+  private _formatter = InstrumentFormatter.forInstrument();
   private _dailyInfo: IHistoryItem;
 
   public formattedDailyInfo: IFormattedHistoryItem;
@@ -30,7 +30,17 @@ export class DailyInfoComponent {
     return this._dailyInfo;
   }
 
-  @Input() instrument: IInstrument;
+  private _instrument: IInstrument;
+  public get instrument(): IInstrument {
+    return this._instrument;
+  }
+
+  @Input()
+  public set instrument(value: IInstrument) {
+    this._instrument = value;
+    this._formatter = InstrumentFormatter.forInstrument(value);
+  }
+
   @Input() showInstrumentChange: boolean;
   @Input() showOHLVInfo: boolean;
   volume: number | string;
@@ -47,10 +57,9 @@ export class DailyInfoComponent {
 
   updateIncome(): void {
     if (this.dailyInfo) {
-      const precision = this.instrument?.precision ?? 4;
       const income = this.dailyInfo.close - this.dailyInfo.open;
-      this.incomePercentage = ((income / this.dailyInfo.close) * 100).toFixed(precision);
-      this.income = income.toFixed(precision);
+      this.incomePercentage = ((income / this.dailyInfo.close) * 100).toFixed(2);
+      this.income = this._formatter.format(income);
     } else {
       this.income = null;
       this.incomePercentage = null;
@@ -62,9 +71,7 @@ export class DailyInfoComponent {
   }
 
   private _getFormattedDailyInfo(item: IHistoryItem): IFormattedHistoryItem {
-    this._formatter.updateDigits(this.instrument?.precision ?? 2);
-
-    return  {
+    return {
       high: this._formatter.format(item?.high) || '-',
       low: this._formatter.format(item?.low) || '-',
       open: this._formatter.format(item?.open) || '-',

@@ -26,7 +26,7 @@ import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 import { SymbolCell } from './symbol.cell';
 import { MarketWatchCreateOrderItem } from './market-watch-create-order.item';
 import { MarketWatchColumnsArray } from '../market-watch-columns.enum';
-import { CalculationFormatter } from '../formatters/calculation.formatter';
+import { InstrumentFormatter } from '../../../data-grid/src/models/formatters/instrument.formatter';
 
 export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarketWatchItem {
   id: Id;
@@ -35,17 +35,16 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   sellOrders = new Map<Id, IOrder>();
 
   private _ohlv: OHLVData;
-  private _formatter = new RoundFormatter(2);
+  private _formatter = InstrumentFormatter.forInstrument();
   private _percentFormatter = new RoundFormatter(2);
-  private _calcFormatter = new CalculationFormatter(2);
 
   symbol: SymbolCell = new SymbolCell({ withHoverStatus: true });
   pos: Cell = new NumberCell({ strategy: AddClassStrategy.RELATIVE_ZERO, withHoverStatus: true });
-  last: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  last: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
   netChange: Cell = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
     ignoreZero: false,
-    formatter: this._calcFormatter, withHoverStatus: true
+    formatter: this._percentFormatter, withHoverStatus: true
   });
   percentChange: Cell = new NumberCell({
     strategy: AddClassStrategy.RELATIVE_ZERO,
@@ -72,9 +71,9 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
     formatter: this._formatter,
     withHoverStatus: true
   });
-  high: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
-  low: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
-  open: Cell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  high: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  low: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
+  open: NumberCell = new NumberCell({ strategy: AddClassStrategy.NONE, formatter: this._formatter, withHoverStatus: true });
 
   shouldExpand = false;
   hasDrawings = false;
@@ -232,8 +231,16 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
 
   setInstrument(instrument: IInstrument) {
     this.instrument = instrument;
-    this._formatter.updateDigits(instrument?.precision ?? 2);
-    this._calcFormatter.updateDigits(instrument?.precision ?? 2);
+    this._formatter = InstrumentFormatter.forInstrument(instrument);
+
+    this.last.formatter = this._formatter;
+    this.bid.formatter = this._formatter;
+    this.ask.formatter = this._formatter;
+    this.settle.formatter = this._formatter;
+    this.high.formatter = this._formatter;
+    this.low.formatter = this._formatter;
+    this.open.formatter = this._formatter;
+
     this.symbol.updateValue(instrument.symbol);
   }
 

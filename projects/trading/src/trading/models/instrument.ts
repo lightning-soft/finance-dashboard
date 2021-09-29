@@ -19,6 +19,7 @@ export interface IInstrument extends IBaseItem {
   productCode?: string;
   increment?: number; // get one only
   precision?: number; // get one only
+  fraction?: number;
 }
 
 export const compareInstruments = (a: IInstrument, b: IInstrument) => {

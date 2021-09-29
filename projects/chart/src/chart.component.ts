@@ -50,6 +50,8 @@ import {
 } from 'trading';
 import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
+import { InstrumentFormatter } from '../../data-grid/src/models/formatters/instrument.formatter';
+import { SettingsItems } from './chart-settings/chart-settings.component';
 import {
   chartReceiveKey,
   chartSettings,
@@ -71,8 +73,6 @@ import {
   IVolumeTemplate,
   VolumeProfileTemplatesRepository
 } from './volume-profile-custom-settings/volume-profile-templates.repository';
-import { RoundFormatter } from 'data-grid';
-import { SettingsItems } from './chart-settings/chart-settings.component';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -96,7 +96,7 @@ export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 @BindUnsubscribe()
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
-  private _formatter = new RoundFormatter(2);
+  private _formatter = InstrumentFormatter.forInstrument();
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
@@ -162,7 +162,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument?.id === instrument.id)
       return;
 
-    this._formatter.updateDigits(instrument?.precision ?? 2);
+    this._formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
     this.chart.incomePrecision = instrument.precision ?? 2;

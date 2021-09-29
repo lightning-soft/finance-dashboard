@@ -1,10 +1,9 @@
 import { OrderColumnsArray, OrderItem } from 'base-order-form';
-import { CheckboxCell, EmptyCell, RoundFormatter } from 'data-grid';
+import { CheckboxCell, EmptyCell } from 'data-grid';
 
 export const groupStatus = 'orderGroup';
 
 export class GroupedOrderItem extends OrderItem {
-  protected _priceFormatter = new RoundFormatter(2);
   private _id;
 
   set id(value) {

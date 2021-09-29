@@ -9,12 +9,12 @@ import {
   HoverableItem,
   IconCell,
   NumberCell,
-  RoundFormatter
 } from 'data-grid';
 import { TextAlign } from 'dynamic-form';
 import { IOrder, OrderSide, OrderStatus } from 'trading';
 import { PriceStatus } from 'trading-ui';
-import { DateTimeFormatter } from "../../../../data-grid/src/models/formatters/date-time.formatter";
+import { DateTimeFormatter } from '../../../../data-grid/src/models/formatters/date-time.formatter';
+import { InstrumentFormatter } from '../../../../data-grid/src/models/formatters/instrument.formatter';
 
 export enum OrderColumn {
   checkbox = 'checkbox',
@@ -43,7 +43,7 @@ export enum OrderColumn {
 export const OrderColumnsArray = Object.values(OrderColumn);
 
 export const heldPrefixStatus = 'held';
-export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
+export const StopSelectedStatus = `selected${heldPrefixStatus}`;
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
@@ -52,7 +52,7 @@ type IOrderItem = IViewItem<IOrder> & {
 const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 
 export class OrderItem extends HoverableItem implements IOrderItem {
-  protected _priceFormatter = new RoundFormatter(this.order?.instrument.precision ?? 2);
+  protected _priceFormatter = InstrumentFormatter.forInstrument(this.order?.instrument);
 
   set timeFormatter(formatter: DateTimeFormatter) {
     this.timestamp.formatter = formatter;
@@ -67,7 +67,7 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   timestamp = new DateCell({ withHoverStatus: true, formatter: new DateTimeFormatter() });
   price = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
   triggerPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
-  currentPrice = new NumberCell({ withHoverStatus: true });
+  currentPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
   averageFillPrice = new NumberCell({ withHoverStatus: true, formatter: this._priceFormatter });
   description = new DataCell({ withHoverStatus: true });
   duration = new DataCell({ withHoverStatus: true });
@@ -92,15 +92,20 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     super();
     if (order)
       this.update(order);
+
+    this.setInstrument();
+  }
+
+  setInstrument() {
+    this._priceFormatter = InstrumentFormatter.forInstrument(this.order.instrument);
+    this.price.formatter = this._priceFormatter;
+    this.triggerPrice.formatter = this._priceFormatter;
+    this.currentPrice.formatter = this._priceFormatter;
+    this.averageFillPrice.formatter = this._priceFormatter;
   }
 
   update(order: IOrder) {
     this.order = { ...this.order, ...order };
-    this._priceFormatter.updateDigits(this.order.instrument.precision ?? 2);
-    this.price.formatter = this._priceFormatter;
-    this.triggerPrice.formatter = this._priceFormatter;
-    this.averageFillPrice.formatter = this._priceFormatter;
-    this.currentPrice.formatter = this._priceFormatter;
 
     [
       OrderColumn.averageFillPrice,
