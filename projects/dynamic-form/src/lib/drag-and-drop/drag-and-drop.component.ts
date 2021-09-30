@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { ArrayHelper } from 'projects/base-components/src/helpers';
 
 @Component({
   selector: 'drag-and-drop',
@@ -14,14 +15,10 @@ export class DragAndDropComponent extends FieldType implements OnInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    const firstField = this.field.fieldGroup[event.previousIndex];
-    const secondField = this.field.fieldGroup[event.currentIndex];
-
-    const temp = this.model[firstField.key as string].order;
-    this.model[firstField.key as string].order = this.model[secondField.key as string].order;
-    this.model[secondField.key as string].order = temp;
+    ArrayHelper.shiftItems(this.field.fieldGroup, event.previousIndex, event.currentIndex);
+    this.field.fieldGroup.forEach((item, index) => {
+      this.model[item.key as string].order = index;
+    });
     this.form.patchValue(this.model);
-    this.field.fieldGroup = this.field.fieldGroup.sort((a, b) =>
-      a.model.order - b.model.order);
   }
 }

@@ -324,7 +324,6 @@ export class IndicatorsComponent implements OnInit {
     const indicators = this.indicators;
     ArrayHelper.shiftItems(indicators, previousIndex, currentIndex);
     this._applyZIndex(indicators);
-    this.chart.updateIndicators();
     this.chart.setNeedsLayout();
     this.chart.setNeedsUpdate();
   }
