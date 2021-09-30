@@ -55,14 +55,14 @@
     <li class="custom-volume-profile-templates" nz-submenu nzTitle="Templates">
       <ul class="custom-volume-profile-subitems">
         <li *ngFor="let template of toolbar.items" class="custom-drawing-menu-item"
-            (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span
+            (click)="selectCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }} <span
           *ngIf="!template.isDefault" class="actions"><i
           (click)="editCustomProfile(template)" class="icon-edit"></i>
           <i *ngIf="!template.isDefault" (click)="deleteVolumeProfile(template)"
              class="icon-close-window"></i></span></li>
       </ul>
     </li>
-    <li (click)="saveCustomVolume()" nz-menu-item>Save</li>
+    <li (click)="saveCustomVolume()" [nzDisabled]="activeIndicator.templateId == null" nz-menu-item>Save</li>
     <li (click)="saveAsCustomVolume()" nz-menu-item>Save as</li>
     <li nz-menu-divider></li>
     <li (click)="removeCustomeVolumeProfile()" nz-menu-item>Delete</li>

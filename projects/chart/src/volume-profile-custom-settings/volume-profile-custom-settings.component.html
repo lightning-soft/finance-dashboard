@@ -2,7 +2,7 @@
 <div class="settings-container">
   <div class="menu">
     <div *ngFor="let item of items" (click)="selectItem(item)"
-         [class.active]="item === selectedItem"
+         [class.active]="item.id === selectedItem?.id"
          class="menu-item">{{item.name}} <span *ngIf="!item.isDefault" class="actions ml-auto"><i (click)="rename(item)" class="icon-edit"></i><i (click)="delete(item)" class="icon-delete"></i></span>
     </div>
   </div>
@@ -13,6 +13,7 @@
       [fields]="formConfig"
     >
     </formly-form>
+    <i (click)="save()" class="icon-save"></i>
   </cdk-virtual-scroll-viewport>
 </div>
 

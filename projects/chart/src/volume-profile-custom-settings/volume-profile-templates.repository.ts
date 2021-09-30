@@ -688,16 +688,15 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   private _save() {
     this._getTemplates()
       .subscribe(
-        items => this._settingsService.set(STORE_KEY, items),
+        items => {
+          this._settingsService.set(STORE_KEY, items)
+        },
         err => console.error('Templates saved error', err)
       );
   }
 
   async _getItems() {
-    // return this._init().then(() => {
-    return this._getTemplates().toPromise();
-    // });
-    // return this._getTemplates().toPromise();
+    return Promise.resolve(this._settingsService.settings.value.volumeProfileTemplates);
   }
 
   getItems(params: any = {}): Observable<any> {

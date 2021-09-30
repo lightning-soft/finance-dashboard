@@ -257,7 +257,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     },
 
   ];
-  periodOptions =  [
+  periodOptions = [
     {
       period: 'Days',
       active: false,
@@ -849,6 +849,16 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.loadState(template.state);
   }
 
+  selectCustomeVolumeTemplate(template: IVolumeTemplate) {
+    if (this.activeIndicator?.templateId == template?.id)
+      return;
+
+    this.activeIndicator.templateId = template.id;
+    this.loadedCustomeVolumeTemplate = template;
+    this.activeIndicator.settings = template.settings;
+   //  this.chart?.setNeedsUpdate();
+  }
+
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
 
@@ -1304,7 +1314,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       settings: this.activeIndicator?.settings
     };
 
-    this._volumeProfileTemplatesRepository.updateItem(template).subscribe(() => {
+    this._volumeProfileTemplatesRepository.updateItem(template)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
       this.loadedCustomeVolumeTemplate = template;
     }, error => this._notifier.showError(error, 'Failed to save Template'));
   }

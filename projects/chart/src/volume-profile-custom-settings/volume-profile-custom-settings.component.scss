@@ -6,6 +6,27 @@
   margin-top: 3px;
 }
 
+:host ::ng-deep {
+  cdk-virtual-scroll-viewport {
+    padding-bottom: 8px;
+  }
+  formly-form {
+    padding-bottom: 0;
+  }
+}
+
+.icon-save {
+  color: $text-80;
+  transition: color 0.3s;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
 .menu-item {
   .actions {
     opacity: 0;

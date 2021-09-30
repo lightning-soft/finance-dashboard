@@ -92,7 +92,7 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
     return {
       link: this._linkKey,
       template: this.selectedItem,
-     //  identificator: this._identificator
+      //  identificator: this._identificator
     };
   }
 
@@ -165,6 +165,43 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
         this._repository.deleteItem(template.id as any).subscribe();
       }
     });
+  }
+
+  save() {
+    if (this.selectedItem.id == null) {
+      const modal = this._modalService.create({
+        nzTitle: 'Save as',
+        nzContent: RenameModalComponent,
+        nzClassName: 'modal-dialog-workspace',
+        nzWidth: 438,
+        nzWrapClassName: 'vertical-center-modal',
+        nzComponentParams: {
+          label: 'Template name',
+        },
+      });
+
+      modal.afterClose.subscribe(result => {
+        if (!result)
+          return;
+
+        const template: IVolumeTemplate = {
+          id: Date.now().toString(),
+          name: result,
+          settings: normalizeSettings(this.settings),
+        };
+        this._repository.createItem(template).subscribe((res) => {
+          this._identificator.templateId = res.id;
+          this.selectedItem.id = res.id;
+          this.selectedItem.name = res.name;
+        }, error => this._notifier.showError(error, 'Failed to create Template'));
+      });
+    } else {
+      this._repository.updateItem(this.selectedItem)
+        .pipe(untilDestroyed(this))
+        .subscribe((res) => {
+          this.selectedItem = res;
+        });
+    }
   }
 }
 
