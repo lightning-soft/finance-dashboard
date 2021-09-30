@@ -7,7 +7,9 @@ import {
   HoverableItem,
   IconCell,
   NumberCell,
-  PriceFormatter
+  InstrumentFormatter,
+  IFormatter,
+  RoundFormatter,
 } from 'data-grid';
 import { calculatePL } from 'dom';
 import { compareInstruments, IInstrument, IPosition, Side, TradePrint } from 'trading';
@@ -36,8 +38,8 @@ type IPositionItem = {
 };
 
 export class PositionItem extends HoverableItem implements IPositionItem {
-  private _PLFormatter: PriceFormatter = new PriceFormatter(2);
-  private _priceFormatter: PriceFormatter = new PriceFormatter(this.position?.instrument?.precision ?? 2);
+  private _PLFormatter = new RoundFormatter(2);
+  private _priceFormatter: IFormatter = InstrumentFormatter.forInstrument(this.position?.instrument);
 
   account = new DataCell({ withHoverStatus: true });
   instrumentName = new DataCell({ withHoverStatus: true });
@@ -102,11 +104,13 @@ export class PositionItem extends HoverableItem implements IPositionItem {
       return;
 
     this._instrument = instrument;
+    this._priceFormatter = InstrumentFormatter.forInstrument();
+    this.price.formatter = this._priceFormatter;
   }
 
   update(position: IPosition) {
     this.position = { ...this.position, ...position };
-    this._priceFormatter.updateDigits(this.position.instrument?.precision ?? 2);
+
     this.account.updateValue(position.accountId);
     this.instrumentName.updateValue(this.position.instrument?.symbol);
     this.exchange.updateValue(this.position.instrument?.exchange);

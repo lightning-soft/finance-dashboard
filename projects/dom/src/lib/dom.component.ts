@@ -27,7 +27,6 @@ import {
   IFormatter,
   MouseDownDataGridHandler,
   MouseUpDataGridHandler,
-  RoundFormatter
 } from 'data-grid';
 import { environment } from 'environment';
 import { InstrumentSelectComponent } from 'instrument-select';
@@ -84,6 +83,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
+import { InstrumentFormatter } from 'data-grid';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
@@ -510,7 +510,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
 
   private _instrument: IInstrument;
-  private _priceFormatter: IFormatter;
+  _priceFormatter: IFormatter;
 
   visibleRows = 0;
 
@@ -1036,7 +1036,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       });
     }
 
-    this._priceFormatter = new RoundFormatter(instrument?.precision ?? 2);
+    this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
 
     this._loadData();
   }
