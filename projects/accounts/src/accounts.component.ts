@@ -37,6 +37,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   isSubmitted = false;
   connectOnStartUp = true;
 
+  isDefault = false;
+
   selectItemIndex = -1;
 
   constructor(
@@ -277,6 +279,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         tap((item: any) => {
           if (!item.error)
             this.selectedItem = item;
+
+            if (!this.isDefault) {
+              this.makeDefault(item, this.selectItemIndex);
+              this.isDefault = true;
+            }
         }),
         untilDestroyed(this),
       ).toPromise();
@@ -290,6 +297,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err),
       );
+    this.turnOffConnect();
   }
 
   makeDefault(item: IConnection, index = -1) {
@@ -320,6 +328,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         }
       }
     }
+    this.isDefault = false;
   }
 
   _disconnect(item: IConnection) {
