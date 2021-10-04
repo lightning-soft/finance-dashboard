@@ -57,9 +57,6 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
 
     // return of({ data: hist.map(i => this._mapResponseItem(i)), requestParams: params,  total: hist.length, pageCount: 1, page: 1 } as any);
 
-    if (params.Periodicity === 'TICK')
-      return fromPromise(this._getItems(params));
-
     return super.getItems(params);
   }
 
