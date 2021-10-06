@@ -95,7 +95,6 @@ export class ConenctionWebSocketService {
   destroy(connection: IConnection) {
     this.get(connection).close();
     this._service.unregister(this.connection.id, this);
-    this._setListeners();
     this.connection$.next(false);
   }
 
@@ -179,7 +178,7 @@ export class ConenctionWebSocketService {
       close: (event: CloseEvent) => {
         this._executeListeners(WSEventType.Close, event);
         this._removeEventListeners();
-
+        this._setListeners();
         this.connection$.next(false);
       },
       error: (event: ErrorEvent) => {

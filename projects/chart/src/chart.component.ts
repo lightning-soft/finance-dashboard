@@ -465,9 +465,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
     this.chart.updateOHLVData({
       volume: this.lastHistoryItem?.volume,
-      high: this._formatter.format(this.lastHistoryItem?.high),
-      low: this._formatter.format(this.lastHistoryItem?.low),
-      open: this._formatter.format(this.lastHistoryItem?.open),
+      high: this.lastHistoryItem?.high,
+      low: this.lastHistoryItem?.low,
+      open: this.lastHistoryItem?.open,
       income: this._formatter.format(this.income),
       incomePercentage: this.incomePercentage,
     });
@@ -1176,12 +1176,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     switch (isAutomatic) {
       case IsAutomaticPixelPrice.AUTOMATIC:
+        this.chart.setValueScaleType(IsAutomaticPixelPrice.AUTOMATIC);
         this.chart.setPixelsPrice(0);
         setTimeout(() => {
           this.chart.setNeedsUpdate(true);
         });
         break;
       case IsAutomaticPixelPrice.PIXELS_PRICE:
+        this.chart.setValueScaleType(IsAutomaticPixelPrice.PIXELS_PRICE);
         this.chart.setPixelsPrice(pixelsPrice);
         break;
       default:

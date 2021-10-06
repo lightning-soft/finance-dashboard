@@ -696,7 +696,11 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   async _getItems() {
-    return Promise.resolve(this._settingsService.settings.value.volumeProfileTemplates);
+    const templates = this._settingsService.settings.value.volumeProfileTemplates;
+    if (templates.length)
+      return Promise.resolve(templates);
+    else
+      return Promise.resolve(DefaultTemplates);
   }
 
   getItems(params: any = {}): Observable<any> {

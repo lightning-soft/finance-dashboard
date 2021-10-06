@@ -70,7 +70,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   priceOpen = false;
   showFramePopover = false;
 
-  timePeriod = { periodicity: StockChartXPeriodicity.WEEK, interval: 3 };
+  timePeriod = { periodicity: StockChartXPeriodicity.DAY, interval: 3 };
 
   showToolbar = true;
   isDrawingsPinned = false;

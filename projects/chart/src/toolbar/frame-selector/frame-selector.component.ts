@@ -12,7 +12,7 @@ export class FrameSelectorComponent {
   timePeriodicity = StockChartXPeriodicity.HOUR;
 
   peridInterval = 3;
-  periodPeriodicity = StockChartXPeriodicity.WEEK;
+  periodPeriodicity = StockChartXPeriodicity.DAY;
 
   isLeaving = false;
 
