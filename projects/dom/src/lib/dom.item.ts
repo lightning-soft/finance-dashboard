@@ -166,7 +166,7 @@ class OrdersCell extends HistogramCell {
   // }
 
   removeOrder(order) {
-    if (this.orders.map(item => item.id).includes(order.id)) {
+    if (this.orders.some(item => order.id === item.id)) {
       this.orders = this.orders.filter(item => item.id !== order.id);
       this.prepareOrder();
       this._changeText();

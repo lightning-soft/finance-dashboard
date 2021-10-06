@@ -2272,12 +2272,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let filter = (order) => true;
 
     switch (column) {
-      case DOMColumns.AskDelta:
+      case DOMColumns.BidDelta:
       case DOMColumns.BuyOrders:
         side = QuoteSide.Ask;
         filter = (order) => order.side === OrderSide.Buy;
         break;
-      case DOMColumns.BidDelta:
+      case DOMColumns.AskDelta:
       case DOMColumns.SellOrders:
         side = QuoteSide.Bid;
         filter = (order) => order.side === OrderSide.Sell;

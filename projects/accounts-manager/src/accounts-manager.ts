@@ -185,23 +185,23 @@ export class AccountsManager implements ConnectionContainer {
     }
   }
 
-  private _wsHandleError(event: ErrorEvent, connection: IConnection) {
-    delete this._wsIsOpened[connection.id];
+  private _wsHandleError(event: ErrorEvent, connectionId) {
+    delete this._wsIsOpened[connectionId];
 
     if (this._wsHasError) {
       return;
     }
 
     this._wsHasError = true;
-
+    console.log('ws error', event, connectionId);
     this._notificationService.showError(event, 'Connection lost. Check your internet connection.');
 
-    if (connection?.connected) {
-      this.onUpdated({
-        ...connection,
-        error: true,
-      });
-    }
+    // if (connection?.connected) {
+    //   this.onUpdated({
+    //     ...connection,
+    //     error: true,
+    //   });
+    // }
   }
 
   private _wsHandleClose(event, connId) {
@@ -322,6 +322,7 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   disconnect(connection: IConnection): Observable<void> {
+    console.log('disconnect', connection);
     if (!connection || !connection.connected)
       return of();
 
