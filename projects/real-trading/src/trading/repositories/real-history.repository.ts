@@ -3,9 +3,8 @@ import { IBaseItem } from 'communication';
 import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from 'trading';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { fromPromise } from 'rxjs/internal-compatibility';
 
 declare const moment: any;
 

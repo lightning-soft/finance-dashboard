@@ -75,10 +75,18 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       });
     } else {
       const lastDay = this.item.workingTimes[this.item.workingTimes.length - 1];
+      let startDay, endDay;
+      if (lastDay.endDay === lastDay.startDay) {
+        startDay = lastDay.endDay + 1 % this.days.length;
+        endDay = startDay;
+      } else {
+        startDay = lastDay.endDay % this.days.length;
+        endDay = (lastDay.endDay + 1) % this.days.length;
+      }
       this.item.workingTimes.push({
-        startDay: lastDay.endDay % this.days.length,
+        startDay,
         startTime: this.utcStartTime,
-        endDay: (lastDay.endDay + 1) % this.days.length,
+        endDay,
         endTime: this.utcEndTime,
       });
     }

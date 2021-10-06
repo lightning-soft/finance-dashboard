@@ -25,6 +25,7 @@ import {
   DataGridHandler,
   ICellChangedEvent,
   IFormatter,
+  InstrumentFormatter,
   MouseDownDataGridHandler,
   MouseUpDataGridHandler,
 } from 'data-grid';
@@ -83,7 +84,6 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
-import { InstrumentFormatter } from 'data-grid';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
@@ -958,7 +958,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     for (const i of this.items) {
       const pl = ordersSettings.showPL ?
-        calculatePL(position, i.price._value, this._tickSize, contractSize, ordersSettings.includePnl) : null;
+        calculatePL(position, i.price._value, this._tickSize, contractSize, ordersSettings.includeRealizedPL) : null;
       i.setPL(pl);
     }
   }

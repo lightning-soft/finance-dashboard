@@ -1,5 +1,6 @@
 import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 import { IChartConfig } from './chart.config';
+import { IsAutomaticPixelPrice } from "../chart-settings/settings";
 
 
 export enum ScxOrderAction {
@@ -791,6 +792,7 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   _updateHoverRecord(x: number): void;
 
   setPixelsPrice(pixels: number): void;
+  setValueScaleType(type: IsAutomaticPixelPrice): void;
 
   getPixelsPrice(): number;
 

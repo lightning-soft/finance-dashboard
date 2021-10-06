@@ -23,6 +23,7 @@ import {
   roundToTickSize,
   UpdateType
 } from 'trading';
+import { InstrumentFormatter } from 'data-grid';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -53,6 +54,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   firstOcoOrder: IOrder;
   secondOcoOrder: IOrder;
 
+  private _formatter = InstrumentFormatter.forInstrument();
+
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
   }
@@ -81,6 +84,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
     if (this.price != null)
       this.price = roundToTickSize(this.price, this._instrument.tickSize);
+
+    this._formatter = InstrumentFormatter.forInstrument(value);
 
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
@@ -151,11 +156,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
         if (quote.updateType === UpdateType.Undefined) {
           if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
+            this.askPrice = this._formatter.format(quote.price);
             this.askVolume = quote.volume;
           } else {
             this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
+            this.bidPrice = this._formatter.format(quote.price);
           }
 
           this._changeDetectorRef.detectChanges();
