@@ -137,8 +137,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.nzContextMenuService.create($event, menu);
   }
 
-  saveState(): AccountsState {
+  save() {
     this._updateConnection({ ...this.selectedItem });
+  }
+
+  saveState(): AccountsState {
     return { selectedItem: this.selectedItem };
   }
 

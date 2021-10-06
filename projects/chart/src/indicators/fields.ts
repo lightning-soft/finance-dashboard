@@ -1,4 +1,3 @@
-import { FormlyFieldConfig } from '@ngx-formly/core';
 import {
   FieldConfig,
   FieldType,
@@ -47,11 +46,19 @@ const tradingOptions = [
   }
 ];
 
-function getSessionsSelect(key = 'session', config = { className: 'select full-width session-template' }) {
+function getSessionsSelect(key = 'session', config: any = {}) {
+  const defaultSettings = {
+    label: 'Session Template',
+    className: 'select full-width session-template'
+  };
+  Object.assign(defaultSettings, config);
   return {
     key,
     type: 'sessions-select',
-    className: `${ config.className }`,
+    templateOptions: {
+      label: defaultSettings.label,
+    },
+    className: `${ defaultSettings.className }`,
   };
 }
 
@@ -1641,12 +1648,8 @@ export const sessionStatsConfig: IFieldConfig[] = [
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
     fieldGroup: [
-      wrapWithConfig(getSessionsSelect('rth'), {
-        label: 'RTH Session Template'
-      }),
-      wrapWithConfig(getSessionsSelect('eth'), {
-        label: 'ETH Session Template'
-      }),
+      getSessionsSelect('rth', { label: 'RTH Session Template' }),
+      getSessionsSelect('eth', { label: 'ETH Session Template' }),
     ],
   }),
   new FieldConfig({

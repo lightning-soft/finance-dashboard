@@ -25,9 +25,10 @@ export class VolumeBreakdown extends Indicator {
         ...settings.general,
         zeroLine: {
           enabled: settings.general.zeroLine.enabled,
+          strokeColor: settings.general.zeroLine.strokeColor,
           strokeTheme: {
             ...settings.general.zeroLine.strokeTheme,
-            strokeColor: settings.general.zeroLine.strokeTheme.strokeColor,
+            strokeColor: settings.general.zeroLine.strokeColor,
           },
         },
       },
