@@ -175,13 +175,6 @@ export class SettingsService {
 
   set<T = any>(key: string, value: T){
     this._updateState({[key]: value});
-/*    return (this._settings ? of(this._settings) : this.getItem()).pipe(
-      mergeMap(settings => this._settingStore.setItem({
-        ...settings,
-        [key]: value
-      }),
-      ),
-    );*/
   }
 
   public destroy() {
