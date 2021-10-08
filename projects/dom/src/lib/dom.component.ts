@@ -7,7 +7,9 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  ViewChild
+  QueryList,
+  ViewChild,
+  ViewChildren
 } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
@@ -84,6 +86,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
+import { DailyInfoComponent } from './daily-info/daily-info.component';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
@@ -467,7 +470,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     new MouseDownDataGridHandler<DomItem>({
       column: OrderColumns,
       handler: (data) => {
-        const orders = data.item.orders.orders;
+        // it is because delta column doesn't contain orders
+        const orders = data.item[data.column.name].orders || data.item.askDelta.orders;
         if (orders.length) {
           this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
@@ -508,6 +512,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   isTradingEnabled = true;
 
   @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
+
+  @ViewChildren(DailyInfoComponent) dailyInfoComponents: QueryList<DailyInfoComponent>;
 
   private _instrument: IInstrument;
   _priceFormatter: IFormatter;
@@ -903,6 +909,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleOHLV(ohlv) {
     this.dailyInfo = { ...ohlv };
+    this.dailyInfoComponents.forEach(item => {
+      item.handleDailyInfo(this.dailyInfo as IHistoryItem);
+    });
   }
 
   handlePosition(pos) {

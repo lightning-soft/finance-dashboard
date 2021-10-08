@@ -18,7 +18,12 @@
   line-height: 1.07;
   color: #FFFFFF;
 }
-:host-context(.full-screen-window){
+
+.income-info {
+  margin-left: 2px;
+}
+
+:host-context(.full-screen-window) {
   display: none;
 }
 :host-context(.header-daily-info) {
