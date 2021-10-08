@@ -1,16 +1,12 @@
 <div class="chart-data">
-  <div *ngIf="showInstrumentChange" class="income">
-    <ng-container *ngIf="income != null; else emptySpace">
-    {{income}} ({{getInfo(incomePercentage)}}%)
-  </ng-container>
-    <ng-template #emptySpace>
-      --
-    </ng-template>
+  <div [class.d-none]="!showInstrumentChange" class="income">
+    <span class="" #incomeNode></span>
+    <span class="income-info" #incomePercentageNode></span>
   </div>
-  <ng-container *ngIf="showOHLVInfo">
-    <div class="chart-info">H: {{formattedDailyInfo?.high}}</div>
-    <div class="chart-info">L: {{formattedDailyInfo?.low }}</div>
-    <div class="chart-info">O: {{formattedDailyInfo?.open}}</div>
-    <div class="chart-info">V: {{formattedDailyInfo?.volume}}</div>
+  <ng-container [class.d-none]="!showOHLVInfo">
+    <div class="chart-info">H: <span #high></span></div>
+    <div class="chart-info">L: <span #low></span></div>
+    <div class="chart-info">O: <span #open></span></div>
+    <div class="chart-info">V: <span #volume></span></div>
   </ng-container>
 </div>
