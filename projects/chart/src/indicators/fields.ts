@@ -1831,7 +1831,7 @@ export const vwapConfig: IFieldConfig[] = [
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
           wrapWithClass(getSelect({
-            key: 'lineStyle',
+            key: 'style',
             options: [
               {
                 label: 'Line, Connected', value: 'connected'
@@ -1858,11 +1858,11 @@ export const vwapConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes: [{
-          key: 'customTimes',
+          key: 'isShowCustomTimes',
           label: 'Custom Times'
         }],
         additionalFields: [
-          getSessionsSelect('duration', { className: 'wvap-duration select session-template' }),
+          getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
         ],
         extraConfig: {
           fieldGroupClassName: 'd-grid two-rows'
@@ -1870,17 +1870,17 @@ export const vwapConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes: [{
-          key: 'customDuration',
+          key: 'isShowCustomDuration',
           label: 'Custom Duration'
         }],
         additionalFields: [
           getSelect({
-            key: 'duration',
+            key: 'customDuration',
             options: [
-              { label: 'Weekly', value: 'weekly' },
-              { label: 'Monthly', value: 'monthly' },
-              { label: 'Quarterly', value: 'quarterly' },
-              { label: 'Annualy', value: 'annualy' },
+              { label: 'Weekly', value: 'week' },
+              { label: 'Monthly', value: 'month' },
+              { label: 'Quarterly', value: 'quarter' },
+              { label: 'Annualy', value: 'year' },
             ],
           }),
         ],
