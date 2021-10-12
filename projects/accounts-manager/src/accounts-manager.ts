@@ -34,7 +34,7 @@ export class AccountsManager implements ConnectionContainer {
   private _soundService: SoundService;
 
   private _wsIsOpened = {};
-  private _wsHasError = false;
+  private _wsHasError = {};
   private _accountsConnection = new Map();
 
   connectionsChange = new BehaviorSubject<IConnection[]>([]);
@@ -180,7 +180,7 @@ export class AccountsManager implements ConnectionContainer {
     if (!this._wsIsOpened[connectionId]) {
       this._wsIsOpened[connectionId] = true;
       const conn = this._connections.find(item => item.id === connectionId);
-      this._wsHasError = false;
+      this._wsHasError[connectionId] = false;
       this._notificationService.showSuccess(`Connection ${conn?.name ?? ''} restored.`);
     }
   }
@@ -188,11 +188,11 @@ export class AccountsManager implements ConnectionContainer {
   private _wsHandleError(event: ErrorEvent, connectionId) {
     delete this._wsIsOpened[connectionId];
 
-    if (this._wsHasError) {
+    if (this._wsHasError[connectionId] === true) {
       return;
     }
 
-    this._wsHasError = true;
+    this._wsHasError[connectionId] = true;
     console.log('ws error', event, connectionId);
     this._notificationService.showError(event, 'Connection lost. Check your internet connection.');
 

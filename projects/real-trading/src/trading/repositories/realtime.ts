@@ -11,4 +11,5 @@ export enum RealtimeType {
   Error = 'Error',
   Settle = 'SettlementPrice',
   Delay = 'Delay',
+  Activity = 'Activity',
 }
