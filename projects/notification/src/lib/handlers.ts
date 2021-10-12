@@ -24,15 +24,21 @@ const connectedAlerts = [AlertType.ConnectionOpened, AlertType.LoginComplete];
 
 export const handlers = {
   DEFAULT: (msg) => {
-    if (msg.type !== RealtimeType.Delay)
-      return;
-
-    return new Notification({
-      body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
-      title: 'Connection',
-      timestamp: msg.result.now,
-      icon: 'notication-default',
-    });
+    if (msg.type === RealtimeType.Delay) {
+      return new Notification({
+        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
+        title: 'Connection',
+        timestamp: msg.result.now,
+        icon: 'notication-default',
+      });
+    } else if (msg.type === RealtimeType.Activity) {
+      return new Notification({
+        body: `Connection ${msg.result.connection.name} doesn't emit data. There may be problems with connection.`,
+        title: 'Connection',
+        timestamp: Date.now(),
+        icon: 'notication-default',
+      });
+    }
   },
 
   [MessageTypes.CONNECT]: (msg) => {

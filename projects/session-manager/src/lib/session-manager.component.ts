@@ -77,7 +77,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       const lastDay = this.item.workingTimes[this.item.workingTimes.length - 1];
       let startDay, endDay;
       if (lastDay.endDay === lastDay.startDay) {
-        startDay = lastDay.endDay + 1 % this.days.length;
+        startDay = (lastDay.endDay + 1) % this.days.length;
         endDay = startDay;
       } else {
         startDay = lastDay.endDay % this.days.length;
