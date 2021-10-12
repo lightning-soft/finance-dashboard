@@ -181,7 +181,7 @@ export class AccountsManager implements ConnectionContainer {
       this._wsIsOpened[connectionId] = true;
       const conn = this._connections.find(item => item.id === connectionId);
       this._wsHasError = false;
-      this._notificationService.showSuccess(`Connection ${conn?.name ?? ''} restored.`);
+      this._notificationService.showSuccess(`Connection ${ conn?.name ?? '' } restored.`);
     }
   }
 
@@ -220,11 +220,13 @@ export class AccountsManager implements ConnectionContainer {
     connection.connected = false;
 
     this.updateItem(connection)
-      .pipe(tap(() => this._onDisconnected(connection)))
-      .subscribe(
-        () => console.log('Successfully deactivate'),
-        (err) => console.error('Deactivate error ', err),
-      );
+      .pipe(
+        tap(() => this._onDisconnected(connection)),
+        tap(() => this.onUpdated(connection))
+      ).subscribe(
+      () => console.log('Successfully deactivate'),
+      (err) => console.error('Deactivate error ', err),
+    );
   }
 
   createConnection(connection: IConnection): Observable<IConnection> {
@@ -398,7 +400,7 @@ export class AccountsManager implements ConnectionContainer {
 
   protected onCreated(connection: IConnection): void {
     if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
+      connection.name = `${ connection.server }(${ connection.gateway })`;
     }
 
     this._connections = this._connections.concat(connection);
