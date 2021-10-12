@@ -692,12 +692,12 @@ export class DomItem extends HoverableItem implements IBaseItem {
       this.currentBid.update(trade.volume, trade.timestamp, forceAdd);
       this.totalBid.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
     } else {
       this.currentAsk.update(trade.volume, trade.timestamp, forceAdd);
       this.totalAsk.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
     }
     this.volume.updateValue(trade.volume, new Date(trade.timestamp));
 
