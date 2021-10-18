@@ -142,7 +142,7 @@
                   </div>
                   <div>
                     <span>Default</span>
-                    <nz-switch nzSize="small" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : turnOffConnect()"></nz-switch>
+                    <nz-switch nzSize="small" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : selectFreeConnectionAsDefault()"></nz-switch>
                   </div>
                 </tr>
                 <tr>

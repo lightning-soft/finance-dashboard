@@ -293,6 +293,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err),
       );
+    this.selectFreeConnectionAsDefault();
   }
 
   makeDefault(item: IConnection, index = -1) {
@@ -314,7 +315,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
-  turnOffConnect(): void {
+  selectFreeConnectionAsDefault(): void {
     for (const broker of this.brokers) {
       for (const item of this.getConnectionsByBroker(broker)) {
         if (item.connected && !item.isDefault) {
