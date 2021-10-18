@@ -461,7 +461,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   private createNumber(cell, templateOptions = {}) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(NumberWrapperComponent);
-    const value = cell.item.value;
+    const value = cell.item._value;
 
     return {
       factory,

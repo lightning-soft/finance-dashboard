@@ -100,7 +100,7 @@ export class DailyInfoComponent implements AfterViewInit {
     if (this._dailyInfo?.open !== prevHistoryItem?.open)
       this.openNode.nativeElement.textContent = this.formatPrice(this._dailyInfo?.open);
     if (this._dailyInfo?.volume !== prevHistoryItem?.volume)
-      this.volumeNode.nativeElement.textContent = this.formatPrice(this._dailyInfo?.volume);
+      this.volumeNode.nativeElement.textContent = this._dailyInfo?.volume ?? '-';
   }
 
   private formatPrice(price) {

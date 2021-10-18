@@ -24,6 +24,7 @@ import {
   UpdateType
 } from 'trading';
 import { InstrumentFormatter } from 'data-grid';
+import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -61,6 +62,8 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+  @ViewChild('priceNode') priceNode: NzInputNumberComponent;
+  @ViewChild('limitPriceNode') limitPriceNode: NzInputNumberComponent;
 
   private _instrument: IInstrument;
 
@@ -81,11 +84,17 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     this._instrument = value;
-
-    if (this.price != null)
-      this.price = roundToTickSize(this.price, this._instrument.tickSize);
-
     this._formatter = InstrumentFormatter.forInstrument(value);
+
+    if (this.price != null) {
+      this.price = roundToTickSize(this.price, this._instrument.tickSize);
+      this.priceNode?.updateDisplayValue(this.price);
+    }
+    if (this.limitPrice != null) {
+      this.limitPrice = roundToTickSize(this.limitPrice, this._instrument.tickSize);
+      this.limitPriceNode?.updateDisplayValue(this.limitPrice);
+    }
+
 
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
@@ -128,7 +137,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     { value: 100 },
   ];
 
-  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
+  readonly priceFormatter = (price: number) => this._formatter.format(Number(price));
 
   constructor(
     protected fb: FormBuilder,

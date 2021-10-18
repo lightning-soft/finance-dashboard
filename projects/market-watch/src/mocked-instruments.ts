@@ -1,4 +1,6 @@
 // Temporary
+import { IInstrument } from 'trading';
+
 export const defaultInstruments = [
   {
     contractSize: 20,
@@ -57,6 +59,7 @@ export const defaultInstruments = [
     id: 'ZBZ1.CBOT',
     symbol: 'ZBZ1',
     productCode: 'ZB',
+    fraction: 32,
     tickSize: 0.03125,
     precision: 5
   },
@@ -67,7 +70,8 @@ export const defaultInstruments = [
     id: 'ZNZ1.CBOT',
     productCode: 'ZN',
     symbol: 'ZNZ1',
+    fraction: 32,
     tickSize: 0.015625,
-    precision: 6
+    precision: 6,
   }
-];
+] as IInstrument[];

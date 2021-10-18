@@ -283,7 +283,7 @@ export class AccountsManager implements ConnectionContainer {
           }
 
           if (item.error) {
-            this._notificationService.showError(item.err, 'Connection connect error');
+            this._notificationService.showError(item.err, 'Connection error');
           }
 
           return this.updateItem((item));

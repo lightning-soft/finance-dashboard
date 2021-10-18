@@ -59,6 +59,9 @@
       [class.d-none]="!isStopLimit"
       class="limit-number-input"
       nzMin="1"
+      [nzStep]="instrument?.tickSize"
+      #limitPriceNode
+      [nzFormatter]="priceFormatter"
       [ngModelOptions]="{standalone: true}"
       (nzBlur)="handleLimitPriceChange()"
       [(ngModel)]="limitPrice"
@@ -82,6 +85,7 @@
       </div>
       <nz-input-number [ngModelOptions]="{standalone: true}"
                        [nzMin]="0"
+                       #priceNode
                        [nzDisabled]="shouldDisablePrice"
                        (nzBlur)="handlePriceChange()"
                        [nzFormatter]="priceFormatter"
