@@ -131,7 +131,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
       }
       default:
-        throw new Error(`Unknown request kind: ${request.kind}`);
+        throw new Error(`Unknown request kind: ${ request.kind }`);
     }
     chart.updateComputedDataSeries();
 

@@ -1,8 +1,4 @@
-import {
-  HttpErrorResponse, HttpEvent,
-  HttpHandler, HttpInterceptor,
-  HttpRequest
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -28,7 +24,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             // server-side error
             errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
 
-            if (error?.error?.error?.message === `No connection!`) {
+            if (error?.error?.error?.message?.includes(`No connection!`)) {
               const connectionId = request.params.get('connectionId');
               this._accountManager.disconnectById(connectionId);
             }

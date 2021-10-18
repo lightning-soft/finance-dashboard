@@ -110,6 +110,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     else
       this.createPendingRequest(type, dto, connection.id);
   }
+
   protected _createUnsubscribeRequest(connectionId, item) {
     this._unsubscribeFns[connectionId][item.id]();
   }
@@ -148,6 +149,8 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     if (!subscriptions)
       return;
 
+    Object.values(this._unsubscribeFns[connectionId])
+      .forEach((callback: () => void) => callback());
     this._pendingRequests[connectionId] = [];
     Object.values(subscriptions)
       .map(item => this.createPendingRequest(WSMessageTypes.SUBSCRIBE, item.payload, connectionId));

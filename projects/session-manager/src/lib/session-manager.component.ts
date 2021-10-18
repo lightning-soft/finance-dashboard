@@ -41,8 +41,8 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     'Saturday',
   ];
 
-  utcStartTime = (9 * 3600 + 30 * 60) * 1000;
-  utcEndTime = 16 * 3600 * 1000;
+  defaultUtcStartTime = (9 * 3600 + 30 * 60) * 1000;
+  defaultUtcEndTime = 16 * 3600 * 1000;
 
   constructor(
     protected _injector: Injector,
@@ -69,9 +69,9 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     if (!this.item.workingTimes.length) {
       this.item.workingTimes.push({
         startDay: 1,
-        startTime: this.utcStartTime,
+        startTime: this.defaultUtcStartTime,
         endDay: 2,
-        endTime: this.utcEndTime,
+        endTime: this.defaultUtcEndTime,
       });
     } else {
       const lastDay = this.item.workingTimes[this.item.workingTimes.length - 1];
@@ -85,9 +85,9 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       }
       this.item.workingTimes.push({
         startDay,
-        startTime: this.utcStartTime,
+        startTime: lastDay.startTime,
         endDay,
-        endTime: this.utcEndTime,
+        endTime: lastDay.endTime,
       });
     }
   }
@@ -96,7 +96,8 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     const shouldAddDays = [true, true, true, true, true, true, true];
     this.item.workingTimes.forEach((item) => {
       if (item.endDay >= item.startDay) {
-        for (let i = item.startDay; i <= item.endDay; i++) {
+        shouldAddDays[item.startDay] = false;
+        for (let i = item.startDay; i < item.endDay; i++) {
           shouldAddDays[i] = false;
         }
       } else {
@@ -111,9 +112,9 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       if (value && index !== 0 && index !== shouldAddDays.length - 1)
         this.item.workingTimes.push({
           startDay: index,
-          startTime: this.utcStartTime,
+          startTime: this.defaultUtcStartTime,
           endDay: index,
-          endTime: this.utcEndTime,
+          endTime: this.defaultUtcEndTime,
         });
     });
   }

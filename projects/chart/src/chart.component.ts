@@ -143,11 +143,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       period: 'Seconds',
       periodicities: [StockChartXPeriodicity.SECOND],
       timeFrames: [
-        /*    {
-              interval: 1, periodicity: StockChartXPeriodicity.SECOND,
-            },
-            { interval: 5, periodicity: StockChartXPeriodicity.SECOND },
-            { interval: 15, periodicity: StockChartXPeriodicity.SECOND },*/
         { interval: 30, periodicity: StockChartXPeriodicity.SECOND },
         { interval: 40, periodicity: StockChartXPeriodicity.SECOND },
       ]

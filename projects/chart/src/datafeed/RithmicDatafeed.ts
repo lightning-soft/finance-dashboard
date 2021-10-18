@@ -146,10 +146,8 @@ export class RithmicDatafeed extends Datafeed {
         return 'Second';
       case StockChartXPeriodicity.TICK:
         return 'TICK';
-      case StockChartXPeriodicity.REVS:
-        return 'TICK';
       default:
-        return 'Second';
+        return 'TICK';
     }
   }
 
