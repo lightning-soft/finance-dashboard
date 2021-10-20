@@ -108,7 +108,7 @@
     "electron-log": "^4.2.4",
     "express": "4.17.1",
     "hashmap": "^2.4.0",
-    "http-server": "0.12.3",
+    "http-server": "13.0.2",
     "jquery": "^3.5.1",
     "keyboard": "git+https://git.avidi.tech:iTS9Ne67zubkGcpsRmFA@git.avidi.tech/b.tsap/keyboard",
     "lodash.clonedeep": "4.5.0",
