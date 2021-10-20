@@ -39,6 +39,18 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
   selectItemIndex = -1;
 
+  get existDefaultConnection(): boolean {
+    for (const broker of this.brokers) {
+      for (const item of this.getConnectionsByBroker(broker)) {
+        if (item.connected && item.isDefault) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   constructor(
     protected _accountsManager: AccountsManager,
     protected _injector: Injector,
@@ -278,8 +290,13 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     return this._accountsManager.connect(this.getValue())
       .pipe(this.showItemLoader(this.selectedItem),
         tap((item: any) => {
-          if (!item.error)
+          if (!item.error) {
             this.selectedItem = item;
+            
+            if (!this.existDefaultConnection) {
+              this.selectFreeConnectionAsDefault();
+            }
+          }
         }),
         untilDestroyed(this),
       ).toPromise();
@@ -293,7 +310,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         },
         err => this._notifier.showError(err),
       );
-    this.selectFreeConnectionAsDefault();
+      if (!this.existDefaultConnection) {
+        this.selectFreeConnectionAsDefault();
+      }
   }
 
   makeDefault(item: IConnection, index = -1) {

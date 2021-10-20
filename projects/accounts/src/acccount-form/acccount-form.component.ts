@@ -1,11 +1,10 @@
 import { Component, EventEmitter, forwardRef, Injector, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ItemsComponent } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
 import { ConnectionsRepository } from 'trading';
-import { ItemsComponent } from 'base-components';
-import { SAVE_DALEY, SettingsService } from 'settings';
 
 @Component({
   selector: 'acccount-form',
@@ -54,7 +53,6 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   constructor(
     protected _repository: ConnectionsRepository,
     protected _injector: Injector,
-    private readonly _settingsService: SettingsService,
   ) {
     super();
     this.config.autoLoadData = {
