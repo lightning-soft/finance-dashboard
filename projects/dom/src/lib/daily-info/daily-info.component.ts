@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { InstrumentFormatter } from 'data-grid';
 import { IHistoryItem, IInstrument } from 'trading';
 
@@ -15,16 +15,20 @@ interface IFormattedHistoryItem {
   templateUrl: './daily-info.component.html',
   styleUrls: ['./daily-info.component.scss']
 })
-export class DailyInfoComponent {
+export class DailyInfoComponent implements AfterViewInit {
+
   private _formatter = InstrumentFormatter.forInstrument();
   private _dailyInfo: IHistoryItem;
 
-  public formattedDailyInfo: IFormattedHistoryItem;
+  private _isInit = false;
 
-  @Input() set dailyInfo(value: IHistoryItem) {
-    this.historyItem = value;
-    this.updateIncome();
-  }
+  @ViewChild('incomeNode', { static: true }) incomeNode: ElementRef;
+  @ViewChild('incomePercentageNode', { static: true }) incomePercentageNode: ElementRef;
+
+  @ViewChild('high', { static: true }) highNode: ElementRef;
+  @ViewChild('low', { static: true }) lowNode: ElementRef;
+  @ViewChild('open', { static: true }) openNode: ElementRef;
+  @ViewChild('volume', { static: true }) volumeNode: ElementRef;
 
   get dailyInfo(): IHistoryItem {
     return this._dailyInfo;
@@ -43,40 +47,63 @@ export class DailyInfoComponent {
 
   @Input() showInstrumentChange: boolean;
   @Input() showOHLVInfo: boolean;
-  volume: number | string;
-  income: number | string;
-  incomePercentage: string | number;
+
+  income: number;
+  incomePercentage: number;
+
+  formattedIncome: string;
+  formattedIncomePercentage: string;
 
   @Input() set historyItem(value: IHistoryItem) {
     if (this._dailyInfo === value)
       return;
     this._dailyInfo = value;
-    this.formattedDailyInfo = this._getFormattedDailyInfo(value);
-    this.updateIncome();
   }
 
-  updateIncome(): void {
+  ngAfterViewInit() {
+    this._isInit = true;
+    this.handleDailyInfo(this._dailyInfo);
+  }
+
+  handleDailyInfo(value: IHistoryItem) {
+    const prevHistoryItem = this._dailyInfo;
+    this.historyItem = value;
+    if (this._isInit)
+      requestAnimationFrame(() => {
+        this.updateIncome(prevHistoryItem);
+      });
+  }
+
+  updateIncome(prevHistoryItem: IHistoryItem): void {
     if (this.dailyInfo) {
       const income = this.dailyInfo.close - this.dailyInfo.open;
-      this.incomePercentage = ((income / this.dailyInfo.close) * 100).toFixed(2);
-      this.income = this._formatter.format(income);
+      const incomePercentage = ((this.income / this.dailyInfo.close) * 100);
+      if (income !== this.income) {
+        this.income = income;
+        this.formattedIncome = this.formatPrice(this.income);
+        this.incomeNode.nativeElement.textContent = this.formattedIncome;
+      }
+      if (incomePercentage !== this.incomePercentage) {
+        this.incomePercentage = incomePercentage;
+        this.formattedIncomePercentage = ' (' + this.incomePercentage.toFixed(2) + '%)';
+        this.incomePercentageNode.nativeElement.textContent = this.formattedIncomePercentage;
+      }
     } else {
-      this.income = null;
-      this.incomePercentage = null;
+      this.formattedIncome = '-';
+      this.formattedIncomePercentage = '';
     }
+
+    if (this._dailyInfo?.high !== prevHistoryItem?.high)
+      this.highNode.nativeElement.textContent = this.formatPrice(this._dailyInfo?.high);
+    if (this._dailyInfo?.low !== prevHistoryItem?.low)
+      this.lowNode.nativeElement.textContent = this.formatPrice(this._dailyInfo?.low);
+    if (this._dailyInfo?.open !== prevHistoryItem?.open)
+      this.openNode.nativeElement.textContent = this.formatPrice(this._dailyInfo?.open);
+    if (this._dailyInfo?.volume !== prevHistoryItem?.volume)
+      this.volumeNode.nativeElement.textContent = this._dailyInfo?.volume ?? '-';
   }
 
-  getInfo(data: number | string): number | string {
-    return data ?? '-';
-  }
-
-  private _getFormattedDailyInfo(item: IHistoryItem): IFormattedHistoryItem {
-    return {
-      high: this._formatter.format(item?.high) || '-',
-      low: this._formatter.format(item?.low) || '-',
-      open: this._formatter.format(item?.open) || '-',
-      close: this._formatter.format(item?.close) || '-',
-      volume: item?.volume ?? '-'
-    };
+  private formatPrice(price) {
+    return price != null ? this._formatter.format(price) : '-';
   }
 }

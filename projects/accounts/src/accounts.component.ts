@@ -149,8 +149,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.nzContextMenuService.create($event, menu);
   }
 
-  saveState(): AccountsState {
+  save() {
     this._updateConnection({ ...this.selectedItem });
+  }
+
+  saveState(): AccountsState {
     return { selectedItem: this.selectedItem };
   }
 
@@ -291,7 +294,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
             this.selectedItem = item;
             
             if (!this.existDefaultConnection) {
-              this.turnOffConnect();
+              this.selectFreeConnectionAsDefault();
             }
           }
         }),
@@ -308,7 +311,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         err => this._notifier.showError(err),
       );
       if (!this.existDefaultConnection) {
-        this.turnOffConnect();
+        this.selectFreeConnectionAsDefault();
       }
   }
 
@@ -331,7 +334,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
-  turnOffConnect(): void {
+  selectFreeConnectionAsDefault(): void {
     for (const broker of this.brokers) {
       for (const item of this.getConnectionsByBroker(broker)) {
         if (item.connected && !item.isDefault) {

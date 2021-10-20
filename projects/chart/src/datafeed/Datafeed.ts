@@ -131,7 +131,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
       }
       default:
-        throw new Error(`Unknown request kind: ${request.kind}`);
+        throw new Error(`Unknown request kind: ${ request.kind }`);
     }
     chart.updateComputedDataSeries();
 
@@ -139,7 +139,6 @@ export abstract class Datafeed implements IDatafeed {
     if (instrument) {
       barsCount = Math.round(chart.lastVisibleIndex - chart.firstVisibleIndex);
     }
-    console.log('barsCount', barsCount);
 
     // if !instrument then load bars for chart, not for compare
     if (!instrument) {
@@ -171,7 +170,6 @@ export abstract class Datafeed implements IDatafeed {
   send(request: IRequest) {
     this._requests.set(request.id, request);
 
-    console.log('request ', request);
     request.chart.showWaitingBar();
   }
 
@@ -182,7 +180,6 @@ export abstract class Datafeed implements IDatafeed {
    * @memberOf StockChartX.Datafeed#
    */
   cancel(request: IRequest) {
-    console.log('request end', request);
     this._requests.delete(request.id);
     this.onRequstCanceled(request as IBarsRequest);
   }
@@ -248,8 +245,11 @@ export abstract class Datafeed implements IDatafeed {
       volume: quote.volume,
       date: new Date(quote.date),
     };
-    this._processBar(bar);
-    chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
+    const action = this._processBar(bar);
+    if (action === BarAction.Add)
+      chart.applyAutoScroll(BarsUpdateKind.NEW_BAR);
+    else if (action === BarAction.Update)
+      chart.applyAutoScroll(BarsUpdateKind.TICK);
 
     this._updateLastBarDetails(quote, chart, instrument);
     chart.updateIndicators();
@@ -257,11 +257,12 @@ export abstract class Datafeed implements IDatafeed {
     chart.setNeedsUpdate();
   }
 
-  private _processBar(bar) {
+  private _processBar(bar): BarAction {
     if (isInTimeRange(bar.date, this._session?.workingTimes)) {
       const barResult = this.barHandler.processBar(bar);
       if (barResult.action === BarAction.Add) {
         this._historyItems.push(barResult.bar);
+        return BarAction.Add;
       } else if (barResult.action === BarAction.Update) {
         const lastBar = this._historyItems[this._historyItems.length - 1];
         const barData = barResult.bar;
@@ -274,9 +275,11 @@ export abstract class Datafeed implements IDatafeed {
         }
         lastBar.volume += barData.volume;
         this._historyItems[this._historyItems.length - 1] = lastBar;
+        return BarAction.Update;
       }
     } else {
       this._historyItems.push(bar);
+      return BarAction.None;
     }
   }
 

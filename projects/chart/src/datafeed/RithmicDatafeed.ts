@@ -7,8 +7,7 @@ import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
 
-const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
-const MAX_HISTORY_ITEMS = 10000;
+const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.DAY };
 declare let StockChartX: any;
 
 @Injectable()
@@ -148,7 +147,7 @@ export class RithmicDatafeed extends Datafeed {
       case StockChartXPeriodicity.TICK:
         return 'TICK';
       default:
-        return 'Second';
+        return 'TICK';
     }
   }
 

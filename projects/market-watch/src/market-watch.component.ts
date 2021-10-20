@@ -461,7 +461,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   private createNumber(cell, templateOptions = {}) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(NumberWrapperComponent);
-    const value = cell.item.value;
+    const value = cell.item._value;
 
     return {
       factory,
@@ -773,7 +773,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
-      columns: this.columns,
       contextMenuState: this.contextMenuState,
       accountId: this.accountId,
     };
@@ -884,7 +883,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.columns.forEach((item) => {
       const style = styles[item.name];
       if (style)
-        item.style = { ...defaultStyles, ...style, ...orderStyles };
+        item.style = { ...defaultStyles,  ...item.style, ...style, ...orderStyles };
       else {
         item.style = { ...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles };
       }

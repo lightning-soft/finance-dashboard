@@ -4,15 +4,14 @@ import { IBar } from 'chart';
 import { BaseRepository } from './base-repository';
 import { HistoryRepository } from 'trading';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { fromPromise } from 'rxjs/internal-compatibility';
 
 declare const moment: any;
 
 export interface IHistoryItem extends IBaseItem, IBar {
 }
 
-const requestOffset = 1000; // 1s
+const maxTickDateGap = 4 * 24 * 60 * 60 * 1000; // 4 days
+const requestGap = 3 * 24 * 60 * 60 * 1000; // 3 days
 
 @Injectable()
 export class RealHistoryRepository extends BaseRepository<IHistoryItem> implements HistoryRepository {
@@ -53,51 +52,17 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.Exchange = exchange || params.Exchange;
     }
 
+    if (params.Periodicity === 'TICK' && params.endDate - params.startDate > maxTickDateGap) {
+      const startDate = new Date(params.endDate - requestGap);
+      startDate.setHours(0, 0, 0);
+      params.startDate = startDate.getTime();
+    }
+
+
     // const { endDate } = params || {};
 
     // return of({ data: hist.map(i => this._mapResponseItem(i)), requestParams: params,  total: hist.length, pageCount: 1, page: 1 } as any);
 
-    if (params.Periodicity === 'TICK')
-      return fromPromise(this._getItems(params));
-
     return super.getItems(params);
-  }
-
-  private async _getItems(params: any): Promise<{ data: any }> {
-    try {
-      let { startDate, endDate } = params;
-      const data = [];
-      let isOver = false;
-      do {
-        await super.getItems({ ...params, startDate }).pipe(
-          tap((res) => {
-            const arr = res?.data || [];
-            if (!arr.length) {
-              isOver = true;
-              return;
-            }
-
-            const lastItem = arr[arr.length - 1];
-            const newStartDate = lastItem?.date.getTime();
-            if (newStartDate === startDate) {
-              isOver = true;
-              return;
-            }
-
-            for (const item of (arr || [])) {
-              if (item.date.getTime() > startDate) {
-                data.push(item);
-              }
-            }
-            startDate = newStartDate;
-          }),
-        ).toPromise();
-      }
-      while (!isOver && endDate > startDate);
-      return { data };
-    } catch (err) {
-      console.log(err);
-      return { data: [] };
-    }
   }
 }

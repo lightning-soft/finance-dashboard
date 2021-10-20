@@ -23,6 +23,8 @@ import {
   roundToTickSize,
   UpdateType
 } from 'trading';
+import { InstrumentFormatter } from 'data-grid';
+import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -53,11 +55,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   firstOcoOrder: IOrder;
   secondOcoOrder: IOrder;
 
+  private _formatter = InstrumentFormatter.forInstrument();
+
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
   }
 
   @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+  @ViewChild('priceNode') priceNode: NzInputNumberComponent;
+  @ViewChild('limitPriceNode') limitPriceNode: NzInputNumberComponent;
 
   private _instrument: IInstrument;
 
@@ -78,9 +84,17 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     this._instrument = value;
+    this._formatter = InstrumentFormatter.forInstrument(value);
 
-    if (this.price != null)
+    if (this.price != null) {
       this.price = roundToTickSize(this.price, this._instrument.tickSize);
+      this.priceNode?.updateDisplayValue(this.price);
+    }
+    if (this.limitPrice != null) {
+      this.limitPrice = roundToTickSize(this.limitPrice, this._instrument.tickSize);
+      this.limitPriceNode?.updateDisplayValue(this.limitPrice);
+    }
+
 
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
@@ -123,7 +137,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     { value: 100 },
   ];
 
-  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
+  readonly priceFormatter = (price: number) => this._formatter.format(Number(price));
 
   constructor(
     protected fb: FormBuilder,
@@ -151,11 +165,11 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
         if (quote.updateType === UpdateType.Undefined) {
           if (quote.side === QuoteSide.Ask) {
-            this.askPrice = quote.price.toFixed(this.precision);
+            this.askPrice = this._formatter.format(quote.price);
             this.askVolume = quote.volume;
           } else {
             this.bidVolume = quote.volume;
-            this.bidPrice = quote.price.toFixed(this.precision);
+            this.bidPrice = this._formatter.format(quote.price);
           }
 
           this._changeDetectorRef.detectChanges();

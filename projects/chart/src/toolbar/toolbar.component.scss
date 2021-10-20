@@ -277,7 +277,11 @@
       margin: 0 18%;
       background: #383A40;
     }
-
+    .ant-dropdown-menu-submenu-title:hover {
+      i[class*=icon-] {
+        color: #fff !important;
+      }
+    }
     .ant-dropdown-menu-submenu-active {
       background: $lighter;
       border-radius: 2px;

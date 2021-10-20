@@ -166,7 +166,7 @@ class OrdersCell extends HistogramCell {
   // }
 
   removeOrder(order) {
-    if (this.orders.map(item => item.id).includes(order.id)) {
+    if (this.orders.some(item => order.id === item.id)) {
       this.orders = this.orders.filter(item => item.id !== order.id);
       this.prepareOrder();
       this._changeText();
@@ -692,12 +692,12 @@ export class DomItem extends HoverableItem implements IBaseItem {
       this.currentBid.update(trade.volume, trade.timestamp, forceAdd);
       this.totalBid.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
     } else {
       this.currentAsk.update(trade.volume, trade.timestamp, forceAdd);
       this.totalAsk.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
     }
     this.volume.updateValue(trade.volume, new Date(trade.timestamp));
 

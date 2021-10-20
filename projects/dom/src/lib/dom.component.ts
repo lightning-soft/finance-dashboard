@@ -7,7 +7,9 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  ViewChild
+  QueryList,
+  ViewChild,
+  ViewChildren
 } from '@angular/core';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
@@ -25,6 +27,7 @@ import {
   DataGridHandler,
   ICellChangedEvent,
   IFormatter,
+  InstrumentFormatter,
   MouseDownDataGridHandler,
   MouseUpDataGridHandler,
 } from 'data-grid';
@@ -83,7 +86,7 @@ import { SettingTab } from './dom-settings/settings-fields';
 import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } from './dom.item';
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
-import { InstrumentFormatter } from 'data-grid';
+import { DailyInfoComponent } from './daily-info/daily-info.component';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
@@ -467,7 +470,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     new MouseDownDataGridHandler<DomItem>({
       column: OrderColumns,
       handler: (data) => {
-        const orders = data.item.orders.orders;
+        // it is because delta column doesn't contain orders
+        const orders = data.item[data.column.name].orders || data.item.askDelta.orders;
         if (orders.length) {
           this.draggingDomItemId = data.item.index;
           this.draggingOrders = orders;
@@ -508,6 +512,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   isTradingEnabled = true;
 
   @ViewChild(InstrumentSelectComponent) private _instrumentSelect: InstrumentSelectComponent;
+
+  @ViewChildren(DailyInfoComponent) dailyInfoComponents: QueryList<DailyInfoComponent>;
 
   private _instrument: IInstrument;
   _priceFormatter: IFormatter;
@@ -903,6 +909,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   handleOHLV(ohlv) {
     this.dailyInfo = { ...ohlv };
+    this.dailyInfoComponents.forEach(item => {
+      item.handleDailyInfo(this.dailyInfo as IHistoryItem);
+    });
   }
 
   handlePosition(pos) {
@@ -958,7 +967,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     for (const i of this.items) {
       const pl = ordersSettings.showPL ?
-        calculatePL(position, i.price._value, this._tickSize, contractSize, ordersSettings.includePnl) : null;
+        calculatePL(position, i.price._value, this._tickSize, contractSize, ordersSettings.includeRealizedPL) : null;
       i.setPL(pl);
     }
   }
@@ -2272,12 +2281,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let filter = (order) => true;
 
     switch (column) {
-      case DOMColumns.AskDelta:
+      case DOMColumns.BidDelta:
       case DOMColumns.BuyOrders:
         side = QuoteSide.Ask;
         filter = (order) => order.side === OrderSide.Buy;
         break;
-      case DOMColumns.BidDelta:
+      case DOMColumns.AskDelta:
       case DOMColumns.SellOrders:
         side = QuoteSide.Bid;
         filter = (order) => order.side === OrderSide.Sell;

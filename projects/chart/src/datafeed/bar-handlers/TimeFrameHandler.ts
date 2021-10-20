@@ -8,7 +8,7 @@ export class TimeFrameBarHandler extends ChartBarHandler {
     let nextBarStartTimestamp = (currentBarStartTimestamp as number) + (this.chart.timeInterval as number);
     const nextBarStartDate = new Date(nextBarStartTimestamp);
     if (bar.date.getTime() < currentBarStartTimestamp || bar.close === 0)
-      return BarAction.DoNothing;
+      return BarAction.None;
     if ((new Date(bar.date) >= nextBarStartDate)) {
       // If there were no historical data and timestamp is in range of current time frame
       if (bar.date < nextBarStartDate)

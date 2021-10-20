@@ -11,6 +11,10 @@
   }
 }
 
+cdk-virtual-scroll-viewport {
+  overflow-x: hidden;
+}
+
 .session-select {
   width: 40%;
 }

@@ -124,5 +124,5 @@ export abstract class ChartBarHandler implements IBarHandler {
 }
 
 export enum BarAction {
-  Add, Update, DoNothing
+  Add, Update, None
 }
