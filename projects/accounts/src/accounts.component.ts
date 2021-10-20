@@ -307,12 +307,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .subscribe(
         () => {
           this.selectedItem = { ...item, connected: false };
+          if (!this.existDefaultConnection) {
+            this.selectFreeConnectionAsDefault();
+          }
         },
         err => this._notifier.showError(err),
       );
-      if (!this.existDefaultConnection) {
-        this.selectFreeConnectionAsDefault();
-      }
   }
 
   makeDefault(item: IConnection, index = -1) {
