@@ -109,13 +109,18 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       }
     });
     shouldAddDays.forEach((value, index) => {
-      if (value && index !== 0 && index !== shouldAddDays.length - 1)
+      let workingTime;
+      if (value && index !== 0 && index !== shouldAddDays.length - 1) {
+        workingTime = this.item.workingTimes.find((item) => {
+          return item.endDay === index;
+        });
         this.item.workingTimes.push({
           startDay: index,
-          startTime: this.defaultUtcStartTime,
-          endDay: index,
-          endTime: this.defaultUtcEndTime,
+          startTime: workingTime?.startTime ?? this.defaultUtcStartTime,
+          endDay: workingTime?.endDay !== workingTime?.startDay ? index + 1 : index,
+          endTime: workingTime?.endTime ?? this.defaultUtcEndTime,
         });
+      }
     });
   }
 

@@ -396,9 +396,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'orderDuration': {
         return this.createSelect(cell, OrderDuration);
       }
-      case 'label': {
+      case 'label':
         return this.createLabel(cell);
-      }
       case 'orderSide':
         return this.createSelect(cell, OrderSide);
       case 'orderType':
@@ -406,15 +405,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'limitPrice':
         return this.createNumber(cell, {
           placeholder: 'Limit Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+          instrument: cell.row.instrument,
         });
       case 'stopPrice':
         return this.createNumber(cell, {
           placeholder: 'Stop Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+          instrument: cell.row.instrument,
         });
       case 'quantity':
-        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false, });
+        return this.createNumber(cell, { placeholder: 'Quantity',  shouldOpenSelect: false, });
       case 'accounts':
         const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
         return {
@@ -424,7 +423,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           }
         };
       case 'loading': {
-        const value = cell.item._value;
         cell.item.updateValue('');
         const spinFactory = this.componentFactoryResolver.resolveComponentFactory(NzSpinComponent);
         return { factory: spinFactory };

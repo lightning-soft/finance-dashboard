@@ -96,8 +96,8 @@ export class MarketWatchCreateOrderItem extends MarketWatchSubItem {
       quantity: this.quantity._value,
       symbol: this.instrument.symbol,
       exchange: this.instrument.exchange,
-      limitPrice: +this.price.value,
-      stopPrice: +this.triggerPrice.value,
+      limitPrice: this.price._value,
+      stopPrice: this.triggerPrice._value,
       accountId: this.accountId.value,
     } as IOrder;
   }

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { IInstrument } from 'trading';
+import { InstrumentFormatter, RoundFormatter } from "../../../data-grid";
 
 @Component({
   selector: 'number-wrapper',
@@ -11,10 +13,23 @@ export class NumberWrapperComponent {
 
   optionSize = 30;
   shouldOpenSelect = true;
-  step = 1;
   min = 0;
   placeholder = '';
-  precision = 2;
+
+  private _instrument: IInstrument;
+  private _formatter = new RoundFormatter(0);
+
+  set instrument(value: IInstrument) {
+    this._instrument = value;
+    if (value) {
+      this._formatter = InstrumentFormatter.forInstrument(value);
+    } else this.min = 1;
+  }
+
+  get instrument() {
+    return this._instrument;
+  }
+
   dropdownVisible = true;
 
   set value(value) {
@@ -25,19 +40,24 @@ export class NumberWrapperComponent {
     if (!this.shouldOpenSelect)
       return;
 
-    let from = +value + (this.optionSize * this.step);
-    const to = +value - (this.optionSize * this.step);
+    const step = this.instrument.tickSize ?? 1;
+
+    let from = +value + (this.optionSize * step);
+    const to = +value - (this.optionSize * step);
     this.options = [];
 
     while (from >= to) {
-      this.options.push(+from.toFixed(this.precision));
-      from -= this.step;
+      this.options.push({ label: this._formatter.format(from), value: from });
+      from -= this.instrument.tickSize;
     }
   }
 
   get value() {
     return this._value;
   }
+
+  formatter = (price) => this._formatter.format(price);
+
 
   openSelect() {
     if (this.shouldOpenSelect && this._value !== null)

@@ -1,5 +1,8 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
+import { InstrumentFormatter } from 'data-grid';
+
+const placeholder = '--';
 
 @Component({
   selector: 'info-component',
@@ -13,6 +16,8 @@ export class InfoComponent implements OnInit {
 
   @ViewChild('bid', { static: true })
   bid: ElementRef;
+
+  @Input() formatter = InstrumentFormatter.forInstrument();
 
   askInfo: any = {};
   bidInfo: any = {};
@@ -45,20 +50,17 @@ export class InfoComponent implements OnInit {
 
     requestAnimationFrame(() => {
       if (this.bidInfo !== true) {
-        this.bid.nativeElement.textContent = toString(this.bidInfo);
+        this.bid.nativeElement.textContent = this.formatInfo(this.bidInfo);
         this.bidInfo = true;
       }
       if (this.askInfo !== true) {
-        this.ask.nativeElement.textContent = toString(this.askInfo);
+        this.ask.nativeElement.textContent = this.formatInfo(this.askInfo);
         this.askInfo = true;
       }
       this._updateSetted = false;
     });
   }
-}
-
-const placeholder = '--';
-
-function toString(info) {
-  return `${info.price ?? placeholder} ${info.volume ?? placeholder}`;
+  private formatInfo(info) {
+    return `${ this.formatter.format(info.price) ?? placeholder } ${ info.volume ?? placeholder }`;
+  }
 }

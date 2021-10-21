@@ -13,7 +13,7 @@ export class SessionStats extends Indicator {
 
       lines[key] = {
         ...line,
-        strokeColor: line.strokeColor,
+        strokeColor: line.strokeTheme.strokeColor,
       };
     }
 
