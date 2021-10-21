@@ -260,10 +260,10 @@ export abstract class Datafeed implements IDatafeed {
   private _processBar(bar): BarAction {
     if (isInTimeRange(bar.date, this._session?.workingTimes)) {
       const barResult = this.barHandler.processBar(bar);
-      if (barResult.action === BarAction.Add) {
+      if (barResult?.action === BarAction.Add) {
         this._historyItems.push(barResult.bar);
         return BarAction.Add;
-      } else if (barResult.action === BarAction.Update) {
+      } else if (barResult?.action === BarAction.Update) {
         const lastBar = this._historyItems[this._historyItems.length - 1];
         const barData = barResult.bar;
         lastBar.close = barData.close;

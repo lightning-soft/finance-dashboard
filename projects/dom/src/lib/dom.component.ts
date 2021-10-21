@@ -871,8 +871,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const price = this._lastTradeItem.price._value ?? 0;
     const i = this.instrument;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const pl = calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl);
+    if (this.instrument.fraction == null)
+      return pl.toFixed(precision);
 
-    return calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl).toFixed(precision);
+    return this._priceFormatter.format(pl);
   }
 
   _setPriceForOrders(orders: IOrder[], price: number) {
@@ -1683,14 +1686,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._ttt = 0;
     }
 
+    const isBid = trade.side === QuoteSide.Bid;
+    const size = (isBid ? item.bid._value : item.ask._value) ?? 0;
+
     const items = this.items;
     if (!items.length)
       this.fillData(trade.price);
 
     item.handleQuote(trade);
-
-    const isBid = trade.side === QuoteSide.Bid;
-    const size = (isBid ? item.bid._value : item.ask._value) ?? 0;
 
     if ((isBid && item.isBidSum) || (!isBid && item.isAskSum)) {
       return;
@@ -1713,8 +1716,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         } else {
           this._bestBidPrice = price;
         }
-
-        this.bidSumItem.setBidSum(this.bidSumItem.bid._value - size + (item.bid._value ?? 0));
+        if (this.bidSumItem.lastPrice !== trade.price)
+          this.bidSumItem.setBidSum(this.bidSumItem.bid._value - size + (item.bid._value ?? 0));
       }
     } else {
       if (item.ask.visible) {
@@ -1728,8 +1731,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         } else {
           this._bestAskPrice = price;
         }
-
-        this.askSumItem.setAskSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
+        if (this.askSumItem.lastPrice !== trade.price)
+          this.askSumItem.setAskSum(this.askSumItem.ask._value - size + (item.ask._value ?? 0));
       }
     }
 
@@ -2392,7 +2395,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${this.instrument.symbol} - ${this.instrument.description}`;
+      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
     }
   }
 

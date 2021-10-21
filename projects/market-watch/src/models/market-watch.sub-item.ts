@@ -32,6 +32,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
   public get instrument(): IInstrument {
     return this._instrument;
   }
+
   public set instrument(value: IInstrument) {
     this._instrument = value;
     this.setFormatter(InstrumentFormatter.forInstrument(value));
@@ -72,7 +73,11 @@ export class MarketWatchSubItem implements IMarketWatchItem {
 
   setFormatter(formatter: IFormatter) {
     this.price.formatter = formatter;
+    if (this.price._value != null)
+      this.price.refresh();
     this.triggerPrice.formatter = formatter;
+    if (this.triggerPrice._value != null)
+      this.triggerPrice.refresh();
   }
 
   protected getPrefix() {

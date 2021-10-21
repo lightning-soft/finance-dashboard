@@ -58,7 +58,7 @@
     <nz-input-number
       [class.d-none]="!isStopLimit"
       class="limit-number-input"
-      nzMin="1"
+      [nzMin]="0"
       [nzStep]="instrument?.tickSize"
       #limitPriceNode
       [nzFormatter]="priceFormatter"

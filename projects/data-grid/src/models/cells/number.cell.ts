@@ -137,7 +137,8 @@ export class NumberCell extends Cell {
   }
 
   refresh() {
-    this._setValue(this._value);
+    if (this._value != null)
+      this._setValue(this._value);
   }
 
   clear() {

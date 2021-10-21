@@ -96,7 +96,7 @@ export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 @BindUnsubscribe()
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
-  private _formatter = InstrumentFormatter.forInstrument();
+  formatter = InstrumentFormatter.forInstrument();
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
@@ -332,7 +332,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument?.id === instrument.id)
       return;
 
-    this._formatter = InstrumentFormatter.forInstrument(instrument);
+    this.formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
     this.chart.incomePrecision = instrument.precision ?? 2;
@@ -463,7 +463,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       high: this.lastHistoryItem?.high,
       low: this.lastHistoryItem?.low,
       open: this.lastHistoryItem?.open,
-      income: this._formatter.format(this.income),
+      income: this.formatter.format(this.income),
       incomePercentage: this.incomePercentage,
     });
   }
@@ -626,6 +626,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
+        this._handleSettingsChange(this.settings);
       });
 
     this._loadedChart$.next(chart);

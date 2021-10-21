@@ -1,15 +1,6 @@
 import { IViewItem } from 'base-components';
 import { Id } from 'communication';
-import {
-  Cell,
-  CellStatus,
-  CheckboxCell,
-  DataCell,
-  DateCell,
-  HoverableItem,
-  IconCell,
-  NumberCell,
-} from 'data-grid';
+import { Cell, CellStatus, CheckboxCell, DataCell, DateCell, HoverableItem, IconCell, NumberCell, } from 'data-grid';
 import { TextAlign } from 'dynamic-form';
 import { IOrder, OrderSide, OrderStatus } from 'trading';
 import { PriceStatus } from 'trading-ui';
@@ -43,7 +34,7 @@ export enum OrderColumn {
 export const OrderColumnsArray = Object.values(OrderColumn);
 
 export const heldPrefixStatus = 'held';
-export const StopSelectedStatus = `selected${heldPrefixStatus}`;
+export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
@@ -96,12 +87,22 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     this.setInstrument();
   }
 
-  setInstrument() {
-    this._priceFormatter = InstrumentFormatter.forInstrument(this.order.instrument);
+  setInstrument(instrument = this.order?.instrument) {
+    if (this.order)
+      this.order.instrument = instrument;
+    this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
+
     this.price.formatter = this._priceFormatter;
+    this.price.refresh();
+
     this.triggerPrice.formatter = this._priceFormatter;
+    this.triggerPrice.refresh();
+
     this.currentPrice.formatter = this._priceFormatter;
+    this.currentPrice.refresh();
+
     this.averageFillPrice.formatter = this._priceFormatter;
+    this.averageFillPrice.refresh();
   }
 
   update(order: IOrder) {

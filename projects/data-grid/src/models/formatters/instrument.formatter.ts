@@ -23,9 +23,11 @@ export class InstrumentFormatter extends RoundFormatter {
   }
 
   format(value: number): string {
-    const val = Math.floor(value);
-    const decimals = value - val;
+    const _value = Math.abs(value);
+    const val = Math.floor(_value);
+    const decimals = _value - val;
+    const prefix = value < 0 ? '-' : '';
 
-    return super.format(val + (decimals * this._multiplier)).replace('.', '\'');
+    return prefix + super.format(val + decimals * this._multiplier).replace('.', '\'');
   }
 }
