@@ -464,7 +464,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   }
 
   private _currentCellChanged = (event: ICellChangedEvent<T>) => {
-    this.title = this.showColumnTitleOnHover(event.column) ? (event?.item?.toString() ?? '') : null;
+    // this.title = this.showColumnTitleOnHover(event.column) ? (event?.item?.toString() ?? '') : null;
     this.currentCellChanged.emit(event);
   }
 
