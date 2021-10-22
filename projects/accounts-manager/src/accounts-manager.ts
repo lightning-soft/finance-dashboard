@@ -95,15 +95,19 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   private _fetchAccounts(connection: IConnection) {
-    this._getAccountsByConnections(connection).then(accounts => {
-      this._accounts = this._accounts.concat(accounts);
+    this._getAccountsByConnections(connection)
+      .then(accounts => {
+        this._accounts = this._accounts.concat(accounts);
 
-      for (const account of accounts) {
-        this._accountsConnection.set(account.id, connection);
-      }
+        for (const account of accounts) {
+          this._accountsConnection.set(account.id, connection);
+        }
 
-      accountsListeners.notifyAccountsConnected(accounts, this._accounts);
-    });
+        accountsListeners.notifyAccountsConnected(accounts, this._accounts);
+      })
+      .catch(() => {
+        this.disconnect(connection);
+      });
   }
 
   private async _fetchConnections(): Promise<void> {
@@ -224,9 +228,9 @@ export class AccountsManager implements ConnectionContainer {
         tap(() => this._onDisconnected(connection)),
         tap(() => this.onUpdated(connection))
       ).subscribe(
-      () => console.log('Successfully deactivate'),
-      (err) => console.error('Deactivate error ', err),
-    );
+        () => console.log('Successfully deactivate'),
+        (err) => console.error('Deactivate error ', err),
+      );
   }
 
   createConnection(connection: IConnection): Observable<IConnection> {

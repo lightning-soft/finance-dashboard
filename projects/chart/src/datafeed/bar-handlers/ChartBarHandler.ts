@@ -35,6 +35,8 @@ export abstract class ChartBarHandler implements IBarHandler {
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
       return { bar, action: BarAction.Update };
+    } else {
+      return { bar, action: BarAction.None };
     }
   }
 
@@ -92,14 +94,11 @@ export abstract class ChartBarHandler implements IBarHandler {
 
   addBar(bar: IBar) {
     this.chart.dataManager.appendBars(bar);
-
-    this.chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
   }
 
   updateLastBar(bar: IBar): IBar {
     const lastBar = this._mapLastBar(bar);
     this.chart.dataManager.updateLastBar(lastBar);
-    this.chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
     return lastBar;
   }
 

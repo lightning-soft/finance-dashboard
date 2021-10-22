@@ -140,7 +140,7 @@ export abstract class Datafeed implements IDatafeed {
     }
 
     // if !instrument then load bars for chart, not for compare
-    if (!instrument) {
+    if (instrument) {
       if (request.kind === RequestKind.BARS) {
         chart.recordRange(barsCount > 0 && barsCount < 100 ? barsCount : 100);
       } else if (request.kind === RequestKind.MORE_BARS) {
