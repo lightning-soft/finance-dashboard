@@ -252,7 +252,7 @@ export class WindowPopupManager {
       featuresArray.push(`${ key }=${ value }`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    const popup = window.open(window.location.origin + '?' + queryParams.toString(), '', featuresArray.join(', '));
+    const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
     this.windows.push(popup);
     return popup;
   }

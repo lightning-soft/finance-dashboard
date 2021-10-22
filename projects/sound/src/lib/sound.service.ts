@@ -1,4 +1,5 @@
 import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 export enum Sound {
   CONNECTED = 'connected',
@@ -18,12 +19,25 @@ export const SettingsStore = new InjectionToken('SettingsStore');
 @Injectable()
 export class SoundService {
   private readonly _store = new Map();
+  private _pendingSounds = [];
 
   constructor(
     @Inject(SettingsStore) private readonly _settingsStore: any,
-  ) { }
+  ) {
+    const sub: Subscription = _settingsStore.isSettingsLoaded$
+      .subscribe(() => {
+        this._pendingSounds.forEach((item) => {
+          this.play(item);
+        });
+        this._pendingSounds = [];
+      }, () => {}, () => sub.unsubscribe());
+  }
 
   play(name: Sound): void {
+    if (!this._settingsStore.isSettingsLoaded) {
+      this._createPengingTask(name);
+      return;
+    }
     const setting = this._settingsStore.settings.value.sound;
     const value = setting[name];
 
@@ -34,6 +48,10 @@ export class SoundService {
     const volume = value.volume / 100 ?? 1;
 
     this.playByName(value.selectedSound, volume);
+  }
+
+  _createPengingTask(name: Sound) {
+    this._pendingSounds.push(name);
   }
 
   playByName(name: string, volume: number): void {

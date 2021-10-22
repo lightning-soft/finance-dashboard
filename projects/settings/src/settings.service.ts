@@ -7,7 +7,7 @@ import { SettingsStore } from './setting-store';
 import { HotkeyEntire, ICommand, SettingsData } from './types';
 import { Workspace } from 'workspace-manager';
 import { ITimezone } from 'timezones-clock';
-import { catchError, debounceTime, tap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, shareReplay, tap } from 'rxjs/operators';
 import { SaveLoaderService } from 'ui';
 import { IBaseTemplate } from 'templates';
 import { ISound } from 'sound';
@@ -130,6 +130,13 @@ export class SettingsService {
   private _unsubscribeFunctions = [];
 
   settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
+
+  private _isSettingsLoaded$ = new Subject<boolean>();
+  isSettingsLoaded$ = this._isSettingsLoaded$.pipe(
+    filter((item) => item),
+    shareReplay(1));
+  isSettingsLoaded = false;
+
   private $updateState = new Subject<void>();
 
   private get _settings() {
@@ -161,7 +168,14 @@ export class SettingsService {
         catchError(() => {
           return of(defaultSettings);
         }),
-        tap((s: any) => s && this._updateState(s, false)),
+        tap((s: any) => {
+          if (s) {
+            this._updateState(s, false);
+            this.isSettingsLoaded = true;
+            this._isSettingsLoaded$.next(true);
+            this._isSettingsLoaded$.complete();
+          }
+        }),
       );
   }
 
