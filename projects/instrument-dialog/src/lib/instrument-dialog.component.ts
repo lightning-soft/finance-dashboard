@@ -113,7 +113,14 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
   }
 
   selectInstrument(item: any) {
-    this._modal.close(item);
+    if (item.tickSize === 0 && item.precision === 0) {
+      this._repository.getItemById(item.id, { accountId: this.accountId, connectionId: this.connectionId })
+        .pipe(untilDestroyed(this))
+        .subscribe((instrument) => {
+          this._modal.close(instrument);
+        });
+    } else
+      this._modal.close(item);
   }
 
   onScroll(e) {

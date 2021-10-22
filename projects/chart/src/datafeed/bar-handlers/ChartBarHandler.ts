@@ -9,6 +9,7 @@ export enum CalculationBarType {
 export abstract class ChartBarHandler implements IBarHandler {
   protected chart: IChart;
   protected calculatePrependedBar: CalculationBarType;
+  breakOnNewDay = true;
 
   constructor(chart: IChart) {
     this.chart = chart;
@@ -51,6 +52,14 @@ export abstract class ChartBarHandler implements IBarHandler {
     resultBars.push(lastBar);
     for (let i = arrayStarter; i < bars.length; i++) {
       const bar = bars[i];
+      const addNewBarFlag = this.breakOnNewDay && lastBar.date.getDate() !== bar.date.getDate();
+
+      if (addNewBarFlag) {
+        resultBars.push(bar);
+        lastBar = bar;
+        continue;
+      }
+
       const action: BarAction = this._processRealtimeBar(bar, lastBar);
       if (action === BarAction.Add) {
         resultBars.push(bar);

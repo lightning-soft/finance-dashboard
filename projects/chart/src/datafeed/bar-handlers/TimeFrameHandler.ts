@@ -2,6 +2,7 @@ import { IBar } from 'chart';
 import { BarAction, ChartBarHandler } from './ChartBarHandler';
 
 export class TimeFrameBarHandler extends ChartBarHandler {
+  breakOnNewDay = false;
 
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     const currentBarStartTimestamp = lastBar.date.getTime();

@@ -133,7 +133,6 @@ export abstract class Datafeed implements IDatafeed {
       default:
         throw new Error(`Unknown request kind: ${ request.kind }`);
     }
-    chart.updateComputedDataSeries();
 
     let barsCount = chart.primaryBarDataSeries().low.length - oldPrimaryBarsCount;
     if (instrument) {
@@ -156,6 +155,7 @@ export abstract class Datafeed implements IDatafeed {
     chart.updateIndicators();
     chart.setNeedsAutoScale();
     chart.setNeedsUpdate(true);
+    chart.updateComputedDataSeries();
     chart.dateScale.onMoreHistoryRequestCompleted();
   }
 
