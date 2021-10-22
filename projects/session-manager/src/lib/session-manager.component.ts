@@ -102,22 +102,26 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
         }
       } else {
         shouldAddDays.map((value, index) => {
-          if (item.startDay >= index || item.endDay <= index)
+          if (item.startDay >= index || item.endDay < index)
             return false;
           return value;
         });
       }
     });
+    const length = shouldAddDays.length - 1;
     shouldAddDays.forEach((value, index) => {
       let workingTime;
-      if (value && index !== 0 && index !== shouldAddDays.length - 1) {
+      if (value && index !== 0 && index < length) {
         workingTime = this.item.workingTimes.find((item) => {
           return item.endDay === index;
         });
+        const endDay = workingTime?.endDay !== workingTime?.startDay ? index + 1 : index;
+        if (endDay === length)
+          return;
         this.item.workingTimes.push({
           startDay: index,
           startTime: workingTime?.startTime ?? this.defaultUtcStartTime,
-          endDay: workingTime?.endDay !== workingTime?.startDay ? index + 1 : index,
+          endDay,
           endTime: workingTime?.endTime ?? this.defaultUtcEndTime,
         });
       }
