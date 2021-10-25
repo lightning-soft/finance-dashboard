@@ -507,7 +507,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   dataGridElement: ElementRef;
 
   isFormOpen = true;
-  bracketActive = true;
+
+  get bracketActive() {
+    return this._settings.orderArea.settings.formSettings.showBracket === true;
+  }
+
+  set bracketActive(value: boolean) {
+    this._settings.orderArea.settings.formSettings.showBracket = value;
+    this._linkSettings(this._settings);
+  }
+
   isExtended = true;
   isTradingEnabled = true;
 
@@ -2395,7 +2404,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 

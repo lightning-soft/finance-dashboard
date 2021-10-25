@@ -135,7 +135,6 @@ export class SideOrderFormComponent extends BaseOrderForm {
   @ViewChild('quantity')
   public quantitySelect: QuantityInputComponent;
   @Input() trade;
-  @Input() showUnits = true;
   @Input() isFormOnTop = false;
   @Input() isExtended = false;
   @Input() tickSize: number;
