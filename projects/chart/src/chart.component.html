@@ -26,7 +26,7 @@
     <div class="chart" #chartContainer></div>
   </div>
 
-  <side-form #domForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId" [position]="position"
+  <side-form #chartForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId" [position]="position"
              [ocoStep]="ocoStep" [orders]="orders" (actions)="handleFormAction($event)" [instrument]="instrument">
     <div class="form-header" headerContent>
       <info-component
