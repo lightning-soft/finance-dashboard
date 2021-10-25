@@ -14,7 +14,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
 import { Layout } from 'layout';
 import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
@@ -216,13 +216,18 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
               private _modalService: NzModalService,
               private _overlay: Overlay,
               protected _repository: VolumeProfileTemplatesRepository) {
-      super();
-      this.autoLoadData = {
-        onInit: true,
-        onParamsChange: false,
-        onQueryParamsChange: false,
-        onConnectionChange: false,
-      };
+    super();
+    this._repository.updateAll$
+      .pipe(untilDestroyed(this))
+      .subscribe((items) => {
+        this.builder.replaceItems(items);
+      });
+    this.autoLoadData = {
+      onInit: true,
+      onParamsChange: false,
+      onQueryParamsChange: false,
+      onConnectionChange: false,
+    };
 
   }
 
