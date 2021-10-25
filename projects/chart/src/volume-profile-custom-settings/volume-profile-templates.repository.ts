@@ -1,9 +1,11 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { FakeRepository } from 'communication';
-import { from, Observable, of, Subscription } from 'rxjs';
+import { from, Observable, of, Subject, Subscription } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { SettingsService } from 'settings';
 import { KeyBinding } from 'keyboard';
+import { WindowPopupManager } from 'layout';
+import { WindowMessengerService } from 'window-messenger';
 
 export interface IVolumeTemplate {
   id: string;
@@ -621,16 +623,32 @@ const DefaultTemplates = [
   }
 ];
 
+const saveTemplatesCommand = 'saveTemplatesCommand';
+const applyTemplatesCommand = 'applyTemplatesCommand';
+
 @Injectable({ providedIn: 'root' })
 export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemplate> implements OnDestroy {
   private _subscriptions: Subscription;
   private _inited;
+  updateAll$ = new Subject<IVolumeTemplate[]>();
 
   _request: Promise<any>;
 
-  constructor(private _settingsService: SettingsService) {
+  constructor(
+    private _settingsService: SettingsService,
+    private _windowPopupManager: WindowPopupManager,
+    private _windowMessengerService: WindowMessengerService,
+  ) {
     super();
+    this._sendCommand();
     this._subscriptions = this.actions.subscribe(() => this._save());
+    this._windowMessengerService.subscribe(applyTemplatesCommand, (data) => {
+      this._store = {};
+      data.forEach((item) => {
+        this._store[item.id] = item;
+      });
+      this.updateAll$.next(data);
+    });
   }
 
   async validateHotkeyTemplate(template) {
@@ -665,8 +683,18 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
           });
       });
     });
-
     return this._request;
+  }
+
+  private _sendCommand() {
+    this._windowMessengerService.subscribe(saveTemplatesCommand, (data) => {
+      this._store = {};
+      data.forEach((item) => {
+        this._store[item.id] = item;
+      });
+      this._save();
+      this.updateAll$.next(data);
+    });
   }
 
   private _getTemplates(): Observable<IVolumeTemplate[]> {
@@ -689,7 +717,12 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
     this._getTemplates()
       .subscribe(
         items => {
-          this._settingsService.set(STORE_KEY, items)
+          if (this._windowPopupManager.isWindowPopup()) {
+            this._windowMessengerService.send(saveTemplatesCommand, items);
+          } else {
+            this._settingsService.set(STORE_KEY, items);
+            this._windowPopupManager.sendCommandToSubwindows(applyTemplatesCommand, items);
+          }
         },
         err => console.error('Templates saved error', err)
       );
