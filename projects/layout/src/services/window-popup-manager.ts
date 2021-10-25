@@ -138,6 +138,13 @@ export class WindowPopupManager {
     };
   }
 
+  sendCommandToSubwindows(type, payload) {
+    this.windows.forEach(item => item.postMessage(JSON.stringify({
+      type,
+      payload,
+    })));
+  }
+
   onWindowOpened(workspace: Workspace, workspaceWindow: WorkspaceWindow, bounds: { height?: number; width?: number }) {
     this._state[hash(workspaceWindow.id, workspace.id)] = {
       bounds,

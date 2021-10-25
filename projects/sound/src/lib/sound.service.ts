@@ -30,7 +30,7 @@ export class SoundService {
           this.play(item);
         });
         this._pendingSounds = [];
-      }, () => {}, () => sub.unsubscribe());
+      }, () => {}, () => sub?.unsubscribe());
   }
 
   play(name: Sound): void {
