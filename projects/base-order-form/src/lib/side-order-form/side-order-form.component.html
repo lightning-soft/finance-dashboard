@@ -79,7 +79,7 @@
       ></nz-option>
     </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-    <div [class.d-none]="!showUnits || !setting.formSettings.showBracket" class="ticks">
+    <div [class.d-none]="!setting.formSettings.showBracket" class="ticks">
       <sl-units formControlName="stopLoss"></sl-units>
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
