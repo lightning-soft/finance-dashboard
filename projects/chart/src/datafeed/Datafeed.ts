@@ -113,10 +113,15 @@ export abstract class Datafeed implements IDatafeed {
         this._historyItems = bars;
         this.barHandler.clear();
         const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
-        request.chart.dataManager.appendBars(this.barHandler.processBars(filteredBars));
+        const processBars = this.barHandler.processBars(filteredBars);
+        request.chart.dataManager.appendBars(processBars);
+        const endTime = processBars[processBars.length - 1]?.date?.getTime() ?? 0;
         if (Array.isArray(this._quotes)) {
           for (const quote of this._quotes) {
-            this.processQuote(request, quote);
+            if ((quote?.date?.getTime() ?? 0) > endTime)
+              this.processQuote(request, quote);
+            else
+              console.warn('Dev check datafeed quote time less then history', quote.date, endTime);
           }
         }
         this._quotes = [];
@@ -131,7 +136,7 @@ export abstract class Datafeed implements IDatafeed {
         break;
       }
       default:
-        throw new Error(`Unknown request kind: ${ request.kind }`);
+        throw new Error(`Unknown request kind: ${request.kind}`);
     }
 
     let barsCount = chart.primaryBarDataSeries().low.length - oldPrimaryBarsCount;

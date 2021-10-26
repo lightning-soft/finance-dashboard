@@ -129,7 +129,7 @@ export class RithmicDatafeed extends Datafeed {
       case StockChartXPeriodicity.YEAR:
         return 'Yearly';
       case StockChartXPeriodicity.MONTH:
-        return 'Mounthly';
+        return 'Monthly';
       case StockChartXPeriodicity.WEEK:
         return 'Weekly';
       case StockChartXPeriodicity.DAY:

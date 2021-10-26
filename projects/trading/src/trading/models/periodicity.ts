@@ -3,6 +3,6 @@ export enum Periodicity {
   Hourly = 'Hourly',
   Daily = 'Daily',
   Weekly = 'Weekly',
-  Mounthly = 'Mounthly',
+  Monthly = 'Monthly',
   Yearly = 'Yearly',
 }
