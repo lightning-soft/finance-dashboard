@@ -1,6 +1,5 @@
-import { IBarHandler } from './BarHandler';
-import { IBar, IChart } from '../../models/chart';
-import { BarsUpdateKind } from '../models';
+import {IBarHandler} from './BarHandler';
+import {IBar, IChart} from '../../models/chart';
 
 export enum CalculationBarType {
   Bar, Last, Mapped
@@ -8,7 +7,7 @@ export enum CalculationBarType {
 
 export abstract class ChartBarHandler implements IBarHandler {
   protected chart: IChart;
-  protected calculatePrependedBar: CalculationBarType;
+  protected _shouldUpdateLastDate = false;
   breakOnNewDay = true;
 
   constructor(chart: IChart) {
@@ -44,6 +43,7 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!bars?.length)
       return [];
 
+    console.time('bars');
     const resultBars = [];
 
     let arrayStarter = 0;
@@ -71,6 +71,7 @@ export abstract class ChartBarHandler implements IBarHandler {
         resultBars[resultBars.length - 1] = lastBar;
       }
     }
+    console.timeEnd('bars');
     return resultBars;
   }
 
@@ -117,9 +118,9 @@ export abstract class ChartBarHandler implements IBarHandler {
         lastBar.ticksCount = 1;
       lastBar.ticksCount++;
     }
-
-    // TODO investigate should date be updated
-    //  lastBar.date = bar.date;
+    if (this._shouldUpdateLastDate){
+      lastBar.date = bar.date;
+    }
 
     return lastBar;
   }

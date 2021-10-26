@@ -1,8 +1,7 @@
-import { BarAction, CalculationBarType, ChartBarHandler } from './ChartBarHandler';
-import { IBar } from 'chart';
+import {BarAction, ChartBarHandler} from './ChartBarHandler';
+import {IBar} from 'chart';
 
 export class TickHandler extends ChartBarHandler {
-  calculatePrependedBar = CalculationBarType.Last;
 
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     return this._calculateBarAction(lastBar);

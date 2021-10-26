@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
-import { IBaseItem } from 'communication';
-import { IBar } from 'chart';
-import { BaseRepository } from './base-repository';
-import { HistoryRepository } from 'trading';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {IBaseItem} from 'communication';
+import {IBar} from 'chart';
+import {BaseRepository} from './base-repository';
+import {HistoryRepository} from 'trading';
+import {Observable} from 'rxjs';
+import {HttpParams} from "@angular/common/http";
+import {map} from "rxjs/operators";
 
 declare const moment: any;
 
@@ -33,6 +35,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
   }
 
   getItems(params: any): Observable<any> {
+    const Symbol = params.Symbol;
     if (!params.endDate)
       params.endDate = new Date();
 
@@ -51,7 +54,18 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.id = symbol;
       params.Exchange = exchange || params.Exchange;
     }
-
+    if (params.Periodicity === 'REVS') {
+      const { headers, ...allParams } = this._mapItemsParams(params);
+      allParams.RevInterval = allParams.BarSize;
+      allParams.BarSize = 1;
+      allParams.Periodicity = 'TICK';
+      return this._http.get(this._communicationConfig.rithmic.http.url + 'RevBars/' + Symbol, {
+        params: new HttpParams({ fromObject: allParams }),
+        headers
+      }).pipe(
+        map(item => this._mapItemsResponse(item, params)),
+      );
+    }
     if (params.Periodicity === 'TICK' && params.endDate - params.startDate > maxTickDateGap) {
       const startDate = new Date(params.endDate - requestGap);
       startDate.setHours(0, 0, 0);

@@ -1,22 +1,23 @@
-import { IBar } from 'chart';
-import { BarAction, CalculationBarType, ChartBarHandler } from './ChartBarHandler';
+import {IBar} from 'chart';
+import {BarAction, ChartBarHandler} from './ChartBarHandler';
 
 export class RenkoBarHandler extends ChartBarHandler {
-  calculatePrependedBar = CalculationBarType.Bar;
-
-  protected _calculateBarAction(bar) {
-    const prependedBar = this._mapPrependedBar(bar);
-    return this.__calculateBarAction(bar, prependedBar);
-  }
 
   private __calculateBarAction(bar, lastBar) {
     const offset = (this.chart.timeFrame.interval * this.chart.instrument.tickSize);
-    return (bar.close >= (lastBar.open + offset)) ||
-    (bar.close <= (lastBar.open - offset)) ? BarAction.Add : BarAction.Update;
+    const isUp = lastBar.close > lastBar.open;
+    if (isUp) {
+      return lastBar.close - lastBar.open >= offset || lastBar.open - lastBar.close >= 2 * offset ? BarAction.Add : BarAction.Update;
+    }
+    return lastBar.close - lastBar.open >= 2 * offset || lastBar.open - lastBar.close >= offset ? BarAction.Add : BarAction.Update;
   }
 
   protected _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()): BarAction {
     return this.__calculateBarAction(bar, lastBar);
+  }
+
+  clear() {
+    super.clear();
   }
 }
 
