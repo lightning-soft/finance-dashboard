@@ -1,5 +1,5 @@
-import {BarAction, ChartBarHandler} from './ChartBarHandler';
-import {IBar} from 'chart';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
+import { IBar } from 'chart';
 
 export class RevsBarHandler extends ChartBarHandler {
   isUp = true;
@@ -9,7 +9,7 @@ export class RevsBarHandler extends ChartBarHandler {
   }
 
 
-  protected _calculateBarAction(bar, lastBar) {
+  protected _calculateBarAction(bar: IBar, lastBar: IBar) {
     if (lastBar.date.getDate() !== bar.date.getDate())
       return BarAction.Add;
 

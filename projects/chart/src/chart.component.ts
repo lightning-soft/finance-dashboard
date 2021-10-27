@@ -193,7 +193,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     {
       active: false,
       period: 'Days',
-      periodicities: [StockChartXPeriodicity.DAY, StockChartXPeriodicity.WEEK, StockChartXPeriodicity.YEAR],
+      periodicities: [StockChartXPeriodicity.DAY, StockChartXPeriodicity.MONTH, StockChartXPeriodicity.WEEK, StockChartXPeriodicity.YEAR],
       timeFrames: [
         {
           interval: 1, periodicity: StockChartXPeriodicity.DAY,

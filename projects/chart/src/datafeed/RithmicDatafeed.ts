@@ -1,11 +1,11 @@
-import {Injectable, Injector} from '@angular/core';
-import {concat, Observable, Subject, Subscription, throwError} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
-import {HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint} from 'trading';
-import {IBar} from '../models';
-import {Datafeed} from './Datafeed';
-import {IBarsRequest, IQuote as ChartQuote, IRequest} from './models';
-import {ITimeFrame, StockChartXPeriodicity, TimeFrame} from './TimeFrame';
+import { Injectable, Injector } from '@angular/core';
+import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
+import { IBar } from '../models';
+import { Datafeed } from './Datafeed';
+import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
+import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.DAY };
 declare let StockChartX: any;

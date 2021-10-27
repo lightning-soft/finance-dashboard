@@ -1,25 +1,16 @@
-import {IBar} from 'chart';
-import {BarAction, ChartBarHandler} from './ChartBarHandler';
+import { IBar } from 'chart';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
 
 export class RenkoBarHandler extends ChartBarHandler {
-
-  private __calculateBarAction(bar, lastBar) {
-    const offset = (this.chart.timeFrame.interval * this.chart.instrument.tickSize);
-    if (bar.close >= (lastBar.open + offset)) {
-
-    } else if (bar.close <= (lastBar.open - offset)) {
-
-    }
-  }
 
   processBars(bars: IBar[]) {
     if (!bars?.length)
       return [];
 
     const resultBars = [];
-    let lastBar;
+    let lastBar: IBar;
     const offset = (this.chart.timeFrame.interval * this.chart.instrument.tickSize);
-    console.time('bars');
+    // console.time('bars');
 
     let arrayStarter = 0;
     if (!lastBar) {
@@ -59,7 +50,7 @@ export class RenkoBarHandler extends ChartBarHandler {
         let newClose = lastBar.low - offset;
 
         lastBar.date = bar.date;
-       //lastBar.volume = 0;
+        //lastBar.volume = 0;
 
         do {
           newClose = newBarOpen - offset;
@@ -82,16 +73,14 @@ export class RenkoBarHandler extends ChartBarHandler {
         lastBar.date = bar.date;
       }
     }
-    console.timeEnd('bars');
+    ///  console.timeEnd('bars');
     return resultBars;
   }
 
-  // @ts-ignore
-  processBar(bar: IBar): { action: BarAction; bar } {
-  }
 
-  protected _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
-    return BarAction.Add;
+  processBar(bar: IBar): { action: BarAction; bar: IBar } {
+    // TODO Investigate how should it work in realtime
+    return { action: BarAction.Add, bar };
   }
 
   clear() {

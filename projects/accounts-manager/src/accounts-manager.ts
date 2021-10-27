@@ -144,7 +144,9 @@ export class AccountsManager implements ConnectionContainer {
 
   private _initWS(connection: IConnection) {
     const webSocketService = this._webSocketService.get(connection);
-    const subscription = webSocketService.reconnection$.pipe(switchMap((conn) => this.reconnect(conn)))
+    const subscription = webSocketService.reconnection$.pipe(
+      // switchMap((conn) => this.reconnect(conn))
+    )
       .subscribe(
         (conn) => {
           this._notificationService.showSuccess('Reconnected');

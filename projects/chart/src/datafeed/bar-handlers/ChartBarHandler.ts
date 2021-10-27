@@ -1,5 +1,5 @@
-import {IBarHandler} from './BarHandler';
-import {IBar, IChart} from '../../models/chart';
+import { IBarHandler } from './BarHandler';
+import { IBar, IChart } from '../../models/chart';
 
 export enum CalculationBarType {
   Bar, Last, Mapped
@@ -24,18 +24,18 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!lastBar) {
       this.chart.appendBars(bar);
 
-      return { bar, action: BarAction.Add };
+      return {bar, action: BarAction.Add};
     }
 
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
       this.addBar(bar);
-      return { bar, action: BarAction.Add };
+      return {bar, action: BarAction.Add};
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
-      return { bar, action: BarAction.Update };
+      return {bar, action: BarAction.Update};
     } else {
-      return { bar, action: BarAction.None };
+      return {bar, action: BarAction.None};
     }
   }
 
@@ -43,7 +43,7 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!bars?.length)
       return [];
 
-    console.time('bars');
+    // console.time('bars');
     const resultBars = [];
 
     let arrayStarter = 0;
@@ -71,7 +71,7 @@ export abstract class ChartBarHandler implements IBarHandler {
         resultBars[resultBars.length - 1] = lastBar;
       }
     }
-    console.timeEnd('bars');
+    // console.timeEnd('bars');
     return resultBars;
   }
 
@@ -84,7 +84,9 @@ export abstract class ChartBarHandler implements IBarHandler {
   }
 
 
-  protected abstract _processRealtimeBar(bar: IBar, lastBar?: IBar): BarAction;
+  protected  _processRealtimeBar(bar: IBar, lastBar?: IBar) {
+    return BarAction.Add;
+  }
 
   clear() {
   }
@@ -118,7 +120,7 @@ export abstract class ChartBarHandler implements IBarHandler {
         lastBar.ticksCount = 1;
       lastBar.ticksCount++;
     }
-    if (this._shouldUpdateLastDate){
+    if (this._shouldUpdateLastDate) {
       lastBar.date = bar.date;
     }
 
@@ -126,7 +128,7 @@ export abstract class ChartBarHandler implements IBarHandler {
   }
 
   protected _mapPrependedBar(bar: IBar) {
-    const mappedBar = { ...bar };
+    const mappedBar = {...bar};
 
     return mappedBar;
   }

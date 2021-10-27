@@ -1,8 +1,8 @@
-import {BarAction, ChartBarHandler} from './ChartBarHandler';
-import {IBar} from 'chart';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
+import { IBar } from 'chart';
 
 export class TickHandler extends ChartBarHandler {
-  processBars(bars: IBar[]) {
+  processBars(bars: IBar[]): IBar[] {
     return bars;
   }
 

@@ -15,3 +15,4 @@ export * from './timezone';
 export * from './session';
 export * from './connection.container';
 export * from './account-info';
+export * from './custom-periodicity.enum';
