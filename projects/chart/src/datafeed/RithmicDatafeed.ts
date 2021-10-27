@@ -130,7 +130,7 @@ export class RithmicDatafeed extends Datafeed {
       case StockChartXPeriodicity.YEAR:
         return 'Yearly';
       case StockChartXPeriodicity.MONTH:
-        return 'Mounthly';
+        return 'Monthly';
       case StockChartXPeriodicity.WEEK:
         return 'Weekly';
       case StockChartXPeriodicity.DAY:
@@ -215,4 +215,4 @@ export class RithmicDatafeed extends Datafeed {
 }
 
 const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
-StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK];
+StockChartXPeriodicity.VOLUME];

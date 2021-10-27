@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { IAccount, ISession, OrderSide } from 'trading';
-import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
-import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
-import { IBar, IChart, IDetails } from '../models/chart';
-import { BarAction } from './bar-handlers/ChartBarHandler';
-import { isInTimeRange } from 'session-manager';
+import {Injectable} from '@angular/core';
+import {IAccount, ISession, OrderSide} from 'trading';
+import {BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind,} from './models';
+import {BarHandler, IBarHandler} from './bar-handlers/BarHandler';
+import {IBar, IChart, IDetails} from '../models/chart';
+import {BarAction} from './bar-handlers/ChartBarHandler';
+import {isInTimeRange} from 'session-manager';
 
 export type IDateFormat = (request: IRequest) => string;
 
@@ -122,14 +122,14 @@ export abstract class Datafeed implements IDatafeed {
         this._quotes = [];
         break;
       }
-      case RequestKind.MORE_BARS: {
+   /*   case RequestKind.MORE_BARS: {
         this.barHandler.clear();
         this._historyItems = [...bars, ...this._historyItems];
         const preparedBars = this.barHandler.prependBars(
           bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes)));
         request.chart.dataManager.insertBars(0, preparedBars);
         break;
-      }
+      }*/
       default:
         throw new Error(`Unknown request kind: ${ request.kind }`);
     }
