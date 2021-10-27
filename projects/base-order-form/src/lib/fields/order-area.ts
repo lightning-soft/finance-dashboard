@@ -23,6 +23,7 @@ export const orderFields: IFieldConfig = new FieldConfig({
               { key: 'closePositionButton', label: 'Show Close Position Button' },
               { key: 'showOHLVInfo', label: 'Show OHLV Info' },
               { key: 'showFlattenButton', label: 'Show Flatten Button' },
+              { key: 'showBracket', label: 'Show Bracket Button' },
               {
                 key: 'showIcebergButton',
                 label: 'Show Iceberg Button',

@@ -103,6 +103,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+  @ViewChild('chartForm') chartForm: SideOrderFormComponent;
 
   session: ISession;
 
@@ -448,6 +449,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
     });
 
+    this.chartForm?.loadState(this.settings.trading.orderArea as any);
+
     this._loadTemplateList();
     this._subscribeToHotKey();
   }
@@ -516,6 +519,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     if (!chart)
       return;
+
+    this.settings.trading.orderArea = this.chartForm.getState() as any;
 
     return {
       showOHLV: this.showOHLV,
