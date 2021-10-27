@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
-import {IAccount, ISession, OrderSide} from 'trading';
-import {BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind,} from './models';
-import {BarHandler, IBarHandler} from './bar-handlers/BarHandler';
-import {IBar, IChart, IDetails} from '../models/chart';
-import {BarAction} from './bar-handlers/ChartBarHandler';
-import {isInTimeRange} from 'session-manager';
+import { Injectable } from '@angular/core';
+import { IAccount, ISession, OrderSide } from 'trading';
+import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
+import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
+import { IBar, IChart, IDetails } from '../models/chart';
+import { BarAction } from './bar-handlers/ChartBarHandler';
+import { isInTimeRange } from 'session-manager';
 
 export type IDateFormat = (request: IRequest) => string;
 
@@ -113,7 +113,8 @@ export abstract class Datafeed implements IDatafeed {
         this._historyItems = bars;
         this.barHandler.clear();
         const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
-        const processBars = this.barHandler.processBars(filteredBars);
+        console.log('filteredBars', filteredBars.length, bars.length);
+        const processBars = this.barHandler.processBars(bars);
         request.chart.dataManager.appendBars(processBars);
         const endTime = processBars[processBars.length - 1]?.date?.getTime() ?? 0;
         if (Array.isArray(this._quotes)) {
@@ -127,14 +128,14 @@ export abstract class Datafeed implements IDatafeed {
         this._quotes = [];
         break;
       }
-   /*   case RequestKind.MORE_BARS: {
-        this.barHandler.clear();
-        this._historyItems = [...bars, ...this._historyItems];
-        const preparedBars = this.barHandler.prependBars(
-          bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes)));
-        request.chart.dataManager.insertBars(0, preparedBars);
-        break;
-      }*/
+      /*   case RequestKind.MORE_BARS: {
+           this.barHandler.clear();
+           this._historyItems = [...bars, ...this._historyItems];
+           const preparedBars = this.barHandler.prependBars(
+             bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes)));
+           request.chart.dataManager.insertBars(0, preparedBars);
+           break;
+         }*/
       default:
         throw new Error(`Unknown request kind: ${request.kind}`);
     }
