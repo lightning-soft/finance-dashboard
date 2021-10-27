@@ -216,5 +216,4 @@ export class RithmicDatafeed extends Datafeed {
   }
 }
 
-const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
-StockChartXPeriodicity.VOLUME];
+const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO];
