@@ -62,6 +62,7 @@ export class CompositeProfile extends Indicator {
     };
 
     return {
+      workingTimes: settings.profile.rth.session?.workingTimes ?? [],
       general: {
         type: settings.general.type,
         vaCorrelation: settings.general.va / 100,
@@ -76,6 +77,7 @@ export class CompositeProfile extends Indicator {
       },
       lines,
       eth: {
+        workingTimes: settings.profile.eth.session?.workingTimes ?? [],
         profile: {
           type: settings.profile.eth.type,
           color: settings.profile.eth.color,
