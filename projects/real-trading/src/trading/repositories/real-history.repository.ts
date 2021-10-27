@@ -26,7 +26,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       id: item.id,
       date: moment.utc(item.timestamp).toDate(),
       open: item.openPrice,
-      close: item.closePrice,
+      close: item.settlementPrice !== 'NaN' ? item.settlementPrice : item.closePrice,
       high: item.highPrice,
       low: item.lowPrice,
       volume: item.volume,
