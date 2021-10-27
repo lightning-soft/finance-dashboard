@@ -35,7 +35,6 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
   }
 
   getItems(params: any): Observable<any> {
-    const Symbol = params.Symbol;
     if (!params.endDate)
       params.endDate = new Date();
 
@@ -60,7 +59,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       allParams.interval = allParams.BarSize;
       allParams.BarSize = 1;
       allParams.Periodicity = CustomPeriodicity.TICK;
-      return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + Symbol + '/volume', {
+      return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + '/volume', {
         params: new HttpParams({ fromObject: allParams }),
         headers
       }).pipe(
@@ -68,10 +67,10 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       );
     } else if (params.Periodicity === CustomPeriodicity.REVS) {
       const { headers, ...allParams } = this._mapItemsParams(params);
-      allParams.RevInterval = allParams.BarSize;
+      allParams.interval = allParams.BarSize;
       allParams.BarSize = 1;
       allParams.Periodicity = CustomPeriodicity.TICK;
-      return this._http.get(this._communicationConfig.rithmic.http.url + 'Indicators/' + Symbol + '/RevBars', {
+      return this._http.get(this._communicationConfig.rithmic.http.url + 'Indicators/' +  params.id + '/RevBars', {
         params: new HttpParams({ fromObject: allParams }),
         headers
       }).pipe(
