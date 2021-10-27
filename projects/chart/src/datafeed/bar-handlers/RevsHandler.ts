@@ -1,8 +1,7 @@
-import { BarAction, CalculationBarType, ChartBarHandler } from './ChartBarHandler';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
 import { IBar } from 'chart';
 
 export class RevsBarHandler extends ChartBarHandler {
-  calculatePrependedBar = CalculationBarType.Mapped;
   isUp = true;
 
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
@@ -10,7 +9,7 @@ export class RevsBarHandler extends ChartBarHandler {
   }
 
 
-  protected _calculateBarAction(bar, lastBar) {
+  protected _calculateBarAction(bar: IBar, lastBar: IBar) {
     if (lastBar.date.getDate() !== bar.date.getDate())
       return BarAction.Add;
 
@@ -31,7 +30,8 @@ export class RevsBarHandler extends ChartBarHandler {
   }
 
   processBars(bars: IBar[]): IBar[] {
-    if (!bars?.length)
+    return  bars;
+/*    if (!bars?.length)
       return [];
 
     const resultBars = [];
@@ -55,7 +55,7 @@ export class RevsBarHandler extends ChartBarHandler {
         resultBars[resultBars.length - 1] = lastBar;
       }
     }
-    return resultBars;
+    return resultBars;*/
   }
 
   clear() {

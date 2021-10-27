@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../../models';
-import { NotifierService } from 'notifier';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame} from '../../models';
+import {NotifierService} from 'notifier';
 
 @Component({
   selector: 'frame-selector',
@@ -76,7 +76,7 @@ export class FrameSelectorComponent {
 
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = this.getTimeFrameLabel(timeFrame.periodicity);
-    return `${ timeFrame.interval } ${ label }`;
+    return `${timeFrame.interval} ${label}`;
   }
 
   getTimeFrameLabel(periodicity) {
@@ -94,14 +94,14 @@ export class FrameSelectorComponent {
   addPeriod() {
     const interval = this.peridInterval;
     const periodicity = this.periodPeriodicity;
-    const frame = { interval, periodicity };
+    const frame = {interval, periodicity};
     this.periodAdded.emit(frame);
   }
 
   addFrameInterval() {
     const interval = this.timeInterval;
     const periodicity = this.timePeriodicity;
-    const frame = { interval, periodicity };
+    const frame = {interval, periodicity};
     this.intervalAdded.emit(frame);
   }
 
@@ -117,6 +117,7 @@ export class FrameSelectorComponent {
     const intervalTime = TimeFrame.timeFrameToTimeInterval(this.timeFrame);
     const endDate = new Date();
     const startDate = new Date(Date.now() - periodTime);
+    startDate.setHours(0, 0, 0, 0);
     this.chart.setDates(startDate, endDate);
     this.chart.sendBarsRequest();
 

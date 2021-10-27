@@ -77,11 +77,12 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
-    const { exchange, productCode } = instrument;
+    const { exchange, symbol, productCode } = instrument;
 
     const params = {
       productCode,
       Exchange: exchange,
+      Symbol: symbol,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
       BarSize: this._convertInterval(timeFrame),
       endDate,
@@ -140,6 +141,8 @@ export class RithmicDatafeed extends Datafeed {
         return 'Minute';
       case StockChartXPeriodicity.SECOND:
         return 'Second';
+      case StockChartXPeriodicity.REVS:
+        return 'REVS';
       case StockChartXPeriodicity.TICK:
         return 'TICK';
       default:
@@ -212,4 +215,4 @@ export class RithmicDatafeed extends Datafeed {
 }
 
 const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
-StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK, StockChartXPeriodicity.REVS];
+StockChartXPeriodicity.VOLUME];

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { FieldType } from '@ngx-formly/core';
-import { NzInputNumberComponent } from "ng-zorro-antd";
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {FieldType} from '@ngx-formly/core';
+import {NzInputNumberComponent} from 'ng-zorro-antd';
 
 @Component({
   selector: 'number-input',
@@ -17,7 +17,7 @@ export class NumberInputComponent extends FieldType implements AfterViewInit {
   }
 
   set value(value) {
-    if (value != null && this.isAboveMin(value) && this.isBelowMax(value))
+    if (value != null)
       this.formControl.patchValue(value);
   }
 

@@ -1,8 +1,8 @@
-import { BarAction, CalculationBarType, ChartBarHandler } from './ChartBarHandler';
-import { IBar } from 'chart';
+import {BarAction, ChartBarHandler} from './ChartBarHandler';
+import {IBar} from 'chart';
 
 export class VolumeHandler extends ChartBarHandler {
-  calculatePrependedBar = CalculationBarType.Last;
+  protected _shouldUpdateLastDate = true;
 
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     return this._calculateBarAction(lastBar);

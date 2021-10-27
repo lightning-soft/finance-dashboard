@@ -1,6 +1,5 @@
 import { IBarHandler } from './BarHandler';
 import { IBar, IChart } from '../../models/chart';
-import { BarsUpdateKind } from '../models';
 
 export enum CalculationBarType {
   Bar, Last, Mapped
@@ -8,7 +7,7 @@ export enum CalculationBarType {
 
 export abstract class ChartBarHandler implements IBarHandler {
   protected chart: IChart;
-  protected calculatePrependedBar: CalculationBarType;
+  protected _shouldUpdateLastDate = false;
   breakOnNewDay = true;
 
   constructor(chart: IChart) {
@@ -25,18 +24,18 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!lastBar) {
       this.chart.appendBars(bar);
 
-      return { bar, action: BarAction.Add };
+      return {bar, action: BarAction.Add};
     }
 
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
       this.addBar(bar);
-      return { bar, action: BarAction.Add };
+      return {bar, action: BarAction.Add};
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
-      return { bar, action: BarAction.Update };
+      return {bar, action: BarAction.Update};
     } else {
-      return { bar, action: BarAction.None };
+      return {bar, action: BarAction.None};
     }
   }
 
@@ -44,6 +43,7 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!bars?.length)
       return [];
 
+    // console.time('bars');
     const resultBars = [];
 
     let arrayStarter = 0;
@@ -71,6 +71,7 @@ export abstract class ChartBarHandler implements IBarHandler {
         resultBars[resultBars.length - 1] = lastBar;
       }
     }
+    // console.timeEnd('bars');
     return resultBars;
   }
 
@@ -83,7 +84,9 @@ export abstract class ChartBarHandler implements IBarHandler {
   }
 
 
-  protected abstract _processRealtimeBar(bar: IBar, lastBar?: IBar): BarAction;
+  protected  _processRealtimeBar(bar: IBar, lastBar?: IBar) {
+    return BarAction.Add;
+  }
 
   clear() {
   }
@@ -117,15 +120,15 @@ export abstract class ChartBarHandler implements IBarHandler {
         lastBar.ticksCount = 1;
       lastBar.ticksCount++;
     }
-
-    // TODO investigate should date be updated
-    //  lastBar.date = bar.date;
+    if (this._shouldUpdateLastDate) {
+      lastBar.date = bar.date;
+    }
 
     return lastBar;
   }
 
   protected _mapPrependedBar(bar: IBar) {
-    const mappedBar = { ...bar };
+    const mappedBar = {...bar};
 
     return mappedBar;
   }
