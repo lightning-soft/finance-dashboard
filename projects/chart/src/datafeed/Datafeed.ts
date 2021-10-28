@@ -20,6 +20,11 @@ export interface IDatafeed {
   cancel(request: IRequest);
 }
 
+export interface ResponseData {
+  bars: IBar[];
+  additionalInfo?: any;
+}
+
 declare let StockChartX: any;
 
 
@@ -93,7 +98,7 @@ export abstract class Datafeed implements IDatafeed {
    * @memberOf StockChartX.Datafeed#
    * @protected
    */
-  protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
+  protected onRequestCompleted(request: IBarsRequest, { bars, additionalInfo }: ResponseData) {
     this._requests.delete(request.id);
 
     const chart = request.chart;
@@ -115,6 +120,7 @@ export abstract class Datafeed implements IDatafeed {
         const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
         console.log('filteredBars', filteredBars.length, bars.length);
         const processBars = this.barHandler.processBars(bars);
+        this.barHandler.setAdditionalInfo(additionalInfo);
         request.chart.dataManager.appendBars(processBars);
         const endTime = processBars[processBars.length - 1]?.date?.getTime() ?? 0;
         if (Array.isArray(this._quotes)) {
