@@ -106,7 +106,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
     this.accountId.updateValue(order.account.id.toUpperCase());
     this.accountId.changeStatus(order.side);
 
-    this.quantity.updateValue(order.quantity);
+    this.quantity.updateValue(order.quantity - order.filledQuantity);
     this.quantity.changeStatus(order.side);
 
     this.type.updateValue(order.type.toUpperCase());

@@ -144,6 +144,8 @@ export class RithmicDatafeed extends Datafeed {
         return 'REVS';
       case StockChartXPeriodicity.VOLUME:
         return 'VOLUME';
+      case StockChartXPeriodicity.RANGE:
+        return 'RANGE';
       case StockChartXPeriodicity.TICK:
         return 'TICK';
       default:
@@ -215,4 +217,4 @@ export class RithmicDatafeed extends Datafeed {
   }
 }
 
-const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO];
+const customTimeFrames = [StockChartXPeriodicity.RENKO];
