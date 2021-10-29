@@ -15,6 +15,7 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell, VolumeCell } from './histogram';
 import { PriceCell } from './price.cell';
 import { TotalCell } from './histogram/total.cell';
+import { DomItemStyles } from './dom.item-styles';
 
 const LevelsCount = 9;
 export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
@@ -171,7 +172,9 @@ class OrdersCell extends HistogramCell {
       this.prepareOrder();
       this._changeText();
       this.drawed = false;
+      return true;
     }
+    return false;
   }
 
   _changeText() {
@@ -393,8 +396,9 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   }
 
   removeOrder(order) {
-    this._item.sellOrders.removeOrder(order);
-    this._item.buyOrders.removeOrder(order);
+    let isDeleted = this._item.sellOrders.removeOrder(order);
+    isDeleted = this._item.buyOrders.removeOrder(order);
+    return isDeleted;
   }
 
   getPl(): number {
@@ -478,6 +482,7 @@ class LevelCell extends HistogramCell {
   }
 }
 
+const totalPrefix = 'total';
 class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
 
@@ -514,6 +519,10 @@ class SumHistogramCell extends HistogramCell {
       }
 
       this.isSumCell = isSum;
+      if (isSum)
+        this.setStatusPrefix(totalPrefix);
+      else
+        this.setStatusPrefix('');
     }
 
     return this.updateValue(value);
@@ -524,7 +533,7 @@ class SumHistogramCell extends HistogramCell {
   // }
 
   calcHist(value: number) {
-    if (this.isSumCell) {
+    if (this.isSumCell || (this.settings.highlightLarge && this.settings.largeSize > this._value)) {
       this.hist = 0;
     } else {
       super.calcHist(value);
@@ -564,6 +573,9 @@ export class DomItem extends HoverableItem implements IBaseItem {
   delta: DeltaCell;
   orders: AllOrdersCell;
 
+  styles: DomItemStyles;
+  settings: DomSettings;
+
   protected _bid = 0;
   protected _ask = 0;
 
@@ -589,6 +601,8 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     super();
+    this.settings = settings;
+    this.styles = new DomItemStyles();
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
@@ -791,9 +805,11 @@ export class DomItem extends HoverableItem implements IBaseItem {
   }
 
   removeOrder(order: IOrder) {
-    this.orders.removeOrder(order);
+    const removed = this.orders.removeOrder(order);
     this.askDelta.removeOrder(order);
     this.bidDelta.removeOrder(order);
+    if (removed)
+      this.styles.deleteStyle('cellsBorderColor');
     this.notes.clear();
   }
 
@@ -853,6 +869,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
         this.orders.removeOrder(order);
         this.askDelta.removeOrder(order);
         this.bidDelta.removeOrder(order);
+        this.styles.deleteStyle('cellsBorderColor');
         break;
       default:
         this.orders.addOrder(order);
@@ -862,6 +879,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
           this.orders.changeAskQuantity(this.ask._value);
         if (!this.bid.isSumCell)
           this.orders.changeBidQuantity(this.bid._value);
+        this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
         this.notes.updateValue(order.description);
 
         // if (order.side === OrderSide.Sell) {
@@ -935,7 +953,7 @@ export class CustomDomItem extends DomItem {
   clearCross = false;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter,
-    snapshot: { [key: number]: DomItem }) {
+              snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();

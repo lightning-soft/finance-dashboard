@@ -158,6 +158,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     } else if (this.selectedColorType === ColorType.RGB) {
       const rgb = parseRgbString(this.currentColor);
       this.inputText = `${rgb.r},${rgb.g},${rgb.b}`;
+      this.opacity = (rgb.a ?? 1) * 100;
     } else {
       this.inputText = this.currentColor;
     }

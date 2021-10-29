@@ -8,7 +8,7 @@ export const orderFields: IFieldConfig = new FieldConfig({
       getColor('Buy Buttons Background Color'),
       getColor('Flat Buttons Background Color'),
       getColor('Buy Buttons Font Color'),
-      getColor('Flat Button Font Color'),
+      getColor('Flat Buttons Font Color'),
       getColor('Sell Buttons Background Color'),
       getColor('Cancel Button Background Color'),
       getColor('Sell Buttons Font Color'),
