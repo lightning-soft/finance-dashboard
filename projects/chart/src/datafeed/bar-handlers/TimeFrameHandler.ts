@@ -31,6 +31,12 @@ export class TimeFrameBarHandler extends ChartBarHandler {
     this.addBar(bar);
   }
 
+  // Do not process bars in super.processFunction, it can faced with some issues with merge latest few bars
+  // Remove completely this method if all custom time frames will be calculated on the server
+  processBars(bars) {
+    return bars;
+  }
+
   protected _calculateBarAction(bar) {
   }
 }
