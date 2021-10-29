@@ -204,6 +204,7 @@ export class DomSettings {
     backgroundColor: 'rgba(72, 149, 245, 0.3)',
     highlightBackgroundColor: 'rgba(72, 149, 245, 0.4)',
     hoveredBackgroundColor: '#4895F5',
+    hoveredtotalBackgroundColor: '#4895F5',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
     largeSize: 14,
@@ -211,13 +212,14 @@ export class DomSettings {
     histogramColor: 'rgba(72,149,245,0,3)',
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
-    totalFontColor: 'transparent',
+    totalColor: '#fff',
     clearInterval: DefaultClearInterval,
   };
   ask: any = {
     color: '#fff',
     backgroundColor: 'rgba(201, 59, 59, 0.3)',
     hoveredBackgroundColor: '#C93B3B',
+    hoveredtotalBackgroundColor: '#C93B3B',
     histogramColor: 'rgba(201, 59, 59, 0.4)',
     highlightBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
@@ -226,7 +228,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
-    totalFontColor: 'transparent',
+    totalColor: 'fff',
     clearInterval: DefaultClearInterval,
   };
   totalAsk: any = {
