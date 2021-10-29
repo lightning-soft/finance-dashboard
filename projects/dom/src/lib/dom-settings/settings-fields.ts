@@ -443,7 +443,7 @@ function getDepthConfig(label: string) {
       getColor('Background Color'),
       getFontColor(),
       getHistogramColor('Highlight Color'),
-      getColor('Total Font Color'),
+      getColor({ label: 'Total Font Color', key: 'totalColor' }),
       {
         ...getCheckboxes({
           checkboxes: [

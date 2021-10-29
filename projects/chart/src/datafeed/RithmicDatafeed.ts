@@ -2,7 +2,6 @@ import { Injectable, Injector } from '@angular/core';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
-import { IBar } from '../models';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
@@ -103,7 +102,7 @@ export class RithmicDatafeed extends Datafeed {
     ).subscribe({
       next: (res) => {
         if (this.isRequestAlive(request)) {
-          this.onRequestCompleted(request, res.data);
+          this.onRequestCompleted(request, { bars: res.data, additionalInfo: res.additionalInfo, });
         }
       },
       error: (err) => console.error(err),
@@ -111,8 +110,8 @@ export class RithmicDatafeed extends Datafeed {
     this.requestSubscriptions.set(request.id, subscription);
   }
 
-  protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
-    super.onRequestCompleted(request, bars);
+  protected onRequestCompleted(request: IBarsRequest, response) {
+    super.onRequestCompleted(request, response);
     this.requestSubscriptions.delete(request.id);
   }
 

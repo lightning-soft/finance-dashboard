@@ -1,16 +1,17 @@
-import {TimeFrameBarHandler} from './TimeFrameHandler';
-import {TickHandler} from './TickHandler';
-import {RenkoBarHandler} from './RenkoHandler';
-import {RevsBarHandler} from './RevsHandler';
-import {VolumeHandler} from './VolumeHandler';
-import {RangeBarHandler} from './RangeHandler';
-import {IBar, IChart} from '../../models/chart';
-import {StockChartXPeriodicity} from '../TimeFrame';
+import { TimeFrameBarHandler } from './TimeFrameHandler';
+import { TickHandler } from './TickHandler';
+import { RenkoBarHandler } from './RenkoHandler';
+import { RevsBarHandler } from './RevsHandler';
+import { VolumeHandler } from './VolumeHandler';
+import { RangeBarHandler } from './RangeHandler';
+import { IBar, IChart } from '../../models/chart';
+import { StockChartXPeriodicity } from '../TimeFrame';
 
 export interface IBarHandler {
   processBar(bar: IBar);
   processBars(bars: IBar[]): IBar[];
   clear(): void;
+  setAdditionalInfo(additionalInfo: any);
 }
 
 
@@ -67,6 +68,11 @@ export class BarHandler implements IBarHandler {
   processBars(bars: IBar[]): IBar[] {
     const handler = this.getHandler();
     return handler?.processBars(bars);
+  }
+
+  setAdditionalInfo(additionalInfo: any) {
+    const handler = this.getHandler();
+    return handler?.setAdditionalInfo(additionalInfo);
   }
 
   clear() {

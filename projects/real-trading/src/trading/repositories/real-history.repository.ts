@@ -70,11 +70,17 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       allParams.interval = allParams.BarSize;
       allParams.BarSize = 1;
       allParams.Periodicity = CustomPeriodicity.TICK;
-      return this._http.get(this._communicationConfig.rithmic.http.url + 'Indicators/' +  params.id + '/RevBars', {
+      return this._http.get(this._communicationConfig.rithmic.http.url + 'Indicators/' + params.id + '/RevBars', {
         params: new HttpParams({ fromObject: allParams }),
         headers
       }).pipe(
-        map(item => this._mapItemsResponse(item, params)),
+        map(({ result }: any) => {
+          return {
+            additionalInfo: {
+              isUp: result.isUp,
+            }, ...this._mapItemsResponse(result.bars, params)
+          };
+        }),
       );
     }
 

@@ -122,7 +122,7 @@ export class CSVDatafeed extends Datafeed {
   private _processResult(data: string, request: IBarsRequest) {
     const bars = this._parseBars(data, request);
 
-    this.onRequestCompleted(request, bars);
+    this.onRequestCompleted(request, { bars });
   }
 
   /**

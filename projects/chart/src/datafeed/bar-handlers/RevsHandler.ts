@@ -8,6 +8,9 @@ export class RevsBarHandler extends ChartBarHandler {
     return this._calculateBarAction(bar, lastBar);
   }
 
+  setAdditionalInfo(additionalInfo: any) {
+    this.isUp = additionalInfo.isUp;
+  }
 
   protected _calculateBarAction(bar: IBar, lastBar: IBar) {
     if (lastBar.date.getDate() !== bar.date.getDate())
@@ -30,32 +33,32 @@ export class RevsBarHandler extends ChartBarHandler {
   }
 
   processBars(bars: IBar[]): IBar[] {
-    return  bars;
-/*    if (!bars?.length)
-      return [];
+    return bars;
+    /*    if (!bars?.length)
+          return [];
 
-    const resultBars = [];
-    let lastBar;
+        const resultBars = [];
+        let lastBar;
 
-    let arrayStarter = 0;
-    if (!lastBar) {
-      lastBar = bars[0];
-      arrayStarter++;
-    }
-    resultBars.push(lastBar);
-    for (let i = arrayStarter; i < bars.length; i++) {
-      lastBar = resultBars[resultBars.length - 1] ?? bars[i];
-      const bar = bars[i];
-      const action: BarAction = this._calculateBarAction(bar, lastBar);
-      if (action === BarAction.Add) {
-        resultBars.push(bar);
-        lastBar = bar;
-      } else if (action === BarAction.Update) {
-        lastBar = this._mapLastBar(bar, lastBar, true);
-        resultBars[resultBars.length - 1] = lastBar;
-      }
-    }
-    return resultBars;*/
+        let arrayStarter = 0;
+        if (!lastBar) {
+          lastBar = bars[0];
+          arrayStarter++;
+        }
+        resultBars.push(lastBar);
+        for (let i = arrayStarter; i < bars.length; i++) {
+          lastBar = resultBars[resultBars.length - 1] ?? bars[i];
+          const bar = bars[i];
+          const action: BarAction = this._calculateBarAction(bar, lastBar);
+          if (action === BarAction.Add) {
+            resultBars.push(bar);
+            lastBar = bar;
+          } else if (action === BarAction.Update) {
+            lastBar = this._mapLastBar(bar, lastBar, true);
+            resultBars[resultBars.length - 1] = lastBar;
+          }
+        }
+        return resultBars;*/
   }
 
   clear() {

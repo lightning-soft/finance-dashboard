@@ -770,7 +770,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
     }
 
-    const deltaStyles = {};
+    const deltaStyles: any = {};
     for (const key of [DOMColumns.BidDelta, DOMColumns.AskDelta]) {
       const obj = settings[key];
       if (!obj)
@@ -783,6 +783,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         }
       }
     }
+    deltaStyles.askDeltahighlightColor = settings[DOMColumns.AskDelta].color;
+    deltaStyles.askDeltahighlightTextAlign = settings[DOMColumns.AskDelta].textAlign;
+    deltaStyles.bidDeltahighlightColor = settings[DOMColumns.BidDelta].color;
+    deltaStyles.bidDeltahighlightTextAlign = settings[DOMColumns.BidDelta].textAlign;
 
     settings.delta = deltaStyles;
 
@@ -842,6 +846,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.refresh();
       i.setAskVisibility(true, true);
       i.setBidVisibility(true, true);
+      i.styles.applyNewStyles({ cellsBorderColor: this._settings.common.generalColors.orderGridLineColor });
       i.index = index;
     });
     this._applyOffset();
@@ -2433,6 +2438,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (hasSettings) {
       this._settings[column.name].textAlign = column.style.textAlign;
     }
+    if (DOMColumns.AskDelta === column.name) {
+      const delta = this.columns.find((item) => item.name === DOMColumns.Delta);
+      delta.style.askDeltahighlightTextAlign = column.style.textAlign;
+    }
+    if (DOMColumns.BidDelta === column.name){
+      const delta = this.columns.find((item) => item.name === DOMColumns.Delta);
+      delta.style.bidDeltahighlightTextAlign = column.style.textAlign;
+    }
+
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 }

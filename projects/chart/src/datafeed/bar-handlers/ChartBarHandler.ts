@@ -24,18 +24,18 @@ export abstract class ChartBarHandler implements IBarHandler {
     if (!lastBar) {
       this.chart.appendBars(bar);
 
-      return {bar, action: BarAction.Add};
+      return { bar, action: BarAction.Add };
     }
 
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
       this.addBar(bar);
-      return {bar, action: BarAction.Add};
+      return { bar, action: BarAction.Add };
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
-      return {bar, action: BarAction.Update};
+      return { bar, action: BarAction.Update };
     } else {
-      return {bar, action: BarAction.None};
+      return { bar, action: BarAction.None };
     }
   }
 
@@ -83,8 +83,11 @@ export abstract class ChartBarHandler implements IBarHandler {
     return this.processBars(items, lastPrependedBar);
   }
 
+  setAdditionalInfo(additionalInfo: any) {
+  }
 
-  protected  _processRealtimeBar(bar: IBar, lastBar?: IBar) {
+
+  protected _processRealtimeBar(bar: IBar, lastBar?: IBar) {
     return BarAction.Add;
   }
 
@@ -128,7 +131,7 @@ export abstract class ChartBarHandler implements IBarHandler {
   }
 
   protected _mapPrependedBar(bar: IBar) {
-    const mappedBar = {...bar};
+    const mappedBar = { ...bar };
 
     return mappedBar;
   }

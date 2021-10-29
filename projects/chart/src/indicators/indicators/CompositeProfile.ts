@@ -20,10 +20,12 @@ export class CompositeProfile extends Indicator {
         rth: {
           type: settings.profile.type,
           color: settings.profile.color,
+          session: settings.profile.rth?.session,
         },
         eth: {
           type: settings.eth.profile.type,
           color: settings.eth.profile.color,
+          session: settings.eth?.session,
         },
       },
       lines: {
@@ -62,6 +64,7 @@ export class CompositeProfile extends Indicator {
     };
 
     return {
+      workingTimes: settings.profile.rth.session?.workingTimes ?? [],
       general: {
         type: settings.general.type,
         vaCorrelation: settings.general.va / 100,
@@ -73,13 +76,16 @@ export class CompositeProfile extends Indicator {
       profile: {
         type: settings.profile.rth.type,
         color: settings.profile.rth.color,
+        rth: settings.profile.rth,
       },
       lines,
       eth: {
+        workingTimes: settings.profile.eth.session?.workingTimes ?? [],
         profile: {
           type: settings.profile.eth.type,
           color: settings.profile.eth.color,
         },
+        session: settings.profile.eth.session,
         lines,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
