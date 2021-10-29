@@ -1,7 +1,11 @@
-import {BarAction, ChartBarHandler} from './ChartBarHandler';
-import {IBar} from 'chart';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
+import { IBar } from 'chart';
 
 export class RangeBarHandler extends ChartBarHandler {
+  processBars(bars: IBar[], lastBar: any = this.getLastBar()): IBar[] {
+    return bars;
+  }
+
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     return this._calculateBarAction(lastBar);
   }

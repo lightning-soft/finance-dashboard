@@ -126,10 +126,10 @@ class OrdersCell extends HistogramCell {
             res = {
               type: item.type,
               id: item.id,
-              quantity: item.quantity,
+              quantity: item.quantity - item.filledQuantity,
             } as IOrder;
           } else {
-            res.quantity += item.quantity;
+            res.quantity += (item.quantity - item.filledQuantity);
           }
           return res;
         }, null);
@@ -396,9 +396,9 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   }
 
   removeOrder(order) {
-    let isDeleted = this._item.sellOrders.removeOrder(order);
-    isDeleted = this._item.buyOrders.removeOrder(order);
-    return isDeleted;
+    const isDeletedSell = this._item.sellOrders.removeOrder(order);
+    const isDeletedBuy = this._item.buyOrders.removeOrder(order);
+    return isDeletedSell || isDeletedBuy;
   }
 
   getPl(): number {
@@ -483,6 +483,7 @@ class LevelCell extends HistogramCell {
 }
 
 const totalPrefix = 'total';
+
 class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
 

@@ -222,7 +222,7 @@ export class MarketWatchItem extends HoverableItem implements IBaseItem, IMarket
   }
 
   updateOrderCell(cell, map) {
-    cell.updateValue(Array.from(map.values()).reduce((total: any, item: IOrder) => total + item.quantity, 0));
+    cell.updateValue(Array.from(map.values()).reduce((total: any, item: IOrder) => total + (item.quantity - item.filledQuantity), 0));
   }
 
   deleteOrder(order: IOrder, map: Map<Id, IOrder>) {
