@@ -145,6 +145,7 @@ export class IndicatorsComponent implements OnInit {
   } = {};
 
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
+  private _forbidAutoScaleIndicators = [];
 
   constructor(private cd: ChangeDetectorRef) {
   }
@@ -185,7 +186,8 @@ export class IndicatorsComponent implements OnInit {
       .subscribe(() => {
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
         this.chart.updateIndicators();
-        this.chart.setNeedsUpdate(true);
+        const autoScale = !this._forbidAutoScaleIndicators.includes(this.selectedIndicator.instance.className);
+        this.chart.setNeedsUpdate(autoScale);
       });
   }
 
@@ -245,6 +247,7 @@ export class IndicatorsComponent implements OnInit {
       [StockChartX.VWAP.className, VWAP],
       [StockChartX.CustomVolumeProfile.className, CustomVolumeProfile],
     ]);
+    this._forbidAutoScaleIndicators = [StockChartX.ZigZagOscillator.className];
 
     this.fetchIndicators();
   }
