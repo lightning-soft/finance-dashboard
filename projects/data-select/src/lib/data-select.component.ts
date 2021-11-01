@@ -99,6 +99,10 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
     return jQuery.extend(true, {}, item);
   }
 
+  _filterResponse(response) {
+    return true;
+  }
+
   protected _handleResponse(response, params) {
     super._handleResponse(response, params);
     if (!this.autoSelectFirst)

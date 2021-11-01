@@ -75,9 +75,10 @@ export abstract class BaseRepository<T extends IBaseItem> extends HttpRepository
 
       if (!connection)
         connection = this.getConnectionByAccount(params.accountId);
-
-      params.connectionId = connection?.id;
-      params.headers = this.getApiHeaders(this._getApiKey(connection));
+      if (connection) {
+        params.connectionId = connection?.id;
+        params.headers = this.getApiHeaders(this._getApiKey(connection));
+      }
     }
     //  else {
     //   console.error(`Invalid ${ApiKey}, ${params?.headers && params?.headers[ApiKey]}`);

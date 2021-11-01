@@ -85,12 +85,15 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
       )
       .subscribe(
         (response) => {
-          if (!response.requestParams || JSON.stringify(response.requestParams) === JSON.stringify(this.params)) {
+          if (this._filterResponse(response)) {
             this._handleResponse(response, this.params);
           }
         },
         (error) => this._handleLoadingError(error),
       );
+  }
+  protected _filterResponse(response: IPaginationResponse){
+    return !response.requestParams || JSON.stringify(response.requestParams) === JSON.stringify(this.params);
   }
 
   protected _getItems(params?): Observable<IPaginationResponse<T>> {
