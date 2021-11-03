@@ -57,8 +57,6 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       return this.makeRequest(params, '/renko');
     } else if (params.Periodicity === CustomPeriodicity.REVS) {
       const { headers, ...allParams } = this._mapItemsParams(params);
-      allParams.interval = allParams.BarSize;
-      allParams.BarSize = 1;
       allParams.Periodicity = CustomPeriodicity.TICK;
       return this._http.get(this._communicationConfig.rithmic.http.url + 'Indicators/' + params.id + '/RevBars', {
         params: new HttpParams({ fromObject: allParams }),
