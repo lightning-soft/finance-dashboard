@@ -54,27 +54,9 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.Exchange = exchange || params.Exchange;
     }
     if (params.Periodicity === CustomPeriodicity.RENKO) {
-      const { headers, ...allParams } = this._mapItemsParams(params);
-      allParams.interval = allParams.BarSize;
-      allParams.BarSize = 1;
-      allParams.Periodicity = CustomPeriodicity.TICK;
-      return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + '/renko', {
-        params: new HttpParams({ fromObject: allParams }),
-        headers
-      }).pipe(
-        map(item => this._mapItemsResponse(item, params)),
-      );
+      return this.makeRequest(params, '/renko');
     } else if (params.Periodicity === CustomPeriodicity.VOLUME) {
-      const { headers, ...allParams } = this._mapItemsParams(params);
-      allParams.interval = allParams.BarSize;
-      allParams.BarSize = 1;
-      allParams.Periodicity = CustomPeriodicity.TICK;
-      return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + '/volume', {
-        params: new HttpParams({ fromObject: allParams }),
-        headers
-      }).pipe(
-        map(item => this._mapItemsResponse(item, params)),
-      );
+      return this.makeRequest(params, '/volume');
     } else if (params.Periodicity === CustomPeriodicity.REVS) {
       const { headers, ...allParams } = this._mapItemsParams(params);
       allParams.interval = allParams.BarSize;
@@ -93,12 +75,23 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
         }),
       );
     }
-
-
     // const { endDate } = params || {};
 
     // return of({ data: hist.map(i => this._mapResponseItem(i)), requestParams: params,  total: hist.length, pageCount: 1, page: 1 } as any);
 
     return super.getItems(params);
+  }
+
+  makeRequest(params, path) {
+    const { headers, ...allParams } = this._mapItemsParams(params);
+    allParams.interval = allParams.BarSize;
+    allParams.BarSize = 1;
+    allParams.Periodicity = CustomPeriodicity.TICK;
+    return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + path, {
+      params: new HttpParams({ fromObject: allParams }),
+      headers
+    }).pipe(
+      map(item => this._mapItemsResponse(item, params)),
+    );
   }
 }
