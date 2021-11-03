@@ -2,7 +2,6 @@ import { IBar } from 'chart';
 import { BarAction, ChartBarHandler } from './ChartBarHandler';
 
 declare let StockChartX: any;
-
 export class TimeFrameBarHandler extends ChartBarHandler {
   breakOnNewDay = false;
 
