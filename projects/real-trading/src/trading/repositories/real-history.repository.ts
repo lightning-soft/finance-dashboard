@@ -80,6 +80,7 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
 
   makeRequest(params, path) {
     const { headers, ...allParams } = this._mapItemsParams(params);
+    allParams.Periodicity = CustomPeriodicity.TICK;
     return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + path, {
       params: new HttpParams({ fromObject: allParams }),
       headers
