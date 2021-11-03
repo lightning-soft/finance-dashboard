@@ -4,7 +4,8 @@ import { BarAction, ChartBarHandler } from './ChartBarHandler';
 export class RenkoBarHandler extends ChartBarHandler {
 
   processBars(bars: IBar[]) {
-    if (!bars?.length)
+    return bars;
+ /*   if (!bars?.length)
       return [];
 
     const resultBars = [];
@@ -78,7 +79,7 @@ export class RenkoBarHandler extends ChartBarHandler {
       }
     }
     ///  console.timeEnd('bars');
-    return resultBars;
+    return resultBars;*/
   }
 
 
