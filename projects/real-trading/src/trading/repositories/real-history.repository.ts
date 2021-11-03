@@ -53,8 +53,18 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.id = symbol;
       params.Exchange = exchange || params.Exchange;
     }
-
-    if (params.Periodicity === CustomPeriodicity.VOLUME) {
+    if (params.Periodicity === CustomPeriodicity.RENKO) {
+      const { headers, ...allParams } = this._mapItemsParams(params);
+      allParams.interval = allParams.BarSize;
+      allParams.BarSize = 1;
+      allParams.Periodicity = CustomPeriodicity.TICK;
+      return this._http.get(this._communicationConfig.rithmic.http.url + 'indicators/' + params.id + '/renko', {
+        params: new HttpParams({ fromObject: allParams }),
+        headers
+      }).pipe(
+        map(item => this._mapItemsResponse(item, params)),
+      );
+    } else if (params.Periodicity === CustomPeriodicity.VOLUME) {
       const { headers, ...allParams } = this._mapItemsParams(params);
       allParams.interval = allParams.BarSize;
       allParams.BarSize = 1;

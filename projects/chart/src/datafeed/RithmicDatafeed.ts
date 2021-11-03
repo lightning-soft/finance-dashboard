@@ -86,7 +86,7 @@ export class RithmicDatafeed extends Datafeed {
       Exchange: exchange,
       Symbol: symbol,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
-      BarSize: this._convertInterval(timeFrame),
+      BarSize: timeFrame.interval,
       endDate,
       accountId: this._account?.id,
       startDate,
@@ -149,6 +149,8 @@ export class RithmicDatafeed extends Datafeed {
         return 'VOLUME';
       case StockChartXPeriodicity.RANGE:
         return 'RANGE';
+      case StockChartXPeriodicity.RENKO:
+        return 'RENKO';
       case StockChartXPeriodicity.TICK:
         return 'TICK';
       default:
@@ -157,10 +159,7 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   _convertInterval(frame: ITimeFrame): number {
-    if (customTimeFrames.includes(frame.periodicity)) {
-      return 1;
-    }
-    return frame.interval;
+    return ;
   }
 
   subscribeToRealtime(request: IBarsRequest) {
@@ -219,5 +218,3 @@ export class RithmicDatafeed extends Datafeed {
     this._unsubscribe();
   }
 }
-
-const customTimeFrames = [StockChartXPeriodicity.RENKO];
