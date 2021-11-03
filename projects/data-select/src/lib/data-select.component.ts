@@ -21,6 +21,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() value?: any;
   @Input('repository') protected _repository: Repository;
   @Input() autoSelectFirst = true;
+  @Input() disabled = false;
   @Input() withActions = false;
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();

@@ -1,6 +1,12 @@
 @import "../settings";
 
 :host ::ng-deep {
+  .session-select {
+    label {
+      display: none;
+    }
+  }
+
   data-select {
     font-size: 0.8rem;
   }
@@ -77,10 +83,16 @@
     padding-right: 10px;
   }
 
-  .two-rows, .order-bar-rows, .order-rows, .order-area-rows {
+  .two-rows, .order-bar-rows, .order-rows, .order-area-rows, .session-rows {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 6px;
+  }
+
+  .session-rows {
+    grid-template-columns: 1fr 2fr;
+    grid-column-gap: 5px;
+
   }
 
   .order-bar-rows {

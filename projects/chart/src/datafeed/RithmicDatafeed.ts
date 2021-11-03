@@ -56,14 +56,17 @@ export class RithmicDatafeed extends Datafeed {
       return;
     }
 
+    if (kind === 'bars') {
+      endDate = new Date();
+    }
+
     if (!endDate)
       endDate = new Date();
 
     if (!startDate)
       startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(defaultTimePeriod));
 
-    if (kind === 'bars')
-      this.lastInterval = endDate.getTime() - startDate.getTime();
+    this.lastInterval = endDate.getTime() - startDate.getTime();
 
     if (kind === 'moreBars') {
       startDate = new Date(endDate.getTime() - this.lastInterval);

@@ -154,8 +154,17 @@ const orderTypesList = [
 ];
 export const sessionFields: IFieldConfig[] = [
   {
+    fieldGroupClassName: 'd-grid session-rows mt-4',
     key: 'session',
-    fieldGroup: [wrapWithClass(getSessionSelect('sessionTemplate', 'Session Template'), 'mt-4 mx-3 d-block')]
+    fieldGroup: [
+      getSwitch('sessionEnabled', 'Session Template'),
+      wrapWithConfig(getSessionSelect('sessionTemplate', 'Session Template'),
+        {
+          className: 'd-block session-select', expressionProperties: {
+            'templateOptions.disabled': '!model.sessionEnabled',
+          }
+        })
+    ],
   },
 ];
 export const tradingFields: IFieldConfig[] = [
@@ -198,29 +207,29 @@ export const tradingFields: IFieldConfig[] = [
               }),
             ],
           },
-    /*      getCheckboxes({
-            extraConfig: { className: 'pl-info' },
-            checkboxes: [
-              { key: 'showPl', label: 'Show P/L Info' },
-            ],
-            additionalFields: [
-              getSwitch('includeRealized', 'Include Realized P/L'),
-              getSwitch('roundToWhole', 'Round to whole numbers'),
-              getSelect({
-                key: 'plUnit',
-                label: 'PL Unit',
-                className: 'select',
-                options: [
-                  { label: 'Points', value: 'points' },
-                  { label: 'Currency', value: 'currency' },
-                  { label: 'Percent', value: 'percent' },
-                  { label: 'Pips', value: 'pips' },
-                  { label: 'Ticks', value: 'ticks' },
-                  { label: 'None', value: 'none' },
-                ],
-              })
-            ],
-          }),*/
+          /*      getCheckboxes({
+                  extraConfig: { className: 'pl-info' },
+                  checkboxes: [
+                    { key: 'showPl', label: 'Show P/L Info' },
+                  ],
+                  additionalFields: [
+                    getSwitch('includeRealized', 'Include Realized P/L'),
+                    getSwitch('roundToWhole', 'Round to whole numbers'),
+                    getSelect({
+                      key: 'plUnit',
+                      label: 'PL Unit',
+                      className: 'select',
+                      options: [
+                        { label: 'Points', value: 'points' },
+                        { label: 'Currency', value: 'currency' },
+                        { label: 'Percent', value: 'percent' },
+                        { label: 'Pips', value: 'pips' },
+                        { label: 'Ticks', value: 'ticks' },
+                        { label: 'None', value: 'none' },
+                      ],
+                    })
+                  ],
+                }),*/
           {
             fieldGroup: [
               {
@@ -243,10 +252,10 @@ export const tradingFields: IFieldConfig[] = [
 
             ],
           },
-    /*      getCheckboxes({
-            // extraConfig: {className: 'd-none'},
-            checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
-          }),*/
+          /*      getCheckboxes({
+                  // extraConfig: {className: 'd-none'},
+                  checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
+                }),*/
         ],
       }),
       new FieldConfig({
@@ -397,7 +406,10 @@ export const valueScale: IFieldConfig[] = [
           {
             fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
             fieldGroup: [
-              getRadio('isAutomatic', [{ label: 'Automatic', value: 'automatic' }, { label: 'Pixel / Price', value: 'pixels-price' }]),
+              getRadio('isAutomatic', [{ label: 'Automatic', value: 'automatic' }, {
+                label: 'Pixel / Price',
+                value: 'pixels-price'
+              }]),
               getLabel('Pixel Price'),
               wrapWithConfig(
                 getNumber({

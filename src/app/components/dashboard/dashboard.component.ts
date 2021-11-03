@@ -184,7 +184,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.isActive = true;
         setTimeout(() => {
-            this.isActive = false;
+          this.isActive = false;
         }, 2000);
       });
       window.addEventListener('focus', () => {
@@ -424,7 +424,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         ...widgetOptions.options
       });
     } else {
-      console.error(`Component ${ component } not found, make sure spelling is correct`);
+      console.error(`Component ${component} not found, make sure spelling is correct`);
     }
   }
 

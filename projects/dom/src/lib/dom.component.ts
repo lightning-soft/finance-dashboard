@@ -515,6 +515,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   set bracketActive(value: boolean) {
     this._settings.orderArea.settings.formSettings.showBracket = value;
     this._linkSettings(this._settings);
+    this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 
   isExtended = true;

@@ -34,6 +34,7 @@ export interface IChartSettings {
   trading: any;
   session: {
     sessionTemplate: ISession;
+    sessionEnabled: boolean;
   };
   valueScale?: {
     valueScale: {
@@ -175,6 +176,7 @@ defaultChartSettings = {
   },
   session: {
     sessionTemplate: null,
+    sessionEnabled: true,
   },
   valueScale: {
     valueScale: {

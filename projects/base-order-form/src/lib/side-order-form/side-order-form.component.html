@@ -79,7 +79,7 @@
       ></nz-option>
     </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-    <div [class.d-none]="!setting.formSettings.showBracket" class="ticks">
+    <div [class.d-none]="setting.formSettings.showBracket === false" class="ticks">
       <sl-units formControlName="stopLoss"></sl-units>
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
@@ -96,7 +96,7 @@
         [style.color]="setting.sellButtonsFontColor"
         [style.background]="setting.sellButtonsBackgroundColor"
         [class.cxl-btn-disabled]="!sellQuantity"
-        [class.d-none]="!setting.formSettings.showSellButton"
+        [class.d-none]="setting.formSettings.showSellButton === false"
         (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>
         <span>
           CXL&nbsp;
@@ -108,7 +108,7 @@
         [style.color]="setting.cancelButtonFontColor"
         [style.background]="setting.cancelButtonBackgroundColor"
         [class.cxl-btn-disabled]="!totalQuantity"
-        [class.d-none]="!setting.formSettings.showCancelButton"
+        [class.d-none]="setting.formSettings.showCancelButton === false"
         (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>
         <span>
            CXL&nbsp;
@@ -118,7 +118,7 @@
         <span *ngIf="totalQuantity" class="cxl-quantity">{{totalQuantity}}</span></button>
       <button [style.color]="setting.buyButtonsFontColor"
               [class.cxl-btn-disabled]="!buyQuantity"
-              [class.d-none]="!setting.formSettings.showBuyButton"
+              [class.d-none]="setting.formSettings.showBuyButton === false"
               [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)"
               class="cxl-btn cxl-buy" nz-button>
         <span>
@@ -131,7 +131,7 @@
               class="close-position-button"
               [style.background]="setting.closePositionBackgroundColor"
               [style.color]="setting.closePositionFontColor"
-              [class.d-none]="!setting.formSettings.closePositionButton" nz-button>CLOSE&nbsp;
+              [class.d-none]="setting.formSettings.closePositionButton === false" nz-button>CLOSE&nbsp;
         <span class="first-letter">P</span><span class="other-letters">OSITION</span>
       </button>
       <button

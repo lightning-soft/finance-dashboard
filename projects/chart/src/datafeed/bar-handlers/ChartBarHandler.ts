@@ -9,6 +9,8 @@ export abstract class ChartBarHandler implements IBarHandler {
   protected chart: IChart;
   protected _shouldUpdateLastDate = false;
   breakOnNewDay = true;
+  protected _shouldUpdateLastDateAfterAdd = false;
+  protected _lastDate;
 
   constructor(chart: IChart) {
     this.chart = chart;
@@ -29,6 +31,8 @@ export abstract class ChartBarHandler implements IBarHandler {
 
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
+      /*if (this._shouldUpdateLastDateAfterAdd)
+        this.updateLastBarDate(this._lastDate);*/
       this.addBar(bar);
       return { bar, action: BarAction.Add };
     } else if (action === BarAction.Update) {
@@ -106,6 +110,12 @@ export abstract class ChartBarHandler implements IBarHandler {
     const lastBar = this._mapLastBar(bar);
     this.chart.dataManager.updateLastBar(lastBar);
     return lastBar;
+  }
+
+  updateLastBarDate(date: Date) {
+    const lastBar = this.getLastBar();
+    lastBar.date = date;
+    this.updateLastBar(lastBar);
   }
 
   protected _mapLastBar(bar: IBar, lastBar = this.chart.dataManager.getLastBar(), calcTicks = false) {

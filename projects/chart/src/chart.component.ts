@@ -1147,12 +1147,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private _handleSettingsChange(settings: IChartSettings) {
-    this.settings = settings;
     const session = settings.session?.sessionTemplate;
 
-    if (this.session?.id != session?.id) {
-      this.datafeed.setSession(session, this.chart);
+    if (this.session?.id != session?.id || this.settings.session.sessionEnabled != settings.session.sessionEnabled) {
+      this.datafeed.setSession(settings.session.sessionEnabled ? session : null, this.chart);
     }
+    this.settings = settings;
+
     const { trading } = settings;
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);

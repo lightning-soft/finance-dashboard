@@ -3,6 +3,7 @@
   class="custom-form-control w-auto flex-grow-1"
   [(nzOpen)]="opened"
   [nzLoading]="loading"
+  [nzDisabled]="disabled"
   [nzOptionHeightPx]="24"
   [(ngModel)]="value"
   (ngModelChange)="handleValueChange()"

@@ -73,7 +73,7 @@ export abstract class Datafeed implements IDatafeed {
     const historyItems = [];
     for (let i = 0; i < this._historyItems.length; i++) {
       const historyItem = this._historyItems[i];
-      if (isInTimeRange(historyItem.date, this._session.workingTimes)) {
+      if (isInTimeRange(historyItem.date, this._session?.workingTimes)) {
         historyItems.push(historyItem);
       }
     }

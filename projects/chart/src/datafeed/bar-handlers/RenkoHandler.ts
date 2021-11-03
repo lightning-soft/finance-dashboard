@@ -30,15 +30,17 @@ export class RenkoBarHandler extends ChartBarHandler {
         lastBar.volume = 0;
 
         do {
+          let i = 1;
           resultBars.push({
             open: newBarOpen,
             high: newClose,
             low: newBarOpen,
             close: newClose,
+            date: new Date(lastBar.date.getTime() + i),
             volume: isFirstNewBar ? bar.volume : 0,
-            details: isFirstNewBar ? bar.details : 0,
+            details: isFirstNewBar ? bar.details : [],
           });
-
+          i++;
           newBarOpen = newClose;
           newClose += offset;
           isFirstNewBar = false;
@@ -53,16 +55,18 @@ export class RenkoBarHandler extends ChartBarHandler {
         //lastBar.volume = 0;
 
         do {
+          let i = 1;
           newClose = newBarOpen - offset;
           resultBars.push({
             open: newBarOpen,
             high: newBarOpen,
             low: newClose,
             close: newClose,
+            date: new Date(lastBar.date.getTime() + i),
             volume: isFirstNewBar ? bar.volume : 0,
-            details: isFirstNewBar ? bar.details : 0,
+            details: isFirstNewBar ? bar.details : [],
           });
-
+          i++;
           newBarOpen = newClose;
           newClose -= offset;
           isFirstNewBar = false;
