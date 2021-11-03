@@ -49,8 +49,8 @@ button {
 :host-context(app-navbar.Bottom) {
   .lock-alert,
   .unlock-alert {
-    bottom: 40px;
-    position: fixed;
+    bottom: unset;
+    top: -70px;
   }
 }
 
