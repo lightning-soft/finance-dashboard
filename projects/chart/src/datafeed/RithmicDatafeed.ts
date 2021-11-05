@@ -4,7 +4,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
-import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
+import { StockChartXPeriodicity, TimeFrame } from './TimeFrame';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.DAY };
 declare let StockChartX: any;
@@ -65,6 +65,7 @@ export class RithmicDatafeed extends Datafeed {
 
     if (!startDate)
       startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(defaultTimePeriod));
+    startDate.setHours(0, 0, 0, 0);
 
     this.lastInterval = endDate.getTime() - startDate.getTime();
 
@@ -156,10 +157,6 @@ export class RithmicDatafeed extends Datafeed {
       default:
         return 'TICK';
     }
-  }
-
-  _convertInterval(frame: ITimeFrame): number {
-    return ;
   }
 
   subscribeToRealtime(request: IBarsRequest) {
