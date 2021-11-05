@@ -77,7 +77,7 @@ export class DailyInfoComponent implements AfterViewInit {
   updateIncome(prevHistoryItem: IHistoryItem): void {
     if (this.dailyInfo) {
       const income = this.dailyInfo.close - this.dailyInfo.open;
-      const incomePercentage = ((this.income / this.dailyInfo.close) * 100);
+      const incomePercentage = (income / this.dailyInfo.close) * 100;
       if (income !== this.income) {
         this.income = income;
         this.formattedIncome = this.formatPrice(this.income);

@@ -3,10 +3,10 @@
     <span class="" #incomeNode></span>
     <span class="income-info" #incomePercentageNode></span>
   </div>
-  <ng-container [class.d-none]="!showOHLVInfo">
+  <div [class.d-none]="!showOHLVInfo">
     <div class="chart-info">H: <span #high></span></div>
     <div class="chart-info">L: <span #low></span></div>
     <div class="chart-info">O: <span #open></span></div>
     <div class="chart-info">V: <span #volume></span></div>
-  </ng-container>
+  </div>
 </div>
