@@ -82,6 +82,8 @@ export class RithmicDatafeed extends Datafeed {
   makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
     const { exchange, symbol, productCode } = instrument;
 
+    const timeZoneOffset = this._getTimeZone();
+
     const params = {
       productCode,
       Exchange: exchange,
@@ -91,6 +93,7 @@ export class RithmicDatafeed extends Datafeed {
       endDate,
       accountId: this._account?.id,
       startDate,
+      timeZoneOffset,
       PriceHistory: true,
     };
 
@@ -214,4 +217,10 @@ export class RithmicDatafeed extends Datafeed {
     this._destroy.complete();
     this._unsubscribe();
   }
+
+  private _getTimeZone() {
+    var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+    return (offset < 0 ? "" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2) + ":00";
+  }
+  
 }
