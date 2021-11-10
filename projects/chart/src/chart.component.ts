@@ -1219,8 +1219,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.screenX;
-        coords.y = this.contextEvent.screenY;
+        coords.x = this.contextEvent.clientX;
+        coords.y = this.contextEvent.clientY;
       }
       this.layout.addComponent({
         component: {
@@ -1265,8 +1265,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     } else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.screenX;
-        coords.y = this.contextEvent.screenY;
+        coords.x = this.contextEvent.clientX;
+        coords.y = this.contextEvent.clientY;
       }
       this.layout.addComponent({
         component: {

@@ -382,7 +382,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
     });
   }
 
-  openIndicatorDialog() {
+  openIndicatorDialog($event) {
     this.layout.addComponent({
       component: {
         name: Components.Indicators,
@@ -392,6 +392,8 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
         },
       },
       width: 600,
+      x: $event.clientX,
+      y: $event.clientY,
       resizable: false,
       maximizable: false,
       allowPopup: false,
