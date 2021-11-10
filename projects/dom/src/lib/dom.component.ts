@@ -1119,6 +1119,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           this._fillPL();
           this._loadOrders();
           this.loadSessionsData();
+          this.centralize();
         },
         error => this.notifier.showError(error)
       );
