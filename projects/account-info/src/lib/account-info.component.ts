@@ -13,6 +13,9 @@ import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import { IAccountInfoPresets, IAccountInfoState } from '../models';
 import { NzModalService } from 'ng-zorro-antd';
+import { Subject } from 'rxjs';
+import { untilDestroyed } from '@ngneat/until-destroy';
+import { debounceTime } from 'rxjs/operators';
 
 export interface AccountInfoComponent extends ILayoutNode, IPresets<IAccountInfoState> {
 }
@@ -139,6 +142,8 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     color: '#D0D0D2',
   };
 
+  $loadData = new Subject<IAccount[]>();
+
   @ViewChild('dataGrid', { static: true }) _dataGrid: DataGrid;
 
   Components = Components;
@@ -148,8 +153,15 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
               private _storage: Storage,
               public readonly _notifier: NotifierService,
               public readonly _templatesService: TemplatesService,
-              public readonly _modalService: NzModalService,) {
+              public readonly _modalService: NzModalService) {
     super();
+    this.$loadData
+      .pipe(
+        debounceTime(10),
+        untilDestroyed(this))
+      .subscribe((accounts) => {
+        this.loadData({ accounts });
+      });
   }
 
   ngOnInit(): void {
@@ -220,7 +232,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
   }
 
   handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    this.loadData({ accounts: connectedAccounts });
+    this.$loadData.next(connectedAccounts);
   }
 
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
