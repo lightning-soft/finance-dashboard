@@ -145,8 +145,8 @@ export abstract class Datafeed implements IDatafeed {
       default:
         throw new Error(`Unknown request kind: ${request.kind}`);
     }
-
-    let barsCount = chart.primaryBarDataSeries().low.length - oldPrimaryBarsCount;
+    const newLength = chart.primaryBarDataSeries().low.length;
+    let barsCount = newLength - oldPrimaryBarsCount;
     if (instrument) {
       barsCount = Math.round(chart.lastVisibleIndex - chart.firstVisibleIndex);
     }
@@ -154,10 +154,11 @@ export abstract class Datafeed implements IDatafeed {
     // if !instrument then load bars for chart, not for compare
     if (instrument) {
       if (request.kind === RequestKind.BARS) {
-        chart.recordRange(barsCount > 0 && barsCount < 100 ? barsCount : 100);
+        const min = Math.max(0, newLength - 100);
+        chart.recordRange(min, newLength);
       } else if (request.kind === RequestKind.MORE_BARS) {
-        chart.firstVisibleRecord = barsCount < 0 ? 0 : oldFirstVisibleRecord + barsCount;
-        chart.lastVisibleRecord = oldLastVisibleRecord + Math.abs(barsCount);
+        chart.firstVisibleRecord = barsCount < 0 ? 0 : newLength - barsCount;
+        chart.lastVisibleRecord = newLength;
       }
     }
 
@@ -166,7 +167,9 @@ export abstract class Datafeed implements IDatafeed {
     chart.hideWaitingBar();
     chart.updateIndicators();
     chart.setNeedsAutoScale();
-    chart.setNeedsUpdate(true);
+    setTimeout(() => {
+      chart.setNeedsUpdate(true);
+    });
     chart.updateComputedDataSeries();
     chart.dateScale.onMoreHistoryRequestCompleted();
   }
