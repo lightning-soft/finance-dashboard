@@ -20,7 +20,8 @@
     [nzCustomContent]="true"
   >
     <div class="d-flex align-items-center w-100">
-      <span class="mr-auto">{{ item.name }}</span>
+      <span title="{{showTooltip ? item.name : null}}" [class.name-overflow]="withActions"
+            class="mr-auto">{{ item.name }}</span>
       <ng-container *ngIf="withActions">
         <span
           *ngFor="let action of actions"

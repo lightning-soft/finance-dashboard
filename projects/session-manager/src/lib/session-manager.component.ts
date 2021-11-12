@@ -5,6 +5,7 @@ import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { finalize } from 'rxjs/operators';
 import { ISession, ISessionWorkingTime, ITimezone, SessionsRepository, TimezonesRepository } from 'trading';
+import { RenameModalComponent } from 'ui';
 
 export interface SessionManagerComponent extends ILayoutNode, ItemComponent<ISession> {
 }
@@ -49,6 +50,7 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     protected _repository: SessionsRepository,
     private _modal: NzModalService,
     public timezonesRepository: TimezonesRepository,
+    private _modalService: NzModalService,
   ) {
     super();
 
@@ -127,6 +129,24 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       }
     });
   }
+
+  editSession = (item) => {
+    this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    }).afterClose.subscribe(name => {
+      if (name)
+        this._repository.updateItem({ ...item, name })
+          .pipe(untilDestroyed(this))
+          .subscribe();
+    });
+  };
 
   deleteWorkingTime(item: ISessionWorkingTime) {
     this.item.workingTimes = this.item.workingTimes.filter(i => i !== item);

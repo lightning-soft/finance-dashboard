@@ -2,6 +2,7 @@ import { Component, EventEmitter, Injector, Input, OnChanges, Output, SimpleChan
 // need to fix circular dependency
 import { ItemsComponent } from 'projects/base-components/src/components/items.component';
 import { Repository } from 'communication';
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 interface IDataSelectItemAction {
   icon: string;
@@ -23,6 +24,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() autoSelectFirst = true;
   @Input() disabled = false;
   @Input() withActions = false;
+  @Input() showTooltip = false;
+  @Input() editCallback = (item) => this.handleValueChange(item)
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();
 
@@ -33,19 +36,19 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
       icon: 'icon-edit',
       autoClose: true,
       callback: (item: any) => {
-        this.handleValueChange(item);
+        this.editCallback(item);
       },
     },
     {
       icon: 'icon-duplicate',
       autoClose: true,
       callback: (item: any) => {
-        const _item = {
-          ...item,
-          id: this.default?.id
-        };
-
-        this.handleValueChange(_item);
+        const { id, ..._item } = item;
+        this._repository.createItem(_item)
+          .pipe(untilDestroyed(this))
+          .subscribe((res) => {
+            this.handleValueChange(res);
+          });
       },
     },
     {

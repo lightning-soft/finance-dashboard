@@ -10,8 +10,10 @@
           label="Name"
           [default]="blankSession"
           [value]="item.id"
+          [editCallback]="editSession"
           [repository]="repository"
           [withActions]="true"
+          [showTooltip]="true"
           (handleChange)="handleSessionChange($event)"
         ></data-select>
       </div>

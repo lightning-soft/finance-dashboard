@@ -103,8 +103,6 @@ export abstract class Datafeed implements IDatafeed {
 
     const chart = request.chart;
     const dataManager = chart.dataManager;
-    const oldFirstVisibleRecord = chart.firstVisibleRecord;
-    const oldLastVisibleRecord = chart.lastVisibleRecord;
     const oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0;
     const instrument = chart.instrument;
 
@@ -119,7 +117,7 @@ export abstract class Datafeed implements IDatafeed {
         this.barHandler.clear();
         const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
         console.log('filteredBars', filteredBars.length, bars.length);
-        const processBars = this.barHandler.processBars(bars);
+        const processBars = this.barHandler.processBars(filteredBars);
         this.barHandler.setAdditionalInfo(additionalInfo);
         request.chart.dataManager.appendBars(processBars);
         const endTime = processBars[processBars.length - 1]?.date?.getTime() ?? 0;
@@ -154,7 +152,10 @@ export abstract class Datafeed implements IDatafeed {
     // if !instrument then load bars for chart, not for compare
     if (instrument) {
       if (request.kind === RequestKind.BARS) {
-        const min = Math.max(0, newLength - 100);
+        let min = Math.max(0, newLength - 100);
+        if (min >= newLength) {
+          min = 0;
+        }
         chart.recordRange(min, newLength);
       } else if (request.kind === RequestKind.MORE_BARS) {
         chart.firstVisibleRecord = barsCount < 0 ? 0 : newLength - barsCount;

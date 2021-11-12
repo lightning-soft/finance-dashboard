@@ -236,6 +236,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
   }
 
   handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+    this.builder.removeWhere(item => !connectedAccounts.some(acc => acc.id == item.id));
   }
 
 

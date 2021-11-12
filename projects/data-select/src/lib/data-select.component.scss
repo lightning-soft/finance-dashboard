@@ -3,6 +3,12 @@
   align-items: center;
 }
 
+.name-overflow {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 label {
   margin-bottom: 0;
   font-size: 11px;
