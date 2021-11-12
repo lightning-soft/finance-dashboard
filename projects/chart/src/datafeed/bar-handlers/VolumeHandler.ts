@@ -2,16 +2,17 @@ import { BarAction, ChartBarHandler } from './ChartBarHandler';
 import { IBar } from 'chart';
 
 export class VolumeHandler extends ChartBarHandler {
-  protected _shouldUpdateLastDate = true;
+  protected _shouldUpdateLastDate = false;
 
   processBars(bars: IBar[]) {
-    return bars.map((item, index, array) => {
+    return bars;
+   /* return bars.map((item, index, array) => {
       if (index === 0)
         return item;
       if (item.date === array[index - 1].date)
         item.date = new Date(item.date.getTime() + 1);
       return item;
-    });
+    });*/
   }
 
   _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {

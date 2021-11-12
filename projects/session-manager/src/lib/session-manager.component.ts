@@ -181,9 +181,15 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       nzCancelText: null,
       nzOkText: 'Save',
       nzOnOk: () => {
-        this.item.name = this.sessionName;
+        const item = { ...this.item, name: this.sessionName };
 
-        this.save();
+        const hide = this.showLoading(true);
+        this.repository.createItem(item)
+          .pipe(
+            untilDestroyed(this),
+            finalize(() => hide()),
+          )
+          .subscribe(() => this._showSuccess());
       },
     });
   }

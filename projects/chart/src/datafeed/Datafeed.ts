@@ -156,7 +156,8 @@ export abstract class Datafeed implements IDatafeed {
         if (min >= newLength) {
           min = 0;
         }
-        chart.recordRange(min, newLength);
+        if (newLength > 0)
+          chart.recordRange(min, newLength);
       } else if (request.kind === RequestKind.MORE_BARS) {
         chart.firstVisibleRecord = barsCount < 0 ? 0 : newLength - barsCount;
         chart.lastVisibleRecord = newLength;

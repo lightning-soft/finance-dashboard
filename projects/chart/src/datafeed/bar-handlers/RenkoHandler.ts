@@ -2,8 +2,10 @@ import { IBar } from 'chart';
 import { BarAction, ChartBarHandler } from './ChartBarHandler';
 
 export class RenkoBarHandler extends ChartBarHandler {
+  isFirstRealtimeBar = true;
 
   processBars(bars: IBar[]) {
+    this.isFirstRealtimeBar = true;
     return bars;
   }
 
@@ -12,7 +14,10 @@ export class RenkoBarHandler extends ChartBarHandler {
     const beforeLatBar = this.chart.dataManager.getBeforeLastBar();
     const offset = (this.chart.timeFrame.interval * this.chart.instrument.tickSize);
     const resultBars = [];
-
+    if (this.isFirstRealtimeBar) {
+      this.addBar(bar);
+      this.isFirstRealtimeBar = false;
+    }
     const isUp = beforeLatBar.high === beforeLatBar.close;
 
     if (bar.close >= offset + (isUp ? beforeLatBar.close : beforeLatBar.open)) {
@@ -49,7 +54,7 @@ export class RenkoBarHandler extends ChartBarHandler {
 
       return { action: BarAction.Add, bar };
     }
-    else if (( (isUp ? beforeLatBar.open : beforeLatBar.close) - offset) >= bar.close) {
+    else if (((isUp ? beforeLatBar.open : beforeLatBar.close) - offset) >= bar.close) {
       let isFirstNewBar = true;
       const updatePrice = isUp ? beforeLatBar.open : beforeLatBar.close;
       let newBarOpen = updatePrice - offset;
@@ -114,6 +119,7 @@ export class RenkoBarHandler extends ChartBarHandler {
   }
 
   clear() {
+    this.isFirstRealtimeBar = true;
     super.clear();
   }
 }

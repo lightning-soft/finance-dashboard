@@ -75,7 +75,16 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
 
     // return of({ data: hist.map(i => this._mapResponseItem(i)), requestParams: params,  total: hist.length, pageCount: 1, page: 1 } as any);
 
-    return super.getItems(params);
+    return super.getItems(params)
+      .pipe(map((res) => {
+        const { requestParams, data } = res;
+        if (requestParams.Periodicity === CustomPeriodicity.TICK)
+          res.data = res.data.map(item => {
+            item.ticksCount = requestParams.BarSize;
+            return item;
+          });
+        return res;
+      }));
   }
 
   makeRequest(params, path) {

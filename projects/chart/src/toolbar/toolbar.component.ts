@@ -383,6 +383,14 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   }
 
   openIndicatorDialog($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
+      return item.type === Components.Indicators && (item.component as any).linkKey === this.link;
+    });
+    if (widget) {
+      widget.focus();
+      return;
+    }
+
     this.layout.addComponent({
       component: {
         name: Components.Indicators,
@@ -399,7 +407,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
       allowPopup: false,
       closableIfPopup: true,
       minimizable: false,
-      single: true,
+      single: false,
       removeIfExists: false,
     });
   }
