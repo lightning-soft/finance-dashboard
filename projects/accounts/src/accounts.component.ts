@@ -84,10 +84,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
-        this.builder.replaceItems(connections);
-        if (!this.selectedItem && connections.length) {
+        const _conns = connections.filter(item => item.broker != null);
+        this.builder.replaceItems(_conns);
+        if (!this.selectedItem && _conns.length) {
           const index = 0;
-          this.selectItem(connections[index], index);
+          this.selectItem(_conns[index], index);
         } else {
           this._updateSelectedItem();
         }
@@ -292,7 +293,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         tap((item: any) => {
           if (!item.error) {
             this.selectedItem = item;
-            
+
             if (!this.existDefaultConnection) {
               this.selectFreeConnectionAsDefault();
             }
