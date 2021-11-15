@@ -9,23 +9,25 @@ export class RealAccountInfoRepository extends BaseRepository<AccountInfo> {
     return 'Account';
   }
 
-  getItems({ accounts }): Observable<IPaginationResponse<AccountInfo>> {
-    return forkJoin(accounts.map(item => {
-      return this.getItemById(item.id)
-        .pipe(catchError((err) => of(null)));
+  getItems({ connections }): Observable<IPaginationResponse<AccountInfo>> {
+    return forkJoin(connections.map(connection => {
+      return this._http.get(this._getRESTURL('info'), { ...this._httpOptions, ...this._mapItemParams({ connection }) })
+        .pipe(
+          map((item: any) => {
+            item.result.forEach(info => info.connectionId = connection.id);
+            return item;
+          }),
+          catchError((err) => of(null)));
     })).pipe(
-      map((response: AccountInfo[]) => {
-        const data = response.filter(item => item);
+      map((response: any) => {
+        const data = response.filter(item => item).reduce((total, curr) => {
+          return [...total, ...curr.result];
+        }, []);
         return {
           data,
           total: data.length,
         } as IPaginationResponse;
       })
     );
-  }
-
-  getItemById(id: number | string): Observable<AccountInfo> {
-    const params = this.getApiHeadersByAccount(id);
-    return super.getItemById(id, params);
   }
 }

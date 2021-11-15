@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
-import { AccountsListener, IAccountsListener, } from 'real-trading';
-import { AccountInfo, AccountInfoRepository, IAccount } from 'trading';
+import { ConnectionsListener, IConnectionsListener } from 'real-trading';
+import { AccountInfo, AccountInfoRepository, IConnection } from 'trading';
 import { convertToColumn, ItemsBuilder, ItemsComponent } from 'base-components';
 import { AccountInfoItem } from './models/account-info';
 import { NotifierService } from 'notifier';
@@ -120,10 +120,10 @@ const headers = [
     './account-info.component.scss',
   ]
 })
-@AccountsListener()
+@ConnectionsListener()
 @LayoutNode()
 @LayoutPresets()
-export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IAccountsListener {
+export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IConnectionsListener {
   builder = new ItemsBuilder<AccountInfo, AccountInfoItem>();
   contextMenuState = {
     showColumnHeaders: true,
@@ -142,7 +142,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     color: '#D0D0D2',
   };
 
-  $loadData = new Subject<IAccount[]>();
+  $loadData = new Subject<IConnection[]>();
 
   @ViewChild('dataGrid', { static: true }) _dataGrid: DataGrid;
 
@@ -159,8 +159,8 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       .pipe(
         debounceTime(10),
         untilDestroyed(this))
-      .subscribe((accounts) => {
-        this.loadData({ accounts });
+      .subscribe((connections) => {
+        this.loadData({ connections });
       });
   }
 
@@ -231,12 +231,15 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     this._dataGrid?.resize();
   }
 
-  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    this.$loadData.next(connectedAccounts);
+  handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this.$loadData.next(connectedConnections);
   }
 
-  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
-    this.builder.removeWhere(item => !connectedAccounts.some(acc => acc.id == item.id));
+  handleDefaultConnectionChanged() {
+  }
+
+  handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
+    this.builder.removeWhere(item => !connectedConnections.some(acc => acc.id == item.accountInfo.connectionId));
   }
 
 
