@@ -4,7 +4,6 @@
     <nz-switch [(ngModel)]="switchValue" nzSize="small"  (ngModelChange)="save()"></nz-switch>
     <p>On</p>
 </div>
-<hr>
 <div [ngClass]="!switchValue ? 'disabled' : ''">
     <lib-sound-setting *ngFor="let sound of settings" [checked]="sound?.checked" [name]="sound?.name" [selectedSound]="sound?.selectedSound" [volume]="sound?.volume" (switchValue)="switchValue = $event"></lib-sound-setting>
 </div>

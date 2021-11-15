@@ -4,12 +4,13 @@ import { SoundService } from '../sound.service';
 @Component({
   selector: 'lib-selected-sound',
   templateUrl: './selected-sound.component.html',
-  styleUrls: ['./selected-sound.component.css']
+  styleUrls: ['./selected-sound.component.scss']
 })
 export class SelectedSoundComponent {
   @Input() selectedSound: string;
   @Input() volume: number;
   @Output() nativeSelect: EventEmitter<string> = new EventEmitter<string>();
+  isVisible = false;
 
   readonly soundList: any[] = [
     'Ahooga',

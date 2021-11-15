@@ -1,19 +1,24 @@
 <div class="list">
-    <div class="selected" nz-button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" nzPlacement="bottomRight">
-        <p>{{ selectedSound }}</p>
-        <p class="arrow">></p>
-    </div>
-    <nz-dropdown-menu #menu="nzDropdownMenu">
-        <ul nz-menu>
-            <nz-radio-group [(ngModel)]="selectedSound" (ngModelChange)="select($event)">
-                <li nz-menu-item *ngFor="let sound of soundList">
-                    <label nz-radio [nzValue]="sound">{{ sound }}</label>
-                    <div class="icon" (mouseenter)="play(sound)">
-                        <img class="icon-img" src="./assets/icon/listen.png" alt="">
-                        <img class="icon-img-hover" src="./assets/icon/listen-hover.png" alt="">
-                    </div>
-                </li>
-            </nz-radio-group>
-        </ul>
-    </nz-dropdown-menu>
+  <div class="selected" nz-button nz-dropdown nzTrigger="click"
+       [(nzVisible)]="isVisible"
+       [class.opened]="isVisible"
+       [nzDropdownMenu]="menu" nzPlacement="bottomRight">
+    <p class="sound">{{ selectedSound }}</p>
+    <i class="icon-arrow-down"></i>
+  </div>
+  <nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu>
+      <cdk-virtual-scroll-viewport class="selected-sound-overlay" itemSize="">
+        <nz-radio-group [(ngModel)]="selectedSound" (ngModelChange)="select($event)">
+          <li nz-menu-item *ngFor="let sound of soundList">
+            <label nz-radio [nzValue]="sound">{{ sound }}</label>
+            <div class="icon" (mouseenter)="play(sound)">
+              <img class="icon-img" src="./assets/icon/listen.png" alt="">
+              <img class="icon-img-hover" src="./assets/icon/listen-hover.png" alt="">
+            </div>
+          </li>
+        </nz-radio-group>
+      </cdk-virtual-scroll-viewport>
+    </ul>
+  </nz-dropdown-menu>
 </div>

@@ -8,21 +8,22 @@ import { SoundSettingComponent } from './sound-setting/sound-setting.component';
 import { SoundTabSettingComponent } from './sound-tab-setting/sound-tab-setting.component';
 import { SettingsStore, SoundService } from './sound.service';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
-
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 
 @NgModule({
   declarations: [SoundTabSettingComponent, SoundSettingComponent, SelectedSoundComponent],
-  imports: [
-    CommonModule,
-    NzSelectModule,
-    NzSliderModule,
-    NzDropDownModule,
-    NzSwitchModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NzRadioModule,
-  ],
+    imports: [
+        CommonModule,
+        NzSelectModule,
+        NzSliderModule,
+        NzDropDownModule,
+        NzSwitchModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NzRadioModule,
+        ScrollingModule,
+    ],
   exports: [SoundTabSettingComponent]
 })
 export class SoundModule {

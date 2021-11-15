@@ -1,7 +1,7 @@
 <div class="setting-sound">
     <label class="custom-checkbox mb-1">
         <input type="checkbox" [checked]="checked" (change)="changeCheckbox($event)">
-        <span>{{ name }}</span>
+        <span class="checkbox-label">{{ name }}</span>
     </label>
 
     <lib-selected-sound [selectedSound]="selectedSound" [volume]="volume" (nativeSelect)="selectedSound = $event; save();"></lib-selected-sound>

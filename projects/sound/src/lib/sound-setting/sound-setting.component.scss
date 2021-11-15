@@ -1,0 +1,70 @@
+@import "~src/scss/variables";
+
+nz-select {
+  margin-right: 8px;
+  width: calc(100% - 14px);
+  background: #1B1D22;
+  border-radius: 2px;
+  margin: 5px 7px;
+}
+
+:host ::ng-deep {
+  .custom-checkbox input[type=checkbox] + *:before {
+    top: 3px;
+  }
+
+  .custom-checkbox input[type=checkbox] + *:after {
+    top: 6px;
+  }
+
+  .ant-slider-rail, .ant-slider-track {
+    height: 2px;
+  }
+
+  .ant-slider-handle {
+    width: 8px;
+    height: 8px;
+    margin-top: -3px;
+  }
+
+  nz-slider {
+    height: 12px;
+
+    .ant-slider {
+      margin: 0;
+    }
+  }
+}
+
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  background: #1B1D22;
+}
+
+.checkbox-label {
+  color: $text-60;
+  font-size: 0.8rem;
+}
+
+.setting-sound {
+  display: grid;
+  grid-column-gap: 15px;
+  grid-template-columns: 1fr 120px 1fr;
+  padding-left: 3px;
+  padding-right: 3px;
+  width: 100%;
+  align-items: center;
+}
+
+.volume-info {
+  height: 20px;
+  opacity: 0.6;
+  margin: 0 0 0 10px;
+  font-size: 0.75rem;
+}
+
+.slider {
+  display: grid;
+  height: 20px;
+  align-items: center;
+  grid-template-columns: calc(100% - 40px) 40px;
+}

@@ -2,6 +2,7 @@ const primary = '#4895F5';
 const selectBackground = 'rgba(36, 38, 44, 1)';
 const dropdownBackground = 'rgba(36, 38, 44, 1)';
 const activeItemBackground = 'rgb(56,58,64)';
+const light3 = '#383A40';
 const checkboxSize = '12px';
 const formItemHeight = '20px';
 const baseFontSize = '0.7rem';
@@ -669,15 +670,15 @@ module.exports = {
   "breadcrumb-separator-color": "@text-color-secondary",
   "breadcrumb-separator-margin": "0 @padding-xs",
   "slider-margin": "10px 6px 10px",
-  "slider-rail-background-color": "#262626",
-  "slider-rail-background-color-hover": "@border-color-base",
-  "slider-track-background-color": "@primary-3",
-  "slider-track-background-color-hover": "@primary-4",
+  "slider-rail-background-color": light3,
+  "slider-rail-background-color-hover": light3,
+  "slider-track-background-color": primary,
+  "slider-track-background-color-hover": primary,
   "slider-handle-border-width": "2px",
   "slider-handle-background-color": "@component-background",
-  "slider-handle-color": "@primary-3",
-  "slider-handle-color-hover": "@primary-4",
-  "slider-handle-color-focus": "tint(@primary-color, 20%)",
+  "slider-handle-color": primary,
+  "slider-handle-color-hover": primary,
+  "slider-handle-color-focus": primary,
   "slider-handle-color-focus-shadow": "fade(@primary-color, 12%)",
   "slider-handle-color-tooltip-open": "@primary-color",
   "slider-handle-shadow": "0",
