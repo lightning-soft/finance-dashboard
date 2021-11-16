@@ -138,7 +138,8 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       nzWidth: 438,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
-        label: 'Template name',
+        label: 'Session name',
+        name: item.name,
       },
     }).afterClose.subscribe(name => {
       if (name)

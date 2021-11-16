@@ -11,6 +11,7 @@ import {
   CompositeProfile,
   CustomVolumeProfile,
   Footprint,
+  General,
   Indicator,
   PriceStats,
   SessionStats,
@@ -169,11 +170,7 @@ export class IndicatorsComponent implements OnInit {
   }
 
   selectIndicator(item: any) {
-    const _constructor = this._constructorsMap.get(item.className);
-    if (!_constructor) {
-      this.selectedIndicator = null;
-      return;
-    }
+    const _constructor = this._constructorsMap.get(item.className) || General;
 
     this.selectedIndicator = new _constructor(item);
 
