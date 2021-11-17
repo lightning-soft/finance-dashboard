@@ -1,14 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  NgZone,
-  OnDestroy,
-  Output,
-  ViewChild
-} from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { bottomWidgetList, widgetList } from '../component-options';
@@ -26,7 +16,7 @@ import { Storage } from 'storage';
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements OnDestroy, AfterViewInit {
+export class DragDrawerComponent implements OnDestroy {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
   @ViewChild(NzSubMenuComponent) submenu: NzSubMenuComponent;
@@ -60,10 +50,6 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
           [...this.templates[template.type], template] : [template];
       });
     });
-  }
-
-  ngAfterViewInit() {
-    runZoneWhenSubmenuToggle(this.submenu, this._zone);
   }
 
   create(item, template?: IBaseTemplate): void {
@@ -124,22 +110,10 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
   }
 
   handleSubmenuOpenChange(): void {
-    this._changeDetectorRef.detectChanges();
+    this._zone.run(() => {});
   }
 
   ngOnDestroy() {
     this._templatesSubscription.unsubscribe();
   }
-}
-
-// The problem which we are fixed here
-// Sub menu not opened in correct place
-// It is happened after we disable mouse events in zone
-// Other solutions: modified library or create own menu component
-// If it happens in other components(places) think about return some event in zone detection
-function runZoneWhenSubmenuToggle(submenu: NzSubMenuComponent, zone: NgZone) {
-  const originalSetMouseEnterState = submenu.setMouseEnterState.bind(submenu);
-  submenu.setMouseEnterState = (...args) => {
-    zone.run(() => originalSetMouseEnterState(...args));
-  };
 }
