@@ -384,7 +384,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
 
   openIndicatorDialog($event) {
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item.type === Components.Indicators && (item.component as any).linkKey === this.link;
+      return item.type === Components.Indicators && (item.component as any).link === this.link;
     });
     if (widget) {
       widget.focus();
