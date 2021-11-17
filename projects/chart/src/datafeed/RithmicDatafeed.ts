@@ -5,6 +5,7 @@ import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, T
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity, TimeFrame } from './TimeFrame';
+import { NotifierService } from 'notifier';
 
 const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.DAY };
 declare let StockChartX: any;
@@ -22,6 +23,7 @@ export class RithmicDatafeed extends Datafeed {
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _tradeDataFeed: TradeDataFeed,
+    private _notifier: NotifierService,
   ) {
     super();
   }
@@ -75,7 +77,7 @@ export class RithmicDatafeed extends Datafeed {
 
       return;
     }
-
+    this.endDate = endDate;
     this.makeRequest(instrument, request, timeFrame, endDate, startDate);
   }
 
@@ -112,7 +114,10 @@ export class RithmicDatafeed extends Datafeed {
           this.onRequestCompleted(request, { bars: res.data, additionalInfo: res.additionalInfo, });
         }
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this._notifier.showError('Error during fetching history data');
+        console.error(err);
+      },
     });
     this.requestSubscriptions.set(request.id, subscription);
   }
@@ -222,5 +227,5 @@ export class RithmicDatafeed extends Datafeed {
     var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
     return (offset < 0 ? "" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2) + ":00";
   }
-  
+
 }

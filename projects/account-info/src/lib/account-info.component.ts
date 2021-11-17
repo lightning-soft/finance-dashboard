@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { ConnectionsListener, IConnectionsListener } from 'real-trading';
 import { AccountInfo, AccountInfoRepository, IConnection } from 'trading';
@@ -8,14 +8,13 @@ import { NotifierService } from 'notifier';
 import { AccountInfoColumnsEnum } from './models/account-info-columns.enum';
 import { DataGrid } from 'data-grid';
 import { Storage } from 'storage';
-import { accountInfoSizeKey } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import { IAccountInfoPresets, IAccountInfoState } from '../models';
 import { NzModalService } from 'ng-zorro-antd';
 import { Subject } from 'rxjs';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 
 export interface AccountInfoComponent extends ILayoutNode, IPresets<IAccountInfoState> {
 }
@@ -158,8 +157,9 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     this.$loadData
       .pipe(
         debounceTime(10),
-        untilDestroyed(this))
-      .subscribe((connections) => {
+        filter((connections) => !!connections.length),
+        untilDestroyed(this)
+      ).subscribe((connections) => {
         this.loadData({ connections });
       });
   }
@@ -171,17 +171,6 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       wrap: (accountInfo) => new AccountInfoItem(accountInfo),
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
     });
-    this.onRemove(() => {
-      this.onClose();
-    });
-    const data = this._storage.getItem(accountInfoSizeKey);
-    this.loadState(data?.state);
-    if (data?.layoutConfig) {
-      this.layoutContainer.height = data?.layoutConfig.height;
-      this.layoutContainer.width = data?.layoutConfig.width;
-      this.layoutContainer.x = data.layoutConfig.x;
-      this.layoutContainer.y = data.layoutConfig.y;
-    }
   }
 
   saveState() {
@@ -195,12 +184,6 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     if (state?.contextMenuState) {
       this.contextMenuState = state.contextMenuState;
     }
-  }
-
-  @HostListener('beforeunload')
-  onClose() {
-    const { x, y, height, width } = this.layoutContainer.options;
-    this._storage.setItem(accountInfoSizeKey, { layoutConfig: { height, width, x, y }, state: this.saveState() });
   }
 
 

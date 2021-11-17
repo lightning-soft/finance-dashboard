@@ -184,7 +184,8 @@ export class IndicatorsComponent implements OnInit {
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
         this.chart.updateIndicators();
         const autoScale = !this._forbidAutoScaleIndicators.includes(this.selectedIndicator.instance.className);
-        this.chart.setNeedsUpdate(autoScale);
+        this.chart.setNeedsLayout();
+        this.chart.setNeedsUpdate();
       });
   }
 
@@ -223,6 +224,7 @@ export class IndicatorsComponent implements OnInit {
     this.chart.addIndicators(indicator);
     this._applyZIndex();
     this.chart.setNeedsUpdate();
+    this.chart.setNeedsLayout();
 
     this.selectIndicator(indicator);
   }

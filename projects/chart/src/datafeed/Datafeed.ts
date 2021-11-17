@@ -39,6 +39,8 @@ export abstract class Datafeed implements IDatafeed {
 
   protected _historyItems = [];
 
+  protected endDate;
+
   /**
    * @internal
    */
@@ -120,7 +122,7 @@ export abstract class Datafeed implements IDatafeed {
         const processBars = this.barHandler.processBars(filteredBars);
         this.barHandler.setAdditionalInfo(additionalInfo);
         request.chart.dataManager.appendBars(processBars);
-        const endTime = processBars[processBars.length - 1]?.date?.getTime() ?? 0;
+        const endTime = this.endDate?.getTime() ?? 0;
         if (Array.isArray(this._quotes)) {
           for (const quote of this._quotes) {
             if ((quote?.date?.getTime() ?? 0) > endTime)
