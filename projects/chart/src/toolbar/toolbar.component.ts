@@ -34,21 +34,6 @@ import { compareTimeFrames } from './frame-selector/frame-selector.component';
 
 declare const StockChartX;
 
-const periodicityMap = new Map([
-  ['t', 't'],
-  ['s', 's'],
-  ['', 'm'],
-  ['h', 'h'],
-  ['d', 'D'],
-  ['m', 'M'],
-  ['y', 'Y'],
-  ['w', 'W'],
-  ['revs', 'RV'],
-  ['r', 'RK'],
-  ['range', 'RG'],
-  ['v', 'V'],
-]);
-
 @UntilDestroy()
 @Component({
   selector: 'app-toolbar',
@@ -70,7 +55,9 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   priceOpen = false;
   showFramePopover = false;
 
-  timePeriod = { periodicity: StockChartXPeriodicity.DAY, interval: 3 };
+  get timePeriod() {
+    return this.chart?.periodToLoad;
+  }
 
   showToolbar = true;
   isDrawingsPinned = false;
@@ -361,10 +348,6 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
     } else {
       return false;
     }
-  }
-
-  getShortTimeFrame(timeFrame: ITimeFrame): string {
-    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
   }
 
   compareInstrumentDialog() {

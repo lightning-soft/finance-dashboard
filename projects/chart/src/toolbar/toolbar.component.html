@@ -132,8 +132,8 @@
             [nzPopoverMouseLeaveDelay]="0"
             [(nzPopoverVisible)]="showFramePopover"
             [nzPopoverContent]="frameIntervalTemplate">
-      <span *ngIf="timeFrame">
-        {{getShortTimeFrame(timeFrame)}}
+      <span *ngIf="timePeriod">
+        {{timePeriod | timeframeTransform}}
       </span>
       <i class="icon-arrow-down" [class.is-open]="showFramePopover"></i>
     </button>
@@ -257,6 +257,5 @@
   <frame-selector
     (intervalAdded)="onIntervalAdded($event)"
     (periodAdded)="onPeriodAdded($event)"
-    [(timePeriod)]="timePeriod"
     [intervalOptions]="intervalOptions" [periodOptions]="periodOptions" [chart]="chart"></frame-selector>
 </ng-template>

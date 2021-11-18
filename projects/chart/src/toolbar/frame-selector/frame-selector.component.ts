@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame} from '../../models';
-import {NotifierService} from 'notifier';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../../models';
+import { NotifierService } from 'notifier';
 
 @Component({
   selector: 'frame-selector',
@@ -15,6 +15,8 @@ export class FrameSelectorComponent {
   periodPeriodicity = StockChartXPeriodicity.DAY;
 
   isLeaving = false;
+  actives = {};
+  intervalActives = {};
 
 
   @Input() chart: IChart;
@@ -38,14 +40,14 @@ export class FrameSelectorComponent {
   private _timePeriod: ITimeFrame;
 
   get timePeriod() {
-    return this._timePeriod;
+    return this.chart.periodToLoad;
   }
 
-  @Input() set timePeriod(value) {
+  set timePeriod(value) {
     if (value === this._timePeriod)
       return;
 
-    this._timePeriod = value;
+    this.chart.periodToLoad = value;
     this.timePeriodChange.emit(value);
     this.updateChartBars();
   }
@@ -74,6 +76,22 @@ export class FrameSelectorComponent {
   constructor(private _notifier: NotifierService) {
   }
 
+  ngOnInit() {
+    const timeFrame = this.timePeriod;
+    const option = this.periodOptions.find(item => {
+      return item.timeFrames.some(frame => compareTimeFrames(timeFrame, frame));
+    });
+    if (option)
+      this.actives[option.period] = true;
+
+    const timeInterval = this.timeFrame;
+    const intervalOption = this.intervalOptions.find(item => {
+      return item.timeFrames.some(frame => compareTimeFrames(timeInterval, frame));
+    });
+    if (intervalOption)
+      this.intervalActives[intervalOption.period] = true;
+  }
+
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = this.getTimeFrameLabel(timeFrame.periodicity);
     return `${timeFrame.interval} ${label}`;
@@ -94,14 +112,14 @@ export class FrameSelectorComponent {
   addPeriod() {
     const interval = this.peridInterval;
     const periodicity = this.periodPeriodicity;
-    const frame = {interval, periodicity};
+    const frame = { interval, periodicity };
     this.periodAdded.emit(frame);
   }
 
   addFrameInterval() {
     const interval = this.timeInterval;
     const periodicity = this.timePeriodicity;
-    const frame = {interval, periodicity};
+    const frame = { interval, periodicity };
     this.intervalAdded.emit(frame);
   }
 

@@ -221,6 +221,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    * @memberOf StockChartX.Chart#
    */
   timeFrame: IStockChartXTimeFrame;
+
+  periodToLoad: IStockChartXTimeFrame;
+
   readonly chartPanelsFrame: any;
   /**
    * The instrument.

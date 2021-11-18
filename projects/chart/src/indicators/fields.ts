@@ -1493,7 +1493,12 @@ export const priceStatsConfig: IFieldConfig[] = [
         templateOptions: {
           label: 'RTH',
         },
-        className: 'mt-4 block profile-settings bordered',
+        className: '',
+        expressionProperties: {
+          className: (a, b, field) => {
+            return field.form.value.overlayEthOverRth ? 'mt-4 block profile-settings bordered' : 'mt-4 block profile-settings bordered hide-border-label';
+          },
+        },
       }),
       getShorterConfig('eth', {
         hideExpression: (model, state, field) => {

@@ -66,7 +66,7 @@ export class RithmicDatafeed extends Datafeed {
       endDate = new Date();
 
     if (!startDate)
-      startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(defaultTimePeriod));
+      startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(request.chart.periodToLoad));
     startDate.setHours(0, 0, 0, 0);
 
     this.lastInterval = endDate.getTime() - startDate.getTime();

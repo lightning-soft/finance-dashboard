@@ -5,10 +5,12 @@ const items: ITimezone[] = [
   {
     id: 1,
     name: 'America/Chicago',
+    offset: -6,
   },
   {
     id: 2,
     name: 'Europe/Kiev',
+    offset: 2,
   },
 ];
 

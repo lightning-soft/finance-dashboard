@@ -127,7 +127,7 @@ export class IndicatorsComponent implements OnInit {
       name: 'Others',
       indicators: [
         'ADXR', 'APZ', 'BOP', 'DonchianChannel', 'RSS', 'Range', 'KeyReversalDown', 'KeyReversalUp',
-        'StochRSI', 'PFE', 'RIND', 'Momentum', 'McGinleysDynamic', 'VWAP', 'VolumeUpDown',
+        'StochRSI', 'PFE', 'RIND', 'Momentum', 'McGinleysDynamic', 'VolumeUpDown',
         'NBarsDown', 'LogChange', 'NBarsUp'
       ],
     }
