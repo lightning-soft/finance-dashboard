@@ -2,7 +2,9 @@
   <div class="frame-interval-column"><span class='frame-column-title'> Interval</span>
     <div class="frame-interval-options">
       <nz-collapse nzAccordion nzExpandIconPosition="right" class="">
-        <nz-collapse-panel *ngFor="let option of intervalOptions"
+        <nz-collapse-panel
+          [(nzActive)]="intervalActives[option.period]"
+          *ngFor="let option of intervalOptions"
                            [nzHeader]="option.period">
           <div *ngFor="let frame of option.timeFrames"
                [class.selected]="isIntervalSelected(frame)"
@@ -27,8 +29,8 @@
   <div class="frame-interval-column">
     <span class='frame-column-title'> Period to load</span>
     <div class="frame-interval-options">
-      <nz-collapse nzAccordion nzExpandIconPosition="right" class="">
-        <nz-collapse-panel *ngFor="let option of periodOptions" [nzHeader]="option.period">
+      <nz-collapse nzExpandIconPosition="right" class="">
+        <nz-collapse-panel [(nzActive)]="actives[option.period]" *ngFor="let option of periodOptions" [nzHeader]="option.period">
           <div *ngFor="let frame of option.timeFrames"
                [class.selected]="isPeriodSelected(frame)"
                [class.disabled]="frame.disabled"

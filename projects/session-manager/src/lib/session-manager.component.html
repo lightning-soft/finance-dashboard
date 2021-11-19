@@ -17,7 +17,7 @@
           (handleChange)="handleSessionChange($event)"
         ></data-select>
       </div>
-      <div class="pl-2 flex-grow-1">
+      <div class="pl-2 time-zones  flex-grow-1">
         <data-select
           label="Time Zone"
           [value]="item.timezoneId"
@@ -75,6 +75,7 @@
         <td>
           <time-select
             [value]="workingTime.endTime"
+            [step]="5"
             (valueChange)="workingTime.endTime = $event"
           ></time-select>
         </td>

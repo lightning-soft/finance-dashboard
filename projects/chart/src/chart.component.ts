@@ -123,8 +123,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
-  showOrderConfirm = true;
-  showCancelConfirm = true;
+
+  get showOrderConfirm(): boolean {
+    return this.settings.trading.trading.showOrderConfirm;
+  }
+
+  set showOrderConfirm(value: boolean) {
+    this.settings.trading.trading.showOrderConfirm = value;
+    this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
+
+  get showCancelConfirm() {
+    return this.settings.trading.trading.showCancelConfirm;
+  }
+
+  set showCancelConfirm(value) {
+    this.settings.trading.trading.showCancelConfirm = value;
+    this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
 
   intervalOptions = [
     {
@@ -455,7 +471,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._subscribeToHotKey();
   }
 
-  private _updateOHLVData() {
+  _updateOHLVData = () => {
     if (this.lastHistoryItem?.open != null) {
       this.income = +(this.lastHistoryItem.close - this.lastHistoryItem.open).toFixed(this.instrument.precision);
       const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
@@ -480,8 +496,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.lastHistoryItem = historyItem;
-    this._updateOHLVData();
-
+    requestAnimationFrame(this._updateOHLVData);
   }
 
   private _handleQuote(quote: IQuote) {
@@ -528,10 +543,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       showChartForm: this.showChartForm,
       enableOrderForm: this.enableOrderForm,
       link: this.link,
-      showOrderConfirm: this.showOrderConfirm,
       showCancelConfirm: this.showCancelConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
+      periodToLoad: chart.periodToLoad,
       stockChartXState: chart.saveState(),
       intervalOptions: this.toolbar.intervalOptions,
       periodOptions: this.toolbar.periodOptions,
@@ -552,10 +567,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showOHLV = state?.showOHLV;
     this.enableOrderForm = state?.enableOrderForm;
     this.showChartForm = state?.showChartForm;
-    if (state?.hasOwnProperty('showOrderConfirm'))
-      this.showOrderConfirm = state?.showOrderConfirm;
-    if (state?.hasOwnProperty('showCancelConfirm'))
-      this.showCancelConfirm = state?.showCancelConfirm;
     if (state?.hasOwnProperty('settings'))
       this.settings = state.settings;
 
@@ -576,6 +587,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       symbol: 'ESZ1',
       exchange: 'CME',
       productCode: 'ES',
+      description: 'E-Mini S&P 500',
       tickSize: 0.25,
       precision: 2,
       company: this._getInstrumentCompany(),
@@ -617,7 +629,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (state.instrument && state.instrument.id != null) {
           this.instrument = state.instrument; // todo: test it
         }
-
+        if (state.periodToLoad != null) {
+          chart.periodToLoad = state.periodToLoad;
+        }
         if (state.timeFrame != null) {
           chart.timeFrame = state.timeFrame;
         }
@@ -721,6 +735,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
+      periodToLoad: (state && state.periodToLoad)
+        ?? { interval: 3, periodicity: StockChartXPeriodicity.DAY },
       theme: getScxTheme(),
     } as IChartConfig);
   }
@@ -857,7 +873,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.activeIndicator.templateId = template.id;
     this.loadedCustomeVolumeTemplate = template;
     this.activeIndicator.settings = template.settings;
-   //  this.chart?.setNeedsUpdate();
+    //  this.chart?.setNeedsUpdate();
   }
 
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
@@ -1164,11 +1180,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._sideForm.loadState({ settings: mapSettingsToSideFormState(settings) });
 
     this.chart.theme = theme;
-    let needAutoScale = false;
 
     if (oldTheme.tradingPanel.tradingBarLength != theme.tradingPanel.tradingBarLength ||
       theme.tradingPanel.tradingBarUnit != oldTheme.tradingPanel.tradingBarUnit) {
-      needAutoScale = true;
       this.chart.handleResize();
     }
 
@@ -1197,7 +1211,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
     this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
 
-    this.chart.setNeedsUpdate(needAutoScale);
+    this.chart.setNeedsLayout();
+    this.chart.setNeedsUpdate();
   }
 
   private _getSettingsKey() {
@@ -1321,8 +1336,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._volumeProfileTemplatesRepository.updateItem(template)
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-      this.loadedCustomeVolumeTemplate = template;
-    }, error => this._notifier.showError(error, 'Failed to save Template'));
+        this.loadedCustomeVolumeTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to save Template'));
   }
 
   saveAsCustomVolume(): void {

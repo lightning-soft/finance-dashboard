@@ -166,6 +166,8 @@ defaultChartSettings = {
     trading: {
       bracketButton: true,
       orderBarLength: 100,
+      showOrderConfirm: true,
+      showCancelConfirm: true,
       orderBarUnit: 'pixels',
       showInstrumentChange: false,
       showOHLVInfo: false,

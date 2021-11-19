@@ -2,9 +2,15 @@
 
 
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
-  <instrument-select class="mr-2" placeholder="Symbol" [(instrument)]="instrument" [account]="account">
+  <instrument-select class="mr-1" placeholder="Symbol" [(instrument)]="instrument" [account]="account">
   </instrument-select>
   <account-select #select [(account)]="account"></account-select>
+  <div class="vertical-line"></div>
+  <div class="d-flex align-items-center instrument-description">
+    {{instrument?.description | nullCoalescing : ''}}
+    <ng-container *ngIf="instrument?.description != null && instrument?.description != ''">,</ng-container>
+    {{this.chart?.timeFrame | timeframeTransform}}
+  </div>
   <div class="ml-auto trading-instruments" *ngIf="enableOrderForm">
     <i *ngFor="let item of directions" (click)="currentDirection = item" [class.active]="currentDirection === item"
        class="icon-{{item}} direction window-icon"></i>
@@ -26,7 +32,8 @@
     <div class="chart" #chartContainer></div>
   </div>
 
-  <side-form #chartForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId" [position]="position"
+  <side-form #chartForm [class.d-none]="!showChartForm || !enableOrderForm" [accountId]="accountId"
+             [position]="position"
              [ocoStep]="ocoStep" [orders]="orders" (actions)="handleFormAction($event)" [instrument]="instrument">
     <div class="form-header" headerContent>
       <info-component

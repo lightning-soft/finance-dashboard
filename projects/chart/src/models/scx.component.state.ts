@@ -16,4 +16,5 @@ export interface IScxComponentState {
   stockChartXState: IStockChartXState;
   instrument: IStockChartXInstrument;
   timeFrame: IStockChartXTimeFrame;
+  periodToLoad: IStockChartXTimeFrame;
 }

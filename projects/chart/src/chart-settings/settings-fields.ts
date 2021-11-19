@@ -178,7 +178,14 @@ export const tradingFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-grid two-rows p-x-7',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ key: 'showWorkingOrders', label: 'Show Working Orders' }],
+            extraConfig: {
+              fieldGroupClassName: '',
+            },
+            checkboxes: [
+              { key: 'showWorkingOrders', label: 'Show Working Orders' },
+              { key: 'showOrderConfirm', label: 'Require Order Confirmation' },
+              { key: 'showCancelConfirm', label: 'Require Cancel Confirmation' }
+            ],
           }),
           getCheckboxes({
             extraConfig: {

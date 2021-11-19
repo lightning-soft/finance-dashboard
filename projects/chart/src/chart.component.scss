@@ -591,7 +591,40 @@ side-form {
   }
 }
 
+.vertical-line {
+  width: 1px;
+  height: 12px;
+  background: $light2;
+}
+
+.instrument-description {
+  margin-left: 5px;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  pointer-events: none;
+  cursor: move;
+  white-space: nowrap;
+}
+
 :host ::ng-deep {
+  instrument-select {
+    nz-select {
+      min-width: 1px;
+      width: auto;
+    }
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    padding: 0;
+    padding-left: 4px;
+    padding-right: 9px;
+  }
+
+  .ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    padding-right: 10px;
+  }
+
   .scxCrossHairTradingButton {
     display: none;
   }

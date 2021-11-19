@@ -2,6 +2,13 @@
   font-size: 11px;
 
   ::ng-deep {
+    .time-zones {
+      nz-select {
+        display: block;
+        width: calc(100% - 65px) !important;
+      }
+    }
+
     .ant-select {
       nz-select-top-control {
         padding-left: 6px !important;

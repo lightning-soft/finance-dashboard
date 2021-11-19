@@ -730,7 +730,7 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
 
   async _getItems() {
     const templates = this._settingsService.settings.value.volumeProfileTemplates;
-    if (templates.length)
+    if (templates?.length)
       return Promise.resolve(templates);
     else {
       this._settingsService.set(STORE_KEY, DefaultTemplates);

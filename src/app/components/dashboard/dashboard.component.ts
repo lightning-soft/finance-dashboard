@@ -103,7 +103,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     this._setupSettings();
     this._subscribeToOrders();
-
     /*
     / For performance reason avoiding ng zone in some cases
     */
@@ -159,24 +158,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       $('body').removeClass();
       $('body').addClass(theme === Themes.Light ? 'scxThemeLight' : 'scxThemeDark');
     });
-
-    window.onbeforeunload = (e) => {
-      for (const fn of this._subscriptions)
-        fn();
-      if (this.hasBeenSaved || isElectron() || !environment.production || this._windowPopupManager.isPopup())
-        return;
-      e = e || window.event;
-
-      // For IE and Firefox prior to version 4
-      if (e) {
-        e.returnValue = true;
-      }
-      // For Safari
-      return true;
-    };
-    this.windowMessengerService.subscribe(closeCommand, () => {
-      window.close();
-    });
     if (isElectron()) {
       this.windowMessengerService.subscribe(highligtCommand, ({ workspaceId, windowId }) => {
         if (!this._workspaceService.checkIfCurrentWindow(workspaceId, windowId))
@@ -194,6 +175,47 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.isActive = false;
       });
     }
+    const set = new Set<() => void>();
+
+    (window as any)._requestAnimationFrame = (window as any).requestAnimationFrame;
+    (window as any).requestAnimationFrame = (callback: () => void): number => {
+      if (!set.size) {
+        (window as any)._requestAnimationFrame(() => {
+          if (!set.size)
+            return;
+          set.forEach(fn => {
+           try {
+              fn();
+            } catch (e) {
+              console.error(e);
+            }
+          });
+          set.clear();
+        });
+      }
+
+      if (callback != null && !set.has(callback))
+        set.add(callback);
+
+      return 0;
+    };
+    window.onbeforeunload = (e) => {
+      for (const fn of this._subscriptions)
+        fn();
+      if (this.hasBeenSaved || isElectron() || !environment.production || this._windowPopupManager.isPopup())
+        return;
+      e = e || window.event;
+
+      // For IE and Firefox prior to version 4
+      if (e) {
+        e.returnValue = true;
+      }
+      // For Safari
+      return true;
+    };
+    this.windowMessengerService.subscribe(closeCommand, () => {
+      window.close();
+    });
   }
 
 

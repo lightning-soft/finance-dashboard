@@ -277,11 +277,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     (window as any).dom = this;
 
-    setInterval(() => {
-      console.log(this._counter);
-      this._counter = 0;
-    }, 1000 * 60);
-
     this.askSumItem = this._getItem(null);
     this.bidSumItem = this._getItem(null);
     this._lastAskItem = this._getItem(null);
@@ -544,8 +539,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   componentInstanceId: number;
 
   dailyInfo: Partial<IHistoryItem>;
-
-  private _counter = 0;
 
   protected _ttt = 0;
 
@@ -915,7 +908,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }).forEach(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
-  // #TODO need test
   private _createOrderByCurrent(side: OrderSide, price: number) {
     if (price)
       this._createOrder(side, +price);
@@ -925,11 +917,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.domKeyHandlers[key]();
   }
 
-  handleOHLV(ohlv) {
-    this.dailyInfo = { ...ohlv };
+  _updateDailyInfoComponent = () => {
     this.dailyInfoComponents.forEach(item => {
       item.handleDailyInfo(this.dailyInfo as IHistoryItem);
     });
+  }
+
+  handleOHLV(ohlv) {
+    this.dailyInfo = { ...ohlv };
+    requestAnimationFrame(this._updateDailyInfoComponent);
   }
 
   handlePosition(pos) {
@@ -1422,7 +1418,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   // }
 
   protected _handleTrade(trade: TradePrint) {
-    this._counter++;
     const prevltqItem = this._lastTradeItem;
     const prevHandled = prevltqItem && prevltqItem.price != null;
     let needCentralize = false;
@@ -1694,7 +1689,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   protected _handleQuote(trade: IQuote) {
-    this._counter++;
     const item = this._getItem(trade.price);
 
     if (this._ttt++ > 1000) {
@@ -2444,7 +2438,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       const delta = this.columns.find((item) => item.name === DOMColumns.Delta);
       delta.style.askDeltahighlightTextAlign = column.style.textAlign;
     }
-    if (DOMColumns.BidDelta === column.name){
+    if (DOMColumns.BidDelta === column.name) {
       const delta = this.columns.find((item) => item.name === DOMColumns.Delta);
       delta.style.bidDeltahighlightTextAlign = column.style.textAlign;
     }
