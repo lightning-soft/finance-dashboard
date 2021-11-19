@@ -36,12 +36,12 @@ export class PriceStats extends Indicator {
           color: settings.eth.profile.color,
           poc: {
             enabled: settings.eth.lines.current.poc.enabled,
-            devEnabled: settings.eth.lines.dev.poc.enabled,
+            dev: settings.eth.lines.dev.poc.enabled,
             strokeColor: settings.eth.lines.current.poc.strokeTheme.strokeColor,
           },
           va: {
             enabled: settings.eth.lines.current.va.enabled,
-            devEnabled: settings.eth.lines.dev.va.enabled,
+            va: settings.eth.lines.dev.va.enabled,
             strokeColor: settings.eth.lines.current.va.strokeTheme.strokeColor,
           },
           session: settings.eth.sessionId,
@@ -118,13 +118,13 @@ export class PriceStats extends Indicator {
           },
           dev: {
             poc: {
-              enabled: settings.profile.eth.poc.devEnabled,
+              enabled: settings.profile.eth.poc.dev,
               strokeTheme: {
                 strokeColor: settings.profile.eth.poc.strokeColor,
               },
             },
             va: {
-              enabled: settings.profile.eth.va.devEnabled,
+              enabled: settings.profile.eth.va.va,
               strokeTheme: {
                 strokeColor: settings.profile.eth.va.strokeColor,
               },
