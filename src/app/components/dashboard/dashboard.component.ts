@@ -104,6 +104,26 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     this._setupSettings();
     this._subscribeToOrders();
 
+    const set = new Set<() => void>();
+
+    (window as any)._requestAnimationFrame = (window as any).requestAnimationFrame;
+    (window as any).requestAnimationFrame = (callback: () => void): number => {
+      if (!set.size) {
+        (window as any)._requestAnimationFrame(() => {
+          if (!set.size)
+            return;
+
+          set.forEach(fn => fn());
+          set.clear();
+        });
+      }
+
+      if (!set.has(callback))
+        set.add(callback);
+
+      return 0;
+    };
+
     /*
     / For performance reason avoiding ng zone in some cases
     */
@@ -152,8 +172,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         first(),
         untilDestroyed(this),
       ).subscribe(() => {
-      this._windowPopupManager.init(this._workspaceService.workspaces.value);
-    });
+        this._windowPopupManager.init(this._workspaceService.workspaces.value);
+      });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();

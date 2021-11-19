@@ -19,14 +19,18 @@ class Subscription {
 export abstract class DatafeedRepository<T> {
     protected _subscribers = new Map<Id, Subscription[]>();
     protected _quoteSubscribers = [];
+    protected _connections = new Set();
 
     subscribe(instrument: IInstrument, connectionId?: Id): UnsubscribeFn {
+        if (connectionId != null)
+          this._connections.add(connectionId);
+
         const instruemntId = instrument?.id;
         if (instruemntId == null)
             throw new Error('Please provide valid instrument');
 
         if (!this._subscribers.has(instruemntId)) {
-            this._subscribers.set(instruemntId, [])
+            this._subscribers.set(instruemntId, []);
             this._subscribe(instruemntId);
         }
 
@@ -58,7 +62,8 @@ export abstract class DatafeedRepository<T> {
 
     protected _triggerQuotes(quotes: any[]) {
         for (const fn of this._quoteSubscribers)
-            fn(quotes);
+          for (const connectionId of this._connections)
+            fn(quotes, connectionId);
 
         // for (const quote of quotes)
         //     this._subscribers.get(quote.instrument.id).forEach(s => s.executable && s.execute(quote));
