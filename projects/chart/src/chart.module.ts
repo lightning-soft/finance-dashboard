@@ -47,6 +47,7 @@ import {
   VolumeProfileCustomSettingsComponent
 } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
 import { HotkeyInputModule } from 'hotkey-input';
+import { TimeframePipe } from './timeframe.pipe';
 
 // const environment = { scxPath: '' };
 
@@ -132,6 +133,7 @@ import { HotkeyInputModule } from 'hotkey-input';
     VolumeProfileCustomSettingsComponent,
     InfoComponent,
     RepeatGroupComponent,
+    TimeframePipe,
   ],
 })
 export class ChartModule implements LazyModule {

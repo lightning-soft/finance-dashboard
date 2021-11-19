@@ -187,7 +187,8 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   handleAccountsConnect(accounts: IAccount[], allAccounts: IAccount[]) {
-    this.loadData({ accounts: allAccounts });
+    if (allAccounts != null && allAccounts.length != 0)
+      this.loadData({ accounts: allAccounts });
   }
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {

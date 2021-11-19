@@ -10,6 +10,12 @@
   }
 
   ::ng-deep {
+    .hide-border-label {
+      nz-form-item .ant-form-item-label label {
+        display: none;
+      }
+    }
+
     .general-fields {
       & > * {
         margin-top: 5px;

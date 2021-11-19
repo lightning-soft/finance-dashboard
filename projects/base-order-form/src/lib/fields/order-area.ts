@@ -29,6 +29,7 @@ export const orderFields: IFieldConfig = new FieldConfig({
                 label: 'Show Iceberg Button',
                 config: { className: 'w-100 iceberg-checkbox' }
               },
+            //  { key: 'showOrderConfirm', label: 'Require Order Confirmation' }
             ]
           }),
           wrapWithClass(getCheckboxes({

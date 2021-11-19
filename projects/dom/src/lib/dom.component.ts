@@ -915,7 +915,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }).forEach(item => this._ordersRepository.updateItem(item).toPromise());
   }
 
-  // #TODO need test
   private _createOrderByCurrent(side: OrderSide, price: number) {
     if (price)
       this._createOrder(side, +price);
