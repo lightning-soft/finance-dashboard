@@ -47,6 +47,9 @@ import {
   RealVolumeHistoryRepository,
 } from './trading/repositories';
 import { RealAccountInfoRepository } from './trading/repositories/real-account-info.repository';
+import { FakeLevel1Datafeed } from '../../fake-communication/src/trading/fake-level1.datafeed';
+import { FakeTradeDatafeed } from '../../fake-communication/src/trading/fake-trade.datafeed';
+// import { FakeLevel2Datafeed } from '../../fake-communication/src/trading/fake-level2.datafeed';
 
 @NgModule({})
 export class RealTradingModule {

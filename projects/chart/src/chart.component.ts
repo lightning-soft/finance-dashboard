@@ -455,7 +455,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._subscribeToHotKey();
   }
 
-  private _updateOHLVData() {
+  _updateOHLVData = () => {
     if (this.lastHistoryItem?.open != null) {
       this.income = +(this.lastHistoryItem.close - this.lastHistoryItem.open).toFixed(this.instrument.precision);
       const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
@@ -480,8 +480,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.lastHistoryItem = historyItem;
-    this._updateOHLVData();
-
+    requestAnimationFrame(this._updateOHLVData);
   }
 
   private _handleQuote(quote: IQuote) {

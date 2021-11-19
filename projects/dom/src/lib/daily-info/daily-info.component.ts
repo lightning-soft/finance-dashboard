@@ -69,9 +69,7 @@ export class DailyInfoComponent implements AfterViewInit {
     const prevHistoryItem = this._dailyInfo;
     this.historyItem = value;
     if (this._isInit)
-      requestAnimationFrame(() => {
-        this.updateIncome(prevHistoryItem);
-      });
+      this.updateIncome(prevHistoryItem);
   }
 
   updateIncome(prevHistoryItem: IHistoryItem): void {
