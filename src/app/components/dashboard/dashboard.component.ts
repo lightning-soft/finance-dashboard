@@ -339,12 +339,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
       console.log('Order status', order.status);
       if (sound != null) {
-        this._soundService.play(sound);
+        this.debouncedPlaySound(sound);
       } else {
         console.warn('Invalid sound', sound, ' for ', order.status);
       }
     });
   }
+
+  debouncedPlaySound = debounce((sound) => {
+    this._soundService.play(sound);
+  }, 10);
+
 
   private _setupSettings(): void {
     this._settingsService.settings
@@ -457,12 +462,26 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._settingsService.destroy();
+    this.debouncedPlaySound.clear();
   }
 }
 
 const keysAlwaysToHandle: number[][] = [
   [17, 83] // CTRL + S:
 ];
+
+function debounce(func, time) {
+  let timeout;
+
+  function debounced(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), time);
+  }
+
+  debounced.clear = () => clearTimeout(timeout);
+
+  return debounced;
+}
 
 function needHandleCommand(event: KeyboardEvent, keys: number[]): boolean {
   const element = event?.target as HTMLElement;
