@@ -187,7 +187,7 @@ export class AccountsManager implements ConnectionContainer {
       this._wsIsOpened[connectionId] = true;
       const conn = this._connections.find(item => item.id === connectionId);
       this._wsHasError[connectionId] = false;
-      this._notificationService.showSuccess(`Connection ${conn?.name ?? ''} restored.`);
+      this._notificationService.showSuccess(`Connection ${conn?.name ?? ''} opened.`);
     }
   }
 
