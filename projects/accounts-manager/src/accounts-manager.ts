@@ -177,7 +177,7 @@ export class AccountsManager implements ConnectionContainer {
       msg.result.type === AlertType.ConnectionClosed ||
       msg.result.type === AlertType.ConnectionBroken ||
       msg.result.type === AlertType.ForcedLogout
-    ) || msg.type === 'Error' && msg.result.value === 'No connection!') {
+    ) || msg.type === 'Error' && msg.result.value.toLowerCase().includes('no connection')) {
       this._deactivateConnection(connectionId);
     }
   }
@@ -347,7 +347,7 @@ export class AccountsManager implements ConnectionContainer {
             this._notificationService.showSuccess('Connection is closed');
         }),
         catchError((err: HttpErrorResponse) => {
-          if (err.message === 'No connection!')
+          if (err.message.toLowerCase().includes('no connection'))
             this._onDisconnected(connection);
 
           if (err.status === 401) {
