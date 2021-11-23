@@ -53,6 +53,8 @@ export abstract class Datafeed implements IDatafeed {
    */
   protected _account: IAccount;
 
+  protected _chart: any;
+
   /**
    * @internal
    */
@@ -104,6 +106,7 @@ export abstract class Datafeed implements IDatafeed {
     this._requests.delete(request.id);
 
     const chart = request.chart;
+    this._chart = chart;
     const dataManager = chart.dataManager;
     const oldPrimaryBarsCount = request.kind === RequestKind.MORE_BARS ? chart.primaryBarDataSeries().low.length : 0;
     const instrument = chart.instrument;
@@ -271,6 +274,12 @@ export abstract class Datafeed implements IDatafeed {
       chart.applyAutoScroll(BarsUpdateKind.TICK);
 
     this._updateLastBarDetails(quote, chart, instrument);
+    requestAnimationFrame(this._updateComputedDataSeries);
+  }
+
+  _updateComputedDataSeries = () => {
+    const chart = this._chart;
+
     chart.updateIndicators();
     chart.updateComputedDataSeries();
     chart.setNeedsUpdate();
