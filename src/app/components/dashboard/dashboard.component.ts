@@ -151,8 +151,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         first(),
         untilDestroyed(this),
       ).subscribe(() => {
-      this._windowPopupManager.init(this._workspaceService.workspaces.value);
-    });
+        this._windowPopupManager.init(this._workspaceService.workspaces.value);
+      });
 
     this._themesHandler.themeChange$.subscribe((theme) => {
       $('body').removeClass();
@@ -183,13 +183,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         (window as any)._requestAnimationFrame(() => {
           if (!set.size)
             return;
-          set.forEach(fn => {
-           try {
-              fn();
-            } catch (e) {
-              console.error(e);
-            }
-          });
+          // we use _requestAnimationFrame in _requestAnimationFrame to avoiding use try/catch
+          set.forEach(fn => (window as any)._requestAnimationFrame(fn));
           set.clear();
         });
       }

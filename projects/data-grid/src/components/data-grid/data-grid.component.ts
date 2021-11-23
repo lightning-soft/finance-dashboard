@@ -131,6 +131,10 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     return this._grid.data;
   }
 
+  get isInitialized(): boolean {
+    return this._grid != null
+  }
+
 
   get scrollHeight() {
     return this._grid.scrollHeight;

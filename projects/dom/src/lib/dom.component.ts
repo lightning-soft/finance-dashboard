@@ -1657,7 +1657,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   fillData(lastPrice: number) {
-    if (isNaN(lastPrice) || lastPrice == null)
+    if (isNaN(lastPrice) || lastPrice == null && !this.dataGrid?.isInitialized)
       return;
 
     this.items = [];
