@@ -149,7 +149,6 @@ export class DomSettings {
       sellButtonsBackgroundColor: '#C93B3B',
       cancelButtonBackgroundColor: '#51535A',
       sellButtonsFontColor: '#fff',
-    //  showOrderConfirm: true,
       cancelButtonFontColor: '#fff',
       formSettings: {
         closePositionButton: true,
@@ -158,6 +157,8 @@ export class DomSettings {
         showBracket: true,
         showBuyButton: true,
         showSellButton: true,
+        showOrderConfirm: true,
+        showCancelConfirm: true,
         showCancelButton: true,
         showFlattenButton: true,
         showIcebergButton: true,

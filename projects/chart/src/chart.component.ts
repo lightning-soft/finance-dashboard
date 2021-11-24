@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
-import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -62,7 +62,6 @@ import {
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
 import { InfoComponent } from './info/info.component';
-import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';

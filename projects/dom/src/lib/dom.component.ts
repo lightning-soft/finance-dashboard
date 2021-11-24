@@ -14,7 +14,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { AccountSelectComponent } from 'account-select';
 import { BindUnsubscribe, convertToColumn, HeaderItem, IUnsubscribe, LoadingComponent } from 'base-components';
-import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { Id, RepositoryActionData } from 'communication';
 import {
   capitalizeFirstLetter,
@@ -238,6 +238,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this._lastTrade;
   }
 
+  get showOrderConfirm() {
+    return this.domFormSettings.formSettings.showOrderConfirm;
+  }
+
+  set showOrderConfirm(value) {
+    this.domFormSettings.formSettings.showOrderConfirm = value;
+    this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
+  }
+
+  get showCancelConfirm() {
+    return this.domFormSettings.formSettings.showCancelConfirm;
+  }
+
+  set showCancelConfirm(value) {
+    this.domFormSettings.formSettings.showCancelConfirm = value;
+    this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
+  }
+
   get domFormSettings() {
     return this._settings.orderArea.settings;
   }
@@ -454,13 +472,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         if (!data.item) {
           this.dataGrid.createComponentModal(event);
         } else if (OrderColumns.includes(data.column.name)) {
-          this._cancelOrderByClick(data.column.name, data.item);
+          this._cancelOrderByClick(data.column.name, data.item, event);
         }
       }
     }),
     new CellClickDataGridHandler<DomItem>({
       column: [DOMColumns.Ask, DOMColumns.Bid],
-      handler: (data) => this._createOrderByClick(data.column.name, data.item),
+      handler: (data, event) => this._createOrderByClick(data.column.name, data.item, event),
     }),
     new MouseDownDataGridHandler<DomItem>({
       column: OrderColumns,
@@ -1295,7 +1313,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return map;
   }
 
-  centralize() {
+  private _centralize = () => {
     const grid = this.dataGrid;
     const visibleRows = grid.getVisibleRows();
     let centerIndex = this._getItem(this._lastPrice).index ?? ROWS / 2;
@@ -1367,6 +1385,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.refresh(); // for fill correct index
     this.detectChanges();
   }
+
+  centralize = () => requestAnimationFrame(this._centralize);
 
   detectChanges(force = false) {
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
@@ -1470,8 +1490,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._lastTrade = trade;
     this._lastTradeItem = _item;
 
-    this._calculateLevels();
-    this._updateVolumeColumn();
+    requestAnimationFrame(this._updateVolumeAndLevels);
 
     if (trade.side === OrderSide.Sell) {
       this._lastBidItem.totalBid.dehightlight();
@@ -1484,6 +1503,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     this.detectChanges();
+  }
+
+  private _updateVolumeAndLevels = () => {
+    this._calculateLevels();
+    this._updateVolumeColumn();
   }
 
   private _updateVolumeColumn() {
@@ -2212,7 +2236,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}) {
+  private _createOrder(side: OrderSide, price?: number, orderConfig: Partial<IOrder> = {}, event?) {
     if (!this.isTradingEnabled) {
       this.notifier.showError('You can\'t create order when trading is locked');
       return;
@@ -2222,12 +2246,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.notifier.showError('Please fill all required fields in form');
       return;
     }
-
     const form = this._domForm.getDto();
     const { exchange, symbol } = this.instrument;
-    // #TODO need test
     const priceSpecs = this._getPriceSpecs({ ...form, side }, price);
-    this._ordersRepository.createItem({
+    const order = {
       ...form,
       ...priceSpecs,
       ...orderConfig,
@@ -2235,19 +2257,67 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       side,
       symbol,
       accountId: this.accountId,
-    }).pipe(untilDestroyed(this))
+    };
+    if (this.showOrderConfirm) {
+      this.createConfirmModal({
+        order,
+      }, event).afterClose
+        .pipe(untilDestroyed(this))
+        .subscribe((res) => {
+          if (res) {
+            if (res.create)
+              this.__createOrder(order);
+
+            this.showOrderConfirm = !res.dontShowAgain;
+          }
+        });
+    } else
+      this.__createOrder(order);
+  }
+
+  private __createOrder(order) {
+    this._ordersRepository.createItem(order).pipe(untilDestroyed(this))
       .subscribe(
         (res) => console.log('Order successfully created'),
         (err) => this.notifier.showError(err)
       );
   }
 
-  private _createOrderByClick(column: string, item: DomItem) {
+  private createConfirmModal(params, event) {
+    const nzStyle = event ? {
+      left: `${event.clientX}px`,
+      top: `${event.clientY}px`,
+    } : {};
+    return this._modalService.create({
+      nzClassName: 'confirm-order',
+      nzIconType: null,
+      nzContent: ConfirmOrderComponent,
+      nzFooter: null,
+      nzNoAnimation: true,
+      nzStyle,
+      nzComponentParams: params
+    });
+  }
+
+  private _createOrderByClick(column: string, item: DomItem, event) {
     const side = column === DOMColumns.Ask ? OrderSide.Sell : OrderSide.Buy;
     if (this.ocoStep === OcoStep.None) {
-      this._createOrder(side, item.price._value);
+      this._createOrder(side, item.price._value, {}, event);
     } else {
-      this._addOcoOrder(side, item);
+      if (this.showOrderConfirm) {
+        this.createConfirmModal({
+          order: { ...this.domForm.getDto(), side, price: item.lastPrice },
+        }, event).afterClose
+          .pipe(untilDestroyed(this))
+          .subscribe((res) => {
+            if (res) {
+              if (res.create)
+                this._addOcoOrder(side, item);
+              this.showOrderConfirm = !res.dontShowAgain;
+            }
+          });
+      } else
+        this._addOcoOrder(side, item);
     }
   }
 
@@ -2286,7 +2356,31 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  private _cancelOrderByClick(column: string, item: DomItem) {
+  private _cancelOrderByClick(column: string, item: DomItem, event) {
+    if (!item[column]?.canCancelOrder)
+      return;
+
+    if (this.showCancelConfirm) {
+      this.createConfirmModal({
+        order: item.orders.order,
+        prefix: 'Cancel'
+      }, event).afterClose.toPromise().then((res) => {
+        if (!res)
+          return;
+
+        const { create, dontShowAgain } = res;
+        this.showCancelConfirm = !dontShowAgain;
+        if (!create)
+          return;
+
+        this.__cancelOrderByClick(column, item);
+      });
+    } else {
+      this.__cancelOrderByClick(column, item);
+    }
+  }
+
+  private __cancelOrderByClick(column: string, item: DomItem) {
     if (!item[column]?.canCancelOrder)
       return;
 

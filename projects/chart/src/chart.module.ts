@@ -38,7 +38,6 @@ import { ChartComponent } from './chart.component';
 import { IndicatorsComponent } from './indicators/indicators.component';
 import { RepeatGroupComponent } from './indicators/repeat-group/repeat-group.component';
 import { InfoComponent } from './info/info.component';
-import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
 import { OrdersPanelComponent } from './orders-panel/orders-panel.component';
 import { FrameSelectorComponent } from './toolbar/frame-selector/frame-selector.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -128,7 +127,6 @@ import { TimeframePipe } from './timeframe.pipe';
     IndicatorsComponent,
     FrameSelectorComponent,
     OrdersPanelComponent,
-    ConfirmOrderComponent,
     ChartSettingsComponent,
     VolumeProfileCustomSettingsComponent,
     InfoComponent,
