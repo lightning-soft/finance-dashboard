@@ -199,7 +199,7 @@ export class Orders extends ChartObjects<IOrder> {
 
     return {
       ...item,
-      quantity: item.quantity - item.filledQuantity,
+      quantity: item.quantity - (item?.filledQuantity ?? 0),
       price: getPrice(item),
       action: uncapitalize(item.side),
       kind: kindMap[item.type] || uncapitalize(item.type),

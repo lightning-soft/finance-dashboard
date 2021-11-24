@@ -55,6 +55,8 @@ export interface DomFormSettings {
     includeRealizedPL: boolean;
     showCancelButton: boolean;
     showBuyButton: boolean;
+    showOrderConfirm: boolean;
+    showCancelConfirm: boolean;
     showSellButton: boolean;
     showBracket: boolean;
   };
@@ -171,6 +173,8 @@ export class SideOrderFormComponent extends BaseOrderForm {
       showFlattenButton: true,
       showCancelButton: true,
       showBuyButton: true,
+      showOrderConfirm: true,
+      showCancelConfirm: true,
       showSellButton: true,
       showPLInfo: true,
       showIcebergButton: true,
