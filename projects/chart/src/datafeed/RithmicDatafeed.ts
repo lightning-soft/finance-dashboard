@@ -48,14 +48,14 @@ export class RithmicDatafeed extends Datafeed {
   changeAccount(account: IAccount) {
     const _prevAcc = this._account;
     super.changeAccount(account);
-    if (_prevAcc?.id != this._account.id)
+    if (_prevAcc?.id != account?.id)
       this.subscribeToRealtime();
   }
 
   changeInstrument(instrument: IInstrument) {
     const _prevInst = this._instrument;
     super.changeInstrument(instrument);
-    if (_prevInst?.id != instrument.id)
+    if (_prevInst?.id != instrument?.id)
       this.subscribeToRealtime();
   }
 
