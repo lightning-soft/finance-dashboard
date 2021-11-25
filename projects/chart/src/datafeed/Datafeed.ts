@@ -175,11 +175,11 @@ export abstract class Datafeed implements IDatafeed {
     chart.hideWaitingBar();
     chart.updateIndicators();
     chart.setNeedsAutoScale();
-    setTimeout(() => {
-      chart.setNeedsUpdate(true);
-    });
     chart.updateComputedDataSeries();
     chart.dateScale.onMoreHistoryRequestCompleted();
+    setTimeout(() => {
+      chart.setNeedsUpdate(true);
+    }, 30);
   }
 
   // region IDatafeed members

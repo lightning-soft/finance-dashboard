@@ -57,6 +57,10 @@ class OrdersCell extends HistogramCell {
     return this._shouldDisplayOrders;
   }
 
+  get order() {
+    return this._order;
+  }
+
   private get _shouldDisplayOrders() {
     const overlayOrders = (this.settings as any).overlayOrders;
     return this._isOrderColumn ? !overlayOrders : overlayOrders;
@@ -350,6 +354,10 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
       ...(this._item.sellOrders.orders ?? []),
       ...(this._item.buyOrders.orders ?? []),
     ];
+  }
+
+  get order(){
+    return this._item.sellOrders.order || this._item.buyOrders.order;
   }
 
   get canCancelOrder() {
