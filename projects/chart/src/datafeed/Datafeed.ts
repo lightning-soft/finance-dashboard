@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IAccount, ISession, OrderSide } from 'trading';
+import { IAccount, IInstrument, ISession, OrderSide } from 'trading';
 import { BarsUpdateKind, IBarsRequest, IQuote, IRequest, IStockChartXInstrument, RequestKind, } from './models';
 import { BarHandler, IBarHandler } from './bar-handlers/BarHandler';
 import { IBar, IChart, IDetails } from '../models/chart';
@@ -52,6 +52,7 @@ export abstract class Datafeed implements IDatafeed {
    * @internal
    */
   protected _account: IAccount;
+  protected _instrument: IInstrument;
 
   protected _chart: any;
 
@@ -208,6 +209,10 @@ export abstract class Datafeed implements IDatafeed {
 
   changeAccount(account: IAccount) {
     this._account = account;
+  }
+
+  changeInstrument(instrument: IInstrument) {
+    this._instrument = instrument;
   }
 
   /**

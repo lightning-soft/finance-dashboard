@@ -192,7 +192,12 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
-    this.builder.removeWhere(i => accounts.some(a => a.id === i.account.value));
+    this.builder.removeWhere(i => {
+      const result = accounts.some(a => a.id === i.account.value);
+      if (result)
+        this._levelOneDataFeed.unsubscribe(i.position.instrument, i.position.connectionId);
+      return result;
+    });
     this.updatePl();
   }
 
@@ -304,7 +309,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   ngOnDestroy() {
     super.ngOnDestroy();
     this.positions.forEach(item => {
-      this._levelOneDataFeed.unsubscribe(item.instrument);
+      this._levelOneDataFeed.unsubscribe(item.instrument, item.connectionId);
     });
   }
 
@@ -344,7 +349,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   }
 
   _getSettingsKey() {
-    return `positionsSettings.${ this.componentInstanceId }`;
+    return `positionsSettings.${this.componentInstanceId}`;
   }
 
   getOpenSettingsConfig() {

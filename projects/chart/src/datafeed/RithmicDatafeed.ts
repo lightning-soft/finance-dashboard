@@ -1,13 +1,12 @@
 import { Injectable, Injector } from '@angular/core';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
+import { HistoryRepository, IAccount, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
 import { StockChartXPeriodicity, TimeFrame } from './TimeFrame';
 import { NotifierService } from 'notifier';
 
-const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.DAY };
 declare let StockChartX: any;
 
 @Injectable()
@@ -34,8 +33,6 @@ export class RithmicDatafeed extends Datafeed {
       return;
 
     super.send(request);
-    if (request.kind === 'bars')
-      this.subscribeToRealtime(request);
     this._loadData(request);
   }
 
@@ -46,6 +43,20 @@ export class RithmicDatafeed extends Datafeed {
       }),
       map(i => i.data),
     );
+  }
+
+  changeAccount(account: IAccount) {
+    const _prevAcc = this._account;
+    super.changeAccount(account);
+    if (_prevAcc?.id != this._account.id)
+      this.subscribeToRealtime();
+  }
+
+  changeInstrument(instrument: IInstrument) {
+    const _prevInst = this._instrument;
+    super.changeInstrument(instrument);
+    if (_prevInst?.id != instrument.id)
+      this.subscribeToRealtime();
   }
 
   private _loadData(request: IBarsRequest) {
@@ -123,6 +134,10 @@ export class RithmicDatafeed extends Datafeed {
   }
 
   protected onRequestCompleted(request: IBarsRequest, response) {
+    if (this._chart == null) {
+      this._chart = request.chart;
+      this.subscribeToRealtime();
+    }
     super.onRequestCompleted(request, response);
     this.requestSubscriptions.delete(request.id);
   }
@@ -167,8 +182,11 @@ export class RithmicDatafeed extends Datafeed {
     }
   }
 
-  subscribeToRealtime(request: IBarsRequest) {
-    const instrument = this._getInstrument(request);
+  subscribeToRealtime() {
+    const instrument = this._instrument;
+    const account = this._account;
+    if (!instrument || !account || !this._chart)
+      return;
 
     this._unsubscribe();
     const connId = this._account?.connectionId;
@@ -198,7 +216,7 @@ export class RithmicDatafeed extends Datafeed {
           side: quote.side,
         } as any;
 
-        this.processQuote(request, _quote);
+        this.processQuote({ chart: this._chart } as any, _quote);
       }
     }));
   }
