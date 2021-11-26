@@ -26,4 +26,15 @@ export class RealSessionsRepository extends BaseRepository<ISession> {
       })),
     };
   }
+
+  protected _responseToItems(res: any, params: any) {
+    return super._responseToItems(res, params)
+      .sort((a, b) => {
+        if (a.name > b.name)
+          return 1;
+        else if (a.name < b.name)
+          return -1;
+        return 0;
+      });
+  }
 }
