@@ -107,6 +107,7 @@
   <div class="d-flex">
     <button
       nz-button
+      [disabled]="!item?.id"
       nzType="primary"
       nzSize="small"
       class="px-5 mr-2 bg-darker"
