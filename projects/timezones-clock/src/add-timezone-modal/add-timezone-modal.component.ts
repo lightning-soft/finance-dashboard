@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { ITimezone, Timezone, TIMEZONES } from '../timezones';
+import { ITimezone, Timezone } from '../timezones';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TimezonesService } from '../timezones.service';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { TIMEZONES } from 'trading';
 
 const EnterAnimation = trigger(
   'enterAnimation', [

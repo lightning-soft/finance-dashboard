@@ -3,8 +3,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { interval } from 'rxjs';
 import { AddTimezoneModalComponent } from '../add-timezone-modal/add-timezone-modal.component';
-import { ITimezone, Timezone, TIMEZONES } from '../timezones';
+import { ITimezone, Timezone } from '../timezones';
 import { TimezonesService } from '../timezones.service';
+import { TIMEZONES } from 'trading';
 
 @UntilDestroy()
 @Component({

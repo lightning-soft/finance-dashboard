@@ -123,7 +123,6 @@
     "simple-window-manager": "git+https://git.avidi.tech:iTS9Ne67zubkGcpsRmFA@git.avidi.tech/Taras/simple-window-manager.git",
     "tslib": "2.0.1",
     "underscore": "1.10.2",
-    "windows-iana": "5.1.0",
     "zone.js": "0.10.3"
   },
   "devDependencies": {

@@ -1,17 +1,14 @@
 import { Injectable } from '@angular/core';
-import { ITimezone } from 'trading';
+import { ITimezone, TIMEZONES } from 'trading';
 import { BaseRepository } from './base-repository';
-import { IANA_ALIAS_MAP } from 'windows-iana';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { IPaginationResponse } from 'communication';
-import { map } from 'rxjs/operators';
 
-const timeZoneMap = IANA_ALIAS_MAP.reduce((total, curr) => {
-  curr.alias.forEach((alias) => {
-    total[alias] = curr.description;
-  });
-  return total;
-}, {});
+const data = TIMEZONES.map(item => ({
+  name: `(UTC ${getFormattedOffset(item.offset)}) ${item.text}`,
+  id: item.id,
+  offset: item.offset
+})).sort((a, b) => a.offset - b.offset);
 
 @Injectable()
 export class RealTimezonesRepository extends BaseRepository<ITimezone> {
@@ -24,27 +21,27 @@ export class RealTimezonesRepository extends BaseRepository<ITimezone> {
   }
 
   getItems(params?: any): Observable<IPaginationResponse<ITimezone>> {
-    return super.getItems(params)
-      .pipe(map((res) => {
-        res.data = res.data.sort((a, b) => a.offset - b.offset);
-        return res;
-      }));
-  }
 
-  protected _mapResponseItem(item: any): ITimezone {
-    const { id, baseUtcOffset } = item;
-    const offset = baseUtcOffset.hours;
-    const name = `(UTC ${getPrefix(offset)}) ` + timeZoneMap[item.id];
-    return {
-      id,
-      name,
-      offset
-    };
+    return of({
+      data,
+      total: data.length,
+      requestParams: {
+        skip: 0,
+        take: data.length,
+      }
+    } as IPaginationResponse);
+    /* return super.getItems(params)
+       .pipe(map((res) => {
+         res.data = res.data.sort((a, b) => a.offset - b.offset);
+         return res;
+       }));*/
   }
 }
 
-function getPrefix(offset) {
-  let response = `${Math.abs(offset)}:00`;
+function getFormattedOffset(offset) {
+  const suffix = offset % 1 === 0 ? '00' : '30';
+  const preparedOffset = Math.floor(Math.abs(offset));
+  let response = `${Math.abs(preparedOffset)}:${suffix}`;
   if (offset > -10 && offset < 10)
     response = `0${response}`;
   if (offset >= 0)

@@ -329,6 +329,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   set account(value: IAccount) {
     this._account = value;
     this.datafeed.changeAccount(value);
+    this._updateSubscriptions();
     this.refresh();
   }
 
@@ -360,17 +361,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.income = null;
     this.incomePercentage = null;
     this._updateOHLVData();
-
-    const connectionId = this.account?.connectionId;
-
-    if (connectionId != null) {
-      this._ohlvFeed.subscribe(instrument, connectionId);
-      this._levelOneDatafeed.subscribe(instrument, connectionId);
-    }
-    this.unsubscribe(() => {
-      this._ohlvFeed.unsubscribe(instrument, connectionId);
-      this._levelOneDatafeed.unsubscribe(instrument, connectionId);
-    });
+    this._updateSubscriptions();
   }
 
   private _loadedState$ = new BehaviorSubject<IChartState>(null);
@@ -428,6 +419,20 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this._handleOHLV(ohlv))),
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote) => this._handleQuote(quote))),
     );
+  }
+
+  private _updateSubscriptions() {
+    const connectionId = this.account?.connectionId;
+    const instrument = this.instrument;
+    this.unsubscribe(() => {
+      this._ohlvFeed.unsubscribe(instrument, connectionId);
+      this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+    });
+    if (connectionId != null) {
+      this._ohlvFeed.subscribe(instrument, connectionId);
+      this._levelOneDatafeed.subscribe(instrument, connectionId);
+    }
+
   }
 
   createCustomVolumeProfile(template: IVolumeTemplate): void {
