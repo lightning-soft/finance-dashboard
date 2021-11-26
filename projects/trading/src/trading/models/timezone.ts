@@ -50,7 +50,7 @@ export const TIMEZONES = [
     id: 4,
     value: "Alaskan Standard Time",
     abbr: "AKDT",
-    offset: -8,
+    offset: -9,
     isdst: true,
     text: "Alaska",
     utc: [
@@ -117,12 +117,11 @@ export const TIMEZONES = [
       "America/Phoenix",
       "Etc/GMT+7"
     ]
-  },
-  {
+  }, {
     id: 9,
     value: "Mountain Standard Time (Mexico)",
     abbr: "MDT",
-    offset: -6,
+    offset: -7,
     isdst: true,
     text: "Chihuahua, La Paz, Mazatlan",
     utc: [
@@ -130,22 +129,37 @@ export const TIMEZONES = [
       "America/Mazatlan"
     ]
   },
+  /*  {
+      id: 10,
+      value: "Mountain Standard Time",
+      abbr: "MDT",
+      offset: -6,
+      isdst: true,
+      text: "Mountain Time (US & Canada)",
+      utc: [
+        "America/Boise",
+        "America/Cambridge_Bay",
+        "America/Denver",
+        "America/Edmonton",
+        "America/Inuvik",
+        "America/Ojinaga",
+        "America/Yellowknife",
+        "MST7MDT"
+      ]
+    },*/
   {
-    id: 10,
-    value: "Mountain Standard Time",
-    abbr: "MDT",
+    id: 13,
+    value: "Central Standard Time (Mexico)",
+    abbr: "CDT",
     offset: -6,
     isdst: true,
-    text: "Mountain Time (US & Canada)",
+    text: "Guadalajara, Mexico City, Monterrey",
     utc: [
-      "America/Boise",
-      "America/Cambridge_Bay",
-      "America/Denver",
-      "America/Edmonton",
-      "America/Inuvik",
-      "America/Ojinaga",
-      "America/Yellowknife",
-      "MST7MDT"
+      "America/Bahia_Banderas",
+      "America/Cancun",
+      "America/Merida",
+      "America/Mexico_City",
+      "America/Monterrey"
     ]
   },
   {
@@ -170,7 +184,7 @@ export const TIMEZONES = [
     id: 12,
     value: "Central Standard Time",
     abbr: "CDT",
-    offset: -5,
+    offset: -6,
     isdst: true,
     text: "Central Time (US & Canada)",
     utc: [
@@ -189,21 +203,7 @@ export const TIMEZONES = [
       "CST6CDT"
     ]
   },
-  {
-    id: 13,
-    value: "Central Standard Time (Mexico)",
-    abbr: "CDT",
-    offset: -5,
-    isdst: true,
-    text: "Guadalajara, Mexico City, Monterrey",
-    utc: [
-      "America/Bahia_Banderas",
-      "America/Cancun",
-      "America/Merida",
-      "America/Mexico_City",
-      "America/Monterrey"
-    ]
-  },
+
   {
     id: 14,
     value: "Canada Central Standard Time",
@@ -240,7 +240,7 @@ export const TIMEZONES = [
     id: 16,
     value: "Eastern Standard Time",
     abbr: "EDT",
-    offset: -4,
+    offset: -5,
     isdst: true,
     text: "Eastern Time (US & Canada)",
     utc: [
@@ -267,7 +267,7 @@ export const TIMEZONES = [
     id: 108,
     value: "US Eastern Standard Time",
     abbr: "UEDT",
-    offset: -4,
+    offset: -5,
     isdst: true,
     text: "Indiana (East)",
     utc: [
@@ -280,13 +280,15 @@ export const TIMEZONES = [
     id: 18,
     value: "Venezuela Standard Time",
     abbr: "VST",
-    offset: -4.5,
+    offset: -4,
     isdst: false,
     text: "Caracas",
     utc: [
       "America/Caracas"
     ]
   },
+
+
   {
     id: 19,
     value: "Paraguay Standard Time",
@@ -302,7 +304,7 @@ export const TIMEZONES = [
     id: 20,
     value: "Atlantic Standard Time",
     abbr: "ADT",
-    offset: -3,
+    offset: -4,
     isdst: true,
     text: "Atlantic Time (Canada)",
     utc: [
@@ -382,7 +384,7 @@ export const TIMEZONES = [
     id: 24,
     value: "Newfoundland Standard Time",
     abbr: "NDT",
-    offset: -2.5,
+    offset: -3.5,
     isdst: true,
     text: "Newfoundland",
     utc: [
@@ -406,7 +408,7 @@ export const TIMEZONES = [
     abbr: "AST",
     offset: -3,
     isdst: false,
-    text: "Buenos Aires",
+    text: "Citi of Buenos Aires",
     utc: [
       "America/Argentina/La_Rioja",
       "America/Argentina/Rio_Gallegos",
@@ -493,7 +495,7 @@ export const TIMEZONES = [
     id: 32,
     value: "Mid-Atlantic Standard Time",
     abbr: "MDT",
-    offset: -1,
+    offset: -2,
     isdst: true,
     text: "Mid-Atlantic - Old",
     utc: []
@@ -502,7 +504,7 @@ export const TIMEZONES = [
     id: 33,
     value: "Azores Standard Time",
     abbr: "ADT",
-    offset: 0,
+    offset: -1,
     isdst: true,
     text: "Azores",
     utc: [
@@ -578,7 +580,7 @@ export const TIMEZONES = [
     id: 39,
     value: "GMT Standard Time",
     abbr: "GDT",
-    offset: 1,
+    offset: 0,
     isdst: true,
     text: "Dublin, Lisbon",
     utc: [
@@ -618,7 +620,7 @@ export const TIMEZONES = [
     id: 41,
     value: "W. Europe Standard Time",
     abbr: "WEDT",
-    offset: 2,
+    offset: 1,
     isdst: true,
     text: "Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna",
     utc: [
@@ -645,7 +647,7 @@ export const TIMEZONES = [
     id: 42,
     value: "Central Europe Standard Time",
     abbr: "CEDT",
-    offset: 2,
+    offset: 1,
     isdst: true,
     text: "Belgrade, Bratislava, Budapest, Ljubljana, Prague",
     utc: [
@@ -662,7 +664,7 @@ export const TIMEZONES = [
     id: 43,
     value: "Romance Standard Time",
     abbr: "RDT",
-    offset: 2,
+    offset: 1,
     isdst: true,
     text: "Brussels, Copenhagen, Madrid, Paris",
     utc: [
@@ -677,7 +679,7 @@ export const TIMEZONES = [
     id: 44,
     value: "Central European Standard Time",
     abbr: "CEDT",
-    offset: 2,
+    offset: 1,
     isdst: true,
     text: "Sarajevo, Skopje, Warsaw, Zagreb",
     utc: [
@@ -715,7 +717,7 @@ export const TIMEZONES = [
     id: 46,
     value: "Namibia Standard Time",
     abbr: "NST",
-    offset: 1,
+    offset: 2,
     isdst: false,
     text: "Windhoek",
     utc: [
@@ -733,14 +735,22 @@ export const TIMEZONES = [
       "Asia/Nicosia",
       "Europe/Athens",
       "Europe/Bucharest",
-      "Europe/Chisinau"
     ]
+  },
+  {
+    offset: 2,
+    value: "Eastern European Time",
+    text: 'Chisinau',
+    id: 120,
+    utc: [
+      "Europe/Chisinau"
+    ],
   },
   {
     id: 48,
     value: "Middle East Standard Time",
     abbr: "MEDT",
-    offset: 3,
+    offset: 2,
     isdst: true,
     text: "Beirut",
     utc: [
@@ -762,7 +772,7 @@ export const TIMEZONES = [
     id: 50,
     value: "Syria Standard Time",
     abbr: "SDT",
-    offset: 3,
+    offset: 2,
     isdst: true,
     text: "Damascus",
     utc: [
@@ -773,7 +783,7 @@ export const TIMEZONES = [
     id: 51,
     value: "E. Europe Standard Time",
     abbr: "EEDT",
-    offset: 3,
+    offset: 2,
     isdst: true,
     text: "E. Europe",
     utc: [
@@ -850,7 +860,7 @@ export const TIMEZONES = [
     id: 55,
     value: "Israel Standard Time",
     abbr: "JDT",
-    offset: 3,
+    offset: 2,
     isdst: true,
     text: "Jerusalem",
     utc: [
@@ -872,7 +882,7 @@ export const TIMEZONES = [
     id: 57,
     value: "Jordan Standard Time",
     abbr: "JST",
-    offset: 3,
+    offset: 2,
     isdst: false,
     text: "Amman",
     utc: [
@@ -895,7 +905,7 @@ export const TIMEZONES = [
     id: 59,
     value: "Kaliningrad Standard Time",
     abbr: "KST",
-    offset: 3,
+    offset: 2,
     isdst: false,
     text: "Kaliningrad",
     utc: [
@@ -973,7 +983,7 @@ export const TIMEZONES = [
     id: 64,
     value: "Iran Standard Time",
     abbr: "IDT",
-    offset: 4.5,
+    offset: 3.5,
     isdst: true,
     text: "Tehran",
     utc: [
@@ -997,7 +1007,7 @@ export const TIMEZONES = [
     id: 66,
     value: "Azerbaijan Standard Time",
     abbr: "ADT",
-    offset: 5,
+    offset: 4,
     isdst: true,
     text: "Baku",
     utc: [
@@ -1132,7 +1142,7 @@ export const TIMEZONES = [
     abbr: "CAST",
     offset: 6,
     isdst: false,
-    text: "Nur-Sultan (Astana)",
+    text: "Astana",
     utc: [
       "Antarctica/Vostok",
       "Asia/Almaty",
@@ -1217,7 +1227,7 @@ export const TIMEZONES = [
     id: 83,
     value: "North Asia Standard Time",
     abbr: "NAST",
-    offset: 8,
+    offset: 7,
     isdst: false,
     text: "Krasnoyarsk",
     utc: [
@@ -1423,7 +1433,7 @@ export const TIMEZONES = [
     id: 99,
     value: "Vladivostok Standard Time",
     abbr: "VST",
-    offset: 11,
+    offset: 10,
     isdst: false,
     text: "Vladivostok",
     utc: [
@@ -1492,7 +1502,7 @@ export const TIMEZONES = [
     id: 104,
     value: "Kamchatka Standard Time",
     abbr: "KDT",
-    offset: 13,
+    offset: 12,
     isdst: true,
     text: "Petropavlovsk-Kamchatsky - Old",
     utc: [
