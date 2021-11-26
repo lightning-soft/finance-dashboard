@@ -44,7 +44,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
       autoClose: true,
       callback: (item: any) => {
         const { id, ..._item } = item;
-        this._repository.createItem(_item)
+        this._repository.createItem({ ..._item, name: `${_item.name} (copy)` })
           .pipe(untilDestroyed(this))
           .subscribe((res) => {
             this.handleValueChange(res);

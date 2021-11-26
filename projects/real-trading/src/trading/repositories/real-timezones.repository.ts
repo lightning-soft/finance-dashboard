@@ -6,7 +6,7 @@ import { IPaginationResponse } from 'communication';
 
 const data = TIMEZONES.map(item => ({
   name: `(UTC ${getFormattedOffset(item.offset)}) ${item.text}`,
-  id: item.id,
+  id: item.utc[0],
   offset: item.offset
 })).sort((a, b) => a.offset - b.offset);
 

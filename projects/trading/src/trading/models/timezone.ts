@@ -13,6 +13,7 @@ export const TIMEZONES = [
     isdst: false,
     text: "International Date Line West",
     utc: [
+      'Pacific/Wallis',
       "Etc/GMT+12"
     ]
   },
@@ -24,8 +25,8 @@ export const TIMEZONES = [
     isdst: false,
     text: "Coordinated Universal Time-11",
     utc: [
-      "Etc/GMT+11",
       "Pacific/Midway",
+      "Etc/GMT+11",
       "Pacific/Niue",
       "Pacific/Pago_Pago"
     ]
@@ -38,11 +39,11 @@ export const TIMEZONES = [
     isdst: false,
     text: "Hawaii",
     utc: [
-      "Etc/GMT+10",
       "Pacific/Honolulu",
+      "Etc/GMT+10",
       "Pacific/Johnston",
       "Pacific/Rarotonga",
-      "Pacific/Tahiti"
+      "Pacific/Tahiti",
     ]
   },
   {
@@ -1506,8 +1507,8 @@ export const TIMEZONES = [
     isdst: false,
     text: "Nuku'alofa",
     utc: [
-      "Etc/GMT-13",
       "Pacific/Enderbury",
+      "Etc/GMT-13",
       "Pacific/Fakaofo",
       "Pacific/Tongatapu"
     ]
