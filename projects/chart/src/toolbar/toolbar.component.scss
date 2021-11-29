@@ -4,6 +4,15 @@
 @import "themes/light";
 @import "themes/template";
 
+::ng-deep {
+  .price-style-dropdown {
+    cdk-virtual-scroll-viewport {
+      max-height: 450px !important;
+      height: 332px !important;
+    }
+  }
+}
+
 :host {
   position: absolute;
   top: 27px;
@@ -276,11 +285,13 @@
       margin: 0 18%;
       background: #383A40;
     }
+
     .ant-dropdown-menu-submenu-title:hover {
       i[class*=icon-] {
         color: #fff !important;
       }
     }
+
     .ant-dropdown-menu-submenu-active {
       background: $lighter;
       border-radius: 2px;

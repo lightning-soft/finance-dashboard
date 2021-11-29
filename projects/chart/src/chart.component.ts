@@ -424,13 +424,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   private _updateSubscriptions() {
     const connectionId = this.account?.connectionId;
     const instrument = this.instrument;
-    this.unsubscribe(() => {
-      this._ohlvFeed.unsubscribe(instrument, connectionId);
-      this._levelOneDatafeed.unsubscribe(instrument, connectionId);
-    });
-    if (connectionId != null) {
+    if (connectionId != null && instrument != null) {
       this._ohlvFeed.subscribe(instrument, connectionId);
       this._levelOneDatafeed.subscribe(instrument, connectionId);
+      this.unsubscribe(() => {
+        this._ohlvFeed.unsubscribe(instrument, connectionId);
+        this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+      });
     }
 
   }

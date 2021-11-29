@@ -35,7 +35,7 @@ export class AddTimezoneModalComponent {
   constructor(private timezonesService: TimezonesService) {
     this.allTimezones = TIMEZONES
       .sort((a, b) => a.offset < b.offset ? 1 : -1)
-      .map(i => new Timezone(i));
+      .map((i: any) => new Timezone(i));
 
     this.timezonesService.timezonesData$
       .pipe(untilDestroyed(this))

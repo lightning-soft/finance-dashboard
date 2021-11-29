@@ -43,7 +43,8 @@
   .icon-delete {
     font-size: 8px;
     margin-left: auto;
-    margin-right: 8px;
+    opacity: 0;
+    margin-right: 3px;
     transition: all .3s;
     cursor: pointer;
     color: $text-80;
@@ -55,11 +56,23 @@
 
   &:hover, {
     background: $lighter;
+
+    .icon-delete {
+      opacity: 1;
+    }
   }
 
   &.selected {
     color: white;
     font-weight: 600;
+    background: $primary;
+
+    .icon-delete {
+      color: white !important;
+      &:hover {
+        color: white !important;
+      }
+    }
 
     i {
       font-weight: 400;
@@ -177,7 +190,7 @@ nz-input-number {
     }
 
     .ant-collapse-content > .ant-collapse-content-box {
-      padding: 3px 3px 3px 0;
+      padding: 3px 7px 3px 0;
     }
 
     .ant-collapse-content {

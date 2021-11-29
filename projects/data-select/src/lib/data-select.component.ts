@@ -25,7 +25,8 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() disabled = false;
   @Input() withActions = false;
   @Input() showTooltip = false;
-  @Input() editCallback = (item) => this.handleValueChange(item)
+  @Input() editCallback = (item) => this.handleValueChange(item);
+  @Input() dropdownClassName = '';
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();
 

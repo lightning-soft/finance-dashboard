@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../../models';
 import { NotifierService } from 'notifier';
+import { enumarablePeriodicities } from '../../datafeed/TimeFrame';
 
 @Component({
   selector: 'frame-selector',
@@ -94,7 +95,9 @@ export class FrameSelectorComponent {
 
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = this.getTimeFrameLabel(timeFrame.periodicity);
-    return `${timeFrame.interval} ${label}`;
+    const suffix = enumarablePeriodicities[timeFrame.periodicity] ? 't' : '';
+
+    return `${timeFrame.interval}${suffix} ${label}`;
   }
 
   getTimeFrameLabel(periodicity) {

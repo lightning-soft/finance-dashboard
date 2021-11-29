@@ -100,7 +100,7 @@ export class ClockComponent implements OnInit {
 
     const supposedTimezone = matchedTimezones.reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
-    });
+    }) as any;
 
     return supposedTimezone ? new Timezone(supposedTimezone) : null;
   }

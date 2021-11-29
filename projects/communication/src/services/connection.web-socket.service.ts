@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { Id } from 'communication';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { IConnection } from 'trading';
 import { CommunicationConfig } from '../http';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
@@ -40,6 +40,8 @@ export class ConenctionWebSocketService {
     time: {},
   };
 
+  private _delayedMessages = [];
+
   lastMessageActivityTime;
   inactivityTimeoutId;
 
@@ -50,7 +52,13 @@ export class ConenctionWebSocketService {
   ) {
     this._setListeners();
     this._setEventListeners();
-
+    this.connection$
+      .pipe(filter(i => i))
+      .subscribe(() => {
+        for (let i = 0; i < this._delayedMessages.length; i++)
+          this._websocket.send(this._delayedMessages[i]);
+        this._delayedMessages = [];
+      });
     this.lastMessageActivityTime = Date.now();
     this.startInactivityTimer(inactivityOffset);
     (window as any).getStats = () => {
@@ -59,10 +67,10 @@ export class ConenctionWebSocketService {
 
       return {
         ..._statistic,
-        upTime: `${ upTime } sec`,
-        avarageMessages: `${ (_statistic.messages / upTime).toFixed(2) } messages/sec`,
-        avarageEvents: `${ (_statistic.events / upTime).toFixed(2) } events/sec`,
-        eventsInMessages: `${ _statistic.events / _statistic.messages } events/sec`,
+        upTime: `${upTime} sec`,
+        avarageMessages: `${(_statistic.messages / upTime).toFixed(2)} messages/sec`,
+        avarageEvents: `${(_statistic.events / upTime).toFixed(2)} events/sec`,
+        eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
       };
     };
   }
@@ -77,7 +85,7 @@ export class ConenctionWebSocketService {
           type: RealtimeType.Activity,
           result: { connection: this.connection }
         });
-        newTimeOut =  newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
+        newTimeOut = newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
       } else
         newTimeOut = inactivityOffset;
       this.lastMessageActivityTime = now;
@@ -158,12 +166,9 @@ export class ConenctionWebSocketService {
       this._websocket.send(payload);
       return;
     }
+    this._delayedMessages.push(payload);
 
     console.warn(`Message didn\'t send `, payload);
-
-    this.connection$
-      .pipe(filter(i => i), take(1))
-      .subscribe(() => this._websocket.send(payload));
   }
 
   close() {

@@ -240,7 +240,7 @@ export const TIMEZONES = [
     id: 16,
     value: "Eastern Standard Time",
     abbr: "EDT",
-    offset: -5,
+    offset: -4,
     isdst: true,
     text: "Eastern Time (US & Canada)",
     utc: [

@@ -131,10 +131,11 @@ export class RealOHLVFeed extends OHLVFeed {
     if (!obj || !obj[instrument?.id])
       return;
 
-    this._tradeDatafeed.unsubscribe(instrument, connecionId);
-    this._volumeDatafeed.unsubscribe(instrument, connecionId);
-
     obj[instrument.id].count -= 1;
+    if (obj[instrument?.id].count < 1) {
+      this._tradeDatafeed.unsubscribe(instrument, connecionId);
+      this._volumeDatafeed.unsubscribe(instrument, connecionId);
+    }
   }
 
   handleTrade = (trade, connectionId: Id) => {

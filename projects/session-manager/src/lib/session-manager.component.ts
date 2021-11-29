@@ -115,6 +115,9 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       let workingTime;
       if (value && index !== 0 && index < length) {
         workingTime = this.item.workingTimes.find((item) => {
+          if (item.startDay === item.endDay && item.endDay === index - 1)
+            return true;
+
           return item.endDay === index;
         });
         const endDay = workingTime?.endDay !== workingTime?.startDay ? index + 1 : index;

@@ -54,6 +54,12 @@ body.electron {
   }
 }
 
+.timezones-select {
+  cdk-virtual-scroll-viewport {
+    max-height: 362px !important;
+  }
+}
+
 .ant-switch:hover, .ant-switch:focus:hover {
   box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
 }

@@ -17,7 +17,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
 import { Layout } from 'layout';
-import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService } from 'ng-zorro-antd';
+import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService, NzSelectComponent } from 'ng-zorro-antd';
 import { Components } from 'src/app/modules';
 import { IInstrument } from 'trading';
 import { ConfirmModalComponent, RenameModalComponent } from 'ui';
@@ -49,6 +49,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
   @ViewChild(NzDropDownDirective, { static: true }) dropDownDirective: NzDropDownDirective;
+  @ViewChild('price', { static: true }) priceComp: NzSelectComponent;
 
   zoomDropdownVisible = false;
   crossOpen = false;
@@ -233,7 +234,8 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
       overlayX: 'start',
       overlayY: 'top',
     }]);
-
+    // need to specify two classes for select component. Impossible via default input passing
+    this.priceComp.cdkConnectedOverlay.panelClass = ['toolbar-dropdown', 'price-style-dropdown' ];
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
 
