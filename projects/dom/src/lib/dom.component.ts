@@ -646,6 +646,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   ngAfterViewInit() {
     this._handleResize();
+    this._validateComponentWidth();
     // this._ordersRepository.actions
     //   .pipe(untilDestroyed(this))
     //   .subscribe((action) => this._handleOrdersRealtime(action));
