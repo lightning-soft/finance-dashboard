@@ -156,7 +156,7 @@ export function getColor(label: string | any) {
     key,
     name: key,
     type: FieldType.Color,
-    templateOptions: { label: _label },
+    templateOptions: { label: _label, hideOpacity: label.hideOpacity },
   };
 }
 

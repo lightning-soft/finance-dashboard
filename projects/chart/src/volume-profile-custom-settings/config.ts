@@ -78,7 +78,7 @@ export const customVolumeProfile = [
           }
         ]
       }),
-      getColor('Profile Color'),
+      getColor({ label: 'Profile Color', key: 'profileColor', hideOpacity: true, }),
       getNumber({ label: 'Profile width, %', min: 1, max: 100, key: 'widthCorrelation', }),
       {},
       getNumber({

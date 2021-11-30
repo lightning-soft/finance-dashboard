@@ -51,6 +51,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   selectedColorType: ColorType;
   opacity = 100;
   inputText: string;
+  hideOpacity = false;
 
   get currentColor(): string {
     return this.formControl?.value;
@@ -65,6 +66,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     this._setInputValue();
     const colors = this.storage.getItem(colorsHistoryKey) ?? [];
     this.pickedColorsHistory = colors.map(this._transformToHistoryColor);
+    this.hideOpacity = this.field.templateOptions.hideOpacity;
   }
 
   updateValue(color: string, updateHistory = true): void {
