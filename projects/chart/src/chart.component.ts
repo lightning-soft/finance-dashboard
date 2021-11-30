@@ -592,7 +592,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       symbol: 'ESZ1',
       exchange: 'CME',
       productCode: 'ES',
-      description: 'E-Mini S&P 500',
+      description: 'E-Mini S&P 500 Dec21',
       tickSize: 0.25,
       precision: 2,
       company: this._getInstrumentCompany(),

@@ -2,8 +2,23 @@ import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { IInstrument, InstrumentsRepository } from 'trading';
+import { IInstrument, InstrumentsRepository, InstrumentType } from 'trading';
 import { BaseRepository } from './base-repository';
+
+const monthsMap = {
+  F: 'Jan',
+  G: 'Feb',
+  H: 'Mar',
+  J: 'Apr',
+  K: 'May',
+  M: 'June',
+  N: 'July',
+  Q: 'Aug',
+  U: 'Sept',
+  V: 'Oct',
+  X: 'Nov',
+  Z: 'Dec',
+};
 
 @Injectable()
 export class RealInstrumentsRepository extends BaseRepository<IInstrument> implements InstrumentsRepository {
@@ -24,7 +39,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       })
       .pipe(
         map(response => response.result.map(item => {
-          item.id = `${item.symbol}.${item.exchange}`
+          item.id = `${item.symbol}.${item.exchange}`;
           return item;
         })),
         map(result => {
@@ -42,9 +57,16 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
   }
 
   protected _mapResponseItem(item: any): IInstrument {
+    let suffix = '';
+    if (item.type === InstrumentType.Future) {
+      const [monthType, year] = item.symbol.replace(item.productCode, '');
+      const decade = new Date().getFullYear().toString()[2];
+      suffix = monthsMap[monthType] + `${decade}${year}`;
+    }
     return {
       ...item,
       id: item.symbol,
+      description: item.description + ` ${suffix}`,
       tickSize: item.increment ?? 0.01,
     };
   }
