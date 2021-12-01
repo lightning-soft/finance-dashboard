@@ -732,7 +732,6 @@ export const TIMEZONES = [
     isdst: true,
     text: "Athens, Bucharest",
     utc: [
-      "Asia/Nicosia",
       "Europe/Athens",
       "Europe/Bucharest",
     ]

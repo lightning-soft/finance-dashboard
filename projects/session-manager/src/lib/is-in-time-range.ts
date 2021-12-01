@@ -1,11 +1,12 @@
 
-export function isInTimeRange(date, workingTimes) {
-  if (!workingTimes)
+export function isInTimeRange(date, session) {
+  if (!session?.workingTimes)
     return true;
 
-  const currentDay = date.getDay();
-  const time = getTimeFromDate(date);
-  return workingTimes.some(({ endDay, endTime, startDay, startTime }) =>
+  const _date = (moment as any).tz(date, session.timezoneId)._d;
+  const currentDay = _date.getDay();
+  const time = getTimeFromDate(_date);
+  return session?.workingTimes.some(({ endDay, endTime, startDay, startTime }) =>
     (currentDay < endDay || (currentDay === endDay && time <= endTime)) &&
     (currentDay > startDay || (currentDay === startDay && time >= startTime)));
 }

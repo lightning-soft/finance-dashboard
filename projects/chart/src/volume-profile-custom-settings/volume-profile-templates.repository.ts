@@ -16,7 +16,8 @@ export interface IVolumeTemplate {
 const STORE_KEY = 'volumeProfileTemplates';
 const DefaultTemplates = [
   {
-    id: 'buyVolProf', name: 'Buy Vol Prof',
+    id: 'buyVolProf',
+    name: 'Buy Vol Prof',
     isDefault: true,
     settings: {
       eth: {
@@ -319,7 +320,8 @@ const DefaultTemplates = [
     }
   },
   {
-    id: 'sellVolProf', name: 'Sell Vol Prof',
+    id: 'sellVolProf',
+    name: 'Sell Vol Prof',
     isDefault: true,
     settings: {
       eth: {

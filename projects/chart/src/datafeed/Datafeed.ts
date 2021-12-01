@@ -78,7 +78,7 @@ export abstract class Datafeed implements IDatafeed {
     const historyItems = [];
     for (let i = 0; i < this._historyItems.length; i++) {
       const historyItem = this._historyItems[i];
-      if (isInTimeRange(historyItem.date, this._session?.workingTimes)) {
+      if (isInTimeRange(historyItem.date, this._session)) {
         historyItems.push(historyItem);
       }
     }
@@ -121,7 +121,7 @@ export abstract class Datafeed implements IDatafeed {
         dataManager.clearBarDataSeries();
         this._historyItems = bars;
         this.barHandler.clear();
-        const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session?.workingTimes));
+        const filteredBars = bars.filter(bar => isInTimeRange(bar.date, this._session));
         console.log('filteredBars', filteredBars.length, bars.length);
         const processBars = this.barHandler.processBars(filteredBars);
         this.barHandler.setAdditionalInfo(additionalInfo);
@@ -291,7 +291,7 @@ export abstract class Datafeed implements IDatafeed {
   }
 
   private _processBar(bar): BarAction {
-    if (isInTimeRange(bar.date, this._session?.workingTimes)) {
+    if (isInTimeRange(bar.date, this._session)) {
       const barResult = this.barHandler.processBar(bar);
       if (barResult?.action === BarAction.Add) {
         this._historyItems.push(barResult.bar);

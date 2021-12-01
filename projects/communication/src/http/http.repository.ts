@@ -107,10 +107,12 @@ export abstract class HttpRepository<T extends IBaseItem> extends Repository<T> 
     const { id, ...dto } = this._mapRequestItem(item, action);
     const params = this._mapItemParams(query, action);
 
-    return this._http.put<T>(this._getRESTURL(id), dto, { ...this._httpOptions, params })
+    return this._http.put<T>(this._getRESTURL(id), dto, { ...this._httpOptions, ...params })
       .pipe(
         map(res => this._mapItemResponse(res, params, action)),
-        tap(i => this._onUpdate(i)),
+        tap(i => {
+          this._onUpdate(i);
+        }),
       );
   }
 

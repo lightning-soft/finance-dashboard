@@ -122,7 +122,6 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
 
   protected _handleUpdateItems(items: any[]) {
     super._handleUpdateItems(items);
-
     const item = items[0];
 
     if (item.id === this.value) {

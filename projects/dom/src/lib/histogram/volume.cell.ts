@@ -46,12 +46,12 @@ export class VolumeCell extends TotalCell {
 
     this.addToHistoryItem(value, date);
 
-    if (isInTimeRange(date, sessions?.eth?.workingTimes)) {
+    if (isInTimeRange(date, sessions?.eth)) {
       this._addEthVolume(value);
       changedEth = true;
     }
 
-    if (isInTimeRange(date, sessions?.rth?.workingTimes)) {
+    if (isInTimeRange(date, sessions?.rth)) {
       changedRth = super.updateValue(value);
     }
 
@@ -81,10 +81,10 @@ export class VolumeCell extends TotalCell {
     let sessionVolume = 0;
     const sessions = this.settings.sessions;
     this.volumeItems.forEach(item => {
-      if (isInTimeRange(item.date, sessions?.rth?.workingTimes)) {
+      if (isInTimeRange(item.date, sessions?.rth)) {
         volume += item.volume;
       }
-      if (isInTimeRange(item.date, sessions?.eth?.workingTimes)) {
+      if (isInTimeRange(item.date, sessions?.eth)) {
         sessionVolume += item.volume;
       }
     }, 0);
