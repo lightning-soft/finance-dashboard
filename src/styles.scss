@@ -41,14 +41,19 @@ label {
   font-weight: 600;
 }
 
+.ant-dropdown-menu, .ant-menu {
+  box-shadow: 0px 4px 15px #15161d, 0px 0px 20px #15161d;
+}
+
 body.electron {
   border: 1px solid $darkBackground;
   border-top: 1px solid $light;
- // transition: border 0.3s;
-  &.navbarBottom{
+  // transition: border 0.3s;
+  &.navbarBottom {
     border-top: 1px solid $darkBackground;
     border-bottom: 1px solid $light;
   }
+
   &.highligt {
     border: 1px solid $primary;
   }
@@ -69,6 +74,7 @@ body.electron {
     padding: 0;
     background-color: $light;
   }
+
   .ant-modal-close-x {
     width: 19px;
     height: 19px;

@@ -3,6 +3,9 @@
   <div class="menu">
     <div class="menu-list">
       <div class="d-flex align-items-center">
+        <div (click)="toggleAll()" class="expand-all">
+          <i [class.all-expaned]="allExpanded" class="icon-arrow-up"></i>
+        </div>
         <span (click)="searchControl.valid && clearQuery()" [class.all-group-clickable]="searchControl.valid"
               class="all-group d-block mr-2">All</span>
         <nz-input-group class="custom-form-control search-group" nzSize="small" [nzPrefix]="prefix">
@@ -11,9 +14,6 @@
         <ng-template #prefix>
           <i class="icon-search"></i>
         </ng-template>
-        <div (click)="toggleAll()" class="expand-all">
-          <i [class.all-expaned]="allExpanded" class="icon-arrow-up"></i>
-        </div>
       </div>
       <cdk-virtual-scroll-viewport itemSize="">
         <ul>
@@ -21,10 +21,11 @@
             <li
               [class.expanded]="group.expanded"
               (click)="expand(group)"
-              class="indicator-group-item">{{group.name}}
+              class="indicator-group-item">
               <i class="arrow icon-arrow-down"
                  [class.arrow-up]="group.expanded"
               ></i>
+              {{group.name}}
             </li>
             <div *ngIf="group.expanded">
               <div (click)="addIndicator(indicator)" class="indicator-item"
@@ -58,9 +59,11 @@
             cdkDrag
             cdkDragPreviewClass=""
             class="current-indicators"
-            [class.selected]="isSelected(item)"><i class="icon-visible"></i>
+            [class.selected]="isSelected(item)">
           <span [title]="item.name" class="indicator-name">{{item.name}}</span>
-          <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-bucket ml-auto"></i>
+          <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-bucket"></i>
+          <i (click)="$event.stopPropagation();" class="icon-visible  ml-auto"></i>
+
         </li>
       </cdk-virtual-scroll-viewport>
       <span [class.is-removable]="indicators.length" class="remove-all-text" (click)="removeAll()">remove all</span>

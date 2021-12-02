@@ -10,6 +10,28 @@
   }
 
   ::ng-deep {
+    .icon-search {
+      color: $light2;
+    }
+
+    window-header {
+      position: relative;
+
+      .wm-draggable.title {
+        color: $text-80;
+      }
+
+      &:after {
+        right: 0;
+        width: 400px;
+        content: '';
+        height: 100%;
+        background: $secondary;
+        position: absolute;
+        z-index: -1;
+      }
+    }
+
     .hide-border-label {
       nz-form-item .ant-form-item-label label {
         display: none;
@@ -358,8 +380,7 @@
     nz-form-item .ant-form-item-label {
       text-align: start;
       margin-bottom: 6px;
-      color: $text-40;
-      border-bottom: 1px solid #383A40;
+      color: $text-60;
       position: relative;
 
       /*  &:after {
@@ -576,6 +597,7 @@
 
     .cdk-virtual-scroll-content-wrapper {
       height: 100%;
+      width: 100%;
       contain: unset;
       padding-right: 2px;
       padding-left: 2px;
@@ -788,11 +810,8 @@
 }
 
 .expand-all {
-  height: 20px;
-  width: 20px;
-  background: $darkBackground;
   border-radius: 2px;
-  margin-left: 5px;
+  margin-right: 5px;
   color: $text-40;
   cursor: pointer;
   display: flex;
@@ -828,31 +847,29 @@
 
 .layout {
   display: flex;
-  padding-left: 6px;
-  padding-right: 6px;
   height: 100%;
 }
 
 .form-layout {
   width: 100%;
-  padding-left: 6px;
+  height: 100%;
+  background: $secondary;
 }
 
 .scroll-container {
   height: calc(100% - 15px);
 }
 
-cdk-virtual-scroll-viewport {
+.form-layout cdk-virtual-scroll-viewport {
   height: 100%;
   background: $secondary;
-  margin-top: 3px;
 }
 
 
 formly-form {
   display: block;
   min-height: 100%;
-  padding: 12px 3px 8px 5px;
+  padding: 9px 3px 8px 5px;
 }
 
 .menu {
@@ -862,9 +879,8 @@ formly-form {
 }
 
 .menu-list, .bottom-menu {
-  background: $inputBackground;
   margin-top: 3px;
-  padding-left: 12px;
+  padding-left: 14px;
   padding-right: 8px;
   padding-top: 8px;
 }
@@ -873,6 +889,8 @@ formly-form {
   margin-top: 6px;
   height: 241px;
   display: flex;
+  padding-left: 23px;
+  border-top: 1px solid $light3;
   flex-direction: column;
 
   .remove-all-text {
@@ -911,8 +929,12 @@ formly-form {
 
   .all-group, .current-text {
     color: $light2;
-    font-size: 0.8rem;
+    font-size: 0.93rem;
     transition: color 0.3s;
+  }
+
+  .current-text {
+    padding-left: 6px;
   }
 
   .all-group-clickable {
@@ -939,12 +961,8 @@ formly-form {
       height: 183px;
     }
 
-    ul, li, .cdk-virtual-scroll-content-wrapper {
+    ul, .cdk-virtual-scroll-content-wrapper {
       padding: 0;
-    }
-
-    li {
-      padding-right: 8px;
     }
 
     .indicator-item {
@@ -978,16 +996,18 @@ formly-form {
 
   .current-indicators {
     color: $text-60;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     margin-top: 2px;
     height: 22px;
     display: flex;
     align-items: center;
-    padding-left: 4px;
-    padding-right: 7px;
     border-radius: 2px;
     line-height: 14px;
+    padding-left: 6px;
 
+    &:first-child {
+      margin-top: 7px;
+    }
 
     &.selected {
       background: $light;
@@ -998,20 +1018,27 @@ formly-form {
       background: $light3;
       color: #fff;
 
-      .icon-visible, .icon-bucket {
+      .icon-bucket {
         opacity: 1;
+      }
+
+      .icon-visible {
+        color: $text-60;
       }
     }
 
     .icon-visible {
-      opacity: 0;
-      transition: opacity 0.3s;
+      opacity: 1;
+      color: $light3;
+      transition: all 0.3s;
+      margin-right: 8px;
     }
 
     .icon-bucket {
       opacity: 0;
       transition: opacity 0.3s;
       font-size: 10px;
+      margin-right: 10px;
       color: $text-60;
     }
   }
@@ -1021,7 +1048,7 @@ formly-form {
   font-size: 0.85rem;
   color: $text-60;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
 
   &:not(:first-child) {
     margin-top: 5px;
@@ -1029,6 +1056,7 @@ formly-form {
 
   .arrow {
     font-size: 8px;
+    margin-right: 6px;
     transition: all 0.5s;
   }
 
@@ -1070,51 +1098,10 @@ ul {
 }
 
 li {
-  font-size: 1rem;
-  line-height: 1.3rem;
-  padding-left: 4px;
-  padding-top: 3px;
-  padding-bottom: 3px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-
-  &:not(:first-child) {
-    margin-top: 5px;
-  }
-
-  &.selected {
-    border-radius: 2px;
-    background: $light;
-    color: white;
-    font-weight: 600;
-  }
-
-  &:hover {
-    .icon-minus {
-      opacity: 1;
-    }
-  }
 }
 
 .icon-visible {
   font-size: 10px;
   line-height: 1;
-  margin-right: 4px;
-  color: $light2;
-}
-
-.icon-minus {
-  font-size: 8px;
-  line-height: 1;
-  height: 18px;
-  width: 18px;
-  color: $red;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  transition: all 0.3s;
-  margin-right: 6px;
 }
