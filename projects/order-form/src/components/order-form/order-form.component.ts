@@ -1,4 +1,4 @@
-import { Component, Injector, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe, NumberHelper } from 'base-components';
@@ -23,6 +23,8 @@ import {
   roundToTickSize,
   UpdateType
 } from 'trading';
+import { InstrumentFormatter } from 'data-grid';
+import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -32,6 +34,7 @@ interface OrderFormState {
   link: string | number;
   orderLink?: string;
   account?: IAccount;
+  amountButtons: any[];
 }
 
 export interface OrderFormComponent extends ILayoutNode, IUnsubscribe {
@@ -52,11 +55,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   firstOcoOrder: IOrder;
   secondOcoOrder: IOrder;
 
+  private _formatter = InstrumentFormatter.forInstrument();
+
   get isStopLimit() {
     return OrderType.StopLimit === this.formValue.type;
   }
 
   @ViewChild(QuantityInputComponent) quantityInput: QuantityInputComponent;
+  @ViewChild('priceNode') priceNode: NzInputNumberComponent;
+  @ViewChild('limitPriceNode') limitPriceNode: NzInputNumberComponent;
 
   private _instrument: IInstrument;
 
@@ -77,9 +84,17 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     this._instrument = value;
+    this._formatter = InstrumentFormatter.forInstrument(value);
 
-    if (this.price)
+    if (this.price != null) {
       this.price = roundToTickSize(this.price, this._instrument.tickSize);
+      this.priceNode?.updateDisplayValue(this.price);
+    }
+    if (this.limitPrice != null) {
+      this.limitPrice = roundToTickSize(this.limitPrice, this._instrument.tickSize);
+      this.limitPriceNode?.updateDisplayValue(this.limitPrice);
+    }
+
 
     const { symbol, exchange } = value;
     this.form?.patchValue({ symbol, exchange });
@@ -122,7 +137,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     { value: 100 },
   ];
 
-  readonly priceFormatter = (price: number) => Number(price).toFixed(this.precision);
+  readonly priceFormatter = (price: number) => this._formatter.format(Number(price));
 
   constructor(
     protected fb: FormBuilder,
@@ -132,7 +147,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     private _positionDatafeed: PositionsFeed,
     private _storage: Storage,
     protected _injector: Injector,
-    private _zone: NgZone,
+    protected _changeDetectorRef: ChangeDetectorRef,
   ) {
     super();
     this.autoLoadData = false;
@@ -149,15 +164,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     this.onRemove(
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote: IQuote) => {
         if (quote.updateType === UpdateType.Undefined) {
-          this._zone.run(() => {
-            if (quote.side === QuoteSide.Ask) {
-              this.askPrice = quote.price.toFixed(this.precision);
-              this.askVolume = quote.volume;
-            } else {
-              this.bidVolume = quote.volume;
-              this.bidPrice = quote.price.toFixed(this.precision);
-            }
-          });
+          if (quote.side === QuoteSide.Ask) {
+            this.askPrice = this._formatter.format(quote.price);
+            this.askVolume = quote.volume;
+          } else {
+            this.bidVolume = quote.volume;
+            this.bidPrice = this._formatter.format(quote.price);
+          }
+
+          this._changeDetectorRef.detectChanges();
         }
       })),
       this._positionDatafeed.on(filterPositions(this, (pos, connectionId) => {
@@ -214,19 +229,21 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (state?.link != null) {
       this.link = state.link;
     }
-    if (state?.orderLink) {
+    if (state?.orderLink)
       this.orderLink = state.orderLink;
-    }
+    if (state?.amountButtons)
+      this.amountButtons = state.amountButtons;
+
     if (state?.instrument)
       this.instrument = state.instrument;
     else
       this.instrument = {
-        id: 'ESU1.CME',
+        id: 'ESZ1.CME',
         description: 'E-Mini S&P 500',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: 'ESU1',
+        symbol: 'ESZ1',
       };
 
     if (state?.account)
@@ -250,7 +267,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   saveState(): OrderFormState {
-    return { instrument: this.instrument, link: this.link, orderLink: this.orderLink };
+    return { instrument: this.instrument, link: this.link, amountButtons: this.amountButtons, orderLink: this.orderLink };
   }
 
   closePositions() {
@@ -360,12 +377,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       return;
 
     const currentPrice = this.price || 0;
-    const tickSize = this.instrument?.tickSize || 0.1;
+    const tickSize = this.instrument?.tickSize || 1;
     const _newPrice = currentPrice + tickSize;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
       roundToTickSize(_newPrice, tickSize);
 
-    this.price = +newPrice.toFixed(this.precision);
+    this.price = +newPrice.toFixed(this.precision || 1);
     this.handlePriceChange();
   }
 
@@ -373,14 +390,14 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (this.shouldDisablePrice)
       return;
 
-    const tickSize = this.instrument?.tickSize || 0.1;
+    const tickSize = this.instrument?.tickSize || 1;
     const currentPrice = this.price || 0;
     const _newPrice = currentPrice - tickSize;
     const newPrice = NumberHelper.isDivisor(+currentPrice.toFixed(this.precision), tickSize) ? _newPrice :
       roundToTickSize(_newPrice, tickSize, 'floor');
 
     if (newPrice >= 0)
-      this.price = +newPrice.toFixed(this.precision);
+      this.price = +newPrice.toFixed(this.precision || 1);
 
     this.handlePriceChange();
   }
@@ -396,7 +413,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   private _getNavbarTitle(): string {
     if (this.instrument) {
-      return `${ this.instrument.symbol } - ${ this.instrument.description }`;
+      return `${this.instrument.symbol} - ${this.instrument.description}`;
     }
   }
 

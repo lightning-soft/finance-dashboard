@@ -1,7 +1,14 @@
-import { OrderDuration } from 'trading';
+import { ISession, OrderDuration } from 'trading';
+import { SettingsItems } from 'chart';
 
 export const chartReceiveKey = 'chartReceiveKey';
 export const chartSettings = 'chartSettings';
+
+export enum IsAutomaticPixelPrice {
+  AUTOMATIC = 'automatic',
+  PIXELS_PRICE = 'pixels-price'
+
+}
 
 export interface IChartSettings {
   general: {
@@ -25,11 +32,22 @@ export interface IChartSettings {
     }
   };
   trading: any;
+  session: {
+    sessionTemplate: ISession;
+    sessionEnabled: boolean;
+  };
+  valueScale?: {
+    valueScale: {
+      pixelsPrice: number;
+      isAutomatic: string;
+    }
+  };
 }
 
 export interface IChartSettingsState {
   settings: IChartSettings;
   linkKey: string;
+  menuItem?: SettingsItems;
 }
 
 export let defaultChartSettings: IChartSettings;
@@ -148,12 +166,24 @@ defaultChartSettings = {
     trading: {
       bracketButton: true,
       orderBarLength: 100,
+      showOrderConfirm: true,
+      showCancelConfirm: true,
       orderBarUnit: 'pixels',
       showInstrumentChange: false,
       showOHLVInfo: false,
       showWorkingOrders: true,
       tradingBarLength: 40,
       tradingBarUnit: 'pixels',
+    }
+  },
+  session: {
+    sessionTemplate: null,
+    sessionEnabled: true,
+  },
+  valueScale: {
+    valueScale: {
+      pixelsPrice: 0,
+      isAutomatic: IsAutomaticPixelPrice.AUTOMATIC
     }
   }
 };

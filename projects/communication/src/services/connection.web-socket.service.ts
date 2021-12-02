@@ -1,13 +1,19 @@
 import { Injectable, Injector } from '@angular/core';
 import { Id } from 'communication';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { BehaviorSubject } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { IConnection } from 'trading';
 import { CommunicationConfig } from '../http';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
 import { WebSocketService } from './web-socket.service';
+import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
 
+const delayOffset = 3000;
+const notificationSendOffset = 3 * 60 * 1000;
+const maxTimeOffset = 10800000; // 3 hours
+
+const inactivityOffset = 2 * 60 * 1000;
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +21,8 @@ import { WebSocketService } from './web-socket.service';
 export class ConenctionWebSocketService {
   connection: IConnection;
   connection$ = new BehaviorSubject<boolean>(false);
+  reconnection$ = new Subject<IConnection>();
+  lastSentNotification = 0;
 
   get connected(): boolean {
     return this.connection$.value;
@@ -23,7 +31,6 @@ export class ConenctionWebSocketService {
   private _websocket: ReconnectingWebSocket;
   private _listeners: IWSListeners;
   private _eventListeners: { [key in WSEventType]: any };
-
   private _statistic = {
     messages: 0,
     events: 0,
@@ -33,15 +40,27 @@ export class ConenctionWebSocketService {
     time: {},
   };
 
+  private _delayedMessages = [];
+
+  lastMessageActivityTime;
+  inactivityTimeoutId;
+
   constructor(
     protected _injector: Injector,
     private _config: CommunicationConfig,
-    private _service: WebSocketService
+    private _service: WebSocketService,
   ) {
-
     this._setListeners();
     this._setEventListeners();
-
+    this.connection$
+      .pipe(filter(i => i))
+      .subscribe(() => {
+        for (let i = 0; i < this._delayedMessages.length; i++)
+          this._websocket.send(this._delayedMessages[i]);
+        this._delayedMessages = [];
+      });
+    this.lastMessageActivityTime = Date.now();
+    this.startInactivityTimer(inactivityOffset);
     (window as any).getStats = () => {
       const _statistic = this._statistic;
       const upTime = (Date.now() - _statistic.startTime.getTime()) / 1000;
@@ -54,6 +73,25 @@ export class ConenctionWebSocketService {
         eventsInMessages: `${_statistic.events / _statistic.messages} events/sec`,
       };
     };
+  }
+
+  startInactivityTimer(timeout) {
+    this.inactivityTimeoutId = setTimeout(() => {
+      const now = Date.now();
+      let newTimeOut;
+      if (now >= this.lastMessageActivityTime + timeout) {
+        newTimeOut = inactivityOffset - (now - this.lastMessageActivityTime);
+        this._executeListeners(WSEventType.Message, {
+          type: RealtimeType.Activity,
+          result: { connection: this.connection }
+        });
+        newTimeOut = newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
+      } else
+        newTimeOut = inactivityOffset;
+      this.lastMessageActivityTime = now;
+      clearTimeout(this.inactivityTimeoutId);
+      this.startInactivityTimer(newTimeOut);
+    }, timeout);
   }
 
 
@@ -128,18 +166,15 @@ export class ConenctionWebSocketService {
       this._websocket.send(payload);
       return;
     }
+    this._delayedMessages.push(payload);
 
     console.warn(`Message didn\'t send `, payload);
-
-    this.connection$
-      .pipe(filter(i => i), take(1))
-      .subscribe(() => this._websocket.send(payload));
   }
 
   close() {
+    if (this.inactivityTimeoutId != null)
+      clearTimeout(this.inactivityTimeoutId);
     this._websocket.close();
-
-    this._removeEventListeners();
   }
 
   on(type: WSEventType, listener: IWSListener): IWSListenerUnsubscribe {
@@ -173,7 +208,8 @@ export class ConenctionWebSocketService {
       },
       close: (event: CloseEvent) => {
         this._executeListeners(WSEventType.Close, event);
-
+        this._removeEventListeners();
+        this._setListeners();
         this.connection$.next(false);
       },
       error: (event: ErrorEvent) => {
@@ -228,7 +264,29 @@ export class ConenctionWebSocketService {
       this.connection$.next(true);
     }
 
+    this._checkConnectionDelay(payload);
+    this._checkMessageActivity(payload);
+
     this._executeListeners(WSEventType.Message, payload);
+  }
+
+  private _checkConnectionDelay(msg) {
+    if (msg.type === RealtimeType.Bar)
+      return;
+
+    const now = Date.now();
+    const timeDelay = now - msg.result.timestamp;
+    const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
+    const shouldSendNtf = now > this.lastSentNotification + notificationSendOffset;
+    if (hasDelay && shouldSendNtf) {
+      this.lastSentNotification = now;
+      this.reconnection$.next(this.connection);
+      this._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now } });
+    }
+  }
+
+  private _checkMessageActivity(msg) {
+    this.lastMessageActivityTime = Date.now();
   }
 
   private _addEventListeners() {
@@ -239,7 +297,7 @@ export class ConenctionWebSocketService {
 
   private _removeEventListeners() {
     this._forEachEventListener((event, listener) => {
-      this._websocket.removeEventListener(event, listener());
+      this._websocket.removeEventListener(event, listener);
     });
   }
 

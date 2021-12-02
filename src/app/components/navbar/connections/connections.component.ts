@@ -90,11 +90,11 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   loadData(params?: any) {
   }
 
-  openAccounts(selectedItem: IConnection = null) {
+  openAccounts(selectedItem: IConnection = null, index = -1) {
     this.layout.addComponent({
       component: {
         name: 'accounts',
-        state: { selectedItem }
+        state: { selectedItem, selectItemIndex: index }
       },
       ...accountsOptions
     });
@@ -120,7 +120,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
             this.contextMenuConnection.error = item.error;
           }
         },
-        err => this._notifier.showError(err),
+        err => console.error('Connect error', err),
         () => {
           delete this.isLoading[this.contextMenuConnection.id];
         },
@@ -135,7 +135,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
         () => {
           this.contextMenuConnection.connected = false;
         },
-        err => this._notifier.showError(err),
+        err => console.error('Disconnect error', err),
         () => {
           delete this.isLoading[this.contextMenuConnection.id];
         }

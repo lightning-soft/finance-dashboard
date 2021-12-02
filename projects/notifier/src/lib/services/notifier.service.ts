@@ -10,6 +10,8 @@ export abstract class NotifierService {
 
     if (isString(message))
       _message = message;
+    else if (isString(message.title))
+      _message = message;
     else if (isString(message?.message))
       _message = message.message;
     else if (isString(message?.error?.message))

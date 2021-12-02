@@ -20,13 +20,16 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
           fn(value, connectionId);
         }
       }
-    return super.on(fn);
+      return super.on(fn);
+  }
+  protected _createSubscribeRequest(connection, type, item, dto) {
+    this._createUnsubscribeRequest(connection.id, item);
+    super._createSubscribeRequest(connection, type, item, dto);
   }
 
   protected _handleUpdate(data, connectionId) {
     const result = super._handleUpdate(data, connectionId);
     if (result) {
-      // #TODO save last value by connection id and instrument
       const settleData = this._getResult(data);
       if (!this._lastValue[connectionId]) {
         this._lastValue[connectionId] = {};

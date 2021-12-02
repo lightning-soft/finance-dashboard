@@ -1,6 +1,19 @@
 @import "~src/scss/variables";
 @import "~src/scss/dark.theme";
 
+table {
+  display: block;
+  width: 100%;
+}
+
+.space-beetwen {
+  display: flex;
+  justify-content: space-between;
+}
+
+.connected-status {
+  margin-left: 12px;
+}
 :host {
   display: block;
   height: 100%;
@@ -173,6 +186,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &.is-disabled {
+    opacity: 0.9;
+    cursor: not-allowed;
+  }
 }
 
 .disconnect-button {

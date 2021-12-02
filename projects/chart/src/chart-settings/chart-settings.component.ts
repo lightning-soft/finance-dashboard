@@ -1,14 +1,27 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { ILayoutNode, LayoutNode } from 'layout';
 import { FormGroup } from '@angular/forms';
-import { generalFields, tradingFields } from './settings-fields';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { mergeDeep } from 'base-components';
+import { ILayoutNode, LayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { chartReceiveKey, defaultChartSettings, IChartSettings, IChartSettingsState } from './settings';
-import { mergeDeep } from 'base-components';
+import { generalFields, sessionFields, tradingFields, valueScale } from './settings-fields';
 
 export interface ChartSettingsComponent extends ILayoutNode {
 }
+
+export enum SettingsItems {
+  General,
+  ChartTrading,
+  TradingHours,
+  ValueScale,
+}
+
+const valueScaleMenuItem = {
+  name: 'Value Scale',
+  config: clone(valueScale),
+  className: 'value-scale'
+};
 
 @UntilDestroy()
 @Component({
@@ -31,12 +44,20 @@ export class ChartSettingsComponent implements AfterViewInit {
       name: 'Chart Trading',
       config: clone(tradingFields),
       className: 'chart-trading'
-    }
+    },
+    {
+      name: 'Trading Hours',
+      config: clone(sessionFields)
+    },
+    valueScaleMenuItem
   ];
   currentItem = this.menuItems[0];
 
   private _linkKey: string;
 
+  get linkKey() {
+    return this._linkKey;
+  }
 
   constructor() {
     this.setTabTitle('Settings Chart');
@@ -55,10 +76,17 @@ export class ChartSettingsComponent implements AfterViewInit {
   loadState(state: IChartSettingsState): void {
     this.settings = state?.settings ? state.settings : clone(defaultChartSettings);
     this._linkKey = state?.linkKey;
+    if (state.menuItem != null) {
+      this.selectItem(this.menuItems[state.menuItem]);
+    }
 
     this.addLinkObserver({
       link: chartReceiveKey + this._linkKey,
       handleLinkData: (data) => {
+        if (data.type === SettingsItems.ValueScale) {
+          this.selectItem(valueScaleMenuItem);
+          return;
+        }
         try {
           this.settings = clone(data);
         } catch (error) {

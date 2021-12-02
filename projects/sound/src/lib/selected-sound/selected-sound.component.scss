@@ -1,0 +1,87 @@
+@import "~src/scss/variables";
+
+p {
+  color: white;
+}
+
+li {
+  display: grid;
+  grid-template-columns: 1fr 20px;
+}
+
+cdk-virtual-scroll-viewport {
+  height: 100%;
+}
+
+::ng-deep .selected-sound-overlay {
+  .cdk-virtual-scroll-content-wrapper {
+    width: 100%;
+
+    nz-radio-group {
+      width: 100%;
+    }
+  }
+}
+
+.selected {
+  display: grid;
+  grid-template-columns: calc(100% - 10px) 10px;
+  background: #1B1D22;
+  border-radius: 2px;
+  padding-right: 6px;
+  padding-left: 6px;
+  height: 20px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: 0.3s border;
+
+  &.opened {
+    border: 1px solid $primary;
+  }
+}
+
+.selected {
+  p {
+    font-size: 0.8rem;
+  }
+
+  p, i {
+    margin: 0;
+    color: $text-60;
+  }
+}
+
+.icon-arrow-down {
+  padding: 4px;
+  height: 24px;
+  width: 16px;
+  font-size: 8px;
+}
+
+.ant-dropdown-menu, .ant-dropdown-menu-root, .ant-dropdown-menu-light, .ant-dropdown-menu-vertical, .ng-tns-c102-14 {
+  max-height: 300px;
+  overflow-y: auto;
+  height: 300px;
+  width: 120px;
+}
+
+.icon-img, .icon-img-hover {
+  width: 16px;
+  margin: 2px;
+}
+
+.icon .icon-img {
+  display: block;
+}
+
+.icon .icon-img-hover {
+  display: none;
+}
+
+.icon:hover .icon-img {
+  display: none;
+}
+
+.icon:hover .icon-img-hover {
+  display: block;
+}

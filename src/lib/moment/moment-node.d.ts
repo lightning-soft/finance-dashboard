@@ -75,7 +75,6 @@ declare module moment {
     }
 
     interface Moment {
-
         format(format: string): string;
         format(): string;
 
@@ -391,6 +390,7 @@ declare module moment {
     interface MomentStatic {
 
         version: string;
+        tz: any;
 
         (): Moment;
         (date: number): Moment;

@@ -1,11 +1,21 @@
-import { BarAction, CalculationBarType, ChartBarHandler } from './ChartBarHandler';
+import { BarAction, ChartBarHandler } from './ChartBarHandler';
 import { IBar } from 'chart';
 
 export class VolumeHandler extends ChartBarHandler {
-  calculatePrependedBar = CalculationBarType.Last;
+  protected _shouldUpdateLastDate = false;
 
-  _processRealtimeBar(bar: IBar) {
-    const lastBar = this.getLastBar();
+  processBars(bars: IBar[]) {
+    return bars;
+   /* return bars.map((item, index, array) => {
+      if (index === 0)
+        return item;
+      if (item.date === array[index - 1].date)
+        item.date = new Date(item.date.getTime() + 1);
+      return item;
+    });*/
+  }
+
+  _processRealtimeBar(bar: IBar, lastBar = this.getLastBar()) {
     return this._calculateBarAction(lastBar);
   }
 

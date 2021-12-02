@@ -15,9 +15,10 @@ import { DomSettings } from './dom-settings/settings';
 import { HistogramCell, VolumeCell } from './histogram';
 import { PriceCell } from './price.cell';
 import { TotalCell } from './histogram/total.cell';
+import { DomItemStyles } from './dom.item-styles';
 
 const LevelsCount = 9;
-export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${ i + 1 }`));
+export const LEVELS = new Array(LevelsCount).fill(' ').map((_, i) => (`level${i + 1}`));
 export const TailInside = 'tailInside';
 
 export enum DOMColumns {
@@ -56,6 +57,10 @@ class OrdersCell extends HistogramCell {
     return this._shouldDisplayOrders;
   }
 
+  get order() {
+    return this._order;
+  }
+
   private get _shouldDisplayOrders() {
     const overlayOrders = (this.settings as any).overlayOrders;
     return this._isOrderColumn ? !overlayOrders : overlayOrders;
@@ -77,15 +82,16 @@ class OrdersCell extends HistogramCell {
     this.prepareOrder();
   }
 
-  hasOcoOrder(): boolean {
-    return !!this.ocoOrder;
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    if (side == null || this.side === side) {
+      if (this.ocoOrder)
+        this.ocoOrder = null;
+      this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
+      this.prepareOrder();
+      return true;
+    }
 
-  clearOcoOrder() {
-    if (this.ocoOrder)
-      this.ocoOrder = null;
-    this.orderStyle = this.side === QuoteSide.Ask ? 'ask' : 'bid';
-    this.prepareOrder();
+    return false;
   }
 
   addOrder(order: IOrder) {
@@ -124,10 +130,10 @@ class OrdersCell extends HistogramCell {
             res = {
               type: item.type,
               id: item.id,
-              quantity: item.quantity,
+              quantity: item.quantity - item.filledQuantity,
             } as IOrder;
           } else {
-            res.quantity += item.quantity;
+            res.quantity += (item.quantity - item.filledQuantity);
           }
           return res;
         }, null);
@@ -165,12 +171,14 @@ class OrdersCell extends HistogramCell {
   // }
 
   removeOrder(order) {
-    if (this.orders.map(item => item.id).includes(order.id)) {
+    if (this.orders.some(item => order.id === item.id)) {
       this.orders = this.orders.filter(item => item.id !== order.id);
       this.prepareOrder();
       this._changeText();
       this.drawed = false;
+      return true;
     }
+    return false;
   }
 
   _changeText() {
@@ -178,7 +186,7 @@ class OrdersCell extends HistogramCell {
       return;
 
     const type = this._order.type.replace(/[^A-Z]/g, '');
-    this._text = `${ this._order.quantity }${ type }`;
+    this._text = `${this._order.quantity}${type}`;
   }
 
   getPl(): number {
@@ -348,6 +356,10 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     ];
   }
 
+  get order(){
+    return this._item.sellOrders.order || this._item.buyOrders.order;
+  }
+
   get canCancelOrder() {
     return this._item.sellOrders.canCancelOrder || this._item.buyOrders.canCancelOrder;
   }
@@ -369,13 +381,16 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     this._item.askDelta.changeQuantity(quantity);
   }
 
-  hasOcoOrder() {
-    return this._item.sellOrders.hasOcoOrder() || this._item.buyOrders.hasOcoOrder();
-  }
+  clearOcoOrder(side: QuoteSide): boolean {
+    let sellOrders = false;
+    let buyOrders = false;
 
-  clearOcoOrder() {
-    this._item.sellOrders.clearOcoOrder();
-    this._item.buyOrders.clearOcoOrder();
+    if (side !== QuoteSide.Ask)
+      sellOrders = this._item.sellOrders.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      buyOrders = this._item.buyOrders.clearOcoOrder(side);
+
+    return sellOrders || buyOrders;
   }
 
   addOrder(order: IOrder) {
@@ -389,8 +404,9 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
   }
 
   removeOrder(order) {
-    this._item.sellOrders.removeOrder(order);
-    this._item.buyOrders.removeOrder(order);
+    const isDeletedSell = this._item.sellOrders.removeOrder(order);
+    const isDeletedBuy = this._item.buyOrders.removeOrder(order);
+    return isDeletedSell || isDeletedBuy;
   }
 
   getPl(): number {
@@ -445,7 +461,7 @@ class LevelCell extends HistogramCell {
     const level = Math.round((Date.now() - this._levelTime) / settings.levelInterval) + 1;
     if (!isNaN(level)) {
       if (level <= LevelsCount) {
-        this.changeStatus(`level${ level }`);
+        this.changeStatus(`level${level}`);
       } else if (level >= LevelsCount + 1) {
         this.changeStatus('');
         this._levelTime = null;
@@ -473,6 +489,8 @@ class LevelCell extends HistogramCell {
     }
   }
 }
+
+const totalPrefix = 'total';
 
 class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
@@ -510,6 +528,10 @@ class SumHistogramCell extends HistogramCell {
       }
 
       this.isSumCell = isSum;
+      if (isSum)
+        this.setStatusPrefix(totalPrefix);
+      else
+        this.setStatusPrefix('');
     }
 
     return this.updateValue(value);
@@ -520,7 +542,7 @@ class SumHistogramCell extends HistogramCell {
   // }
 
   calcHist(value: number) {
-    if (this.isSumCell) {
+    if (this.isSumCell || (this.settings.highlightLarge && this.settings.largeSize > this._value)) {
       this.hist = 0;
     } else {
       super.calcHist(value);
@@ -560,6 +582,9 @@ export class DomItem extends HoverableItem implements IBaseItem {
   delta: DeltaCell;
   orders: AllOrdersCell;
 
+  styles: DomItemStyles;
+  settings: DomSettings;
+
   protected _bid = 0;
   protected _ask = 0;
 
@@ -585,6 +610,8 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     super();
+    this.settings = settings;
+    this.styles = new DomItemStyles();
     this.index = index;
     this.price = new PriceCell({
       strategy: AddClassStrategy.NONE,
@@ -688,12 +715,12 @@ export class DomItem extends HoverableItem implements IBaseItem {
       this.currentBid.update(trade.volume, trade.timestamp, forceAdd);
       this.totalBid.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
     } else {
       this.currentAsk.update(trade.volume, trade.timestamp, forceAdd);
       this.totalAsk.updateValue(trade.volume);
 
-      this._changeLtq(trade.volume, OrderSide.Sell.toLowerCase());
+      this._changeLtq(trade.volume, OrderSide.Buy.toLowerCase());
     }
     this.volume.updateValue(trade.volume, new Date(trade.timestamp));
 
@@ -787,9 +814,11 @@ export class DomItem extends HoverableItem implements IBaseItem {
   }
 
   removeOrder(order: IOrder) {
-    this.orders.removeOrder(order);
+    const removed = this.orders.removeOrder(order);
     this.askDelta.removeOrder(order);
     this.bidDelta.removeOrder(order);
+    if (removed)
+      this.styles.deleteStyle('cellsBorderColor');
     this.notes.clear();
   }
 
@@ -849,6 +878,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
         this.orders.removeOrder(order);
         this.askDelta.removeOrder(order);
         this.bidDelta.removeOrder(order);
+        this.styles.deleteStyle('cellsBorderColor');
         break;
       default:
         this.orders.addOrder(order);
@@ -858,6 +888,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
           this.orders.changeAskQuantity(this.ask._value);
         if (!this.bid.isSumCell)
           this.orders.changeBidQuantity(this.bid._value);
+        this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
         this.notes.updateValue(order.description);
 
         // if (order.side === OrderSide.Sell) {
@@ -881,21 +912,25 @@ export class DomItem extends HoverableItem implements IBaseItem {
 
   }
 
-  clearOcoOrder() {
-    this.orders.clearOcoOrder();
-    this.bidDelta.clearOcoOrder();
-    this.askDelta.clearOcoOrder();
+  clearOcoOrder(side: QuoteSide): boolean {
+    const result = this.orders.clearOcoOrder(side);
+    if (side !== QuoteSide.Ask)
+      this.bidDelta.clearOcoOrder(side);
+    if (side !== QuoteSide.Bid)
+      this.askDelta.clearOcoOrder(side);
+
+    return result;
   }
 
   dehighlight() {
     return Object.keys(this).forEach(key => this[key] && this[key].dehightlight && this[key].dehightlight());
   }
 
-/*  setVolume(volume: number) {
-    this.volume.updateValue(volume);
-    this.volume.dehightlight();
-    return { volume: this.volume._value };
-  }*/
+  /*  setVolume(volume: number) {
+      this.volume.updateValue(volume);
+      this.volume.dehightlight();
+      return { volume: this.volume._value };
+    }*/
 
   calculateLevel(): boolean {
     const ask = this.currentAsk.calculateLevel();

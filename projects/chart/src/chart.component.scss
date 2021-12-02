@@ -8,6 +8,11 @@
 
 $toolbarMargin: 4px;
 
+loader {
+  z-index: 100;
+  top: 22px;
+}
+
 .form-header {
   font-size: 0.7rem;
   line-height: 1rem;
@@ -161,9 +166,12 @@ side-form {
         width: 20px;
         background-position: center;
         background-size: 16px;
+        background-repeat: no-repeat;
 
         &.active {
+          background-color: $lighter;
           color: $primary !important;
+          background-size: 12px;
         }
 
         &:not(:first-child) {
@@ -538,14 +546,28 @@ side-form {
   }
 
   .confirm-order {
+    margin: 0;
+
     .ant-modal-content {
       width: 379px;
+      animation: fadeIn 0.3s;
 
       .ant-modal-body {
         padding: 30px 40px;
         width: 376px;
         min-width: 376px;
       }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.3) translateY(100px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
 
@@ -569,7 +591,42 @@ side-form {
   }
 }
 
+.vertical-line {
+  width: 1px;
+  height: 12px;
+  margin-left: 3px;
+  background: $light2;
+}
+
+.instrument-description {
+  margin-left: 5px;
+  font-size: 0.8rem;
+  color: $text-80;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  pointer-events: none;
+  cursor: move;
+  white-space: nowrap;
+}
+
 :host ::ng-deep {
+  instrument-select {
+    nz-select {
+      min-width: 1px;
+      width: auto;
+    }
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    padding: 0;
+    padding-left: 4px;
+    padding-right: 9px;
+  }
+
+  .ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    padding-right: 10px;
+  }
+
   .scxCrossHairTradingButton {
     display: none;
   }
@@ -1055,5 +1112,22 @@ instrument-select {
     width: 100% !important;
     margin-top: 0;
     border: none !important;
+  }
+}
+
+::ng-deep {
+  .custom-volume-profile-templates {
+    .ant-dropdown-menu-submenu-title {
+      padding: 2px 6px;
+
+    }
+
+    & > .anticon:first-child, .ant-dropdown-menu-item > span > .anticon:first-child, .ant-dropdown-menu-submenu-title > .anticon:first-child, .ant-dropdown-menu-submenu-title > span > .anticon:first-child {
+      font-size: 8px;
+    }
+  }
+
+  .custom-volume-profile-subitems {
+    min-width: 75px;
   }
 }

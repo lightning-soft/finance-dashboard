@@ -19,18 +19,32 @@
 
     <nz-dropdown-menu #menu2="nzDropdownMenu">
       <ul class="drawing-menu" nz-menu [style.left.px]="drawingMenuOffset.x" [style.top.px]="drawingMenuOffset.y">
-        <li (click)="addDrawing(drawing)" [title]="transformToUIName(drawing)" nz-menu-item
+        <li (click)="addDrawing(drawing)" [title]="drawing.formattedName" nz-menu-item
             *ngFor="let drawing of lastUsedDrawings">
-          <span class="scx-icon icon-drawing-{{transformToClassName(drawing)}}"></span>
+          <span class="scx-icon icon-drawing-{{drawing.className}}"></span>
         </li>
         <li *ngIf="lastUsedDrawings.length" class=" toolbar divider"></li>
         <li [title]="chart?.stayInDrawingMode? 'Leave Draw Mode': 'Stay in Draw Mode'" nz-menu-item
             (click)="stayInDragMode()">
-
           <i
             [ngStyle]="{color: chart?.stayInDrawingMode? '#fff': null}"
             class="icon-pen"></i>
         </li>
+        <li nz-submenu [nzTitle]="customDrawingTemplate">
+          <ul>
+            <li (click)="createVolumeProfile()" nz-menu-item>New</li>
+            <li nz-menu-divider></li>
+            <li *ngFor="let template of items" class="custom-drawing-menu-item"
+                (click)="loadCustomeVolumeTemplate(template)" nz-menu-item>{{ template.name }}
+              {{template.settings.general.drawVPC | keyBinding}}
+              <span *ngIf="!template.isDefault" class="actions"><i (click)="editCustomProfile(template)"
+                                                                   class="icon-edit"></i> <i
+                (click)="deleteVolumeProfile(template)" class="icon-close-window"></i></span></li>
+          </ul>
+        </li>
+        <ng-template #customDrawingTemplate>
+          <i class="icon-custom-drawings"></i>
+        </ng-template>
         <ng-container *ngFor="let drawingInstrument of drawingInstruments">
           <li nz-submenu
               *ngIf="!hasOneDrawing(drawingInstrument); else oneItemTemplate"
@@ -41,10 +55,10 @@
             <ng-template #iconTitle><i class="icon-{{drawingInstrument.icon}}"></i></ng-template>
             <ul class="toolbar-submenu">
               <li *ngFor="let item of drawingInstrument.items" nz-menu-item
-                  data-name="{{transformToUIName(item.name)}}"
-                  (click)="addDrawing(item.name)">
-                <span class="scx-icon icon-drawing-{{transformToClassName(item.className)}}"></span>
-                <span class="drawing-instrument-name">{{transformToUIName(item.name)}}</span>
+                  data-name="{{item.formattedName}}"
+                  (click)="addDrawing(item)">
+                <span class="scx-icon icon-drawing-{{item.className}}"></span>
+                <span class="drawing-instrument-name">{{item.formattedName}}</span>
               </li>
             </ul>
           </li>
@@ -53,7 +67,7 @@
             <li nz-menu-item
                 [title]="drawingInstrument.name"
                 (click)="addDrawing(drawingInstrument.items[0])">
-              <i class="scx-icon icon-drawing-{{transformToClassName(drawingInstrument.items[0].className)}}"></i>
+              <i class="scx-icon icon-drawing-{{drawingInstrument.items[0].className}}"></i>
             </li>
           </ng-template>
         </ng-container>
@@ -118,8 +132,8 @@
             [nzPopoverMouseLeaveDelay]="0"
             [(nzPopoverVisible)]="showFramePopover"
             [nzPopoverContent]="frameIntervalTemplate">
-      <span *ngIf="timeFrame">
-        {{getShortTimeFrame(timeFrame)}}
+      <span *ngIf="timePeriod">
+        {{timePeriod | timeframeTransform}}
       </span>
       <i class="icon-arrow-down" [class.is-open]="showFramePopover"></i>
     </button>
@@ -129,9 +143,9 @@
       #price
       [(nzOpen)]="priceOpen"
       [nzShowArrow]="false"
-      [nzOptionHeightPx]="22"
+      [nzOptionHeightPx]="23"
       [nzCustomTemplate]="defaultTemplate"
-      nzDropdownClassName="toolbar-dropdown"
+      [nzDropdownClassName]="'toolbar-dropdown'"
       [(ngModel)]="priceStyle"
       nzSize="small"
     >
@@ -155,7 +169,7 @@
       <button
         nz-button
         nzPlacement="bottomRight"
-        (click)="openIndicatorDialog()"
+        (click)="openIndicatorDialog($event)"
       >
         <span class="icon-tool-indicators"></span>
       </button>
@@ -174,11 +188,12 @@
   </div>
 
 
-  <div [class.tool-active]="zoomDropdownVisible"  title="Zoom" class="tool btn-group">
+  <div [class.tool-active]="zoomDropdownVisible" title="Zoom" class="tool btn-group">
     <nz-button-group
       nzTrigger="click"
       nzOverlayClassName="toolbar-dropdown"
       [(nzVisible)]="zoomDropdownVisible"
+      [nzBackdrop]="false"
       nz-dropdown [nzDropdownMenu]="menu1"
     >
       <button nz-button>
@@ -239,5 +254,8 @@
   <span class="scx-icon icon-{{selected.nzValue}}"></span>
 </ng-template>
 <ng-template #frameIntervalTemplate>
-  <frame-selector [chart]="chart"></frame-selector>
+  <frame-selector
+    (intervalAdded)="onIntervalAdded($event)"
+    (periodAdded)="onPeriodAdded($event)"
+    [intervalOptions]="intervalOptions" [periodOptions]="periodOptions" [chart]="chart"></frame-selector>
 </ng-template>

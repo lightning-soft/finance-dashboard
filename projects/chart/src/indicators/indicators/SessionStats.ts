@@ -13,7 +13,7 @@ export class SessionStats extends Indicator {
 
       lines[key] = {
         ...line,
-        strokeColor: line.strokeColor,
+        strokeColor: line.strokeTheme.strokeColor,
       };
     }
 
@@ -50,8 +50,8 @@ export class SessionStats extends Indicator {
       font: settings.font,
       lines,
       workingTimes: {
-        rth: settings.sessions.rth?.workingTimes,
-        eth: settings.sessions.eth?.workingTimes,
+        rth: settings.sessions.rth,
+        eth: settings.sessions.eth,
       },
       rthSessionId: settings.sessions.rth?.id,
       ethSessionId: settings.sessions.eth?.id,

@@ -109,7 +109,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
         error: false,
         connectionData: res.result,
       })),
-      catchError(() => of({ ...item, error: true })),
+      catchError((err) => of({ ...item, error: true, err })),
     );
   }
 
@@ -119,7 +119,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {
-        'Api-Key': apiKey,
+        'Api-Key': apiKey ?? '',
       },
     });
   }

@@ -5,7 +5,7 @@
     <button
       [class.cursor-not-allowed]="!canClickPosButton"
       (click)="setPositionQuantity()" title="Positions" class="top-position-btn"
-            [class.pos-negative]="isPositionsNegative"
+      [class.pos-negative]="isPositionsNegative"
     >{{positionsSum}}</button>
     <quantity-input #quantity formControlName="quantity" [amountButtons]="amountButtons"></quantity-input>
     <nz-select [nzOptionHeightPx]="23" formControlName="type" class="type-select">
@@ -79,33 +79,51 @@
       ></nz-option>
     </nz-select>
     <type-buttons formControlName="duration" class="tif-buttons" [typeButtons]="tifButtons"></type-buttons>
-    <div [class.d-none]="!showUnits || !setting.formSettings.showBracket" class="ticks">
+    <div [class.d-none]="setting.formSettings.showBracket === false" class="ticks">
       <sl-units formControlName="stopLoss"></sl-units>
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
     <div class="market-buttons">
-      <button class="buy-market" (click)="createBuyMarket()">BUY MKT</button>
-      <button class="sell-market"  (click)="createSellMarket()">SELL MKT</button>
+      <button class="buy-market" (click)="createBuyMarket()"><span class="first-letter">B</span><span
+        class="other-letters">UY</span>&nbsp;MKT
+      </button>
+      <button class="sell-market" (click)="createSellMarket()"><span class="first-letter">S</span><span
+        class="other-letters">ELL</span>&nbsp;MKT
+      </button>
     </div>
     <div class="cxl">
       <button
         [style.color]="setting.sellButtonsFontColor"
         [style.background]="setting.sellButtonsBackgroundColor"
         [class.cxl-btn-disabled]="!sellQuantity"
-        [class.d-none]="!setting.formSettings.showSellButton"
-        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>CXL SELL
+        [class.d-none]="setting.formSettings.showSellButton === false"
+        (click)="emit(FormActions.CloseSellOrders)" class="cxl-btn cxl-sell" nz-button>
+        <span>
+          CXL&nbsp;
+        <span
+          class="first-letter">S</span><span class="other-letters">ELL</span>
+          </span>
         <span *ngIf="sellQuantity" class="cxl-quantity">{{sellQuantity}}</span></button>
       <button
         [style.color]="setting.cancelButtonFontColor"
         [style.background]="setting.cancelButtonBackgroundColor"
         [class.cxl-btn-disabled]="!totalQuantity"
-        [class.d-none]="!setting.formSettings.showCancelButton"
-        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>CXL ALL
+        [class.d-none]="setting.formSettings.showCancelButton === false"
+        (click)="emit(FormActions.CloseOrders)" class="cxl-btn cxl-all" nz-button>
+        <span>
+           CXL&nbsp;
+        <span
+          class="first-letter">A</span><span class="other-letters">LL</span>
+          </span>
         <span *ngIf="totalQuantity" class="cxl-quantity">{{totalQuantity}}</span></button>
       <button [style.color]="setting.buyButtonsFontColor"
               [class.cxl-btn-disabled]="!buyQuantity"
-              [class.d-none]="!setting.formSettings.showBuyButton"
-              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)" class="cxl-btn cxl-buy" nz-button>CXL BUY
+              [class.d-none]="setting.formSettings.showBuyButton === false"
+              [style.background]="setting.buyButtonsBackgroundColor" (click)="emit(FormActions.CloseBuyOrders)"
+              class="cxl-btn cxl-buy" nz-button>
+        <span>
+          CXL&nbsp;
+        <span class="first-letter">B</span><span class="other-letters">UY</span></span>
         <span *ngIf="buyQuantity" class="cxl-quantity">{{buyQuantity}}</span></button>
     </div>
     <div class="bottom-btns">
@@ -113,13 +131,14 @@
               class="close-position-button"
               [style.background]="setting.closePositionBackgroundColor"
               [style.color]="setting.closePositionFontColor"
-              [class.d-none]="!setting.formSettings.closePositionButton" nz-button>CLOSE
-        POSITION
+              [class.d-none]="setting.formSettings.closePositionButton === false" nz-button>CLOSE&nbsp;
+        <span class="first-letter">P</span><span class="other-letters">OSITION</span>
       </button>
       <button
         [style.color]="setting.flatButtonsFontColor"
         [style.background]="setting.flatButtonsBackgroundColor"
-        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten" nz-button>
+        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten"
+        nz-button>
         FLATTEN
       </button>
     </div>

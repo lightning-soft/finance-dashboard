@@ -117,6 +117,7 @@ cdk-virtual-scroll-viewport {
   .body {
     font-size: 0.75rem;
     color: $text-60;
+    white-space: pre-line;
   }
 
   .timestamp {

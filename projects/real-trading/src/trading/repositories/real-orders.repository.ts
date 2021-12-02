@@ -82,7 +82,6 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
     if (!params.accounts && params.id && !params.hideStopped) {
       return forkJoin([super.getItems(params), this.getStoppedItems(params)])
         .pipe(
-          tap(response => console.log(response)),
           map(item => {
             const [ordersResponse, stoppedOrdersResponse] = item;
             return {
@@ -148,7 +147,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
       ...this.getApiHeadersByAccount(item.accountId ?? dto.accountId),
       params: query
     }).pipe(
-      map((response: any) => response.result),
+      map((response: any) => this._mapResponseItem(response.result)),
       tap(this._onUpdate),
     );
   }
@@ -199,8 +198,7 @@ export class RealOrdersRepository extends BaseRepository<IOrder> implements Orde
   }
 
   _mapResponseItem(item: IOrder) {
-    if (item.instrument.description)
-      item.description = item.instrument.description;
+    item.description = item.instrument.description ?? '';
 
     return item;
   }

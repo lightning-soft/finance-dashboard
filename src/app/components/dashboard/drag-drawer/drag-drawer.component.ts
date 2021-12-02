@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
-import { widgetList, bottomWidgetList } from '../component-options';
+import { bottomWidgetList, widgetList } from '../component-options';
 import { IBaseTemplate, TemplatesService } from 'templates';
 import { NzModalService, NzSubMenuComponent } from 'ng-zorro-antd';
 import { Subscription } from 'rxjs';
 import { Components } from 'src/app/modules';
-import { RenameModalComponent, ConfirmModalComponent } from 'ui';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
+import { Storage } from 'storage';
 
 
 @UntilDestroy()
@@ -15,23 +16,32 @@ import { RenameModalComponent, ConfirmModalComponent } from 'ui';
   templateUrl: './drag-drawer.component.html',
   styleUrls: ['./drag-drawer.component.scss']
 })
-export class DragDrawerComponent implements OnDestroy, AfterViewInit {
+export class DragDrawerComponent implements OnDestroy {
   @Input() layout: LayoutComponent;
   @Output() handleToggleDropdown = new EventEmitter<boolean>();
   @ViewChild(NzSubMenuComponent) submenu: NzSubMenuComponent;
 
   opened = false;
   items = widgetList.filter(item => !item.hasTemplates);
+  itemsWithPresets = widgetList.filter(item => item.hasTemplates);
   bottomItems = bottomWidgetList;
   templates: { [component: string]: IBaseTemplate[] } = {};
   readonly components = Components;
   private _templatesSubscription: Subscription;
+  componentNames = {
+    [Components.Chart]: 'Chart',
+    [Components.Orders]: 'Orders',
+    [Components.Positions]: 'Positions',
+    [Components.MarketWatch]: 'Market Watch',
+    [Components.Dom]: 'DOM',
+  };
 
   constructor(
     private _templatesService: TemplatesService,
     private _modalService: NzModalService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _zone: NgZone
+    private _zone: NgZone,
+    private _storage: Storage,
   ) {
     this._templatesSubscription = this._templatesService.subscribe((data) => {
       this.templates = {};
@@ -42,25 +52,13 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
-    runZoneWhenSubmenuToggle(this.submenu, this._zone);
-  }
-
-  create(item): void {
+  create(item, template?: IBaseTemplate): void {
     this.layout.addComponent({
       component: {
         name: item.component,
-      },
-      ...item.options
-    });
-  }
-
-  openChart(template?: IBaseTemplate): void {
-    this.layout.addComponent({
-      component: {
-        name: Components.Chart,
         template
       },
+      ...item.options
     });
   }
 
@@ -99,7 +97,7 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
       nzContent: ConfirmModalComponent,
       nzWrapClassName: 'vertical-center-modal',
       nzComponentParams: {
-        message: `Do you want to delete "${template.name}"?`,
+        message: `Do you want to delete "${ template.name }"?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       },
@@ -112,22 +110,10 @@ export class DragDrawerComponent implements OnDestroy, AfterViewInit {
   }
 
   handleSubmenuOpenChange(): void {
-    this._changeDetectorRef.detectChanges();
+    this._zone.run(() => {});
   }
 
   ngOnDestroy() {
     this._templatesSubscription.unsubscribe();
   }
-}
-
-// The problem which we are fixed here
-// Sub menu not opened in correct place
-// It is happened after we disable mouse events in zone
-// Other solutions: modified library or create own menu component
-// If it happens in other components(places) think about return some event in zone detection
-function runZoneWhenSubmenuToggle(submenu: NzSubMenuComponent, zone: NgZone) {
-  const originalSetMouseEnterState = submenu.setMouseEnterState.bind(submenu);
-  submenu.setMouseEnterState = (...args) => {
-    zone.run(() => originalSetMouseEnterState(...args));
-  };
 }

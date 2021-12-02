@@ -1,0 +1,9 @@
+<div *ngFor="let field of field.fieldGroup; let i = index;" class="group">
+  <formly-field class="" [field]="field"></formly-field>
+  <div style="margin-top: 2px" class=" d-flex align-items-center">
+    <i *ngIf="i"  (click)="remove(i)" class="icon-delete"></i>
+  </div>
+</div>
+<div style="margin-top:10px; margin-left: 3px;">
+  <button (click)="add()">{{ to.addText }}</button>
+</div>

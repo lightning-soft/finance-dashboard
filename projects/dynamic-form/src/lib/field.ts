@@ -32,6 +32,7 @@ export enum FieldType {
   Label = 'Label',
   DataBox = 'dataBox',
   SessionsSelect = 'sessions-select',
+  DragAndDrop = 'drag-drop',
 }
 
 export enum InputType {

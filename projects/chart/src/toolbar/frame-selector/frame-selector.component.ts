@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IChart, ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../../models';
 import { NotifierService } from 'notifier';
+import { enumarablePeriodicities } from '../../datafeed/TimeFrame';
 
 @Component({
   selector: 'frame-selector',
@@ -12,12 +13,17 @@ export class FrameSelectorComponent {
   timePeriodicity = StockChartXPeriodicity.HOUR;
 
   peridInterval = 3;
-  periodPeriodicity = StockChartXPeriodicity.WEEK;
+  periodPeriodicity = StockChartXPeriodicity.DAY;
 
   isLeaving = false;
+  actives = {};
+  intervalActives = {};
 
 
   @Input() chart: IChart;
+
+  @Output() periodAdded = new EventEmitter();
+  @Output() intervalAdded = new EventEmitter();
 
 
   get timeFrame() {
@@ -32,23 +38,22 @@ export class FrameSelectorComponent {
     this.updateChartBars();
   }
 
-
-  set barCount(count: number) {
-    if (!this.chart)
-      return;
-    this.chart.sendBarsRequest();
-  }
-
-  private _timePeriod: ITimeFrame = { periodicity: StockChartXPeriodicity.WEEK, interval: 3 };
+  private _timePeriod: ITimeFrame;
 
   get timePeriod() {
-    return this._timePeriod;
+    return this.chart.periodToLoad;
   }
 
   set timePeriod(value) {
-    this._timePeriod = value;
+    if (value === this._timePeriod)
+      return;
+
+    this.chart.periodToLoad = value;
+    this.timePeriodChange.emit(value);
     this.updateChartBars();
   }
+
+  @Output() timePeriodChange = new EventEmitter();
 
   customPeriodOptions = [StockChartXPeriodicity.DAY,
     StockChartXPeriodicity.WEEK, StockChartXPeriodicity.MONTH,
@@ -66,200 +71,33 @@ export class FrameSelectorComponent {
     StockChartXPeriodicity.RANGE,
   ];
 
-  intervalOptions = [
-    {
-      active: false,
-      period: 'AMS REVS Bar',
-      periodicities: [StockChartXPeriodicity.REVS],
-      timeFrames: [{
-        interval: 4, periodicity: StockChartXPeriodicity.REVS,
-      },
-        { interval: 8, periodicity: StockChartXPeriodicity.REVS },
-        { interval: 12, periodicity: StockChartXPeriodicity.REVS },
-        { interval: 16, periodicity: StockChartXPeriodicity.REVS },
-      ]
-    },
-    {
-      active: false,
-      period: 'Seconds',
-      periodicities: [StockChartXPeriodicity.SECOND],
-      timeFrames: [
-    /*    {
-          interval: 1, periodicity: StockChartXPeriodicity.SECOND,
-        },
-        { interval: 5, periodicity: StockChartXPeriodicity.SECOND },
-        { interval: 15, periodicity: StockChartXPeriodicity.SECOND },*/
-        { interval: 30, periodicity: StockChartXPeriodicity.SECOND },
-        { interval: 40, periodicity: StockChartXPeriodicity.SECOND },
-      ]
-    },
-    {
-      active: false,
-      period: 'Minutes',
-      periodicities: [StockChartXPeriodicity.MINUTE],
-      timeFrames: [
-        {
-          interval: 1, periodicity: StockChartXPeriodicity.MINUTE,
-        },
-        {
-          interval: 3, periodicity: StockChartXPeriodicity.MINUTE,
-        },
-        {
-          interval: 5, periodicity: StockChartXPeriodicity.MINUTE,
-        },
-        {
-          interval: 15, periodicity: StockChartXPeriodicity.MINUTE,
-        },
-        {
-          interval: 30, periodicity: StockChartXPeriodicity.MINUTE,
-        },
-      ],
-    },
-    {
-      active: false,
-      period: 'Hours',
-      periodicities: [StockChartXPeriodicity.HOUR],
-      timeFrames: [
-        {
-          interval: 1, periodicity: StockChartXPeriodicity.HOUR,
-
-        },
-        {
-          interval: 2, periodicity: StockChartXPeriodicity.HOUR,
-        },
-        {
-          interval: 3, periodicity: StockChartXPeriodicity.HOUR,
-        },
-        {
-          interval: 4, periodicity: StockChartXPeriodicity.HOUR,
-        }
-      ]
-    },
-    {
-      active: false,
-      period: 'Days',
-      periodicities: [StockChartXPeriodicity.DAY, StockChartXPeriodicity.WEEK, StockChartXPeriodicity.YEAR],
-      timeFrames: [
-        {
-          interval: 1, periodicity: StockChartXPeriodicity.DAY,
-        },
-        {
-          interval: 1, periodicity: StockChartXPeriodicity.WEEK,
-        },
-        {
-          interval: 1, periodicity: StockChartXPeriodicity.MONTH,
-        }
-      ]
-    },
-    {
-      active: false,
-      period: 'Range',
-      periodicities: [StockChartXPeriodicity.RANGE],
-      timeFrames: [{
-        interval: 5, periodicity: StockChartXPeriodicity.RANGE,
-      },
-        { interval: 10, periodicity: StockChartXPeriodicity.RANGE },
-        { interval: 15, periodicity: StockChartXPeriodicity.RANGE },
-      ]
-    },
-    {
-      active: false,
-      period: 'Renko',
-      periodicities: [StockChartXPeriodicity.RENKO],
-      timeFrames: [{
-        interval: 4, periodicity: StockChartXPeriodicity.RENKO,
-      },
-        { interval: 5, periodicity: StockChartXPeriodicity.RENKO },
-        { interval: 10, periodicity: StockChartXPeriodicity.RENKO },
-      ]
-    },
-
-    {
-      active: false,
-      period: 'Volume',
-      periodicities: [StockChartXPeriodicity.VOLUME],
-      timeFrames: [{
-        interval: 1000, periodicity: StockChartXPeriodicity.VOLUME,
-      },
-        { interval: 2500, periodicity: StockChartXPeriodicity.VOLUME },
-        { interval: 5000, periodicity: StockChartXPeriodicity.VOLUME }
-      ]
-    },
-    {
-      active: false,
-      period: 'Ticks',
-      periodicities: [StockChartXPeriodicity.TICK],
-      timeFrames: [
-        { interval: 500, periodicity: StockChartXPeriodicity.TICK },
-        { interval: 1000, periodicity: StockChartXPeriodicity.TICK },
-        { interval: 5000, periodicity: StockChartXPeriodicity.TICK },
-
-      ]
-    },
-
-  ];
-  periodOptions: any = [
-    {
-      period: 'Days',
-      active: false,
-      periodicity: StockChartXPeriodicity.DAY,
-      timeFrames: [
-        { interval: 1, periodicity: StockChartXPeriodicity.DAY },
-        { interval: 3, periodicity: StockChartXPeriodicity.DAY },
-        { interval: 5, periodicity: StockChartXPeriodicity.DAY },
-
-      ]
-    },
-    {
-      period: 'Weeks',
-      active: false,
-      periodicity: StockChartXPeriodicity.WEEK,
-      timeFrames: [
-        { interval: 1, periodicity: StockChartXPeriodicity.WEEK },
-        { interval: 2, periodicity: StockChartXPeriodicity.WEEK },
-        { interval: 3, periodicity: StockChartXPeriodicity.WEEK },
-      ]
-    },
-    {
-      period: 'Months',
-      active: false,
-      periodicity: StockChartXPeriodicity.MONTH,
-      timeFrames: [
-        { interval: 1, periodicity: StockChartXPeriodicity.MONTH },
-        { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
-        { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
-      ]
-    },
-    {
-      period: 'Years',
-      active: false,
-      periodicity: StockChartXPeriodicity.YEAR,
-      timeFrames: [
-        { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
-        { interval: 2, periodicity: StockChartXPeriodicity.YEAR },
-      ]
-    },
-  ];
-  timeFrameOptions = [
-    { interval: 30, periodicity: StockChartXPeriodicity.SECOND },
-    { interval: 1, periodicity: StockChartXPeriodicity.MINUTE },
-    { interval: 5, periodicity: StockChartXPeriodicity.MINUTE },
-    { interval: 10, periodicity: StockChartXPeriodicity.MINUTE },
-    { interval: 15, periodicity: StockChartXPeriodicity.MINUTE },
-    { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
-    { interval: 4, periodicity: StockChartXPeriodicity.HOUR },
-    { interval: 1, periodicity: StockChartXPeriodicity.DAY },
-    { interval: 1, periodicity: StockChartXPeriodicity.WEEK },
-    { interval: 1, periodicity: StockChartXPeriodicity.MONTH },
-    { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
-  ] as ITimeFrame[];
+  @Input() intervalOptions = [];
+  @Input() periodOptions: any = [];
 
   constructor(private _notifier: NotifierService) {
   }
 
+  ngOnInit() {
+    const timeFrame = this.timePeriod;
+    const option = this.periodOptions.find(item => {
+      return item.timeFrames.some(frame => compareTimeFrames(timeFrame, frame));
+    });
+    if (option)
+      this.actives[option.period] = true;
+
+    const timeInterval = this.timeFrame;
+    const intervalOption = this.intervalOptions.find(item => {
+      return item.timeFrames.some(frame => compareTimeFrames(timeInterval, frame));
+    });
+    if (intervalOption)
+      this.intervalActives[intervalOption.period] = true;
+  }
+
   getTimeFrame(timeFrame: ITimeFrame): string {
     const label = this.getTimeFrameLabel(timeFrame.periodicity);
-    return `${timeFrame.interval} ${label}`;
+    const suffix = enumarablePeriodicities[timeFrame.periodicity] ? 't' : '';
+
+    return `${timeFrame.interval}${suffix} ${label}`;
   }
 
   getTimeFrameLabel(periodicity) {
@@ -278,27 +116,14 @@ export class FrameSelectorComponent {
     const interval = this.peridInterval;
     const periodicity = this.periodPeriodicity;
     const frame = { interval, periodicity };
-    const period = this.periodOptions.find(item => item.periodicity === periodicity);
-    const timeFrames = period?.timeFrames;
-    if (timeFrames && !timeFrames.some(item => item.interval === interval)) {
-      timeFrames.push(frame);
-      period.timeFrames = timeFrames.sort((a, b) => a.interval - b.interval);
-    }
+    this.periodAdded.emit(frame);
   }
 
   addFrameInterval() {
     const interval = this.timeInterval;
     const periodicity = this.timePeriodicity;
     const frame = { interval, periodicity };
-    const intervalOption = this.intervalOptions
-      .find(item => {
-        return item.periodicities.includes(periodicity);
-      });
-    const timeFrames = intervalOption.timeFrames;
-    if (timeFrames && !timeFrames.some(item => compareTimeFrames(item, frame))) {
-      timeFrames.push(frame);
-      intervalOption.timeFrames = TimeFrame.sortTimeFrames(timeFrames);
-    }
+    this.intervalAdded.emit(frame);
   }
 
   selectTimePeriod(frame) {
@@ -306,10 +131,14 @@ export class FrameSelectorComponent {
   }
 
   updateChartBars() {
+    if (this.timeFrame == null || this.timeFrame == null)
+      return;
+
     const periodTime = TimeFrame.timeFrameToTimeInterval(this.timePeriod);
     const intervalTime = TimeFrame.timeFrameToTimeInterval(this.timeFrame);
     const endDate = new Date();
     const startDate = new Date(Date.now() - periodTime);
+    startDate.setHours(0, 0, 0, 0);
     this.chart.setDates(startDate, endDate);
     this.chart.sendBarsRequest();
 
@@ -331,7 +160,7 @@ export class FrameSelectorComponent {
   }
 }
 
-function compareTimeFrames(obj1: ITimeFrame, obj2: ITimeFrame) {
+export function compareTimeFrames(obj1: ITimeFrame, obj2: ITimeFrame) {
   if (!obj1 || !obj2)
     return;
 

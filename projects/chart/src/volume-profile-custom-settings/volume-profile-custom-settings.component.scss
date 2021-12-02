@@ -1,0 +1,52 @@
+@import "../settings";
+@import "../indicators.settings";
+
+.menu {
+  min-width: 1px;
+  margin-top: 3px;
+}
+
+:host ::ng-deep {
+  cdk-virtual-scroll-viewport {
+    padding-bottom: 8px;
+  }
+  formly-form {
+    padding-bottom: 0;
+  }
+}
+
+.icon-save {
+  color: $text-80;
+  transition: color 0.3s;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.menu-item {
+  .actions {
+    opacity: 0;
+    transition: 0.3s;
+    margin-right: 6px;
+
+    i {
+      font-size: 10px;
+      cursor: pointer;
+
+      &:not(:first-child) {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  &:hover {
+    background-color: rgba(255,255,255,.08);
+    .actions {
+      opacity: 1;
+    }
+  }
+}

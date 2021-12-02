@@ -5,6 +5,7 @@ import { ILayoutNode, LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { finalize } from 'rxjs/operators';
 import { ISession, ISessionWorkingTime, ITimezone, SessionsRepository, TimezonesRepository } from 'trading';
+import { RenameModalComponent } from 'ui';
 
 export interface SessionManagerComponent extends ILayoutNode, ItemComponent<ISession> {
 }
@@ -41,14 +42,15 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     'Saturday',
   ];
 
-  utcStartTime = (9 * 3600 + 30 * 60) * 1000;
-  utcEndTime = 16 * 3600 * 1000;
+  defaultUtcStartTime = (9 * 3600 + 30 * 60) * 1000;
+  defaultUtcEndTime = 16 * 3600 * 1000;
 
   constructor(
     protected _injector: Injector,
     protected _repository: SessionsRepository,
     private _modal: NzModalService,
     public timezonesRepository: TimezonesRepository,
+    private _modalService: NzModalService,
   ) {
     super();
 
@@ -65,14 +67,90 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     this.item.timezoneId = timezone.id;
   }
 
-  createWorkingTime(startDay = 1, endDay = 1) {
-    this.item.workingTimes.push({
-      startDay,
-      startTime: this.utcStartTime,
-      endDay,
-      endTime: this.utcEndTime,
+  createWorkingTime() {
+    if (!this.item.workingTimes.length) {
+      this.item.workingTimes.push({
+        startDay: 1,
+        startTime: this.defaultUtcStartTime,
+        endDay: 2,
+        endTime: this.defaultUtcEndTime,
+      });
+    } else {
+      const lastDay = this.item.workingTimes[this.item.workingTimes.length - 1];
+      let startDay, endDay;
+      if (lastDay.endDay === lastDay.startDay) {
+        startDay = (lastDay.endDay + 1) % this.days.length;
+        endDay = startDay;
+      } else {
+        startDay = lastDay.endDay % this.days.length;
+        endDay = (lastDay.endDay + 1) % this.days.length;
+      }
+      this.item.workingTimes.push({
+        startDay,
+        startTime: lastDay.startTime,
+        endDay,
+        endTime: lastDay.endTime,
+      });
+    }
+  }
+
+  createMissingWorkingTime() {
+    const shouldAddDays = [true, true, true, true, true, true, true];
+    this.item.workingTimes.forEach((item) => {
+      if (item.endDay >= item.startDay) {
+        shouldAddDays[item.startDay] = false;
+        for (let i = item.startDay; i < item.endDay; i++) {
+          shouldAddDays[i] = false;
+        }
+      } else {
+        shouldAddDays.map((value, index) => {
+          if (item.startDay >= index || item.endDay < index)
+            return false;
+          return value;
+        });
+      }
+    });
+    const length = shouldAddDays.length - 1;
+    shouldAddDays.forEach((value, index) => {
+      let workingTime;
+      if (value && index !== 0 && index < length) {
+        workingTime = this.item.workingTimes.find((item) => {
+          if (item.startDay === item.endDay && item.endDay === index - 1)
+            return true;
+
+          return item.endDay === index;
+        });
+        const endDay = workingTime?.endDay !== workingTime?.startDay ? index + 1 : index;
+        if (endDay === length)
+          return;
+        this.item.workingTimes.push({
+          startDay: index,
+          startTime: workingTime?.startTime ?? this.defaultUtcStartTime,
+          endDay,
+          endTime: workingTime?.endTime ?? this.defaultUtcEndTime,
+        });
+      }
     });
   }
+
+  editSession = (item) => {
+    this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Session name',
+        name: item.name,
+      },
+    }).afterClose.subscribe(name => {
+      if (name)
+        this._repository.updateItem({ ...item, name })
+          .pipe(untilDestroyed(this))
+          .subscribe();
+    });
+  };
 
   deleteWorkingTime(item: ISessionWorkingTime) {
     this.item.workingTimes = this.item.workingTimes.filter(i => i !== item);
@@ -107,9 +185,15 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
       nzCancelText: null,
       nzOkText: 'Save',
       nzOnOk: () => {
-        this.item.name = this.sessionName;
+        const item = { ...this.item, name: this.sessionName };
 
-        this.save();
+        const hide = this.showLoading(true);
+        this.repository.createItem(item)
+          .pipe(
+            untilDestroyed(this),
+            finalize(() => hide()),
+          )
+          .subscribe(() => this._showSuccess());
       },
     });
   }

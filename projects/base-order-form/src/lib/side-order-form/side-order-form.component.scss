@@ -48,14 +48,13 @@ quantity-input, {
 .slim-amount {
   order: 0 !important;
   align-items: center;
-  margin-left: 5px;
 
   .amount-input {
     margin-left: 5px;
   }
 
   .amount-number {
-    width: 53px;
+    width: 40px;
   }
 }
 
@@ -77,6 +76,7 @@ quantity-input, {
 
 cdk-virtual-scroll-viewport {
   height: 100%;
+  overflow-x: hidden;
 }
 
 :host {

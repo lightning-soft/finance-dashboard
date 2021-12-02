@@ -1,13 +1,14 @@
-import { Cell, DataCell, NumberCell } from 'data-grid';
-import { IInstrument, IOrder, OrderStatus } from 'trading';
-import { Id } from 'communication';
-import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
-import { ActionsCell } from './actions.cell';
 import { OrderColumnsArray } from 'base-order-form';
+import { Id } from 'communication';
+import { Cell, DataCell, IFormatter, InstrumentFormatter, NumberCell } from 'data-grid';
+import { IInstrument, IOrder, OrderStatus } from 'trading';
+import { ActionsCell } from './actions.cell';
+import { IMarketWatchItem, ItemType } from './interface-market-watch.item';
 
 const prefix = 'order';
 
 export class MarketWatchSubItem implements IMarketWatchItem {
+  private _formatter = InstrumentFormatter.forInstrument();
   id: Id;
   order: IOrder;
   priceEnabledStatus = 'Price';
@@ -19,15 +20,24 @@ export class MarketWatchSubItem implements IMarketWatchItem {
   side: Cell = new DataCell();
   quantity: NumberCell = new NumberCell();
   type: DataCell = new DataCell();
-  price: NumberCell = new NumberCell({ hightlightOnChange: false });
-  triggerPrice: NumberCell = new NumberCell({ hightlightOnChange: false });
+  price: NumberCell = new NumberCell({ hightlightOnChange: false, formatter: this._formatter });
+  triggerPrice: NumberCell = new NumberCell({ hightlightOnChange: false, formatter: this._formatter });
   averageFillPrice: NumberCell = new NumberCell();
   duration: DataCell = new DataCell();
   description: DataCell = new DataCell();
   status: DataCell = new DataCell();
   emptyCell = new DataCell();
 
-  instrument: IInstrument;
+  private _instrument: IInstrument;
+  public get instrument(): IInstrument {
+    return this._instrument;
+  }
+
+  public set instrument(value: IInstrument) {
+    this._instrument = value;
+    this.setFormatter(InstrumentFormatter.forInstrument(value));
+  }
+
   itemType = ItemType.SubItem;
 
   symbol: Cell;
@@ -47,7 +57,6 @@ export class MarketWatchSubItem implements IMarketWatchItem {
   low: Cell;
   open: Cell;
 
-
   constructor(order?: IOrder) {
     OrderColumnsArray.forEach(item => {
       const cell = this[item];
@@ -60,6 +69,15 @@ export class MarketWatchSubItem implements IMarketWatchItem {
 
     if (order)
       this.updateOrder(order);
+  }
+
+  setFormatter(formatter: IFormatter) {
+    this.price.formatter = formatter;
+    if (this.price._value != null)
+      this.price.refresh();
+    this.triggerPrice.formatter = formatter;
+    if (this.triggerPrice._value != null)
+      this.triggerPrice.refresh();
   }
 
   protected getPrefix() {
@@ -88,7 +106,7 @@ export class MarketWatchSubItem implements IMarketWatchItem {
     this.accountId.updateValue(order.account.id.toUpperCase());
     this.accountId.changeStatus(order.side);
 
-    this.quantity.updateValue(order.quantity);
+    this.quantity.updateValue(order.quantity - order.filledQuantity);
     this.quantity.changeStatus(order.side);
 
     this.type.updateValue(order.type.toUpperCase());
@@ -117,9 +135,12 @@ export class MarketWatchSubItem implements IMarketWatchItem {
 
   applySettings(settings) {
     for (const key in settings) {
-      const cell = this[settings[key]];
-      this[key] = cell ?? this.emptyCell;
+      if (settings.hasOwnProperty(key)) {
+        const cell = this[settings[key]];
+        this[key] = cell ?? this.emptyCell;
+      }
     }
+
     this.symbol = this.actions;
   }
 

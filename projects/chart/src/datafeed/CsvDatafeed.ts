@@ -107,8 +107,17 @@ export class CSVDatafeed extends Datafeed {
 
     $.get(url, (data: any) => {
       if (this.isRequestAlive(request)) {
-        this._processResult(data, request);
+        const bars = data.result.map(item => ({
+          open: item.openPrice, close: item.closePrice,
+          date: new Date(item.timestamp),
+          high: item.highPrice,
+          low: item.lowPrice,
+          volume: item.volume
+        }));
+        // this._processResult(bars, request);
+        this.onRequestCompleted(request, { bars });
         this.subscribeToRealtime(request);
+        // this.subscribeToRealtime(request);
       }
     }).fail(() => {
       this.onRequstCanceled(request);
@@ -122,7 +131,7 @@ export class CSVDatafeed extends Datafeed {
   private _processResult(data: string, request: IBarsRequest) {
     const bars = this._parseBars(data, request);
 
-    this.onRequestCompleted(request, bars);
+    this.onRequestCompleted(request, { bars });
   }
 
   /**
@@ -140,10 +149,6 @@ export class CSVDatafeed extends Datafeed {
     for (const line of lines) {
       const values = line.split(this.separator),
         date = moment(values[0], format).toDate();
-
-      if (request.endDate && date >= request.endDate) {
-        break;
-      }
 
       const bar = {
         date,

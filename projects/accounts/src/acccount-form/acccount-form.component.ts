@@ -1,10 +1,10 @@
-import { Component, forwardRef, Injector, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Injector, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ItemsComponent } from 'base-components';
 import { IPaginationResponse } from 'communication';
 import { Observable } from 'rxjs';
 import { ConnectionsRepository } from 'trading';
-import { ItemsComponent } from 'base-components';
 
 @Component({
   selector: 'acccount-form',
@@ -25,6 +25,10 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   @Output() autosavePasswordToggle = new EventEmitter<boolean>();
 
   passwordVisible = true;
+
+  connectOnStartUp = false;
+  @Output() turnOffAutoConnect = new EventEmitter<boolean>();
+  @Output() updateItem = new EventEmitter<boolean>();
 
   form = new FormGroup({
     username: new FormControl('', Validators.required),
@@ -71,6 +75,13 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
   toggleAutoSave() {
     const autoSavePassword = !this.autoSave;
     this.form.patchValue({ autoSavePassword });
+
+    if (!autoSavePassword) {
+      this.turnOffAutoConnect.emit(!this.connectOnStartUp);
+      this.connectOnStartUp = !this.connectOnStartUp;
+    }
+
+    this.updateItem.emit(true);
     this.autosavePasswordToggle.emit(autoSavePassword);
   }
 

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Injector, Input, OnChanges, Output, SimpleChan
 // need to fix circular dependency
 import { ItemsComponent } from 'projects/base-components/src/components/items.component';
 import { Repository } from 'communication';
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 interface IDataSelectItemAction {
   icon: string;
@@ -20,7 +21,12 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() default?: any;
   @Input() value?: any;
   @Input('repository') protected _repository: Repository;
+  @Input() autoSelectFirst = true;
+  @Input() disabled = false;
   @Input() withActions = false;
+  @Input() showTooltip = false;
+  @Input() editCallback = (item) => this.handleValueChange(item);
+  @Input() dropdownClassName = '';
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();
 
@@ -31,19 +37,19 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
       icon: 'icon-edit',
       autoClose: true,
       callback: (item: any) => {
-        this.handleValueChange(item);
+        this.editCallback(item);
       },
     },
     {
       icon: 'icon-duplicate',
       autoClose: true,
       callback: (item: any) => {
-        const _item = {
-          ...item,
-          id: this.default?.id
-        };
-
-        this.handleValueChange(_item);
+        const { id, ..._item } = item;
+        this._repository.createItem({ ..._item, name: `${_item.name} (copy)` })
+          .pipe(untilDestroyed(this))
+          .subscribe((res) => {
+            this.handleValueChange(res);
+          });
       },
     },
     {
@@ -98,8 +104,14 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
     return jQuery.extend(true, {}, item);
   }
 
+  _filterResponse(response) {
+    return true;
+  }
+
   protected _handleResponse(response, params) {
     super._handleResponse(response, params);
+    if (!this.autoSelectFirst)
+      return;
 
     if (this.value != null) {
       this.handleValueChange();
@@ -110,7 +122,6 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
 
   protected _handleUpdateItems(items: any[]) {
     super._handleUpdateItems(items);
-
     const item = items[0];
 
     if (item.id === this.value) {

@@ -1,16 +1,16 @@
-import { Injectable } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import { BehaviorSubject, of, Subject } from 'rxjs';
-import { Themes, ThemesHandler } from 'themes';
-import { SettingsStore } from './setting-store';
-import { HotkeyEntire, ICommand, SettingsData } from './types';
-import { Workspace } from 'workspace-manager';
-import { ITimezone } from 'timezones-clock';
-import { catchError, debounceTime, tap } from 'rxjs/operators';
-import { SaveLoaderService } from 'ui';
-import { IBaseTemplate } from 'templates';
-import { ISound } from 'sound';
+import {Injectable} from '@angular/core';
+import {UntilDestroy} from '@ngneat/until-destroy';
+import {KeyBinding, KeyBindingPart, KeyCode} from 'keyboard';
+import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {Themes, ThemesHandler} from 'themes';
+import {SettingsStore} from './setting-store';
+import {HotkeyEntire, ICommand, SettingsData} from './types';
+import {Workspace} from 'workspace-manager';
+import {ITimezone} from 'timezones-clock';
+import {catchError, debounceTime, filter, shareReplay, tap} from 'rxjs/operators';
+import {SaveLoaderService} from 'ui';
+import {IBaseTemplate} from 'templates';
+import {ISound} from 'sound';
 
 function createCommand(name: string, UIString: string = name): ICommand {
   return {
@@ -61,63 +61,63 @@ const defaultSettings: SettingsData = {
   templates: [],
   sound: {
     connected: {
-      name: "Connected",
+      name: 'Connected',
       checked: true,
-      selectedSound: "Apert",
+      selectedSound: 'Apert',
       volume: 80
     },
     connectionLost: {
-      name: "Connection Lost",
+      name: 'Connection Lost',
       checked: true,
-      selectedSound: "Beam1",
+      selectedSound: 'Beam1',
       volume: 80
     },
     orderFilled: {
-      name: "Order Filled",
+      name: 'Order Filled',
       checked: true,
-      selectedSound: "Ding",
+      selectedSound: 'Ding',
       volume: 100
     },
     orderCancelled: {
-      name: "Order Cancelled",
+      name: 'Order Cancelled',
       checked: true,
-      selectedSound: "Beep",
+      selectedSound: 'Beep',
       volume: 100
     },
     orderReplaced: {
-      name: "Order Replaced",
+      name: 'Order Replaced',
       checked: true,
-      selectedSound: "Close",
+      selectedSound: 'Close',
       volume: 100
     },
     orderPending: {
-      name: "Order Pending",
+      name: 'Order Pending',
       checked: true,
-      selectedSound: "Blip2",
+      selectedSound: 'Blip2',
       volume: 100
     },
     orderRejected: {
-      name: "Order Rejected",
+      name: 'Order Rejected',
       checked: true,
-      selectedSound: "Bullet",
+      selectedSound: 'Bullet',
       volume: 100
     },
     targetFilled: {
-      name: "Target Filled",
+      name: 'Target Filled',
       checked: true,
-      selectedSound: "Cashreg",
+      selectedSound: 'Cashreg',
       volume: 80
     },
     stopFilled: {
-      name: "Stop Filled",
+      name: 'Stop Filled',
       checked: true,
-      selectedSound: "Buzz",
+      selectedSound: 'Buzz',
       volume: 100
     },
     alert: {
-      name: "Alert",
+      name: 'Alert',
       checked: true,
-      selectedSound: "Arrowhit",
+      selectedSound: 'Arrowhit',
       volume: 100
     },
     isPlay: true
@@ -130,7 +130,18 @@ export class SettingsService {
   private _unsubscribeFunctions = [];
 
   settings: BehaviorSubject<SettingsData> = new BehaviorSubject(defaultSettings);
+
+  private _isSettingsLoaded$ = new Subject<boolean>();
+  isSettingsLoaded$ = this._isSettingsLoaded$.pipe(
+    filter((item) => item),
+    shareReplay(1));
+  isSettingsLoaded = false;
+
   private $updateState = new Subject<void>();
+
+  private get _settings() {
+    return this.settings.value;
+  }
 
   constructor(
     public themeHandler: ThemesHandler,
@@ -157,8 +168,27 @@ export class SettingsService {
         catchError(() => {
           return of(defaultSettings);
         }),
-        tap((s: any) => s && this._updateState(s, false)),
+        tap((s: any) => {
+          if (s) {
+            this._updateState(s, false);
+            this.isSettingsLoaded = true;
+            this._isSettingsLoaded$.next(true);
+            this._isSettingsLoaded$.complete();
+          }
+        }),
       );
+  }
+
+  getItem(): Observable<SettingsData> {
+    return this._settingStore.getItem();
+  }
+
+  get<T = any>(key: string) {
+    return this.settings.value[key];
+  }
+
+  set<T = any>(key: string, value: T){
+    this._updateState({[key]: value});
   }
 
   public destroy() {
@@ -213,8 +243,8 @@ export class SettingsService {
     this._updateState({ localTimezoneTitle });
   }
 
-  saveTemplates(templates: IBaseTemplate[]): void {
-    this._updateState({ templates });
+  saveTemplates(templates: IBaseTemplate[], saveInStorage: boolean = true): void {
+    this._updateState({ templates }, saveInStorage);
   }
 
   saveSounds(type: string, sound: ISound | boolean): void {
@@ -232,6 +262,5 @@ export class SettingsService {
     } catch (err) {
       console.error(settings);
     }
-
   }
 }

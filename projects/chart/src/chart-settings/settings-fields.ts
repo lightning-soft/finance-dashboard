@@ -1,13 +1,17 @@
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import {
   FieldConfig,
   getCheckboxes,
   getColor,
   getLabel,
   getNumber,
+  getRadio,
   getSelect,
+  getSessionSelect,
   getSwitch,
   IFieldConfig,
   wrapWithClass,
+  wrapWithConfig,
 } from 'dynamic-form';
 import { OrderDuration, OrderSide, OrderType } from 'trading';
 
@@ -148,7 +152,21 @@ const orderTypesList = [
     label: `${ OrderSide.Sell } Stop Limit`,
   },
 ];
-
+export const sessionFields: IFieldConfig[] = [
+  {
+    fieldGroupClassName: 'd-grid session-rows mt-4',
+    key: 'session',
+    fieldGroup: [
+      getSwitch('sessionEnabled', 'Session Template'),
+      wrapWithConfig(getSessionSelect('sessionTemplate', 'Session Template'),
+        {
+          className: 'd-block session-select', expressionProperties: {
+            'templateOptions.disabled': '!model.sessionEnabled',
+          }
+        })
+    ],
+  },
+];
 export const tradingFields: IFieldConfig[] = [
   new FieldConfig({
     key: 'trading',
@@ -160,7 +178,14 @@ export const tradingFields: IFieldConfig[] = [
         fieldGroupClassName: 'd-grid two-rows p-x-7',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ key: 'showWorkingOrders', label: 'Show Working Orders' }],
+            extraConfig: {
+              fieldGroupClassName: '',
+            },
+            checkboxes: [
+              { key: 'showWorkingOrders', label: 'Show Working Orders' },
+              { key: 'showOrderConfirm', label: 'Require Order Confirmation' },
+              { key: 'showCancelConfirm', label: 'Require Cancel Confirmation' }
+            ],
           }),
           getCheckboxes({
             extraConfig: {
@@ -189,29 +214,29 @@ export const tradingFields: IFieldConfig[] = [
               }),
             ],
           },
-    /*      getCheckboxes({
-            extraConfig: { className: 'pl-info' },
-            checkboxes: [
-              { key: 'showPl', label: 'Show P/L Info' },
-            ],
-            additionalFields: [
-              getSwitch('includeRealized', 'Include Realized P/L'),
-              getSwitch('roundToWhole', 'Round to whole numbers'),
-              getSelect({
-                key: 'plUnit',
-                label: 'PL Unit',
-                className: 'select',
-                options: [
-                  { label: 'Points', value: 'points' },
-                  { label: 'Currency', value: 'currency' },
-                  { label: 'Percent', value: 'percent' },
-                  { label: 'Pips', value: 'pips' },
-                  { label: 'Ticks', value: 'ticks' },
-                  { label: 'None', value: 'none' },
-                ],
-              })
-            ],
-          }),*/
+          /*      getCheckboxes({
+                  extraConfig: { className: 'pl-info' },
+                  checkboxes: [
+                    { key: 'showPl', label: 'Show P/L Info' },
+                  ],
+                  additionalFields: [
+                    getSwitch('includeRealized', 'Include Realized P/L'),
+                    getSwitch('roundToWhole', 'Round to whole numbers'),
+                    getSelect({
+                      key: 'plUnit',
+                      label: 'PL Unit',
+                      className: 'select',
+                      options: [
+                        { label: 'Points', value: 'points' },
+                        { label: 'Currency', value: 'currency' },
+                        { label: 'Percent', value: 'percent' },
+                        { label: 'Pips', value: 'pips' },
+                        { label: 'Ticks', value: 'ticks' },
+                        { label: 'None', value: 'none' },
+                      ],
+                    })
+                  ],
+                }),*/
           {
             fieldGroup: [
               {
@@ -234,10 +259,10 @@ export const tradingFields: IFieldConfig[] = [
 
             ],
           },
-    /*      getCheckboxes({
-            // extraConfig: {className: 'd-none'},
-            checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
-          }),*/
+          /*      getCheckboxes({
+                  // extraConfig: {className: 'd-none'},
+                  checkboxes: [{ key: 'chartMarker', label: 'Сhart marker with trades' }],
+                }),*/
         ],
       }),
       new FieldConfig({
@@ -269,8 +294,8 @@ export const tradingFields: IFieldConfig[] = [
               getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
               getOrderAreaItemSettings('Show Liquidate Button', 'closePositionButton'),
               getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
-              getOrderAreaItemSettings('Show Buy Market Button', 'buyMarketButton'),
-              getOrderAreaItemSettings('Show Sell Market Button', 'sellMarketButton'),
+              getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
+              getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),
               getOrderAreaItemSettings('Show Cancel All Button', 'cancelButton'),
             ]
           },
@@ -374,3 +399,42 @@ function getOrderTypeConfig(key, label) {
     ],
   };
 }
+
+export const valueScale: IFieldConfig[] = [
+  new FieldConfig({
+    key: 'valueScale',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      new FieldConfig({
+        label: 'Value Scale',
+        className: 'mt-3 d-block',
+        fieldGroupClassName: 'd-grid two-rows p-x-7',
+        fieldGroup: [
+          {
+            fieldGroupClassName: 'd-grid align-items-center order-bar-rows',
+            fieldGroup: [
+              getRadio('isAutomatic', [{ label: 'Automatic', value: 'automatic' }, {
+                label: 'Pixel / Price',
+                value: 'pixels-price'
+              }]),
+              getLabel('Pixel Price'),
+              wrapWithConfig(
+                getNumber({
+                  key: 'pixelsPrice',
+                  min: 1,
+                }),
+                {
+                  expressionProperties: {
+                    'templateOptions.disabled': (model: any, formState: any, field: FormlyFieldConfig) => {
+                      return model.isAutomatic === 'automatic';
+                    },
+                  },
+                }
+              )
+            ],
+          }
+        ],
+      }),
+    ],
+  }),
+];

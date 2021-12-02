@@ -1,6 +1,5 @@
 import { IBarHandler } from './BarHandler';
 import { IBar, IChart } from '../../models/chart';
-import { BarsUpdateKind } from '../models';
 
 export enum CalculationBarType {
   Bar, Last, Mapped
@@ -8,9 +7,9 @@ export enum CalculationBarType {
 
 export abstract class ChartBarHandler implements IBarHandler {
   protected chart: IChart;
-  protected lastPrependedBar: IBar;
-  protected lastPrependedBarIndex: number;
-  protected calculatePrependedBar: CalculationBarType;
+  protected _shouldUpdateLastDate = false;
+  breakOnNewDay = true;
+  protected _lastDate;
 
   constructor(chart: IChart) {
     this.chart = chart;
@@ -20,70 +19,80 @@ export abstract class ChartBarHandler implements IBarHandler {
     this.processBar(bar);
   }
 
-  processBar(bar: IBar) {
+  processBar(bar: IBar): { action: BarAction, bar } {
     const lastBar = this.getLastBar();
 
     if (!lastBar) {
       this.chart.appendBars(bar);
 
-      return;
+      return { bar, action: BarAction.Add };
     }
+
     const action: BarAction = this._processRealtimeBar(bar);
     if (action === BarAction.Add) {
       this.addBar(bar);
+      return { bar, action: BarAction.Add };
     } else if (action === BarAction.Update) {
       this.updateLastBar(bar);
-    }
-  }
-
-
-  protected abstract _processRealtimeBar(bar: IBar): BarAction;
-
-  protected abstract _calculateBarAction(bar);
-
-  prependBar(bar: IBar) {
-    if (!this.lastPrependedBar) {
-      this.chart.dataManager.insertBars(0, bar);
-      this.lastPrependedBar = this.chart.dataManager.bar(0);
-      this.lastPrependedBarIndex = 0;
+      return { bar, action: BarAction.Update };
     } else {
-      this._processPrependedBar(bar);
+      return { bar, action: BarAction.None };
     }
   }
 
-  protected _processPrependedBar(bar) {
-    const mappedBar = this.getMappedBar(bar);
-    if (this._calculateBarAction(mappedBar) === BarAction.Add) {
-      this.lastPrependedBarIndex++;
-      this.chart.dataManager.insertBars(this.lastPrependedBarIndex, bar);
-      this.lastPrependedBar = this.chart.dataManager.bar(this.lastPrependedBarIndex);
-    } else {
-      this.lastPrependedBar.volume += bar.volume;
-      if (bar.high > this.lastPrependedBar.high)
-        this.lastPrependedBar.high = bar.high;
-      if (bar.low < this.lastPrependedBar.low)
-        this.lastPrependedBar.low = bar.low;
-      this.lastPrependedBar.close = bar.close;
-      this.lastPrependedBar.ticksCount++;
-      this.chart.dataManager.updateBarByIndex(this.lastPrependedBarIndex, this.lastPrependedBar);
+  processBars(bars: IBar[], lastBar = this.getLastBar()): IBar[] {
+    if (!bars?.length)
+      return [];
+
+    // console.time('bars');
+    const resultBars = [];
+
+    let arrayStarter = 0;
+    if (!lastBar) {
+      lastBar = bars[0];
+      arrayStarter++;
     }
+    resultBars.push(lastBar);
+    for (let i = arrayStarter; i < bars.length; i++) {
+      const bar = bars[i];
+      const addNewBarFlag = this.breakOnNewDay && lastBar.date.getDate() !== bar.date.getDate();
+
+      if (addNewBarFlag) {
+        resultBars.push(bar);
+        lastBar = bar;
+        continue;
+      }
+
+      const action: BarAction = this._processRealtimeBar(bar, lastBar);
+      if (action === BarAction.Add) {
+        resultBars.push(bar);
+        lastBar = bar;
+      } else if (action === BarAction.Update) {
+        lastBar = this._mapLastBar(bar, lastBar, true);
+        resultBars[resultBars.length - 1] = lastBar;
+      }
+    }
+    // console.timeEnd('bars');
+    return resultBars;
   }
 
-  getMappedBar(bar) {
-    switch (this.calculatePrependedBar) {
-      case CalculationBarType.Bar:
-        return bar;
-      case CalculationBarType.Last:
-        return this.lastPrependedBar;
-      case CalculationBarType.Mapped:
-        return this._mapPrependedBar(bar);
-    }
+  prependBars(bars: IBar[]): IBar[] {
+    if (!bars?.length)
+      return [];
+
+    const [lastPrependedBar, ...items] = bars;
+    return this.processBars(items, lastPrependedBar);
   }
 
+  setAdditionalInfo(additionalInfo: any) {
+  }
+
+
+  protected _processRealtimeBar(bar: IBar, lastBar?: IBar) {
+    return BarAction.Add;
+  }
 
   clear() {
-    this.lastPrependedBar = null;
-    this.lastPrependedBarIndex = null;
   }
 
   getLastBar() {
@@ -92,18 +101,21 @@ export abstract class ChartBarHandler implements IBarHandler {
 
   addBar(bar: IBar) {
     this.chart.dataManager.appendBars(bar);
-
-    this.chart.dateScale.applyAutoScroll(BarsUpdateKind.NEW_BAR);
   }
 
-  updateLastBar(bar: IBar) {
+  updateLastBar(bar: IBar): IBar {
     const lastBar = this._mapLastBar(bar);
     this.chart.dataManager.updateLastBar(lastBar);
-    this.chart.dateScale.applyAutoScroll(BarsUpdateKind.TICK);
+    return lastBar;
   }
 
-  protected _mapLastBar(bar: IBar) {
-    const lastBar = this.chart.dataManager.getLastBar();
+  updateLastBarDate(date: Date) {
+    const lastBar = this.getLastBar();
+    lastBar.date = date;
+    this.updateLastBar(lastBar);
+  }
+
+  protected _mapLastBar(bar: IBar, lastBar = this.chart.dataManager.getLastBar(), calcTicks = false) {
 
     const price = bar.close;
     if (price > lastBar.high)
@@ -113,28 +125,25 @@ export abstract class ChartBarHandler implements IBarHandler {
     lastBar.close = price;
     lastBar.volume += bar.volume;
 
-    // TODO investigate should date be updated
-    //  lastBar.date = bar.date;
+    if (calcTicks) {
+      if (lastBar.ticksCount == null)
+        lastBar.ticksCount = 1;
+      lastBar.ticksCount++;
+    }
+    if (this._shouldUpdateLastDate) {
+      lastBar.date = bar.date;
+    }
 
     return lastBar;
   }
 
   protected _mapPrependedBar(bar: IBar) {
     const mappedBar = { ...bar };
-    if (this.lastPrependedBar.high > bar.high) {
-      mappedBar.high = this.lastPrependedBar.high;
-    }
-    if (this.lastPrependedBar.low < bar.low) {
-      mappedBar.low = this.lastPrependedBar.low;
-    }
-    mappedBar.volume += this.lastPrependedBar.volume;
-    mappedBar.open = this.lastPrependedBar.open;
-    mappedBar.date = this.lastPrependedBar.date;
 
     return mappedBar;
   }
 }
 
 export enum BarAction {
-  Add, Update, DoNothing
+  Add, Update, None
 }

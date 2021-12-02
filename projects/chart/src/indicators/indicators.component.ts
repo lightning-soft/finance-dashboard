@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ArrayHelper, StringHelper } from 'base-components';
@@ -7,16 +7,19 @@ import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { IChart } from '../models';
 import {
+  BarStats,
   CompositeProfile,
-  DefaultIndicator,
+  CustomVolumeProfile,
   Footprint,
+  General,
   Indicator,
   PriceStats,
   SessionStats,
   VolumeBreakdown,
   VolumeProfile,
+  VWAP,
   ZigZag,
-  ZigZagOscillator,
+  ZigZagOscillator
 } from './indicators';
 
 declare const StockChartX: any;
@@ -34,10 +37,14 @@ export interface IndicatorsComponent extends ILayoutNode {
 })
 @LayoutNode()
 @UntilDestroy()
-export class IndicatorsComponent implements OnInit, OnDestroy {
+export class IndicatorsComponent implements OnInit {
   link: any;
   chart: IChart;
-  indicators: any[] = [];
+
+  get indicators(): any[] {
+    return (this.chart?.indicators ?? []).filter(i => i.className !== StockChartX.CustomVolumeProfile.className)?.reverse() || [];
+  }
+
   allExpanded = false;
   registeredIndicators = [];
   searchControl = new FormControl('', Validators.required);
@@ -53,6 +60,8 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         'VolumeBreakdown',
         'ZigZag',
         'ZigZagOscillator',
+        'VWAP',
+        'BarStats',
       ],
       expanded: true,
     },
@@ -118,12 +127,12 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       name: 'Others',
       indicators: [
         'ADXR', 'APZ', 'BOP', 'DonchianChannel', 'RSS', 'Range', 'KeyReversalDown', 'KeyReversalUp',
-        'StochRSI', 'PFE', 'RIND', 'Momentum', 'McGinleysDynamic', 'VWAP', 'VolumeUpDown',
+        'StochRSI', 'PFE', 'RIND', 'Momentum', 'McGinleysDynamic', 'VolumeUpDown',
         'NBarsDown', 'LogChange', 'NBarsUp'
       ],
     }
   ];
-  selectedIndicator: any;
+  selectedIndicator: Indicator;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
   indicatorsDescriptions: {
@@ -132,8 +141,15 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       content: string[];
     }[];
   } = {};
+  descriptionEnabled: {
+    [key: string]: boolean;
+  } = {};
 
-  private _constructorsMap: WeakMap<any, new(...args: any[]) => Indicator>;
+  private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
+  private _forbidAutoScaleIndicators = [];
+
+  constructor(private cd: ChangeDetectorRef) {
+  }
 
   ngOnInit(): void {
     this.setTabTitle('Indicators');
@@ -150,11 +166,13 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   isSelected(item: any) {
-    return this.selectedIndicator === item;
+    return this.selectedIndicator?.instance === item;
   }
 
   selectIndicator(item: any) {
-    this.selectedIndicator = item;
+    const _constructor = this._constructorsMap.get(item.className) || General;
+
+    this.selectedIndicator = new _constructor(item);
 
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
@@ -164,6 +182,10 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         untilDestroyed(this))
       .subscribe(() => {
         this.selectedIndicator.applySettings(this.selectedIndicator.settings);
+        this.chart.updateIndicators();
+        const autoScale = !this._forbidAutoScaleIndicators.includes(this.selectedIndicator.instance.className);
+        this.chart.setNeedsLayout();
+        this.chart.setNeedsUpdate();
       });
   }
 
@@ -194,88 +216,56 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   addIndicator(item) {
-    if (this.indicators.find((indicator) => indicator.instance._name === item))
+    if (this.indicators.find((i) => i._name === item))
       return;
 
-    const indicator = this.registeredIndicators[item];
-    this.chart.addIndicators(new indicator);
+    const _constructor = this.registeredIndicators[item];
+    const indicator = new _constructor();
+    this.chart.addIndicators(indicator);
+    this._applyZIndex();
     this.chart.setNeedsUpdate();
+    this.chart.setNeedsLayout();
+
+    this.selectIndicator(indicator);
   }
 
   private _handleChart(chart: IChart) {
     if (!chart)
       return;
 
-    this._constructorsMap = new WeakMap<any, new(...args: any[]) => Indicator>([
-      [StockChartX.Footprint, Footprint],
-      [StockChartX.VolumeProfile, VolumeProfile],
-      [StockChartX.CompositeProfile, CompositeProfile],
-      [StockChartX.PriceStats, PriceStats],
-      [StockChartX.SessionStats, SessionStats],
-      [StockChartX.VolumeBreakdown, VolumeBreakdown],
-      [StockChartX.ZigZag, ZigZag],
-      [StockChartX.ZigZagOscillator, ZigZagOscillator],
+    this._constructorsMap = new Map<any, new (...args: any[]) => Indicator>([
+      [StockChartX.Footprint.className, Footprint],
+      [StockChartX.VolumeProfile.className, VolumeProfile],
+      [StockChartX.CompositeProfile.className, CompositeProfile],
+      [StockChartX.PriceStats.className, PriceStats],
+      [StockChartX.SessionStats.className, SessionStats],
+      [StockChartX.VolumeBreakdown.className, VolumeBreakdown],
+      [StockChartX.ZigZag.className, ZigZag],
+      [StockChartX.ZigZagOscillator.className, ZigZagOscillator],
+      [StockChartX.BarStats.className, BarStats],
+      [StockChartX.VWAP.className, VWAP],
+      [StockChartX.CustomVolumeProfile.className, CustomVolumeProfile],
     ]);
+    this._forbidAutoScaleIndicators = [StockChartX.ZigZagOscillator.className];
 
     this.fetchIndicators();
-    chart.indicators?.forEach(indicator => {
-      this._addIndicator(indicator);
-    });
-    chart.on(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
-    chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
   }
 
   removeIndicator(item: any) {
     const { chart } = this;
 
-    chart.removeIndicators(item.instance);
+    this._applyZIndex();
+    chart.removeIndicators(item);
     chart.setNeedsUpdate();
-  }
-
-  private _handleAddIndicator = (event: any) => {
-    this._addIndicator(event.value);
-    this._selectLastIndicator();
-  }
-
-  private _selectLastIndicator() {
-    const indicators = this.indicators;
-    this.selectIndicator(indicators[indicators.length - 1]);
-  }
-
-  private _handleRemoveIndicator = (event: any) => {
-    this._removeIndicator(event.value);
-  }
-
-  private _addIndicator(instance: any) {
-    const Constructor = this._constructorsMap.get(instance.constructor) || DefaultIndicator;
-
-    this.indicators.push(new Constructor(instance));
   }
 
   removeAll() {
     const { chart } = this;
 
     this.indicators.forEach((item) => {
-      chart.removeIndicators(item.instance);
+      chart.removeIndicators(item);
     });
     chart.setNeedsUpdate();
-  }
-
-  private _removeIndicator(instance: any) {
-    this.indicators = this.indicators.filter(indicator => indicator.instance !== instance);
-
-    if (this.selectedIndicator?.instance === instance) {
-      delete this.selectedIndicator;
-    }
-  }
-
-  ngOnDestroy() {
-    const { chart } = this;
-
-    if (chart) {
-      chart.off(StockChartX.ChartEvent.INDICATOR_ADDED + EVENTS_SUFFIX, this._handleAddIndicator);
-      chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED + EVENTS_SUFFIX, this._handleRemoveIndicator);
-    }
   }
 
   expand(group) {
@@ -306,7 +296,7 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
       const contentPromises = contentKeys.map(contentKey => {
         return StockChartX.Localization.localizeText(
           this.chart,
-          `indicator.${ name }.help.${ key }.${ contentKey }`,
+          `indicator.${name}.help.${key}.${contentKey}`,
           { defaultValue: null },
         );
       });
@@ -319,6 +309,8 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
         title: StringHelper.capitalize(keys[i]),
         content,
       }));
+      this.descriptionEnabled[name] = sections.some(item => item.length);
+      this.cd.detectChanges();
     });
   }
 
@@ -332,10 +324,19 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
   }
 
   dropped({ previousIndex, currentIndex }) {
-    ArrayHelper.swapItems(this.indicators, previousIndex, currentIndex);
-    ArrayHelper.swapItems(this.chart.indicators, previousIndex, currentIndex);
-
-    this.chart.updateIndicators();
+    const indicators = this.indicators;
+    ArrayHelper.shiftItems(indicators, previousIndex, currentIndex);
+    this._applyZIndex(indicators);
+    this.chart.setNeedsLayout();
     this.chart.setNeedsUpdate();
+  }
+
+  private _applyZIndex(indicators = this.indicators) {
+    for (let i = 0; i < indicators.length; i++) {
+      if (!indicators[i])
+        continue;
+
+      indicators[i].zIndex = 1000 - i;
+    }
   }
 }

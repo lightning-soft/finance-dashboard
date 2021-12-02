@@ -1,12 +1,21 @@
 side-form.full-screen-window {
   width: 100%;
   margin-bottom: 8px;
-  min-height: 40px;
+  min-height: 30px;
 
   .cxl-btn {
     padding-left: 4px !important;
     padding-right: 2px !important;
     width: 62px;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .type-select {
+    min-width: 54px;
   }
 
   &.extended {
@@ -148,22 +157,50 @@ side-form.full-screen-window {
       width: 100%;
     }
 
+    quantity-input {
+      button {
+        display: none;
+      }
+    }
+
+    .slim-amount {
+      margin-left: 2px;
+    }
+
+    .cxl-btn {
+      width: 48px;
+      padding-left: 2px !important;
+    }
+
     .market-buttons {
       width: auto;
       margin-top: 6px;
       align-self: center;
-      margin-left: 12px;
+      margin-left: 6px;
 
       button {
-        padding-left: 6px;
+        padding-left: 3px !important;
         margin-top: 0;
-        width: 53px;
-        padding-right: 6.5px;
+        width: 36px;
+        padding-right: 3px !important;
+
 
         &:last-child {
           margin-left: 3px;
         }
       }
+    }
+
+    .other-letters {
+      display: none !important;
+    }
+
+    .first-letter {
+      display: inline-block;
+    }
+
+    .top-position-btn {
+      width: 26px;
     }
 
     .cxl {
@@ -180,7 +217,7 @@ side-form.full-screen-window {
   }
 
   type-buttons, .ticks, .bottom-btns {
-    margin-top: 5px;
+    margin-top: 6px;
   }
 
   type-buttons {
@@ -210,9 +247,7 @@ side-form.full-screen-window {
   .form-layout {
     flex-direction: row;
     align-items: baseline;
-    flex-wrap: wrap;
     padding-bottom: 0;
-
   }
 
   form > * {
@@ -248,11 +283,10 @@ side-form.full-screen-window {
   .top-position-btn {
     margin-top: 0;
     height: 23px;
-    margin-left: 12px;
+    margin-left: 5px;
   }
 
   .ticks {
-    margin-top: 0;
     display: flex;
   }
 
@@ -263,7 +297,7 @@ side-form.full-screen-window {
   }
 
   .cxl {
-    margin-left: 12px;
+    margin-left: 6px;
   }
 
   .bottom-btns {

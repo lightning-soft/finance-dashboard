@@ -24,13 +24,13 @@
             <div>
 
               <div
-                *ngFor="let item of getConnectionsByBroker(broker)"
+                *ngFor="let item of getConnectionsByBroker(broker); let index = index"
                 class="selectable-item pl-4 mt-1"
                 (contextmenu)="contextMenu($event, contentTemplate)"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
                 [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
-                (click)="selectItem(item)"
+                (click)="selectItem(item, index)"
               >
                 <ng-container *ngIf="!item.rename">
                   <div [title]="item.name" class="position-relative">
@@ -92,35 +92,10 @@
             <acccount-form (autosavePasswordToggle)="handleAutosavePasswordToggle($event)"
                            [isSubmitted]="isSubmitted"
                            #userData
-                           [class.d-none]='splitConnections'
+                           [connectOnStartUp]="connectOnStartUp"
+                           (updateItem)="updateItem()"
+                           (turnOffAutoConnect)="turnOffAutoConnect()"
                            formControlName="userData"></acccount-form>
-            <div *ngIf="splitConnections" class="d-flex split-form">
-              <div class="split-form-item">
-                <span class="split-form-title">Marker Data</span> <span class="switch-container"><span>Off</span>
-                <nz-switch
-                  [ngModel]="true"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="toggleFormConnection($event, 'marketConnection')" nzSize="small"></nz-switch>
-                <span>On</span></span>
-                <acccount-form formControlName="marketConnection"
-                ></acccount-form>
-              </div>
-              <div class="split-form-item">
-
-                <span class="split-form-title">Orders</span>
-                <span class="switch-container">
-                <span>Off</span>
-                <nz-switch
-                  [ngModel]="true"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="toggleFormConnection($event, 'orderConnection')"
-                  nzSize="small"></nz-switch>
-                <span>On</span>
-                </span>
-
-                <acccount-form formControlName="orderConnection"></acccount-form>
-              </div>
-            </div>
             <!-- <label class="split-connection">
               <span class="split-title">Split Connection</span>
 
@@ -137,7 +112,7 @@
 
             <label class="custom-checkbox mb-1">
               <input
-                type="checkbox" formControlName="connectOnStartUp">
+                type="checkbox" formControlName="connectOnStartUp" [checked]="connectOnStartUp">
               <span>Connect on start up</span>
             </label>
             <button
@@ -153,16 +128,22 @@
           <div *ngIf="selectedItem.connected">
             <div class="p-3 bg-secondary rounded">
               <table>
-                <tr>
-                  <td>
-                    <span class="text-muted">Status:&nbsp;</span>
-                  </td>
-                  <td>
-               <span class="d-flex">
-                <span class="indicator indicator-table success mr-2"></span>
-                Connected
-              </span>
-                  </td>
+                <tr class="space-beetwen">
+                  <div>
+                    <td>
+                      <span class="text-muted">Status:&nbsp;</span>
+                    </td>
+                    <td>
+                      <span class="d-flex connected-status">
+                        <span class="indicator indicator-table success mr-2"></span>
+                        Connected
+                      </span>
+                    </td>
+                  </div>
+                  <div>
+                    <span>Default</span>
+                    <nz-switch nzSize="small" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : selectFreeConnectionAsDefault()"></nz-switch>
+                  </div>
                 </tr>
                 <tr>
                   <td>
@@ -198,14 +179,6 @@
               [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
               (click)="disconnect(selectedItem)"
             >Disconnect
-            </button>
-            <button
-              nz-button
-              nzType="primary"
-              nzBlock
-              class="bg-secondary text-uppercase disconnect-button"
-              (click)="selectedItem.isDefault? null : makeDefault(selectedItem)"
-            >{{selectedItem.isDefault ? 'Already default' : 'Make default'}}
             </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">

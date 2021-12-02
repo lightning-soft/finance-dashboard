@@ -1,11 +1,22 @@
 import { Component, HostBinding, HostListener, OnInit } from '@angular/core';
-import { ILayoutNode, LayoutNode } from 'layout';
-import { CellClickDataGridHandler, CheckboxCell } from 'data-grid';
 import { convertToColumn, HeaderItem } from 'base-components';
-import { CustomOrderItem } from './custom-order.item';
 import { OrderItem } from 'base-order-form';
+import { CellClickDataGridHandler, CheckboxCell } from 'data-grid';
+import { ILayoutNode, LayoutNode } from 'layout';
+import { NzModalService } from 'ng-zorro-antd';
+import { NotifierService } from 'notifier';
+import { Components } from 'src/app/modules';
+import { IBaseTemplate, IPresets, LayoutPresets, TemplatesService } from 'templates';
+import { CustomOrderItem } from './custom-order.item';
 
-export interface OrdersPanelComponent extends ILayoutNode {
+
+export interface IOrderPanelState {
+  orders: any[]
+}
+
+export type IOrderPanelPresets = IBaseTemplate<IOrderPanelState>;
+
+export interface OrdersPanelComponent extends ILayoutNode, IPresets<IOrderPanelState> {
 }
 
 @Component({
@@ -14,6 +25,7 @@ export interface OrdersPanelComponent extends ILayoutNode {
   styleUrls: ['./orders-panel.component.scss']
 })
 @LayoutNode()
+@LayoutPresets()
 export class OrdersPanelComponent implements OnInit {
   columns = [];
   @HostBinding('tabindex') tabindex = 0;
@@ -21,6 +33,8 @@ export class OrdersPanelComponent implements OnInit {
   items = [];
   orders = [];
   headerCheckboxCell = new CheckboxCell();
+
+  Components = Components;
 
   readonly headers: HeaderItem[] = [
     {
@@ -52,6 +66,12 @@ export class OrdersPanelComponent implements OnInit {
       },
     })
   ];
+
+  constructor(
+    public readonly _templatesService: TemplatesService,
+    public readonly _modalService: NzModalService,
+    public readonly _notifier: NotifierService,
+  ) { }
 
   ngOnInit(): void {
     this.columns = this.headers.map((item) => {
@@ -89,5 +109,15 @@ export class OrdersPanelComponent implements OnInit {
   @HostListener('blur')
   leavePage() {
     this.layoutContainer.close();
+  }
+
+  save(): void {
+    const presets: IOrderPanelPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.OrdersPanel
+    };
+
+    this.savePresets(presets);
   }
 }

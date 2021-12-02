@@ -164,14 +164,19 @@ abstract class _AccountListener extends _AccountsListener implements IConnection
     if (this.account == null && accounts.length && selectFirstAsDefault) {
       this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
+    this.onAccountChanged();
   }
 
   handleAccountsDisconnect(disconnectedAccounts: IAccount[], allAccounts: IAccount[]) {
     this.accounts = allAccounts;
 
-    if (disconnectedAccounts.some(account => this.account.id === account.id) && this.selectDefault && allAccounts.length) {
+    if (disconnectedAccounts.some(account => this.account?.id === account.id) && this.selectDefault && allAccounts.length) {
       this.account = allAccounts.find(item => item.connectionId === this.defaultConnection?.id) || allAccounts[0];
     }
+    this.onAccountChanged();
+  }
+
+  onAccountChanged() {
   }
 }
 
@@ -197,7 +202,7 @@ export function filterByAccountsConnection<T>(accountContainer: { accounts: IAcc
 
 export function filterByAccountConnection<T>(accountContainer: { account: IAccount }, fn: (data: T, connectionId: Id) => any) {
   return (data: T, connectionId: Id) => {
-    if (accountContainer.account.connectionId === connectionId) {
+    if (accountContainer.account?.connectionId === connectionId) {
       fn(data, connectionId);
     }
   };
@@ -205,7 +210,7 @@ export function filterByAccountConnection<T>(accountContainer: { account: IAccou
 
 export function filterConnection<T>(accountContainer: { connection: { id: Id } }, fn: (data: T, connectionId: Id) => any) {
   return (data: T, connectionId: Id) => {
-    if (accountContainer.connection.id === connectionId) {
+    if (accountContainer.connection?.id === connectionId) {
       fn(data, connectionId);
     }
   };

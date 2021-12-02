@@ -1,5 +1,6 @@
 import {
   FieldConfig,
+  FieldType,
   getCheckboxes,
   getColor,
   getColorSelect,
@@ -45,11 +46,19 @@ const tradingOptions = [
   }
 ];
 
-function getSessionsSelect(key = 'session') {
+function getSessionsSelect(key = 'session', config: any = {}) {
+  const defaultSettings = {
+    label: 'Session Template',
+    className: 'select full-width session-template'
+  };
+  Object.assign(defaultSettings, config);
   return {
     key,
     type: 'sessions-select',
-    className: 'select full-width session-template',
+    templateOptions: {
+      label: defaultSettings.label,
+    },
+    className: `${ defaultSettings.className }`,
   };
 }
 
@@ -263,7 +272,7 @@ function getValueArea(key, _config: any = {}) {
   };
 }
 
-function getInnerValueArea(label, key) {
+export function getInnerValueArea(label, key) {
   return {
     key,
     className: 'mt-2 d-block',
@@ -284,7 +293,7 @@ function getInnerValueArea(label, key) {
               { key: 'enabled', label: '' },
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithClass(getColor({ key: 'strokeTheme.strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' }),
         ]
       },
@@ -297,7 +306,7 @@ function getInnerValueArea(label, key) {
               { key: 'enabled', label: '' },
             ]
           }),
-          wrapWithClass(getColor({ key: 'strokeColor', label: '' }), 'stroke-color'),
+          wrapWithClass(getColor({ key: 'strokeTheme.strokeColor', label: '' }), 'stroke-color'),
           getLineSelector({ key: 'strokeTheme' })]
       }
     ]
@@ -364,14 +373,14 @@ function getBand(key) {
     key,
     fieldGroupClassName: 'd-grid band-rows',
     fieldGroup: [
-      getCheckboxes({ checkboxes: [{ label: `Bands at` }] }),
+      getCheckboxes({ checkboxes: [{ key: 'isShow', label: `Bands at` }] }),
       getNumber({
-        key: 'stdDev', label: 'StdDev',
+        key: 'coefficient', label: 'StdDev',
         className: 'reverse-number-label regular-number-label',
         min: 1,
       }),
-      wrapWithClass(getColor('Color'), 'color-without-label'),
-      getLineSelector({ key: 'line' }),
+      wrapWithClass(getColor('strokeColor'), 'color-without-label'),
+      getLineSelector({ key: 'styleLine' }),
     ]
   };
 }
@@ -405,6 +414,51 @@ function getSessionLine(key, label) {
       getSwitch('labelEnabled', 'Label')
     ],
   };
+}
+
+export function getGraphicsField() {
+  return new FieldConfig({
+    key: 'summaryFont',
+    label: 'Summary Font',
+    fieldGroupClassName: 'd-grid two-rows p-0',
+    className: 'hide-border-bottom regular-label full-width label-400',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'd-grid two-rows p-0',
+        fieldGroup: [
+          getSelect({
+            key: 'fontFamily',
+            className: 'w-100 full-width',
+            options: [
+              { label: 'Open Sans', value: 'Open Sans' },
+              { label: 'Monospace', value: 'Monospace' }
+            ],
+          }),
+          getSelect({
+            wrappers: [],
+            key: 'fontWeight',
+            options: [
+              {
+                label: 'Regular',
+                value: '400'
+              },
+              {
+                label: 'Bold',
+                value: '600'
+              },
+              {
+                label: 'Bolder',
+                value: '700'
+              },
+            ],
+          }),
+          getNumber({ key: 'fontSize', min: 1, className: 'full-number-input align-self-end' }),
+        ],
+      },
+      getColor({ key: 'fillColor', label: 'Summary Color' }),
+    ],
+    // fieldGroupClassName: 'full-width'
+  });
 }
 
 export function getMeasureField(key, label) {
@@ -945,7 +999,6 @@ export const volumeProfileConfig: IFieldConfig[] = [
             { className: 'tickPerPrice' }),
         ],
       },
-
     ],
   }),
   new FieldConfig({
@@ -1051,48 +1104,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           fieldGroupClassName: 'd-grid two-rows p-0'
         },
       }),
-      new FieldConfig({
-        key: 'summaryFont',
-        label: 'Summary Font',
-        fieldGroupClassName: 'd-grid two-rows p-0',
-        className: 'hide-border-bottom regular-label full-width label-400',
-        fieldGroup: [
-          {
-            fieldGroupClassName: 'd-grid two-rows p-0',
-            fieldGroup: [
-              getSelect({
-                key: 'fontFamily',
-                className: 'w-100 full-width',
-                options: [
-                  { label: 'Open Sans', value: 'Open Sans' },
-                  { label: 'Monospace', value: 'Monospace' }
-                ],
-              }),
-              getSelect({
-                wrappers: [],
-                key: 'fontWeight',
-                options: [
-                  {
-                    label: 'Regular',
-                    value: '400'
-                  },
-                  {
-                    label: 'Bold',
-                    value: '600'
-                  },
-                  {
-                    label: 'Bolder',
-                    value: '700'
-                  },
-                ],
-              }),
-              getNumber({ key: 'fontSize', min: 1, className: 'full-number-input align-self-end' }),
-            ],
-          },
-          getColor({ key: 'fillColor', label: 'Summary Color' }),
-        ],
-        // fieldGroupClassName: 'full-width'
-      }),
+      getGraphicsField(),
     ],
   })
 ];
@@ -1200,8 +1212,138 @@ export const compositeProfileConfig: IFieldConfig[] = [
 
     ],
   }),
-
 ];
+
+const groupsRows = ['Delta',
+  {
+    label: 'Volume',
+    hasBackground: true
+  }, 'Delta day',
+  {
+    label: 'Buy Volume',
+    hasBackground: true
+  },
+  {
+    label: 'Sell Volume', hasBackground: true
+  }, { label: 'Delta% Day', key: 'deltaPercentDay', hasBackground: false },
+  {
+    label: 'Buy% Volume',
+    hasBackground: false,
+    key: 'buyPercentVolume'
+  }, {
+    label: 'Sell% Volume', hasBackground: false,
+    key: 'sellPercentVolume'
+  }, 'Delta Max', 'Delta Min', 'Delta Finish', { label: 'Ticks', key: 'ticks', noColors: true, }];
+
+export const barStatsConfig = [
+  new FieldConfig({
+    key: 'general',
+    label: 'General',
+    fieldGroupClassName: 'd-grid two-rows inline-fields hide-border-bottom regular-label p-x-10',
+    fieldGroup: [
+      getNumber({ key: 'rowHeight', label: 'Row Height', min: 0, }),
+      {
+        className: 'full-width bar-stats-border mt-1 d-block',
+        fieldGroupClassName: 'd-grid three-rows',
+        key: 'header',
+        fieldGroup: [
+          wrapWithClass(getSelect({
+            key: 'position', label: 'Position', options: [
+              { value: 'left', label: 'Left' },
+              { value: 'right', label: 'Right' },
+            ]
+          }), 'position-select'),
+          getColor('Text Color'),
+          getColor('Back Color'),
+        ],
+      },
+      {
+        className: 'full-width bar-stats-border bar-font-stats-border mt-2 d-block',
+        fieldGroupClassName: 'd-grid font-rows',
+        key: 'font',
+        fieldGroup: [
+          wrapWithClass(getColor('Font Color'), 'color-without-label'),
+          getSelect({
+            key: 'fontFamily',
+            options: [{ label: 'Open Sans', value: '\"Open Sans\", sans-serif' },
+              { label: 'Monospace', value: 'monospace' },
+              { label: 'Sans Serif', value: 'sans-serif' },
+              { label: 'Arial', value: 'Arial' }]
+          }),
+          getSelect({
+            key: 'fontStyle', options: [
+              { value: '400', label: 'Regular' },
+              { value: '700', label: 'Bold' },
+            ]
+          }),
+          getNumber({
+            key: 'fontSize',
+            min: 0,
+          })
+        ],
+      },
+    ],
+  }),
+  new FieldConfig({
+    key: 'groupsRows',
+    label: 'Groups rows',
+    className: 'mt-4 d-block',
+    fieldGroupClassName: 'd-flex flex-column',
+    fieldGroup: [
+      {
+        templateOptions: {
+          dragPreviewClass: 'group-preview-class',
+        },
+        type: FieldType.DragAndDrop,
+        fieldGroup: groupsRows.map(item => getGroupRow(item)),
+      },
+    ],
+  }),
+  new FieldConfig({
+    label: 'Groups with a trade volume filter',
+    key: 'groupsTradeVolumeFilter',
+    fieldGroupClassName: '',
+    fieldGroup: [
+      {
+        type: 'repeat-group',
+        templateOptions: {
+          addText: 'Add',
+        },
+        fieldArray: {
+          className: 'mt-1 d-block',
+          fieldGroupClassName: 'd-grid group-row',
+          fieldGroup: [
+            getInput({ key: 'name' }),
+            getNumber({ min: 0, key: 'min', placeholder: 'Min. Trade Vol.' }),
+            getNumber({ min: 0, key: 'max', placeholder: 'Max. Trade Vol.' }),
+          ],
+        },
+      }
+    ],
+  }),
+];
+
+
+function getGroupRow(title) {
+  const label = typeof title === 'string' ? title : title.label;
+  const key = (title as any).key ?? ((title as any).label ?? title as string ?? '').toLowerCase().replace(/ /g, '');
+  const hasBackground = (title as { hasBackground }).hasBackground;
+  let colors = [];
+  const noColors = (title as any).noColors === true;
+  if (!noColors) {
+    colors = hasBackground ? [getColor('Background')] : [getColor('Positive'),
+      getColor('Negative')];
+  }
+  return {
+    key,
+    fieldGroupClassName: 'd-grid three-rows',
+    className: '',
+    fieldGroup: [
+      getCheckboxes({ checkboxes: [{ key: 'enabled', label }] }),
+      ...colors,
+    ],
+  } as any;
+}
 
 export const priceStatsConfig: IFieldConfig[] = [
   new FieldConfig({
@@ -1351,7 +1493,12 @@ export const priceStatsConfig: IFieldConfig[] = [
         templateOptions: {
           label: 'RTH',
         },
-        className: 'mt-4 block profile-settings bordered',
+        className: '',
+        expressionProperties: {
+          className: (a, b, field) => {
+            return field.form.value.overlayEthOverRth ? 'mt-4 block profile-settings bordered' : 'mt-4 block profile-settings bordered hide-border-label';
+          },
+        },
       }),
       getShorterConfig('eth', {
         hideExpression: (model, state, field) => {
@@ -1506,12 +1653,8 @@ export const sessionStatsConfig: IFieldConfig[] = [
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
     fieldGroup: [
-      wrapWithConfig(getSessionsSelect('rth'), {
-        label: 'RTH Session Template'
-      }),
-      wrapWithConfig(getSessionsSelect('eth'), {
-        label: 'ETH Session Template'
-      }),
+      getSessionsSelect('rth', { label: 'RTH Session Template' }),
+      getSessionsSelect('eth', { label: 'ETH Session Template' }),
     ],
   }),
   new FieldConfig({
@@ -1688,45 +1831,43 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroup: [
       new FieldConfig({
         label: 'Style',
-        key: 'style',
+        key: 'styleLine',
         className: 'style',
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
           wrapWithClass(getSelect({
+            key: 'style',
             options: [
               {
-                label: 'Line, Connected', value: 'lineConnected'
+                label: 'Line, Connected', value: 'connected'
               },
               {
-                label: 'Line, Continuous', value: 'lineContinuous'
+                label: 'Line, Continuous', value: 'continious'
               },
               {
-                label: 'Line, Stepped', value: 'lineStepped'
+                label: 'Line, Stepped', value: 'stepped'
               },
               {
-                label: 'Price Box, Solid', value: 'priceBoxSolid'
+                label: 'Price Box, Solid', value: 'solid'
               },
               {
-                label: 'Price Box, Hollow', value: 'priceBoxHollow'
+                label: 'Price Box, Hollow', value: 'hollow'
               },
             ]
           }), 'max-width-85'),
-          wrapWithClass(getColor('color'), 'color-without-label'),
+          wrapWithClass(getColor('strokeColor'), 'color-without-label'),
           getLineSelector({
-            key: 'line'
+            key: 'lineStyle'
           }),
         ]
       }),
       getCheckboxes({
         checkboxes: [{
-          key: 'customTimes',
+          key: 'isShowCustomTimes',
           label: 'Custom Times'
         }],
         additionalFields: [
-          getSelect({
-            key: 'duration',
-            options: tradingOptions,
-          }),
+          getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
         ],
         extraConfig: {
           fieldGroupClassName: 'd-grid two-rows'
@@ -1734,17 +1875,17 @@ export const vwapConfig: IFieldConfig[] = [
       }),
       getCheckboxes({
         checkboxes: [{
-          key: 'customDuration',
+          key: 'isShowCustomDuration',
           label: 'Custom Duration'
         }],
         additionalFields: [
           getSelect({
-            key: 'duration',
+            key: 'customDuration',
             options: [
-              { label: 'Weekly', value: 'weekly' },
-              { label: 'Monthly', value: 'monthly' },
-              { label: 'Quarterly', value: 'quarterly' },
-              { label: 'Annualy', value: 'annualy' },
+              { label: 'Weekly', value: 'week' },
+              { label: 'Monthly', value: 'month' },
+              { label: 'Quarterly', value: 'quarter' },
+              { label: 'Annualy', value: 'year' },
             ],
           }),
         ],
@@ -1761,9 +1902,9 @@ export const vwapConfig: IFieldConfig[] = [
     key: 'bands',
     className: 'mt-3',
     fieldGroup: [
-      getBand(1),
-      getBand(2),
-      getBand(3),
+      getBand('band1'),
+      getBand('band2'),
+      getBand('band3'),
     ],
   }),
   new FieldConfig({
@@ -1773,9 +1914,10 @@ export const vwapConfig: IFieldConfig[] = [
     fieldGroupClassName: 'd-grid two-rows regular-label hide-border-bottom',
     fieldGroup: [
       getCheckboxes({
-        checkboxes: [{ label: 'Show VWAP Label', key: 'showLabel' }],
+        checkboxes: [{ label: 'Show VWAP Label', key: 'isShowVWAPLabel' }],
       }),
       getNumber({
+        key: 'lebelLineLength',
         label: 'Label Line Length',
         min: 1,
       }),

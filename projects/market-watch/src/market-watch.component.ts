@@ -78,6 +78,8 @@ import { NumberWrapperComponent } from './number-wrapper/number-wrapper.componen
 import { SelectWrapperComponent } from './select-wrapper/select-wrapper.component';
 import { InstrumentHolder, LabelHolder, Tab } from './tab.model';
 import { AccountSelectComponent } from 'account-select';
+import { IMarketWatchPresets, IMarketWatchState } from '../models';
+import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 
 const labelText = 'Indices';
 
@@ -158,18 +160,7 @@ const marketWatchOrderKeyLinking = 'marketWatchOrderKeyLinking';
 const ordersColumns = [MarketWatchColumns.Position, MarketWatchColumns.Bid,
   MarketWatchColumns.BidQuantity, MarketWatchColumns.Ask, MarketWatchColumns.AskQuantity];
 
-export interface MarketWatchComponent extends ILayoutNode {
-}
-
-export interface IMarketWatchState {
-  columns: Column[];
-  tabs: Tab[];
-  currentTabId: Id;
-  contextMenuState: any;
-  componentInstanceId: number;
-  settings;
-  accountId: Id;
-  createdOrders: Id[];
+export interface MarketWatchComponent extends ILayoutNode, IPresets<IMarketWatchState> {
 }
 
 @UntilDestroy()
@@ -179,6 +170,7 @@ export interface IMarketWatchState {
   styleUrls: ['./market-watch.component.scss'],
 })
 @LayoutNode()
+@LayoutPresets()
 @AccountsListener()
 export class MarketWatchComponent extends ItemsComponent<any> implements AfterViewInit, OnDestroy, IConnectionsListener {
   columns: Column[] = [];
@@ -210,6 +202,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   createdOrders = [];
 
   columnSettings;
+
+  Components = Components;
 
   handlers: DataGridHandler[] = [
     new CellClickDataGridHandler<MarketWatchItem>({
@@ -346,7 +340,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   builder = new MarketWatchBuilder();
 
   private get defaultColumns() {
-    return headers.map((item: any) => convertToColumn(item, defaultStyles));
+    return headers.map((item: any) => convertToColumn(item, { ...defaultStyles, titleUpperCase: true }));
   }
 
   newInstrument$ = new Subject<IInstrument>();
@@ -402,9 +396,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'orderDuration': {
         return this.createSelect(cell, OrderDuration);
       }
-      case 'label': {
+      case 'label':
         return this.createLabel(cell);
-      }
       case 'orderSide':
         return this.createSelect(cell, OrderSide);
       case 'orderType':
@@ -412,15 +405,15 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       case 'limitPrice':
         return this.createNumber(cell, {
           placeholder: 'Limit Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+          instrument: cell.row.instrument,
         });
       case 'stopPrice':
         return this.createNumber(cell, {
           placeholder: 'Stop Price',
-          step: cell.row.instrument.tickSize, precision: cell.row.instrument.precision
+          instrument: cell.row.instrument,
         });
       case 'quantity':
-        return this.createNumber(cell, { placeholder: 'Quantity', step: 1, min: 1, shouldOpenSelect: false, });
+        return this.createNumber(cell, { placeholder: 'Quantity',  shouldOpenSelect: false, });
       case 'accounts':
         const factory = this.componentFactoryResolver.resolveComponentFactory(AccountSelectComponent);
         return {
@@ -430,7 +423,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
           }
         };
       case 'loading': {
-        const value = cell.item._value;
         cell.item.updateValue('');
         const spinFactory = this.componentFactoryResolver.resolveComponentFactory(NzSpinComponent);
         return { factory: spinFactory };
@@ -467,7 +459,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
   private createNumber(cell, templateOptions = {}) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(NumberWrapperComponent);
-    const value = cell.item.value;
+    const value = cell.item._value;
 
     return {
       factory,
@@ -490,10 +482,11 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     protected cd: ChangeDetectorRef,
     protected _injector: Injector,
     private nzContextMenuService: NzContextMenuService,
-    private _modalService: NzModalService,
+    public _modalService: NzModalService,
     private componentFactoryResolver: ComponentFactoryResolver,
-    protected _notifier: NotifierService,
+    public _notifier: NotifierService,
     protected _zone: NgZone,
+    public _templatesService: TemplatesService,
   ) {
     super();
     this.autoLoadData = false;
@@ -503,7 +496,6 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
 
     this.columns = this.defaultColumns;
     this.componentInstanceId = Date.now();
-    // (window as any).mw = this;
 
     this.setTabIcon('icon-widget-market-watch');
     this.setTabTitle('MarketWatch');
@@ -779,6 +771,8 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
       createdOrders: this.createdOrders,
+      contextMenuState: this.contextMenuState,
+      accountId: this.accountId,
     };
   }
 
@@ -887,7 +881,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     this.columns.forEach((item) => {
       const style = styles[item.name];
       if (style)
-        item.style = { ...defaultStyles, ...style, ...orderStyles };
+        item.style = { ...defaultStyles,  ...item.style, ...style, ...orderStyles };
       else {
         item.style = { ...defaultStyles, ...item.style, ...styles[generalColumnStyles], ...orderStyles };
       }
@@ -1273,9 +1267,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     const item = this.builder.getInstrumentItem(instrument);
 
     if (item.ask._value != null)
-      orderMarketWatchItem.triggerPrice.updateValue(+item.ask._value.toFixed(orderMarketWatchItem.instrument.precision));
+      orderMarketWatchItem.triggerPrice.updateValue(item.ask._value);
     if (item.bid._value != null)
-      orderMarketWatchItem.price.updateValue(+item.bid._value.toFixed(orderMarketWatchItem.instrument.precision));
+      orderMarketWatchItem.price.updateValue(item.bid._value);
 
     item.subItems.unshift(orderMarketWatchItem);
     item.setHasCreatingOrder(true);
@@ -1316,6 +1310,16 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
         this._dataGrid.endEdit();
       });
     }
+  }
+
+  save(): void {
+    const presets: IMarketWatchPresets = {
+      id: this.loadedPresets?.id,
+      name: this.loadedPresets?.name,
+      type: Components.MarketWatch
+    };
+
+    this.savePresets(presets);
   }
 }
 

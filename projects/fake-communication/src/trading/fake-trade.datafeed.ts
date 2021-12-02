@@ -13,7 +13,7 @@ export class FakeTradeDatafeed extends DatafeedRepository<TradePrint> implements
         setInterval(() => {
             const size = this._subscribedInstruments.length;
             const count = Math.floor(randomIntFromInterval(0, size)) + 1;
-            const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1
+            const step = Math.floor(randomIntFromInterval(0, size / 4)) + 1;
             // console.time('q')
 
             // const size = this._subscribedInstruments.length;

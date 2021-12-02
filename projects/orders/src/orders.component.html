@@ -89,21 +89,17 @@
   <nz-tabset [nzSelectedIndex]="activeTab"
              (contextmenu)="dataGrid?.createComponentModal($event)"
              [nzTabBarExtraContent]="headerPanelTemplate"
-           >
+  >
     <nz-tab nzTitle="Working" (nzClick)="changeActiveTab(tab.Working)">
-      <ng-template [ngIf]="activeTab === tab.Working">
-        <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
-      </ng-template>
+      <ng-container
+        *ngTemplateOutlet="gridTemplate; context: {$implicit:tab.Working}"></ng-container>
     </nz-tab>
     <nz-tab nzTitle="Filled" (nzClick)="changeActiveTab(tab.Filled)">
-      <ng-template [ngIf]="activeTab === tab.Filled">
-        <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
-      </ng-template>
+      <ng-container
+        *ngTemplateOutlet="gridTemplate; context: {$implicit: tab.Filled}"></ng-container>
     </nz-tab>
     <nz-tab nzTitle="All" (nzClick)="changeActiveTab(tab.All)">
-    <ng-template [ngIf]="activeTab === tab.All">
-      <ng-template [ngTemplateOutlet]="gridTemplate"></ng-template>
-    </ng-template>
+      <ng-container *ngTemplateOutlet="gridTemplate; context: {$implicit:tab.All}"></ng-container>
     </nz-tab>
   </nz-tabset>
 </div>
@@ -119,8 +115,9 @@
     </li>
   </ul>
 </nz-dropdown-menu>
-<ng-template #gridTemplate>
+<ng-template let-tab #gridTemplate>
   <data-grid #grid
+             [class.d-none]="activeTab !== tab"
              [styles]="gridStyles"
              [rowHeight]="24"
              (columnUpdate)="handleUpdateColumn($event)"
@@ -132,5 +129,8 @@
              [items]="items"
              [handlers]="handlers"
              [columns]="columns"
+             [loadedPresets]="loadedPresets"
+             (savePresets)="save()"
+             (createPresets)="createPresets(Components.Orders)"
   ></data-grid>
 </ng-template>

@@ -10,13 +10,16 @@
           label="Name"
           [default]="blankSession"
           [value]="item.id"
+          [editCallback]="editSession"
           [repository]="repository"
           [withActions]="true"
+          [showTooltip]="true"
           (handleChange)="handleSessionChange($event)"
         ></data-select>
       </div>
-      <div class="pl-2 flex-grow-1">
+      <div class="pl-2 time-zones  flex-grow-1">
         <data-select
+          dropdownClassName="timezones-select"
           label="Time Zone"
           [value]="item.timezoneId"
           [repository]="timezonesRepository"
@@ -73,6 +76,7 @@
         <td>
           <time-select
             [value]="workingTime.endTime"
+            [step]="5"
             (valueChange)="workingTime.endTime = $event"
           ></time-select>
         </td>
@@ -96,7 +100,7 @@
         nzType="default"
         nzSize="small"
         class="px-4 mr-2 bg-lighter border-lighter text-white"
-        (click)="createWorkingTime(1, 5)"
+        (click)="createMissingWorkingTime()"
       >Add Monday through Friday</button>
     </div>
   </cdk-virtual-scroll-viewport>
@@ -104,6 +108,7 @@
   <div class="d-flex">
     <button
       nz-button
+      [disabled]="!item?.id"
       nzType="primary"
       nzSize="small"
       class="px-5 mr-2 bg-darker"

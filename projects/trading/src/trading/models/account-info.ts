@@ -1,5 +1,8 @@
+import { Id } from 'communication';
+
 export interface AccountInfo {
   accountBalance: number;
+  connectionId: Id;
   closedPnl: number;
   openPnl: number;
   cashOnHand: number;

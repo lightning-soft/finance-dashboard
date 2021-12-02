@@ -28,7 +28,7 @@
             </li>
             <div *ngIf="group.expanded">
               <div (click)="addIndicator(indicator)" class="indicator-item"
-                   nz-tooltip [nzTooltipTitle]="description"
+                   nz-tooltip [nzTooltipTitle]="descriptionEnabled[indicator] && description"
                    (mouseenter)="fetchDescription(indicator)"
                    nzPlacement="rightTop"
                    [nzTooltipOverlayClassName]="'indicator-tooltip'"
@@ -58,7 +58,8 @@
             cdkDrag
             cdkDragPreviewClass=""
             class="current-indicators"
-            [class.selected]="isSelected(item)"><i class="icon-visible"></i>{{item.name}}
+            [class.selected]="isSelected(item)"><i class="icon-visible"></i>
+          <span [title]="item.name" class="indicator-name">{{item.name}}</span>
           <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-bucket ml-auto"></i>
         </li>
       </cdk-virtual-scroll-viewport>

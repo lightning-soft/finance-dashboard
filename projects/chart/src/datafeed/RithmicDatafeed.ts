@@ -1,15 +1,13 @@
 import { Injectable, Injector } from '@angular/core';
 import { concat, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { HistoryRepository, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
-import { IBar } from '../models';
+import { HistoryRepository, IAccount, IInstrument, InstrumentsRepository, TradeDataFeed, TradePrint } from 'trading';
 import { Datafeed } from './Datafeed';
 import { IBarsRequest, IQuote as ChartQuote, IRequest } from './models';
-import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from './TimeFrame';
+import { StockChartXPeriodicity, TimeFrame } from './TimeFrame';
+import { NotifierService } from 'notifier';
 
-const defaultTimePeriod = { interval: 3, periodicity: StockChartXPeriodicity.WEEK };
 declare let StockChartX: any;
-export const MAX_HISTORY_ITEMS = 10000;
 
 @Injectable()
 export class RithmicDatafeed extends Datafeed {
@@ -24,14 +22,17 @@ export class RithmicDatafeed extends Datafeed {
     private _instrumentsRepository: InstrumentsRepository,
     private _historyRepository: HistoryRepository,
     private _tradeDataFeed: TradeDataFeed,
+    private _notifier: NotifierService,
   ) {
     super();
   }
 
   send(request: IBarsRequest) {
+    // for omit loading
+    if (request?.kind === 'moreBars')
+      return;
+
     super.send(request);
-    if (request.kind === 'bars')
-      this.subscribeToRealtime(request);
     this._loadData(request);
   }
 
@@ -44,6 +45,20 @@ export class RithmicDatafeed extends Datafeed {
     );
   }
 
+  changeAccount(account: IAccount) {
+    const _prevAcc = this._account;
+    super.changeAccount(account);
+    if (_prevAcc?.id != account?.id)
+      this.subscribeToRealtime();
+  }
+
+  changeInstrument(instrument: IInstrument) {
+    const _prevInst = this._instrument;
+    super.changeInstrument(instrument);
+    if (_prevInst?.id != instrument?.id)
+      this.subscribeToRealtime();
+  }
+
   private _loadData(request: IBarsRequest) {
     const { kind, chart } = request;
     const { instrument, timeFrame } = chart;
@@ -54,14 +69,18 @@ export class RithmicDatafeed extends Datafeed {
       return;
     }
 
+    if (kind === 'bars') {
+      endDate = new Date();
+    }
+
     if (!endDate)
       endDate = new Date();
 
     if (!startDate)
-      startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(defaultTimePeriod));
+      startDate = new Date(endDate.getTime() - TimeFrame.timeFrameToTimeInterval(request.chart.periodToLoad));
+    startDate.setHours(0, 0, 0, 0);
 
-    if (kind === 'bars')
-      this.lastInterval = endDate.getTime() - startDate.getTime();
+    this.lastInterval = endDate.getTime() - startDate.getTime();
 
     if (kind === 'moreBars') {
       startDate = new Date(endDate.getTime() - this.lastInterval);
@@ -69,21 +88,25 @@ export class RithmicDatafeed extends Datafeed {
 
       return;
     }
-
+    this.endDate = endDate;
     this.makeRequest(instrument, request, timeFrame, endDate, startDate);
   }
 
   makeRequest(instrument: IInstrument, request, timeFrame, endDate, startDate) {
-    const { symbol, exchange } = instrument;
+    const { exchange, symbol, productCode } = instrument;
+
+    const timeZoneOffset = this._getTimeZone();
 
     const params = {
-      Symbol: symbol,
+      productCode,
       Exchange: exchange,
+      Symbol: symbol,
       Periodicity: this._convertPeriodicity(timeFrame.periodicity),
-      BarSize: this._convertInterval(timeFrame),
+      BarSize: timeFrame.interval,
       endDate,
       accountId: this._account?.id,
       startDate,
+      timeZoneOffset,
       PriceHistory: true,
     };
 
@@ -99,16 +122,23 @@ export class RithmicDatafeed extends Datafeed {
     ).subscribe({
       next: (res) => {
         if (this.isRequestAlive(request)) {
-          this.onRequestCompleted(request, res.data);
+          this.onRequestCompleted(request, { bars: res.data, additionalInfo: res.additionalInfo, });
         }
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this._notifier.showError('Error during fetching history data');
+        console.error(err);
+      },
     });
     this.requestSubscriptions.set(request.id, subscription);
   }
 
-  protected onRequestCompleted(request: IBarsRequest, bars: IBar[]) {
-    super.onRequestCompleted(request, bars);
+  protected onRequestCompleted(request: IBarsRequest, response) {
+    if (this._chart == null) {
+      this._chart = request.chart;
+      this.subscribeToRealtime();
+    }
+    super.onRequestCompleted(request, response);
     this.requestSubscriptions.delete(request.id);
   }
 
@@ -126,7 +156,7 @@ export class RithmicDatafeed extends Datafeed {
       case StockChartXPeriodicity.YEAR:
         return 'Yearly';
       case StockChartXPeriodicity.MONTH:
-        return 'Mounthly';
+        return 'Monthly';
       case StockChartXPeriodicity.WEEK:
         return 'Weekly';
       case StockChartXPeriodicity.DAY:
@@ -137,30 +167,38 @@ export class RithmicDatafeed extends Datafeed {
         return 'Minute';
       case StockChartXPeriodicity.SECOND:
         return 'Second';
+      case StockChartXPeriodicity.REVS:
+        return 'REVS';
+      case StockChartXPeriodicity.VOLUME:
+        return 'VOLUME';
+      case StockChartXPeriodicity.RANGE:
+        return 'RANGE';
+      case StockChartXPeriodicity.RENKO:
+        return 'RENKO';
       case StockChartXPeriodicity.TICK:
         return 'TICK';
       default:
-        return 'Second';
+        return 'TICK';
     }
   }
 
-  _convertInterval(frame: ITimeFrame): number {
-    if (customTimeFrames.includes(frame.periodicity)) {
-      return 1;
-    }
-    return frame.interval;
-  }
-
-  subscribeToRealtime(request: IBarsRequest) {
-    const instrument = this._getInstrument(request);
+  subscribeToRealtime() {
+    const instrument = this._instrument;
+    const account = this._account;
+    if (!instrument || !account || !this._chart)
+      return;
 
     this._unsubscribe();
+    const connId = this._account?.connectionId;
+    if (connId == null)
+      return;
 
-    this._tradeDataFeed.subscribe(instrument, this._account.connectionId);
 
-    this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, this._account.connectionId));
+    this._tradeDataFeed.subscribe(instrument, connId);
+
+    this._unsubscribeFns.push(() => this._tradeDataFeed.unsubscribe(instrument, connId));
     this._unsubscribeFns.push(this._tradeDataFeed.on((quote: TradePrint, connectionId) => {
-      if (connectionId !== this._account.connectionId)
+      if (connectionId !== connId)
         return;
 
       const quoteInstrument = quote.instrument;
@@ -178,7 +216,7 @@ export class RithmicDatafeed extends Datafeed {
           side: quote.side,
         } as any;
 
-        this.processQuote(request, _quote);
+        this.processQuote({ chart: this._chart } as any, _quote);
       }
     }));
   }
@@ -202,7 +240,10 @@ export class RithmicDatafeed extends Datafeed {
     this._destroy.complete();
     this._unsubscribe();
   }
-}
 
-const customTimeFrames = [StockChartXPeriodicity.RANGE, StockChartXPeriodicity.RENKO,
-  StockChartXPeriodicity.VOLUME, StockChartXPeriodicity.TICK, StockChartXPeriodicity.REVS];
+  private _getTimeZone() {
+    var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+    return (offset < 0 ? "" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2) + ":00";
+  }
+
+}

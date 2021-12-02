@@ -2,7 +2,6 @@ image: registry.git.avidi.tech/docker/teracy/angular-cli:latest
 
 stages:
     - install
-    # - test
     - build
     - deploy
 
@@ -15,39 +14,18 @@ stages:
 
 install:
     stage: install
+    rules:
+        - if: $CI_COMMIT_TAG == null
     extends: .libs-cache
     script:
+        - apt-get update
+        - apt-get install libgnutls30
         - npm i
-
-# lint:
-#     extends: .libs-cache
-#     stage: test
-#     cache:
-#         policy: pull
-#     script:
-#         - npm run lint
-
-# test:
-#     image: trion/ng-cli-karma
-#     allow_failure: true
-#     extends: .libs-cache
-#     stage: test
-#     cache:
-#         policy: pull
-#     script:
-#         - npm run test:prod
-
-# e2e:
-#     image: trion/ng-cli-karma
-#     extends: .libs-cache
-#     stage: test
-#     cache:
-#         policy: pull
-#     script:
-#         - npm run e2e
 
 build-web-ssr:
     stage: build
+    rules:
+        - if: $CI_COMMIT_TAG == null
     tags:
         - docker
     cache:
@@ -59,53 +37,21 @@ build-web-ssr:
         paths:
             - dist/
     script:
-        # - npm run build:ssr
+        - apt-get update
+        - apt-get install libgnutls30
         - npm install --save-dev @angular-devkit/build-angular
         - npm run build:static
-        - cd dist/browser/assets
-        - ls -l
-        - cd ../
-    # after_script:
-    #     - npm run test:ssr
-# .deploy:
-#     image: docker:latest
-#     stage: deploy
-#     services:
-#         - docker:dind
-#     cache:
-#         policy: pull
-#         paths:
-#             - dist/
-#     before_script:
-#         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-#     tags:
-#         - docker
-#     script:
-#         - docker build -t "$IMAGE" --force-rm --no-cache -f Dockerfile.ssr .
-#         - docker push $IMAGE
-#     after_script:
-#         - docker logout
-
-# deploy-develop:
-#     variables:
-#         IMAGE: $CI_REGISTRY_IMAGE:develop
-#     extends: .deploy
-#     only:
-#         - develop
-#         - master
 
 deploy-latest:
     stage: deploy
     services:
         - registry.gitlab.com/docker.hub/docker:dind
     image: registry.gitlab.com/docker.hub/docker:latest
+    rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     cache:
         paths:
             - dist/
-    only:
-        - develop
-        - charts
-        - ci
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
@@ -115,22 +61,19 @@ deploy-latest:
     tags:
         - docker
 
-deploy-stable:
-    stage: deploy
-    services:
-        - registry.gitlab.com/docker.hub/docker:dind
-    image: registry.gitlab.com/docker.hub/docker:latest
-    cache:
-        paths:
-            - dist/
-    only:
-        - master
-        - ci
-    script:
-        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-        - docker build --tag $CONTAINER_IMAGE:stable .
-        - docker push $CONTAINER_IMAGE:stable
-        - docker logout
-    tags:
-        - docker
+deploy-stage-from-latest:
+  stage: deploy
+  image: docker:latest
+  services:
+      - docker:dind
+  rules:
+      - if: $CI_COMMIT_TAG != null
+  script:
+      - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
+      - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+      - docker pull $CONTAINER_IMAGE:latest
+      - docker tag $CONTAINER_IMAGE:latest $CONTAINER_IMAGE:stage
+      - docker push $CONTAINER_IMAGE:stage
+      - docker logout
+  tags:
+      - docker

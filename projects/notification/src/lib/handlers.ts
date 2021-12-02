@@ -4,10 +4,10 @@ import { AlertType } from 'communication';
 import { OrderStatus } from 'trading';
 // Need long import otherwise there is circular dependency
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
+import { ConnectionMessageAggregate } from './connection-message.aggregate';
 
-const timeOffset = 3000;
-const notificationSendOffset = 3 * 60 * 1000;
-const maxTimeOffset = 10800000; // 3 hours
+const successConnectionMessage = new ConnectionMessageAggregate();
+const failureConnectionMessage = new ConnectionMessageAggregate();
 
 const errorAlerts = [
   AlertType.ServiceError,
@@ -21,30 +21,28 @@ const connectionsErrors = [
 
 const connectedAlerts = [AlertType.ConnectionOpened, AlertType.LoginComplete];
 
-let lastSentNotification = 0;
 
 export const handlers = {
   DEFAULT: (msg) => {
-    if (msg.type === RealtimeType.Bar)
-      return;
-
-    const now =  Date.now();
-    const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > timeOffset && timeDelay < maxTimeOffset;
-    const shouldSendNtf = now > lastSentNotification + notificationSendOffset;
-    if (hasDelay && shouldSendNtf) {
-      lastSentNotification = now;
+    if (msg.type === RealtimeType.Delay) {
       return new Notification({
-        body: `Check your internet connection. Delay is ${ timeDelay / 1000 }s.`,
+        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
         title: 'Connection',
-        timestamp: now,
+        timestamp: msg.result.now,
+        icon: 'notication-default',
+      });
+    } else if (msg.type === RealtimeType.Activity) {
+      return new Notification({
+        body: `Connection ${msg.result.connection.name} doesn't emit data. There may be problems with connection.`,
+        title: 'Connection',
+        timestamp: Date.now(),
         icon: 'notication-default',
       });
     }
   },
 
   [MessageTypes.CONNECT]: (msg) => {
-    const { type, timestamp } = msg.result;
+    const { type, timestamp, connectionId } = msg.result;
 
     let icon;
     let message;
@@ -62,6 +60,13 @@ export const handlers = {
       icon = 'notication-default';
       message = msg.result.message ?? '';
     }
+
+    const params = { msg, connectionId, icon, type, timestamp };
+    if (type === AlertType.LoginComplete)
+      return getConnectionNotification(successConnectionMessage, params);
+
+    if (type === AlertType.ConnectionClosed)
+      return getConnectionNotification(failureConnectionMessage, params);
 
     return new Notification({
       body: message,
@@ -87,12 +92,33 @@ export const handlers = {
 
     return new Notification({
       type: msg.type,
-      title: `${msg.type} ${msg.result.status}`,
-      body: `${msg.result.type} ${msg.result.side} ${msg.result.quantity} ${msg.result.instrument.symbol}`,
+      title: `${ msg.type } ${ msg.result.status }`,
+      body: `${ msg.result.type } ${ msg.result.side } ${ msg.result.quantity } ${ msg.result.instrument.symbol }`,
       icon: 'notifcation-error'
     });
   }
 };
+
+function getConnectionNotification(aggregate, { msg, connectionId, icon, type, timestamp }) {
+  if (aggregate.hasOwnProperty(`${ connectionId }`)) {
+    aggregate[connectionId] = {};
+    aggregate.message += `${ msg.result.message }\n`;
+
+    if (aggregate.isFull()) {
+      const notification = new Notification({
+        body: aggregate.message,
+        title: 'Connection',
+        icon,
+        type,
+        timestamp
+      });
+      aggregate.clear();
+      return notification;
+    }
+    return false;
+
+  }
+}
 
 export const reducer = (msg) => {
   const handler = handlers[msg.type] || handlers.DEFAULT;

@@ -23,9 +23,9 @@
         class="black-btn popover-btn" (click)="showAmount = true; updateType(slType.LMT)" nz-button>STP LMT
       </button>
     </div>
-    <div *ngIf="showAmount" class="d-flex align-items-center">
+    <div *ngIf="showAmount" class="d-grid amount-container">
       <label class="amount" for="amount">Amount</label>
-      <input class="amount-control" id="amount" formControlName="amount" nz-input type="number">
+      <nz-input-number class="amount-control" id="amount" formControlName="amount" ></nz-input-number>
     </div>
     <nz-select nzOptionHeightPx="24" formControlName="unit" class="popover-select">
       <nz-option nzValue="points" nzLabel="Points"></nz-option>

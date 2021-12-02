@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -11,15 +12,18 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
-import { FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate } from 'chart/models';
 import { ExcludeId } from 'communication';
+import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { LazyLoadingService } from 'lazy-assets';
 import { LoadingService } from 'lazy-modules';
+import * as clone from 'lodash.clonedeep';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NotifierService } from 'notifier';
+import { filterByConnectionAndInstrument } from 'real-trading';
 import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
 import { TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
@@ -34,6 +38,7 @@ import {
   IOrder,
   IPosition,
   IQuote,
+  ISession,
   Level1DataFeed,
   OHLVFeed,
   OrderSide,
@@ -43,20 +48,30 @@ import {
   QuoteSide,
   UpdateType
 } from 'trading';
-import { CreateModalComponent } from 'ui';
+import { ConfirmModalComponent, CreateModalComponent, RenameModalComponent } from 'ui';
 import { IWindow, WindowManagerService } from 'window-manager';
+import { InstrumentFormatter } from '../../data-grid/src/models/formatters/instrument.formatter';
+import { SettingsItems } from './chart-settings/chart-settings.component';
+import {
+  chartReceiveKey,
+  chartSettings,
+  defaultChartSettings,
+  IChartSettings,
+  IsAutomaticPixelPrice
+} from './chart-settings/settings';
 import { Datafeed, RithmicDatafeed } from './datafeed';
 import { StockChartXPeriodicity } from './datafeed/TimeFrame';
-import { ConfirmOrderComponent } from './modals/confirm-order/confirm-order.component';
+import { InfoComponent } from './info/info.component';
 import { IChart } from './models/chart';
 import { IChartConfig } from './models/chart.config';
 import { IScxComponentState } from './models/scx.component.state';
 import { Orders, Positions } from './objects';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { filterByConnectionAndInstrument } from 'real-trading';
-import { chartReceiveKey, chartSettings, defaultChartSettings, IChartSettings } from './chart-settings/settings';
-import * as clone from 'lodash.clonedeep';
-import { ChangeDetectorRef } from '@angular/core';
+import { customVolumeProfileSettings } from './volume-profile-custom-settings/volume-profile-custom-settings.component';
+import {
+  IVolumeTemplate,
+  VolumeProfileTemplatesRepository
+} from './volume-profile-custom-settings/volume-profile-templates.repository';
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -80,27 +95,221 @@ export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 @BindUnsubscribe()
 export class ChartComponent implements AfterViewInit, OnDestroy {
   loading: boolean;
+  formatter = InstrumentFormatter.forInstrument();
 
   @HostBinding('class.chart-unavailable') isChartUnavailable: boolean;
   @ViewChild('chartContainer')
   chartContainer: ElementRef;
   @ViewChild(ToolbarComponent) toolbar;
   @ViewChild(SideOrderFormComponent) private _sideForm: SideOrderFormComponent;
+  @ViewChild('chartForm') chartForm: SideOrderFormComponent;
+
+  session: ISession;
 
   @Input() window: IWindow;
 
   chart: IChart;
   link: string;
+  activeIndicator: any;
 
   get chartLink() {
     return `chart-${this.link}`;
   }
 
+  keysStack: KeyboardListener = new KeyboardListener();
+
   directions = ['window-left', 'window-right'];
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
-  showOrderConfirm = true;
+
+  get showOrderConfirm(): boolean {
+    return this.settings.trading.trading.showOrderConfirm;
+  }
+
+  set showOrderConfirm(value: boolean) {
+    this.settings.trading.trading.showOrderConfirm = value;
+    this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
+
+  get showCancelConfirm() {
+    return this.settings.trading.trading.showCancelConfirm;
+  }
+
+  set showCancelConfirm(value) {
+    this.settings.trading.trading.showCancelConfirm = value;
+    this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
+
+  intervalOptions = [
+    {
+      active: false,
+      period: 'AMS REVS Bar',
+      periodicities: [StockChartXPeriodicity.REVS],
+      timeFrames: [{
+        interval: 4, periodicity: StockChartXPeriodicity.REVS,
+      },
+        { interval: 8, periodicity: StockChartXPeriodicity.REVS },
+        { interval: 12, periodicity: StockChartXPeriodicity.REVS },
+        { interval: 16, periodicity: StockChartXPeriodicity.REVS },
+      ]
+    },
+    {
+      active: false,
+      period: 'Seconds',
+      periodicities: [StockChartXPeriodicity.SECOND],
+      timeFrames: [
+        { interval: 30, periodicity: StockChartXPeriodicity.SECOND },
+        { interval: 40, periodicity: StockChartXPeriodicity.SECOND },
+      ]
+    },
+    {
+      active: false,
+      period: 'Minutes',
+      periodicities: [StockChartXPeriodicity.MINUTE],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 3, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 5, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 15, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+        {
+          interval: 30, periodicity: StockChartXPeriodicity.MINUTE,
+        },
+      ],
+    },
+    {
+      active: false,
+      period: 'Hours',
+      periodicities: [StockChartXPeriodicity.HOUR],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.HOUR,
+
+        },
+        {
+          interval: 2, periodicity: StockChartXPeriodicity.HOUR,
+        },
+        {
+          interval: 3, periodicity: StockChartXPeriodicity.HOUR,
+        },
+        {
+          interval: 4, periodicity: StockChartXPeriodicity.HOUR,
+        }
+      ]
+    },
+    {
+      active: false,
+      period: 'Days',
+      periodicities: [StockChartXPeriodicity.DAY, StockChartXPeriodicity.MONTH, StockChartXPeriodicity.WEEK, StockChartXPeriodicity.YEAR],
+      timeFrames: [
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.DAY,
+        },
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.WEEK,
+        },
+        {
+          interval: 1, periodicity: StockChartXPeriodicity.MONTH,
+        }
+      ]
+    },
+    {
+      active: false,
+      period: 'Range',
+      periodicities: [StockChartXPeriodicity.RANGE],
+      timeFrames: [{
+        interval: 5, periodicity: StockChartXPeriodicity.RANGE,
+      },
+        { interval: 10, periodicity: StockChartXPeriodicity.RANGE },
+        { interval: 15, periodicity: StockChartXPeriodicity.RANGE },
+      ]
+    },
+    {
+      active: false,
+      period: 'Renko',
+      periodicities: [StockChartXPeriodicity.RENKO],
+      timeFrames: [{
+        interval: 4, periodicity: StockChartXPeriodicity.RENKO,
+      },
+        { interval: 5, periodicity: StockChartXPeriodicity.RENKO },
+        { interval: 10, periodicity: StockChartXPeriodicity.RENKO },
+      ]
+    },
+
+    {
+      active: false,
+      period: 'Volume',
+      periodicities: [StockChartXPeriodicity.VOLUME],
+      timeFrames: [{
+        interval: 1000, periodicity: StockChartXPeriodicity.VOLUME,
+      },
+        { interval: 2500, periodicity: StockChartXPeriodicity.VOLUME },
+        { interval: 5000, periodicity: StockChartXPeriodicity.VOLUME }
+      ]
+    },
+    {
+      active: false,
+      period: 'Ticks',
+      periodicities: [StockChartXPeriodicity.TICK],
+      timeFrames: [
+        { interval: 500, periodicity: StockChartXPeriodicity.TICK },
+        { interval: 1000, periodicity: StockChartXPeriodicity.TICK },
+        { interval: 5000, periodicity: StockChartXPeriodicity.TICK },
+
+      ]
+    },
+
+  ];
+  periodOptions = [
+    {
+      period: 'Days',
+      active: false,
+      periodicity: StockChartXPeriodicity.DAY,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.DAY },
+        { interval: 3, periodicity: StockChartXPeriodicity.DAY },
+        { interval: 5, periodicity: StockChartXPeriodicity.DAY },
+
+      ]
+    },
+    {
+      period: 'Weeks',
+      active: false,
+      periodicity: StockChartXPeriodicity.WEEK,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.WEEK },
+        { interval: 2, periodicity: StockChartXPeriodicity.WEEK },
+        { interval: 3, periodicity: StockChartXPeriodicity.WEEK },
+      ]
+    },
+    {
+      period: 'Months',
+      active: false,
+      periodicity: StockChartXPeriodicity.MONTH,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.MONTH },
+        { interval: 3, periodicity: StockChartXPeriodicity.MONTH },
+        { interval: 6, periodicity: StockChartXPeriodicity.MONTH },
+      ]
+    },
+    {
+      period: 'Years',
+      active: false,
+      periodicity: StockChartXPeriodicity.YEAR,
+      timeFrames: [
+        { interval: 1, periodicity: StockChartXPeriodicity.YEAR },
+        { interval: 2, periodicity: StockChartXPeriodicity.YEAR },
+      ]
+    },
+  ];
 
   ocoStep = OcoStep.None;
   firstOcoOrder: IOrder;
@@ -120,6 +329,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   set account(value: IAccount) {
     this._account = value;
     this.datafeed.changeAccount(value);
+    this._updateSubscriptions();
     this.refresh();
   }
 
@@ -139,6 +349,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (this.chart.instrument?.id === instrument.id)
       return;
 
+    this.datafeed.changeInstrument(instrument);
+    this.formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
     this.chart.incomePrecision = instrument.precision ?? 2;
@@ -149,29 +361,19 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.income = null;
     this.incomePercentage = null;
     this._updateOHLVData();
-
-    const connectionId = this.account?.connectionId;
-
-    if (connectionId != null) {
-      this._ohlvFeed.subscribe(instrument, connectionId);
-      this._levelOneDatafeed.subscribe(instrument, connectionId);
-    }
-    this.unsubscribe(() => {
-      this._ohlvFeed.unsubscribe(instrument, connectionId);
-      this._levelOneDatafeed.unsubscribe(instrument, connectionId);
-    });
+    this._updateSubscriptions();
   }
 
   private _loadedState$ = new BehaviorSubject<IChartState>(null);
   loadedTemplate: IChartTemplate;
   isTradingEnabled = true;
 
+  loadedCustomeVolumeTemplate: any;
+
   private _loadedChart$ = new ReplaySubject<IChart>(1);
 
-  bestAskPrice: number;
-  bestBidPrice: number;
-  bidSize: number;
-  askSize: number;
+  @ViewChild(InfoComponent)
+  info: InfoComponent;
 
   position: IPosition;
   private _orders: Orders;
@@ -186,11 +388,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   contextEvent: MouseEvent;
 
+  _customeVolumeSetting: any;
+
   constructor(
     public injector: Injector,
     protected _lazyLoaderService: LazyLoadingService,
     protected _themesHandler: ThemesHandler,
-    protected _elementRef: ElementRef,
     private nzContextMenuService: NzContextMenuService,
     protected datafeed: Datafeed,
     private _ordersRepository: OrdersRepository,
@@ -204,7 +407,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
     private _windowManager: WindowManagerService,
-    private _changeDetectorRef: ChangeDetectorRef
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository
   ) {
     this.setTabIcon('icon-widget-chart');
     this.setNavbarTitleGetter(this._getNavbarTitle.bind(this));
@@ -215,6 +419,39 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this._ohlvFeed.on(filterByConnectionAndInstrument(this, (ohlv) => this._handleOHLV(ohlv))),
       this._levelOneDatafeed.on(filterByConnectionAndInstrument(this, (quote) => this._handleQuote(quote))),
     );
+  }
+
+  private _updateSubscriptions() {
+    const connectionId = this.account?.connectionId;
+    const instrument = this.instrument;
+    if (connectionId != null && instrument != null) {
+      this._ohlvFeed.subscribe(instrument, connectionId);
+      this._levelOneDatafeed.subscribe(instrument, connectionId);
+      this.unsubscribe(() => {
+        this._ohlvFeed.unsubscribe(instrument, connectionId);
+        this._levelOneDatafeed.unsubscribe(instrument, connectionId);
+      });
+    }
+
+  }
+
+  createCustomVolumeProfile(template: IVolumeTemplate): void {
+    const indicator = new StockChartX.CustomVolumeProfile();
+
+    this.chart.addIndicators(indicator);
+    indicator.start();
+
+    if (template?.settings) {
+      indicator.settings = template.settings;
+      indicator.templateId = template.id;
+    }
+
+    this.chart.setNeedsUpdate();
+  }
+
+  removeCustomeVolumeProfile(): void {
+    this.chart.removeIndicators(this.activeIndicator);
+    this.chart.setNeedsUpdate();
   }
 
   async ngAfterViewInit() {
@@ -232,9 +469,14 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       if (this.loadedTemplate)
         this.loadedTemplate = data.items.find(i => this.loadedTemplate.id === i.id);
     });
+
+    this.chartForm?.loadState(this.settings.trading.orderArea as any);
+
+    this._loadTemplateList();
+    this._subscribeToHotKey();
   }
 
-  private _updateOHLVData() {
+  _updateOHLVData = () => {
     if (this.lastHistoryItem?.open != null) {
       this.income = +(this.lastHistoryItem.close - this.lastHistoryItem.open).toFixed(this.instrument.precision);
       const incomePercentage = (this.income / this.lastHistoryItem.open) * 100;
@@ -245,7 +487,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       high: this.lastHistoryItem?.high,
       low: this.lastHistoryItem?.low,
       open: this.lastHistoryItem?.open,
-      income: this.income,
+      income: this.formatter.format(this.income),
       incomePercentage: this.incomePercentage,
     });
   }
@@ -259,28 +501,28 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.lastHistoryItem = historyItem;
-    this._updateOHLVData();
-
+    requestAnimationFrame(this._updateOHLVData);
   }
 
   private _handleQuote(quote: IQuote) {
-    if (quote.updateType === UpdateType.Undefined) {
-      if (quote.side === QuoteSide.Ask) {
-        this.bestAskPrice = quote.price;
-        this.askSize = quote.volume;
-      } else {
-        this.bestBidPrice = quote.price;
-        this.bidSize = quote.volume;
-      }
-      this._changeDetectorRef.detectChanges();
+    if (quote.updateType !== UpdateType.Undefined)
+      return;
+
+    const bestQuote = { price: this.getQuoteInfo(quote.price), volume: quote.volume };
+    if (quote.side === QuoteSide.Ask) {
+      this.info.handleBestAsk(bestQuote);
+    } else {
+      this.info.handleBestBid(bestQuote);
     }
   }
 
   toggleTrading(): void {
     if (!this.isTradingEnabled) {
       this._tradeHandler.enableTrading();
+      this.isTradingEnabled = true;
     } else {
       this.isTradingEnabled = false;
+      this._tradeHandler.showDisableTradingAlert();
     }
   }
 
@@ -298,16 +540,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart)
       return;
 
+    this.settings.trading.orderArea = this.chartForm.getState() as any;
+
     return {
       showOHLV: this.showOHLV,
       showChanges: this.showChanges,
       showChartForm: this.showChartForm,
       enableOrderForm: this.enableOrderForm,
       link: this.link,
-      showOrderConfirm: this.showOrderConfirm,
+      showCancelConfirm: this.showCancelConfirm,
       instrument: chart.instrument,
       timeFrame: chart.timeFrame,
+      periodToLoad: chart.periodToLoad,
       stockChartXState: chart.saveState(),
+      intervalOptions: this.toolbar.intervalOptions,
+      periodOptions: this.toolbar.periodOptions,
       componentInstanceId: this.componentInstanceId,
       settings: this.settings,
     } as IChartState;
@@ -325,8 +572,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.showOHLV = state?.showOHLV;
     this.enableOrderForm = state?.enableOrderForm;
     this.showChartForm = state?.showChartForm;
-    if (state?.hasOwnProperty('showOrderConfirm'))
-      this.showOrderConfirm = state?.showOrderConfirm;
     if (state?.hasOwnProperty('settings'))
       this.settings = state.settings;
 
@@ -343,9 +588,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._handleSettingsChange(this.settings);
 
     this.instrument = state?.instrument ?? {
-      id: 'ESU1.CME',
-      symbol: 'ESU1',
+      id: 'ESZ1.CME',
+      symbol: 'ESZ1',
       exchange: 'CME',
+      productCode: 'ES',
+      description: 'E-Mini S&P 500 Dec21',
       tickSize: 0.25,
       precision: 2,
       company: this._getInstrumentCompany(),
@@ -364,6 +611,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     chart.on(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
     chart.on(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
     chart.on(StockChartX.PanelEvent.CONTEXT_MENU, this._handleContextMenu);
+    chart.on(StockChartX.ValueScaleEvents.ContextMenu, this._handleValueScaleContextMenu);
     chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
     this._themesHandler.themeChange$
       .pipe(untilDestroyed(this))
@@ -386,7 +634,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (state.instrument && state.instrument.id != null) {
           this.instrument = state.instrument; // todo: test it
         }
-
+        if (state.periodToLoad != null) {
+          chart.periodToLoad = state.periodToLoad;
+        }
         if (state.timeFrame != null) {
           chart.timeFrame = state.timeFrame;
         }
@@ -400,15 +650,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         this.enableOrderForm = state?.enableOrderForm;
         this.showChartForm = state?.showChartForm;
         this.checkIfTradingEnabled();
+        this._handleSettingsChange(this.settings);
       });
 
     this._loadedChart$.next(chart);
 
     this.broadcastData(this.chartLink, chart);
 
-    let charts = [];
-
-    if (!environment.production) {
+    if (environment.isDev) {
+      let charts = [];
       if (!(window as any).charts) {
         (window as any).charts = [];
       }
@@ -436,9 +686,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private _handleValueScaleContextMenu = (e) => {
+    this.contextEvent = e.target.evt.originalEvent;
+    this.openSettingsDialog(SettingsItems.ValueScale);
+    this._selectValueScale();
+  }
+
   private _handleContextMenu = (e) => {
+    this.activeIndicator = this.chart.indicators.find(i => i.isActive);
+
     const event = e.value.event.evt.originalEvent;
     this.contextEvent = event;
+
     this.nzContextMenuService.create(event, this.menu);
   }
 
@@ -476,11 +735,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       useWaitingBar: false,
       autoLoad: false,
       showInstrumentWatermark: false,
-      incomePrecision: state?.instrument.precision ?? 2,
+      incomePrecision: state?.instrument?.precision ?? 2,
       stayInDrawingMode: false,
       datafeed: this.datafeed,
       timeFrame: (state && state.timeFrame)
         ?? { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
+      periodToLoad: (state && state.periodToLoad)
+        ?? { interval: 3, periodicity: StockChartXPeriodicity.DAY },
       theme: getScxTheme(),
     } as IChartConfig);
   }
@@ -518,7 +779,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.refresh();
   }
 
-  handleNodeEvent(name: LayoutNodeEvent) {
+  handleNodeEvent(name: LayoutNodeEvent, data) {
     switch (name) {
       case LayoutNodeEvent.Close:
       case LayoutNodeEvent.Destroy:
@@ -537,7 +798,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       case LayoutNodeEvent.Move:
         this.toolbar.updateOffset();
         break;
+      case LayoutNodeEvent.Event:
+        return this._handleKey(data);
     }
+  }
+
+  private _handleKey(event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return false;
+    }
+    this.keysStack.handle(event);
+    this.toolbar.items.forEach(item => {
+      const hotkey = item.settings.general?.drawVPC;
+      if (hotkey) {
+        const keyBinding = KeyBinding.fromDTO(hotkey);
+        if (this.keysStack.equals(keyBinding))
+          this.createCustomVolumeProfile(item);
+      }
+    });
   }
 
   handleLinkData(data: any) {
@@ -571,17 +849,42 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (state?.componentInstanceId) {
       this.componentInstanceId = state.componentInstanceId;
     }
+    if (state?.intervalOptions)
+      this.intervalOptions = state.intervalOptions;
+    if (state?.periodOptions)
+      this.periodOptions = state.periodOptions;
 
     this.addLinkObserver({
       link: this._getSettingsKey(),
       layoutContainer: this.layoutContainer,
       handleLinkData: this._handleSettingsChange.bind(this),
     });
+    this.addLinkObserver({
+      link: this._getCustomVolumeProfileKey(),
+      layoutContainer: this.layoutContainer,
+      handleLinkData: this._handleCustomVolumeProfileSettingsChange.bind(this),
+    });
   }
 
   loadTemplate(template: IChartTemplate): void {
     this.loadedTemplate = template;
     this.loadState(template.state);
+  }
+
+  selectCustomeVolumeTemplate(template: IVolumeTemplate) {
+    if (this.activeIndicator?.templateId == template?.id)
+      return;
+
+    this.activeIndicator.templateId = template.id;
+    this.loadedCustomeVolumeTemplate = template;
+    this.activeIndicator.settings = template.settings;
+    //  this.chart?.setNeedsUpdate();
+  }
+
+  loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
+    this.loadedCustomeVolumeTemplate = template;
+
+    this.createCustomVolumeProfile(template.settings);
   }
 
   ngOnDestroy(): void {
@@ -599,6 +902,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       this.chart.off(StockChartX.ChartEvent.SHOW_WAITING_BAR, this._handleShowWaitingBar);
       this.chart.off(StockChartX.ChartEvent.HIDE_WAITING_BAR, this._handleHideWaitingBar);
       this.chart.off(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemoved);
+      this.chart.off(StockChartX.ValueScaleEvents.ContextMenu, this._handleValueScaleContextMenu);
       this.chart.destroy();
     }
 
@@ -655,35 +959,59 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._orders.clearOcoOrders();
   }
 
-  createOrderWithConfirm(config: Partial<IOrder>) {
+  createOrderWithConfirm(config: Partial<IOrder>, event) {
     if (!this.isTradingEnabled)
       return;
 
     if (this.showOrderConfirm) {
       const dto = this._sideForm.getDto();
-      this._modalService.create({
-        nzClassName: 'confirm-order',
-        nzIconType: null,
-        nzContent: ConfirmOrderComponent,
-        nzFooter: null,
-        nzComponentParams: {
-          order: { ...dto, ...config },
-        }
-      }).afterClose.subscribe((res) => {
-        if (res) {
-          if (res.create)
-            this.createOrder(config);
-          this.showOrderConfirm = !res.dontShowAgain;
-        }
-      });
+      const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
+      this.createConfirmModal({
+        order: { ...dto, ...config, ...priceSpecs },
+      }, event).afterClose
+        .pipe(untilDestroyed(this))
+        .subscribe((res) => {
+          if (res) {
+            if (res.create)
+              this.createOrder(config);
+            this.showOrderConfirm = !res.dontShowAgain;
+          }
+        });
     } else {
       this.createOrder(config);
     }
   }
 
+  async cancelOrderWithConfirm(order: IOrder, event) {
+    if (!this.showCancelConfirm)
+      return Promise.resolve({ create: true, dontShowAgain: !this.showCancelConfirm });
+
+    return this.createConfirmModal({
+      order,
+      prefix: 'Cancel'
+    }, event).afterClose.toPromise();
+  }
+
+  private createConfirmModal(params, event) {
+    return this._modalService.create({
+      nzClassName: 'confirm-order',
+      nzIconType: null,
+      nzContent: ConfirmOrderComponent,
+      nzFooter: null,
+      nzNoAnimation: true,
+      nzStyle: {
+        left: `${event.evt.clientX}px`,
+        top: `${event.evt.clientY}px`,
+      },
+      nzComponentParams: params
+    });
+  }
+
   createOrder(config: Partial<IOrder>) {
-    if (!this.isTradingEnabled)
+    if (!this.isTradingEnabled) {
+      this._notifier.showError('You can\'t create order when trading is locked');
       return;
+    }
 
     const isOCO = this.ocoStep !== OcoStep.None;
     const dto = { ...this.getFormDTO(), ...config };
@@ -804,14 +1132,49 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         name: result.name,
         type: Components.Chart
       };
-      this._templatesService.createItem(template).subscribe((template) => {
-        this.loadedTemplate = template;
-      }, error => this._notifier.showError(error, 'Failed to create Template'));
+      this._templatesService.createItem(template).subscribe(
+        (template) => {
+          this.loadedTemplate = template;
+        },
+        error => this._notifier.showError(error, 'Failed to create Template'));
     });
   }
 
+  private async _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
+    if (data == null)
+      return;
+
+    const isValid = await this._volumeProfileTemplatesRepository.validateHotkeyTemplate(data.template);
+
+    if (!isValid) {
+      data.template.settings.general.drawVPC = null;
+      this._notifier.showError('You can\'t set hotkey that is already taken');
+      this.broadcastData(this._getCustomVolumeProfileKey(), data);
+      return;
+    }
+
+    if (data?.template?.id) {
+      const indicators = this.chart.indicators.filter(i => i instanceof StockChartX.CustomVolumeProfile && i.templateId == data.template.id);
+      for (const indicator of indicators) {
+        indicator.settings = data.template.settings;
+      }
+    } else {
+      const indicator = this.chart.indicators.find(i => i === data.identificator);
+
+      if (indicator) {
+        indicator.settings = data.template.settings;
+      }
+    }
+  }
+
   private _handleSettingsChange(settings: IChartSettings) {
+    const session = settings.session?.sessionTemplate;
+
+    if (this.session?.id != session?.id || this.settings.session.sessionEnabled != settings.session.sessionEnabled) {
+      this.datafeed.setSession(settings.session.sessionEnabled ? session : null, this.chart);
+    }
     this.settings = settings;
+
     const { trading } = settings;
     const ordersEnabled = trading.trading.showWorkingOrders;
     this._orders.setVisibility(ordersEnabled);
@@ -822,39 +1185,119 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._sideForm.loadState({ settings: mapSettingsToSideFormState(settings) });
 
     this.chart.theme = theme;
-    let needAutoScale = false;
 
     if (oldTheme.tradingPanel.tradingBarLength != theme.tradingPanel.tradingBarLength ||
       theme.tradingPanel.tradingBarUnit != oldTheme.tradingPanel.tradingBarUnit) {
-      needAutoScale = true;
       this.chart.handleResize();
     }
 
-    this.chart.setNeedsUpdate(needAutoScale);
+    const pixelsPrice = settings?.valueScale?.valueScale.pixelsPrice ?? 0;
+    const isAutomatic = settings?.valueScale?.valueScale?.isAutomatic;
+    this.chart.setPixelsPrice(pixelsPrice);
+
+    switch (isAutomatic) {
+      case IsAutomaticPixelPrice.AUTOMATIC:
+        this.chart.setValueScaleType(IsAutomaticPixelPrice.AUTOMATIC);
+        this.chart.setPixelsPrice(0);
+        setTimeout(() => {
+          this.chart.setNeedsUpdate(true);
+        });
+        break;
+      case IsAutomaticPixelPrice.PIXELS_PRICE:
+        this.chart.setValueScaleType(IsAutomaticPixelPrice.PIXELS_PRICE);
+        this.chart.setPixelsPrice(pixelsPrice);
+        break;
+      default:
+        break;
+    }
+
+    if (!this.settings.valueScale) {
+      this.settings.valueScale = { valueScale: { pixelsPrice: 0, isAutomatic: IsAutomaticPixelPrice.AUTOMATIC } };
+    }
+    this.settings.valueScale.valueScale.pixelsPrice = this.chart.getPixelsPrice() ?? 0;
+
+    this.chart.setNeedsLayout();
+    this.chart.setNeedsUpdate();
   }
 
   private _getSettingsKey() {
     return `${this.componentInstanceId}.${chartSettings}`;
   }
 
-  openSettingsDialog(): void {
+  private _getCustomVolumeProfileKey() {
+    return `${this._getSettingsKey()}.cvp`;
+  }
+
+  openSettingsDialog(menuItem?: SettingsItems): void {
+    const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
-      return item?.options.componentState()?.state?.linkKey === this._getSettingsKey();
+      return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
     });
+
     if (widget)
       widget.focus();
     else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.screenX;
-        coords.y = this.contextEvent.screenY;
+        coords.x = this.contextEvent.clientX;
+        coords.y = this.contextEvent.clientY;
       }
       this.layout.addComponent({
         component: {
           name: chartSettings,
           state: {
-            linkKey: this._getSettingsKey(),
+            linkKey,
             settings: this.settings,
+            menuItem,
+          }
+        },
+        closeBtn: true,
+        single: false,
+        width: 618,
+        height: 475,
+        ...coords,
+        allowPopup: false,
+        closableIfPopup: true,
+        resizable: false,
+        removeIfExists: false,
+        minimizable: false,
+        maximizable: false,
+      });
+    }
+  }
+
+  private _selectValueScale(): void {
+    const linkKey = this._getSettingsKey();
+    this.broadcastData(chartReceiveKey + linkKey, { type: SettingsItems.ValueScale });
+  }
+
+  openVolumeSettingsDialog() {
+    if (!this.activeIndicator)
+      return;
+
+    const linkKey = this._getCustomVolumeProfileKey();
+    const widget = this.layout.findComponent((item: IWindow) => {
+      return item.type === Components.ChartVolumeSettings && (item.component as any).linkKey === linkKey;
+    });
+    if (widget) {
+      widget.focus();
+      console.log('w', widget);
+    } else {
+      const coords: any = {};
+      if (this.contextEvent) {
+        coords.x = this.contextEvent.clientX;
+        coords.y = this.contextEvent.clientY;
+      }
+      this.layout.addComponent({
+        component: {
+          name: customVolumeProfileSettings,
+          state: {
+            linkKey,
+            identificator: this.activeIndicator,
+            template: {
+              id: this.activeIndicator.templateId,
+              settings: this.activeIndicator?.settings,
+            },
           }
         },
         closeBtn: true,
@@ -883,6 +1326,98 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings.trading.trading.showOHLVInfo = this.showOHLV;
     this.settings.trading.trading.showInstrumentChange = this.showChanges;
     this.broadcastData(chartReceiveKey + this._getSettingsKey(), this.settings);
+  }
+
+  saveCustomVolume(): void {
+    if (!this.loadedCustomeVolumeTemplate)
+      return;
+
+    const template: IVolumeTemplate = {
+      id: this.loadedCustomeVolumeTemplate.id,
+      name: this.loadedCustomeVolumeTemplate.name,
+      settings: this.activeIndicator?.settings
+    };
+
+    this._volumeProfileTemplatesRepository.updateItem(template)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        this.loadedCustomeVolumeTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to save Template'));
+  }
+
+  saveAsCustomVolume(): void {
+    const modal = this._modalService.create({
+      nzTitle: 'Save as',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (!result)
+        return;
+
+      const template: IVolumeTemplate = {
+        id: Date.now().toString(),
+        name: result,
+        settings: this.activeIndicator?.settings,
+      };
+      this._volumeProfileTemplatesRepository.createItem(template).subscribe((template) => {
+        this.loadedCustomeVolumeTemplate = template;
+      }, error => this._notifier.showError(error, 'Failed to create Template'));
+    });
+  }
+
+  editCustomProfile(template: IVolumeTemplate): void {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._volumeProfileTemplatesRepository.updateItem({ ...template, name }).subscribe();
+    });
+  }
+
+  deleteVolumeProfile(template: IVolumeTemplate): void {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+        this._volumeProfileTemplatesRepository.deleteItem(+template.id).subscribe();
+      }
+    });
+  }
+
+  private _loadTemplateList(): void {
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
+  }
+
+  private _subscribeToHotKey(): void {
+
   }
 }
 
@@ -966,10 +1501,8 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   theme.orderBar.orderBarLength = settings.trading.trading.orderBarLength;
   theme.orderBar.orderBarUnit = settings.trading.trading.orderBarUnit;
 
-  theme.tradingPanel = {
-    tradingBarLength: settings.trading.trading.tradingBarLength,
-    tradingBarUnit: settings.trading.trading.tradingBarUnit
-  };
+  theme.tradingPanel.tradingBarLength = settings.trading.trading.tradingBarLength;
+  theme.tradingPanel.tradingBarUnit = settings.trading.trading.tradingBarUnit;
 
   return theme;
 }
@@ -982,7 +1515,7 @@ function setBorderColor(barTheme, settings) {
 }
 
 function mapSettingsToSideFormState(settings) {
-  const orderAreaSettings = settings.trading.orderArea.settings
+  const orderAreaSettings = settings.trading.orderArea.settings;
   const sideOrderSettings: any = {};
   sideOrderSettings.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
   sideOrderSettings.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;

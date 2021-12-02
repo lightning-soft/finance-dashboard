@@ -30,6 +30,7 @@ export interface IOrder extends IBaseItem {
   accountId: Id;
   limitPrice?: number;
   stopPrice?: number;
+  timestamp?: number;
   currentSequenceNumber?: string;
 }
 

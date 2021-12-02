@@ -1,3 +1,8 @@
+import { Overlay } from '@angular/cdk/overlay';
+import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
+import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { PortalOutlet } from '@angular/cdk/portal/portal';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -9,37 +14,25 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { IInstrument } from 'trading';
-import { ITimeFrame, StockChartXPeriodicity } from '../datafeed/TimeFrame';
-import { IChart } from '../models/chart';
-import { NzDropDownDirective, NzDropdownMenuComponent } from 'ng-zorro-antd';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ItemsComponent } from 'base-components';
 import { Layout } from 'layout';
+import { NzDropDownDirective, NzDropdownMenuComponent, NzModalService, NzSelectComponent } from 'ng-zorro-antd';
 import { Components } from 'src/app/modules';
+import { IInstrument } from 'trading';
+import { ConfirmModalComponent, RenameModalComponent } from 'ui';
 import { Coords, EVENTS, IWindow } from 'window-manager';
-import { TemplatePortal } from '@angular/cdk/portal';
-import { Overlay } from '@angular/cdk/overlay';
-import { OverlayRef } from '@angular/cdk/overlay/overlay-ref';
-import { FlexibleConnectedPositionStrategy } from '@angular/cdk/overlay/position/flexible-connected-position-strategy';
-import { PortalOutlet } from '@angular/cdk/portal/portal';
+import { IStockChartXInstrument } from '../datafeed/models';
+import { ITimeFrame, StockChartXPeriodicity, TimeFrame } from '../datafeed/TimeFrame';
+import { IChart } from '../models/chart';
+import {
+  IVolumeTemplate,
+  VolumeProfileTemplatesRepository
+} from '../volume-profile-custom-settings/volume-profile-templates.repository';
 import drawings from './drawings';
+import { compareTimeFrames } from './frame-selector/frame-selector.component';
 
 declare const StockChartX;
-
-const periodicityMap = new Map([
-  ['t', 't'],
-  ['s', 's'],
-  ['', 'm'],
-  ['h', 'h'],
-  ['d', 'D'],
-  ['m', 'M'],
-  ['y', 'Y'],
-  ['w', 'W'],
-  ['revs', 'RV'],
-  ['r', 'RK'],
-  ['range', 'RG'],
-  ['v', 'V'],
-]);
 
 @UntilDestroy()
 @Component({
@@ -47,7 +40,7 @@ const periodicityMap = new Map([
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent implements PortalOutlet, AfterViewInit {
+export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements PortalOutlet, AfterViewInit {
   @Input() link: any;
   @Input() enableOrderForm = false;
   @Input() window: IWindow;
@@ -56,12 +49,16 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   @Output() enableOrderFormChange = new EventEmitter<boolean>();
   @ViewChild('menu2') menu: NzDropdownMenuComponent;
   @ViewChild(NzDropDownDirective, { static: true }) dropDownDirective: NzDropDownDirective;
+  @ViewChild('price', { static: true }) priceComp: NzSelectComponent;
 
   zoomDropdownVisible = false;
   crossOpen = false;
   priceOpen = false;
   showFramePopover = false;
 
+  get timePeriod() {
+    return this.chart?.periodToLoad;
+  }
 
   showToolbar = true;
   isDrawingsPinned = false;
@@ -78,6 +75,8 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     { interval: 1, periodicity: StockChartXPeriodicity.HOUR },
     { interval: 1, periodicity: StockChartXPeriodicity.MINUTE }
   ] as ITimeFrame[];
+  @Input() intervalOptions = [];
+  @Input() periodOptions = [];
 
   priceStyles = ['heikinAshi', 'bar', 'coloredHLBar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
@@ -116,8 +115,10 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     markers: 'Arrow with Markers',
     crossBars: 'Crosshairs',
   };
+
   shouldDrawingBeOpened = false;
   drawingMenuOffset: Coords = { x: 0, y: 0 };
+
   private _windowCoordsSnapshot: Coords;
   private _overlayRef: OverlayRef;
   private _positionStrategy: FlexibleConnectedPositionStrategy;
@@ -132,7 +133,17 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   //   "fibonacciTimeZones", "fibonacciExtensions", "andrewsPitchfork", "trendChannel", "errorChannel", "quadrantLines", "raffRegression",
   //   "tironeLevels", "speedLines", "gannFan", "trendAngle"];
 
-  drawingInstruments = drawings;
+  drawingInstruments = drawings.map(item => {
+    const formattedName = this.transformToUIName(item);
+    const classItem = this.transformToClassName(item);
+    return {
+      ...item, className: classItem, formattedName, items: item.items.map(subItem => {
+        const formattedSubName = this.transformToUIName(subItem);
+        const classSubItem = this.transformToClassName(subItem);
+        return { ...subItem, className: classSubItem, formattedName: formattedSubName };
+      }),
+    };
+  });
 
   @HostBinding('class.opened')
   get isOpened() {
@@ -161,7 +172,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       chart.instrument = {
         ...instrument,
         company: '',
-      };
+      } as IStockChartXInstrument;
       chart.sendBarsRequest();
     });
   }
@@ -183,14 +194,34 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     this.chart.crossHairType = value;
   }
 
+  @Output()
+  createCustomVolumeProfile = new EventEmitter();
+
+  @Output() loadedCustomeVolumeProfile = new EventEmitter<IVolumeTemplate>();
+
   constructor(private _cdr: ChangeDetectorRef,
               private elementRef: ElementRef,
-              private _overlay: Overlay) {
+              private _modalService: NzModalService,
+              private _overlay: Overlay,
+              protected _repository: VolumeProfileTemplatesRepository) {
+    super();
+    this._repository.updateAll$
+      .pipe(untilDestroyed(this))
+      .subscribe((items) => {
+        this.builder.replaceItems(items);
+      });
+    this.autoLoadData = {
+      onInit: true,
+      onParamsChange: false,
+      onQueryParamsChange: false,
+      onConnectionChange: false,
+    };
+
   }
 
   ngAfterViewInit() {
     (this.dropDownDirective as any).overlayRef = this;
-
+    this.loadData();
     this._positionStrategy = this._overlay
       .position()
       .flexibleConnectedTo((this.dropDownDirective as any).elementRef.nativeElement)
@@ -203,9 +234,14 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
       overlayX: 'start',
       overlayY: 'top',
     }]);
-
+    // need to specify two classes for select component. Impossible via default input passing
+    this.priceComp.cdkConnectedOverlay.panelClass = ['toolbar-dropdown', 'price-style-dropdown' ];
     this.window.on(EVENTS.FOCUS, this._updateOverlayZIndex.bind(this));
     this.window.on(EVENTS.BLUR, this._updateOverlayZIndex.bind(this));
+
+    // this._volumeProfileTemplatesRepository.subscribe((data) => {
+    //   this.customeVolumeTemplate = data?.items || [];
+    // });
   }
 
   // #region OverlayRef
@@ -247,7 +283,7 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     const overlayContainer = this._overlayRef?.hostElement?.parentElement;
     setTimeout(() => {
       if (overlayContainer)
-      overlayContainer.style.zIndex = String(this.window.z);
+        overlayContainer.style.zIndex = String(this.window.z);
     });
   }
 
@@ -316,10 +352,6 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     }
   }
 
-  getShortTimeFrame(timeFrame: ITimeFrame): string {
-    return `${timeFrame.interval} ${periodicityMap.get(timeFrame.periodicity)}`;
-  }
-
   compareInstrumentDialog() {
     const { chart } = this;
 
@@ -335,7 +367,15 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
     });
   }
 
-  openIndicatorDialog() {
+  openIndicatorDialog($event) {
+    const widget = this.layout.findComponent((item: IWindow) => {
+      return item.type === Components.Indicators && (item.component as any).link === this.link;
+    });
+    if (widget) {
+      widget.focus();
+      return;
+    }
+
     this.layout.addComponent({
       component: {
         name: Components.Indicators,
@@ -345,13 +385,15 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
         },
       },
       width: 600,
+      x: $event.clientX,
+      y: $event.clientY,
       resizable: false,
       maximizable: false,
       allowPopup: false,
       closableIfPopup: true,
       minimizable: false,
-      single: true,
-      removeIfExists: true,
+      single: false,
+      removeIfExists: false,
     });
   }
 
@@ -419,6 +461,9 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
 
   public transformToClassName(drawing: any): string {
     const str = drawing?.className ?? drawing;
+    if (typeof str !== 'string')
+      return '';
+
     const className = str.replace(/[A-Z]/g, '-$&').toLowerCase();
     return className;
   }
@@ -426,5 +471,72 @@ export class ToolbarComponent implements PortalOutlet, AfterViewInit {
   toggleForm() {
     this.enableOrderForm = !this.enableOrderForm;
     this.enableOrderFormChange.emit(this.enableOrderForm);
+  }
+
+  createVolumeProfile() {
+    this.createCustomVolumeProfile.emit();
+  }
+
+  loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
+    this.loadedCustomeVolumeProfile.emit(template);
+  }
+
+  editCustomProfile(template: IVolumeTemplate): void {
+    const modal = this._modalService.create({
+      nzTitle: 'Edit name',
+      nzContent: RenameModalComponent,
+      nzClassName: 'modal-dialog-workspace',
+      nzWidth: 438,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        label: 'Template name',
+      },
+    });
+
+    modal.afterClose.subscribe(name => {
+      if (!name)
+        return;
+
+      this._repository.updateItem({ ...template, name }).subscribe();
+    });
+  }
+
+  deleteVolumeProfile(template: IVolumeTemplate): void {
+    const modal = this._modalService.create({
+      nzContent: ConfirmModalComponent,
+      nzWrapClassName: 'vertical-center-modal',
+      nzComponentParams: {
+        message: 'Do you want delete the template?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result && result.confirmed) {
+        this._repository.deleteItem(template.id).subscribe();
+      }
+    });
+  }
+
+  onIntervalAdded(frame: any) {
+    const intervalOption = this.intervalOptions
+      .find(item => {
+        return item.periodicities.includes(frame.periodicity);
+      });
+    const timeFrames = intervalOption.timeFrames;
+    if (timeFrames && !timeFrames.some(item => compareTimeFrames(item, frame))) {
+      timeFrames.push(frame);
+      intervalOption.timeFrames = TimeFrame.sortTimeFrames(timeFrames);
+    }
+  }
+
+  onPeriodAdded(frame: any) {
+    const period = this.periodOptions.find(item => item.periodicity === frame.periodicity);
+    const timeFrames = period?.timeFrames;
+    if (timeFrames && !timeFrames.some(item => item.interval === frame.interval)) {
+      timeFrames.push(frame);
+      period.timeFrames = timeFrames.sort((a, b) => a.interval - b.interval);
+    }
   }
 }

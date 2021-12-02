@@ -11,8 +11,7 @@ export enum ProfitStatus {
   Loss = 'loss',
   None = ''
 }
-export function getProfitStatus(cell) {
-  let status = ProfitStatus.None;
+export function getProfitStatus(cell, status = ProfitStatus.None) {
 
   if (cell.class === ProfitClass.DOWN)
     status = ProfitStatus.Loss;
@@ -101,7 +100,7 @@ export class NumberCell extends Cell {
     this._setValue(value);
     this.time = time ?? Date.now();
 
-    // Todo: Test without it
+    // TODO: Test without it
     // const valueChanged = this.ignoreZero ? value !== 0 : true;
     // if (this.hightlightOnChange && valueChanged)
     if (this.hightlightOnChange)
@@ -136,7 +135,8 @@ export class NumberCell extends Cell {
   }
 
   refresh() {
-    this._setValue(this._value);
+    if (this._value != null)
+      this._setValue(this._value);
   }
 
   clear() {

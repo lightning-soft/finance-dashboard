@@ -8,13 +8,10 @@ import { IBar, IChart } from '../../models/chart';
 import { StockChartXPeriodicity } from '../TimeFrame';
 
 export interface IBarHandler {
-  insertBar(bar: IBar);
-
   processBar(bar: IBar);
-
-  prependBar(bar: IBar);
-
+  processBars(bars: IBar[]): IBar[];
   clear(): void;
+  setAdditionalInfo(additionalInfo: any);
 }
 
 
@@ -63,19 +60,19 @@ export class BarHandler implements IBarHandler {
     return handler;
   }
 
-  insertBar(bar: IBar) {
-    const handler = this.getHandler();
-    handler?.insertBar(bar);
-  }
-
-  prependBar(bar: IBar) {
-    const handler = this.getHandler();
-    handler?.prependBar(bar);
-  }
-
   processBar(bar: IBar) {
     const handler = this.getHandler();
-    handler?.processBar(bar);
+    return handler?.processBar(bar);
+  }
+
+  processBars(bars: IBar[]): IBar[] {
+    const handler = this.getHandler();
+    return handler?.processBars(bars);
+  }
+
+  setAdditionalInfo(additionalInfo: any) {
+    const handler = this.getHandler();
+    return handler?.setAdditionalInfo(additionalInfo);
   }
 
   clear() {

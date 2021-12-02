@@ -28,6 +28,12 @@ export class AccountSelectComponent {
     return this._account;
   }
 
+  onAccountChanged() {
+    if (!this.accounts.some(item => item.id === this._account?.id)) {
+      this.account = null; //this.accounts.length ? this.accounts[0] : null;
+    }
+  }
+
   @Input()
   public set account(value: IAccount) {
     if (this._account?.id === value?.id)

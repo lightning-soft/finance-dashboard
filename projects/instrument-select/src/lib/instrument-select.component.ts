@@ -81,6 +81,7 @@ export class InstrumentSelectComponent extends ItemsComponent<IInstrument> imple
     const modal = this._modalService.create({
       nzContent: InstrumentDialogComponent,
       nzWidth: 386,
+      nzWrapClassName: '',
       nzClassName: 'instrument-dialog',
       nzFooter: null,
       nzComponentParams: {

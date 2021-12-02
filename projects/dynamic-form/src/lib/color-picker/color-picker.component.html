@@ -38,7 +38,7 @@
              [nzSize]="'small'"
              (blur)="handleInputTextSubmit()">
 
-      <div class="opacity-block">
+      <div [class.d-none]="hideOpacity" class="opacity-block">
         <i class="icon-opacity"></i>
         <nz-input-number class="color-opacity-input"
                          [(ngModel)]="opacity"
@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <nz-slider class="color-opacity-slider"
+    <nz-slider [class.d-none]="hideOpacity" class="color-opacity-slider"
                [(ngModel)]="opacity"
                (nzOnAfterChange)="updateOpacity()"
                [nzMin]="0"

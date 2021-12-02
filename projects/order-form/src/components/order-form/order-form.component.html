@@ -22,7 +22,7 @@
     </div>
     <div>
       <quantity-input [ngModel]="quantity"
-                      [allowEdit]="false"
+                      [allowEdit]="true"
                       [ngModelOptions]="{standalone: true}"
                       (ngModelChange)="updateQuantity($event)" [amountButtons]="amountButtons"></quantity-input>
     </div>
@@ -58,7 +58,10 @@
     <nz-input-number
       [class.d-none]="!isStopLimit"
       class="limit-number-input"
-      nzMin="1"
+      [nzMin]="0"
+      [nzStep]="instrument?.tickSize"
+      #limitPriceNode
+      [nzFormatter]="priceFormatter"
       [ngModelOptions]="{standalone: true}"
       (nzBlur)="handleLimitPriceChange()"
       [(ngModel)]="limitPrice"
@@ -82,6 +85,7 @@
       </div>
       <nz-input-number [ngModelOptions]="{standalone: true}"
                        [nzMin]="0"
+                       #priceNode
                        [nzDisabled]="shouldDisablePrice"
                        (nzBlur)="handlePriceChange()"
                        [nzFormatter]="priceFormatter"

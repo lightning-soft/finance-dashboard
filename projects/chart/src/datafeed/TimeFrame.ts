@@ -68,6 +68,11 @@ export const StockChartXPeriodicity = {
   /** Year. */
   YEAR: 'y'
 };
+export const enumarablePeriodicities = {
+  revs: true,
+  r: true,
+  range: true,
+};
 
 
 export class TimeFrame {
@@ -101,7 +106,7 @@ export class TimeFrame {
       case StockChartXPeriodicity.VOLUME:
         return 'volume';
       case StockChartXPeriodicity.REVS:
-        return 'revs';
+        return 'reversal';
       case StockChartXPeriodicity.SECOND:
         return 'second';
       case StockChartXPeriodicity.MINUTE:
@@ -147,7 +152,7 @@ export class TimeFrame {
       case StockChartXPeriodicity.REVS:
       case StockChartXPeriodicity.RENKO:
       case StockChartXPeriodicity.RANGE:
-        return TimeSpan.MILLISECONDS_IN_HOUR;
+        return TimeSpan.MILLISECONDS_IN_SECOND;
       case StockChartXPeriodicity.SECOND:
         return timeFrame.interval * TimeSpan.MILLISECONDS_IN_SECOND;
       case StockChartXPeriodicity.MINUTE:

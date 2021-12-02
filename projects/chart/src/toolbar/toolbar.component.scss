@@ -4,6 +4,15 @@
 @import "themes/light";
 @import "themes/template";
 
+::ng-deep {
+  .price-style-dropdown {
+    cdk-virtual-scroll-viewport {
+      max-height: 450px !important;
+      height: 332px !important;
+    }
+  }
+}
+
 :host {
   position: absolute;
   top: 27px;
@@ -82,7 +91,6 @@
   padding-left: 2px;
   padding-right: 14px;
   display: flex;
-  text-transform: capitalize;
   align-items: center;
   width: 100%;
   color: $text-80;
@@ -96,6 +104,43 @@
 }
 
 ::ng-deep {
+  .custom-drawing-menu-item {
+    position: relative;
+
+    .actions {
+      position: absolute;
+      right: 0;
+      background: #24262c;
+      padding-left: 4px;
+      padding-right: 4px;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      top: 0;
+      bottom: 0;
+
+      i {
+        font-size: 10px;
+        display: inline-block;
+
+        &:not(:first-child) {
+          margin-left: 5px;
+        }
+
+        &:hover {
+          color: $primary;
+        }
+      }
+    }
+
+    &:hover {
+      .actions {
+        opacity: 1;
+      }
+    }
+  }
+
   .drawing-menu {
     background: $light !important;
     width: 32px;
@@ -110,7 +155,13 @@
        }*/
     i {
       font-size: 14px !important;
+
+      &.icon-custom-drawings {
+        font-size: 12px !important;
+        margin-left: 4px;
+      }
     }
+
 
     .icon-drawing-measures {
       font-family: 'icon' !important;
@@ -235,6 +286,12 @@
       background: #383A40;
     }
 
+    .ant-dropdown-menu-submenu-title:hover {
+      i[class*=icon-] {
+        color: #fff !important;
+      }
+    }
+
     .ant-dropdown-menu-submenu-active {
       background: $lighter;
       border-radius: 2px;
@@ -347,7 +404,7 @@ i[class*="icon-"] {
   transition: all 0.4s;
 
   &.is-open {
-    transform: translateY(-50%) rotate(180deg) ;
+    transform: translateY(-50%) rotate(180deg);
   }
 }
 

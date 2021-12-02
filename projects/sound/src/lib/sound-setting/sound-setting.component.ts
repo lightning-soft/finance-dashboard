@@ -19,7 +19,7 @@ export enum SoundSetting {
 @Component({
   selector: 'lib-sound-setting',
   templateUrl: './sound-setting.component.html',
-  styleUrls: ['./sound-setting.component.css']
+  styleUrls: ['./sound-setting.component.scss']
 })
 export class SoundSettingComponent {
   @Input() checked = false;

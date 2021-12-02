@@ -25,10 +25,11 @@
     [title]="'Strategy'"
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
+              #dailyInfoComponent
               [showInstrumentChange]="domFormSettings?.formSettings.showInstrumentChange"
               [showOHLVInfo]="domFormSettings?.formSettings.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
-              class="header-daily-info" [dailyInfo]="dailyInfo"></daily-info>
+              class="header-daily-info"></daily-info>
   <span class="window-icon-container">
     <span class="form-switcher" [class.d-none]="!isFormOpen || !isFormOnTop">
       <span [class.switch-item-active]="!isExtended" title="Slim" (click)="isExtended = false" class="slim switch-item">
@@ -61,7 +62,6 @@
       [ocoStep]="ocoStep"
       [trade]="trade"
       [class.d-none]="!isFormOpen"
-      [showUnits]="bracketActive"
       [isFormOnTop]="isFormOnTop"
       [position]="position"
       [isExtended]="isExtended"
@@ -70,10 +70,12 @@
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}">
 
       <ng-container headerContent>
-        <daily-info [instrument]="instrument"
-                    [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
-                    [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
-                    [dailyInfo]="dailyInfo"></daily-info>
+        <daily-info
+          #dailyInfoComponent
+          [instrument]="instrument"
+          [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
+          [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
+        ></daily-info>
         <nz-input-group [class.d-none]="!domFormSettings.formSettings.showPLInfo" class="pl-input"
                         [nzPrefix]="prefixTemplateUser">
           <input disabled [value]="getPl()" nz-input>
@@ -96,7 +98,10 @@
                [afterDraw]="afterDraw"
                [sizeChanged]="onResize.bind(this)"
                [onColumnResize]="onColumnResize.bind(this)"
-               [handlers]="handlers">
+               [handlers]="handlers"
+               [loadedPresets]="loadedPresets"
+               (savePresets)="save()"
+               (createPresets)="createPresets(Components.Dom)">
     </data-grid>
   </div>
 

@@ -22,8 +22,6 @@ export class WindowMessengerService {
         console.log(e);
       }
     });
-    window.postMessage(JSON.stringify({ data: 'testType' }), window.location.origin);
-
   }
 
   send(type, payload) {

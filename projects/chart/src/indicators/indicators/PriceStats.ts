@@ -29,22 +29,22 @@ export class PriceStats extends Indicator {
             devEnabled: settings.lines.dev.va.enabled,
             strokeColor: settings.lines.current.va.strokeTheme.strokeColor,
           },
-          session: settings.sessionId,
+          session: settings.session,
         },
         eth: {
           type: settings.eth.profile.type,
           color: settings.eth.profile.color,
           poc: {
             enabled: settings.eth.lines.current.poc.enabled,
-            devEnabled: settings.eth.lines.dev.poc.enabled,
+            dev: settings.eth.lines.dev.poc.enabled,
             strokeColor: settings.eth.lines.current.poc.strokeTheme.strokeColor,
           },
           va: {
             enabled: settings.eth.lines.current.va.enabled,
-            devEnabled: settings.eth.lines.dev.va.enabled,
+            va: settings.eth.lines.dev.va.enabled,
             strokeColor: settings.eth.lines.current.va.strokeTheme.strokeColor,
           },
-          session: settings.eth.sessionId,
+          session: settings.eth.session,
         },
       },
       highlight: settings.highlight,
@@ -94,8 +94,7 @@ export class PriceStats extends Indicator {
           },
         },
       },
-      workingTimes: settings.profile.rth.session?.workingTimes,
-      sessionId: settings.profile.rth.session?.id,
+      session: settings.profile.rth.session,
       eth: {
         profile: {
           type: settings.profile.eth.type,
@@ -118,21 +117,20 @@ export class PriceStats extends Indicator {
           },
           dev: {
             poc: {
-              enabled: settings.profile.eth.poc.devEnabled,
+              enabled: settings.profile.eth.poc.dev,
               strokeTheme: {
                 strokeColor: settings.profile.eth.poc.strokeColor,
               },
             },
             va: {
-              enabled: settings.profile.eth.va.devEnabled,
+              enabled: settings.profile.eth.va.va,
               strokeTheme: {
                 strokeColor: settings.profile.eth.va.strokeColor,
               },
             },
           },
         },
-        workingTimes: settings.profile.eth.session?.workingTimes,
-        sessionId: settings.profile.eth.session?.id,
+        session: settings.profile.eth.session,
       },
       overlayEthOverRth: settings.profile.overlayEthOverRth,
       highlight: settings.highlight,

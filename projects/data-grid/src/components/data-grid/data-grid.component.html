@@ -19,6 +19,11 @@
     </ng-container>
     <li nz-menu-item (click)="setFitColumnsWidth()">Best Fit Columns</li>
     <li nz-menu-divider></li>
+
+    <li *ngIf="templatesEnabled" nz-menu-item [nzDisabled]="!loadedPresets" (click)="save()">Save</li>
+    <li *ngIf="templatesEnabled" nz-menu-item (click)="saveAs()">Save as ...</li>
+
+    <li *ngIf="templatesEnabled" nz-menu-divider></li>
     <li nz-submenu nzMenuClassName="columns-items" nzTitle="Table View">
       <ul>
         <li *ngFor="let item of getShownColumns()" nz-menu-item>

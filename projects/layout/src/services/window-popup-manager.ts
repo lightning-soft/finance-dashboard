@@ -5,6 +5,7 @@ import { Workspace, WorkspacesManager, WorkspaceWindow } from 'workspace-manager
 import * as deepmerge from 'deepmerge';
 import { isElectron } from '../../../../src/app/is-electron';
 import { WindowMessengerService } from 'window-messenger';
+import { Id } from 'communication';
 
 const popupStorageKey = 'widget-popup-state';
 
@@ -14,6 +15,10 @@ const windowSettingsKey = 'windowSettingsKey';
 const windowCloseEvent = 'closeWindow';
 const windowMoveEvent = 'windowMoveEvent';
 export const saveCommand = 'saveCommand';
+export const highligtCommand = 'highligtCommand';
+export const closeCommand = 'closeCommand';
+
+const maxLocationOffset = -2000;
 
 export interface WindowPopupConfig {
   layoutConfig: any;
@@ -31,7 +36,7 @@ export class WindowPopupManager {
   constructor(private _storage: Storage,
               private _route: ActivatedRoute,
               private storage: Storage,
-              private windowMessengerService: WindowMessengerService,
+              private _windowMessengerService: WindowMessengerService,
               private injector: Injector,
   ) {
   }
@@ -43,13 +48,13 @@ export class WindowPopupManager {
 
     window.addEventListener('beforeunload', (event) => {
       if (this.isPopup()) {
-        this.windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
+        this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
       } else {
         this.storage.setItem(windowSettingsKey, this._state);
       }
     });
 
-    this.windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
+    this._windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
       delete this._state[hash(windowId, workspaceId)];
     });
   }
@@ -60,7 +65,7 @@ export class WindowPopupManager {
       if (evt['toElement'] === null && evt.relatedTarget === null) {
         interval = setInterval(() => {
           if (this.isPopup()) {
-            this.windowMessengerService.send(windowMoveEvent, {
+            this._windowMessengerService.send(windowMoveEvent, {
               windowId: this.windowId,
               workspaceId: this.workspaceId,
               coords: { x: window.screenX, y: window.screenY }
@@ -83,7 +88,7 @@ export class WindowPopupManager {
         y: window.screenY
       };
       if (this.isPopup()) {
-        this.windowMessengerService.send(windowResizeKey, {
+        this._windowMessengerService.send(windowResizeKey, {
           bounds,
           ...this.getWindowInfo(),
         });
@@ -112,12 +117,13 @@ export class WindowPopupManager {
       });
     }
 
-    this.windowMessengerService.subscribe(windowResizeKey, ({ windowId, workspaceId, bounds }) => {
+    this._windowMessengerService.subscribe(windowResizeKey, ({ windowId, workspaceId, bounds }) => {
       this._state[hash(windowId, workspaceId)] = { bounds, windowId, workspaceId };
     });
-    this.windowMessengerService.subscribe(windowMoveEvent, ({ windowId, workspaceId, coords }) => {
+    this._windowMessengerService.subscribe(windowMoveEvent, ({ windowId, workspaceId, coords }) => {
       const bounds = this._state[hash(windowId, workspaceId)]?.bounds;
-      if (!bounds)
+      // need to check is user hid window
+      if (!bounds || coords.x < maxLocationOffset || coords.y < maxLocationOffset)
         return;
 
       bounds.x = coords.x;
@@ -130,6 +136,13 @@ export class WindowPopupManager {
       windowId: this.windowId,
       workspaceId: this.workspaceId,
     };
+  }
+
+  sendCommandToSubwindows(type, payload) {
+    this.windows.forEach(item => item.postMessage(JSON.stringify({
+      type,
+      payload,
+    })));
   }
 
   onWindowOpened(workspace: Workspace, workspaceWindow: WorkspaceWindow, bounds: { height?: number; width?: number }) {
@@ -157,6 +170,11 @@ export class WindowPopupManager {
   get workspaceId() {
     const params = this._route.snapshot.queryParams;
     return params?.workspaceId;
+  }
+
+  get windowName() {
+    const params = this._route.snapshot.queryParams;
+    return params?.windowName;
   }
 
   get windowId() {
@@ -228,6 +246,7 @@ export class WindowPopupManager {
     queryParams.append('popup', 'true');
     queryParams.append('workspaceId', `${ workspace.id }`);
     queryParams.append('windowId', `${ workspaceWindow.id }`);
+    queryParams.append('windowName', `${ workspaceWindow.name }`);
 
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
     this.onWindowOpened(workspace, workspaceWindow, bounds);
@@ -240,7 +259,7 @@ export class WindowPopupManager {
       featuresArray.push(`${ key }=${ value }`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    const popup = window.open(window.location.origin + '?' + queryParams.toString(), '', featuresArray.join(', '));
+    const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
     this.windows.push(popup);
     return popup;
   }
@@ -277,6 +296,39 @@ export class WindowPopupManager {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  highlightWindow(id: number | string, windowId: Id) {
+    const data = JSON.stringify({
+      type: highligtCommand,
+      payload: { workspaceId: id, windowId },
+    });
+    this.windows.forEach(item => {
+      if (!item.closed) {
+        item.postMessage(data);
+      }
+    });
+  }
+
+  sendCloseCommand() {
+    const data = JSON.stringify({
+      type: closeCommand,
+    });
+    this.windows.forEach(item => {
+      if (!item.closed) {
+        item.close();
+        item.postMessage(data);
+      }
+    });
+    for (let key in this._state) {
+      if (mainKey !== key)
+        delete this._state[key];
+    }
+  }
+
+  getWindowName() {
+    if (this.isPopup())
+      return this.windowName;
   }
 }
 

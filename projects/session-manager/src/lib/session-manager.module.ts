@@ -9,8 +9,6 @@ import { TimeSelectModule } from 'time-select';
 import { WindowHeaderModule } from 'window-header';
 import { SessionManagerComponent } from './session-manager.component';
 
-
-
 @NgModule({
   declarations: [SessionManagerComponent],
   imports: [

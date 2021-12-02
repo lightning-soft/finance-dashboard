@@ -1,10 +1,11 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotifierService } from 'notifier';
-import { BehaviorSubject, Observable, of, throwError, Subject } from 'rxjs';
-import { mergeMap, tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, mergeMap, tap } from 'rxjs/operators';
 import { AppConfig } from 'src/app/app.config';
 import { Storage } from 'storage';
+import { WindowPopupManager } from 'layout';
 
 export type Token = string;
 const refreshTokenKey = 'refresh_token';
@@ -42,6 +43,7 @@ export class AuthService {
 
   constructor(
     private _notification: NotifierService,
+    private _windowPopupManager: WindowPopupManager,
     private _appConfig: AppConfig,
     private storage: Storage,
     private _http: HttpClient
@@ -99,11 +101,13 @@ export class AuthService {
     const { url } = this._appConfig.identity;
     this.storage.setItem(refreshTokenKey, '');
     this.storage.setItem(idToken, '');
+    this._windowPopupManager.sendCloseCommand();
     return this._http.get(`${url}account/logout`, {})
       .pipe(tap(res => this._unauthorize()));
   }
 
   private _unauthorize() {
+    this._windowPopupManager.sendCloseCommand();
     this._isAuthorizedChange.next(false);
     this._token = null;
     this._tokenData = null;
@@ -112,6 +116,7 @@ export class AuthService {
   }
 
   public logOutWithRedirect() {
+    this._windowPopupManager.sendCloseCommand();
     const { url } = this._appConfig.identity;
     this.storage.setItem(refreshTokenKey, '');
     this.storage.setItem(idToken, '');

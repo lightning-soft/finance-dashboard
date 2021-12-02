@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { ITimezone, Timezone, TIMEZONES } from '../timezones';
+import { ITimezone, Timezone } from '../timezones';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TimezonesService } from '../timezones.service';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { TIMEZONES } from 'trading';
 
 const EnterAnimation = trigger(
   'enterAnimation', [
@@ -34,7 +35,7 @@ export class AddTimezoneModalComponent {
   constructor(private timezonesService: TimezonesService) {
     this.allTimezones = TIMEZONES
       .sort((a, b) => a.offset < b.offset ? 1 : -1)
-      .map(i => new Timezone(i));
+      .map((i: any) => new Timezone(i));
 
     this.timezonesService.timezonesData$
       .pipe(untilDestroyed(this))

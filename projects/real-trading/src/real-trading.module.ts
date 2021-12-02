@@ -48,6 +48,8 @@ import {
 } from './trading/repositories';
 import { RealAccountInfoRepository } from './trading/repositories/real-account-info.repository';
 
+// import { FakeLevel2Datafeed } from '../../fake-communication/src/trading/fake-level2.datafeed';
+
 @NgModule({})
 export class RealTradingModule {
   static forRoot(): ModuleWithProviders<RealTradingModule> {

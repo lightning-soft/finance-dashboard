@@ -1,7 +1,10 @@
 <nz-input-number [nzSize]="'small'"
-                 [nzMin]="this.field.templateOptions.min"
+                 [nzMin]="min"
                  [disabled]="field.templateOptions?.disabled"
+                 [nzMax]="max"
                  [(ngModel)]="value"
+                 [ngModelOptions]="{standalone: true}"
+                 [nzPlaceHolder]="to.placeholder"
                  [formlyAttributes]="field"
 ></nz-input-number>
 <span *ngIf="field.templateOptions?.label" class="number-label">{{field.templateOptions?.label}}</span>

@@ -69,19 +69,19 @@ export class RealOHLVFeed extends OHLVFeed {
       return;
     }
 
-    const now = new Date();
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-
     this._tradeDatafeed.subscribe(instrument, connectionId);
     this._volumeDatafeed.subscribe(instrument, connectionId);
 
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+
     this._historyRepository.getItems({
-      id: instrument.id,
+      productCode: instrument.productCode,
       Exchange: instrument.exchange,
       Symbol: instrument.symbol,
       ...historyParams,
-      endDate: now,
+      endDate,
       startDate,
       connectionId
     }).toPromise().then(res => {
@@ -131,12 +131,11 @@ export class RealOHLVFeed extends OHLVFeed {
     if (!obj || !obj[instrument?.id])
       return;
 
-    if ((obj[instrument.id].count - 1) <= 0) {
+    obj[instrument.id].count -= 1;
+    if (obj[instrument?.id].count < 1) {
       this._tradeDatafeed.unsubscribe(instrument, connecionId);
       this._volumeDatafeed.unsubscribe(instrument, connecionId);
     }
-
-    obj[instrument.id].count -= 1;
   }
 
   handleTrade = (trade, connectionId: Id) => {

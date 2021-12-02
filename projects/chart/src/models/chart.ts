@@ -1,5 +1,6 @@
 import { IDatafeed, IStockChartXInstrument, IStockChartXTimeFrame } from '../datafeed';
 import { IChartConfig } from './chart.config';
+import { IsAutomaticPixelPrice } from "../chart-settings/settings";
 
 
 export enum ScxOrderAction {
@@ -23,11 +24,11 @@ export interface IDetails {
 }
 
 export interface IOHLVData {
-  open: number;
-  high: number;
-  low: number;
-  volume: number;
-  income: number;
+  open: number | string;
+  high: number | string;
+  low: number | string;
+  volume: number | string;
+  income: number | string;
   incomePercentage: number;
 }
 
@@ -211,8 +212,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    */
   timeInterval: number;
 
-  startDate: Date;
-  endDate: Date;
+  setBarCount(value: number);
+
   /**
    * The bars time frame.
    * @name timeFrame
@@ -220,6 +221,9 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
    * @memberOf StockChartX.Chart#
    */
   timeFrame: IStockChartXTimeFrame;
+
+  periodToLoad: IStockChartXTimeFrame;
+
   readonly chartPanelsFrame: any;
   /**
    * The instrument.
@@ -789,6 +793,13 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
   applyTheme(): void;
 
   _updateHoverRecord(x: number): void;
+
+  setPixelsPrice(pixels: number): void;
+  setValueScaleType(type: IsAutomaticPixelPrice): void;
+
+  getPixelsPrice(): number;
+
+  pixelsPrice: number;
 
   /**
    * Returns bar data series.

@@ -8,3 +8,7 @@ export * from './SessionStats';
 export * from './VolumeBreakdown';
 export * from './ZigZag';
 export * from './ZigZagOscillator';
+export * from './BarStats';
+export * from './VWAP';
+export * from './CustomVolumeProfile';
+export * from './General';

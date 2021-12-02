@@ -3,8 +3,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { NzModalService, NzPlacementType } from 'ng-zorro-antd';
 import { interval } from 'rxjs';
 import { AddTimezoneModalComponent } from '../add-timezone-modal/add-timezone-modal.component';
-import { ITimezone, Timezone, TIMEZONES } from '../timezones';
+import { ITimezone, Timezone } from '../timezones';
 import { TimezonesService } from '../timezones.service';
+import { TIMEZONES } from 'trading';
 
 @UntilDestroy()
 @Component({
@@ -99,7 +100,7 @@ export class ClockComponent implements OnInit {
 
     const supposedTimezone = matchedTimezones.reduce((acc, item) => {
       return item.utc.length < acc?.utc.length ? item : acc;
-    });
+    }) as any;
 
     return supposedTimezone ? new Timezone(supposedTimezone) : null;
   }

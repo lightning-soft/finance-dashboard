@@ -41,6 +41,29 @@ label {
   font-weight: 600;
 }
 
+body.electron {
+  border: 1px solid $darkBackground;
+  border-top: 1px solid $light;
+ // transition: border 0.3s;
+  &.navbarBottom{
+    border-top: 1px solid $darkBackground;
+    border-bottom: 1px solid $light;
+  }
+  &.highligt {
+    border: 1px solid $primary;
+  }
+}
+
+.timezones-select {
+  cdk-virtual-scroll-viewport {
+    max-height: 362px !important;
+  }
+}
+
+.ant-switch:hover, .ant-switch:focus:hover {
+  box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
+}
+
 .ant-modal.instrument-dialog .ant-modal-content {
   .ant-modal-body {
     padding: 0;
@@ -612,4 +635,10 @@ nz-input-number:not(.custom-form-control) {
       font-size: 13px;
     }
   }
+}
+
+// Fix scrolling issue on select(system select in connection dialog)
+.ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover),
+.ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover) {
+  background-color: transparent;
 }

@@ -1,44 +1,12 @@
-@import "~src/scss/variables";
-
-cdk-virtual-scroll-viewport {
-  padding-top: 20px;
-  background-color: $secondary;
-  height: 100%;
-}
-
-.settings-container {
-  display: grid;
-  grid-template-columns: 173px 1fr;
-  grid-column-gap: 5px;
-  height: calc(100% - 22px);
-}
-
-.menu {
-  background: $secondary;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 10px;
-
-  &-item {
-    height: 24px;
-    font-size: 0.85rem;
-    color: $text-60;
-    cursor: pointer;
-    padding-left: 8px;
-    display: flex;
-    align-items: center;
-    border-radius: 2px;
-    transition: all 0.3s;
-
-    &.active {
-      color: #fff;
-      background: $primary;
-      cursor: default;
-    }
-  }
-}
+@import "../settings";
 
 :host ::ng-deep {
+  .session-select {
+    label {
+      display: none;
+    }
+  }
+
   data-select {
     font-size: 0.8rem;
   }
@@ -115,10 +83,16 @@ cdk-virtual-scroll-viewport {
     padding-right: 10px;
   }
 
-  .two-rows, .order-bar-rows, .order-rows, .order-area-rows {
+  .two-rows, .order-bar-rows, .order-rows, .order-area-rows, .session-rows {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 6px;
+  }
+
+  .session-rows {
+    grid-template-columns: 1fr 2fr;
+    grid-column-gap: 5px;
+
   }
 
   .order-bar-rows {

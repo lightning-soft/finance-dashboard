@@ -16,29 +16,31 @@ export const Modules = {
   AccountInfo: 'account-info',
 };
 
-export const Components = {
-  Chart: 'chart',
-  ChartSettings: 'chartSettings',
-  Indicators: 'indicators',
-  Watchlist: 'watchlist',
-  Positions: 'positions',
-  PositionsSettings: 'positions-settings',
-  Orders: 'orders',
-  OrdersSetting: 'orders-settings',
-  OrderForm: 'order-form',
-  Accounts: 'accounts',
-  Scripting: 'scripting',
-  Settings: 'settings',
-  Dom: 'dom',
-  DomSettings: 'dom-settings',
-  NotificationList: 'notification-list',
-  SessionManager: 'session-manager',
-  IndicatorList: 'indicatorList',
-  OrdersPanel: 'ordersPanel',
-  MarketWatch: 'marketWatch',
-  MarketWatchSettings: 'market-watch-settings',
-  AccountInfo: 'account-info',
-};
+export enum Components {
+  Chart = 'chart',
+  ChartSettings = 'chartSettings',
+  ChartVolumeSettings = 'customVolumeProfileSettings',
+  Indicators = 'indicators',
+  Watchlist = 'watchlist',
+  Positions = 'positions',
+  PositionsSettings = 'positions-settings',
+  Orders = 'orders',
+  OrdersSetting = 'orders-settings',
+  OrderForm = 'order-form',
+  Accounts = 'accounts',
+  Scripting = 'scripting',
+  Settings = 'settings',
+  Dom = 'dom',
+  DomSettings = 'dom-settings',
+  NotificationList = 'notification-list',
+  SessionManager = 'session-manager',
+  IndicatorList = 'indicatorList',
+  OrdersPanel = 'ordersPanel',
+  MarketWatch = 'marketWatch',
+  MarketWatchSettings = 'market-watch-settings',
+  AccountInfo = 'account-info',
+  CustomVolumeProfile = 'custom-volume-profile'
+}
 
 export const modulesStore: IModules[] = [
   {
@@ -48,6 +50,7 @@ export const modulesStore: IModules[] = [
       Components.Indicators,
       Components.OrdersPanel,
       Components.ChartSettings,
+      Components.ChartVolumeSettings
     ]
   },
   {
