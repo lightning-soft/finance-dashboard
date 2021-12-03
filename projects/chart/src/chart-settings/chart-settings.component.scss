@@ -1,6 +1,28 @@
 @import "../settings";
 
 :host ::ng-deep {
+  window-header {
+    position: relative;
+
+    .window-icon {
+      background: transparent !important;
+    }
+
+    .title {
+      font-size: 1rem !important;
+    }
+
+    &:after {
+      right: 0;
+      content: '';
+      height: 100%;
+      width: 438px;
+      background: $secondary;
+      position: absolute;
+      z-index: -1;
+    }
+  }
+
   .session-select {
     label {
       display: none;

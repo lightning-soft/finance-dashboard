@@ -14,7 +14,6 @@ cdk-virtual-scroll-viewport {
 }
 
 .menu {
-  background: $secondary;
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 10px;
@@ -32,7 +31,7 @@ cdk-virtual-scroll-viewport {
 
     &.active {
       color: #fff;
-      background: $light;
+      background: $primary;
       cursor: default;
     }
   }
