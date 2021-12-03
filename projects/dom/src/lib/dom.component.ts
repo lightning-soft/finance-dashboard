@@ -1262,7 +1262,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.position = items.data.find(item => compareInstruments(item.instrument, this.instrument));
         this._applyPositionStatus();
         this._fillPL();
-      });
+      }, err => hide());
   }
 
   private _applyPositionStatus() {
