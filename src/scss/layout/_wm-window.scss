@@ -1,9 +1,14 @@
 $border-width: 1px;
+@import "~src/scss/variables";
 
 .wm-window {
   display: flex;
   flex-direction: column;
   border: $border-width solid transparent;
+  transition: border 0.3s;
+  &.active{
+    border: $border-width solid rgba($primary, 0.5);
+  }
 
   & > header {
     display: none !important;

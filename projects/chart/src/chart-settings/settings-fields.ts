@@ -29,7 +29,7 @@ export const generalFields: IFieldConfig[] = [
     fieldGroupClassName: '',
     fieldGroup: [
       new FieldConfig({
-          fieldGroupClassName: 'd-grid two-rows m-t-20',
+          fieldGroupClassName: 'd-grid two-rows m-t-11',
           fieldGroup: [
             getColor({ label: 'Up Candle Color', key: 'upCandleColor' }),
             getColor({ label: 'Down Candle Color', key: 'downCandleColor' }),
@@ -154,7 +154,7 @@ const orderTypesList = [
 ];
 export const sessionFields: IFieldConfig[] = [
   {
-    fieldGroupClassName: 'd-grid session-rows mt-4',
+    fieldGroupClassName: 'd-grid session-rows m-t-9',
     key: 'session',
     fieldGroup: [
       getSwitch('sessionEnabled', 'Session Template'),
@@ -174,7 +174,7 @@ export const tradingFields: IFieldConfig[] = [
     fieldGroup: [
       new FieldConfig({
         label: 'Trading',
-        className: 'mt-3 d-block',
+        className: 'm-t-8 d-block',
         fieldGroupClassName: 'd-grid two-rows p-x-7',
         fieldGroup: [
           getCheckboxes({
@@ -407,7 +407,7 @@ export const valueScale: IFieldConfig[] = [
     fieldGroup: [
       new FieldConfig({
         label: 'Value Scale',
-        className: 'mt-3 d-block',
+        className: 'm-t-10 d-block',
         fieldGroupClassName: 'd-grid two-rows p-x-7',
         fieldGroup: [
           {
