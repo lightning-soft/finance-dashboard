@@ -587,9 +587,10 @@ nz-input-number:not(.custom-form-control) {
 .ant-modal {
   .ant-modal-content {
     padding: 0px;
-    border: 1px solid $lighter;
-    filter: drop-shadow(0px 0px 10px #15161D);
-
+   // filter: drop-shadow(0px 0px 10px #15161D);
+    background: $light;
+    box-shadow: 0px 0px 20px #101114 !important;
+    border-radius: 2px;
     .ant-modal-header {
       background-color: #24262C;
       border: none;
@@ -603,14 +604,14 @@ nz-input-number:not(.custom-form-control) {
     }
 
     .ant-modal-body {
-      background-color: #1B1D22;
+      background-color: transparent;
       border-radius: 2px;
       text-align: center;
       padding: 34px 91px;
     }
 
     .ant-modal-footer {
-      background-color: #1B1D22;
+      background-color: transparent;
       border: none;
       text-align: center;
       padding: 0px 0 40px;

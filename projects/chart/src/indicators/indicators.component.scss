@@ -395,7 +395,7 @@
 
       label {
         margin-bottom: 0;
-        margin-left: 10px;
+        margin-left: 2px;
       }
     }
 
@@ -408,9 +408,10 @@
     }
 
     .ant-form-item-label > label, .template-label {
-      font-size: 0.85rem;
+      font-size: 0.86rem;
       line-height: 1.2rem;
-      color: $text-40;
+      font-weight: 600;
+      color: $text-80;
     }
 
     .template-label {
@@ -742,11 +743,6 @@
       }
     }
 
-    .background-outline {
-      grid-row: 1 / span 2;
-      grid-column: 2/ 2;
-    }
-
     .full-width {
       grid-column: 1 / span 2;
     }
@@ -840,7 +836,6 @@
     font-size: 0.8rem;
     line-height: 1.2rem;
     padding: 12px;
-    border: 0.5px solid $light2;
     border-radius: 2px;
   }
 }

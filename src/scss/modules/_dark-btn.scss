@@ -1,6 +1,6 @@
 .dark-btn {
   height: 20px;
-  background: $darkBackground;
+  background: $light;
   font-size: 0.7rem;
   line-height: 1;
   font-weight: 600;
@@ -12,7 +12,7 @@
 
   &:hover, &:focus-within {
     color: $primary;
-    background: $darkBackground;
+    background: $light;
   }
 
   &:after {

@@ -28,15 +28,29 @@
         </ul>
       </li>
     </ul>
-
-    <cdk-virtual-scroll-viewport [class.split-orders]="settings?.orders.split" class="{{currentTab}}" itemSize="">
-      <formly-form
-        [form]="form"
-        [(model)]="settings"
-        [fields]="selectedConfig"
-      >
-      </formly-form>
-    </cdk-virtual-scroll-viewport>
+    <div class="d-flex h-100 w-100 content-container  flex-column">
+      <table class="table-header" *ngIf="currentTab === settingsTab.Hotkeys">
+        <thead>
+        <tr>
+          <th class="w-50">Functions</th>
+          <th>
+            <div class="d-flex align-items-center justify-content-between">
+              Keys
+              <button class="clear-all" nzSize="small" (click)="clearAll()" nz-button nzType="link">Clear All</button>
+            </div>
+          </th>
+        </tr>
+        </thead>
+      </table>
+      <cdk-virtual-scroll-viewport [class.split-orders]="settings?.orders.split" class="{{currentTab}}" itemSize="">
+        <formly-form
+          [form]="form"
+          [(model)]="settings"
+          [fields]="selectedConfig"
+        >
+        </formly-form>
+      </cdk-virtual-scroll-viewport>
+    </div>
   </div>
 
 </div>

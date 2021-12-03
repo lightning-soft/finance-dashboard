@@ -610,6 +610,9 @@ side-form {
 }
 
 :host ::ng-deep {
+  window-header{
+    background: $light;
+  }
   instrument-select {
     nz-select {
       min-width: 1px;

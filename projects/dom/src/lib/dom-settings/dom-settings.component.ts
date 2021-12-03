@@ -73,6 +73,8 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   currentTab: SettingTab;
   currentMenuItem;
 
+  settingsTab = SettingTab;
+
   constructor() {
     this.setTabTitle('DOM settings');
     this.setTabIcon('icon-setting-gear');
@@ -151,9 +153,18 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
       this.select(item);
     }
   }
+
+  clearAll() {
+    Object.keys(this.settings.hotkeys).forEach((key) => {
+        this.settings.hotkeys[key] = null;
+    });
+    this.form.patchValue(this.settings);
+  }
+
 // need for correct work of untilDestroyed
   ngOnDestroy() {
   }
+
 }
 
 function clone(data) {

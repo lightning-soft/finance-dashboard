@@ -1,6 +1,7 @@
+@import "~src/scss/variables";
 :host {
   font-size: 11px;
-
+  color: $text-80;
   ::ng-deep {
     .time-zones {
       nz-select {

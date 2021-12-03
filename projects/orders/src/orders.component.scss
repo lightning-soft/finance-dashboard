@@ -15,11 +15,12 @@ $selectMarginBottom: 15px;
     data-grid {
       height: calc(100% - #{$headerHeight});
     }
-
     window-header {
       .title {
         text-overflow: ellipsis;
         white-space: nowrap;
+        color: #fff !important;
+
       }
     }
 

@@ -1,16 +1,50 @@
 @import "~src/scss/variables";
 
-:host-context(.wm-window), :host {
-  background: #1B1D22;
-}
-
 .dom-settings,
 cdk-virtual-scroll-viewport {
   height: 100%;
   width: 100%;
 }
 
+.cdk-virtual-scroll-viewport {
+  background: $secondary;
+}
+
 :host ::ng-deep {
+  .hotkey-list {
+    padding-left: 6px;
+    padding-right: 3px;
+    display: block;
+  }
+
+  .content-container {
+    background: $secondary;
+  }
+
+  .table-header {
+    border-bottom: 0.5px solid $light2;
+    color: $text-40;
+    font-weight: 600;
+    margin-top: 14px;
+    margin-left: 8px;
+    margin-right: 8px;
+    font-size: 0.75rem;
+
+    th {
+      padding-bottom: 6px;
+    }
+
+    .ant-btn-link {
+      height: 18px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  formly-group .hotkey-input {
+    background: $light;
+  }
 
   .ant-form-item-control {
     /* padding-left: 3px;
@@ -106,8 +140,6 @@ cdk-virtual-scroll-viewport {
     .ant-form-item-label {
       text-align: start;
       margin-bottom: 0px;
-      border-bottom: 1px solid #383A40;
-      margin-right: 12px;
 
       label {
         font-weight: 600;
@@ -115,7 +147,8 @@ cdk-virtual-scroll-viewport {
         line-height: 1;
         padding-bottom: 7px;
         padding-left: 10px;
-        color: $text-40;
+        font-size: 0.85rem;
+        color: $text-80;
 
         &:after {
           display: none;
@@ -126,7 +159,26 @@ cdk-virtual-scroll-viewport {
 
   window-header {
     background: #24262C;
+    position: relative;
 
+    .window-icon {
+      margin-right: 6px !important;
+      background-color: transparent !important;
+    }
+
+    .title {
+      font-size: 1rem !important;
+    }
+
+    &:after {
+      right: 0;
+      content: '';
+      height: 100%;
+      width: 441px;
+      background: $secondary;
+      position: absolute;
+      z-index: -1;
+    }
   }
 
   .no-underline {
@@ -156,17 +208,6 @@ cdk-virtual-scroll-viewport {
   .iceberg-checkbox {
     padding-left: 48%;
     margin-left: 8px;
-  }
-
-  .hotkeys {
-    background: #24262C;
-    padding-left: 8px;
-    padding-right: 8px;
-
-    .cdk-virtual-scroll-content-wrapper {
-      padding-left: 8px;
-      padding-right: 8px;
-    }
   }
 
   number-input {
@@ -224,7 +265,13 @@ cdk-virtual-scroll-viewport {
 
   .ant-checkbox + span {
     font-weight: 400;
-    color: #D0D0D2;
+    color: $text-60;
+  }
+
+  formly-form {
+    .template-label, .ant-checkbox+span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      color: $text-60;
+    }
   }
 
   .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
@@ -261,11 +308,13 @@ cdk-virtual-scroll-viewport {
     list-style: none;
     padding-left: 8px;
     padding-top: 4px;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    height: 24px;
     line-height: 1.25;
     font-weight: 400;
     padding-bottom: 4px;
-    color: #A1A2A5;
+    color: $text-60;
 
     .icon-arrow-down {
       transform: rotate(180deg);
@@ -299,7 +348,7 @@ cdk-virtual-scroll-viewport {
     &.active, &.submenu-active .menu-item-inner {
       font-weight: 600;
       border-radius: 2px;
-      background: #24262C;
+      background: $primary;
       color: white;
     }
 
@@ -310,9 +359,7 @@ cdk-virtual-scroll-viewport {
 }
 
 formly-form {
-  flex-grow: 1;
-  margin-left: 12px;
-  padding-top: 12px;
-  margin-right: 12px;
+  display: block;
+  margin-top: 12px;
 }
 
