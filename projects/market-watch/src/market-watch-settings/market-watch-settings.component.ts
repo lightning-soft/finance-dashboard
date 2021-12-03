@@ -1,9 +1,8 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { LayoutNode } from 'layout';
+import { ILayoutNode, LayoutNode } from 'layout';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { FormGroup } from '@angular/forms';
 import { DisplayOrders, OpenIn, settingsField } from './configs';
-import { ILayoutNode } from 'layout';
 import * as clone from 'lodash.clonedeep';
 import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { noneValue } from 'dynamic-form';
@@ -117,19 +116,19 @@ export const defaultSettings = {
   colors: {
     askBackground: 'rgba(201, 59, 59, 1)',
     askColor: 'rgba(208, 208, 210, 1)',
-    bidBackground: 'rgba(72, 149, 245, 1)',
+    bidBackground: '#0C62F7',
     bidColor: '#D0D0D2',
-    bidQuantityColor: 'rgba(72, 149, 245, 1)',
+    bidQuantityColor: '#0C62F7',
     askQuantityColor: 'rgba(201, 59, 59, 1)',
     positionDownColor: 'rgba(201, 59, 59, 1)',
-    priceUpdateHighlight: 'rgba(72, 149, 245, 1)',
+    priceUpdateHighlight: '#0C62F7',
     positionTextColor: 'rgba(208, 208, 210, 1)',
-    positionUpColor: 'rgba(72, 149, 245, 1)',
+    positionUpColor: '#0C62F7',
     textColor: 'rgba(208, 208, 210, 1)',
     netChangeDownColor: 'rgba(201, 59, 59, 1)',
-    netChangeUpColor: 'rgba(72, 149, 245, 1)',
+    netChangeUpColor: '#0C62F7',
     percentChangeDownColor: 'rgba(201, 59, 59, 1)',
-    percentChangeUpColor: 'rgba(72, 149, 245, 1)',
+    percentChangeUpColor: '#0C62F7',
   },
   columnView: {
     columns: {

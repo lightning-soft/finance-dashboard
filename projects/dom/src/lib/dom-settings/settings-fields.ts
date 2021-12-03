@@ -117,9 +117,9 @@ export const hotkeyFields: IFieldConfig[] = [
     {
       label: '',
       key: 'hotkeys',
-      fieldGroupClassName: 'w-100',
+      fieldGroupClassName: 'w-100  hotkey-list',
       fieldGroup: [
-        getHotkey('Auto Center'),
+        wrapWithClass(getHotkey('Auto Center'), 'd-block'),
         getHotkey('Auto Center All Windows'),
         getHotkey('Buy Market '),
         getHotkey('Sell Market'),

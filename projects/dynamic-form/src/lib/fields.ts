@@ -123,7 +123,7 @@ export function getHotkey(config: any | string) {
     templateOptions: {
       label
     },
-    className: 'mt-3 d-block',
+    className: 'mt-1 d-block',
     type: FieldType.Hotkey,
     key,
     ...extraConfig,

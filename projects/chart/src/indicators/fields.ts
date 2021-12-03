@@ -504,7 +504,7 @@ export const footprintConfig: IFieldConfig[] = [
             label: 'Ticks'
           }
         ],
-        className: 'select full-width'
+        className: 'select '
       }),
       {
         className: 'w-100  full-width',
@@ -987,13 +987,16 @@ export const volumeProfileConfig: IFieldConfig[] = [
       {
         className: 'w-100  full-width',
         key: 'customTickSize',
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid two-rows p-0',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
               label: 'Use custom tick size',
               key: 'enabled'
-            }]
+            }],
+            extraConfig: {
+              fieldGroupClassName: '',
+            }
           }),
           wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
             { className: 'tickPerPrice' }),

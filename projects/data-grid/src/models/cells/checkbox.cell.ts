@@ -61,7 +61,7 @@ export class CheckboxCell extends Cell {
       const rectX = this._getInnerRectPosition(this.x);
       const rectY = this._getInnerRectPosition(this.y);
       const oldFillStyle = ctx.fillStyle;
-      ctx.fillStyle = '#4895F5';
+      ctx.fillStyle = '#0C62F7';
       ctx.fillRect(rectX, rectY, size, size);
       ctx.fillStyle = oldFillStyle;
     }

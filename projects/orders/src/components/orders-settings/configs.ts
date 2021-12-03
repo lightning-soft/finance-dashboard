@@ -15,7 +15,7 @@ export const settingsField = [
     new FieldConfig({
       key: 'display',
       label: 'Display',
-      className: 'mt-3',
+      className: 'mt-4 d-block',
       fieldGroupClassName: 'd-flex flex-column',
       fieldGroup: [
         getLabel('Timestamp'),
@@ -26,9 +26,9 @@ export const settingsField = [
 
 export const defaultSettings = {
   colors: {
-    buyTextColor: 'rgba(72, 149, 245, 1)',
+    buyTextColor: '#0C62F7',
     sellTextColor: 'rgba(220, 50, 47, 1)',
-    heldbuyTextColor: 'rgba(72, 149, 245, 0.8)',
+    heldbuyTextColor: 'rgba(12,98,247,0.8)',
     heldsellTextColor: 'rgba(220, 50, 47, 0.8)',
   },
   display: {

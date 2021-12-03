@@ -10,6 +10,11 @@ $tabHeight: 26px;
   width: 100%;
 
   ::ng-deep {
+    window-header {
+      .title {
+        color: #fff !important;
+      }
+    }
     .market-watch-cell-input {
       background-color: $darkBackground;
       display: block;

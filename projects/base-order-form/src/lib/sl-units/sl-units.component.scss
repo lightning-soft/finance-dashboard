@@ -67,7 +67,7 @@
 }
 
 .btn-active:not(:disabled) {
-  border: 1px solid #4895F5 !important;
+  border: 1px solid $primary !important;
 }
 
 :host-context(.full-screen-window) {

@@ -142,7 +142,7 @@ export class DomSettings {
       quantity: 1,
     },
     settings: {
-      buyButtonsBackgroundColor: '#4895F5',
+      buyButtonsBackgroundColor: '#0C62F7',
       flatButtonsBackgroundColor: '#51535A',
       buyButtonsFontColor: '#fff',
       flatButtonFontColor: '#D0D0D2',

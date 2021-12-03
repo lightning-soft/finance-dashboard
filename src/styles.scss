@@ -41,14 +41,19 @@ label {
   font-weight: 600;
 }
 
+.ant-dropdown-menu, .ant-menu {
+  box-shadow: 0px 4px 15px #15161d, 0px 0px 20px #15161d;
+}
+
 body.electron {
   border: 1px solid $darkBackground;
   border-top: 1px solid $light;
- // transition: border 0.3s;
-  &.navbarBottom{
+  // transition: border 0.3s;
+  &.navbarBottom {
     border-top: 1px solid $darkBackground;
     border-bottom: 1px solid $light;
   }
+
   &.highligt {
     border: 1px solid $primary;
   }
@@ -69,6 +74,7 @@ body.electron {
     padding: 0;
     background-color: $light;
   }
+
   .ant-modal-close-x {
     width: 19px;
     height: 19px;
@@ -581,9 +587,10 @@ nz-input-number:not(.custom-form-control) {
 .ant-modal {
   .ant-modal-content {
     padding: 0px;
-    border: 1px solid $lighter;
-    filter: drop-shadow(0px 0px 10px #15161D);
-
+   // filter: drop-shadow(0px 0px 10px #15161D);
+    background: $light;
+    box-shadow: 0px 0px 20px #101114 !important;
+    border-radius: 2px;
     .ant-modal-header {
       background-color: #24262C;
       border: none;
@@ -597,14 +604,14 @@ nz-input-number:not(.custom-form-control) {
     }
 
     .ant-modal-body {
-      background-color: #1B1D22;
+      background-color: transparent;
       border-radius: 2px;
       text-align: center;
       padding: 34px 91px;
     }
 
     .ant-modal-footer {
-      background-color: #1B1D22;
+      background-color: transparent;
       border: none;
       text-align: center;
       padding: 0px 0 40px;
@@ -612,7 +619,7 @@ nz-input-number:not(.custom-form-control) {
       .modal-btn {
         background-color: #101114;
         color: #ffffff;
-        border-color: #4895F5;
+        border-color: $primary;
         transition: opacity .2s ease;
 
         &:hover {
