@@ -203,7 +203,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
       column.style = {
         // background: 'grey',
         histogram: {
-          color: '#4895F5',
+          color: '#0C62F7',
           enabled: true,
           orientation: 'left',
         },

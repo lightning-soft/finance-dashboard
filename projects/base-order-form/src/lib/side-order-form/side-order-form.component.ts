@@ -154,7 +154,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   _settings: DomFormSettings = {
-    buyButtonsBackgroundColor: '#4895F5',
+    buyButtonsBackgroundColor: '#0C62F7',
     flatButtonsBackgroundColor: '#51535A',
     buyButtonsFontColor: '#fff',
     flatButtonsFontColor: '#D0D0D2',

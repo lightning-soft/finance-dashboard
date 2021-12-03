@@ -1,11 +1,28 @@
 @import "~src/scss/variables";
 
+:host {
+  background-color: $secondary !important;
+}
+
 cdk-virtual-scroll-viewport {
   height: 100%;
-  background-color: $secondary;
 }
 
 :host ::ng-deep {
+  formly-form {
+    .template-label, .ant-checkbox-wrapper, .ant-radio-wrapper, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      color: $text-60;
+    }
+  }
+  .dark-btn{
+    background: #101114;
+  }
+  window-header {
+    .title {
+      font-size: 1rem !important;
+    }
+  }
+
   .order-selects {
     margin-bottom: 16px;
     display: block;
@@ -82,7 +99,7 @@ cdk-virtual-scroll-viewport {
     padding: 0 5px;
   }
 
-  .ant-form-item-label > label, .ant-checkbox-wrapper, .ant-radio-wrapper {
+  .ant-form-item-label > label {
     color: $text-80;
   }
 
@@ -147,14 +164,13 @@ cdk-virtual-scroll-viewport {
 
     > .ant-form-item-label, column-selector .ant-form-item-label {
       text-align: left;
-      border-bottom: 1px solid $lighter;
       margin-bottom: 12px;
       width: 100%;
 
       label {
         padding-left: 6px;
-        color: $text-40;
-        font-size: 0.85rem;
+        color: $text-80;
+        font-size: 0.86rem;
 
         &:after {
           content: none;

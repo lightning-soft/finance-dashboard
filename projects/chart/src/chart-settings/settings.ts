@@ -53,7 +53,7 @@ export interface IChartSettingsState {
 export let defaultChartSettings: IChartSettings;
 defaultChartSettings = {
   general: {
-    upCandleColor: '#4895F5',
+    upCandleColor: '#0C62F7',
     downCandleColor: '#C93B3B',
     upCandleBorderColor: '#D0D0D2',
     downCandleBorderColor: '#D0D0D2',
@@ -101,7 +101,7 @@ defaultChartSettings = {
           font: '#D0D0D2',
         },
         buyMarketButton: {
-          background: '#4895F5',
+          background: '#0C62F7',
           enabled: true,
           font: '#D0D0D2',
         },
@@ -112,12 +112,12 @@ defaultChartSettings = {
       buy: {
         limit: {
           length: 1,
-          lineColor: '#4895F5',
+          lineColor: '#0C62F7',
           lineType: 'dashed',
         },
         market: {
           length: 1,
-          lineColor: '#4895F5',
+          lineColor: '#0C62F7',
           lineType: 'dashed',
         },
         stop: {

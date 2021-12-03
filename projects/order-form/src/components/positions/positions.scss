@@ -4,6 +4,14 @@
   margin-top: 10px;
   display: flex;
   flex-direction: column;
+
+  ::ng-deep {
+    window-header {
+      .title{
+        color: white;
+      }
+    }
+  }
 }
 
 .position-container {

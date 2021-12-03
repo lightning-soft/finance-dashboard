@@ -1,3 +1,5 @@
+@import "~src/scss/variables";
+
 .icon-align {
   background: #24262C;
   border-radius: 2px;
@@ -19,7 +21,7 @@
   }
 
   &.isSelected {
-    color: #4895F5;
+    color: $primary;
   }
 }
 

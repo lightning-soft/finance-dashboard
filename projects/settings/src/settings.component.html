@@ -4,7 +4,7 @@
     <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="activeTab = tab">{{tab}}</li>
   </ul>
 
-  <ul class="tab-content" *ngIf="activeTab === TABS.GENERAL"> 
+  <ul class="tab-content" *ngIf="activeTab === TABS.GENERAL">
     <li>
       <nz-radio-group [nzSize]="'large'" [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
         <div>
@@ -16,26 +16,28 @@
       </nz-radio-group>
     </li>
   </ul>
-  <table class="tab-content table" *ngIf="activeTab === TABS.HOTKEYS">
-    <thead>
-    <tr>
-      <th>Functions</th>
-      <th>
-        <div class="d-flex align-items-center justify-content-between">
-          Keys
-          <button class="clear-all" (click)="clearAll()" nz-button nzType="link">Clear All</button>
-        </div>
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let entry of hotkeys; let i = index">
-      <td class="hotkey-name"><span class="d-flex align-items-center h-100">{{entry.name}}</span></td>
-      <td class="hotkey-reader">
-        <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)"></hotkey-input>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-  <lib-sound-tab-setting class="tab-content" *ngIf="activeTab === TABS.SOUNDS"></lib-sound-tab-setting>
+  <div class="tab-content " *ngIf="activeTab === TABS.HOTKEYS">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Functions</th>
+        <th>
+          <div class="d-flex align-items-center justify-content-between">
+            Keys
+            <button class="clear-all" (click)="clearAll()" nz-button nzType="link">Clear All</button>
+          </div>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let entry of hotkeys; let i = index">
+        <td class="hotkey-name"><span class="d-flex align-items-center h-100">{{entry.name}}</span></td>
+        <td class="hotkey-reader">
+          <hotkey-input [value]="entry.binding" (valueChange)="updateHotkey($event, entry.key)"></hotkey-input>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <lib-sound-tab-setting class="tab-content sounds" *ngIf="activeTab === TABS.SOUNDS"></lib-sound-tab-setting>
 </div>

@@ -11,8 +11,15 @@ $footer-height: 28px;
   // padding: 10px;
 
 
-  ::ng-deep data-grid {
-    height: calc(100% - #{$header-height} - #{$footer-height});
+  ::ng-deep {
+    window-header {
+      .title {
+        color: #fff !important;
+      }
+    }
+    data-grid {
+      height: calc(100% - #{$header-height} - #{$footer-height});
+    }
   }
 }
 

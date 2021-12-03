@@ -1,4 +1,4 @@
-const primary = '#4895F5';
+const primary = '#0C62F7';
 const selectBackground = 'rgba(36, 38, 44, 1)';
 const dropdownBackground = 'rgba(36, 38, 44, 1)';
 const activeItemBackground = 'rgb(56,58,64)';

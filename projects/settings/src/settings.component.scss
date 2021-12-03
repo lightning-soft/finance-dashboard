@@ -15,10 +15,27 @@
   ::ng-deep {
     window-header {
       color: $text-60;
+      position: relative;
+
+      .window-icon {
+        margin-right: 6px !important;
+        background-color: transparent !important;
+      }
 
       .title {
         color: $text-60 !important;
         font-weight: 600;
+        font-size: 1rem !important;
+      }
+
+      &:after {
+        right: 0;
+        content: '';
+        height: 100%;
+        width: 436px;
+        background: $secondary;
+        position: absolute;
+        z-index: -1;
       }
     }
 
@@ -50,6 +67,7 @@
     }
 
   }
+
   .table {
     height: 25px;
   }
@@ -71,14 +89,16 @@
     padding: 0;
     padding-bottom: 6px;
     color: $text-40;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
   }
 
   ::ng-deep {
     table .hotkey-input {
       height: 20px;
+      background: $light;
       font-size: 0.75rem;
+      color: $text-80;
     }
   }
 
@@ -114,7 +134,7 @@
       list-style-type: none;
 
       li {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: $text-60;
 
         &.active {
@@ -126,34 +146,32 @@
 
     .tabs {
       border-radius: 4px;
-      background-color: #1B1D22;
       width: 181px;
       min-width: 181px;
       text-transform: capitalize;
-      padding: 12px 8px;
+      padding: 16px 8px 12px;
 
       li {
-        border-radius: 0px;
+        border-radius: 2px;
         padding: 4px 8px;
         margin-bottom: 1px;
+        transition: all 0.3s;
         cursor: pointer;
 
-        &.active,
-        &:hover {
-          background-color: #24262C;
+        &.active {
+          background: $primary;
         }
       }
     }
 
-    .table {
-      margin-left: 15px;
-      margin-right: 13px;
-    }
-
     .tab-content {
-      padding: 0 16px;
+      background-color: $inputBackground;
       flex-grow: 1;
-      margin-top: 16px;
+      padding: 21px 16px 0;
+
+      &.sounds {
+        padding-top: 17px;
+      }
 
       li {
         display: flex;
