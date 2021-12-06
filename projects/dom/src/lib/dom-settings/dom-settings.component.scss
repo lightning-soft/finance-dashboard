@@ -91,7 +91,7 @@ cdk-virtual-scroll-viewport {
     display: block;
 
     &:not(:first-child) {
-      margin-top: 27px;
+      margin-top: 24px;
     }
 
     > formly-wrapper-nz-form-field > nz-form-item > nz-form-control {
@@ -251,7 +251,7 @@ cdk-virtual-scroll-viewport {
   .two-rows {
     > * {
       width: 48%;
-      margin-top: 6px;
+      margin-top: 16px;
 
       &:nth-child(even) {
         margin-left: 4px;

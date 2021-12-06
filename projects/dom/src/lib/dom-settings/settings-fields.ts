@@ -345,7 +345,7 @@ export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Last Traded Quantity (LTQ)',
     key: 'ltq',
-    fieldGroupClassName: 'd-flex flex-wrap p-x-4',
+    fieldGroupClassName: 'd-flex flex-wrap p-x-4 w-100',
     fieldGroup: [
       new FieldConfig({
           fieldGroup: [
@@ -359,7 +359,7 @@ export const ltqFields: IFieldConfig[] = [
         },
       ),
       {
-        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-4',
+        fieldGroupClassName: 'd-flex flex-wrap two-rows w-100 p-x-4',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
@@ -386,7 +386,7 @@ export const priceFields: IFieldConfig[] = [
       getColor({ label: 'Non Traded Price Font Color', key: 'color' }),
       getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
       getColor({ label: 'Traded Price Font Color', key: 'tradedPriceColor' }),
-      wrapWithClass(getTextAlign(), 'mt-2'),
+      getTextAlign()
     ]
   }),
 ];
