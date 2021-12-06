@@ -14,6 +14,12 @@ table {
 .connected-status {
   margin-left: 12px;
 }
+
+.default-label {
+  display: inline-block;
+  margin-right: 4px;
+}
+
 :host {
   display: block;
   height: 100%;

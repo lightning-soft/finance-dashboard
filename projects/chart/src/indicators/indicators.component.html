@@ -62,7 +62,10 @@
             [class.selected]="isSelected(item)">
           <span [title]="item.name" class="indicator-name">{{item.name}}</span>
           <i (click)="$event.stopPropagation(); removeIndicator(item)" class="icon-bucket"></i>
-          <i (click)="$event.stopPropagation();" class="icon-visible  ml-auto"></i>
+          <i (click)="$event.stopPropagation(); toggleVisible(item)"
+             class="ml-auto"
+             [class.icon-not-visible]="!item.visible"
+             [class.icon-visible]="item.visible"></i>
 
         </li>
       </cdk-virtual-scroll-viewport>
