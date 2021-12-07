@@ -456,6 +456,7 @@ function getDepthConfig(label: string) {
         getTextAlign(),*/
       getHistogramOrientation(),
       getNumber({ key: 'largeSize', label: `Large ${ label } Size`, min: 1 }),
+      {},
       getTextAlign(),
     ]
   });
@@ -659,22 +660,19 @@ function getCurrentFields(suffix: string) {
             getTextAlign(),
           ]
         }),
-        new FieldConfig(
-          {
-            fieldGroupClassName: '',
-            className: 'mt-0',
-            fieldGroup: [
-              getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
-              wrapWithClass(getCheckboxes({
-                  checkboxes: [{
-                    key: `tailInsideBold`,
-                    label: `Tail Inside ${ suffix } Bold`
-                  }]
-                }),
-                'd-block tail-checkbox'),
-            ]
-          }
-        ),
+        new FieldConfig({
+          fieldGroupClassName: 'w-100',
+          fieldGroup: [
+            getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
+            getCheckboxes({
+              checkboxes: [{
+                key: `tailInsideBold`,
+                label: `Tail Inside ${ suffix } Bold`,
+                className: 'w-100'
+              }]
+            }),
+          ]
+        }),
       ]
     }),
   ];
