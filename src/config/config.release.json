@@ -2,23 +2,23 @@
 	"http": {},
 	"ws": {},
   "setting": {
-    "url": "https://userdata-dev.tradrr.app/"
+    "url": "https://userdata.tradrr.app/"
   },
 	"rithmic": {
 	  "http": {
-  		"url": "https://rithmic-dev.tradrr.app/api/"
+  		"url": "https://rithmic.tradrr.app/api/"
 	  },
 	  "ws": {
-      "url": "wss://rithmic-dev.tradrr.app/api/v2/market"
+      "url": "wss://rithmic.tradrr.app/api/v2/market"
 	  }
 	},
   "zoneDecoder": {
     "http": {
-      "url": "https://zonedecoder-dev.tradrr.app/api/"
+      "url": "https://zonedecoder.tradrr.app/api/"
     }
   },
 	"identity": {
-    "url": "https://auth-dev.tradrr.app/",
+    "url": "https://auth.tradrr.app/",
     "scope": [
       "openid",
       "profile",
