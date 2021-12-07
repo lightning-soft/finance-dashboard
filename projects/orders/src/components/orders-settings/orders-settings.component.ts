@@ -25,5 +25,6 @@ export class OrdersSettingsComponent extends BaseSettingsComponent implements Af
     super();
     this.setTabTitle('Settings Orders');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 }

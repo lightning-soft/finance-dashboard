@@ -270,7 +270,7 @@ export function getCheckboxes(_config: any) {
     templateOptions: {
       label
     },
-    fieldGroupClassName: 'd-flex two-rows flex-wrap',
+    fieldGroupClassName: 'd-flex checkbox-field-group two-rows flex-wrap',
     fieldGroup: [...checkboxes.map(item => {
       const checkboxConfig = item.config || {};
       return {

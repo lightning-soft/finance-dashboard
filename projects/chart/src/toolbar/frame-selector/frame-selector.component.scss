@@ -69,6 +69,7 @@
 
     .icon-delete {
       color: white !important;
+
       &:hover {
         color: white !important;
       }
@@ -105,14 +106,13 @@ nz-input-number {
   width: auto;
   color: white;
   font-size: 0.7rem;
-  background: $darkBackground;
+  background: $light;
   border: 1px solid transparent;
 }
 
 ::ng-deep {
   .chart-frame-interval {
     background: $light;
-    border: 1px solid $lighter;
     box-sizing: border-box;
     box-shadow: 0px 0px 10px #15161D;
     border-radius: 2px;
@@ -162,7 +162,7 @@ nz-input-number {
     .add-btn {
       height: 20px;
       line-height: 1;
-      background: $darkBackground;
+      background: $light;
       border: 1px solid $light;
       border-radius: 2px;
       font-size: 0.7rem;
@@ -227,7 +227,7 @@ nz-input-number {
       text-transform: capitalize;
 
       nz-select-top-control {
-        background: $darkBackground !important;
+        background: $light !important;
         padding-right: 0 !important;
         padding-left: 5px !important;
       }

@@ -259,6 +259,13 @@ export class IndicatorsComponent implements OnInit {
     chart.setNeedsUpdate();
   }
 
+  toggleVisible(item) {
+    item.visible = !item.visible;
+    const { chart } = this;
+    chart.setNeedsUpdate();
+    chart.setNeedsLayout();
+  }
+
   removeAll() {
     const { chart } = this;
 
@@ -296,7 +303,7 @@ export class IndicatorsComponent implements OnInit {
       const contentPromises = contentKeys.map(contentKey => {
         return StockChartX.Localization.localizeText(
           this.chart,
-          `indicator.${name}.help.${key}.${contentKey}`,
+          `indicator.${ name }.help.${ key }.${ contentKey }`,
           { defaultValue: null },
         );
       });
