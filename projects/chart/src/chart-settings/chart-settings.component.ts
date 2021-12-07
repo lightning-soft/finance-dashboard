@@ -62,6 +62,7 @@ export class ChartSettingsComponent implements AfterViewInit {
   constructor() {
     this.setTabTitle('Settings Chart');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 
   ngAfterViewInit() {

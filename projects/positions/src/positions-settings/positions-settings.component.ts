@@ -25,5 +25,6 @@ export class PositionsSettingsComponent extends BaseSettingsComponent {
     super();
     this.setTabTitle('Settings Positions');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 }

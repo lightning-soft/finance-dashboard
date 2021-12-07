@@ -32,6 +32,7 @@ export class MarketWatchSettingsComponent implements AfterViewInit {
   constructor() {
     this.setTabTitle('Settings MarketWatch');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 
   ngAfterViewInit(): void {

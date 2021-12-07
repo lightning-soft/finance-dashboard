@@ -559,7 +559,7 @@ export const volumeFields: IFieldConfig[] = [
 
 export const orderColumnFields: IFieldConfig[] = [
   new FieldConfig({
-    label: 'Trade Column',
+    label: 'Orders',
     key: 'orders',
     fieldGroupClassName: '',
     fieldGroup: [

@@ -111,7 +111,7 @@ function getProfileConfig(key, _config = {}) {
           }
         ]
       }),
-      getNumber({ label: 'Profile width, %', min: 1, key: 'width', className: 'split-input full-width' }),
+      getNumber({ label: 'Profile width, %', min: 1, key: 'width', className: 'split-input profile-width full-width' }),
       getCheckboxes({
         checkboxes: [
           {
@@ -124,7 +124,7 @@ function getProfileConfig(key, _config = {}) {
       {
         key: 'extendNaked',
         className: 'full-width',
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid p-0 two-rows',
         fieldGroup: [
           getCheckboxes({
             extraConfig: {
@@ -371,7 +371,8 @@ function getWidthField(key = 'width') {
 function getBand(key) {
   return {
     key,
-    fieldGroupClassName: 'd-grid band-rows',
+    fieldGroupClassName: 'd-grid band-rows w-100',
+    className: 'w-100',
     fieldGroup: [
       getCheckboxes({ checkboxes: [{ key: 'isShow', label: `Bands at` }] }),
       getNumber({
@@ -464,7 +465,7 @@ export function getGraphicsField() {
 export function getMeasureField(key, label) {
   return {
     key,
-    fieldGroupClassName: 'd-grid two-rows',
+    fieldGroupClassName: 'd-grid session-stats-general-rows',
     fieldGroup: [
       getNumber({ key: 'value', label }),
       getSelect({
@@ -624,7 +625,7 @@ export const footprintConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'text',
     label: 'Text',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom ',
     className: 'mt-4 d-block',
     fieldGroup: [
       getSelect({
@@ -660,7 +661,7 @@ export const footprintConfig: IFieldConfig[] = [
         label: 'Margin In Px',
         min: 0,
         key: 'margin',
-        className: 'split-input'
+        className: 'split-input  profile-width'
       }), {
         hideExpression: (res) => {
           return !['bidDeltaAsk', 'bidTotalAsk'].includes(res?.textStyle);
@@ -675,12 +676,17 @@ export const footprintConfig: IFieldConfig[] = [
           }
         }
       }),
-      getNumber({ label: 'Initial bar width', min: 1, key: 'initialBarWidth', className: 'split-input d-block my-2' }),
+      getNumber({
+        label: 'Initial bar width',
+        min: 1,
+        key: 'initialBarWidth',
+        className: 'split-input  profile-width d-block my-2'
+      }),
       wrapWithConfig(getNumber({
         label: 'Bar width text threshold',
         min: 1,
         key: 'barWidthTextThreshold',
-        className: 'split-input mt-2'
+        className: 'split-input profile-width mt-2'
       }), {
         hideExpression: (res) => {
           return res?.textStyle === 'noText';
@@ -692,7 +698,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'profile',
     label: 'Profile',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'inline-fields hide-border-bottom p-x-10',
+    fieldGroupClassName: 'inline-fields hide-border-bottom ',
     fieldGroup: [
       getSelect({
         label: 'Profile Filter',
@@ -751,7 +757,7 @@ export const footprintConfig: IFieldConfig[] = [
       getNumber({
         label: 'POC Outline Width',
         min: 1,
-        key: 'strokeWidth', className: 'split-input d-block mt-1'
+        key: 'strokeWidth', className: 'split-input profile-width d-block mt-1'
       })
     ],
   }),
@@ -759,7 +765,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'volumeFilter',
     className: 'mt-4 d-block',
     label: 'Volume Filter',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom',
     fieldGroup: [
       getSwitch('enabled', 'Enabled'),
       getSelect({
@@ -774,14 +780,14 @@ export const footprintConfig: IFieldConfig[] = [
           }
         ], className: 'select',
       }),
-      getNumber({ label: 'Value', key: 'value', min: 0, className: 'split-input d-block mt-2' })
+      getNumber({ label: 'Value', key: 'value', min: 0, className: 'split-input profile-width d-block mt-2' })
     ]
   }),
   new FieldConfig({
     key: 'deltaImbalance',
     label: 'Delta Imbalance',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom p-x-10',
+    fieldGroupClassName: 'inline-fields regular-label hide-border-bottom ',
     fieldGroup: [
       getSwitch('enabled', 'Enabled'),
       getInput({
@@ -817,7 +823,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'pullback',
     label: 'Pullback',
     className: 'pb-1 mt-4 d-block',
-    fieldGroupClassName: 'inline-fields p-0 regular-label p-x-10',
+    fieldGroupClassName: 'inline-fields p-0 regular-label ',
     fieldGroup: [
       getSwitch('enabled', 'Enable Pullback'),
       new FieldConfig({
@@ -845,7 +851,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           label: 'Profile Period',
         },
         className: 'w-100 full-width profile-period hide-border-bottom ',
-        fieldGroupClassName: 'd-flex align-items-end period-items',
+        fieldGroupClassName: 'period-items',
         fieldGroup: [
           wrapWithConfig(
             getSelect({
@@ -961,7 +967,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
           }),
         ],
       },
-      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getNumber({ label: 'Value Area, %', className: 'valuaArea', key: 'va', min: 0, max: 100 }),
       {
         key: 'smoothed',
         fieldGroupClassName: 'd-flex align-items-center smooth-price',
@@ -1135,7 +1141,7 @@ export const compositeProfileConfig: IFieldConfig[] = [
           },
         ],
       }),
-      getNumber({ label: 'Value Area, %', key: 'va', min: 0, max: 100 }),
+      getNumber({ label: 'Value Area, %', className: 'number-50', key: 'va', min: 0, max: 100 }),
       getTextAlign('align', 'Profile Alignment',
         { className: 'profile-alignment' }),
       {
@@ -1146,7 +1152,7 @@ export const compositeProfileConfig: IFieldConfig[] = [
             value: true
           },
           wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-            { className: 'tickPerPrice' })
+            { className: 'tickPerPrice number-50' })
         ]
       },
       getWidthField(),
@@ -1155,12 +1161,13 @@ export const compositeProfileConfig: IFieldConfig[] = [
         fieldGroupClassName: 'd-flex align-items-center smooth-price',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ label: 'Smoothed..', key: 'enabled' }]
+            checkboxes: [{ label: 'Smoothed Prices', key: 'enabled' }]
           }),
           getNumber({
             key: 'value',
-            label: 'Prices',
+            label: '',
             min: 0,
+            className: 'smoothedPrices',
           }),
         ],
       },
@@ -1282,6 +1289,7 @@ export const barStatsConfig = [
           getNumber({
             key: 'fontSize',
             min: 0,
+            className: 'font-size-number'
           })
         ],
       },
@@ -1306,6 +1314,7 @@ export const barStatsConfig = [
     label: 'Groups with a trade volume filter',
     key: 'groupsTradeVolumeFilter',
     fieldGroupClassName: '',
+    className: 'd-block mb-2 mt-4',
     fieldGroup: [
       {
         type: 'repeat-group',
@@ -1499,7 +1508,7 @@ export const priceStatsConfig: IFieldConfig[] = [
         className: '',
         expressionProperties: {
           className: (a, b, field) => {
-            return field.form.value.overlayEthOverRth ? 'mt-4 block profile-settings bordered' : 'mt-4 block profile-settings bordered hide-border-label';
+            return field.form.value.overlayEthOverRth ? 'mt-3 block profile-settings bordered' : 'mt-3 block profile-settings bordered hide-border-label';
           },
         },
       }),
@@ -1605,7 +1614,7 @@ export const sessionStatsConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'General',
     key: 'general',
-    fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
+    fieldGroupClassName: 'd-grid two-rows p-0 regular-label label-400 hide-border-bottom',
     fieldGroup: [
       getSelect({
         key: 'style',
@@ -1629,7 +1638,7 @@ export const sessionStatsConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Font',
     key: 'font',
-    fieldGroupClassName: 'd-grid font-rows regular-label label-400 hide-border-bottom',
+    fieldGroupClassName: 'd-grid font-rows p-0  regular-label label-400 hide-border-bottom',
     className: 'mt-4 d-block',
     fieldGroup: [
       wrapWithClass(getColor({ key: 'fillColor', label: '' }), 'color-without-label'),
@@ -1654,7 +1663,7 @@ export const sessionStatsConfig: IFieldConfig[] = [
     label: 'Trading Hours',
     key: 'sessions',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows regular-label label-400 hide-border-bottom',
+    fieldGroupClassName: 'd-grid two-rows pr-1 regular-label label-400 hide-border-bottom',
     fieldGroup: [
       getSessionsSelect('rth', { label: 'RTH Session Template' }),
       getSessionsSelect('eth', { label: 'ETH Session Template' }),
@@ -1739,7 +1748,12 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
         key: 'accumulate',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ key: 'enabled', label: 'Accumulate' }],
+            extraConfig: {
+              fieldGroupClassName: 'accumulate-session',
+            },
+            checkboxes: [{
+              key: 'enabled',  label: 'Accumulate'
+            }],
             additionalFields: [getSelect({
               key: 'value',
               options: [
@@ -1770,7 +1784,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
         ],
       },
       new FieldConfig({
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid up-down-rows',
         fieldGroup: [
           getColor({ key: 'upFillColor', label: 'Up' }),
           getColor({ key: 'upStrokeColor', label: 'Up Outline' }),
@@ -1795,7 +1809,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
         ],
       },
       new FieldConfig({
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid up-down-rows',
         fieldGroup: [
           getColor({ key: 'downFillColor', label: 'Down' }),
           getColor({ key: 'downStrokeColor', label: 'Down Outline' }),
@@ -1807,6 +1821,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
     label: 'Size Filter',
     key: 'sizeFilter',
     className: 'mt-3 d-block',
+    fieldGroupClassName: '',
     fieldGroup: [
       {
         key: 'sizeFilter',
@@ -1838,7 +1853,7 @@ export const vwapConfig: IFieldConfig[] = [
         className: 'style',
         fieldGroupClassName: 'vwap-styles-grid',
         fieldGroup: [
-          wrapWithClass(getSelect({
+          getSelect({
             key: 'style',
             options: [
               {
@@ -1857,7 +1872,7 @@ export const vwapConfig: IFieldConfig[] = [
                 label: 'Price Box, Hollow', value: 'hollow'
               },
             ]
-          }), 'max-width-85'),
+          }),
           wrapWithClass(getColor('strokeColor'), 'color-without-label'),
           getLineSelector({
             key: 'lineStyle'
@@ -1903,7 +1918,7 @@ export const vwapConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Bands',
     key: 'bands',
-    className: 'mt-3',
+    className: 'mt-4 band-label d-block',
     fieldGroup: [
       getBand('band1'),
       getBand('band2'),
@@ -1913,8 +1928,8 @@ export const vwapConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Label',
     key: 'label',
-    className: 'mt-3',
-    fieldGroupClassName: 'd-grid two-rows regular-label hide-border-bottom',
+    className: 'mt-4 d-block band-label',
+    fieldGroupClassName: 'd-grid two-rows pr-1 regular-label hide-border-bottom',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [{ label: 'Show VWAP Label', key: 'isShowVWAPLabel' }],
@@ -1922,6 +1937,7 @@ export const vwapConfig: IFieldConfig[] = [
       getNumber({
         key: 'lebelLineLength',
         label: 'Label Line Length',
+        className: 'number-justify-end number-line-length',
         min: 1,
       }),
     ],
@@ -1932,6 +1948,7 @@ export const zigZagConfig: IFieldConfig[] = [
   new FieldConfig({
     key: 'parameters',
     label: 'Parameters',
+    className: 'd-block m-x-5',
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     fieldGroup: [
       getCheckboxes({
@@ -1953,7 +1970,8 @@ export const zigZagConfig: IFieldConfig[] = [
       }),
       getNumber({
         label: 'Bar Width Text Thr..',
-        key: 'barWidthTextThreshold'
+        key: 'barWidthTextThreshold',
+        className: 'number-space-around',
       }),
       getNumber({
         label: 'Data Box Offset(Px)',
@@ -1987,7 +2005,8 @@ export const zigZagConfig: IFieldConfig[] = [
       }),
       getNumber({
         label: 'Min. Ticks Rev.',
-        key: 'minTicksRev'
+        key: 'minTicksRev',
+        className: 'number-space-around',
       }),
     ],
   }),
@@ -1995,6 +2014,7 @@ export const zigZagConfig: IFieldConfig[] = [
     label: 'Data Box',
     key: 'dataBox',
     fieldGroupClassName: '',
+    className: 'd-block mt-4 deltabox-field',
     fieldGroup: [
       wrapWithClass(getDataBox('fields'), 'data-box-border'),
       getCheckboxes({
@@ -2017,8 +2037,8 @@ export const zigZagOscillatorConfig: IFieldConfig[] = [
     key: 'parameters',
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     fieldGroup: [
-      getNumber({ label: 'Min. Change (Ticks)', key: 'minChange' }),
-      getNumber({ label: 'Bar Width Text Thr..', key: 'barWidthTextThreshold' }),
+      getNumber({ label: 'Min. Change (Ticks)', className: 'number-space-between', key: 'minChange' }),
+      getNumber({ label: 'Bar Width Text Thr..',  className: 'number-space-between', key: 'barWidthTextThreshold' }),
       getColor({ key: 'downFillColor', label: 'Down Bars' }),
       getColor({ key: 'upFillColor', label: 'Up Bars' }),
       getCheckboxes({
@@ -2045,7 +2065,7 @@ export const zigZagOscillatorConfig: IFieldConfig[] = [
               }),
             ],
             extraConfig: {
-              fieldGroupClassName: 'd-grid two-rows'
+              fieldGroupClassName: 'd-grid two-rows p-0'
             },
           })
         ]
@@ -2056,12 +2076,13 @@ export const zigZagOscillatorConfig: IFieldConfig[] = [
     label: 'Upper Band',
     key: 'upperBand',
     fieldGroupClassName: 'two-rows d-grid zig-zag',
-    className: 'mt-3 d-block',
+    className: 'mt-4  band-label d-block',
     fieldGroup: [
       wrapWithClass(getColor({ key: 'strokeColor', label: 'Color' }), 'full-width half-width'),
       getNumber({
         label: 'Bottom (Points)',
         key: 'bottom',
+        className: 'number-space-evenly'
       }),
       getNumber({
         label: 'Top (Points)',
@@ -2072,13 +2093,14 @@ export const zigZagOscillatorConfig: IFieldConfig[] = [
   new FieldConfig({
     label: 'Lower Band',
     key: 'lowerBand',
-    className: 'mt-3 d-block',
-    fieldGroupClassName: 'two-rows d-grid zig-zag',
+    className: 'mt-4 d-block band-label',
+    fieldGroupClassName: 'two-rows  d-grid zig-zag',
     fieldGroup: [
       wrapWithClass(getColor({ key: 'strokeColor', label: 'Color' }), 'full-width half-width'),
       getNumber({
         label: 'Bottom (Points)',
         key: 'bottom',
+        className: 'number-space-evenly'
       }),
       getNumber({
         label: 'Top (Points)',
