@@ -482,6 +482,7 @@ function getTotalFields(label: string, key: string) {
         getCheckboxes({
           checkboxes: [{ key: 'histogramEnabled', label: `${ label } Histogram` }], extraConfig: {
             className: ' depth-checkboxes',
+            fieldGroupClassName: 'd-flex checkbox-field-group flex-wrap',
           }
         }),
         getTextAlign(),
@@ -613,7 +614,8 @@ export const orderColumnFields: IFieldConfig[] = [
         ]
       }),
       new FieldConfig({
-        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
+        fieldGroupClassName: 'd-flex flex-wrap  two-rows p-x-7',
+        className: 'mt-0',
         fieldGroup: [
           disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
           disableExpression(getColor({
@@ -641,11 +643,15 @@ function getCurrentFields(suffix: string) {
       key: `current${ suffix }`,
       fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${ suffix } Histogram` }] }),
-        getBackgroundColor(),
+        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled',
+            config: {
+              className: 'w-100 mb-1',
+            },
+            label: `Current At ${ suffix } Histogram` }] }),
+        wrapWithClass(getBackgroundColor(), 'current-background'),
         wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
-          className: 'color-levels',
+          className: 'color-levels mt-2 d-block',
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
             .map(i => getColor({ label: `Level ${ i }`, key: `level${ i }BackgroundColor` })),
@@ -663,6 +669,7 @@ function getCurrentFields(suffix: string) {
         }),
         new FieldConfig({
           fieldGroupClassName: 'w-100',
+          className: 'm-t-16',
           fieldGroup: [
             getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
             getCheckboxes({

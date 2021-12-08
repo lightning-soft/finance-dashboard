@@ -15,6 +15,10 @@ cdk-virtual-scroll-viewport {
       color: $text-60;
     }
   }
+  .settings-field {
+    display: block;
+    margin-top: 32px;
+  }
 
   .dark-btn {
     background: #101114;

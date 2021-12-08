@@ -73,8 +73,8 @@ export class NavbarComponent implements AfterViewInit, OnInit {
     private windowManagerService: WindowManagerService,
     private _windowPopupManager: WindowPopupManager,
   ) {
-    this.isNewNotification = !!this.notificationService.getNotification().length;
-    this.notificationService.notifications.subscribe(n => {
+    this.isNewNotification = !!this.notificationService.getNewNotifications().length;
+    this.notificationService.newNotifications.subscribe(n => {
       this.isNewNotification = !!n.length;
     });
 

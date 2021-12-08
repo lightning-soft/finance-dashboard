@@ -5,7 +5,8 @@ import { Notification, NotificationStatus, NotificationType } from './notificati
 import { NotificationId } from './type';
 import { reducer } from './handlers';
 import { NotifierService } from 'notifier';
-import { SoundService, Sound } from 'sound';
+import { Sound, SoundService } from 'sound';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class NotificationService extends NotifierService {
@@ -13,6 +14,10 @@ export class NotificationService extends NotifierService {
   private _notifications: Notification[] = [];
 
   public notifications: Subject<Notification[]> = new Subject();
+  public newNotifications = this.notifications
+    .pipe(
+      map(arr => arr.filter(item => item.type === NotificationStatus.UNREADED))
+    );
 
   constructor(
     private _webSocketService: WebSocketService,
@@ -59,12 +64,11 @@ export class NotificationService extends NotifierService {
   }
 
   public getNotification(): Notification[] {
-    const notifications = this._filterUnreaded(this._notifications);
-    return notifications;
+    return this._notifications;
   }
 
-  private _filterUnreaded(notifications: Notification[]): Notification[] {
-    return notifications.filter(n => n.status === NotificationStatus.UNREADED);
+  public getNewNotifications(): Notification[] {
+    return this._notifications.filter(item => item.type === NotificationStatus.UNREADED);
   }
 
   private _handleStream(msg: any): void {

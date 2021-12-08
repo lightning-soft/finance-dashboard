@@ -26,7 +26,7 @@ cdk-virtual-scroll-viewport {
 .selected {
   display: grid;
   grid-template-columns: calc(100% - 10px) 10px;
-  background: #1B1D22;
+  background: $light;
   border-radius: 2px;
   padding-right: 6px;
   padding-left: 6px;

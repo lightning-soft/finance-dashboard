@@ -31,9 +31,10 @@
       &:after {
         right: 0;
         content: '';
-        height: 100%;
-        width: 436px;
+        height: 102%;
+        width: 435px;
         background: $secondary;
+        top: 0;
         position: absolute;
         z-index: -1;
       }

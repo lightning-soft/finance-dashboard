@@ -54,7 +54,7 @@ export const settingsField = [
       }),
       new FieldConfig({
         label: 'Display',
-        className: 'd-block mt-4 field-item',
+        className: 'd-block settings-field field-item',
         fieldGroupClassName: 'field-group',
         fieldGroup: [
           getSelect({
@@ -111,7 +111,7 @@ export const settingsField = [
       new FieldConfig({
         fieldGroupClassName: '',
         key: 'columnView',
-        className: 'd-block mt-4 field-item form-control-no-paddings',
+        className: 'd-block settings-field field-item form-control-no-paddings',
         fieldGroup: [
           getColumnSelector({
             key: 'columns',
