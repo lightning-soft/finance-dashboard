@@ -127,14 +127,22 @@ export const customVolumeProfile = [
         className: 'full-width',
         fieldGroup: [
           getCheckboxes({
-            checkboxes: [{ label: 'Show POC Price', value: 'showPocPrice', key: 'current.poc.labelEnabled' }],
+            checkboxes: [{ label: 'Show POC Price',
+              config: {
+                className: 'p-l-5',
+              },
+              value: 'showPocPrice', key: 'current.poc.labelEnabled' }],
             extraConfig: { fieldGroupClassName: 'd-flex justify-content-end', className: 'full-width' }
           }),
           getCheckboxes({
-            checkboxes: [{ label: 'Show VA Prices ', value: 'showVAPrice', key: 'current.va.labelEnabled' }],
+            checkboxes: [{ label: 'Show VA Prices ',
+              config: {
+                className: 'p-r-2',
+              },
+              value: 'showVAPrice', key: 'current.va.labelEnabled' }],
             extraConfig: { fieldGroupClassName: 'd-flex justify-content-end' }
           })],
-        fieldGroupClassName: 'd-grid three-rows'
+        fieldGroupClassName: 'd-grid three-rows poc-rows'
       },
 
     ],
@@ -154,6 +162,9 @@ export const customVolumeProfile = [
           {
             label: 'Show Hi/Lo Prices',
             key: 'showPrices',
+            config: {
+              className: 'p-l-5',
+            }
           }
         ],
         extraConfig: {

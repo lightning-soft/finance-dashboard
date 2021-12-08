@@ -71,11 +71,11 @@ export const generalFields: IFieldConfig[] = [
       new FieldConfig({
           label: 'Font',
           key: 'font',
-          fieldGroupClassName: 'd-flex p-x-10',
+          fieldGroupClassName: 'd-grid font-rows',
           fieldGroup: [
             getSelect({
               key: 'fontFamily',
-              className: 'flex-grow-1 m-r-5',
+              className: 'flex-grow-1 m-r-4',
               options: [
                 { label: 'Arial', value: 'Arial' },
                 { label: 'Comic Sans', value: 'Comic Sans' },
@@ -90,7 +90,7 @@ export const generalFields: IFieldConfig[] = [
             }),
             getSelect({
               key: 'fontSize',
-              className: 'd-block',
+              className: 'd-block m-r-5',
               options: [
                 { label: '8', value: 8 },
                 { label: '9', value: 9 },
@@ -175,7 +175,7 @@ export const tradingFields: IFieldConfig[] = [
       new FieldConfig({
         label: 'Trading',
         className: 'm-t-8 d-block',
-        fieldGroupClassName: 'd-grid two-rows p-x-7',
+        fieldGroupClassName: 'd-grid two-rows trading-rows p-x-7',
         fieldGroup: [
           getCheckboxes({
             extraConfig: {
@@ -305,6 +305,7 @@ export const tradingFields: IFieldConfig[] = [
         label: 'TIF',
         key: 'tif',
         className: 'd-block mb-4',
+        fieldGroupClassName: 'p-x-6 d-flex flex-wrap two-rows',
         fieldGroup: [
           getLabel('Default TIF'),
           getSelect({
@@ -330,7 +331,8 @@ export const tradingFields: IFieldConfig[] = [
           }),
           getCheckboxes({
             extraConfig: {
-              fieldGroupClassName: 'd-grid two-rows',
+              fieldGroupClassName: 'd-grid tif-rows two-rows',
+              className: '',
             },
             checkboxes: [
               {

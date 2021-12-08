@@ -41,7 +41,7 @@ label {
   font-weight: 600;
 }
 
-.ant-dropdown-menu, .ant-menu {
+.ant-dropdown-menu, .ant-menu, .workspaces {
   box-shadow: 0px 4px 15px #15161d, 0px 0px 20px #15161d;
 }
 
@@ -648,4 +648,8 @@ nz-input-number:not(.custom-form-control) {
 .ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover),
 .ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover) {
   background-color: transparent;
+}
+
+.full-width {
+  width: 100%;
 }

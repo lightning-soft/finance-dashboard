@@ -9,14 +9,17 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+
   formly-form {
     .template-label, .ant-checkbox-wrapper, .ant-radio-wrapper, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
       color: $text-60;
     }
   }
-  .dark-btn{
+
+  .dark-btn {
     background: #101114;
   }
+
   window-header {
     .title {
       font-size: 1rem !important;
@@ -124,7 +127,13 @@ cdk-virtual-scroll-viewport {
   .highlightType {
     .ant-form-item-control {
       padding-top: 3px;
-      max-width: 127px;
+      max-width: 114px;
+
+      .ant-select-single .ant-select-selector .ant-select-selection-item div{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
       .ant-select-single .ant-select-selector .ant-select-selection-item {
         line-height: 18px;
