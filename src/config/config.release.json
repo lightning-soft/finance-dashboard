@@ -30,7 +30,7 @@
 	"clientId": "oidcCodeClient",
 	"clientSecret": "SuperSecretPassword",
     "responseType": "code",
-    "redirectUri": "http://localhost:4200",
+    "redirectUri": "https://tradrr.app",
     "notificationUri": "https://notification.tradrr.app/"
   }
 }
