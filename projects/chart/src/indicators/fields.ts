@@ -510,7 +510,7 @@ export const footprintConfig: IFieldConfig[] = [
       {
         className: 'w-100  full-width',
         key: 'customTickSize',
-        fieldGroupClassName: 'd-grid two-rows',
+        fieldGroupClassName: 'd-grid p-0 two-rows',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
@@ -561,7 +561,7 @@ export const footprintConfig: IFieldConfig[] = [
     key: 'intraBar',
     label: 'IntaBar',
     className: 'mt-4 d-block',
-    fieldGroupClassName: 'd-grid two-rows hide-border-bottom p-x-10',
+    fieldGroupClassName: 'd-grid two-rows hide-border-bottom pl-0 pr-0',
     fieldGroup: [
       getCheckboxes({
         checkboxes: [{

@@ -1,0 +1,35 @@
+{
+	"http": {},
+	"ws": {},
+  "setting": {
+    "url": "https://userdata.tradrr.app/"
+  },
+	"rithmic": {
+	  "http": {
+  		"url": "https://rithmic.tradrr.app/api/"
+	  },
+	  "ws": {
+      "url": "wss://rithmic.tradrr.app/api/v2/market"
+	  }
+	},
+  "zoneDecoder": {
+    "http": {
+      "url": "https://zonedecoder.tradrr.app/api/"
+    }
+  },
+	"identity": {
+    "url": "https://auth.tradrr.app/",
+    "scope": [
+      "openid",
+      "profile",
+      "offline_access",
+      "api1.read",
+      "userdata.api",
+      "notification.api"
+    ],
+	"clientId": "oidcCodeClient",
+	"clientSecret": "SuperSecretPassword",
+    "responseType": "code",
+    "redirectUri": "https://release.tradrr.app"
+  }
+}

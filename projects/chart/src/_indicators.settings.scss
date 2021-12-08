@@ -5,6 +5,9 @@
 
 
   ::ng-deep {
+    formly-form > formly-field > formly-wrapper-nz-form-field > nz-form-item > nz-form-label > label {
+      color: $text-80 !important;
+    }
 
     .centralize-number {
       number-input {
@@ -300,8 +303,7 @@
     nz-form-item .ant-form-item-label {
       text-align: start;
       margin-bottom: 6px;
-      color: $text-40;
-      border-bottom: 1px solid #383A40;
+      color: $text-80;
       position: relative;
 
       /*  &:after {
@@ -316,7 +318,6 @@
 
       label {
         margin-bottom: 0;
-        margin-left: 10px;
       }
     }
 
@@ -331,7 +332,7 @@
     .ant-form-item-label > label, .template-label {
       font-size: 0.85rem;
       line-height: 1.2rem;
-      color: $text-40;
+      color: $text-60;
     }
 
     .template-label {
@@ -368,7 +369,6 @@
 
         .ant-form-item-label label {
           margin-left: 0;
-          color: $text-80;
           margin-right: 15px;
           font-size: 0.75rem;
         }
@@ -379,12 +379,12 @@
       .hotkey-wrapper {
         label {
           width: auto;
-          margin-right: 5px;
+          margin-right: 6px;
           color: $text-80;
         }
 
         hotkey-input {
-          width: 68%;
+          width: 72%;
 
           .hotkey-input {
             background: $light;
@@ -809,7 +809,6 @@
 cdk-virtual-scroll-viewport {
   height: 100%;
   background: $secondary;
-  margin-top: 3px;
 }
 
 

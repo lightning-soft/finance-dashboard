@@ -345,7 +345,7 @@ export const ltqFields: IFieldConfig[] = [
   new FieldConfig({
     label: 'Last Traded Quantity (LTQ)',
     key: 'ltq',
-    fieldGroupClassName: 'd-flex flex-wrap p-x-4',
+    fieldGroupClassName: 'd-flex flex-wrap p-x-4 w-100',
     fieldGroup: [
       new FieldConfig({
           fieldGroup: [
@@ -359,7 +359,8 @@ export const ltqFields: IFieldConfig[] = [
         },
       ),
       {
-        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-4',
+        fieldGroupClassName: 'd-flex flex-wrap align-items-end two-rows w-100 p-x-4',
+        className: 'd-block w-100',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
@@ -368,7 +369,7 @@ export const ltqFields: IFieldConfig[] = [
               config: { className: 'w-100' }
             }]
           }),
-          wrapWithClass(getTextAlign(), 'd-flex align-items-center m-0 mb-1'),
+          wrapWithClass(getTextAlign(), 'd-flex align-items-center'),
         ]
       }],
   }),
@@ -386,7 +387,7 @@ export const priceFields: IFieldConfig[] = [
       getColor({ label: 'Non Traded Price Font Color', key: 'color' }),
       getColor({ label: 'Traded Price Back Color', key: 'tradedPriceBackgroundColor' }),
       getColor({ label: 'Traded Price Font Color', key: 'tradedPriceColor' }),
-      wrapWithClass(getTextAlign(), 'mt-2'),
+      getTextAlign()
     ]
   }),
 ];
@@ -450,12 +451,13 @@ function getDepthConfig(label: string) {
             { key: 'histogramEnabled', label: `${ label } Depth Histogram` },
             { key: 'highlightLarge', label: `Highlight Large ${ label } Only` }]
         }),
-        className: 'w-100 depth-checkboxes',
+        className: 'w-100 mr-0',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
       getHistogramOrientation(),
       getNumber({ key: 'largeSize', label: `Large ${ label } Size`, min: 1 }),
+      {},
       getTextAlign(),
     ]
   });
@@ -583,7 +585,7 @@ export const orderColumnFields: IFieldConfig[] = [
                 { key: 'includeRealizedPL', label: 'Include Realized PL' }]
             }),
             fieldGroupClassName: '',
-            className: 'pl-1',
+            className: 'pl-0',
           },
           getTextAlign(),
         ]
@@ -605,7 +607,7 @@ export const orderColumnFields: IFieldConfig[] = [
                 { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
               ]
             }),
-            fieldGroupClassName: '', className: 'w-100 m-0 pl-1'
+            fieldGroupClassName: '', className: 'w-100 m-0 pl-0'
           },
 
         ]
@@ -659,22 +661,19 @@ function getCurrentFields(suffix: string) {
             getTextAlign(),
           ]
         }),
-        new FieldConfig(
-          {
-            fieldGroupClassName: '',
-            className: 'mt-0',
-            fieldGroup: [
-              getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
-              wrapWithClass(getCheckboxes({
-                  checkboxes: [{
-                    key: `tailInsideBold`,
-                    label: `Tail Inside ${ suffix } Bold`
-                  }]
-                }),
-                'd-block tail-checkbox'),
-            ]
-          }
-        ),
+        new FieldConfig({
+          fieldGroupClassName: 'w-100',
+          fieldGroup: [
+            getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
+            getCheckboxes({
+              checkboxes: [{
+                key: `tailInsideBold`,
+                label: `Tail Inside ${ suffix } Bold`,
+                className: 'w-100'
+              }]
+            }),
+          ]
+        }),
       ]
     }),
   ];
