@@ -5,7 +5,7 @@
   <cdk-virtual-scroll-viewport [itemSize]="">
     <div *ngFor="let group of notificationsGroup">
       <div *ngIf="group.date.length" class="date">{{group.date}}</div>
-    <div (click)="acceptNotification(notification.id)" class="notification {{notification.type}}"
+    <div [class.is-read]="notification.status === statuses.ACCEPTED" (click)="acceptNotification(notification.id)" class="notification {{notification.type}}"
       *ngFor="let notification of group.notifications">
       <div class="header">
         <div class="icon">

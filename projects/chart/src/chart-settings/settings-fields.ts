@@ -57,7 +57,7 @@ export const generalFields: IFieldConfig[] = [
         },
       ),
       new FieldConfig({
-          label: ' ',
+          className: 'settings-field',
           fieldGroupClassName: 'd-grid two-rows  p-b-15',
           fieldGroup: [
             getColor({ label: 'Gradient Color 1', key: 'gradient1' }),
@@ -71,6 +71,7 @@ export const generalFields: IFieldConfig[] = [
       new FieldConfig({
           label: 'Font',
           key: 'font',
+          className: 'settings-field',
           fieldGroupClassName: 'd-grid font-rows',
           fieldGroup: [
             getSelect({
@@ -284,7 +285,7 @@ export const tradingFields: IFieldConfig[] = [
       new FieldConfig({
         key: 'orderArea',
         label: 'Order Area',
-        className: 'mb-4 mt-4 d-block',
+        className: 'mt-4 d-block',
         fieldGroupClassName: 'p-x-7 d-block',
         fieldGroup: [
           {
@@ -304,7 +305,7 @@ export const tradingFields: IFieldConfig[] = [
       new FieldConfig({
         label: 'TIF',
         key: 'tif',
-        className: 'd-block mb-4',
+        className: 'd-block settings-field mb-4',
         fieldGroupClassName: 'p-x-6 d-flex flex-wrap two-rows',
         fieldGroup: [
           getLabel('Default TIF'),

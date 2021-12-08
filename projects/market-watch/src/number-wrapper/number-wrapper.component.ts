@@ -30,6 +30,10 @@ export class NumberWrapperComponent {
     return this._instrument;
   }
 
+  get step() {
+    return this._instrument.tickSize ?? 1;
+  }
+
   dropdownVisible = true;
 
   set value(value) {
