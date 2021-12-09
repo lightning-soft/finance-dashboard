@@ -30,6 +30,7 @@
 	"clientId": "oidcCodeClient",
 	"clientSecret": "SuperSecretPassword",
     "responseType": "code",
-    "redirectUri": "https://release.tradrr.app"
+    "redirectUri": "https://tradrr.app",
+    "notificationUri": "https://notification.tradrr.app/"
   }
 }
