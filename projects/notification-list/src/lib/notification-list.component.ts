@@ -49,7 +49,7 @@ export class NotificationListComponent {
   private _handleNotifications(notifications: Notification[]): void {
     this._ngZone.run(() => {
       this.notificationsGroup = groupNotifications(notifications);
-      this.hasNotifications = !!notifications.filter(item => item.type === NotificationStatus.UNREADED).length;
+      this.hasNotifications = !!notifications.length;
     });
   }
 

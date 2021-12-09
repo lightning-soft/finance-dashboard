@@ -16,7 +16,7 @@ export class NotificationService extends NotifierService {
   public notifications: Subject<Notification[]> = new Subject();
   public newNotifications = this.notifications
     .pipe(
-      map(arr => arr.filter(item => item.type === NotificationStatus.UNREADED))
+      map(arr => arr.filter(item => item.status === NotificationStatus.UNREADED))
     );
 
   constructor(
