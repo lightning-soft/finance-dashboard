@@ -58,7 +58,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
   protected _mapResponseItem(item: any): IInstrument {
     let suffix = '';
-    if (item.type === InstrumentType.Future) {
+    if (item.type === InstrumentType.Future && item.symbol > 2) {
       const [monthType, year] = item.symbol.replace(item.productCode, '');
       const decade = new Date().getFullYear().toString()[2];
       suffix = monthsMap[monthType] + `${decade}${year}`;

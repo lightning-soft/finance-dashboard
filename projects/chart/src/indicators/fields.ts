@@ -1004,8 +1004,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
               fieldGroupClassName: '',
             }
           }),
-          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-            { className: 'tickPerPrice' }),
+          getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
         ],
       },
     ],
@@ -1390,8 +1389,7 @@ export const priceStatsConfig: IFieldConfig[] = [
             key: 'enabled',
             value: true
           },
-          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-            { className: 'tickPerPrice' }),
+          getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
         ]
       },
       new FieldConfig({
@@ -1762,6 +1760,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
                 { label: 'Month', value: 'month' },
                 { label: 'All Values', value: 'all' },
               ],
+              className: 'w-100',
             })],
           }),
         ],
