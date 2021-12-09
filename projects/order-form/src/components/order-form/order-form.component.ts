@@ -430,6 +430,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this.isOco = true;
       this.updateOrderTypes();
     }
+    else {
+      this.cancelOco();
+    }
   }
 
   updateOrderTypes() {

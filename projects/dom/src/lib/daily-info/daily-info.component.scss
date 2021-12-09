@@ -4,6 +4,12 @@
   margin-top: 26px;
 }
 
+.info-indicator {
+  line-height: 1;
+  width: 2.3ch;
+  display: inline-block;
+}
+
 .income {
   font-weight: 600;
   font-size: 0.8rem;
@@ -26,6 +32,7 @@
 :host-context(.full-screen-window) {
   display: none;
 }
+
 :host-context(.header-daily-info) {
   .chart-data {
     flex-direction: row;

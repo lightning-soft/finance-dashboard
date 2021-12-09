@@ -3,6 +3,7 @@
         [nzTrigger]="'click'"
         (nzVisibleChange)="handleDropdownToggle($event)"
         [class.opened]="opened"
+        nzPlacement="topLeft"
         [nzDropdownMenu]="menu">
   <i title="Add Widget" class="icon-add"></i>
 </button>

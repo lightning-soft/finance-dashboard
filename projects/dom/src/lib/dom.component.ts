@@ -182,6 +182,8 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+const confirmModalWidth = 376;
+const confirmModalHeight = 180;
 
 const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMColumns.Orders, DOMColumns.Delta, DOMColumns.BuyOrders, DOMColumns.SellOrders];
 
@@ -313,6 +315,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   public set account(value: IAccount) {
+    if (this._account?.id === value?.id)
+      return;
+
     this._account = value;
     this.handleAccountChange(value);
   }
@@ -2285,9 +2290,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private createConfirmModal(params, event) {
+    const left = this.layoutContainer.x + this.layoutContainer.width / 2 - (confirmModalWidth / 2);
+    const top = this.layoutContainer.y + this.layoutContainer.height / 2 - (confirmModalHeight / 2);
+
     const nzStyle = event ? {
-      left: `${event.clientX}px`,
-      top: `${event.clientY}px`,
+      left: `${left}px`,
+      top: `${top}px`,
     } : {};
     return this._modalService.create({
       nzClassName: 'confirm-order',
