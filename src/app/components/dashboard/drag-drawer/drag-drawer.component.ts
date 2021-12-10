@@ -32,7 +32,7 @@ export class DragDrawerComponent implements OnDestroy {
     [Components.Chart]: 'Chart',
     [Components.Orders]: 'Orders',
     [Components.Positions]: 'Positions',
-    [Components.MarketWatch]: 'Market Watch',
+    [Components.MarketWatch]: 'MarketWatch',
     [Components.Dom]: 'DOM',
   };
 

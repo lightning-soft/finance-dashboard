@@ -114,8 +114,6 @@ export class NavbarComponent implements AfterViewInit, OnInit {
       if (!active)
         this.timeout = setTimeout(() => this.setNavBarActive(active), 500);
       else {
-        console.log(active);
-        console.log(event);
         this.setNavBarActive(active);
       }
     } else if (this.timeout != null) {

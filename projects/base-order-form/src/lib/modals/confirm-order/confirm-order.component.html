@@ -1,15 +1,18 @@
 <div>
-  <div class="title">{{prefix}} {{order.side}} {{order.type}} {{order.quantity}} ?
-  </div>
-  <div class="price" *ngIf="order.limitPrice != null">
-    Limit Price: {{order.limitPrice}}
-  </div>
-  <div class="price" *ngIf="order.stopPrice != null">
-    Stop Price: {{order.stopPrice}}
+  <div
+    class="title">{{order.side}} {{order.type}} {{order.quantity}} {{instrument?.productCode}} {{instrument?.instrumentTimePeriod}}
+    at
+    <ng-container *ngIf="order.limitPrice != null">
+      <ng-container *ngIf="showPricesDesc">Limit Price:</ng-container>
+      {{limitPrice}}
+    </ng-container>
+    <ng-container *ngIf="order.stopPrice != null">
+      <ng-container *ngIf="showPricesDesc">Stop Price:</ng-container>
+      {{stopPrice}}</ng-container>
   </div>
   <label class="checkbox" nz-checkbox [(ngModel)]="dontShowAgain">Don't show it again</label>
 </div>
 <div class="footer">
+  <button (click)="submit()" class="confirm-button {{order.side.toLowerCase()}}">{{prefix}} {{order.side}}</button>
   <button (click)="cancel()" class="cancel-button">No</button>
-  <button (click)="submit()" class="confirm-button">Yes</button>
 </div>

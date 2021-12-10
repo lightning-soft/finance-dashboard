@@ -4,11 +4,14 @@ import { BaseRepository } from './base-repository';
 import { Observable, of } from 'rxjs';
 import { IPaginationResponse } from 'communication';
 
-const data = TIMEZONES.map(item => ({
-  name: `(UTC ${getFormattedOffset(item.offset)}) ${item.text}`,
-  id: item.utc[0],
-  offset: item.offset
-})).sort((a, b) => a.offset - b.offset);
+const data = TIMEZONES.map(item => {
+  const offset = ((moment as any).tz(item.utc[0]).offset / 60);
+  return {
+    name: `(UTC ${ getFormattedOffset(offset) }) ${ item.text }`,
+    id: item.utc[0],
+    offset
+  };
+}).sort((a, b) => a.offset - b.offset);
 
 @Injectable()
 export class RealTimezonesRepository extends BaseRepository<ITimezone> {
@@ -40,14 +43,14 @@ export class RealTimezonesRepository extends BaseRepository<ITimezone> {
 
 function getFormattedOffset(offset) {
   const result = offset % 1;
-  const suffix = result === 0 ? '00' : `${Math.abs(result) * 60}`;
+  const suffix = result === 0 ? '00' : `${ Math.abs(result) * 60 }`;
   const preparedOffset = Math.floor(Math.abs(offset));
-  let response = `${Math.abs(preparedOffset)}:${suffix}`;
+  let response = `${ Math.abs(preparedOffset) }:${ suffix }`;
   if (offset > -10 && offset < 10)
-    response = `0${response}`;
+    response = `0${ response }`;
   if (offset >= 0)
-    response = `+${response}`;
+    response = `+${ response }`;
   else
-    response = `-${response}`;
+    response = `-${ response }`;
   return response;
 }

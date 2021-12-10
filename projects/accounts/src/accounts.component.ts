@@ -134,12 +134,16 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   handleAutosavePasswordToggle(autosave: boolean): void {
+    this.selectedItem.autoSavePassword = autosave;
     if (!autosave) {
-      this.form.controls.connectOnStartUp.setValue(false);
+      this.turnOffAutoConnect();
       this.selectedItem.connectOnStartUp = false;
+      this.selectedItem.autoSavePassword = false;
+      this.form.controls.userData.patchValue({ connectOnStartUp: false });
+      this.form.controls.connectOnStartUp.patchValue(false);
+      this.form.controls.autoSavePassword.patchValue(false);
     }
 
-    this.selectedItem.autoSavePassword = autosave;
   }
 
   turnOffAutoConnect(): void {
@@ -357,7 +361,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Do you want to delete ${item.name}?`,
+      nzContent: `Do you want to delete ${ item.name }?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
