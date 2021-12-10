@@ -15,6 +15,7 @@ export interface IInstrument extends IBaseItem {
   tickSize: number;
   contractSize?: number;
   type?: InstrumentType;
+  instrumentTimePeriod?: string;
   stringTypeRepresentation?: string;
   productCode?: string;
   increment?: number; // get one only

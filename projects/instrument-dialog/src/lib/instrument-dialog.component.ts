@@ -49,7 +49,7 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
               protected _notifier: NotifierService,
               protected _repository: InstrumentsRepository) {
     super();
-    this.autoLoadData = { onConnectionChange: true };
+    this.autoLoadData = { onConnectionChange: true, onInit: false };
     this.formControl.valueChanges
       .pipe(
         debounceTime(200),
@@ -66,10 +66,8 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
       ).subscribe(() => {
       const end = this.viewport.getRenderedRange().end;
       const total = this.viewport.getDataLength();
-      if (end === total) {
+      if (end === total && end !== 0) {
         this.query.skip = this.items.length;
-        this.query.accountId = this.accountId;
-        this.query.connectionId = this.connectionId;
         this.loadData(this.query);
       }
     });
@@ -90,6 +88,8 @@ export class InstrumentDialogComponent extends ItemsComponent<IInstrument> imple
   }
 
   loadData(params?: any) {
+    params.accountId = this.accountId;
+    params.connectionId = this.connectionId;
     const type = this.typeArray[this.tabIndex];
     if (type != null)
       params.type = this.typeArray[this.tabIndex];

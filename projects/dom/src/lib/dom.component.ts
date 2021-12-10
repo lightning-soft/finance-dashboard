@@ -964,6 +964,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
       this._applyPositionStatus();
+      this._changeDetectorRef.detectChanges();
     }
   }
 
@@ -2191,10 +2192,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!state?.instrument)
       state.instrument = {
         id: 'ESZ1.CME',
-        description: 'E-Mini S&P 500',
+        description: 'E-Mini S&P 500 Dec21',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
+        instrumentTimePeriod: 'Dec21',
         contractSize: 50,
         productCode: 'ES',
         symbol: 'ESZ1',
@@ -2267,6 +2269,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this.showOrderConfirm) {
       this.createConfirmModal({
         order,
+        instrument: this.instrument,
       }, event).afterClose
         .pipe(untilDestroyed(this))
         .subscribe((res) => {
@@ -2315,6 +2318,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     } else {
       if (this.showOrderConfirm) {
         this.createConfirmModal({
+          instrument: this.instrument,
           order: { ...this.domForm.getDto(), side, price: item.lastPrice },
         }, event).afterClose
           .pipe(untilDestroyed(this))
@@ -2372,6 +2376,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this.showCancelConfirm) {
       this.createConfirmModal({
         order: item.orders.order,
+        instrument: this.instrument,
         prefix: 'Cancel'
       }, event).afterClose.toPromise().then((res) => {
         if (!res)

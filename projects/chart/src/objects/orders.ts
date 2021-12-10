@@ -147,7 +147,7 @@ export class Orders extends ChartObjects<IOrder> {
 
     const { order, event } = value;
 
-    this._instance.cancelOrderWithConfirm(order, event)
+    this._instance.cancelOrderWithConfirm(this._mapToIOrder(order), event)
       .then((res) => {
         if (!res)
           return;

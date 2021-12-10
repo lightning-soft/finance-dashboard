@@ -13,7 +13,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate } from 'chart/models';
+import { IChartState, IChartTemplate, IStockChartXInstrument } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -594,9 +594,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       productCode: 'ES',
       description: 'E-Mini S&P 500 Dec21',
       tickSize: 0.25,
+      instrumentTimePeriod: 'Dec21',
       precision: 2,
       company: this._getInstrumentCompany(),
-    };
+    } as IStockChartXInstrument;
 
     this._orders.init();
     this._positions.init();
@@ -967,7 +968,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const dto = this._sideForm.getDto();
       const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
       this.createConfirmModal({
-        order: { ...dto, ...config, ...priceSpecs },
+        order: { ...dto, ...config, ...priceSpecs }, instrument: this.instrument
       }, event).afterClose
         .pipe(untilDestroyed(this))
         .subscribe((res) => {
@@ -988,6 +989,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     return this.createConfirmModal({
       order,
+      instrument: this.instrument,
       prefix: 'Cancel'
     }, event).afterClose.toPromise();
   }
