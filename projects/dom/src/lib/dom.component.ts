@@ -524,7 +524,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   @ViewChild(DataGrid, { read: ElementRef })
   dataGridElement: ElementRef;
 
-  isFormOpen = true;
+  private _isFormOpen = true;
+  public get isFormOpen() {
+    return this._isFormOpen;
+  }
+  public set isFormOpen(value) {
+    this._isFormOpen = value;
+    requestAnimationFrame(() => this._validateComponentWidth());
+  }
 
   get bracketActive() {
     return this._settings.orderArea.settings.formSettings.showBracket === true;
@@ -2114,7 +2121,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._validateComponentWidth();
   }
 
-  onResize(data): void {
+  onResize(): void {
     this._validateComponentWidth();
   }
 
@@ -2208,6 +2215,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._observe();
     this.refresh();
+
+    // Can't recognize where we should validate with to fix problem with horizontal scroll;
+    setTimeout(() => this._validateComponentWidth(), 500);
+    setTimeout(() => this._validateComponentWidth(), 1000);
+    setTimeout(() => this._validateComponentWidth(), 2000);
 
     if (!state?.instrument)
       return;
