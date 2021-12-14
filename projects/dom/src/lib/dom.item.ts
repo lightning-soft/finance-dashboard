@@ -901,7 +901,8 @@ export class DomItem extends HoverableItem implements IBaseItem {
           this.orders.changeAskQuantity(this.ask._value);
         if (!this.bid.isSumCell)
           this.orders.changeBidQuantity(this.bid._value);
-        this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
+        if (this.settings.common.generalColors.enableOrderGridColor)
+          this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
         this.notes.updateValue(order.description);
 
         // if (order.side === OrderSide.Sell) {

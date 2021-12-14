@@ -864,7 +864,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.refresh();
       i.setAskVisibility(true, true);
       i.setBidVisibility(true, true);
-      i.styles.applyNewStyles({ cellsBorderColor: this._settings.common.generalColors.orderGridLineColor });
+      if (this._settings.common.generalColors.enableOrderGridColor && i.orders.order)
+        i.styles.addStyle({ cellsBorderColor: this._settings.common.generalColors.orderGridLineColor });
+      else
+        i.styles.deleteStyle('cellsBorderColor');
       i.index = index;
     });
     this._applyOffset();
@@ -1219,7 +1222,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.account.id !== this.account.id || order.instrument?.id !== this.instrument?.id) continue;
+      if (order.account.id !== this.account?.id || order.instrument?.id !== this.instrument?.id) continue;
 
       this.items.forEach(i => i.removeOrder(order));
       this._fillOrders(order);

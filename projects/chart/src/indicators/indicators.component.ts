@@ -253,6 +253,8 @@ export class IndicatorsComponent implements OnInit {
 
   removeIndicator(item: any) {
     const { chart } = this;
+    if (this.selectedIndicator?.instance === item)
+      this.selectedIndicator = null;
 
     this._applyZIndex();
     chart.removeIndicators(item);

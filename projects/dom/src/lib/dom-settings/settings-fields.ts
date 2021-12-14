@@ -42,10 +42,6 @@ export const commonFields: IFieldConfig[] = [
         },
         className: 'p-l-7',
         key: 'fontFamily',
-        getCss: (value) => {
-          if (value && value.fontFamily)
-            return { ' table tbody td .data': { 'font-family': value.fontFamily } };
-        }
       },
       {
         type: FieldType.Select,
@@ -65,10 +61,6 @@ export const commonFields: IFieldConfig[] = [
         templateOptions: { label: 'Font size', min: 1 },
         className: 'p-l-7',
         key: 'fontSize',
-        getCss: (value) => {
-          if (value && value.fontSize)
-            return { ' table tbody td .data': { 'font-size': value.fontSize + 'px' } };
-        }
       },
       new FieldConfig({
         label: 'General Color',
@@ -79,6 +71,14 @@ export const commonFields: IFieldConfig[] = [
           getColor('Grid Line Color'),
           getColor('Order Grid Line Color'),
           getColor('Center Line Color'),
+          getCheckboxes(
+            {
+              checkboxes: [{
+                label: 'Enable Order Grid Color',
+                config: { className: 'w-100 mt-0' },
+                key: 'enableOrderGridColor'
+              }]
+            })
           // getColor('Simulation Mode Warning Clr'),
         ]
       }),
@@ -643,11 +643,15 @@ function getCurrentFields(suffix: string) {
       key: `current${ suffix }`,
       fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled',
+        getCheckboxes({
+          checkboxes: [{
+            key: 'histogramEnabled',
             config: {
               className: 'w-100 mb-1',
             },
-            label: `Current At ${ suffix } Histogram` }] }),
+            label: `Current At ${ suffix } Histogram`
+          }]
+        }),
         wrapWithClass(getBackgroundColor(), 'current-background'),
         wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
