@@ -1795,14 +1795,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         // if (!needClear)
         //   this._bestBidPrice = price;
 
-        this._handleNewBestBid(price);
+        window.lastFn(this._handleNewBestBid, price);
+        // this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestAskPrice = price;
 
-        this._handleNewBestAsk(price);
+        window.lastFn(this._handleNewBestAsk, price);
+        // this._handleNewBestAsk(price);
         // }
       }
     }
@@ -1878,7 +1880,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _handleNewBestBid(price: number) {
+  _handleNewBestBid = (price: number) => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
@@ -1938,7 +1940,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateBidHist();
   }
 
-  _handleNewBestAsk(price: number) {
+  _handleNewBestAsk = (price: number) => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
