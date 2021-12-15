@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { IPaginationResponse } from 'communication';
 
 const data = TIMEZONES.map(item => {
-  const offset = ((moment as any).tz(item.utc[0]).offset / 60);
+  const offset = ((moment as any).tz(item.utc[0])._offset / 60);
   return {
     name: `(UTC ${ getFormattedOffset(offset) }) ${ item.text }`,
     id: item.utc[0],

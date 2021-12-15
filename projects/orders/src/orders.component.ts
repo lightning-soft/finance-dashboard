@@ -29,7 +29,7 @@ import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   getPriceScecsForDuplicate,
-  IAccount,
+  IAccount, IInstrument,
   InstrumentsRepository,
   IOrder,
   IOrderParams,
@@ -99,7 +99,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
-
+  private subscriptionMap = {};
+  private connectionMap = {};
+  isConnectionsLoaded = false;
+  _delayedTasks = [];
 
   defaultSettings = defaultSettings;
 
@@ -246,7 +249,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     if (!accounts.length)
       return;
+    if (!this.isConnectionsLoaded)
+      this._delayedTasks.forEach(fn => fn());
 
+    this.isConnectionsLoaded = true;
+    this.connectionMap = accounts.reduce((total, curr) => {
+      total[curr.id] = curr.connectionId;
+      return total;
+    }, {});
     const hide = this.showLoading();
     this.repository.getItems({ accounts }).subscribe(
       res => {
@@ -300,9 +310,22 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _processOrder = (item) => {
     item.accountId = item.account.id;
+    if (!this.subscriptionMap[item.accountId])
+      this.subscriptionMap[item.accountId] = {};
+    if (!this.subscriptionMap[item.accountId][item.instrument.id]) {
+      this.subscriptionMap[item.accountId][item.instrument.id] = true;
+      this.createSubscription(item);
+    }
     item.instrumentName = item.instrument.symbol;
     return item;
   }
+
+  private createSubscription = (item) => {
+    if (this.isConnectionsLoaded)
+      this._tradeDataFeed.subscribe(item.instrument, this.connectionMap[item.account.id]);
+    else
+      this._delayedTasks.push(() => this._tradeDataFeed.subscribe(item.instrument, this.connectionMap[item.account.id]));
+  };
 
   private _processOrders(response) {
     const data = response.data.map(this._processOrder);
@@ -352,7 +375,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
           const orders = this.items.filter((orderVM) => orderVM.order.instrument?.id === instrument.id);
           orders.forEach(order => order.setInstrument(instrument));
           this.detectChanges(true);
-        }, (err) => this._notifier.showError(`Error during fetching ${item.instrument.id}`));
+        }, (err) => this._notifier.showError(`Error during fetching ${ item.instrument.id }`));
     });
     this.detectChanges(true);
   }
@@ -580,6 +603,13 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     groupedItem.id = item;
     groupedItem.accountId.updateValue(item);
     return groupedItem;
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    Object.entries(this.subscriptionMap).forEach(([accId, instrumentMap]) => {
+      Object.keys(instrumentMap).forEach(item => this._tradeDataFeed.unsubscribe({ id: item } as IInstrument, this.connectionMap[accId]));
+    });
   }
 
   save(): void {

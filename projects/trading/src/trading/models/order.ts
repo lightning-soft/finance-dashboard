@@ -7,6 +7,7 @@ export type OrderAccount = {
   ibId: string;
   id: string;
   name: string;
+  connectionId?: string;
 };
 
 export interface IOrder extends IBaseItem {
