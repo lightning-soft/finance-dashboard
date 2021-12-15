@@ -3,7 +3,8 @@ const urlSearchParams = new URLSearchParams(window.location.search);
 export const environment = {
   production: true,
   config: 'config/config.release.json',
-  scxPath: './assets/StockChartX/scripts/production/',
+  scxPath: './assets/StockChartX/scripts/develop/',
+  // scxPath: './assets/StockChartX/scripts/production/',
   application:
   {
     name: 'angular-starter',
