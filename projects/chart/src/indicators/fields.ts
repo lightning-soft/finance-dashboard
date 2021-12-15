@@ -111,7 +111,13 @@ function getProfileConfig(key, _config = {}) {
           }
         ]
       }),
-      getNumber({ label: 'Profile width, %', min: 1, key: 'width', className: 'split-input profile-width full-width' }),
+      getNumber({
+        label: 'Profile width, %',
+        min: 1,
+        max: 100,
+        key: 'width',
+        className: 'split-input profile-width full-width'
+      }),
       getCheckboxes({
         checkboxes: [
           {
@@ -345,12 +351,21 @@ function getWidthField(key = 'width') {
     key,
     wrappers: [],
     fieldGroupClassName: 'd-grid width-row',
-    fieldGroup: [getNumber({
-      key: 'value',
-      label: 'Width',
-      min: 1,
-      className: 'calculate-profiles'
-    }),
+    fieldGroup: [
+
+      wrapWithConfig(getNumber({
+        key: 'value',
+        label: 'Width',
+        min: 1,
+        max: 100,
+        className: 'calculate-profiles'
+      }), {
+        expressionProperties: {
+          'templateOptions.max': (a) => {
+            return a.unit !== 'pixel' ? 100 : null;
+          },
+        },
+      }),
       getSelect({
         key: 'unit',
         className: 'width-select',
@@ -1004,8 +1019,7 @@ export const volumeProfileConfig: IFieldConfig[] = [
               fieldGroupClassName: '',
             }
           }),
-          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-            { className: 'tickPerPrice' }),
+          getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
         ],
       },
     ],
@@ -1390,8 +1404,7 @@ export const priceStatsConfig: IFieldConfig[] = [
             key: 'enabled',
             value: true
           },
-          wrapWithConfig(getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
-            { className: 'tickPerPrice' }),
+          getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
         ]
       },
       new FieldConfig({
@@ -1752,7 +1765,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
               fieldGroupClassName: 'accumulate-session',
             },
             checkboxes: [{
-              key: 'enabled',  label: 'Accumulate'
+              key: 'enabled', label: 'Accumulate'
             }],
             additionalFields: [getSelect({
               key: 'value',
@@ -1762,6 +1775,7 @@ export const volumeBreakdownConfig: IFieldConfig[] = [
                 { label: 'Month', value: 'month' },
                 { label: 'All Values', value: 'all' },
               ],
+              className: 'w-100',
             })],
           }),
         ],
@@ -2038,7 +2052,7 @@ export const zigZagOscillatorConfig: IFieldConfig[] = [
     fieldGroupClassName: 'two-rows d-grid zig-zag',
     fieldGroup: [
       getNumber({ label: 'Min. Change (Ticks)', className: 'number-space-between', key: 'minChange' }),
-      getNumber({ label: 'Bar Width Text Thr..',  className: 'number-space-between', key: 'barWidthTextThreshold' }),
+      getNumber({ label: 'Bar Width Text Thr..', className: 'number-space-between', key: 'barWidthTextThreshold' }),
       getColor({ key: 'downFillColor', label: 'Down Bars' }),
       getColor({ key: 'upFillColor', label: 'Up Bars' }),
       getCheckboxes({

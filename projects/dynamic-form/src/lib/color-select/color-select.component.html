@@ -7,20 +7,15 @@
              [nzCustomContent]="true"
              [nzLabel]="item.label">
     {{item.label}} <i
-    (click)="$event.stopPropagation()"
-    [cpWidth]="'200px'"
-    [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-    (colorPickerChange)="updateValue($event)" [colorPicker]="item.value.value"
+    (click)="$event.stopPropagation(); colorPicker.open($event)"
     class="icon-arrow-right"></i>
+    <color-picker #colorPicker class="d-none" [field]="colorFormFields[item.value.type]"></color-picker>
   </nz-option>
 </nz-select>
 <ng-template #valueTemplate let-item>
   <div class="d-flex align-items-center">
     <div class="color-holder"
          (click)="$event.stopPropagation(); $event.preventDefault(); "
-         [cpWidth]="'200px'"
-         [cpPosition]="'auto'" [cpUseRootViewContainer]="true"
-         (colorPickerChange)="updateValue($event)" [colorPicker]="item.nzValue.value"
          [style.backgroundColor]="item.nzValue.value"></div>
     {{item.nzLabel}}
   </div>

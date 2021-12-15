@@ -8,7 +8,7 @@ $border-width: 1px;
   transition: border 0.3s;
 
   &.active {
-    &:not(.settings-container) window-header .window-icon {
+    &:not(.settings-container) window-header .window-icon i {
       color: $primary;
     }
   }

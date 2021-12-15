@@ -370,6 +370,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   ngOnDestroy() {
     super.ngOnDestroy();
+    this.unsubscribe();
   }
 
   increasePrice() {
@@ -429,6 +430,9 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this.ocoStep = OcoStep.Fist;
       this.isOco = true;
       this.updateOrderTypes();
+    }
+    else {
+      this.cancelOco();
     }
   }
 

@@ -39,7 +39,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       })
       .pipe(
         map(response => response.result.map(item => {
-          item.id = `${item.symbol}.${item.exchange}`;
+          item.id = `${ item.symbol }.${ item.exchange }`;
           return item;
         })),
         map(result => {
@@ -58,15 +58,16 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
   protected _mapResponseItem(item: any): IInstrument {
     let suffix = '';
-    if (item.type === InstrumentType.Future) {
+    if (item.type === InstrumentType.Future && item.symbol.length > 2) {
       const [monthType, year] = item.symbol.replace(item.productCode, '');
       const decade = new Date().getFullYear().toString()[2];
-      suffix = monthsMap[monthType] + `${decade}${year}`;
+      suffix = monthsMap[monthType] + `${ decade }${ year }`;
     }
     return {
       ...item,
       id: item.symbol,
-      description: item.description + ` ${suffix}`,
+      instrumentTimePeriod: suffix,
+      description: item.description + ` ${ suffix }`,
       tickSize: item.increment ?? 0.01,
     };
   }
@@ -86,30 +87,34 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       mergeMap((result: any) => {
         if (!result) {
           console.error(result);
-          return throwError(`Invalid response, ${result}`);
+          return throwError(`Invalid response, ${ result }`);
         }
 
         return of({
           ...result,
-          id: `${result.symbol}.${result.exchange}`,
+          id: `${ result.symbol }.${ result.exchange }`,
           tickSize: result.increment ?? 0.01,
         });
       }),
     );
   }
 
-  getItems(params = {}): Observable<IPaginationResponse<IInstrument>> {
+  getItems(params: any = {}): Observable<IPaginationResponse<IInstrument>> {
     const _params = {
       criteria: '',
       ...params,
     };
+
+    if (params.accountId == null && params.connectionId == null) {
+      return throwError('You need select account to search instruments');
+    }
 
     return super.getItems(_params).pipe(
       map((res: any) => {
         const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description, ...rest }) => {
           return {
             ...rest,
-            id: `${symbol}.${exchange}`,
+            id: `${ symbol }.${ exchange }`,
             symbol,
             description,
             exchange,

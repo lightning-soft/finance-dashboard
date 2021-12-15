@@ -78,7 +78,7 @@
         ></daily-info>
         <nz-input-group [class.d-none]="!domFormSettings.formSettings.showPLInfo" class="pl-input"
                         [nzPrefix]="prefixTemplateUser">
-          <input disabled [value]="getPl()" nz-input>
+          <input #plInput disabled [value]="pl" nz-input>
           <ng-template #prefixTemplateUser>PL</ng-template>
         </nz-input-group>
       </ng-container>

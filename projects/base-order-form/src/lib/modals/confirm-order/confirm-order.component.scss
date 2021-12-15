@@ -36,14 +36,17 @@
 
   .cancel-button {
     background: $darkBackground;
-    margin-right: 8px;
+    margin-left: 8px;
 
   }
 
   .confirm-button {
     background: $primary;
-    margin-left: 8px;
+    margin-right: 8px;
 
+    &.sell {
+      background: $red;
+    }
   }
 
 }

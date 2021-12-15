@@ -115,7 +115,6 @@
     "keyboard": "git+https://git.avidi.tech:iTS9Ne67zubkGcpsRmFA@git.avidi.tech/b.tsap/keyboard",
     "lodash.clonedeep": "4.5.0",
     "ng-zorro-antd": "9.3.0",
-    "ngx-color-picker": "11.0.0",
     "ngx-cookie-service": "10.1.1",
     "ngx-monaco-editor": "9.0.0",
     "popper.js": "^1.16.1",

@@ -81,8 +81,8 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
       this.connectOnStartUp = !this.connectOnStartUp;
     }
 
-    this.updateItem.emit(true);
     this.autosavePasswordToggle.emit(autoSavePassword);
+    this.updateItem.emit(true);
   }
 
   getName(o) {

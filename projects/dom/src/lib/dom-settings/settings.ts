@@ -98,6 +98,7 @@ export class DomSettings {
       centerLineColor: '#A1A2A5',
       gridLineColor: '#24262C',
       orderGridLineColor: 'rgba(88, 110, 117, 1)',
+      enableOrderGridColor: true,
       // simulationModeWarningClr: 'rgba(4, 63, 128, 1)',
     },
     askDelta: true,

@@ -113,16 +113,18 @@ export class NavbarComponent implements AfterViewInit, OnInit {
     if (this.navbarActive !== active) {
       if (!active)
         this.timeout = setTimeout(() => this.setNavBarActive(active), 500);
-      else
+      else {
         this.setNavBarActive(active);
+      }
     } else if (this.timeout != null) {
       clearTimeout(this.timeout);
+      this.timeout = null;
     }
   }
 
   _isInBounds(event) {
     if (this.currentNavbarPosition === NavbarPosition.Top) {
-      return event.offsetY < this.elementRef.nativeElement.clientTop + this.elementRef.nativeElement.clientHeight;
+      return event.y < this.elementRef.nativeElement.clientTop + this.elementRef.nativeElement.clientHeight;
     }
 
     if (this.currentNavbarPosition === NavbarPosition.Bottom) {

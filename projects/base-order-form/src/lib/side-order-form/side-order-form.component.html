@@ -4,6 +4,7 @@
 
     <button
       [class.cursor-not-allowed]="!canClickPosButton"
+      #posBtn
       (click)="setPositionQuantity()" title="Positions" class="top-position-btn"
       [class.pos-negative]="isPositionsNegative"
     >{{positionsSum}}</button>
