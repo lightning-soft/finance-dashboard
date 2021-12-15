@@ -375,7 +375,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(InfoComponent)
   info: InfoComponent;
 
-  position: IPosition;
+  private _pos: IPosition;
+
+  set position(value: IPosition) {
+    this._pos = value;
+    if (this._sideForm)
+      this._sideForm.position = value;
+  }
+
+  get position() {
+    return this._pos;
+  }
+
   private _orders: Orders;
   private _positions: Positions;
   componentInstanceId = Date.now();

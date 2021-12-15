@@ -331,6 +331,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   private _lastTradeItem: DomItem;
+  pl = '-';
+  @ViewChild('plInput', { static: false }) plInput;
 
   orders: IOrder[] = [];
 
@@ -850,7 +852,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
     this.domForm?.loadState(this._settings.orderArea as any);
-
+    this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
     this.detectChanges(true);
@@ -901,12 +903,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._setPriceForOrders(orders, price);
     }
   }
+  updatePl() {
+    requestAnimationFrame(this._updatePl);
+  }
 
-  getPl(): string {
+  private _updatePl = () => {
     const position = this.position;
 
     if (!position || position.side === Side.Closed) {
-      return '-';
+      this.pl = '-';
+      if (this.plInput && this.plInput.nativeElement)
+        this.plInput.nativeElement.value = this.pl;
     }
 
     const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
@@ -914,10 +921,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const i = this.instrument;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
     const pl = calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl);
-    if (this.instrument.fraction == null)
-      return pl.toFixed(precision);
+    if (pl == null)
+      return;
 
-    return this._priceFormatter.format(pl);
+    if (this.instrument?.fraction == null)
+      this.pl = pl.toFixed(precision);
+
+    this.pl = this._priceFormatter.format(pl);
+    if (this.plInput && this.plInput.nativeElement)
+      this.plInput.nativeElement.value = this.pl;
   }
 
   _setPriceForOrders(orders: IOrder[], price: number) {
@@ -973,7 +985,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
+      this.domForm.position = this.position;
       this._applyPositionStatus();
+      this.updatePl();
       requestAnimationFrame(this.markForCheck);
     }
   }
@@ -1509,6 +1523,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._lastTrade = trade;
     this._lastTradeItem = _item;
+    this.updatePl();
 
     requestAnimationFrame(this._updateVolumeAndLevels);
 

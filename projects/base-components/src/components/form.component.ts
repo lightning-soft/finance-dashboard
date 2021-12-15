@@ -355,7 +355,7 @@ export abstract class FormComponent<T extends IBaseItem> extends ItemComponent<T
   }
 
   protected _handleUpdateItems(items: T[]) {
-    const item = items.find(i => i.id === this.item.id);
+    const item = items.find(i => i.id === this.item?.id);
     if (!item)
       return;
 

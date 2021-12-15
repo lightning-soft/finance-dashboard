@@ -89,6 +89,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   private _ocoStep = OcoStep.None;
+  @ViewChild('posBtn') posBtn;
 
   totalQuantity: number;
   buyQuantity: number;
@@ -299,6 +300,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
       amountButtons: this.amountButtons,
       settings: this._settings,
     };
+  }
+
+  onUpdatePosSum = () => {
+    if (this.posBtn && this.posBtn.nativeElement) {
+      this.posBtn.nativeElement.innerText = this.positionsSum;
+    }
   }
 
   positionsToQuantity() {
