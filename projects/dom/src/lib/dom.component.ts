@@ -974,8 +974,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
       this._applyPositionStatus();
-      this._changeDetectorRef.detectChanges();
+      requestAnimationFrame(this.markForCheck);
     }
+  }
+  markForCheck = () => {
+    this._changeDetectorRef.markForCheck();
   }
 
   _applyPositionSetting(oldPosition: IPosition, newPosition: IPosition) {

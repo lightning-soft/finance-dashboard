@@ -22,7 +22,11 @@ export class Positions extends ChartObjects<IPosition> {
     const position = model.id ? model : RealPositionsRepository.transformPosition(model);
     super.handle(position);
     this._onDataLoaded();
-    this._cd.detectChanges();
+    requestAnimationFrame(this.markForCheck);
+  }
+
+  markForCheck = () => {
+    this._cd.markForCheck();
   }
 
   protected _onDataLoaded() {

@@ -370,6 +370,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
 
   ngOnDestroy() {
     super.ngOnDestroy();
+    this.unsubscribe();
   }
 
   increasePrice() {
