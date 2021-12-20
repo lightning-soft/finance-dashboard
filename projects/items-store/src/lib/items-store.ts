@@ -22,6 +22,10 @@ export class ItemsStore<T extends IStoreItem = IStoreItem> {
 
   }
 
+  get(id: Id): T {
+    return this._map.get(id);
+  }
+
   load(id: Id) {
     const map = this._map;
     if (id == null || map.get(id)?.loading === true || map.has(id)) return;

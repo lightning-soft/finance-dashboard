@@ -137,7 +137,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     return forkJoin(ids.map((id: string) => {
       const [symbol, exchange, accountId] = id.split('.');
 
-      return this.getItemById(symbol, { exchange, accountId });
+      return this.getItemById(symbol, { exchange, accountId }).pipe(map(i => ({ ...i, id })));
     }));
   }
 }

@@ -224,6 +224,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       wrap: (item: IOrder) => {
         const orderItem = new OrderItem(item);
         orderItem.timeFormatter = this._timeFormatter;
+        orderItem.setInstrument(this._instrumentsStore.get(orderItem.complexInstrumentId));
         return orderItem;
       },
       groupBy: ['accountId', 'instrumentName'],
