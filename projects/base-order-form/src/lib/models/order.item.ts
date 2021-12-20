@@ -34,13 +34,17 @@ export enum OrderColumn {
 export const OrderColumnsArray = Object.values(OrderColumn);
 
 export const heldPrefixStatus = 'held';
-export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
+export const StopSelectedStatus = `selected${heldPrefixStatus}`;
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
 };
 
 const allColumns = Object.keys(OrderColumn) as OrderColumn[];
+
+export function complexInstrumentId(instrumentId: Id, accountId: Id) {
+  return `${instrumentId}.${accountId}`;
+}
 
 export class OrderItem extends HoverableItem implements IOrderItem {
   protected _priceFormatter = InstrumentFormatter.forInstrument(this.order?.instrument);
@@ -79,6 +83,10 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     return this.checkbox.checked;
   }
 
+  get complexInstrumentId(): string {
+    return complexInstrumentId(this.order?.instrument?.id, this.order.accountId);
+  }
+
   constructor(public order?: IOrder) {
     super();
     if (order)
@@ -103,6 +111,8 @@ export class OrderItem extends HoverableItem implements IOrderItem {
 
     this.averageFillPrice.formatter = this._priceFormatter;
     this.averageFillPrice.refresh();
+
+    this.description.updateValue(instrument.description);
   }
 
   update(order: IOrder) {
@@ -112,7 +122,6 @@ export class OrderItem extends HoverableItem implements IOrderItem {
       OrderColumn.averageFillPrice,
       OrderColumn.price,
       OrderColumn.triggerPrice,
-      OrderColumn.description,
       OrderColumn.duration,
       OrderColumn.filledQuantity,
       OrderColumn.quantity,

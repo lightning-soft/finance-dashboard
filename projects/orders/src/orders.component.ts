@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import {
   convertToColumn,
   HeaderItem,
@@ -8,7 +9,7 @@ import {
   ViewGroupItemsBuilder
 } from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
-import { IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import {
   CellClickDataGridHandler,
   CellStatus,
@@ -19,6 +20,7 @@ import {
   DateTimeFormatter,
   generateNewStatusesByPrefix
 } from 'data-grid';
+import { IStoreItem, ItemsStore, ItemsStores } from 'items-store';
 import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -45,7 +47,7 @@ import { IOrdersPresets, IOrdersState } from '../models';
 import { defaultSettings } from './components/orders-settings/configs';
 import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
-import { untilDestroyed } from "@ngneat/until-destroy";
+import { complexInstrumentId } from 'base-order-form';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier, IPresets<IOrdersState> {
 }
@@ -74,7 +76,9 @@ enum GroupByItem {
 @LayoutPresets()
 @AccountsListener()
 @SettingsApplier()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements OnDestroy, AfterViewInit, IAccountsListener {
+@UntilDestroy()
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
+  implements OnDestroy, OnInit, AfterViewInit, IAccountsListener {
   @ViewChildren(DataGrid) dataGrids: QueryList<DataGrid>;
 
   columns: Column[];
@@ -195,11 +199,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     return !this.contextMenuState?.showHeaderPanel;
   }
 
+  protected _instrumentsStore: ItemsStore<IInstrument & IStoreItem>;
+
   constructor(
     protected _repository: OrdersRepository,
     private _instrumentRepository: InstrumentsRepository,
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
+    protected _itemsStores: ItemsStores,
     private _tradeDataFeed: TradeDataFeed,
     public readonly _templatesService: TemplatesService,
     public readonly _modalService: NzModalService,
@@ -207,6 +214,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   ) {
     super();
     this.autoLoadData = false;
+    this._instrumentsStore = _itemsStores.get('instruments');
 
     this.componentInstanceId = Date.now();
     (window as any).orders = this;
@@ -232,8 +240,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       hoveredBackgroundColor: '#2B2D33',
       hoveredbuyBackgroundColor: '#2B2D33',
       hoveredsellBackgroundColor: '#2B2D33',
-      [`${ groupStatus }BackgroundColor`]: '#24262C',
-      [`${ groupStatus }Color`]: '#fff',
+      [`${groupStatus}BackgroundColor`]: '#24262C',
+      [`${groupStatus}Color`]: '#fff',
       textOverflow: true,
       textAlign: 'left',
       titleUpperCase: true,
@@ -244,6 +252,21 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     checkboxColumn.tableViewName = 'Checkbox';
     this.setTabIcon('icon-widget-orders');
     this.setTabTitle('Orders');
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this._instrumentsStore.onChange
+      .pipe(untilDestroyed(this))
+      .subscribe(instruments => {
+        for (const item of this.items) {
+          const instrument = instruments.get(item.complexInstrumentId);
+
+          if (!instrument || instrument.loading) continue;
+
+          item.setInstrument(instrument);
+        }
+      });
   }
 
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
@@ -309,6 +332,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   private _processOrder = (item) => {
+    this._instrumentsStore.load(complexInstrumentId(item.instrument?.id, item.account?.id));
     item.accountId = item.account.id;
     if (!this.subscriptionMap[item.accountId])
       this.subscriptionMap[item.accountId] = {};
@@ -375,7 +399,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
           const orders = this.items.filter((orderVM) => orderVM.order.instrument?.id === instrument.id);
           orders.forEach(order => order.setInstrument(instrument));
           this.detectChanges(true);
-        }, (err) => this._notifier.showError(`Error during fetching ${ item.instrument.id }`));
+        }, (err) => this._notifier.showError(`Error during fetching ${item.instrument.id}`));
     });
     this.detectChanges(true);
   }
@@ -421,14 +445,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _applyColors(item, sellColor, buyColor, prefix) {
     this._applyColor(item, buyColor, sellColor, prefix);
-    this._applyColor(item, buyColor, sellColor, `hovered${ prefix }`);
-    this._applyColor(item, buyColor, sellColor, `selected${ prefix }`);
-    this._applyColor(item, buyColor, sellColor, `hoveredselected${ prefix }`);
+    this._applyColor(item, buyColor, sellColor, `hovered${prefix}`);
+    this._applyColor(item, buyColor, sellColor, `selected${prefix}`);
+    this._applyColor(item, buyColor, sellColor, `hoveredselected${prefix}`);
   }
 
   private _applyColor(item, buyColor, sellColor, prefix = '') {
-    item.style[`${ prefix }buyColor`] = buyColor;
-    item.style[`${ prefix }sellColor`] = sellColor;
+    item.style[`${prefix}buyColor`] = buyColor;
+    item.style[`${prefix}sellColor`] = sellColor;
   }
 
   openOrderForm($event: MouseEvent) {
@@ -537,12 +561,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this._repository.deleteMany(orders)
       .pipe(finalize(hide))
       .subscribe({
-          next: () => {
-            this._handleDeleteItems(orders);
-            this._showSuccessDelete();
-          },
-          error: (error) => this._handleDeleteError(error)
-        }
+        next: () => {
+          this._handleDeleteItems(orders);
+          this._showSuccessDelete();
+        },
+        error: (error) => this._handleDeleteError(error)
+      }
       );
   }
 
@@ -575,7 +599,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   private _getSettingsKey() {
-    return `orders-component ${ this.componentInstanceId }`;
+    return `orders-component ${this.componentInstanceId}`;
   }
 
   handleGroupChange($event: any) {

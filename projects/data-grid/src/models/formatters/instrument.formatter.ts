@@ -33,8 +33,19 @@ export class InstrumentFormatter extends RoundFormatter {
     const step = _instrument.fraction.toString().length;
     this._multiplier = _instrument.fraction / (10 ** step);
 
-    const number = _instrument.tickSize * this._multiplier;
-    const precision = this._getNumbersAfterPoint(number);
+    /*
+     * 0.32 is 0.BASE_FRACTION
+     * https://www.cmegroup.com/markets/interest-rates/us-treasury/ultra-10-year-us-treasury-note.contractSpecs.html#
+     * Each futures with fractions have k * 1/32 (k equal 1/2 for example)
+     * The problem here is next
+     * When we calculated precision for 1/2 * 1/32 we have (1/2 * 1/32) * 0.64 = 0.01, precision equal 2
+     * But with some numbers after fractions should be 147'315
+     * So (1/2 * 1/32) * 0.32 = 0.005 fix this problem
+     * WE USE THIS NUMBER ONLY FOR PRECISION
+     * In future to improve calculation we can put (1/2) to instrument DTO
+     */
+    const _number = (_instrument.tickSize ?? _instrument.increment) * 0.32;
+    const precision = this._getNumbersAfterPoint(_number);
 
     this.updateDigits(precision);
   }
