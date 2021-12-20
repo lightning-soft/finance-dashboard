@@ -627,6 +627,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const groupedItem = new GroupedOrderItem();
     groupedItem.id = item;
     groupedItem.accountId.updateValue(item);
+    if (groupBy === 'instrumentName') {
+      groupedItem.setInstrument(this._instrumentsStore.get(item.complexInstrumentId));
+    }
     return groupedItem;
   }
 

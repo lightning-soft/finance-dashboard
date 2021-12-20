@@ -23,6 +23,9 @@ export class ItemsStore<T extends IStoreItem = IStoreItem> {
   }
 
   get(id: Id): T {
+    if (!this._map.has(id))
+      this.load(id);
+
     return this._map.get(id);
   }
 

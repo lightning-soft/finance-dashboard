@@ -106,6 +106,9 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   setInstrument(instrument: IInstrument) {
+    if (!instrument)
+      return;
+
     this._instrument = instrument;
     this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
     this.price.formatter = this._priceFormatter;

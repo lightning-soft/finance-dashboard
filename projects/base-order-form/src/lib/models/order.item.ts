@@ -96,6 +96,9 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   setInstrument(instrument = this.order?.instrument) {
+    if (!instrument)
+      return;
+
     if (this.order)
       this.order.instrument = instrument;
     this._priceFormatter = InstrumentFormatter.forInstrument(instrument);

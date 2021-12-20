@@ -294,6 +294,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new GroupedPositionItem();
     groupedItem.instrumentName.updateValue(item);
+    if (groupBy === 'instrumentName') {
+      groupedItem.setInstrument(this._instrumentsStore.get(item.complexInstrumentId));
+    }
     return groupedItem;
   }
 
