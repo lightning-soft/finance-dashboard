@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  config: 'config/config.release.json',
+  config: 'config/config.json',
   scxPath: './assets/StockChartX/scripts/develop/',
   isDev: true,
 };

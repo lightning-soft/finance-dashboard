@@ -8,7 +8,7 @@ $border-width: 1px;
   transition: border 0.3s;
 
   &.active {
-    border: $border-width solid rgba($primary, 0.5);
+    border: $border-width solid transparent;
 
     &:not(.settings-container) window-header .window-icon i {
       color: $primary;
@@ -55,6 +55,6 @@ $border-width: 1px;
     background: $light;
     // box-shadow: 0 0 1px 1px #13141a;
     // filter: drop-shadow(0px 0px 10px #15161D);
-    box-shadow: 0px 0px 15px #101114;;
+    box-shadow: 0px 0px 15px #101114;
   }
 }
