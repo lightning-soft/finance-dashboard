@@ -202,6 +202,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.account?.id;
   }
 
+  private _needCentralize = false;
+
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -212,6 +214,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const prevInstrument = this._instrument;
     this._instrument = value;
+    this._needCentralize = true;
     this._onInstrumentChange(prevInstrument);
   }
 
@@ -1418,6 +1421,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.refresh(); // for fill correct index
     this.detectChanges();
+    this._needCentralize = false;
   }
 
   centralize = () => requestAnimationFrame(this._centralize);
@@ -1474,7 +1478,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     const prevltqItem = this._lastTradeItem;
     const prevHandled = prevltqItem && prevltqItem.price != null;
-    let needCentralize = false;
+    let needCentralize = this._needCentralize || false;
     const max = this._max;
 
     const _item = this._getItem(trade.price);
