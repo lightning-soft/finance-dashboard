@@ -78,21 +78,26 @@ cdk-virtual-scroll-viewport {
   mask-image: url('~src/assets/img/svg/notication-connected.svg');
   background: $success;
 }
-.notication-disconnected{
+
+.notication-disconnected {
   background: $red;
 }
+
 .notifcation-error {
   mask-image: url('~src/assets/img/svg/notifcation-error.svg');
   background: $red;
 }
+
 .notication-default {
   mask-image: url('~src/assets/img/svg/notication-default.svg');
   background: $text-80;
 }
+
 .notication-success {
   mask-image: url('~src/assets/img/svg/notication-default.svg');
   background: $success;
 }
+
 .header {
   display: flex;
   color: #737377;
@@ -123,6 +128,10 @@ cdk-virtual-scroll-viewport {
 
   .timestamp {
     font-size: 0.75rem;
+  }
+
+  &.is-read {
+    opacity: 0.5;
   }
 }
 

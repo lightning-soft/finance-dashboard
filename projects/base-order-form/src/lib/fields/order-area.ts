@@ -15,12 +15,13 @@ export const orderFields: IFieldConfig = new FieldConfig({
     getColor('Cancel Button Font Color'),
     {
       key: 'formSettings',
-      className: 'w-100 ml-1 order-form-settings',
+      className: 'w-100 ml-0 mr-0 order-form-settings',
       fieldGroup: [
         getCheckboxes({
           checkboxes: [
             { key: 'showInstrumentChange', label: 'Show Instrument Change' },
             { key: 'closePositionButton', label: 'Show Close Position Button' },
+            { key: 'showLiquidateButton', label: 'Show Liquidate Button' },
             { key: 'showOHLVInfo', label: 'Show OHLV Info' },
             { key: 'showFlattenButton', label: 'Show Flatten Button' },
             { key: 'showBracket', label: 'Show Bracket Button' },

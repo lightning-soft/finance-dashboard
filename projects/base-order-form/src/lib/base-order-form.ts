@@ -41,6 +41,7 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
     this.isPositionsNegative = posSum < 0;
     this._positionsSum = posSum;
     this.canClickPosButton = !!posSum;
+    requestAnimationFrame(this.onUpdatePosSum);
   }
 
   get position() {
@@ -64,6 +65,13 @@ export abstract class BaseOrderForm extends FormComponent<IOrder> {
         this.position = res.data
           .find(item => compareInstruments(item.instrument, this.instrument));
       });
+  }
+
+  onUpdatePosSum() {
+  }
+
+  markForCheck = () => {
+    this._changeDetectorRef.markForCheck();
   }
 
   get isIce() {
@@ -130,6 +138,7 @@ export const orderTypes = [
   { label: 'STP LMT', value: OrderType.StopLimit },
   { label: 'STP MKT', value: OrderType.StopMarket },
 ];
+
 export enum OcoStep {
   Fist, Second, None
 }

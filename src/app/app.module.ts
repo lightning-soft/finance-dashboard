@@ -53,6 +53,8 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+import { ItemsStoreModule } from '../../projects/items-store/src/lib/items-store.module';
+import { InstrumentsRepository } from '../../projects/trading/src/trading/repositories/instruments.repository';
 
 function generateLoginLink(config): string {
 
@@ -238,6 +240,9 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NzCheckboxModule,
     NzInputModule,
     NzDividerModule,
+    ItemsStoreModule.forRoot(injector => ({
+      instruments: injector.get(InstrumentsRepository),
+    }))
   ],
   providers: [
     ThemesHandler,

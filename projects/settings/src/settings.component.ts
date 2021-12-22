@@ -75,6 +75,7 @@ export class SettingsComponent implements OnInit {
   ) {
     this.setTabTitle('Settings');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 
   ngOnInit(): void {

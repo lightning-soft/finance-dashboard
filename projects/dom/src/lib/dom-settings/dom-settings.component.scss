@@ -11,10 +11,21 @@ cdk-virtual-scroll-viewport {
 }
 
 :host ::ng-deep {
+  .ant-checkbox-wrapper {
+    padding-left: 5px;
+  }
+
   .hotkey-list {
     padding-left: 6px;
     padding-right: 3px;
     display: block;
+  }
+
+  .histogram-orientation {
+    nz-form-item .ant-form-item-label label {
+      color: $text-60;
+      padding-bottom: 2px;
+    }
   }
 
   .content-container {
@@ -59,7 +70,7 @@ cdk-virtual-scroll-viewport {
         justify-content: space-between;
         margin-right: 8px;
         align-items: self-end;
-        color: $text-80;
+        color: $text-60;
 
         nz-select {
           height: 20px !important;
@@ -71,10 +82,6 @@ cdk-virtual-scroll-viewport {
         }
       }
     }
-  }
-
-  .depth-checkboxes {
-    padding-left: 2px;
   }
 
   .reset-settings {
@@ -140,21 +147,33 @@ cdk-virtual-scroll-viewport {
     .ant-form-item-label {
       text-align: start;
       margin-bottom: 0px;
+      height: auto;
+      line-height: 1;
 
       label {
         font-weight: 600;
         margin-bottom: 0px;
         line-height: 1;
-        padding-bottom: 7px;
+        height: auto;
         padding-left: 10px;
         font-size: 0.85rem;
         color: $text-80;
+        padding-bottom: 6px;
 
         &:after {
           display: none;
         }
       }
     }
+  }
+
+  .General {
+    nz-form-item {
+      label {
+        padding-bottom: 0px;
+      }
+    }
+
   }
 
   window-header {
@@ -219,6 +238,10 @@ cdk-virtual-scroll-viewport {
     margin-top: -2px !important;
   }
 
+  .current-background {
+    margin-top: 9px !important;
+  }
+
   .current-level {
     & > * {
       &:not(:first-child) {
@@ -241,8 +264,8 @@ cdk-virtual-scroll-viewport {
         color: $text-60;
         margin: 0;
         font-size: 0.6rem;
-        padding: 0;
         font-weight: normal;
+        padding: 0 0 4px;
         line-height: 0.8rem;
       }
     }
@@ -269,7 +292,7 @@ cdk-virtual-scroll-viewport {
   }
 
   formly-form {
-    .template-label, .ant-checkbox+span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
       color: $text-60;
     }
   }

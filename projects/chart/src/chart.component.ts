@@ -13,7 +13,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
 import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
-import { IChartState, IChartTemplate } from 'chart/models';
+import { IChartState, IChartTemplate, IStockChartXInstrument } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
@@ -375,7 +375,18 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild(InfoComponent)
   info: InfoComponent;
 
-  position: IPosition;
+  private _pos: IPosition;
+
+  set position(value: IPosition) {
+    this._pos = value;
+    if (this._sideForm)
+      this._sideForm.position = value;
+  }
+
+  get position() {
+    return this._pos;
+  }
+
   private _orders: Orders;
   private _positions: Positions;
   componentInstanceId = Date.now();
@@ -594,9 +605,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       productCode: 'ES',
       description: 'E-Mini S&P 500 Dec21',
       tickSize: 0.25,
+      instrumentTimePeriod: 'Dec21',
       precision: 2,
       company: this._getInstrumentCompany(),
-    };
+    } as IStockChartXInstrument;
 
     this._orders.init();
     this._positions.init();
@@ -967,7 +979,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       const dto = this._sideForm.getDto();
       const priceSpecs = getPriceSpecs(dto, config.price, this.instrument.tickSize);
       this.createConfirmModal({
-        order: { ...dto, ...config, ...priceSpecs },
+        order: { ...dto, ...config, ...priceSpecs }, instrument: this.instrument
       }, event).afterClose
         .pipe(untilDestroyed(this))
         .subscribe((res) => {
@@ -988,6 +1000,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     return this.createConfirmModal({
       order,
+      instrument: this.instrument,
       prefix: 'Cancel'
     }, event).afterClose.toPromise();
   }
@@ -1532,6 +1545,9 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.closePositionFontColor = orderAreaSettings.closePositionButton.font;
   sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.closePositionButton.background;
 
+  sideOrderSettings.closePositionFontColor = orderAreaSettings.showLiquidateButton.font;
+  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton.background;
+
   sideOrderSettings.icebergFontColor = orderAreaSettings.icebergButton.font;
   sideOrderSettings.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
 
@@ -1539,6 +1555,7 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
   sideOrderSettings.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
   sideOrderSettings.formSettings.closePositionButton = orderAreaSettings.closePositionButton.enabled;
+  sideOrderSettings.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton.enabled;
   sideOrderSettings.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
   sideOrderSettings.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
   sideOrderSettings.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;

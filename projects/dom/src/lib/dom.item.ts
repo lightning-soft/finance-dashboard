@@ -127,9 +127,22 @@ class OrdersCell extends HistogramCell {
         .filter(item => item.type === lastOrder.type)
         .reduce((res, item) => {
           if (!res) {
+            const priceSpecs: any = {};
+            if ([OrderType.Limit, OrderType.StopLimit].includes(item.type)) {
+              priceSpecs.limitPrice = item.price;
+            }
+            if ([OrderType.StopMarket, OrderType.StopLimit].includes(item.type)) {
+              priceSpecs.stopPrice = item.triggerPrice;
+            }
+            if (item.type === OrderType.StopLimit) {
+              priceSpecs.limitPrice = item.price;
+              priceSpecs.stopPrice = item.triggerPrice;
+            }
             res = {
               type: item.type,
               id: item.id,
+              side: item.side,
+              ...priceSpecs,
               quantity: item.quantity - item.filledQuantity,
             } as IOrder;
           } else {
@@ -888,7 +901,8 @@ export class DomItem extends HoverableItem implements IBaseItem {
           this.orders.changeAskQuantity(this.ask._value);
         if (!this.bid.isSumCell)
           this.orders.changeBidQuantity(this.bid._value);
-        this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
+        if (this.settings.common.generalColors.enableOrderGridColor)
+          this.styles.addStyle({ cellsBorderColor: this.settings.common.generalColors.orderGridLineColor });
         this.notes.updateValue(order.description);
 
         // if (order.side === OrderSide.Sell) {

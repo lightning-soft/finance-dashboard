@@ -1,8 +1,15 @@
 @import "~src/scss/variables";
+
 :host {
   font-size: 11px;
   color: $text-80;
+  background: $secondary !important;
+
   ::ng-deep {
+    window-header {
+      background: $secondary;
+    }
+
     .time-zones {
       nz-select {
         display: block;

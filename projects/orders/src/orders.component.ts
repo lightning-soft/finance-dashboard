@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren, OnInit } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import {
   convertToColumn,
   HeaderItem,
@@ -8,7 +9,7 @@ import {
   ViewGroupItemsBuilder
 } from 'base-components';
 import { OrderColumn, OrderItem } from 'base-order-form';
-import { IPaginationResponse } from 'communication';
+import { Id, IPaginationResponse } from 'communication';
 import {
   CellClickDataGridHandler,
   CellStatus,
@@ -19,6 +20,7 @@ import {
   DateTimeFormatter,
   generateNewStatusesByPrefix
 } from 'data-grid';
+import { IStoreItem, ItemsStore, ItemsStores } from 'items-store';
 import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
@@ -29,7 +31,7 @@ import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   getPriceScecsForDuplicate,
-  IAccount,
+  IAccount, IInstrument,
   InstrumentsRepository,
   IOrder,
   IOrderParams,
@@ -45,7 +47,7 @@ import { IOrdersPresets, IOrdersState } from '../models';
 import { defaultSettings } from './components/orders-settings/configs';
 import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
-import { untilDestroyed } from "@ngneat/until-destroy";
+import { complexInstrumentId } from 'base-order-form';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier, IPresets<IOrdersState> {
 }
@@ -74,7 +76,9 @@ enum GroupByItem {
 @LayoutPresets()
 @AccountsListener()
 @SettingsApplier()
-export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams> implements OnDestroy, AfterViewInit, IAccountsListener {
+@UntilDestroy()
+export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
+  implements OnDestroy, OnInit, AfterViewInit, IAccountsListener {
   @ViewChildren(DataGrid) dataGrids: QueryList<DataGrid>;
 
   columns: Column[];
@@ -99,7 +103,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     showHeaderPanel: true,
     showColumnHeaders: true,
   };
-
+  private subscriptionMap = {};
+  private connectionMap = {};
+  isConnectionsLoaded = false;
+  _delayedTasks = [];
 
   defaultSettings = defaultSettings;
 
@@ -192,11 +199,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     return !this.contextMenuState?.showHeaderPanel;
   }
 
+  protected _instrumentsStore: ItemsStore<IInstrument & IStoreItem>;
+
   constructor(
     protected _repository: OrdersRepository,
     private _instrumentRepository: InstrumentsRepository,
     protected _injector: Injector,
     protected _dataFeed: OrdersFeed,
+    protected _itemsStores: ItemsStores,
     private _tradeDataFeed: TradeDataFeed,
     public readonly _templatesService: TemplatesService,
     public readonly _modalService: NzModalService,
@@ -204,6 +214,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   ) {
     super();
     this.autoLoadData = false;
+    this._instrumentsStore = _itemsStores.get('instruments');
 
     this.componentInstanceId = Date.now();
     (window as any).orders = this;
@@ -213,6 +224,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       wrap: (item: IOrder) => {
         const orderItem = new OrderItem(item);
         orderItem.timeFormatter = this._timeFormatter;
+        orderItem.setInstrument(this._instrumentsStore.get(orderItem.complexInstrumentId));
         return orderItem;
       },
       groupBy: ['accountId', 'instrumentName'],
@@ -229,8 +241,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       hoveredBackgroundColor: '#2B2D33',
       hoveredbuyBackgroundColor: '#2B2D33',
       hoveredsellBackgroundColor: '#2B2D33',
-      [`${ groupStatus }BackgroundColor`]: '#24262C',
-      [`${ groupStatus }Color`]: '#fff',
+      [`${groupStatus}BackgroundColor`]: '#24262C',
+      [`${groupStatus}Color`]: '#fff',
       textOverflow: true,
       textAlign: 'left',
       titleUpperCase: true,
@@ -243,10 +255,32 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this.setTabTitle('Orders');
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+    this._instrumentsStore.onChange
+      .pipe(untilDestroyed(this))
+      .subscribe(instruments => {
+        for (const item of this.items) {
+          const instrument = instruments.get(item.complexInstrumentId);
+
+          if (!instrument || instrument.loading) continue;
+
+          item.setInstrument(instrument);
+        }
+      });
+  }
+
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     if (!accounts.length)
       return;
+    if (!this.isConnectionsLoaded)
+      this._delayedTasks.forEach(fn => fn());
 
+    this.isConnectionsLoaded = true;
+    this.connectionMap = accounts.reduce((total, curr) => {
+      total[curr.id] = curr.connectionId;
+      return total;
+    }, {});
     const hide = this.showLoading();
     this.repository.getItems({ accounts }).subscribe(
       res => {
@@ -299,10 +333,24 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   private _processOrder = (item) => {
+    this._instrumentsStore.load(complexInstrumentId(item.instrument?.id, item.account?.id));
     item.accountId = item.account.id;
+    if (!this.subscriptionMap[item.accountId])
+      this.subscriptionMap[item.accountId] = {};
+    if (!this.subscriptionMap[item.accountId][item.instrument.id]) {
+      this.subscriptionMap[item.accountId][item.instrument.id] = true;
+      this.createSubscription(item);
+    }
     item.instrumentName = item.instrument.symbol;
     return item;
   }
+
+  private createSubscription = (item) => {
+    if (this.isConnectionsLoaded)
+      this._tradeDataFeed.subscribe(item.instrument, this.connectionMap[item.account.id]);
+    else
+      this._delayedTasks.push(() => this._tradeDataFeed.subscribe(item.instrument, this.connectionMap[item.account.id]));
+  };
 
   private _processOrders(response) {
     const data = response.data.map(this._processOrder);
@@ -398,14 +446,14 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
 
   private _applyColors(item, sellColor, buyColor, prefix) {
     this._applyColor(item, buyColor, sellColor, prefix);
-    this._applyColor(item, buyColor, sellColor, `hovered${ prefix }`);
-    this._applyColor(item, buyColor, sellColor, `selected${ prefix }`);
-    this._applyColor(item, buyColor, sellColor, `hoveredselected${ prefix }`);
+    this._applyColor(item, buyColor, sellColor, `hovered${prefix}`);
+    this._applyColor(item, buyColor, sellColor, `selected${prefix}`);
+    this._applyColor(item, buyColor, sellColor, `hoveredselected${prefix}`);
   }
 
   private _applyColor(item, buyColor, sellColor, prefix = '') {
-    item.style[`${ prefix }buyColor`] = buyColor;
-    item.style[`${ prefix }sellColor`] = sellColor;
+    item.style[`${prefix}buyColor`] = buyColor;
+    item.style[`${prefix}sellColor`] = sellColor;
   }
 
   openOrderForm($event: MouseEvent) {
@@ -514,12 +562,12 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     this._repository.deleteMany(orders)
       .pipe(finalize(hide))
       .subscribe({
-          next: () => {
-            this._handleDeleteItems(orders);
-            this._showSuccessDelete();
-          },
-          error: (error) => this._handleDeleteError(error)
-        }
+        next: () => {
+          this._handleDeleteItems(orders);
+          this._showSuccessDelete();
+        },
+        error: (error) => this._handleDeleteError(error)
+      }
       );
   }
 
@@ -552,7 +600,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
   }
 
   private _getSettingsKey() {
-    return `orders-component ${ this.componentInstanceId }`;
+    return `orders-component ${this.componentInstanceId}`;
   }
 
   handleGroupChange($event: any) {
@@ -579,7 +627,17 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const groupedItem = new GroupedOrderItem();
     groupedItem.id = item;
     groupedItem.accountId.updateValue(item);
+    if (groupBy === 'instrumentName') {
+      groupedItem.setInstrument(this._instrumentsStore.get(item.complexInstrumentId));
+    }
     return groupedItem;
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    Object.entries(this.subscriptionMap).forEach(([accId, instrumentMap]) => {
+      Object.keys(instrumentMap).forEach(item => this._tradeDataFeed.unsubscribe({ id: item } as IInstrument, this.connectionMap[accId]));
+    });
   }
 
   save(): void {

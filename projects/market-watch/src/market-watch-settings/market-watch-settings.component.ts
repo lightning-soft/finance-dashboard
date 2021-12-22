@@ -8,6 +8,7 @@ import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { noneValue } from 'dynamic-form';
 import { OrderColumn } from 'base-order-form';
 import { OrderDuration, OrderSide, OrderType } from 'trading';
+import { mergeDeep } from 'base-components';
 
 export const MarketWatchSettings = 'market-watch-settings';
 export const marketWatchReceiveKey = 'marketWatchReceiveKey';
@@ -32,13 +33,14 @@ export class MarketWatchSettingsComponent implements AfterViewInit {
   constructor() {
     this.setTabTitle('Settings MarketWatch');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 
   ngAfterViewInit(): void {
     this.form.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe((res) => {
-        this.settings = clone(res);
+        this.settings = mergeDeep(this.settings, res);
         this.broadcastData(this._linkKey, this.settings);
       });
   }

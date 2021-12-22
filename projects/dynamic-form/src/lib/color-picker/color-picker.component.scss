@@ -105,10 +105,9 @@ $color-container-size: 10px;
 .color-picker {
   width: 155px;
   padding: 8px;
-  background-color: $secondary;
+  background-color: $light;
   box-shadow: 0 0 10px #15161D;
   border-radius: 2px;
-  border: 1px solid #383A40;
 
   .palette {
     display: flex;

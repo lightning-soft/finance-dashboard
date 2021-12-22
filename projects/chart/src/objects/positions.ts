@@ -2,6 +2,7 @@ import { StringHelper } from 'base-components';
 import { compareInstruments, IPosition, PositionsFeed, PositionsRepository, Side } from 'trading';
 import { ChartObjects } from './chart-objects';
 import { RealPositionsRepository } from 'real-trading';
+import { ChangeDetectorRef } from "@angular/core";
 
 declare const StockChartX: any;
 
@@ -10,6 +11,7 @@ const { uncapitalize } = StringHelper;
 export class Positions extends ChartObjects<IPosition> {
   protected _repository = this._injector.get(PositionsRepository);
   protected _dataFeed = this._injector.get(PositionsFeed) as any;
+  protected _cd = this._injector.get(ChangeDetectorRef);
 
   init() {
     super.init();
@@ -20,6 +22,11 @@ export class Positions extends ChartObjects<IPosition> {
     const position = model.id ? model : RealPositionsRepository.transformPosition(model);
     super.handle(position);
     this._onDataLoaded();
+    requestAnimationFrame(this.markForCheck);
+  }
+
+  markForCheck = () => {
+    this._cd.markForCheck();
   }
 
   protected _onDataLoaded() {

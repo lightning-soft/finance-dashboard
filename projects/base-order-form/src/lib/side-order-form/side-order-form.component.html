@@ -4,6 +4,7 @@
 
     <button
       [class.cursor-not-allowed]="!canClickPosButton"
+      #posBtn
       (click)="setPositionQuantity()" title="Positions" class="top-position-btn"
       [class.pos-negative]="isPositionsNegative"
     >{{positionsSum}}</button>
@@ -131,15 +132,15 @@
               class="close-position-button"
               [style.background]="setting.closePositionBackgroundColor"
               [style.color]="setting.closePositionFontColor"
-              [class.d-none]="setting.formSettings.closePositionButton === false" nz-button>CLOSE&nbsp;
-        <span class="first-letter">P</span><span class="other-letters">OSITION</span>
+              [class.d-none]="setting.formSettings.showLiquidateButton === false" nz-button>
+        <span class="liquidate">liquidate</span>
       </button>
       <button
         [style.color]="setting.flatButtonsFontColor"
         [style.background]="setting.flatButtonsBackgroundColor"
-        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten"
+        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="liquidate"
         nz-button>
-        FLATTEN
+        liq + cxl all
       </button>
     </div>
   </form>

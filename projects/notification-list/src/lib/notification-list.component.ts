@@ -2,7 +2,7 @@ import { Component, NgZone } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { AuthService } from 'auth';
 import { ILayoutNode, LayoutNode } from 'layout';
-import { Notification, NotificationService } from 'notification';
+import { Notification, NotificationService, NotificationStatus } from 'notification';
 import * as moment from 'moment';
 
 export interface NotificationListComponent extends ILayoutNode {
@@ -22,6 +22,7 @@ export class NotificationListComponent {
   notificationsGroup: any = [];
   visible = false;
   hasNotifications = false;
+  statuses = NotificationStatus;
 
   public static getSizes() {
     try {

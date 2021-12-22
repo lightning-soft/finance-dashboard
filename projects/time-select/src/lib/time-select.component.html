@@ -21,6 +21,8 @@
   <nz-select
     class="custom-form-control time-select ml-2"
     [(ngModel)]="partOfDay"
+    [nzOptionHeightPx]="24"
+    [nzDropdownMatchSelectWidth]="true"
     (ngModelChange)="handleValueChange()"
   >
     <nz-option

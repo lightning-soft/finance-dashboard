@@ -28,7 +28,7 @@ export const widgetList = [
   },
   {
     icon: 'icon-widget-market-watch',
-    name: 'Market Watch',
+    name: 'MarketWatch',
     component: Components.MarketWatch,
     hasTemplates: true,
   },
@@ -56,7 +56,7 @@ export const widgetList = [
   },
   {
     icon: 'icon-widget-create-orders',
-    name: 'Add orders',
+    name: 'Order Ticket',
     component: Components.OrderForm,
     options: orderFormOptions,
     hasInstrument: true,

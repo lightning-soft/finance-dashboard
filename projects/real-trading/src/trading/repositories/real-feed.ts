@@ -15,7 +15,7 @@ export enum WSMessageTypes {
 @Injectable()
 export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   type: RealtimeType;
-  private _subscriptions: {
+  static _subscriptions: {
     [connectionId: string]: {
       [instrumentId: string]: {
         count: number,
@@ -23,13 +23,14 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       }
     }
   } = {};
-  private _unsubscribeFns = {};
-  private _executors: OnUpdateFn<T> [] = [];
+  static _unsubscribeFns = {};
+  static _pendingRequests = {} as any;
+
+  private _executors: OnUpdateFn<T>[] = [];
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
 
-  private _pendingRequests = {} as any;
 
   constructor(
     protected _injector: Injector,
@@ -62,7 +63,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
       if (!item)
         return;
 
-      const subscriptions = this._subscriptions;
+      const subscriptions = RealFeed._subscriptions;
       if (!subscriptions[connectionId])
         subscriptions[connectionId] = {} as any;
 
@@ -78,10 +79,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
         if (subs.count === 1) {
           const dto = { Value: [item], Timestamp: new Date() };
 
-          if (!this._unsubscribeFns[connectionId])
-            this._unsubscribeFns[connectionId] = {};
+          if (!RealFeed._unsubscribeFns[connectionId])
+            RealFeed._unsubscribeFns[connectionId] = {};
 
-          this._unsubscribeFns[connectionId][item.id] = () =>
+          RealFeed._unsubscribeFns[connectionId][item.id] = () =>
             this._webSocketService.send({ Type: this.unsubscribeType, ...dto }, connectionId);
           subs.payload = dto;
           const connection = this._accountsManager.getConnection(connectionId);
@@ -94,10 +95,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
         subs.count = (subs?.count || 1) - 1;
         if (subs.count === 0) {
-          if (this._unsubscribeFns[connectionId] && this._unsubscribeFns[connectionId][item.id]) {
-            this._unsubscribeFns[connectionId][item.id]();
+          if (RealFeed._unsubscribeFns[connectionId] && RealFeed._unsubscribeFns[connectionId][item.id]) {
+            RealFeed._unsubscribeFns[connectionId][item.id]();
             this._createUnsubscribeRequest(connectionId, item);
-            delete this._unsubscribeFns[connectionId][item.id];
+            delete RealFeed._unsubscribeFns[connectionId][item.id];
           }
         }
       }
@@ -112,46 +113,46 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _createUnsubscribeRequest(connectionId, item) {
-    this._unsubscribeFns[connectionId][item.id]();
+    RealFeed._unsubscribeFns[connectionId][item.id]();
   }
 
   private createPendingRequest(type, payload, connectionId) {
-    if (this._pendingRequests[connectionId] == null)
-      this._pendingRequests[connectionId] = [];
+    if (RealFeed._pendingRequests[connectionId] == null)
+      RealFeed._pendingRequests[connectionId] = [];
 
-    this._pendingRequests[connectionId].push(() => this._webSocketService.send({ Type: type, ...payload }, connectionId));
+    RealFeed._pendingRequests[connectionId].push(() => this._webSocketService.send({ Type: type, ...payload }, connectionId));
   }
 
   protected _getHash(instrument: IInstrument, connectionId: Id) {
-    return `${ connectionId }/${ instrument.id }`;
+    return `${connectionId}/${instrument.id}`;
   }
 
-// protected _getFromHash(hash: string): I {
-//   const [symbol, exchange] = hash.split('.');
+  // protected _getFromHash(hash: string): I {
+  //   const [symbol, exchange] = hash.split('.');
 
-//   return {
-//     symbol,
-//     exchange
-//   } as any;
-// }
+  //   return {
+  //     symbol,
+  //     exchange
+  //   } as any;
+  // }
 
   protected _onSucessfulyConnect(connectionId: Id) {
-    const pendingRequests = this._pendingRequests[connectionId];
+    const pendingRequests = RealFeed._pendingRequests[connectionId];
     if (!pendingRequests)
       return;
 
     pendingRequests.forEach(fn => fn());
-    this._pendingRequests[connectionId] = [];
+    RealFeed._pendingRequests[connectionId] = [];
   }
 
   _onDisconnect(connectionId: Id) {
-    const subscriptions = this._subscriptions[connectionId];
+    const subscriptions = RealFeed._subscriptions[connectionId];
     if (!subscriptions)
       return;
 
-    Object.values(this._unsubscribeFns[connectionId])
+    Object.values(RealFeed._unsubscribeFns[connectionId])
       .forEach((callback: () => void) => callback());
-    this._pendingRequests[connectionId] = [];
+    RealFeed._pendingRequests[connectionId] = [];
     Object.values(subscriptions)
       .map(item => this.createPendingRequest(WSMessageTypes.SUBSCRIBE, item.payload, connectionId));
   }
@@ -171,6 +172,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
     if (type !== this.type || !result || !this._filter(result))
       return;
+
+    if (type === 'Position') {
+      console.log('Position', data);
+    }
 
     const _result = this._getResult(data);
 

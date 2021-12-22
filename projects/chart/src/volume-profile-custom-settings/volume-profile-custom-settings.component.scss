@@ -7,11 +7,47 @@
 }
 
 :host ::ng-deep {
+  formly-form {
+    .template-label, .profile-hotkey .hotkey-wrapper label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      color: $text-60;
+    }
+
+    .profile-alignment {
+      .icon-align-left {
+        margin-left: auto;
+      }
+    }
+
+    .ant-input-number {
+      width: auto;
+      justify-content: space-between;
+    }
+  }
+
+  .poc-rows {
+    grid-column-gap: 4px;
+  }
+
   cdk-virtual-scroll-viewport {
     padding-bottom: 8px;
   }
+
   formly-form {
     padding-bottom: 0;
+  }
+
+  window-header {
+    position: relative;
+
+    &:after {
+      right: 0;
+      content: '';
+      height: 100%;
+      width: 438px;
+      background: $secondary;
+      position: absolute;
+      z-index: -1;
+    }
   }
 }
 
@@ -44,9 +80,13 @@
   }
 
   &:hover {
-    background-color: rgba(255,255,255,.08);
+
     .actions {
       opacity: 1;
     }
+  }
+
+  &:hover(.active) {
+    background-color: rgba(255, 255, 255, .08);
   }
 }

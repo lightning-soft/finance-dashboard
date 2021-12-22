@@ -58,7 +58,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
 
   protected _mapResponseItem(item: any): IInstrument {
     let suffix = '';
-    if (item.type === InstrumentType.Future) {
+    if (item.type === InstrumentType.Future && item.symbol.length > 2) {
       const [monthType, year] = item.symbol.replace(item.productCode, '');
       const decade = new Date().getFullYear().toString()[2];
       suffix = monthsMap[monthType] + `${decade}${year}`;
@@ -66,6 +66,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     return {
       ...item,
       id: item.symbol,
+      instrumentTimePeriod: suffix,
       description: item.description + ` ${suffix}`,
       tickSize: item.increment ?? 0.01,
     };
@@ -98,11 +99,15 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     );
   }
 
-  getItems(params = {}): Observable<IPaginationResponse<IInstrument>> {
+  getItems(params: any = {}): Observable<IPaginationResponse<IInstrument>> {
     const _params = {
       criteria: '',
       ...params,
     };
+
+    if (params.accountId == null && params.connectionId == null) {
+      return throwError('You need select account to search instruments');
+    }
 
     return super.getItems(_params).pipe(
       map((res: any) => {
@@ -129,7 +134,10 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       return of([]);
     }
 
-    // return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
-    return forkJoin(ids.map(id => this.getItemById(id)));
+    return forkJoin(ids.map((id: string) => {
+      const [symbol, exchange, accountId] = id.split('.');
+
+      return this.getItemById(symbol, { exchange, accountId }).pipe(map(i => ({ ...i, id })));
+    }));
   }
 }

@@ -1,4 +1,13 @@
-import { FieldConfig, getCheckboxes, getColor, getColumnSelector, getRadio, getSelect, noneValue } from 'dynamic-form';
+import {
+  FieldConfig,
+  getCheckboxes,
+  getColor,
+  getColumnSelector,
+  getRadio,
+  getSelect,
+  noneValue,
+  wrapWithConfig
+} from 'dynamic-form';
 import { MarketWatchColumns } from '../market-watch-columns.enum';
 import { OrderColumn } from 'base-order-form';
 import { OrderDurationArray, OrderSide, OrderType } from 'trading';
@@ -54,7 +63,7 @@ export const settingsField = [
       }),
       new FieldConfig({
         label: 'Display',
-        className: 'd-block mt-4 field-item',
+        className: 'd-block settings-field field-item',
         fieldGroupClassName: 'field-group',
         fieldGroup: [
           getSelect({
@@ -96,14 +105,22 @@ export const settingsField = [
           new FieldConfig({
             fieldGroupClassName: 'd-grid two-rows',
             fieldGroup: [
-              getRadio('displayOrders', [{ label: 'All', value: DisplayOrders.All }, {
+              wrapWithConfig(getRadio('displayOrders', [{ label: 'All', value: DisplayOrders.All }, {
                 label: 'Created on this window',
                 value: DisplayOrders.Created,
-              }]),
-              getRadio('openIn', [{ label: 'Order Ticket', value: OpenIn.orderTicker }, {
+              }]), {
+                expressionProperties: { 'templateOptions.disabled': (a, b, formField) => {
+                    return !formField.model.showOrders;
+                  } },
+              }),
+              wrapWithConfig(getRadio('openIn', [{ label: 'Order Ticket', value: OpenIn.orderTicker }, {
                 label: 'MarketWatch row',
                 value: OpenIn.marketWatchRow
-              }]),
+              }]), {
+                expressionProperties: { 'templateOptions.disabled': (a, b, formField) => {
+                    return !formField.model.showOrders;
+                  } },
+              } ),
             ]
           }),
         ],
@@ -111,7 +128,7 @@ export const settingsField = [
       new FieldConfig({
         fieldGroupClassName: '',
         key: 'columnView',
-        className: 'd-block mt-4 field-item form-control-no-paddings',
+        className: 'd-block settings-field field-item form-control-no-paddings',
         fieldGroup: [
           getColumnSelector({
             key: 'columns',
@@ -125,8 +142,8 @@ export const settingsField = [
               value: OrderColumn.identifier
             }, 'Side', 'Quantity', 'Type', 'Price', 'Trigger Price', 'Average Fill Price',
               { label: 'TIF', value: OrderColumn.duration }, {
-               // label: 'Destination',
-               label: 'Description',
+                // label: 'Destination',
+                label: 'Description',
                 value: OrderColumn.description
               }, 'Status'],
             columns: [

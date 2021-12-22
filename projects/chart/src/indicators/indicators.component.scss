@@ -15,6 +15,42 @@
         color: $text-60;
       }
     }
+
+    formly-form .ant-form-item-has-error .ant-select:not(.ant-select-borderless) .ant-select-selector {
+      border-color: transparent !important;
+    }
+
+    .zigzagoscillator, .volumebreakdown, .footprint {
+      .ant-checkbox-wrapper {
+        padding-left: 5px;
+      }
+    }
+
+    .custom-form-control.ant-select, .custom-form-control.ant-select .ant-select-selector {
+      height: 20px !important;
+    }
+
+    .accumulate-session {
+      justify-content: space-between;
+      padding-left: 2px;
+      padding-right: 2px;
+      display: flex;
+    }
+
+    formly-form .checkbox-field-group {
+      padding: 0;
+    }
+
+    formly-form > formly-field > formly-wrapper-nz-form-field > nz-form-item > nz-form-label > label {
+      color: $text-80 !important;
+    }
+
+    formly-form {
+      .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        color: $text-60;
+      }
+    }
+
     .icon-search {
       color: $light2;
     }
@@ -28,7 +64,7 @@
 
       &:after {
         right: 0;
-        width: 400px;
+        width: 398px;
         content: '';
         height: 100%;
         background: $secondary;
@@ -136,7 +172,7 @@
     }
 
     .width-row {
-      grid-template-columns: 3fr 1fr;
+      grid-template-columns: 4fr 1fr;
       grid-column-gap: 5px;
 
       nz-select {
@@ -158,17 +194,13 @@
 
     .tickPerPrice {
       number-input {
-        flex-direction: row;
-        justify-content: normal;
+        nz-input-number {
+          width: 92px;
+          margin-left: 8px;
+        }
 
         .number-label {
           font-weight: 400;
-          margin-left: 5px;
-        }
-
-        .ant-input {
-          width: 50px;
-          margin-right: 10px;
         }
       }
     }
@@ -203,8 +235,8 @@
 
     .vaOpacityNumber {
       number-input {
-        input {
-          width: 41%;
+        nz-input-number {
+          width: 44%;
           padding-right: 0;
         }
 
@@ -306,28 +338,28 @@
     }
 
     .profile-period {
-      .ant-form-item {
-        flex-direction: row;
+      & > formly-wrapper-nz-form-field > .ant-form-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 10px;
       }
 
       .period-items {
-        > * {
-          &:not(:first-child) {
-            margin-left: 4px;
-          }
-        }
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-column-gap: 3px;
       }
 
       number-input input {
         width: 100%;
       }
-
-      nz-form-label, nz-form-control {
-        width: 49%;
-      }
     }
 
     .profile-alignment {
+      .icon-align-left.icon-align {
+        margin-left: auto;
+      }
+
       .icon-align-center {
         display: none;
       }
@@ -372,13 +404,25 @@
     }
 
     .visual-style-width {
-      width: calc(50% - 26px);
-      margin-left: 4px;
+      width: calc(50% - 9px);
+      margin-left: 2px;
+    }
+
+    .number-line-length {
+      .ant-input-number {
+        margin-left: 7px;
+      }
     }
 
     .number-full-width {
       .ant-input-number {
         width: 100%;
+      }
+    }
+
+    .font-size-number {
+      .ant-input-number {
+        width: 44px;
       }
     }
 
@@ -420,7 +464,40 @@
     }
 
     .template-label {
+      color: $text-60;
       font-weight: 600;
+
+      margin-right: 5px;
+    }
+
+    .valuaArea {
+      .ant-input-number {
+        width: 92px;
+      }
+    }
+
+    .number-50 {
+      .ant-input-number {
+        width: 50%;
+      }
+    }
+
+    .smoothedPrices {
+      .ant-input-number {
+        width: 69px;
+      }
+    }
+
+    .profile-width {
+      number-input {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 10px;
+
+        .number-label {
+          order: -1;
+        }
+      }
     }
 
     .split-select {
@@ -469,7 +546,7 @@
 
     .calculate-profiles {
       .ant-input-number {
-        width: 65px;
+        width: 92px;
       }
 
       .ant-input {
@@ -498,7 +575,7 @@
         font-weight: 600;
         font-size: 0.8rem;
         // line-height: 1.1rem;
-        width: calc(50% + 4px);
+        width: calc(50%);
         margin-left: 1px;
         display: flex;
         align-items: center;
@@ -512,12 +589,13 @@
     .ant-checkbox-wrapper, .regular-label .ant-form-item-label label {
       font-size: 0.8rem;
       line-height: 1.1rem;
-      color: $text-80;
+      color: $text-60;
       font-weight: 400;
     }
 
     .ant-checkbox-wrapper {
       display: flex;
+      color: $text-60;
       align-items: center;
 
       .ant-checkbox {
@@ -617,14 +695,10 @@
       width: 80px;
     }
 
-    .max-width-85 {
-      max-width: 85px;
-    }
-
     .vwap-styles-grid {
       display: grid;
       grid-template-columns: 4fr 20px 2fr;
-      grid-column-gap: 10px;
+      grid-column-gap: 4px;
     }
 
     .vwap .style {
@@ -637,7 +711,7 @@
       }
     }
 
-    .two-rows, .three-rows, .font-rows, .group-row, .four-rows, .liner-rows, .band-rows, .average-period-rows, .zero-line-rows {
+    .two-rows, .up-down-rows, .session-stats-general-rows, .three-rows, .font-rows, .group-row, .four-rows, .liner-rows, .band-rows, .average-period-rows, .zero-line-rows {
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 10px;
       grid-row-gap: 6px;
@@ -645,12 +719,25 @@
       padding-right: 2px;
     }
 
+    .up-down-rows {
+      grid-template-columns: 86px 86px;
+
+    }
+
+    .session-stats-general-rows {
+      grid-template-columns: 2fr 1fr;
+
+      .select nz-form-item {
+        display: block;
+      }
+    }
+
     .group-row {
       grid-template-columns: 2fr 1fr 1fr;
       align-items: center;
 
       .ant-input-number {
-        width: 73px;
+        width: 100%;
       }
     }
 
@@ -670,7 +757,7 @@
     }
 
     .font-rows {
-      grid-template-columns: 20px 2fr 2fr 1fr;
+      grid-template-columns: 20px 157px 113px 1fr;
     }
 
     .band-rows {
@@ -734,7 +821,7 @@
           font-size: 0.8rem;
           margin-left: 0;
           line-height: 1.1rem;
-          color: #D0D0D2;
+          color: $text-60;
           margin-bottom: 0;
         }
       }
@@ -784,6 +871,8 @@
       border: 1px solid $lighter;
       padding: 8px;
       position: relative;
+      padding-top: 4px;
+      padding-bottom: 4px;
 
       & > formly-wrapper-nz-form-field > nz-form-item > nz-form-label {
         position: absolute;
@@ -907,12 +996,48 @@ formly-form {
 }
 
 :host ::ng-deep {
+  .deltabox-field {
+    nz-form-item .ant-form-item-label label {
+      margin-left: 7px;
+    }
+  }
+
+  .number-space-around {
+    number-input {
+      justify-content: space-around;
+    }
+  }
+
+  .number-space-between {
+    number-input {
+      justify-content: space-between;
+    }
+  }
+
+  .number-space-evenly {
+    number-input {
+      justify-content: space-evenly;
+    }
+  }
+
+  .number-justify-end {
+    number-input {
+      justify-content: end;
+    }
+  }
+
+  .band-label {
+    nz-form-item .ant-form-item-label {
+      margin-bottom: 12px;
+    }
+  }
+
   .data-box-border {
     border: 1px solid #383A40;
     display: block;
-    margin-right: 4px;
-    margin-left: 4px;
-    padding: 14px 8px;
+    margin-right: 0px;
+    margin-left: 0px;
+    padding: 10px 8px;
   }
 
   .zig-zag {

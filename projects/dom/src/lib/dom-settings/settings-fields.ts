@@ -42,10 +42,6 @@ export const commonFields: IFieldConfig[] = [
         },
         className: 'p-l-7',
         key: 'fontFamily',
-        getCss: (value) => {
-          if (value && value.fontFamily)
-            return { ' table tbody td .data': { 'font-family': value.fontFamily } };
-        }
       },
       {
         type: FieldType.Select,
@@ -65,10 +61,6 @@ export const commonFields: IFieldConfig[] = [
         templateOptions: { label: 'Font size', min: 1 },
         className: 'p-l-7',
         key: 'fontSize',
-        getCss: (value) => {
-          if (value && value.fontSize)
-            return { ' table tbody td .data': { 'font-size': value.fontSize + 'px' } };
-        }
       },
       new FieldConfig({
         label: 'General Color',
@@ -79,6 +71,14 @@ export const commonFields: IFieldConfig[] = [
           getColor('Grid Line Color'),
           getColor('Order Grid Line Color'),
           getColor('Center Line Color'),
+          getCheckboxes(
+            {
+              checkboxes: [{
+                label: 'Enable Order Grid Color',
+                config: { className: 'w-100 mt-0' },
+                key: 'enableOrderGridColor'
+              }]
+            })
           // getColor('Simulation Mode Warning Clr'),
         ]
       }),
@@ -359,7 +359,8 @@ export const ltqFields: IFieldConfig[] = [
         },
       ),
       {
-        fieldGroupClassName: 'd-flex flex-wrap two-rows w-100 p-x-4',
+        fieldGroupClassName: 'd-flex flex-wrap align-items-end two-rows w-100 p-x-4',
+        className: 'd-block w-100',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [{
@@ -368,7 +369,7 @@ export const ltqFields: IFieldConfig[] = [
               config: { className: 'w-100' }
             }]
           }),
-          wrapWithClass(getTextAlign(), 'd-flex align-items-center m-0 mb-1'),
+          wrapWithClass(getTextAlign(), 'd-flex align-items-center'),
         ]
       }],
   }),
@@ -450,7 +451,7 @@ function getDepthConfig(label: string) {
             { key: 'histogramEnabled', label: `${ label } Depth Histogram` },
             { key: 'highlightLarge', label: `Highlight Large ${ label } Only` }]
         }),
-        className: 'w-100 depth-checkboxes',
+        className: 'w-100 mr-0',
       },
       /*  getNumber({ key: 'font-size', label: 'Large Ask Size' }),
         getTextAlign(),*/
@@ -481,6 +482,7 @@ function getTotalFields(label: string, key: string) {
         getCheckboxes({
           checkboxes: [{ key: 'histogramEnabled', label: `${ label } Histogram` }], extraConfig: {
             className: ' depth-checkboxes',
+            fieldGroupClassName: 'd-flex checkbox-field-group flex-wrap',
           }
         }),
         getTextAlign(),
@@ -584,7 +586,7 @@ export const orderColumnFields: IFieldConfig[] = [
                 { key: 'includeRealizedPL', label: 'Include Realized PL' }]
             }),
             fieldGroupClassName: '',
-            className: 'pl-1',
+            className: 'pl-0',
           },
           getTextAlign(),
         ]
@@ -606,13 +608,14 @@ export const orderColumnFields: IFieldConfig[] = [
                 { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
               ]
             }),
-            fieldGroupClassName: '', className: 'w-100 m-0 pl-1'
+            fieldGroupClassName: '', className: 'w-100 m-0 pl-0'
           },
 
         ]
       }),
       new FieldConfig({
-        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
+        fieldGroupClassName: 'd-flex flex-wrap  two-rows p-x-7',
+        className: 'mt-0',
         fieldGroup: [
           disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
           disableExpression(getColor({
@@ -640,11 +643,19 @@ function getCurrentFields(suffix: string) {
       key: `current${ suffix }`,
       fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
       fieldGroup: [
-        getCheckboxes({ checkboxes: [{ key: 'histogramEnabled', label: `Current At ${ suffix } Histogram` }] }),
-        getBackgroundColor(),
+        getCheckboxes({
+          checkboxes: [{
+            key: 'histogramEnabled',
+            config: {
+              className: 'w-100 mb-1',
+            },
+            label: `Current At ${ suffix } Histogram`
+          }]
+        }),
+        wrapWithClass(getBackgroundColor(), 'current-background'),
         wrapWithConfig(new FieldConfig({
           label: 'Tails Background Colors',
-          className: 'color-levels',
+          className: 'color-levels mt-2 d-block',
           fieldGroupClassName: 'current-level',
           fieldGroup: [1, 2, 3, 4, 5, 6, 7, 8]
             .map(i => getColor({ label: `Level ${ i }`, key: `level${ i }BackgroundColor` })),
@@ -662,6 +673,7 @@ function getCurrentFields(suffix: string) {
         }),
         new FieldConfig({
           fieldGroupClassName: 'w-100',
+          className: 'm-t-16',
           fieldGroup: [
             getColor({ label: `Tail Inside ${ suffix } Fore`, key: 'tailInsideColor' }),
             getCheckboxes({

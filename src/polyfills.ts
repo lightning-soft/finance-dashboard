@@ -69,6 +69,13 @@ _window.requestAnimationFrame =
   _window.msRequestAnimationFrame ||
   ((fn) => setTimeout(fn, 30));
 
+interface Window {
+  lastFn<T>(callback: (arg?: T) => void, arg: T);
+}
+
+declare global {
+  interface Window { lastFn: <T>(callback: (arg?: T) => void, arg: T) => void; }
+}
 
 import 'zone.js/dist/zone'; // Included with Angular CLI.
 import './string';

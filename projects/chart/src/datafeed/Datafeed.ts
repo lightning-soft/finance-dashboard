@@ -288,6 +288,7 @@ export abstract class Datafeed implements IDatafeed {
     chart.updateIndicators();
     chart.updateComputedDataSeries();
     chart.setNeedsUpdate();
+    chart.setNeedsLayout();
   }
 
   private _processBar(bar): BarAction {

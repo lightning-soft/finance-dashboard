@@ -47,6 +47,7 @@ export interface DomFormSettings {
   formSettings: {
     showInstrumentChange: boolean;
     closePositionButton: boolean;
+    showLiquidateButton: boolean;
     showOHLVInfo: boolean;
     showFlattenButton: boolean;
     showPLInfo: boolean;
@@ -89,6 +90,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   FormActions = FormActions;
   instrument$ = new BehaviorSubject<IInstrument>(null);
   private _ocoStep = OcoStep.None;
+  @ViewChild('posBtn') posBtn;
 
   totalQuantity: number;
   buyQuantity: number;
@@ -169,6 +171,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     formSettings: {
       showInstrumentChange: true,
       closePositionButton: true,
+      showLiquidateButton: true,
       showOHLVInfo: true,
       showFlattenButton: true,
       showCancelButton: true,
@@ -299,6 +302,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
       amountButtons: this.amountButtons,
       settings: this._settings,
     };
+  }
+
+  onUpdatePosSum = () => {
+    if (this.posBtn && this.posBtn.nativeElement) {
+      this.posBtn.nativeElement.innerText = this.positionsSum;
+    }
   }
 
   positionsToQuantity() {

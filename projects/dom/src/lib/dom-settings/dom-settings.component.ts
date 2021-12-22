@@ -76,8 +76,9 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   settingsTab = SettingTab;
 
   constructor() {
-    this.setTabTitle('DOM settings');
+    this.setTabTitle('Settings DOM');
     this.setTabIcon('icon-setting-gear');
+    this.setIsSettings(true);
   }
 
 

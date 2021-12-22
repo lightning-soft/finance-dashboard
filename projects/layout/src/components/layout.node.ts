@@ -22,6 +22,8 @@ export interface ILayoutNode {
 
   getNavbarTitle?: () => string;
 
+  setIsSettings(value: boolean);
+
   setTabIcon?(icon: string);
 
   getTabIcon?(): string;
@@ -78,6 +80,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private componentRef: ViewRef;
 
   private _tabTitle: string;
+  private _isSettings = false;
 
   getNavbarTitle: () => string;
 
@@ -190,6 +193,8 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private _initContainerLayoutEvents(container) {
     if (this._tabTitle)
       container.setTitle(this._tabTitle);
+    if (this._isSettings)
+      this.setIsSettings(this._isSettings);
   }
 
   setTabTitle(value: string) {
@@ -199,6 +204,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     this._tabTitle = value;
     if (this.layoutContainer)
       this.layoutContainer.setTitle(value);
+  }
+  setIsSettings(value) {
+   this._isSettings = value;
+   if (this.layoutContainer)
+     this.layoutContainer._container.classList.add('settings-container');
   }
 
   setNavbarTitleGetter(value: () => string) {

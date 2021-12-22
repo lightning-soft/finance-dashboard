@@ -1,6 +1,21 @@
 @import "../settings";
 
 :host ::ng-deep {
+  .ant-checkbox-wrapper {
+    padding-left: 5px;
+  }
+
+  .settings-field {
+    display: block;
+    margin-top: 32px;
+  }
+
+  formly-form {
+    .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      color: $text-60;
+    }
+  }
+
   window-header {
     position: relative;
 
@@ -97,7 +112,7 @@
   }
 
   number-input .ant-input-number {
-    width: 52px;
+    width: 100%;
   }
 
   .cdk-virtual-scroll-content-wrapper {
@@ -111,6 +126,18 @@
     grid-row-gap: 6px;
   }
 
+  .tif-rows {
+    grid-column-gap: 23px;
+  }
+
+  .font-rows {
+    grid-template-columns: 2fr 1fr 3fr;
+  }
+
+  .trading-rows {
+    grid-column-gap: 7px;
+  }
+
   .session-rows {
     grid-template-columns: 1fr 2fr;
     grid-column-gap: 5px;
@@ -118,24 +145,25 @@
   }
 
   .order-bar-rows {
-    grid-template-columns:86px 1fr 1fr;
+    grid-template-columns:90px 1fr 1fr;
     grid-column-gap: 2px;
     align-items: center;
   }
 
   .order-rows {
-    grid-template-columns: 49% 20px 109px 52px;
+    grid-template-columns: 50% 20px 114px 52px;
     width: 100%;
     align-items: center;
     grid-column-gap: 5px;
   }
 
   .order-area-rows {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 50% 2fr 3fr;
+    grid-column-gap: 5px;
   }
 
   .oco-rows {
-    grid-column-gap: 5px;
+    grid-column-gap: 8px;
   }
 
   .color-without-label {
@@ -158,12 +186,12 @@
 
     .ant-form-item-label {
       text-align: start;
-      margin-bottom: 25px;
+      margin-bottom: 12px;
 
       label {
         font-weight: 600;
         line-height: 1;
-        padding-left: 10px;
+        padding-left: 6px;
         font-size: 0.85rem;
         color: $text-80;
 

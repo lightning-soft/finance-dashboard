@@ -176,8 +176,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       });
     }
     const set = new Set<() => void>();
+    const paramsMap = new Map<(arg?) => void, any>();
 
     (window as any)._requestAnimationFrame = (window as any).requestAnimationFrame;
+
     (window as any).requestAnimationFrame = (callback: () => void): number => {
       if (!set.size) {
         (window as any)._requestAnimationFrame(() => {
@@ -194,6 +196,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
       return 0;
     };
+
+    (window as any).lastFn = (callback: (arg?) => void, arg) => {
+      if (paramsMap.size === 0)
+        requestAnimationFrame(() => {
+          paramsMap.forEach((value, key, map) => key(value));
+          paramsMap.clear();
+        });
+
+      paramsMap.set(callback, arg);
+    };
+
     window.onbeforeunload = (e) => {
       for (const fn of this._subscriptions)
         fn();

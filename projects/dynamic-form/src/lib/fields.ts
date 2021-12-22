@@ -218,20 +218,11 @@ export function getHistogramOrientation(key: string = 'histogramOrientation', la
   return {
     key,
     type: FieldType.Radio,
-    className: 'no-underline',
+    className: 'no-underline histogram-orientation',
     templateOptions: {
       label,
       options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }]
     },
-    getCss: (value) => {
-      if (value && value[key] === HistogramOrientation.Right)
-        return {
-          ' .histogram': {
-            right: 0,
-            left: 'unset',
-          }
-        };
-    }
   };
 }
 
@@ -270,6 +261,7 @@ export function getCheckboxes(_config: any) {
     templateOptions: {
       label
     },
+    fieldGroupClassName: 'd-flex checkbox-field-group two-rows flex-wrap',
     fieldGroup: [...checkboxes.map(item => {
       const checkboxConfig = item.config || {};
       return {

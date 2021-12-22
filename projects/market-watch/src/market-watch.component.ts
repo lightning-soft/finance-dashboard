@@ -620,6 +620,9 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
   }
 
   _createOrderByClick(data, event) {
+    if (!this.settings.display.showOrders)
+      return;
+
     if (data.item?.itemType === ItemType.Item) {
       this.layout.removeComponents(item => {
         return item.visible && item.component.orderLink;

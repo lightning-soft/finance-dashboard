@@ -182,6 +182,8 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+const confirmModalWidth = 376;
+const confirmModalHeight = 180;
 
 const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMColumns.Orders, DOMColumns.Delta, DOMColumns.BuyOrders, DOMColumns.SellOrders];
 
@@ -200,6 +202,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.account?.id;
   }
 
+  private _needCentralize = false;
+
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -210,6 +214,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const prevInstrument = this._instrument;
     this._instrument = value;
+    this._needCentralize = true;
     this._onInstrumentChange(prevInstrument);
   }
 
@@ -313,6 +318,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   public set account(value: IAccount) {
+    if (this._account?.id === value?.id)
+      return;
+
     this._account = value;
     this.handleAccountChange(value);
   }
@@ -326,6 +334,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   @ViewChild('domForm') domForm: SideOrderFormComponent;
 
   private _lastTradeItem: DomItem;
+  pl = '-';
+  @ViewChild('plInput', { static: false }) plInput;
 
   orders: IOrder[] = [];
 
@@ -519,7 +529,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   @ViewChild(DataGrid, { read: ElementRef })
   dataGridElement: ElementRef;
 
-  isFormOpen = true;
+  private _isFormOpen = true;
+  public get isFormOpen() {
+    return this._isFormOpen;
+  }
+  public set isFormOpen(value) {
+    this._isFormOpen = value;
+    requestAnimationFrame(() => this._validateComponentWidth());
+  }
 
   get bracketActive() {
     return this._settings.orderArea.settings.formSettings.showBracket === true;
@@ -838,7 +855,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
     this.domForm?.loadState(this._settings.orderArea as any);
-
+    this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
     this.detectChanges(true);
@@ -859,7 +876,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.refresh();
       i.setAskVisibility(true, true);
       i.setBidVisibility(true, true);
-      i.styles.applyNewStyles({ cellsBorderColor: this._settings.common.generalColors.orderGridLineColor });
+      if (this._settings.common.generalColors.enableOrderGridColor && i.orders.order)
+        i.styles.addStyle({ cellsBorderColor: this._settings.common.generalColors.orderGridLineColor });
+      else
+        i.styles.deleteStyle('cellsBorderColor');
       i.index = index;
     });
     this._applyOffset();
@@ -886,12 +906,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._setPriceForOrders(orders, price);
     }
   }
+  updatePl() {
+    requestAnimationFrame(this._updatePl);
+  }
 
-  getPl(): string {
+  private _updatePl = () => {
     const position = this.position;
 
     if (!position || position.side === Side.Closed) {
-      return '-';
+      this.pl = '-';
+      if (this.plInput && this.plInput.nativeElement)
+        this.plInput.nativeElement.value = this.pl;
     }
 
     const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
@@ -899,10 +924,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const i = this.instrument;
     const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
     const pl = calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl);
-    if (this.instrument.fraction == null)
-      return pl.toFixed(precision);
+    if (pl == null)
+      return;
 
-    return this._priceFormatter.format(pl);
+    if (this.instrument?.fraction == null)
+      this.pl = pl.toFixed(precision);
+
+    this.pl = this._priceFormatter.format(pl);
+    if (this.plInput && this.plInput.nativeElement)
+      this.plInput.nativeElement.value = this.pl;
   }
 
   _setPriceForOrders(orders: IOrder[], price: number) {
@@ -958,8 +988,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       }
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
+      this.domForm.position = this.position;
       this._applyPositionStatus();
+      this.updatePl();
+      requestAnimationFrame(this.markForCheck);
     }
+  }
+  markForCheck = () => {
+    this._changeDetectorRef.markForCheck();
   }
 
   _applyPositionSetting(oldPosition: IPosition, newPosition: IPosition) {
@@ -1213,7 +1249,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _handleOrders(orders: IOrder[]) {
     for (const order of orders) {
-      if (order.account.id !== this.account.id || order.instrument?.id !== this.instrument?.id) continue;
+      if (order.account.id !== this.account?.id || order.instrument?.id !== this.instrument?.id) continue;
 
       this.items.forEach(i => i.removeOrder(order));
       this._fillOrders(order);
@@ -1385,6 +1421,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.refresh(); // for fill correct index
     this.detectChanges();
+    this._needCentralize = false;
   }
 
   centralize = () => requestAnimationFrame(this._centralize);
@@ -1441,7 +1478,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     const prevltqItem = this._lastTradeItem;
     const prevHandled = prevltqItem && prevltqItem.price != null;
-    let needCentralize = false;
+    let needCentralize = this._needCentralize || false;
     const max = this._max;
 
     const _item = this._getItem(trade.price);
@@ -1490,6 +1527,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._lastTrade = trade;
     this._lastTradeItem = _item;
+    this.updatePl();
 
     requestAnimationFrame(this._updateVolumeAndLevels);
 
@@ -1779,14 +1817,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         // if (!needClear)
         //   this._bestBidPrice = price;
 
-        this._handleNewBestBid(price);
+        window.lastFn(this._handleNewBestBid, price);
+        // this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestAskPrice = price;
 
-        this._handleNewBestAsk(price);
+        window.lastFn(this._handleNewBestAsk, price);
+        // this._handleNewBestAsk(price);
         // }
       }
     }
@@ -1862,7 +1902,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _handleNewBestBid(price: number) {
+  _handleNewBestBid = (price: number) => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
@@ -1922,7 +1962,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateBidHist();
   }
 
-  _handleNewBestAsk(price: number) {
+  _handleNewBestAsk = (price: number) => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
@@ -2105,7 +2145,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._validateComponentWidth();
   }
 
-  onResize(data): void {
+  onResize(): void {
     this._validateComponentWidth();
   }
 
@@ -2186,10 +2226,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (!state?.instrument)
       state.instrument = {
         id: 'ESZ1.CME',
-        description: 'E-Mini S&P 500',
+        description: 'E-Mini S&P 500 Dec21',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
+        instrumentTimePeriod: 'Dec21',
         contractSize: 50,
         productCode: 'ES',
         symbol: 'ESZ1',
@@ -2198,6 +2239,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._observe();
     this.refresh();
+
+    // Can't recognize where we should validate with to fix problem with horizontal scroll;
+    setTimeout(() => this._validateComponentWidth(), 500);
+    setTimeout(() => this._validateComponentWidth(), 1000);
+    setTimeout(() => this._validateComponentWidth(), 2000);
 
     if (!state?.instrument)
       return;
@@ -2262,6 +2308,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this.showOrderConfirm) {
       this.createConfirmModal({
         order,
+        instrument: this.instrument,
       }, event).afterClose
         .pipe(untilDestroyed(this))
         .subscribe((res) => {
@@ -2285,10 +2332,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private createConfirmModal(params, event) {
-    const nzStyle = event ? {
-      left: `${event.clientX}px`,
-      top: `${event.clientY}px`,
-    } : {};
+    const container = this.layoutContainer;
+    const left = container.x + container.width / 2 - (confirmModalWidth / 2);
+    const top = container.y + container.height / 2 - (confirmModalHeight / 2);
+    // if (event) {
+    // left = container.x + container.width / 2 - (confirmModalWidth / 2);
+    // top = container.y + container.height / 2 - (confirmModalHeight / 2);
+    // };
+    const nzStyle = {
+      left: `${left}px`,
+      top: `${top}px`,
+    };
     return this._modalService.create({
       nzClassName: 'confirm-order',
       nzIconType: null,
@@ -2307,6 +2361,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     } else {
       if (this.showOrderConfirm) {
         this.createConfirmModal({
+          instrument: this.instrument,
           order: { ...this.domForm.getDto(), side, price: item.lastPrice },
         }, event).afterClose
           .pipe(untilDestroyed(this))
@@ -2364,6 +2419,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this.showCancelConfirm) {
       this.createConfirmModal({
         order: item.orders.order,
+        instrument: this.instrument,
         prefix: 'Cancel'
       }, event).afterClose.toPromise().then((res) => {
         if (!res)
@@ -2454,12 +2510,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _createBuyMarketOrder() {
-    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market });
+  _createBuyMarketOrder(event?) {
+    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }, event);
   }
 
-  _createSellMarketOrder() {
-    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market });
+  _createSellMarketOrder(event?) {
+    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }, event);
   }
 
   private _closePositions() {
