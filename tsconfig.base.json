@@ -181,6 +181,9 @@
       "sound": [
         "projects/sound/index"
       ],
+      "items-store": [
+        "projects/items-store/index"
+      ],
       "account-info": [
         "projects/account-info/index"
       ]

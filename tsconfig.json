@@ -43,6 +43,10 @@
       "account-info": [
         "dist/account-info/account-info",
         "dist/account-info"
+      ],
+      "items-store": [
+        "dist/items-store/items-store",
+        "dist/items-store"
       ]
     }
   },

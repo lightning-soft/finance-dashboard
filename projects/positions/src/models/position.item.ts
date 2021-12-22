@@ -1,4 +1,5 @@
 import { Id } from 'base-components';
+import { complexInstrumentId } from 'base-order-form';
 import {
   AddClassStrategy,
   Cell,
@@ -91,6 +92,11 @@ export class PositionItem extends HoverableItem implements IPositionItem {
 
   private _closed = false;
 
+
+  get complexInstrumentId(): string {
+    return complexInstrumentId((this._instrument?.id ?? this.position?.instrument?.id), this.account.value);
+  }
+
   constructor(public position?: IPosition) {
     super();
     if (!position) {
@@ -100,11 +106,11 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   setInstrument(instrument: IInstrument) {
-    if (this.position?.instrument?.id !== instrument.id)
+    if (!instrument)
       return;
 
     this._instrument = instrument;
-    this._priceFormatter = InstrumentFormatter.forInstrument();
+    this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
     this.price.formatter = this._priceFormatter;
   }
 
