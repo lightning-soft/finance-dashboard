@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, QueryList, ViewChildren, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, Injector, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import {
   convertToColumn,
@@ -8,8 +8,8 @@ import {
   SettingsApplier,
   ViewGroupItemsBuilder
 } from 'base-components';
-import { OrderColumn, OrderItem } from 'base-order-form';
-import { Id, IPaginationResponse } from 'communication';
+import { complexInstrumentId, inactivePrefixStatus, OrderColumn, OrderItem } from 'base-order-form';
+import { IPaginationResponse } from 'communication';
 import {
   CellClickDataGridHandler,
   CellStatus,
@@ -31,7 +31,8 @@ import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   getPriceScecsForDuplicate,
-  IAccount, IInstrument,
+  IAccount,
+  IInstrument,
   InstrumentsRepository,
   IOrder,
   IOrderParams,
@@ -47,7 +48,6 @@ import { IOrdersPresets, IOrdersState } from '../models';
 import { defaultSettings } from './components/orders-settings/configs';
 import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
-import { complexInstrumentId } from 'base-order-form';
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier, IPresets<IOrdersState> {
 }
@@ -143,7 +143,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     { name: OrderColumn.triggerPrice, title: 'TRIG Price', tableViewName: 'Trigger Price' },
     { name: OrderColumn.duration, title: 'tif', tableViewName: 'TIF' },
     { name: OrderColumn.currentPrice, title: 'Cur Price', tableViewName: 'Current Price' },
-    { name: OrderColumn.timestamp, title: 'Time Placed' },
+    { name: OrderColumn.timestamp, title: 'Placed' },
     { name: OrderColumn.averageFillPrice, title: 'AVG FILL', tableViewName: 'Average Fill Price' },
     OrderColumn.status,
     // OrderColumn.fcmId,
@@ -238,6 +238,10 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         selectedbuyBackgroundColor: '#383A40',
         selectedsellBackgroundColor: '#383A40',
       }, CellStatus.Hovered),
+      inactivebuyColor: 'rgba(12,98,247,0.4)',
+      inactivesellColor: 'rgba(220, 50, 47, 0.4)',
+      hoveredinactivebuyColor: 'rgba(12,98,247,0.4)',
+      hoveredinactivesellColor: 'rgba(220, 50, 47, 0.4)',
       hoveredBackgroundColor: '#2B2D33',
       hoveredbuyBackgroundColor: '#2B2D33',
       hoveredsellBackgroundColor: '#2B2D33',
@@ -287,6 +291,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
         hide();
         const { data } = this._processOrders(res);
         this.builder.addItems(data);
+        this.changeActiveTab(this.activeTab);
       },
       err => {
         hide();
@@ -305,15 +310,27 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     switch (tab) {
       case Tab.All:
         this.builder.setParams({ viewItemsFilter: null });
+        this.builder.allItems.forEach(item => {
+          item.highlightOnlyActive = true;
+          item.changeStatus();
+        });
         break;
       case Tab.Filled:
         this.builder.setParams({ viewItemsFilter: i => i.order?.status === OrderStatus.Filled });
+        this.builder.allItems.forEach(item => {
+          item.highlightOnlyActive = false;
+          item.changeStatus();
+        });
         break;
       case Tab.Working:
         this.builder.setParams({
           viewItemsFilter: i => {
             return orderWorkingStatuses.includes(i.order?.status);
           }
+        });
+        this.builder.allItems.forEach(item => {
+          item.highlightOnlyActive = false;
+          item.changeStatus();
         });
         break;
     }
@@ -428,7 +445,9 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const sellColor = colors.sellTextColor;
     const heldBuyColor = colors.heldbuyTextColor;
     const heldSellColor = colors.heldsellTextColor;
-    const format = display.timestamp === 'Seconds' ? 'HH:mm:ss' : 'HH:mm:ss.SSSS';
+    const inactiveBuyColor = colors.inactivebuyTextColor;
+    const inactiveSellColor = colors.inactivesellTextColor;
+    const format = display.timestamp === 'Seconds' ? 'HH:mm:ss' : 'HH:mm:ss.SSS';
     if (format !== this._timeFormatter.dateFormat) {
       this._timeFormatter.dateFormat = format;
       this.builder.allItems.forEach(item => item.applySettings());
@@ -438,6 +457,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       item.style.sellColor = sellColor;
       this._applyColors(item, sellColor, buyColor, '');
       this._applyColors(item, heldSellColor, heldBuyColor, 'held');
+      this._applyColors(item, inactiveSellColor, inactiveBuyColor, inactivePrefixStatus);
+      this._applyColors(item, inactiveSellColor, inactiveBuyColor, 'hovered' + inactivePrefixStatus);
 
       return item;
     });
