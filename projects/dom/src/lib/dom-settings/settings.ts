@@ -153,6 +153,7 @@ export class DomSettings {
       cancelButtonFontColor: '#fff',
       formSettings: {
         closePositionButton: true,
+        showLiquidateButton: true,
         includeRealizedPL: false,
         roundPL: false,
         showBracket: true,

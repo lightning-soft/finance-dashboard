@@ -21,6 +21,7 @@ export const orderFields: IFieldConfig = new FieldConfig({
           checkboxes: [
             { key: 'showInstrumentChange', label: 'Show Instrument Change' },
             { key: 'closePositionButton', label: 'Show Close Position Button' },
+            { key: 'showLiquidateButton', label: 'Show Liquidate Button' },
             { key: 'showOHLVInfo', label: 'Show OHLV Info' },
             { key: 'showFlattenButton', label: 'Show Flatten Button' },
             { key: 'showBracket', label: 'Show Bracket Button' },

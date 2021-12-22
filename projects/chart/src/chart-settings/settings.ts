@@ -85,6 +85,11 @@ defaultChartSettings = {
           enabled: true,
           font: '#D0D0D2',
         },
+        showLiquidateButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
         flatten: {
           background: '#51535A',
           enabled: true,
