@@ -202,6 +202,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.account?.id;
   }
 
+  private _needCentralize = false;
+
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -212,6 +214,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const prevInstrument = this._instrument;
     this._instrument = value;
+    this._needCentralize = true;
     this._onInstrumentChange(prevInstrument);
   }
 
@@ -1418,6 +1421,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.refresh(); // for fill correct index
     this.detectChanges();
+    this._needCentralize = false;
   }
 
   centralize = () => requestAnimationFrame(this._centralize);
@@ -1474,7 +1478,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     const prevltqItem = this._lastTradeItem;
     const prevHandled = prevltqItem && prevltqItem.price != null;
-    let needCentralize = false;
+    let needCentralize = this._needCentralize || false;
     const max = this._max;
 
     const _item = this._getItem(trade.price);
@@ -2328,13 +2332,17 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private createConfirmModal(params, event) {
-    const left = this.layoutContainer.x + this.layoutContainer.width / 2 - (confirmModalWidth / 2);
-    const top = this.layoutContainer.y + this.layoutContainer.height / 2 - (confirmModalHeight / 2);
-
-    const nzStyle = event ? {
+    const container = this.layoutContainer;
+    const left = container.x + container.width / 2 - (confirmModalWidth / 2);
+    const top = container.y + container.height / 2 - (confirmModalHeight / 2);
+    // if (event) {
+    // left = container.x + container.width / 2 - (confirmModalWidth / 2);
+    // top = container.y + container.height / 2 - (confirmModalHeight / 2);
+    // };
+    const nzStyle = {
       left: `${left}px`,
       top: `${top}px`,
-    } : {};
+    };
     return this._modalService.create({
       nzClassName: 'confirm-order',
       nzIconType: null,
@@ -2502,12 +2510,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _createBuyMarketOrder() {
-    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market });
+  _createBuyMarketOrder(event?) {
+    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }, event);
   }
 
-  _createSellMarketOrder() {
-    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market });
+  _createSellMarketOrder(event?) {
+    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }, event);
   }
 
   private _closePositions() {

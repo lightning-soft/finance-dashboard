@@ -26,7 +26,7 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   static _unsubscribeFns = {};
   static _pendingRequests = {} as any;
 
-  private _executors: OnUpdateFn<T> [] = [];
+  private _executors: OnUpdateFn<T>[] = [];
 
   subscribeType: WSMessageTypes;
   unsubscribeType: WSMessageTypes;
@@ -124,17 +124,17 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _getHash(instrument: IInstrument, connectionId: Id) {
-    return `${ connectionId }/${ instrument.id }`;
+    return `${connectionId}/${instrument.id}`;
   }
 
-// protected _getFromHash(hash: string): I {
-//   const [symbol, exchange] = hash.split('.');
+  // protected _getFromHash(hash: string): I {
+  //   const [symbol, exchange] = hash.split('.');
 
-//   return {
-//     symbol,
-//     exchange
-//   } as any;
-// }
+  //   return {
+  //     symbol,
+  //     exchange
+  //   } as any;
+  // }
 
   protected _onSucessfulyConnect(connectionId: Id) {
     const pendingRequests = RealFeed._pendingRequests[connectionId];
@@ -172,6 +172,10 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
 
     if (type !== this.type || !result || !this._filter(result))
       return;
+
+    if (type === 'Position') {
+      console.log('Position', data);
+    }
 
     const _result = this._getResult(data);
 

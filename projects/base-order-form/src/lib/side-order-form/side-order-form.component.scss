@@ -14,7 +14,13 @@ $selectHeight: 22px;
 
 }
 
-quantity-input, {
+.liquidate{
+  display: inline-block;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+quantity-input {
   margin-top: 4px;
 }
 

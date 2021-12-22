@@ -47,6 +47,7 @@ export interface DomFormSettings {
   formSettings: {
     showInstrumentChange: boolean;
     closePositionButton: boolean;
+    showLiquidateButton: boolean;
     showOHLVInfo: boolean;
     showFlattenButton: boolean;
     showPLInfo: boolean;
@@ -170,6 +171,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     formSettings: {
       showInstrumentChange: true,
       closePositionButton: true,
+      showLiquidateButton: true,
       showOHLVInfo: true,
       showFlattenButton: true,
       showCancelButton: true,
