@@ -238,12 +238,15 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this.instrument = state.instrument;
     else
       this.instrument = {
-        id: 'ESZ1.CME',
-        description: 'E-Mini S&P 500',
+        id: 'ESH2.CME',
+        description: 'E-Mini S&P 500 Mar22',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        symbol: 'ESZ1',
+        instrumentTimePeriod: 'Mar22',
+        contractSize: 50,
+        productCode: 'ES',
+        symbol: 'ESH2',
       };
 
     if (state?.account)

@@ -47,7 +47,6 @@ import { defaultSettings } from './components/orders-settings/configs';
 import { ordersSettings } from './components/orders-settings/orders-settings.component';
 import { GroupedOrderItem, groupStatus } from './models/grouped-order.item';
 import { untilDestroyed } from "@ngneat/until-destroy";
-import { hexToRgba } from "ui";
 
 export interface OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>, ISettingsApplier, IPresets<IOrdersState> {
 }
@@ -422,6 +421,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     const sellColor = colors.sellTextColor;
     const heldBuyColor = colors.heldbuyTextColor;
     const heldSellColor = colors.heldsellTextColor;
+    const inactiveBuyColor = colors.inactivebuyTextColor;
+    const inactiveSellColor = colors.inactivesellTextColor;
     const format = display.timestamp === 'Seconds' ? 'HH:mm:ss' : 'HH:mm:ss.SSS';
     if (format !== this._timeFormatter.dateFormat) {
       this._timeFormatter.dateFormat = format;
@@ -432,8 +433,8 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
       item.style.sellColor = sellColor;
       this._applyColors(item, sellColor, buyColor, '');
       this._applyColors(item, heldSellColor, heldBuyColor, 'held');
-      this._applyColors(item, hexToRgba(sellColor, 0.4), hexToRgba(buyColor, 0.4), inactivePrefixStatus);
-      this._applyColors(item, hexToRgba(sellColor, 0.4), hexToRgba(buyColor, 0.4), 'hovered' + inactivePrefixStatus);
+      this._applyColors(item, inactiveSellColor, inactiveBuyColor, inactivePrefixStatus);
+      this._applyColors(item, inactiveSellColor, inactiveBuyColor, 'hovered' + inactivePrefixStatus);
 
       return item;
     });
