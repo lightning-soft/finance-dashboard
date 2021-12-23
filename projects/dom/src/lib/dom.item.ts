@@ -369,7 +369,7 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     ];
   }
 
-  get order(){
+  get order() {
     return this._item.sellOrders.order || this._item.buyOrders.order;
   }
 
@@ -524,7 +524,8 @@ class SumHistogramCell extends HistogramCell {
   //   }
   // }
 
-  update(value: number, isSum: boolean): boolean {
+  update(value: number, isSum: boolean = null): boolean {
+    // if (this.isSumCell && isSum !== false) {
     if (this.isSumCell && isSum) {
       const isChanged = this._hiddenValue !== value;
       this._hiddenValue = value;
@@ -532,19 +533,20 @@ class SumHistogramCell extends HistogramCell {
     }
 
     if (this.isSumCell !== isSum) {
-      this.updateValue(this._hiddenValue);
-      this._hiddenValue = null;
+      if (isSum !== null) {
+        this.updateValue(this._hiddenValue);
+        this._hiddenValue = null;
+        this.isSumCell = isSum;
+        if (isSum)
+          this.setStatusPrefix(totalPrefix);
+        else
+          this.setStatusPrefix('');
+      }
 
       if (isSum) {
         this.visible = true;
         this.hist = null;
       }
-
-      this.isSumCell = isSum;
-      if (isSum)
-        this.setStatusPrefix(totalPrefix);
-      else
-        this.setStatusPrefix('');
     }
 
     return this.updateValue(value);
@@ -575,7 +577,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   index: number;
   isCenter = false;
   side: QuoteSide;
-  clearCross = true;
+  clearCross = false;
 
   _id: Cell = new NumberCell();
   price: PriceCell;
@@ -751,14 +753,18 @@ export class DomItem extends HoverableItem implements IBaseItem {
     if (data.updateType === UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
     }
-
-    if (this.ask.update(data.volume, false)) {
+    const isSumCell = this.ask.isSumCell;
+    if (this.ask.update(data.volume)) {
       if (this._ask == null)
         this._ask = data.volume;
       else
         this._calculateAskDelta();
 
       this.orders.changeAskQuantity(data.volume);
+    }
+
+    if (isSumCell && !this.ask.isSumCell) {
+      console.warn('!!!!! SUM status changed');
     }
 
     if (this.clearCross)
@@ -770,7 +776,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
       this.currentBid.changeBest(QuoteSide.Bid);
     }
 
-    if (this.bid.update(data.volume, false)) {
+    if (this.bid.update(data.volume)) {
       if (this._bid == null)
         this._bid = data.volume;
       else
@@ -976,7 +982,7 @@ export class CustomDomItem extends DomItem {
   clearCross = false;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter,
-              snapshot: { [key: number]: DomItem }) {
+    snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();

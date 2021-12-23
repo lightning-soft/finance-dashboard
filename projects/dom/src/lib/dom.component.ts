@@ -1912,12 +1912,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let item = this._getItem(price);
     let index = item.index;
     let rIndex = index;
+    const clearLastIndex = this.askSumItem?.index ?? 0;
     const lastMarketDepthIndex = index + marketDepth;
     const lastMarketDeltaDepthIndex = index + marketDeltaDepth;
     let sum = 0;
     let max = 0;
 
-    while (items[--rIndex]?.isBidSideVisible) {
+    while (--rIndex >= clearLastIndex) {
       items[rIndex].setBidVisibility(true, true);
       items[rIndex].clearCurrentBidBest();
       items[rIndex].clearBidDelta();
@@ -1972,12 +1973,13 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let item = this._getItem(price);
     let index = item.index;
     let rIndex = index;
+    const clearLastIndex = this.bidSumItem?.index ?? this.items.length - 1;
     const lastMarketDepthIndex = index - marketDepth;
     const lastMarketDeltaDepthIndex = index - marketDeltaDepth;
     let sum = 0;
     let max = 0;
 
-    while (items[++rIndex]?.isAskSideVisible) {
+    while (++rIndex <= clearLastIndex) {
       items[rIndex].setAskVisibility(true, true);
       items[rIndex].clearCurrentAskBest();
       items[rIndex].clearAskDelta();
