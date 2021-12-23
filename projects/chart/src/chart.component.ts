@@ -1546,8 +1546,8 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.closePositionFontColor = orderAreaSettings.closePositionButton.font;
   sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.closePositionButton.background;
 
-  sideOrderSettings.closePositionFontColor = orderAreaSettings.showLiquidateButton.font;
-  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton.background;
+  sideOrderSettings.closePositionFontColor = orderAreaSettings.showLiquidateButton?.font;
+  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton?.background;
 
   sideOrderSettings.icebergFontColor = orderAreaSettings.icebergButton.font;
   sideOrderSettings.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
@@ -1556,7 +1556,7 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
   sideOrderSettings.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
   sideOrderSettings.formSettings.closePositionButton = orderAreaSettings.closePositionButton.enabled;
-  sideOrderSettings.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton.enabled;
+  sideOrderSettings.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton?.enabled;
   sideOrderSettings.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
   sideOrderSettings.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
   sideOrderSettings.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;
