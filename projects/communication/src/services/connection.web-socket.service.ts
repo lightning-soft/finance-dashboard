@@ -264,7 +264,7 @@ export class ConenctionWebSocketService {
       this.connection$.next(true);
     }
 
-    this._checkConnectionDelay(payload);
+    // this._checkConnectionDelay(payload);
     this._checkMessageActivity(payload);
 
     this._executeListeners(WSEventType.Message, payload);
