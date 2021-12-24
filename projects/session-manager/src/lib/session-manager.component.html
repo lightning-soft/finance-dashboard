@@ -22,6 +22,7 @@
           dropdownClassName="timezones-select"
           label="Time Zone"
           [value]="item.timezoneId"
+          [finder]="timezoneFinder"
           [repository]="timezonesRepository"
           (handleChange)="handleTimezoneChange($event)"
         ></data-select>

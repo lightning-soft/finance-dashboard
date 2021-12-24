@@ -244,6 +244,7 @@ export const TIMEZONES = [
     isdst: true,
     text: "Eastern Time (US & Canada)",
     utc: [
+      "America/New_York",
       "America/Detroit",
       "America/Havana",
       "America/Indiana/Petersburg",
@@ -254,7 +255,6 @@ export const TIMEZONES = [
       "America/Louisville",
       "America/Montreal",
       "America/Nassau",
-      "America/New_York",
       "America/Nipigon",
       "America/Pangnirtung",
       "America/Port-au-Prince",
@@ -570,10 +570,10 @@ export const TIMEZONES = [
     isdst: true,
     text: "Edinburgh, London",
     utc: [
+      "Europe/London",
       "Europe/Isle_of_Man",
       "Europe/Guernsey",
       "Europe/Jersey",
-      "Europe/London"
     ]
   },
   {
@@ -624,8 +624,8 @@ export const TIMEZONES = [
     isdst: true,
     text: "Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna",
     utc: [
-      "Arctic/Longyearbyen",
       "Europe/Amsterdam",
+      "Arctic/Longyearbyen",
       "Europe/Andorra",
       "Europe/Berlin",
       "Europe/Busingen",
@@ -668,11 +668,11 @@ export const TIMEZONES = [
     isdst: true,
     text: "Brussels, Copenhagen, Madrid, Paris",
     utc: [
+      "Europe/Paris",
       "Africa/Ceuta",
       "Europe/Brussels",
       "Europe/Copenhagen",
       "Europe/Madrid",
-      "Europe/Paris"
     ]
   },
   {
@@ -919,11 +919,11 @@ export const TIMEZONES = [
     isdst: false,
     text: "Kuwait, Riyadh",
     utc: [
+      "Asia/Riyadh",
       "Asia/Aden",
       "Asia/Bahrain",
       "Asia/Kuwait",
       "Asia/Qatar",
-      "Asia/Riyadh"
     ]
   },
   {
@@ -1304,9 +1304,9 @@ export const TIMEZONES = [
     isdst: false,
     text: "Osaka, Sapporo, Tokyo",
     utc: [
+      "Asia/Tokyo",
       "Asia/Dili",
       "Asia/Jayapura",
-      "Asia/Tokyo",
       "Etc/GMT-9",
       "Pacific/Palau"
     ]
@@ -1319,8 +1319,8 @@ export const TIMEZONES = [
     isdst: false,
     text: "Seoul",
     utc: [
+      "Asia/Seoul",
       "Asia/Pyongyang",
-      "Asia/Seoul"
     ]
   },
   {
@@ -1366,8 +1366,8 @@ export const TIMEZONES = [
     isdst: false,
     text: "Canberra, Melbourne, Sydney",
     utc: [
+      "Australia/Sydney",
       "Australia/Melbourne",
-      "Australia/Sydney"
     ]
   },
   {
@@ -1449,8 +1449,8 @@ export const TIMEZONES = [
     isdst: false,
     text: "Auckland, Wellington",
     utc: [
+      "Pacific/Auckland",
       "Antarctica/McMurdo",
-      "Pacific/Auckland"
     ]
   },
   {
