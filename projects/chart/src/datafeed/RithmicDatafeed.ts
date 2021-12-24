@@ -126,7 +126,7 @@ export class RithmicDatafeed extends Datafeed {
         }
       },
       error: (err) => {
-        this._notifier.showError('Error during fetching history data');
+        this._notifier.showError(err);
         console.error(err);
       },
     });

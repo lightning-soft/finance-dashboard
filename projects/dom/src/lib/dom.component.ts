@@ -1223,7 +1223,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         },
         (err) => {
           console.error(err);
-          this.notifier.showError('Error during fetching history data');
+          this.notifier.showError(err);
         }
       );
   }
