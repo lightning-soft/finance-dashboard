@@ -28,10 +28,11 @@ export class NotificationService extends NotifierService {
   }
 
   showError(message: any, defaultMessage?: string) {
-    const { _message, _title } = this._prepareErrorMessage(message, defaultMessage);
+    const { _message, _title, additionalInfo } = this._prepareErrorMessage(message, defaultMessage);
     const notification = new Notification({
       body: _message, title: _title,
       icon: 'notifcation-error',
+      hoverInfo: additionalInfo,
       type: NotificationType.MESSAGE
     });
     this.addNotification(notification);
