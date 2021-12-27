@@ -524,37 +524,49 @@ class SumHistogramCell extends HistogramCell {
   //   }
   // }
 
+  clearSum() {
+    this.clear();
+    this.updateValue(this._hiddenValue);
+    this._hiddenValue = null;
+  }
+
   update(value: number, isSum: boolean = null): boolean {
-    // if (this.isSumCell && isSum !== false) {
-    if (this.isSumCell && isSum) {
+    if (isSum === false) {
+      console.error('isSum shouldn\'t be false');
+    }
+    if (this.isSumCell && isSum !== true) {
       const isChanged = this._hiddenValue !== value;
       this._hiddenValue = value;
       return isChanged;
     }
 
-    if (this.isSumCell !== isSum) {
-      if (isSum !== null) {
+    // if (this.isSumCell !== isSum) {
+    if (isSum !== null) {
+      if (isSum !== true) {
+        this.clear();
         this.updateValue(this._hiddenValue);
         this._hiddenValue = null;
-        this.isSumCell = isSum;
-        if (isSum)
-          this.setStatusPrefix(totalPrefix);
-        else
-          this.setStatusPrefix('');
       }
-
-      if (isSum) {
-        this.visible = true;
-        this.hist = null;
-      }
+      this.isSumCell = isSum;
+      if (isSum)
+        this.setStatusPrefix(totalPrefix);
+      else
+        this.setStatusPrefix('');
     }
 
-    return this.updateValue(value);
-  }
+    if (isSum) {
+      const res = this.updateValue(value);
 
-  // updateValue(value: number, time?: number) {
-  //   return super.updateValue(value, time);
-  // }
+      this.visible = true;
+      this.hist = null;
+
+      return res;
+    }
+    // }
+
+    return this.updateValue(value);
+
+  }
 
   calcHist(value: number) {
     if (this.isSumCell || (this.settings.highlightLarge && this.settings.largeSize > this._value)) {
@@ -577,7 +589,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   index: number;
   isCenter = false;
   side: QuoteSide;
-  clearCross = false;
+  clearCross = true;
 
   _id: Cell = new NumberCell();
   price: PriceCell;
@@ -866,8 +878,16 @@ export class DomItem extends HoverableItem implements IBaseItem {
     this.askDelta.changeStatus('');
   }
 
+  clearBidSum() {
+    this.bid.clearSum();
+  }
+
   setBidSum(value: number) {
     this.bid.update(value == null ? this._bid : value, value != null);
+  }
+
+  clearAskSum() {
+    this.ask.clearSum();
   }
 
   setAskSum(value: number) {

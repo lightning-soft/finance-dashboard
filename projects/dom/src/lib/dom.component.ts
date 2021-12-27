@@ -1143,21 +1143,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
             this.fillData(price);
+            this._lastTradeItem = this._getItem(price);
 
             const instrument = this.instrument;
-            asks.forEach((info) => this._handleQuote({
+            asks.forEach((info, i) => this._handleQuote({
               instrument,
               price: info.price,
               timestamp: 0,
               volume: info.volume,
-              side: QuoteSide.Ask
+              side: QuoteSide.Ask,
+              updateType: i === asks.length - 1 ? UpdateType.Undefined : UpdateType.Middle,
             } as IQuote));
-            bids.forEach((info) => this._handleQuote({
+            bids.forEach((info, i) => this._handleQuote({
               instrument,
               price: info.price,
               timestamp: 0,
               volume: info.volume,
-              side: QuoteSide.Bid
+              side: QuoteSide.Bid,
+              updateType: i === bids.length - 1 ? UpdateType.Undefined : UpdateType.Middle,
             } as IQuote));
 
             for (const i of this.items) {
@@ -1386,10 +1389,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           const _item = customItemData[price];
 
           if (_item.isAskSum) {
-            _item.setAskSum(null);
+            _item.clearAskSum();
           }
           if (_item.isBidSum) {
-            _item.setBidSum(null);
+            _item.clearBidSum();
           }
 
           _item.setAskVisibility(false, false);
@@ -1907,7 +1910,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
-    this.bidSumItem.setBidSum(null);
+    this.bidSumItem.clearBidSum();
 
     let item = this._getItem(price);
     let index = item.index;
@@ -1968,7 +1971,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
-    this.askSumItem.setAskSum(null);
+    this.askSumItem.clearAskSum();
 
     let item = this._getItem(price);
     let index = item.index;
