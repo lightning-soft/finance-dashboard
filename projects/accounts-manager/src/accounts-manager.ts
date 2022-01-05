@@ -2,25 +2,218 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { AlertType, ConenctionWebSocketService, Id, WSEventType } from 'communication';
 import { NotificationService } from 'notification';
-import { Sound, SoundService } from 'sound';
 import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, debounceTime, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { AccountRepository, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
+import { catchError, finalize, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { Sound, SoundService } from 'sound';
+import { AccountRepository, Broker, ConnectionContainer, ConnectionsRepository, IAccount, IConnection } from 'trading';
 // Todo: Make normal import
 // The problem now - circular dependency
 import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
 
+export class Connection implements IConnection {
+  broker: Broker;
+  name: string;
+  username: string;
+  password?: string;
+  server: string;
+  aggregatedQuotes: boolean;
+  gateway: string;
+  autoSavePassword: boolean;
+  connectOnStartUp: boolean;
+  private _connected: boolean;
+
+  public get connected(): boolean {
+    return this._connected;
+  }
+
+  public set connected(value: boolean) {
+    console.log('connected', this._connected);
+    if (value)
+      this.err = null;
+
+    this._connected = value;
+  }
+  favourite: boolean;
+  isDefault: boolean;
+
+  err?: any;
+  connectionData: any;
+  id: Id;
+
+  get error(): boolean {
+    return this.err != null;
+  }
+
+  get canConnectOnStartUp() {
+    return this.connectOnStartUp && this.password && this.password !== '';
+  }
+
+  private _loadingCount = 0;
+
+  get loading(): boolean {
+    return this._loadingCount > 0;
+  }
+
+  constructor(private _connectionsRepository: ConnectionsRepository) {
+
+  }
+
+  create(): Observable<IConnection> {
+    if (!this.name) {
+      this.name = `${this.server}(${this.gateway})`;
+    }
+
+    return this._connectionsRepository.createItem(this.toJson());
+  }
+
+  toggleFavorite(): Observable<void> {
+    console.error('requestAnimationFrame implement favorite');
+    return of(null);
+  }
+
+  reconnect() {
+    return this.disconnect().pipe(switchMap(item => this.connect()));
+  }
+
+  connect(makeDefault: boolean = false): Observable<this> {
+    const fn = this._makeLoading();
+
+    if (makeDefault === true)
+      this.isDefault = true;
+
+    const connection = this.toJson();
+    return this._connectionsRepository.connect(connection)
+      .pipe(
+        finalize(fn),
+        tap((item) => {
+          console.log('connect', item);
+
+          this._handleConnection(item);
+        }),
+        map(() => this),
+      );
+  }
+
+  disconnect(): Observable<void> {
+    if (!this.connected || this.loading)
+      return of();
+
+    const fn = this._makeLoading();
+    const connection = this.toJson();
+    return this._connectionsRepository.disconnect(connection)
+      .pipe(
+        finalize(fn),
+        // concatMap(() => this.updateItem(updatedConnection)),
+        // tap(() => {
+        //   // this._onDisconnected(connection);
+        //   if (connection.error)
+        //     this._notificationService.showError(connection.err, 'Connection is closed');
+        //   else
+        //     this._notificationService.showSuccess('Connection is closed');
+        // }),
+        catchError((err: HttpErrorResponse) => {
+          const disconnectedConnection = { ...connection, connected: false, err: null };
+          const message = err.message.toLowerCase();
+          if (message.includes('no connection') || message.includes('invalid api key'))
+            return of(disconnectedConnection);
+          // this._onDisconnected(connection);
+
+          if (err.status === 401) {
+            // this.onUpdated(updatedConnection);
+            // this._onDisconnected(updatedConnection);
+            return of(disconnectedConnection);
+          } else
+            return throwError(err);
+        }),
+        tap((item) => {
+          this._handleConnection(item);
+        }),
+      );
+  }
+
+  private _handleConnection(item) {
+    this.err = item.err;
+    this.connected = item.connected;
+    this.connectionData = item.connectionData;
+  }
+
+  private _makeLoading(): () => void {
+    this._loadingCount++;
+    console.log('_makeLoading increase', this.id, this._loadingCount);
+    return () => {
+      console.log('_makeLoading decrease', this.id, this._loadingCount);
+
+      this._loadingCount--;
+    };
+  }
+
+  fromJson(json: any): this {
+    if (json == null)
+      return;
+
+    delete json.error;
+    delete json.loading;
+    delete json.connected;
+    delete json.connectOnStartUp;
+    // delete json.err;
+    // if (json.connected)
+    //   delete json.err;
+    Object.assign(this, json);
+
+    return this;
+  }
+
+  applyJson(json: any) {
+    if (json == null)
+      return;
+
+    // delete json.error;
+    // delete json.loading;
+    // delete json.err;
+    // if (json.connected)
+    //   delete json.err;
+    Object.assign(this, json);
+  }
+
+  toJson(): any {
+    return {
+      broker: this.broker,
+      name: this.name,
+      username: this.username,
+      password: this.password,
+      server: this.server,
+      aggregatedQuotes: this.aggregatedQuotes,
+      gateway: this.gateway,
+      autoSavePassword: this.autoSavePassword,
+      connectOnStartUp: this.connectOnStartUp,
+      connected: this.connected,
+      favourite: this.favourite,
+      isDefault: this.isDefault,
+      error: this.error,
+      err: this.err,
+      connectionData: this.connectionData,
+      id: this.id,
+    };
+  }
+
+}
+
 @Injectable()
 export class AccountsManager implements ConnectionContainer {
 
-  private get _connections(): IConnection[] {
+  get connections(): Connection[] {
     return this.connectionsChange.value;
   }
 
-  private set _connections(value: IConnection[]) {
+  private get _connections(): Connection[] {
+    return this.connectionsChange.value;
+  }
+
+  private set _connections(value: Connection[]) {
     this.connectionsChange.next(value);
   }
 
+  // tslint:disable-next-line:variable-name
   private __accounts: IAccount[] = [];
 
   private get _accounts(): IAccount[] {
@@ -37,10 +230,10 @@ export class AccountsManager implements ConnectionContainer {
   private _wsHasError = {};
   private _accountsConnection = new Map();
 
-  connectionsChange = new BehaviorSubject<IConnection[]>([]);
+  connectionsChange = new BehaviorSubject<Connection[]>([]);
 
-  private _updateConnectionsMap: { [key: string]: BehaviorSubject<IConnection> } = {};
-  private _requests: { [key: string]: Observable<IConnection> } = {};
+  // private _updateConnectionsMap: { [key: string]: BehaviorSubject<IConnection> } = {};
+  // private _requests: { [key: string]: Observable<IConnection> } = {};
 
   constructor(
     protected _injector: Injector,
@@ -84,17 +277,21 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   async init(): Promise<IConnection[]> {
-    await this._fetchConnections();
-    for (const conn of this._connections.filter(i => i.connectOnStartUp && i.password && i.password !== ''))
-      this.connect(conn).subscribe(
-        () => console.log('Successfully connected', conn),
-        (err) => console.error('Connected error', conn, err),
-      );
+    setTimeout(async () => {
+      await this._fetchConnections();
+      for (const conn of this._connections.filter(i => i.canConnectOnStartUp).sort(i => i.isDefault ? -1 : 1))
+        this.connect(conn).subscribe(
+          () => console.log('Successfully connected', conn),
+          (err) => console.error('Connected error', conn, err),
+        );
 
-    return this._connections;
+      return this._connections;
+    }, 1000);
+
+    return [];
   }
 
-  private _fetchAccounts(connection: IConnection) {
+  private _fetchAccounts(connection: Connection) {
     this._getAccountsByConnections(connection)
       .then(accounts => {
         this._accounts = this._accounts.concat(accounts);
@@ -105,20 +302,22 @@ export class AccountsManager implements ConnectionContainer {
 
         accountsListeners.notifyAccountsConnected(accounts, this._accounts);
       })
-      .catch(() => {
-        this.disconnect(connection);
+      .catch((e) => {
+        console.error('error', e);
+        this.disconnect(connection).subscribe();
       });
   }
 
   private async _fetchConnections(): Promise<void> {
     return this._connectionsRepository.getItems().toPromise().then(res => {
       this._connections = res.data.map(item => {
+        // TODO: Move to constructor|from json if possible
         item.connected = false;
         if (item.connected && !item.connectOnStartUp) {
           delete item.connectionData;
         }
 
-        return item;
+        return this.getNewConnection(item);
       });
     });
   }
@@ -142,11 +341,10 @@ export class AccountsManager implements ConnectionContainer {
       .toPromise().then((i) => i.data);
   }
 
-  private _initWS(connection: IConnection) {
+  private _initWS(connection: Connection) {
     const webSocketService = this._webSocketService.get(connection);
-    const subscription = webSocketService.reconnection$.pipe(
-      switchMap((conn) => this.reconnect(conn))
-    )
+    const subscription = webSocketService.reconnection$
+      .pipe(switchMap(() => connection.reconnect()))
       .subscribe(
         (conn) => {
           this._notificationService.showSuccess('Reconnected');
@@ -228,73 +426,83 @@ export class AccountsManager implements ConnectionContainer {
     this.updateItem(connection)
       .pipe(
         tap(() => this._onDisconnected(connection)),
-        tap(() => this.onUpdated(connection))
+        // tap(() => this.onUpdated(connection))
       ).subscribe(
         () => console.log('Successfully deactivate'),
         (err) => console.error('Deactivate error ', err),
       );
   }
 
-  createConnection(connection: IConnection): Observable<IConnection> {
+  createConnection(connection: Connection): Observable<IConnection> {
     if (this._connections.some(hasConnection(connection)))
       return throwError('You can \'t create duplicated connection');
 
-    return this._connectionsRepository.createItem(connection)
-      .pipe(tap((conn) => this.onCreated(conn)));
+    return connection.create()
+      .pipe(tap(() => this._connections = this._connections.concat(connection)));
+
+    // return this._connectionsRepository.createItem(connection)
+    //   .pipe(tap((conn) => this.onCreated(conn)));
   }
 
-  updateItem(item: IConnection): Observable<IConnection> {
-    if (this._updateConnectionsMap[item.id] == null) {
-      const id = item.id;
-      const clear = () => {
-        const sub = this._updateConnectionsMap[id];
-        if (!sub)
-          return;
+  // updateItem(item: IConnection): Observable<IConnection> {
+  //   if (this._updateConnectionsMap[item.id] == null) {
+  //     item.loading = true;
+  //     const id = item.id;
+  //     const clear = () => {
+  //       const sub = this._updateConnectionsMap[id];
+  //       if (!sub)
+  //         return;
 
-        sub.complete();
-        delete this._requests[id];
-        delete this._updateConnectionsMap[id];
-      };
+  //       sub.complete();
+  //       this._setLoading(item, false);
+  //       delete this._requests[id];
+  //       delete this._updateConnectionsMap[id];
+  //     };
 
-      const subject = new BehaviorSubject<any>(item);
-      this._updateConnectionsMap[id] = subject;
-      this._requests[id] = subject.pipe(
-        debounceTime(50),
-        switchMap((i) => this._connectionsRepository.updateItem((i))),
-        map(() => subject.value),
-        tap((i) => this.onUpdated(i)),
-        shareReplay(),
-        tap(clear),
-        catchError(err => {
-          clear();
-          return throwError(err);
-        }),
-      );
-    }
+  //     const subject = new BehaviorSubject<any>(item);
+  //     this._updateConnectionsMap[id] = subject;
+  //     this._requests[id] = subject.pipe(
+  //       tap(() => this._setLoading(item)),
+  //       debounceTime(50),
+  //       switchMap((i) => this._connectionsRepository.updateItem((i))),
+  //       map(() => subject.value),
+  //       tap((i) => this.onUpdated({ ...i, loading: false })),
+  //       shareReplay(),
+  //       tap(clear),
+  //       catchError(err => {
+  //         clear();
+  //         return throwError(err);
+  //       }),
+  //     );
+  //   }
 
-    this._updateConnectionsMap[item.id].next(item);
+  //   this._updateConnectionsMap[item.id].next(item);
 
-    return this._requests[item.id];
-  }
+  //   return this._requests[item.id];
+  // }
 
-  connect(connection: IConnection): Observable<IConnection> {
+  connect(connection: Connection): Observable<IConnection> {
     const defaultConnection = this._connections.find(item => item.isDefault);
-    return this._connectionsRepository.connect(connection)
+    return connection.connect(defaultConnection == null)
       .pipe(
-        concatMap(item => {
-          item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
+        // concatMap(item => {
+        //   item.isDefault = item?.id === defaultConnection?.id || defaultConnection == null;
 
-          if (item.connected) {
-            item.error = false;
-          }
+        //   if (item.connected) {
+        //     item.error = false;
+        //   }
 
-          if (item.error) {
-            this._notificationService.showError(item.err, 'Connection error');
-          }
-
-          return this.updateItem((item));
-        }),
+        //   if (item.error) {
+        //     this._notificationService.showError(item.err, 'Connection error');
+        //   }
+        //   this._setLoading(item);
+        //   return this.updateItem((item));
+        // }),
         tap((conn) => {
+          if (conn.error) {
+            this._notificationService.showError(conn.err, 'Connection error');
+          }
+
           if (conn.connected) {
             this._initWS(conn);
             this._fetchAccounts(conn);
@@ -329,16 +537,13 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
-  disconnect(connection: IConnection): Observable<void> {
+  disconnect(connection: Connection): Observable<void> {
     console.log('disconnect', connection);
     if (!connection || !connection.connected)
       return of();
 
-    const updatedConnection = { ...connection, connected: false, isDefault: false, connectionData: null };
-
-    return this._connectionsRepository.disconnect(connection)
+    return connection.disconnect()
       .pipe(
-        concatMap(() => this.updateItem(updatedConnection)),
         tap(() => {
           this._onDisconnected(connection);
           if (connection.error)
@@ -351,18 +556,13 @@ export class AccountsManager implements ConnectionContainer {
             this._onDisconnected(connection);
 
           if (err.status === 401) {
-            this.onUpdated(updatedConnection);
-            this._onDisconnected(updatedConnection);
+            // this.onUpdated(updatedConnection);
+            this._onDisconnected(connection);
             return of(null);
           } else
             return throwError(err);
         })
       );
-  }
-
-  reconnect(connection: IConnection) {
-    return this.disconnect(connection)
-      .pipe(switchMap(item => this.connect(connection)));
   }
 
   makeDefault(item: IConnection): Observable<any> | null {
@@ -382,7 +582,7 @@ export class AccountsManager implements ConnectionContainer {
     accountsListeners.notifyDefaultChanged(this._connections, item);
   }
 
-  deleteConnection(connection: IConnection): Observable<any> {
+  deleteConnection(connection: Connection): Observable<any> {
     const { id } = connection;
 
     return (connection.connected ? this.disconnect(connection) : of(null))
@@ -398,25 +598,21 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
-  toggleFavourite(connection: IConnection): Observable<IConnection> {
-    const _connection = { ...connection, favourite: !connection.favourite };
-
-    return this.updateItem(_connection);
+  toggleFavorite(connection: Connection): Observable<void> {
+    return connection.toggleFavorite();
   }
 
-  protected onCreated(connection: IConnection): void {
-    if (!connection.name) {
-      connection.name = `${connection.server}(${connection.gateway})`;
-    }
-
-    this._connections = this._connections.concat(connection);
+  updateItem(item): Observable<Connection> {
+    return of(this.getNewConnection(item));
   }
 
-  protected onUpdated(connection: IConnection): void {
-    this._connections = this._connections.map(i => i.id === connection.id ? connection : i);
+  getNewConnection(item = {}): Connection {
+    return new Connection(this._connectionsRepository).fromJson(item);
   }
 }
 
 function hasConnection(connection: IConnection) {
-  return (conn: IConnection) => conn.username === connection.username && conn.server === connection.server;
+  return (conn: IConnection) => conn.username === connection.username
+    && conn.server === connection.server
+    && conn.gateway === connection.gateway;
 }

@@ -29,7 +29,7 @@
                 (contextmenu)="contextMenu($event, contentTemplate)"
                 [class.renaming]="item.rename"
                 [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
-                [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
+                [ngClass]="{ 'loading-block loading-block-small': item.loading }"
                 (click)="selectItem(item, index)"
               >
                 <ng-container *ngIf="!item.rename">
@@ -37,7 +37,7 @@
                 <span class="indicator prefix" [ngClass]="{
                   'success': item.connected,
                   'error': item.error,
-                  'connecting': isLoading[item.id]
+                  'connecting': item.loading
                 }"></span>
                     <span class="connection-name">{{ item.name }}</span>
                   </div>
@@ -45,7 +45,7 @@
                   <span
                     class="selectable-item-action"
                     [class.selectable-item-action-active]="item.favourite"
-                    (click)="toggleFavourite($event, item)"
+                    (click)="toggleFavorite($event, item)"
                   >
                   <i class="font-size-inherit" [ngClass]="{
                     'icon-star-o': !item.favourite,
@@ -85,7 +85,8 @@
           <form
             nz-form
             [formGroup]="form"
-            [class.loading-block]="isLoading[selectedItem?.id]"
+            [class.loading-block]="selectedItem?.loading"
+            [class.block-pointer]="selectedItem?.loading"
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
@@ -176,9 +177,8 @@
               nzType="primary"
               nzBlock
               class="bg-secondary text-uppercase disconnect-button"
-              [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-              (click)="disconnect(selectedItem)"
-            >Disconnect
+              [ngClass]="{ 'loading-block block-pointer loading-block-small': selectedItem?.loading }"
+              (click)="disconnect(selectedItem)">Disconnect
             </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">

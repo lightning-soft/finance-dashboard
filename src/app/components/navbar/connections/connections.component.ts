@@ -10,7 +10,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
+import { AccountsManager, Connection } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
@@ -44,7 +44,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
 
   isLoading: { [key: number]: boolean } = {};
   hasConnectedConnections: boolean;
-  contextMenuConnection: IConnection;
+  contextMenuConnection: Connection;
   isConnectionsDropdownOpened = false;
   connectionsListHeight: number;
 
@@ -100,7 +100,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     });
   }
 
-  connectionContextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, connection: IConnection) {
+  connectionContextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, connection: Connection) {
     this.nzContextMenuService.create(event, menu);
 
     this.contextMenuConnection = connection;
@@ -116,9 +116,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       .pipe(untilDestroyed(this))
       .subscribe(
         (item) => {
-          if (item.error) {
-            this.contextMenuConnection.error = item.error;
-          }
+
         },
         err => console.error('Connect error', err),
         () => {
@@ -143,7 +141,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   }
 
   removeFromFavourites() {
-    this._accountsManager.toggleFavourite(this.contextMenuConnection)
+    this._accountsManager.toggleFavorite(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
         () => this._setConnectionsListHeight(),

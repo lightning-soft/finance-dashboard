@@ -59,7 +59,7 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
       onInit: true,
       onParamsChange: false,
       onQueryParamsChange: false,
-    }
+    };
   }
 
   ngOnInit() {
