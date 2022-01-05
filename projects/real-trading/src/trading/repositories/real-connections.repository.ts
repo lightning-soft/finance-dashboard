@@ -127,7 +127,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
   // _getUrl(broker: Broker) {
   _getUrl(broker: any) {
     if (broker == null)
-      throw new Error('Invalid broker');
+      return 'Invalid broker';
 
     return this._communicationConfig[broker].http.url + 'Connection';
   }

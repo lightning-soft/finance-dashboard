@@ -528,6 +528,7 @@ class SumHistogramCell extends HistogramCell {
     this.clear();
     this.updateValue(this._hiddenValue);
     this._hiddenValue = null;
+    this.isSumCell = false;
   }
 
   update(value: number, isSum: boolean = null): boolean {
@@ -540,29 +541,23 @@ class SumHistogramCell extends HistogramCell {
       return isChanged;
     }
 
-    // if (this.isSumCell !== isSum) {
     if (isSum !== null) {
-      if (isSum !== true) {
-        this.clear();
-        this.updateValue(this._hiddenValue);
-        this._hiddenValue = null;
-      }
+      const isOrderCell = !this.isSumCell;
       this.isSumCell = isSum;
-      if (isSum)
+
+      if (isSum) {
+        if (isOrderCell)
+          this._hiddenValue = this._value;
+        const res = this.updateValue(value);
         this.setStatusPrefix(totalPrefix);
-      else
+        this.visible = true;
+        this.hist = null;
+
+
+        return res;
+      } else
         this.setStatusPrefix('');
     }
-
-    if (isSum) {
-      const res = this.updateValue(value);
-
-      this.visible = true;
-      this.hist = null;
-
-      return res;
-    }
-    // }
 
     return this.updateValue(value);
 
