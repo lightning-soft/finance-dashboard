@@ -1,10 +1,10 @@
-import { MessageTypes } from './enums';
-import { Notification } from './notification';
-import { AlertType } from 'communication';
-import { OrderStatus } from 'trading';
+import {MessageTypes} from './enums';
+import {Notification} from './notification';
+import {AlertType} from 'communication';
+import {OrderStatus} from 'trading';
 // Need long import otherwise there is circular dependency
-import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
-import { ConnectionMessageAggregate } from './connection-message.aggregate';
+import {RealtimeType} from '../../../real-trading/src/trading/repositories/realtime';
+import {ConnectionMessageAggregate} from './connection-message.aggregate';
 
 const successConnectionMessage = new ConnectionMessageAggregate();
 const failureConnectionMessage = new ConnectionMessageAggregate();
@@ -93,6 +93,7 @@ export const handlers = {
     return new Notification({
       type: msg.type,
       title: `${ msg.type } ${ msg.result.status }`,
+      hoverInfo: msg.result.description,
       body: `${ msg.result.type } ${ msg.result.side } ${ msg.result.quantity } ${ msg.result.instrument.symbol }`,
       icon: 'notifcation-error'
     });
