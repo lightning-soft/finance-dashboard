@@ -858,6 +858,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
+    this._validateComponentWidth();
     this.detectChanges(true);
   }
 
@@ -2159,6 +2160,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _validateComponentWidth(): void {
+    if (this.dataGrid)
+      return;
+
+    console.log('dom.dataGrid.columns', this.dataGrid.columns === this.columns);
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
@@ -2170,8 +2175,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (minGridWidth > currentGridWidth) {
       window.width = minWindowWidth;
-      this.dataGrid.resize();
     }
+    this.dataGrid.resize();
   }
 
   toggleTrading(): void {
@@ -2227,7 +2232,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.account = state.account;
     }
 
-
     if (!state?.instrument)
       state.instrument = {
         id: 'ESH2.CME',
@@ -2244,11 +2248,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._observe();
     this.refresh();
-
-    // Can't recognize where we should validate with to fix problem with horizontal scroll;
-    setTimeout(() => this._validateComponentWidth(), 500);
-    setTimeout(() => this._validateComponentWidth(), 1000);
-    setTimeout(() => this._validateComponentWidth(), 2000);
 
     if (!state?.instrument)
       return;
