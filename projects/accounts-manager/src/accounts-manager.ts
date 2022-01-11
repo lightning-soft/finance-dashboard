@@ -66,9 +66,14 @@ export class Connection implements IConnection {
     return this._connectionsRepository.createItem(this.toJson());
   }
 
-  toggleFavorite(): Observable<void> {
-    console.error('requestAnimationFrame implement favorite');
-    return of(null);
+  makeDefault(isDefault = true): any {
+    this.isDefault = !this.isDefault;
+    return this._connectionsRepository.updateItem(this.toJson()).pipe(map(() => null));
+  }
+
+  toggleFavorite(): Observable<any> {
+    this.favourite = !this.favourite;
+    return this._connectionsRepository.updateItem(this.toJson()).pipe(map(() => null));
   }
 
   reconnect() {
@@ -195,7 +200,6 @@ export class Connection implements IConnection {
       id: this.id,
     };
   }
-
 }
 
 @Injectable()
@@ -421,16 +425,22 @@ export class AccountsManager implements ConnectionContainer {
       return;
     }
 
-    connection.connected = false;
-
-    this.updateItem(connection)
+    // connection.connected = false;
+    connection.disconnect()
       .pipe(
         tap(() => this._onDisconnected(connection)),
-        // tap(() => this.onUpdated(connection))
       ).subscribe(
         () => console.log('Successfully deactivate'),
         (err) => console.error('Deactivate error ', err),
       );
+    // this.updateItem(connection)
+    //   .pipe(
+    //     tap(() => this._onDisconnected(connection)),
+    //     // tap(() => this.onUpdated(connection))
+    //   ).subscribe(
+    //     () => console.log('Successfully deactivate'),
+    //     (err) => console.error('Deactivate error ', err),
+    //   );
   }
 
   createConnection(connection: Connection): Observable<IConnection> {
@@ -565,21 +575,25 @@ export class AccountsManager implements ConnectionContainer {
       );
   }
 
-  makeDefault(item: IConnection): Observable<any> | null {
+  makeDefault(item: Connection): Observable<any> | null {
     if (item.isDefault)
       return throwError('Connection is already default');
 
-    const _connection = { ...item, isDefault: true };
+    // const _connection = { ...item, isDefault: true };
     const defaultConnections = this._connections.filter(i => i.isDefault);
+    if (defaultConnections == null || defaultConnections.includes(item)) {
+      return of(item);
+    }
 
-    const needUpdate = defaultConnections.map(i => ({ ...i, isDefault: false })).concat(_connection);
-
-    return forkJoin(needUpdate.map(i => this.updateItem(i)))
+    return forkJoin(defaultConnections.map(i => i.makeDefault(false)).concat(item.makeDefault()))
       .pipe(tap(() => this._onDefaultChanged(item)));
+
+    // const needUpdate = defaultConnections.map(i => ({ ...i, isDefault: false })).concat(_connection);
   }
 
   private _onDefaultChanged(item) {
     accountsListeners.notifyDefaultChanged(this._connections, item);
+    this._triggerConnectionsChange();
   }
 
   deleteConnection(connection: Connection): Observable<any> {
@@ -599,16 +613,14 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   toggleFavorite(connection: Connection): Observable<void> {
-    return connection.toggleFavorite();
-  }
-
-  updateItem(item): Observable<Connection> {
-    return of(this.getNewConnection(item));
+    return connection.toggleFavorite().pipe(tap(this._triggerConnectionsChange));
   }
 
   getNewConnection(item = {}): Connection {
     return new Connection(this._connectionsRepository).fromJson(item);
   }
+
+  private _triggerConnectionsChange = () => this.connectionsChange.next(this.connections);
 }
 
 function hasConnection(connection: IConnection) {

@@ -67,9 +67,9 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   ) {
     super();
 
-    this.builder.setParams({
-      filter: (connection: IConnection) => connection.favourite,
-    });
+    // this.builder.setParams({
+    //   filter: (connection: IConnection) => connection.favourite,
+    // });
   }
 
   ngOnInit() {
@@ -78,7 +78,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         this.hasConnectedConnections = connections.some(item => item.connected);
-        this.builder.replaceItems(connections);
+        this.builder.replaceItems(connections.filter(i => i.favourite));
       });
   }
   ngAfterViewInit() {

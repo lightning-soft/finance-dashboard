@@ -322,7 +322,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       );
   }
 
-  makeDefault(item: IConnection, index = -1) {
+  makeDefault(item: Connection, index = -1) {
     this._accountsManager.makeDefault(item).subscribe(
       (response: any) => {
         this._updateSelectItemIndex(item);
