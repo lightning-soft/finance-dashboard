@@ -1,4 +1,3 @@
-import { Executor } from 'global-handler';
 import { EVENTS } from './enums';
 import { Bounds, Options, saveData } from './types';
 import { ILayoutNode } from 'layout';
