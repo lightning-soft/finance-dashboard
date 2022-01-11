@@ -182,6 +182,7 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+
 const confirmModalWidth = 376;
 const confirmModalHeight = 180;
 
@@ -464,7 +465,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.recalculateMax();
     }
   };
-
   @ViewChild(SideOrderFormComponent)
   private _domForm: SideOrderFormComponent;
   draggingOrders: IOrder[] = [];
@@ -533,6 +533,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   public get isFormOpen() {
     return this._isFormOpen;
   }
+
   public set isFormOpen(value) {
     this._isFormOpen = value;
     requestAnimationFrame(() => this._validateComponentWidth());
@@ -689,7 +690,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.savePresets(presets);
   }
-
 
   handleAccountChange(account: IAccount) {
     this._loadData();
@@ -907,6 +907,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._setPriceForOrders(orders, price);
     }
   }
+
   updatePl() {
     requestAnimationFrame(this._updatePl);
   }
@@ -995,6 +996,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       requestAnimationFrame(this.markForCheck);
     }
   }
+
   markForCheck = () => {
     this._changeDetectorRef.markForCheck();
   }
@@ -1431,6 +1433,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   centralize = () => requestAnimationFrame(this._centralize);
 
   detectChanges(force = false) {
+    if (!this._shouldDraw)
+      return;
+
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
       return;
 
@@ -2336,17 +2341,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private createConfirmModal(params, event) {
-    const container = this.layoutContainer;
-    const left = container.x + container.width / 2 - (confirmModalWidth / 2);
-    const top = container.y + container.height / 2 - (confirmModalHeight / 2);
-    // if (event) {
-    // left = container.x + container.width / 2 - (confirmModalWidth / 2);
-    // top = container.y + container.height / 2 - (confirmModalHeight / 2);
-    // };
-    const nzStyle = {
-      left: `${left}px`,
-      top: `${top}px`,
-    };
+    const nzStyle = event ? {
+      left: `${event.screenX - (confirmModalWidth / 2)}px`,
+      top: `${event.screenY - (confirmModalHeight / 2)}px`,
+    } : {};
     return this._modalService.create({
       nzClassName: 'confirm-order',
       nzIconType: null,
@@ -2473,7 +2471,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         );
   }
 
-  handleFormAction(action: FormActions) {
+  handleFormAction(action: FormActions, event?) {
     switch (action) {
       case FormActions.CloseOrders:
       case FormActions.CloseBuyOrders:
@@ -2495,10 +2493,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._clearOcoOrders();
         break;
       case FormActions.CreateSellMarketOrder:
-        this._createSellMarketOrder();
+        this._createSellMarketOrder(event);
         break;
       case FormActions.CreateBuyMarketOrder:
-        this._createBuyMarketOrder();
+        this._createBuyMarketOrder(event);
         break;
       default:
 
