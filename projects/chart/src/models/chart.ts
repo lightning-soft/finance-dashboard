@@ -214,6 +214,8 @@ export interface IChart extends IEventableObject, IDestroyable, IOrdersHolder, I
 
   setBarCount(value: number);
 
+  shouldDraw: boolean;
+
   /**
    * The bars time frame.
    * @name timeFrame

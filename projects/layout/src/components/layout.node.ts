@@ -17,12 +17,15 @@ export interface ILayoutNode {
   layoutContainer?: IWindow;
 
   link: number | string;
+  _shouldDraw: boolean;
 
   layout?: Layout;
 
   getNavbarTitle?: () => string;
 
   setIsSettings(value: boolean);
+
+  handleToggleVisibility?(visible: boolean);
 
   setTabIcon?(icon: string);
 
@@ -91,6 +94,8 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   link: number;
 
+  _shouldDraw = true;
+
   __onRemove: any[];
 
   onRemove(...fn: VoidFunction[]) {
@@ -127,7 +132,6 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   }
 
   handleDestroy() {
-    console.log('handleDestroy', this.constructor.name);
     if (this.componentRef) {
       try {
         this.componentRef.destroy();
@@ -147,6 +151,18 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     }
   }
 
+  private _handleToggleVisibility() {
+    const visible = this.shouldBeDrawed();
+    if (visible)
+      this.componentRef?.reattach();
+    else
+      this.componentRef.detach();
+
+    this._shouldDraw = visible;
+    if (this.handleToggleVisibility)
+      this.handleToggleVisibility(visible);
+  }
+
   handleHide() {
     // if (this.componentRef)
     //   this.componentRef.changeDetectorRef.detach();
@@ -160,15 +176,21 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
   private _handleLayoutNodeEvent(name: LayoutNodeEvent, event) {
     // console.log(name, event, this._layoutContainer);
     switch (name) {
+      case LayoutNodeEvent.MakeInvisible:
+      case LayoutNodeEvent.MakeVisible:
+        this._handleToggleVisibility();
+        break;
       case LayoutNodeEvent.Destroy:
       case LayoutNodeEvent.Close:
         this.handleDestroy();
         break;
       case LayoutNodeEvent.Hide:
         this.handleHide();
+        this._handleToggleVisibility();
         break;
       case LayoutNodeEvent.Show:
         this.handleShow();
+        this._handleToggleVisibility();
         break;
       case LayoutNodeEvent.MoveStart:
         break;
@@ -195,6 +217,7 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
       container.setTitle(this._tabTitle);
     if (this._isSettings)
       this.setIsSettings(this._isSettings);
+    this._shouldDraw = this.shouldBeDrawed();
   }
 
   setTabTitle(value: string) {
@@ -205,10 +228,11 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
     if (this.layoutContainer)
       this.layoutContainer.setTitle(value);
   }
+
   setIsSettings(value) {
-   this._isSettings = value;
-   if (this.layoutContainer)
-     this.layoutContainer._container.classList.add('settings-container');
+    this._isSettings = value;
+    if (this.layoutContainer)
+      this.layoutContainer._container.classList.add('settings-container');
   }
 
   setNavbarTitleGetter(value: () => string) {
@@ -233,6 +257,14 @@ abstract class _LayoutNode implements IStateProvider<any>, ILayoutNode {
 
   isMaximized() {
     return this.layoutContainer.maximized;
+  }
+
+  isMinimazed() {
+    return this.layoutContainer.maximized;
+  }
+
+  shouldBeDrawed() {
+    return !this.isMinimazed() && this.layoutContainer.visible;
   }
 
   maximizable() {

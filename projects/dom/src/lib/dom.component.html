@@ -66,7 +66,7 @@
       [position]="position"
       [isExtended]="isExtended"
       [orders]="orders"
-      (actions)="handleFormAction($event)"
+      (actions)="handleFormAction($event.action, $event.event)"
       class="{{currentDirection}} orderArea {{isExtended ? 'extended': 'slim' }}">
 
       <ng-container headerContent>

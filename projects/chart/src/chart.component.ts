@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
-import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { ConfirmOrderComponent, FormActionData, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate, IStockChartXInstrument } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -81,6 +81,9 @@ const EVENTS_SUFFIX = '.scxComponent';
 // tslint:disable-next-line: no-empty-interface
 export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 }
+
+const confirmModalWidth = 376;
+const confirmModalHeight = 180;
 
 @UntilDestroy()
 @Component({
@@ -432,6 +435,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  handleToggleVisibility(visible) {
+    if (this.chart)
+      this.chart.shouldDraw = visible;
+    if (visible) {
+      this.chart?.setNeedsLayout();
+      this.chart?.setNeedsUpdate();
+    }
+  }
+
   private _updateSubscriptions() {
     const connectionId = this.account?.connectionId;
     const instrument = this.instrument;
@@ -595,6 +607,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+
+    chart.shouldDraw = this._shouldDraw;
 
     this._handleSettingsChange(this.settings);
 
@@ -931,8 +945,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  handleFormAction($event: FormActions) {
-    switch ($event) {
+  handleFormAction($event: FormActionData) {
+    switch ($event.action) {
       case FormActions.CreateOcoOrder:
         if (this.ocoStep === OcoStep.None)
           this.ocoStep = OcoStep.Fist;
@@ -1014,8 +1028,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       nzFooter: null,
       nzNoAnimation: true,
       nzStyle: {
-        left: `${event.evt.clientX}px`,
-        top: `${event.evt.clientY}px`,
+        left: `${event.evt.screenX - (confirmModalWidth / 2)}px`,
+        top: `${event.evt.clientY - (confirmModalHeight / 2)}px`,
       },
       nzComponentParams: params
     });
