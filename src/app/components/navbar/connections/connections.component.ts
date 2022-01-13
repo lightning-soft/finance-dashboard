@@ -42,7 +42,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
 
   @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
 
-  isLoading: { [key: number]: boolean } = {};
   hasConnectedConnections: boolean;
   contextMenuConnection: Connection;
   isConnectionsDropdownOpened = false;
@@ -51,12 +50,10 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
   protected _clearOnDisconnect = false;
   maxConnections = 2;
 
-  get favourites() {
-    return this.items.filter(item => item.favourite);
-  }
+  private _items = [];
 
-  get hasFavourites() {
-    return this.favourites.length;
+  get items() {
+    return this._items;
   }
 
   constructor(
@@ -66,10 +63,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     private nzContextMenuService: NzContextMenuService,
   ) {
     super();
-
-    // this.builder.setParams({
-    //   filter: (connection: IConnection) => connection.favourite,
-    // });
   }
 
   ngOnInit() {
@@ -78,7 +71,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         this.hasConnectedConnections = connections.some(item => item.connected);
-        this.builder.replaceItems(connections.filter(i => i.favourite));
+        this._items = connections.filter(i => i.favourite);
       });
   }
   ngAfterViewInit() {
@@ -111,22 +104,15 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       this.openAccounts(this.contextMenuConnection);
       return;
     }
-    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        (item) => {
-
-        },
+        (item) => { },
         err => console.error('Connect error', err),
-        () => {
-          delete this.isLoading[this.contextMenuConnection.id];
-        },
       );
   }
 
   disconnect() {
-    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -134,9 +120,6 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
           this.contextMenuConnection.connected = false;
         },
         err => console.error('Disconnect error', err),
-        () => {
-          delete this.isLoading[this.contextMenuConnection.id];
-        }
       );
   }
 

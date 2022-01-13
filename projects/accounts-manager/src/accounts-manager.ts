@@ -10,6 +10,13 @@ import { AccountRepository, Broker, ConnectionContainer, ConnectionsRepository, 
 // The problem now - circular dependency
 import { accountsListeners } from '../../real-trading/src/connection/accounts-listener';
 
+function shouldExist(object: any, key: string) {
+  if (object[key] == null || object[key] == '')
+    return `${key} should exist`;
+
+  return null;
+}
+
 export class Connection implements IConnection {
   broker: Broker;
   name: string;
@@ -58,14 +65,6 @@ export class Connection implements IConnection {
 
   }
 
-  create(): Observable<IConnection> {
-    if (!this.name) {
-      this.name = `${this.server}(${this.gateway})`;
-    }
-
-    return this._connectionsRepository.createItem(this.toJson());
-  }
-
   makeDefault(isDefault = true): any {
     this.isDefault = !this.isDefault;
     return this._connectionsRepository.updateItem(this.toJson()).pipe(map(() => null));
@@ -74,6 +73,52 @@ export class Connection implements IConnection {
   toggleFavorite(): Observable<any> {
     this.favourite = !this.favourite;
     return this._connectionsRepository.updateItem(this.toJson()).pipe(map(() => null));
+  }
+
+  update(value: any): Observable<any> {
+    return this._connectionsRepository.updateItem({ ...this.toJson(), ...value }).pipe(
+      tap((res) => this.applyJson(res)),
+      map(() => null),
+    );
+  }
+
+  create(): Observable<any> {
+    if (!this.name) {
+      this.name = `${this.server}(${this.gateway})`;
+    }
+
+    const errors = [
+      shouldExist(this, 'username'),
+      // shouldExist(this, 'password'),
+      shouldExist(this, 'server'),
+      shouldExist(this, 'broker'),
+      shouldExist(this, 'gateway'),
+    ].filter(Boolean).join(', ');
+
+    if (errors.length) {
+      this.err = errors;
+      return throwError({ message: `To create connection ${errors}` });
+    }
+
+    return this._connectionsRepository.createItem(this.toJson()).pipe(
+      tap((res) => this.applyJson(res)),
+      map(() => null),
+    );
+  }
+
+  rename(name: string): Observable<any> {
+    return this._connectionsRepository.updateItem({ ...this.toJson(), name })
+      .pipe(
+        tap(() => this.name = name),
+        map(() => null),
+      );
+  }
+
+  remove(): Observable<any> {
+    return this._connectionsRepository.deleteItem(this.id)
+      .pipe(
+        map(() => null),
+      );
   }
 
   reconnect() {
@@ -194,7 +239,6 @@ export class Connection implements IConnection {
       connected: this.connected,
       favourite: this.favourite,
       isDefault: this.isDefault,
-      error: this.error,
       err: this.err,
       connectionData: this.connectionData,
       id: this.id,
@@ -442,6 +486,12 @@ export class AccountsManager implements ConnectionContainer {
     //     (err) => console.error('Deactivate error ', err),
     //   );
   }
+
+  remove(connection: Connection): Observable<any> {
+    return connection.remove()
+      .pipe(tap(() => this._connections = this._connections.filter(i => i !== connection)));
+  }
+
 
   createConnection(connection: Connection): Observable<IConnection> {
     if (this._connections.some(hasConnection(connection)))

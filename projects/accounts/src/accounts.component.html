@@ -27,12 +27,12 @@
                 *ngFor="let item of getConnectionsByBroker(broker); let index = index"
                 class="selectable-item pl-4 mt-1"
                 (contextmenu)="contextMenu($event, contentTemplate)"
-                [class.renaming]="item.rename"
-                [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
+                [class.renaming]="item.renaming"
+                [class.selectable-item-active]="item.id === selectedItem?.id && !item.renaming"
                 [ngClass]="{ 'loading-block loading-block-small': item.loading }"
-                (click)="selectItem(item, index)"
+                (click)="selectItem(item, true)"
               >
-                <ng-container *ngIf="!item.rename">
+                <ng-container *ngIf="!item.renaming">
                   <div [title]="item.name" class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
                   'success': item.connected,
@@ -55,13 +55,15 @@
 
                   </div>
                 </ng-container>
-                <input *ngIf="item.rename"
+                <input *ngIf="item.renaming"
                        class="rename"
-                       #input (keydown.enter)="item.rename = false; rename(input.value, item)"
+                       #input
+                       (keydown.enter)="item.renaming = false; rename(input.value, item)"
+                       (focusout)="item.renaming = false;"
                        [value]="item.name || item.toString()" nz-input type="text">
                 <nz-dropdown-menu #contentTemplate="nzDropdownMenu">
                   <ul class="broker-actions" nz-menu>
-                    <li nz-menu-item (click)="item.rename = true; " class="broker-action">Rename</li>
+                    <li nz-menu-item (click)="item.renaming = true; " class="broker-action">Rename</li>
                     <li nz-menu-item (click)="delete($event, item);" class="broker-action">Delete</li>
                   </ul>
                 </nz-dropdown-menu>
@@ -90,12 +92,9 @@
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form (autosavePasswordToggle)="handleAutosavePasswordToggle($event)"
-                           [isSubmitted]="isSubmitted"
+            <acccount-form [isSubmitted]="isSubmitted"
                            #userData
-                           [connectOnStartUp]="connectOnStartUp"
-                           (updateItem)="updateItem()"
-                           (turnOffAutoConnect)="turnOffAutoConnect()"
+                           (autoSavePasswordChange)="autoSavePasswordChange($event)"
                            formControlName="userData"></acccount-form>
             <!-- <label class="split-connection">
               <span class="split-title">Split Connection</span>
@@ -123,8 +122,7 @@
               (keydown.enter)="handleSubmit()"
               nzBlock
               class="ant-btn connect-button ant-btn-primary text-uppercase mt-3 mb-4"
-            >Connect
-            </button>
+            >Connect</button>
           </form>
           <div *ngIf="selectedItem.connected">
             <div class="p-3 bg-secondary rounded">

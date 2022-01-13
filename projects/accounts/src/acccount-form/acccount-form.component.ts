@@ -20,14 +20,12 @@ import { ConnectionsRepository } from 'trading';
 })
 @UntilDestroy()
 export class AcccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
-  @Input() isSubmitted = false;
 
-  @Output() autosavePasswordToggle = new EventEmitter<boolean>();
+  @Input() isSubmitted = true;
+
+  @Output() autoSavePasswordChange = new EventEmitter<boolean>();
 
   passwordVisible = true;
-
-  connectOnStartUp = false;
-  @Output() turnOffAutoConnect = new EventEmitter<boolean>();
   @Output() updateItem = new EventEmitter<boolean>();
 
   form = new FormGroup({
@@ -35,11 +33,11 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
     password: new FormControl('', Validators.required),
     server: new FormControl(null, Validators.required),
     gateway: new FormControl(null, Validators.required),
-    autoSavePassword: new FormControl(false),
+    autoSavePassword: new FormControl(true),
   });
 
   get gateways() {
-    return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? []
+    return this.items.find(i => i.name === this.form.controls.server.value)?.gateways ?? [];
   }
 
   get autoSave() {
@@ -72,17 +70,16 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
       });
   }
 
+  makeAutoSave() {
+    this.form.patchValue({ autoSavePassword: true });
+  }
+
   toggleAutoSave() {
     const autoSavePassword = !this.autoSave;
     this.form.patchValue({ autoSavePassword });
 
-    if (!autoSavePassword) {
-      this.turnOffAutoConnect.emit(!this.connectOnStartUp);
-      this.connectOnStartUp = !this.connectOnStartUp;
-    }
-
-    this.autosavePasswordToggle.emit(autoSavePassword);
-    this.updateItem.emit(true);
+    this.autoSavePasswordChange.emit(autoSavePassword);
+    this.updateItem.emit();
   }
 
   getName(o) {
