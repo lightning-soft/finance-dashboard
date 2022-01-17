@@ -27,41 +27,43 @@
                 *ngFor="let item of getConnectionsByBroker(broker); let index = index"
                 class="selectable-item pl-4 mt-1"
                 (contextmenu)="contextMenu($event, contentTemplate)"
-                [class.renaming]="item.rename"
-                [class.selectable-item-active]="item.id === selectedItem?.id && !item.rename"
-                [ngClass]="{ 'loading-block loading-block-small': isLoading[item.id] }"
-                (click)="selectItem(item, index)"
+                [class.renaming]="item.renaming"
+                [class.selectable-item-active]="item.id === selectedItem?.id && !item.renaming"
+                [ngClass]="{ 'loading-block loading-block-small': item.loading }"
+                (click)="selectItem(item, true)"
               >
-                <ng-container *ngIf="!item.rename">
+                <ng-container *ngIf="!item.renaming">
                   <div [title]="item.name" class="position-relative">
                 <span class="indicator prefix" [ngClass]="{
                   'success': item.connected,
                   'error': item.error,
-                  'connecting': isLoading[item.id]
+                  'connecting': item.loading
                 }"></span>
                     <span class="connection-name">{{ item.name }}</span>
                   </div>
                   <div>
                   <span
                     class="selectable-item-action"
-                    [class.selectable-item-action-active]="item.favourite"
-                    (click)="toggleFavourite($event, item)"
+                    [class.selectable-item-action-active]="item.favorite"
+                    (click)="toggleFavorite($event, item)"
                   >
                   <i class="font-size-inherit" [ngClass]="{
-                    'icon-star-o': !item.favourite,
-                    'icon-star': item.favourite
+                    'icon-star-o': !item.favorite,
+                    'icon-star': item.favorite
                   }"></i>
                 </span>
 
                   </div>
                 </ng-container>
-                <input *ngIf="item.rename"
+                <input *ngIf="item.renaming"
                        class="rename"
-                       #input (keydown.enter)="item.rename = false; rename(input.value, item)"
+                       #input
+                       (keydown.enter)="item.renaming = false; rename(input.value, item)"
+                       (focusout)="item.renaming = false;"
                        [value]="item.name || item.toString()" nz-input type="text">
                 <nz-dropdown-menu #contentTemplate="nzDropdownMenu">
                   <ul class="broker-actions" nz-menu>
-                    <li nz-menu-item (click)="item.rename = true; " class="broker-action">Rename</li>
+                    <li nz-menu-item (click)="item.renaming = true; " class="broker-action">Rename</li>
                     <li nz-menu-item (click)="delete($event, item);" class="broker-action">Delete</li>
                   </ul>
                 </nz-dropdown-menu>
@@ -85,17 +87,15 @@
           <form
             nz-form
             [formGroup]="form"
-            [class.loading-block]="isLoading[selectedItem?.id]"
+            [class.loading-block]="selectedItem?.loading"
+            [class.block-pointer]="selectedItem?.loading"
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form (autosavePasswordToggle)="handleAutosavePasswordToggle($event)"
-                           [isSubmitted]="isSubmitted"
+            <account-form [isSubmitted]="isSubmitted"
                            #userData
-                           [connectOnStartUp]="connectOnStartUp"
-                           (updateItem)="updateItem()"
-                           (turnOffAutoConnect)="turnOffAutoConnect()"
-                           formControlName="userData"></acccount-form>
+                           (autoSavePasswordChange)="autoSavePasswordChange($event)"
+                           formControlName="userData"></account-form>
             <!-- <label class="split-connection">
               <span class="split-title">Split Connection</span>
 
@@ -122,8 +122,7 @@
               (keydown.enter)="handleSubmit()"
               nzBlock
               class="ant-btn connect-button ant-btn-primary text-uppercase mt-3 mb-4"
-            >Connect
-            </button>
+            >Connect</button>
           </form>
           <div *ngIf="selectedItem.connected">
             <div class="p-3 bg-secondary rounded">
@@ -176,9 +175,8 @@
               nzType="primary"
               nzBlock
               class="bg-secondary text-uppercase disconnect-button"
-              [ngClass]="{ 'loading-block loading-block-small': isLoading[selectedItem?.id] }"
-              (click)="disconnect(selectedItem)"
-            >Disconnect
+              [ngClass]="{ 'loading-block block-pointer loading-block-small': selectedItem?.loading }"
+              (click)="disconnect(selectedItem)">Disconnect
             </button>
           </div>
           <div class="text-muted" *ngIf="selectedBroker?.description && !selectedItem.connected">

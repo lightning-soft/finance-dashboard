@@ -1,6 +1,6 @@
 <div
   class="connections-container  d-flex justify-content-end"
-  *ngIf="favourites.length < maxConnections + 1"
+  *ngIf="items.length < maxConnections + 1"
 >
   <div
     class="d-flex align-items-center   connection-item"
@@ -11,7 +11,7 @@
     <div class="indicator mr-2" [ngClass]="{
       'success': connection.connected,
       'error': connection.error,
-      'connecting': isLoading[connection.id]
+      'connecting': connection.loading
     }"></div>
     <div
       [title]="connection.name"
@@ -26,7 +26,7 @@
   (nzVisibleChange)="handleDropdownToggle($event)"
   [nzDropdownMenu]="connectionsDropdown"
   class="d-flex align-items-center justify-content-center navigation-button"
-  *ngIf="favourites.length > maxConnections"
+  *ngIf="items.length > maxConnections"
 >
   <i class="icon-arrow-down text-small mr-1" [class.opened]="isConnectionsDropdownOpened"></i>
   <i [ngClass]="{
@@ -36,7 +36,7 @@
 <div
   class="d-flex align-items-center justify-content-center navigation-button"
   (click)="openAccounts()"
-  *ngIf="!favourites.length"
+  *ngIf="!items.length"
 >
   <i
     title="Connections"
@@ -64,7 +64,7 @@
               }"></div>-->
             <div [class.success]="connection.connected"
                  [class.error]="connection.error"
-                 [class.connecting]="isLoading[connection.id]"
+                 [class.connecting]="connection.loading"
                  class="indicator menu-indicator"></div>
             <div>
               <span [title]="connection.name" class="dropdown-connection-name text-ellipsis">{{ connection.name }}</span>
@@ -80,6 +80,6 @@
   <ul class="connect-menu" nz-menu>
     <li nz-menu-item (click)="connect()" *ngIf="!contextMenuConnection?.connected">Connect</li>
     <li nz-menu-item (click)="disconnect()" *ngIf="contextMenuConnection?.connected">Disconnect</li>
-    <li nz-menu-item (click)="removeFromFavourites()">Remove from top menu</li>
+    <li nz-menu-item (click)="removeFromFavorites()">Remove from top menu</li>
   </ul>
 </nz-dropdown-menu>
