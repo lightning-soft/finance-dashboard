@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { Storage } from 'storage';
@@ -51,7 +51,6 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   }
 
   constructor(private storage: Storage,
-              private _zone: NgZone,
               private _nzContextService: NzContextMenuService) {
     super();
   }
@@ -77,12 +76,6 @@ export class ColorPickerComponent extends FieldType implements OnInit {
 
   open(event) {
     this._nzContextService.create(event, this.menu);
-  }
-
-  forceOpen(event) {
-    this._zone.run(() => {
-      this._nzContextService.create(event, this.menu);
-    });
   }
 
   updateValue(color: string, updateHistory = true): void {
