@@ -1,3 +1,46 @@
+<div class="color-select" nz-dropdown nzTrigger="click" [(nzVisible)]="visible" [nzDropdownMenu]="menu">
+  {{nameMap[currentType]}}
+</div>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu>
+    <li (click)="select(map.profileColor); $event.stopPropagation(); colorPicker.open($event)" nz-menu-item>
+      Profile Color
+      <span class="color-holder" [style.background]="colorForm.controls.profileColor.value"></span>
+    </li>
+    <li (click)="select(map.heatMap)" nz-menu-item>Heat Map</li>
+    <li class="color-submenu" (click)="select(map.customBlend)" nz-submenu nzTitle="Custom Blend">
+      <ul>
+        <li (click)="$event.stopPropagation(); highColor.open($event)" nz-menu-item class="color-subitem">
+          High Color
+          <span class="color-holder" [style.background]="colorForm.value.customBlend.highColor"></span>
+        </li>
+        <li (click)="$event.stopPropagation(); lowColor.open($event)" class="color-subitem" nz-menu-item>
+          Low Color
+          <span class="color-holder" [style.background]="colorForm.value.customBlend.lowColor"></span>
+        </li>
+      </ul>
+    </li>
+    <li class="color-submenu" (click)="select(map.fpShading)" nz-submenu nzTitle="FP Shading">
+      <ul>
+        <li class="color-subitem" (click)="$event.stopPropagation(); buyColor.open($event)" nz-menu-item>
+          Buy Color
+          <span class="color-holder" [style.background]="colorForm.value.fpShading.buyColor"></span>
+        </li>
+        <li class="color-subitem" (click)="$event.stopPropagation();sellColor.open($event)" nz-menu-item>
+          Sell Color
+          <span class="color-holder" [style.background]="colorForm.value.fpShading.sellColor"></span>
+
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nz-dropdown-menu>
+<color-picker #colorPicker class="d-none" [field]="colorFormFields.profileColor"></color-picker>
+<color-picker #highColor class="d-none" [field]="colorFormFields.customBlendHigh"></color-picker>
+<color-picker #lowColor class="d-none" [field]="colorFormFields.customBlendLow"></color-picker>
+<color-picker #buyColor class="d-none" [field]="colorFormFields.fpShadingBuy"></color-picker>
+<color-picker #sellColor class="d-none" [field]="colorFormFields.fpShadingSell"></color-picker>
+<!--
 <nz-select nzOptionHeightPx="22"
            [nzCustomTemplate]="valueTemplate"
            [compareWith]="compareItems"
@@ -7,9 +50,21 @@
              [nzCustomContent]="true"
              [nzLabel]="item.label">
     {{item.label}} <i
-    (click)="$event.stopPropagation(); colorPicker.open($event)"
-    class="icon-arrow-right"></i>
-    <color-picker #colorPicker class="d-none" [field]="colorFormFields[item.value.type]"></color-picker>
+      nz-dropdown [(nzVisible)]="visible" [nzDropdownMenu]="menu"
+      nzTrigger="click"
+      (click)="$event.stopPropagation(); item.value.type == map.profileColor && colorPicker.open($event)"
+      *ngIf="item.value.type !== map.heatMap"
+      class="icon-arrow-right"></i>
+    <nz-dropdown-menu
+      [class.d-none]="item.value.type === map.heatMap && item.value.type === map.profileColor "
+      #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li (click)="highColor.open($event)" *ngIf="item.value.type === map.customBlend" nz-menu-item>High Color</li>
+        <li (click)="lowColor.open($event)"  *ngIf="item.value.type === map.customBlend" nz-menu-item>Low Color</li>
+        <li (click)="buyColor.open($event)"  *ngIf="item.value.type === map.fpShading" nz-menu-item>Buy Color</li>
+        <li (click)="sellColor.open($event)"  *ngIf="item.value.type === map.fpShading" nz-menu-item>Sell Color</li>
+      </ul>
+    </nz-dropdown-menu>
   </nz-option>
 </nz-select>
 <ng-template #valueTemplate let-item>
@@ -20,3 +75,9 @@
     {{item.nzLabel}}
   </div>
 </ng-template>
+<color-picker #colorPicker class="d-none" [field]="colorFormFields[map.profileColor]"></color-picker>
+<color-picker #highColor class="d-none" [field]="colorFormFields[map.customBlend]"></color-picker>
+<color-picker #lowColor class="d-none" [field]="colorFormFields[map.customBlend]"></color-picker>
+<color-picker #buyColor class="d-none" [field]="colorFormFields[map.fpShading]"></color-picker>
+<color-picker #sellColor class="d-none" [field]="colorFormFields[map.fpShading]"></color-picker>
+-->

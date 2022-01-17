@@ -50,9 +50,11 @@ export class ColorPickerComponent extends FieldType implements OnInit {
     return this.formControl?.value;
   }
 
-  constructor(private storage: Storage, private _nzContextService: NzContextMenuService) {
+  constructor(private storage: Storage,
+              private _nzContextService: NzContextMenuService) {
     super();
   }
+
   readonly palette: string[][] = Palette;
   readonly colorType = ColorType;
   @ViewChild('menu') menu: NzDropdownMenuComponent;
@@ -62,7 +64,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
   opacity = 100;
   inputText: string;
   hideOpacity = false;
-  readonly opacityInputFormatter = (opacity: number) => `${ opacity }%`;
+  readonly opacityInputFormatter = (opacity: number) => `${opacity}%`;
 
   ngOnInit() {
     this._setColorTypeByColor(this.currentColor);
@@ -138,7 +140,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
       const rgbColors = text.split(',');
       if (rgbColors.length === 3 && rgbColors.every(c => +c <= 255 && +c >= 0)) {
         const alpha = this._getAlphaByOpacity(this.opacity);
-        this.updateValue(`rgb(${ text },${ alpha })`);
+        this.updateValue(`rgb(${text},${alpha})`);
       } else {
         this._setInputValue();
       }
@@ -166,7 +168,7 @@ export class ColorPickerComponent extends FieldType implements OnInit {
       this.inputText = this.currentColor.replace('#', '');
     } else if (this.selectedColorType === ColorType.RGB) {
       const rgb = parseRgbString(this.currentColor);
-      this.inputText = `${ rgb.r },${ rgb.g },${ rgb.b }`;
+      this.inputText = `${rgb.r},${rgb.g},${rgb.b}`;
       this.opacity = (rgb.a ?? 1) * 100;
     } else {
       this.inputText = this.currentColor;
@@ -232,7 +234,7 @@ function RGBToHex(rgb: RGB): string {
 
 function RGBToString(rgb: RGB): string {
   const a = rgb.a ?? 1;
-  return `rgb(${ rgb.r },${ rgb.g },${ rgb.b },${ a })`;
+  return `rgb(${rgb.r},${rgb.g},${rgb.b},${a})`;
 }
 
 function parseRgbString(color: string): RGB {

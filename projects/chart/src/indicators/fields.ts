@@ -103,11 +103,11 @@ function getProfileConfig(key, _config = {}) {
           },
           {
             label: 'Custom Blend',
-            value: { type: 'customBlend', value: '#a0a0a0' },
+            value: { type: 'customBlend', value: { highColor:'#FF0000', lowColor: '#00FF00' } },
           },
           {
             label: 'FP Shading',
-            value: { type: 'fpShading', value: '#a0a0a0' },
+            value: { type: 'fpShading', value: { buyColor:'#0C62F7', sellColor: 'rgba(201, 59, 59, 1)' } },
           }
         ]
       }),
