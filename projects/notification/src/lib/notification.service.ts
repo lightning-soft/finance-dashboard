@@ -39,11 +39,11 @@ export class NotificationService extends NotifierService {
   }
 
   showSuccess(message: string) {
-    const notification = new Notification({ body: message, icon: 'notication-success', title: 'Success' });
+    const notification = new Notification({ body: message, icon: 'notication-success', title: 'Success', sound: false });
     this.addNotification(notification);
   }
 
-  addNotification(notification) {
+  addNotification(notification: Notification) {
     this._injector.get(SoundService).play(Sound.ALERT);
     this._notifications.unshift(notification);
     this.notifications.next(this.getNotification());

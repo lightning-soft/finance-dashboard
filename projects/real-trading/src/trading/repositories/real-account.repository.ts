@@ -15,6 +15,8 @@ export class RealAccountRepository extends HttpRepository<IAccount> implements A
     if (!params)
       params = {};
     const connection = params.connection;
+    // Todo Test this!!!!
+    delete params.connection;
 
     params.headers = { 'Api-Key': connection?.connectionData?.apiKey ?? '' };
     return super.getItems(params)
