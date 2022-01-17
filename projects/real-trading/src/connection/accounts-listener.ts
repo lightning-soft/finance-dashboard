@@ -98,9 +98,9 @@ export const accountsListeners = new AccountsListenerRegister();
 (window as any).accountsListeners = accountsListeners;
 
 export interface IAccountsListener {
-  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]);
 
-  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]);
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]);
 }
 
 export interface IConnectionsListener {

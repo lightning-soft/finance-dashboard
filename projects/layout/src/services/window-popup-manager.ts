@@ -34,10 +34,10 @@ export class WindowPopupManager {
   hideWindowHeaderInstruments = false;
 
   constructor(private _storage: Storage,
-              private _route: ActivatedRoute,
-              private storage: Storage,
-              private _windowMessengerService: WindowMessengerService,
-              private injector: Injector,
+    private _route: ActivatedRoute,
+    private storage: Storage,
+    private _windowMessengerService: WindowMessengerService,
+    private injector: Injector,
   ) {
   }
 
@@ -204,8 +204,8 @@ export class WindowPopupManager {
     const widgetFeatures = new Map(commonFeatures);
     widgetFeatures.set('scrollbars', 'yes');
     widgetFeatures.set('resizable', 'yes');
-    widgetFeatures.set('innerHeight', `${ height }`);
-    widgetFeatures.set('innerWidth', `${ width }`);
+    widgetFeatures.set('innerHeight', `${height}`);
+    widgetFeatures.set('innerWidth', `${width}`);
     const queryParams = new URLSearchParams();
     queryParams.append('popup', 'true');
     widget.close();
@@ -213,6 +213,7 @@ export class WindowPopupManager {
     let subwindow = this._openPopup(config, queryParams, widgetFeatures);
     if (subwindow) {
       subwindow.onbeforeunload = (e) => {
+        console.log('pp onbeforeunload');
         if (widget.saveState)
           state = widget.saveState();
         widget.layoutContainer.options.component = { name, state };
@@ -234,19 +235,19 @@ export class WindowPopupManager {
     const windowFeatures = new Map(commonFeatures);
     windowFeatures.set('scrollbars', 'yes');
     windowFeatures.set('resizable', 'yes');
-    windowFeatures.set('height', `${ height }`);
-    windowFeatures.set('width', `${ width }`);
+    windowFeatures.set('height', `${height}`);
+    windowFeatures.set('width', `${width}`);
 
     if (bounds.x != null)
-      windowFeatures.set('left', `${ bounds.x }`);
+      windowFeatures.set('left', `${bounds.x}`);
     if (bounds.y != null)
-      windowFeatures.set('top', `${ bounds.y }`);
+      windowFeatures.set('top', `${bounds.y}`);
 
     const queryParams = new URLSearchParams();
     queryParams.append('popup', 'true');
-    queryParams.append('workspaceId', `${ workspace.id }`);
-    queryParams.append('windowId', `${ workspaceWindow.id }`);
-    queryParams.append('windowName', `${ workspaceWindow.name }`);
+    queryParams.append('workspaceId', `${workspace.id}`);
+    queryParams.append('windowId', `${workspaceWindow.id}`);
+    queryParams.append('windowName', `${workspaceWindow.name}`);
 
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
     this.onWindowOpened(workspace, workspaceWindow, bounds);
@@ -256,11 +257,17 @@ export class WindowPopupManager {
   private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>) {
     const featuresArray = [];
     features.forEach((value, key) => {
-      featuresArray.push(`${ key }=${ value }`);
+      featuresArray.push(`${key}=${value}`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
     const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
+
+    // (popup as any).mess = (window as any).mess;
+    popup.close = () => {
+      console.log('pp close');
+    };
     this.windows.push(popup);
+
     return popup;
   }
 
@@ -340,5 +347,5 @@ const commonFeatures = new Map([
 ]);
 
 export function hash(windowId, workspaceId) {
-  return `${ windowId }.${ workspaceId }`;
+  return `${windowId}.${workspaceId}`;
 }

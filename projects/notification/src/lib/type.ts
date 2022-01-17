@@ -6,6 +6,7 @@ export type NotificationConfig = {
   type?: string,
   icon?: string,
   hoverInfo?: string;
+  sound?: boolean;
   timestamp?: string | number,
 };
 

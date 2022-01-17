@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Broker, ConnectionsRepository, IConnection } from 'trading';
 
@@ -24,7 +24,7 @@ class Connection implements IConnection {
   autoSavePassword: boolean;
   connectOnStartUp: boolean;
   connected: boolean;
-  favourite: boolean;
+  favorite: boolean;
   connectionData: any;
   isDefault: boolean;
   id: Id;
@@ -86,6 +86,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
+      // delay(5000),
       tap(i => {
         this._onUpdate(item);
       }),
@@ -116,6 +117,18 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
   protected _disconnect(item: IConnection): Observable<any> {
     const data = item.connectionData;
     const apiKey = data?.apiKey;
+
+    if (!apiKey)
+      return throwError({
+        message: 'invalid api key',
+        error: {
+          error: {
+            errorCode: 'InvalidApiKey',
+            message: 'Api-key is missed!',
+            statusCode: 'BadData',
+          }
+        }
+      });
 
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {
