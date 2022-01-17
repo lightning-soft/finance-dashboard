@@ -106,6 +106,8 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
   }
 
   protected _createSubscribeRequest(connection, type, item, dto) {
+    // need unsubscribe before subscription to get settle data
+    this._createUnsubscribeRequest(connection.id, item);
     if (connection?.connected)
       this._webSocketService.send({ Type: type, ...dto }, connection.id);
     else
