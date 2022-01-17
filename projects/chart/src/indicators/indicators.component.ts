@@ -303,6 +303,8 @@ export class IndicatorsComponent implements OnInit {
 
     const promises = keys.map(key => {
       const contentPromises = contentKeys.map(contentKey => {
+        if (!StockChartX)
+          return Promise.reject();
         return StockChartX.Localization.localizeText(
           this.chart,
           `indicator.${ name }.help.${ key }.${ contentKey }`,

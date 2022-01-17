@@ -9,23 +9,49 @@ import { getColor } from '../fields';
   styleUrls: ['./color-select.component.scss']
 })
 export class ColorSelectComponent extends FieldType implements OnInit {
-  colorForm = new FormGroup({});
-  colorFormFields;
+  colorForm = new FormGroup({
+    profileColor: new FormControl('#0C62F7'),
+    customBlend: new FormGroup({
+      highColor: new FormControl('#0C62F7'),
+      lowColor: new FormControl('rgba(201, 59, 59, 1)'),
+    }),
+    fpShading: new FormGroup({
+      buyColor: new FormControl('#0C62F7'),
+      sellColor: new FormControl('rgba(201, 59, 59, 1)'),
+    }),
+  });
+  map = { profileColor: 'profileColor', heatMap: 'heatMap', customBlend: 'customBlend', fpShading: 'fpShading' };
+  nameMap = {
+    profileColor: 'Profile Color',
+    heatMap: 'Heat Map',
+    customBlend: 'Custom Blend',
+    fpShading: 'FB Shading'
+  };
+  currentType = 'profileColor';
+  visible = false;
+  colorFormFields = {
+    profileColor: { ...getColor('profileColor'), formControl: this.colorForm.get('profileColor') },
+    customBlendHigh: {
+      ...getColor('customBlendHigh'),
+      formControl: this.colorForm.get('customBlend').get('highColor')
+    },
+    customBlendLow: {
+      ...getColor('customBlendLow'),
+      formControl: this.colorForm.get('customBlend').get('lowColor')
+    },
+    fpShadingBuy: {
+      ...getColor('fpShadingBuy'),
+      formControl: this.colorForm.get('fpShading').get('buyColor')
+    },
+    fpShadingSell: {
+      ...getColor('fpShadingSell'),
+      formControl: this.colorForm.get('fpShading').get('sellColor')
+    }
+  };
 
   ngOnInit() {
-    this.colorFormFields = (this.field.templateOptions.options as any).reduce((total, current) => {
-      this.colorForm.addControl(current.value.type, new FormControl(current.value.value));
-      total[current.value.type] = {
-        ...getColor(current.value.type),
-        formControl: this.colorForm.controls[current.value.type],
-      };
-      return total;
-    }, {});
-
-    const option = (this.field.templateOptions.options as any).find(option => option.value.type == this.field.model.color.type);
-    if (option)
-      option.value.value = this.field.model.color.value;
-
+    const { type, value } = this.field.model.color.value;
+    this.colorForm.patchValue({ type, value });
     this.colorForm.valueChanges
       .subscribe((res) => {
         const type = this.formControl.value.type;
@@ -46,5 +72,11 @@ export class ColorSelectComponent extends FieldType implements OnInit {
       type: this.formControl.value.type,
       value: $event,
     });
+  }
+
+  select(value: string) {
+    this.visible = true;
+    this.currentType = value;
+    this.formControl.patchValue({ type: value, value: this.colorForm.get(value)?.value });
   }
 }
