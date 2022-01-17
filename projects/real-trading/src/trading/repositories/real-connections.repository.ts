@@ -24,7 +24,7 @@ class Connection implements IConnection {
   autoSavePassword: boolean;
   connectOnStartUp: boolean;
   connected: boolean;
-  favourite: boolean;
+  favorite: boolean;
   connectionData: any;
   isDefault: boolean;
   id: Id;

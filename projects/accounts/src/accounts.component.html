@@ -44,12 +44,12 @@
                   <div>
                   <span
                     class="selectable-item-action"
-                    [class.selectable-item-action-active]="item.favourite"
+                    [class.selectable-item-action-active]="item.favorite"
                     (click)="toggleFavorite($event, item)"
                   >
                   <i class="font-size-inherit" [ngClass]="{
-                    'icon-star-o': !item.favourite,
-                    'icon-star': item.favourite
+                    'icon-star-o': !item.favorite,
+                    'icon-star': item.favorite
                   }"></i>
                 </span>
 
@@ -92,10 +92,10 @@
             (submit)="handleSubmit()"
             *ngIf="!selectedItem.connected"
           >
-            <acccount-form [isSubmitted]="isSubmitted"
+            <account-form [isSubmitted]="isSubmitted"
                            #userData
                            (autoSavePasswordChange)="autoSavePasswordChange($event)"
-                           formControlName="userData"></acccount-form>
+                           formControlName="userData"></account-form>
             <!-- <label class="split-connection">
               <span class="split-title">Split Connection</span>
 

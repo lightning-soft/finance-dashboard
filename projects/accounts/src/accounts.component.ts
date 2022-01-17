@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager, Connection } from 'accounts-manager';
@@ -8,7 +8,7 @@ import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { take } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
-import { AcccountFormComponent } from './acccount-form/acccount-form.component';
+import { AccountFormComponent } from './account-form/account-form.component';
 
 export interface AccountsComponent extends ILayoutNode {
 }
@@ -33,7 +33,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   brokers: IBroker[];
   selectedBroker: IBroker;
   @ViewChild('userData')
-  userData: AcccountFormComponent;
+  userData: AccountFormComponent;
   isSubmitted = false;
 
   get existDefaultConnection(): boolean {
@@ -50,6 +50,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
   constructor(
     protected _accountsManager: AccountsManager,
+    protected _cd: ChangeDetectorRef,
     protected _injector: Injector,
     protected _notifier: NotifierService,
     private _brokersRepository: BrokersRepository,
@@ -71,7 +72,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       autoSavePassword: [null],
       connectOnStartUp: [null],
     });
-    this.selectedItem = _accountsManager.getNewConnection();
+    this.selectItem(_accountsManager.getNewConnection());
     (window as any).accountsComponent = this;
   }
 
@@ -101,6 +102,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         }
 
         this.expandBrokers();
+        this._cd.detectChanges();
       });
 
     this._brokersRepository.getItems()
@@ -145,6 +147,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .subscribe(connect => {
         if (connect) {
           this.userData.makeAutoSave();
+          this._cd.detectChanges();
         }
       });
   }
@@ -192,6 +195,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       return;
 
     this.selectedBroker = this.brokers.find(i => i.name === this.selectedItem?.broker) ?? this.brokers[0];
+    this._cd.detectChanges();
   }
 
   handleBrockerClick($event, broker: IBroker): void {
@@ -211,6 +215,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   selectItem(item: Connection, clearSubmit = false): void {
     if (clearSubmit)
       this.isSubmitted = false;
+
+    if (item) {
+      item.destroyIfNew();
+    }
 
     this.selectedItem = item;
     this.expandBrokers();
@@ -268,12 +276,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     const connection = this.getConnection();
     this._accountsManager.createConnection(connection)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        (item: Connection) => {
-          this.selectItem(connection);
-          this.expandBrokers();
-          // this.connect();
-        },
+      .subscribe(() => {
+        this.selectItem(connection);
+        this.expandBrokers();
+        // this.connect();
+      },
         err => this._notifier.showError(err),
       );
   }
@@ -357,7 +364,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   toggleFavorite(event: MouseEvent, item: Connection) {
     event.stopPropagation();
 
-    this._accountsManager.toggleFavorite(item)
+    item.toggleFavorite()
       .pipe(untilDestroyed(this))
       .subscribe(
         () => {

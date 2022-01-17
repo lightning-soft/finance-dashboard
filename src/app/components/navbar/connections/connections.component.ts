@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -61,17 +62,20 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     protected _repository: ConnectionsRepository,
     protected _accountsManager: AccountsManager,
     private nzContextMenuService: NzContextMenuService,
+    protected _cd: ChangeDetectorRef,
   ) {
     super();
   }
 
   ngOnInit() {
     super.ngOnInit();
+    this._cd.detach();
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         this.hasConnectedConnections = connections.some(item => item.connected);
-        this._items = connections.filter(i => i.favourite);
+        this._items = connections.filter(i => i.favorite);
+        this._cd.detectChanges();
       });
   }
   ngAfterViewInit() {
@@ -123,8 +127,8 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       );
   }
 
-  removeFromFavourites() {
-    this._accountsManager.toggleFavorite(this.contextMenuConnection)
+  removeFromFavorites() {
+    this.contextMenuConnection.toggleFavorite()
       .pipe(untilDestroyed(this))
       .subscribe(
         () => this._setConnectionsListHeight(),

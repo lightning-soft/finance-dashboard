@@ -12,7 +12,7 @@ export interface IConnection extends IBaseItem {
   autoSavePassword: boolean;
   connectOnStartUp: boolean;
   connected?: boolean;
-  favourite: boolean;
+  favorite: boolean;
   isDefault: boolean;
   error?: boolean;
   err?: any;

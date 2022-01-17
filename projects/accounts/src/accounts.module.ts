@@ -15,7 +15,7 @@ import {
 } from 'ng-zorro-antd';
 import { WindowHeaderModule } from 'window-header';
 import { AccountsComponent } from './accounts.component';
-import { AcccountFormComponent } from './acccount-form/acccount-form.component';
+import { AccountFormComponent } from './account-form/account-form.component';
 import { EyeOutline, EyeInvisibleOutline } from '@ant-design/icons-angular/icons';
 import { SearchSelectModule } from 'search-select';
 
@@ -44,7 +44,7 @@ import { SearchSelectModule } from 'search-select';
   ],
   declarations: [
     AccountsComponent,
-    AcccountFormComponent,
+    AccountFormComponent,
   ],
 })
 export class AccountsModule implements LazyModule {

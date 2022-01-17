@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Injector, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Injector, Input, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ItemsComponent } from 'base-components';
@@ -7,19 +7,19 @@ import { Observable } from 'rxjs';
 import { ConnectionsRepository } from 'trading';
 
 @Component({
-  selector: 'acccount-form',
-  templateUrl: './acccount-form.component.html',
-  styleUrls: ['./acccount-form.component.scss'],
+  selector: 'account-form',
+  templateUrl: './account-form.component.html',
+  styleUrls: ['./account-form.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => AcccountFormComponent),
+      useExisting: forwardRef(() => AccountFormComponent),
       multi: true,
     }
   ]
 })
 @UntilDestroy()
-export class AcccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
+export class AccountFormComponent extends ItemsComponent<any> implements OnInit, ControlValueAccessor {
 
   @Input() isSubmitted = true;
 
@@ -62,6 +62,7 @@ export class AcccountFormComponent extends ItemsComponent<any> implements OnInit
 
   ngOnInit() {
     super.ngOnInit();
+
     const controls = this.form.controls;
     controls.server.valueChanges
       .pipe(untilDestroyed(this))

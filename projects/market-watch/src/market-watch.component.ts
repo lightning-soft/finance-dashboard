@@ -577,7 +577,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
       this._applySettings();
   }
 
-  handleAccountsConnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+  handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     this.accounts = connectedAccounts;
     if (this.account)
       return;
@@ -589,7 +589,7 @@ export class MarketWatchComponent extends ItemsComponent<any> implements AfterVi
     }
   }
 
-  handleAccountsDisconnect(acccounts: IAccount[], connectedAccounts: IAccount[]) {
+  handleAccountsDisconnect(accounts: IAccount[], connectedAccounts: IAccount[]) {
     this.accounts = connectedAccounts;
   }
 
