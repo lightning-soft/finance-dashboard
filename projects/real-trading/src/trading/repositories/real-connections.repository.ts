@@ -80,8 +80,9 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
-    return this._http.put<any>(this._accountsSettings, prepareItem(item, true), this._httpOptions)
-      .pipe(tap(() => this._onUpdate(item)));
+    const data = prepareItem(item, true);
+    return this._http.put<any>(this._accountsSettings, data, this._httpOptions)
+      .pipe(tap(() => this._onUpdate(item)), map(() => data as any));
   }
 
   connect(item: IConnection): Observable<any> {

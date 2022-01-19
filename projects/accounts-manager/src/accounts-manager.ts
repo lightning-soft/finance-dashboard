@@ -135,13 +135,13 @@ export class Connection implements IConnection {
     const connection = this.toJson();
     return this._connectionsRepository.connect(connection)
       .pipe(
-        finalize(fn),
         tap((item) => {
           console.log('connect', item);
-
           this._handleConnection(item);
         }),
+        mergeMap(() => this.update({})),
         map(() => this),
+        finalize(fn),
       );
   }
 
@@ -212,7 +212,7 @@ export class Connection implements IConnection {
     delete json.error;
     delete json.loading;
     delete json.connected;
-    delete json.connectOnStartUp;
+  //  delete json.connectOnStartUp;
     // delete json.err;
     // if (json.connected)
     //   delete json.err;
