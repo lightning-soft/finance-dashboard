@@ -2165,10 +2165,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _validateComponentWidth(): void {
-    if (this.dataGrid)
+    if (!this.dataGrid || !this.dataGrid.isInitialized)
       return;
 
-    console.log('dom.dataGrid.columns', this.dataGrid.columns === this.columns);
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
