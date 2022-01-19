@@ -1117,7 +1117,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   checkIfTradingEnabled() {
-    this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
+    if (this.chart.mainPanel.tradingPanel)
+      this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm === true;
+
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
     this.chart.setNeedsUpdate(true);
   }
