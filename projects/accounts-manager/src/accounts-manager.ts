@@ -122,10 +122,6 @@ export class Connection implements IConnection {
       );
   }
 
-  reconnect() {
-    return this.disconnect().pipe(switchMap(item => this.connect()));
-  }
-
   connect(makeDefault: boolean = false): Observable<this> {
     const fn = this._makeLoading();
 
@@ -212,7 +208,7 @@ export class Connection implements IConnection {
     delete json.error;
     delete json.loading;
     delete json.connected;
-  //  delete json.connectOnStartUp;
+    //  delete json.connectOnStartUp;
     // delete json.err;
     // if (json.connected)
     //   delete json.err;
@@ -405,7 +401,7 @@ export class AccountsManager implements ConnectionContainer {
   private _initWS(connection: Connection) {
     const webSocketService = this._webSocketService.get(connection);
     const subscription = webSocketService.reconnection$
-      .pipe(switchMap(() => connection.reconnect()))
+      .pipe(switchMap(() => this.reconnect(connection)))
       .subscribe(
         (conn) => {
           this._notificationService.showSuccess('Reconnected');
@@ -487,9 +483,9 @@ export class AccountsManager implements ConnectionContainer {
       .pipe(
         tap(() => this._onDisconnected(connection)),
       ).subscribe(
-        () => console.log('Successfully deactivate'),
-        (err) => console.error('Deactivate error ', err),
-      );
+      () => console.log('Successfully deactivate'),
+      (err) => console.error('Deactivate error ', err),
+    );
     // this.updateItem(connection)
     //   .pipe(
     //     tap(() => this._onDisconnected(connection)),
@@ -532,6 +528,11 @@ export class AccountsManager implements ConnectionContainer {
         tap(() => accountsListeners.notifyConnectionsConnected([connection],
           this._connections.filter(i => i.connected)))
       );
+  }
+
+  reconnect(connection: Connection): Observable<IConnection> {
+    return this.disconnect(connection)
+      .pipe(switchMap(() => this.connect(connection)));
   }
 
   private _onDisconnected(connection: IConnection) {

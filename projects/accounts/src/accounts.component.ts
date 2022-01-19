@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Injector, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AccountsManager, Connection } from 'accounts-manager';
@@ -146,7 +146,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .pipe(untilDestroyed(this))
       .subscribe(connect => {
         if (connect) {
-          this.userData.makeAutoSave();
+          this.userData?.makeAutoSave();
           this._cd.detectChanges();
         }
       });
