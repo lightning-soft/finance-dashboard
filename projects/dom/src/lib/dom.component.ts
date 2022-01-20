@@ -2201,14 +2201,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
-    this._settings.orderArea = this.domForm.getState() as any;
+    this._settings.orderArea = this.domForm?.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: this.domForm.getState()
+      orderForm: this.domForm?.getState()
     };
   }
 
