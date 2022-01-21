@@ -47,7 +47,9 @@ export class AuthService {
     private _appConfig: AppConfig,
     private storage: Storage,
     private _http: HttpClient
-  ) { }
+  ) {
+    console.log('Creating new instance for AuthService')
+  }
 
   isTokenInvalid(): boolean {
     return this._refreshToken && this._expirationDate && Date.now() > this._expirationDate;
@@ -163,6 +165,10 @@ export class AuthService {
       ),
     );
   }
+}
+
+@Injectable()
+export abstract class RootAuthService extends AuthService {
 }
 
 function parseJwt(token) {
