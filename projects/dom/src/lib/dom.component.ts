@@ -2165,10 +2165,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _validateComponentWidth(): void {
-    if (this.dataGrid)
+    if (!this.dataGrid || !this.dataGrid.isInitialized)
       return;
 
-    console.log('dom.dataGrid.columns', this.dataGrid.columns === this.columns);
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
@@ -2202,14 +2201,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
-    this._settings.orderArea = this.domForm.getState() as any;
+    this._settings.orderArea = this.domForm?.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: this.domForm.getState()
+      orderForm: this.domForm?.getState()
     };
   }
 

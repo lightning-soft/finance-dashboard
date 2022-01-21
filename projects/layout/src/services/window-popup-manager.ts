@@ -266,6 +266,7 @@ export class WindowPopupManager {
     popup.close = () => {
       console.log('pp close');
     };
+    (popup as any).deps = window.deps;
     this.windows.push(popup);
 
     return popup;
