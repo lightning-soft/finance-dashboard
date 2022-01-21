@@ -3,9 +3,7 @@ import { Id } from 'communication';
 import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from './types';
 import { ConenctionWebSocketService } from './connection.web-socket.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class WebSocketService {
   private _map = new Map<Id, ConenctionWebSocketService>();
   private _listeners: IWSListeners = Object.values(WSEventType).reduce((accum, event) => {
