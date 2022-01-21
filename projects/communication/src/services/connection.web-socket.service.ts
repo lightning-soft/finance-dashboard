@@ -280,7 +280,7 @@ export class ConenctionWebSocketService {
     const shouldSendNtf = now > this.lastSentNotification + notificationSendOffset;
     if (hasDelay && shouldSendNtf) {
       this.lastSentNotification = now;
-      this.reconnection$.next(this.connection);
+      // this.reconnection$.next(this.connection);
       this._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now } });
     }
   }
