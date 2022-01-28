@@ -186,7 +186,7 @@ export class DomSettings {
       backgroundColor: 'transparent',
       highlightBackgroundColor: '#383A40',
       tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
-      longPositionOpenBackgroundColor: '0C62F7',
+      longPositionOpenBackgroundColor: '#0C62F7',
       shortPositionOpenBackgroundColor: '#C93B3BFF',
     }, CellStatus.Hovered, '#383A40'),
     textAlign: TextAlign.Center,
