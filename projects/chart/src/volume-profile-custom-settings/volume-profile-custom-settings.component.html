@@ -5,6 +5,10 @@
          [class.active]="item.id === selectedItem?.id"
          class="menu-item">{{item.name}} <span *ngIf="!item.isDefault" class="actions ml-auto"><i (click)="rename(item)" class="icon-edit"></i><i (click)="delete(item)" class="icon-delete"></i></span>
     </div>
+    <div *ngFor="let item of unnamedIndicators; let i = index" (click)="selectUntemplated(item)"
+         [class.active]="item.id === selectedItem?.id"
+         class="menu-item">Drawing {{i + 1}}
+    </div>
   </div>
   <cdk-virtual-scroll-viewport itemSize="">
     <formly-form

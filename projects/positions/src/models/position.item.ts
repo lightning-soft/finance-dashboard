@@ -7,9 +7,9 @@ import {
   getProfitStatus,
   HoverableItem,
   IconCell,
-  NumberCell,
-  InstrumentFormatter,
   IFormatter,
+  InstrumentFormatter,
+  NumberCell,
   RoundFormatter,
 } from 'data-grid';
 import { calculatePL } from 'dom';
@@ -30,6 +30,7 @@ export enum PositionColumn {
   buyVolume = 'buyVolume',
   position = 'positionCell'
 }
+
 export const PositionColumnsArray = Object.values(PositionColumn);
 
 const allColumns = Object.values(PositionColumn) as PositionColumn[];
@@ -85,6 +86,10 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   close = new IconCell({ withHoverStatus: true, size: 10 });
   side = new DataCell({ withHoverStatus: true });
   private _instrument: IInstrument;
+
+  get instrument() {
+    return this._instrument;
+  }
 
   get id(): Id | undefined {
     return this.position && this.position.id;
@@ -166,6 +171,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     const instrument = this._instrument;
 
     if (position == null || position.connectionId !== connectionId || instrument == null
+      || (instrument as any).loading
       || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 

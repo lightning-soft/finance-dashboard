@@ -607,6 +607,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+    this.broadcastData(this._getCustomVolumeProfileKey(), this);
 
     chart.shouldDraw = this._shouldDraw;
 
@@ -911,7 +912,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
 
-    this.createCustomVolumeProfile(template.settings);
+    this.createCustomVolumeProfile(template);
   }
 
   ngOnDestroy(): void {
@@ -1171,7 +1172,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private async _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
-    if (data == null)
+    if (data == null || data.template == null)
       return;
 
     const isValid = await this._volumeProfileTemplatesRepository.validateHotkeyTemplate(data.template);
@@ -1328,6 +1329,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
               id: this.activeIndicator.templateId,
               settings: this.activeIndicator?.settings,
             },
+            chart: this.chart,
           }
         },
         closeBtn: true,
