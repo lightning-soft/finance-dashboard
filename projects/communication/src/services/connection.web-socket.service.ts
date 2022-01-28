@@ -42,8 +42,12 @@ export class ConenctionWebSocketService {
 
   private _delayedMessages = [];
 
-  lastMessageActivityTime;
-  inactivityTimeoutId;
+  private _lastMessageActivityTime;
+  private _inactivityTimeoutId;
+
+  private _lastCheckingTime: number;
+  private _lastMsgTime: number;
+  private _intervalId: number;
 
   constructor(
     protected _injector: Injector,
@@ -52,6 +56,7 @@ export class ConenctionWebSocketService {
   ) {
     this._setListeners();
     this._setEventListeners();
+    this._setLastCheckDelay();
     this.connection$
       .pipe(filter(i => i))
       .subscribe(() => {
@@ -59,7 +64,7 @@ export class ConenctionWebSocketService {
           this._websocket.send(this._delayedMessages[i]);
         this._delayedMessages = [];
       });
-    this.lastMessageActivityTime = Date.now();
+    this._lastMessageActivityTime = Date.now();
     this.startInactivityTimer(inactivityOffset);
     (window as any).getStats = () => {
       const _statistic = this._statistic;
@@ -76,11 +81,11 @@ export class ConenctionWebSocketService {
   }
 
   startInactivityTimer(timeout) {
-    this.inactivityTimeoutId = setTimeout(() => {
+    this._inactivityTimeoutId = setTimeout(() => {
       const now = Date.now();
       let newTimeOut;
-      if (now >= this.lastMessageActivityTime + timeout) {
-        newTimeOut = inactivityOffset - (now - this.lastMessageActivityTime);
+      if (now >= this._lastMessageActivityTime + timeout) {
+        newTimeOut = inactivityOffset - (now - this._lastMessageActivityTime);
         this._executeListeners(WSEventType.Message, {
           type: RealtimeType.Activity,
           result: { connection: this.connection }
@@ -88,8 +93,8 @@ export class ConenctionWebSocketService {
         newTimeOut = newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
       } else
         newTimeOut = inactivityOffset;
-      this.lastMessageActivityTime = now;
-      clearTimeout(this.inactivityTimeoutId);
+      this._lastMessageActivityTime = now;
+      clearTimeout(this._inactivityTimeoutId);
       this.startInactivityTimer(newTimeOut);
     }, timeout);
   }
@@ -128,6 +133,8 @@ export class ConenctionWebSocketService {
     this.get(connection).close();
     this._service.unregister(this.connection.id, this);
     this.connection$.next(false);
+    clearInterval(this._intervalId);
+    clearTimeout(this._inactivityTimeoutId);
   }
 
   connect() {
@@ -172,8 +179,8 @@ export class ConenctionWebSocketService {
   }
 
   close() {
-    if (this.inactivityTimeoutId != null)
-      clearTimeout(this.inactivityTimeoutId);
+    if (this._inactivityTimeoutId != null)
+      clearTimeout(this._inactivityTimeoutId);
     this._websocket.close();
   }
 
@@ -197,6 +204,21 @@ export class ConenctionWebSocketService {
       accum[event] = new Set();
       return accum;
     }, {}) as IWSListeners;
+  }
+
+  private _setLastCheckDelay() {
+    const self = this;
+    this._intervalId = setInterval(() => {
+      const timeDelay = self._lastCheckingTime - self._lastMsgTime;
+      const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
+      const shouldSendNtf = self._lastCheckingTime > self.lastSentNotification + notificationSendOffset;
+     //  console.table({ lastCheckingTime: self.lastCheckingTime, msg: this.lastMsg, timeDelay,  lastMsgTime: self.lastMsgTime });
+      if (hasDelay && shouldSendNtf) {
+        self.lastSentNotification = self._lastCheckingTime;
+        // this.reconnection$.next(this.connection);
+        self._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now: self._lastCheckingTime } });
+      }
+    }, 500);
   }
 
   private _setEventListeners() {
@@ -263,7 +285,6 @@ export class ConenctionWebSocketService {
     if (type == 'Message' && result.value == 'Api-key accepted!') {
       this.connection$.next(true);
     }
-
     this._checkConnectionDelay(payload);
     this._checkMessageActivity(payload);
 
@@ -274,19 +295,12 @@ export class ConenctionWebSocketService {
     if (msg.type === RealtimeType.Bar)
       return;
 
-    const now = Date.now();
-    const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
-    const shouldSendNtf = now > this.lastSentNotification + notificationSendOffset;
-    if (hasDelay && shouldSendNtf) {
-      this.lastSentNotification = now;
-      // this.reconnection$.next(this.connection);
-      this._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now } });
-    }
+    this._lastCheckingTime = Date.now();
+    this._lastMsgTime = msg.result.timestamp;
   }
 
   private _checkMessageActivity(msg) {
-    this.lastMessageActivityTime = Date.now();
+    this._lastMessageActivityTime = Date.now();
   }
 
   private _addEventListeners() {

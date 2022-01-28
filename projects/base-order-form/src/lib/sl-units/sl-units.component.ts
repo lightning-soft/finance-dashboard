@@ -26,10 +26,10 @@ export class SlUnitsComponent implements ControlValueAccessor {
   slType = SlType;
   form = new FormGroup({
     stopLoss: new FormControl(false),
-    type: new FormControl(OrderType.Market),
+    type: new FormControl(SlType.MKT),
     unitItem: new FormControl(),
     unit: new FormControl(),
-    amount: new FormControl(),
+    amount: new FormControl(1),
   });
   isDisabled = true;
 

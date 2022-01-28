@@ -540,7 +540,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get bracketActive() {
-    return this._settings.orderArea.settings.formSettings.showBracket === true;
+    return this._settings.orderArea?.settings.formSettings.showBracket === true;
   }
 
   set bracketActive(value: boolean) {
