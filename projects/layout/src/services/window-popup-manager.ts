@@ -8,6 +8,7 @@ import { WindowMessengerService } from 'window-messenger';
 import { Id } from 'communication';
 
 const popupStorageKey = 'widget-popup-state';
+const subWindowsStorageKey = 'windows-for-restore'
 
 const mainKey = 'mainKey';
 const windowResizeKey = 'windowResizeKey';
@@ -30,6 +31,8 @@ export interface WindowPopupConfig {
 export class WindowPopupManager {
   private _state = {};
   windows = [];
+  _windowsData = [];
+  closingWindow = false;
 
   hideWindowHeaderInstruments = false;
 
@@ -38,15 +41,22 @@ export class WindowPopupManager {
     private storage: Storage,
     private _windowMessengerService: WindowMessengerService,
     private injector: Injector,
-  ) {
-  }
+  ) {}
 
   init(workspaces: Workspace[]) {
     if (isElectron()) {
       this.initDesktopSubscriptions(workspaces);
     }
 
+    if (this.isMainWindow()) {
+      this._restoreWindows();
+    }
+
     window.addEventListener('beforeunload', (event) => {
+      this.closingWindow = true;
+      this.sendSaveCommand();
+      this.sendCloseCommand();
+      this._saveSubWindowsData();
       if (this.isPopup()) {
         this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
       } else {
@@ -167,6 +177,10 @@ export class WindowPopupManager {
     return params && params.hasOwnProperty('workspaceId') && params.hasOwnProperty('windowId');
   }
 
+  isMainWindow() {
+    return !window.opener;
+  }
+
   get workspaceId() {
     const params = this._route.snapshot.queryParams;
     return params?.workspaceId;
@@ -254,22 +268,86 @@ export class WindowPopupManager {
     this._openPopup(config, queryParams, windowFeatures);
   }
 
-  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>) {
+  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>, forRestore = false, name = '') {
     const featuresArray = [];
     features.forEach((value, key) => {
       featuresArray.push(`${key}=${value}`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
+    if (!name) {
+      name = `popup-${Date.now()}`;
+    }
+    const popup = window.open(window.location.href + '?' + queryParams.toString(), name, featuresArray.join(', '));
 
     // (popup as any).mess = (window as any).mess;
-    popup.close = () => {
-      console.log('pp close');
-    };
+    // popup.close = () => {
+    //   console.log('pp close');
+    // };
+
     (popup as any).deps = window.deps;
     this.windows.push(popup);
 
+    if (!forRestore && this.isMainWindow()) {
+      this._saveWindowForRestore(popup, config, queryParams.toString(), featuresArray);
+    }
+
+    this._observeChangesInWindow(popup);
+
     return popup;
+  }
+
+  private _observeChangesInWindow(popup: Window) {
+    popup.addEventListener('beforeunload', () => {
+      if (!this.closingWindow) {
+        this.windows = this.windows.filter(w => w.name !== popup.name);
+        this._removeWindowForRestore(popup);
+      }
+    })
+  }
+
+  private _appendWindowForRestore(data: any) {
+    this._windowsData.push(data);
+  }
+
+  private _removeWindowForRestore(popup: Window) {
+    this._windowsData = this._windowsData.filter(data => data.name !== popup.name);
+  }
+
+  private _saveWindowForRestore(popup: Window, config, queryParams: string, features: string[]) {
+    const persistentWindow = {
+      name: popup.name,
+      config,
+      queryParams,
+      features,
+    };
+    this._appendWindowForRestore(persistentWindow);
+  }
+
+  private _saveSubWindowsData() {
+    const serialized = JSON.stringify(this._windowsData);
+    this._storage.setItem(subWindowsStorageKey, serialized);
+  }
+
+  private _restoreWindows() {
+    try {
+      this._windowsData = JSON.parse(this._storage.getItem(subWindowsStorageKey));
+      this._storage.deleteItem(subWindowsStorageKey);
+      for (const data of this._windowsData) {
+        const config = data.config;
+        const queryParams = new URLSearchParams(data.queryParams);
+        const features = new Map();
+        const name = data.name;
+
+        for (const feature of data.features) {
+          const [ key, value ] = feature.split('=');
+          features.set(key, value);
+        }
+
+        this._openPopup(config, queryParams, features, true, name);
+      }
+    } catch (error) {
+      this._windowsData = [];
+    }
   }
 
   getConfig(): WindowPopupConfig {
