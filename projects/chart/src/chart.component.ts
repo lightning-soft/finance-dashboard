@@ -836,7 +836,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return false;
     }
     this.keysStack.handle(event);
-    this.toolbar.items.forEach(item => {
+    this.toolbar?.items.forEach(item => {
       const hotkey = item.settings.general?.drawVPC;
       if (hotkey) {
         const keyBinding = KeyBinding.fromDTO(hotkey);
