@@ -509,6 +509,16 @@ class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
 
   isSumCell = false;
+/*  private _status;
+  public get status() {
+    return this._status;
+  }
+  public set status(value) {
+    if (this._status != null && this._status.includes("total")) {
+      debugger;
+    }
+    this._status = value;
+  }*/
 
   get size() {
     return this.isSumCell ? this._hiddenValue : this._value;
@@ -530,6 +540,14 @@ class SumHistogramCell extends HistogramCell {
     this._hiddenValue = null;
     this.isSumCell = false;
   }
+  clear(){
+    this.value = '';
+    this._value = null;
+    this.changeStatus('');
+    if (this._histValue != null)
+      this.calcHist(this._histValue);
+  }
+
 
   update(value: number, isSum: boolean = null): boolean {
     if (isSum === false) {
@@ -542,6 +560,7 @@ class SumHistogramCell extends HistogramCell {
     }
 
     if (isSum !== null) {
+      const isHoverPrefix = this.hovered ? CellStatus.Hovered : '';
       const isOrderCell = !this.isSumCell;
       this.isSumCell = isSum;
 
@@ -549,7 +568,7 @@ class SumHistogramCell extends HistogramCell {
         if (isOrderCell)
           this._hiddenValue = this._value;
         const res = this.updateValue(value);
-        this.setStatusPrefix(totalPrefix);
+        this.setStatusPrefix(isHoverPrefix + totalPrefix);
         this.visible = true;
         this.hist = null;
 
@@ -805,7 +824,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   }
 
   changePriceStatus(status: string) {
-    if (this.price.status === CellStatus.Highlight || this.price.status === CellStatus.Hovered)
+    if (this.price.status === CellStatus.Highlight || this.price.status.includes(CellStatus.Hovered))
       return;
 
     this.price.changeStatus(status);

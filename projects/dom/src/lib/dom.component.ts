@@ -985,8 +985,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (compareInstruments(this.instrument, pos.instrument)) {
       if (oldPosition && oldPosition.side !== Side.Closed) {
-        const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
-        oldItem.revertPriceStatus();
+        const newPosPrice = roundToTickSize(newPosition.price, this._tickSize);
+        const oldPosPrice = roundToTickSize(oldPosition.price, this._tickSize);
+        const oldItem = this._getItem(oldPosPrice);
+        if (newPosPrice !== oldPosPrice)
+          oldItem.revertPriceStatus();
       }
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
