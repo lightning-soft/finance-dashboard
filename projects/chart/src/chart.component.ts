@@ -716,7 +716,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleValueScaleContextMenu = (e) => {
     this.contextEvent = e.target.evt.originalEvent;
-    this.openSettingsDialog(SettingsItems.ValueScale);
+    this.openSettingsDialog(SettingsItems.ValueScale, { x: -24, y: 0 });
     this._selectValueScale();
   }
 
@@ -1259,7 +1259,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this._getSettingsKey()}.cvp`;
   }
 
-  openSettingsDialog(menuItem?: SettingsItems): void {
+  openSettingsDialog(menuItem?: SettingsItems, offset = {x: 0, y: 0}): void {
     const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
       return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
@@ -1270,8 +1270,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.clientX;
-        coords.y = this.contextEvent.clientY;
+        coords.x = this.contextEvent.clientX + offset.x;
+        coords.y = this.contextEvent.clientY + offset.y;
       }
       this.layout.addComponent({
         component: {
