@@ -94,8 +94,14 @@ class AccountsListenerRegister {
   }
 }
 
-export const accountsListeners = new AccountsListenerRegister();
-(window as any).accountsListeners = accountsListeners;
+export let accountsListeners: AccountsListenerRegister
+if (!window?.opener) {
+  accountsListeners = new AccountsListenerRegister();
+  (window as any).accountsListeners = accountsListeners;
+}
+else {
+  accountsListeners = (window as any).accountsListeners;
+}
 
 export interface IAccountsListener {
   handleAccountsConnect(accounts: IAccount[], connectedAccounts: IAccount[]);
