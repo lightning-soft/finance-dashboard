@@ -284,7 +284,9 @@ export class WindowPopupManager {
     //   console.log('pp close');
     // };
 
-    (popup as any).deps = window.deps;
+    (popup as any).deps = (window as any).deps;
+    (popup as any).accountsListeners = (window as any).accountsListeners;
+
     this.windows.push(popup);
 
     if (!forRestore && this.isMainWindow()) {

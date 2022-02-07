@@ -232,7 +232,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
-    totalColor: 'fff',
+    totalColor: '#fff',
     clearInterval: DefaultClearInterval,
   };
   totalAsk: any = {
