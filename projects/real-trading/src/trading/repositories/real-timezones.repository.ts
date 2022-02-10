@@ -9,7 +9,11 @@ const data = TIMEZONES.map(item => {
   return {
     name: `(UTC ${ getFormattedOffset(offset) }) ${ item.text }`,
     id: item.utc[0],
-    offset
+    offset,
+    utcMap: item.utc.reduce((total, curr) => {
+      total[curr] = true;
+      return total;
+    }, {})
   };
 }).sort((a, b) => a.offset - b.offset);
 

@@ -293,7 +293,7 @@ export const tradingFields: IFieldConfig[] = [
             fieldGroupClassName: 'd-block',
             fieldGroup: [
               getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
-              getOrderAreaItemSettings('Show Liquidate Button', 'closePositionButton'),
+              getOrderAreaItemSettings('Show Liquidate Button', 'showLiquidateButton'),
               getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
               getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
               getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),

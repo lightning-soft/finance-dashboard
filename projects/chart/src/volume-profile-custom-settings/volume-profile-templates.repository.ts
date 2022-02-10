@@ -11,6 +11,8 @@ export interface IVolumeTemplate {
   id: string;
   name: string;
   settings: any;
+  isUntemplated?: boolean;
+  instance?: any;
 }
 
 const STORE_KEY = 'volumeProfileTemplates';
@@ -654,6 +656,9 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   async validateHotkeyTemplate(template) {
+    if (!template)
+      return false;
+
     const { id, settings } = template;
     if (settings.general.drawVPC == null)
       return true;

@@ -1,4 +1,5 @@
 import { Id } from 'base-components';
+import { complexInstrumentId } from 'base-order-form';
 import {
   AddClassStrategy,
   Cell,
@@ -6,9 +7,9 @@ import {
   getProfitStatus,
   HoverableItem,
   IconCell,
-  NumberCell,
-  InstrumentFormatter,
   IFormatter,
+  InstrumentFormatter,
+  NumberCell,
   RoundFormatter,
 } from 'data-grid';
 import { calculatePL } from 'dom';
@@ -29,6 +30,7 @@ export enum PositionColumn {
   buyVolume = 'buyVolume',
   position = 'positionCell'
 }
+
 export const PositionColumnsArray = Object.values(PositionColumn);
 
 const allColumns = Object.values(PositionColumn) as PositionColumn[];
@@ -85,11 +87,20 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   side = new DataCell({ withHoverStatus: true });
   private _instrument: IInstrument;
 
+  get instrument() {
+    return this._instrument;
+  }
+
   get id(): Id | undefined {
     return this.position && this.position.id;
   }
 
   private _closed = false;
+
+
+  get complexInstrumentId(): string {
+    return complexInstrumentId((this._instrument?.id ?? this.position?.instrument?.id), this.account.value);
+  }
 
   constructor(public position?: IPosition) {
     super();
@@ -100,11 +111,11 @@ export class PositionItem extends HoverableItem implements IPositionItem {
   }
 
   setInstrument(instrument: IInstrument) {
-    if (this.position?.instrument?.id !== instrument.id)
+    if (!instrument)
       return;
 
     this._instrument = instrument;
-    this._priceFormatter = InstrumentFormatter.forInstrument();
+    this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
     this.price.formatter = this._priceFormatter;
   }
 
@@ -160,6 +171,7 @@ export class PositionItem extends HoverableItem implements IPositionItem {
     const instrument = this._instrument;
 
     if (position == null || position.connectionId !== connectionId || instrument == null
+      || (instrument as any).loading
       || !compareInstruments(trade?.instrument, position?.instrument))
       return;
 

@@ -182,6 +182,7 @@ export enum QuantityPositions {
   FORTH = 4,
   FIFTH = 5,
 }
+
 const confirmModalWidth = 376;
 const confirmModalHeight = 180;
 
@@ -202,6 +203,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     return this.account?.id;
   }
 
+  private _needCentralize = false;
+
   public get instrument(): IInstrument {
     return this._instrument;
   }
@@ -212,6 +215,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     const prevInstrument = this._instrument;
     this._instrument = value;
+    this._needCentralize = true;
     this._onInstrumentChange(prevInstrument);
   }
 
@@ -461,7 +465,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.recalculateMax();
     }
   };
-
   @ViewChild(SideOrderFormComponent)
   private _domForm: SideOrderFormComponent;
   draggingOrders: IOrder[] = [];
@@ -530,13 +533,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   public get isFormOpen() {
     return this._isFormOpen;
   }
+
   public set isFormOpen(value) {
     this._isFormOpen = value;
     requestAnimationFrame(() => this._validateComponentWidth());
   }
 
   get bracketActive() {
-    return this._settings.orderArea.settings.formSettings.showBracket === true;
+    return this._settings.orderArea?.settings.formSettings.showBracket === true;
   }
 
   set bracketActive(value: boolean) {
@@ -686,7 +690,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this.savePresets(presets);
   }
-
 
   handleAccountChange(account: IAccount) {
     this._loadData();
@@ -855,6 +858,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
+    this._validateComponentWidth();
     this.detectChanges(true);
   }
 
@@ -903,6 +907,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this._setPriceForOrders(orders, price);
     }
   }
+
   updatePl() {
     requestAnimationFrame(this._updatePl);
   }
@@ -980,8 +985,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (compareInstruments(this.instrument, pos.instrument)) {
       if (oldPosition && oldPosition.side !== Side.Closed) {
-        const oldItem = this._getItem(roundToTickSize(oldPosition.price, this._tickSize));
-        oldItem.revertPriceStatus();
+        const newPosPrice = roundToTickSize(newPosition.price, this._tickSize);
+        const oldPosPrice = roundToTickSize(oldPosition.price, this._tickSize);
+        const oldItem = this._getItem(oldPosPrice);
+        if (newPosPrice !== oldPosPrice)
+          oldItem.revertPriceStatus();
       }
       this._applyPositionSetting(oldPosition, newPosition);
       this.position = newPosition;
@@ -991,6 +999,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       requestAnimationFrame(this.markForCheck);
     }
   }
+
   markForCheck = () => {
     this._changeDetectorRef.markForCheck();
   }
@@ -1140,21 +1149,24 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
             price = this._normalizePrice(asks[asks.length - 1]?.price - tickSize);
 
             this.fillData(price);
+            this._lastTradeItem = this._getItem(price);
 
             const instrument = this.instrument;
-            asks.forEach((info) => this._handleQuote({
+            asks.forEach((info, i) => this._handleQuote({
               instrument,
               price: info.price,
               timestamp: 0,
               volume: info.volume,
-              side: QuoteSide.Ask
+              side: QuoteSide.Ask,
+              updateType: i === asks.length - 1 ? UpdateType.Undefined : UpdateType.Middle,
             } as IQuote));
-            bids.forEach((info) => this._handleQuote({
+            bids.forEach((info, i) => this._handleQuote({
               instrument,
               price: info.price,
               timestamp: 0,
               volume: info.volume,
-              side: QuoteSide.Bid
+              side: QuoteSide.Bid,
+              updateType: i === bids.length - 1 ? UpdateType.Undefined : UpdateType.Middle,
             } as IQuote));
 
             for (const i of this.items) {
@@ -1220,7 +1232,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         },
         (err) => {
           console.error(err);
-          this.notifier.showError('Error during fetching history data');
+          this.notifier.showError(err);
         }
       );
   }
@@ -1383,10 +1395,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
           const _item = customItemData[price];
 
           if (_item.isAskSum) {
-            _item.setAskSum(null);
+            _item.clearAskSum();
           }
           if (_item.isBidSum) {
-            _item.setBidSum(null);
+            _item.clearBidSum();
           }
 
           _item.setAskVisibility(false, false);
@@ -1418,11 +1430,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._fillPL();
     this.refresh(); // for fill correct index
     this.detectChanges();
+    this._needCentralize = false;
   }
 
   centralize = () => requestAnimationFrame(this._centralize);
 
   detectChanges(force = false) {
+    if (!this._shouldDraw)
+      return;
+
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
       return;
 
@@ -1474,7 +1490,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   protected _handleTrade(trade: TradePrint) {
     const prevltqItem = this._lastTradeItem;
     const prevHandled = prevltqItem && prevltqItem.price != null;
-    let needCentralize = false;
+    let needCentralize = this._needCentralize || false;
     const max = this._max;
 
     const _item = this._getItem(trade.price);
@@ -1903,17 +1919,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
-    this.bidSumItem.setBidSum(null);
+    this.bidSumItem.clearBidSum();
 
     let item = this._getItem(price);
     let index = item.index;
     let rIndex = index;
+    const clearLastIndex = this.askSumItem?.index ?? 0;
     const lastMarketDepthIndex = index + marketDepth;
     const lastMarketDeltaDepthIndex = index + marketDeltaDepth;
     let sum = 0;
     let max = 0;
 
-    while (items[--rIndex]?.isBidSideVisible) {
+    while (--rIndex >= clearLastIndex) {
       items[rIndex].setBidVisibility(true, true);
       items[rIndex].clearCurrentBidBest();
       items[rIndex].clearBidDelta();
@@ -1963,17 +1980,18 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
-    this.askSumItem.setAskSum(null);
+    this.askSumItem.clearAskSum();
 
     let item = this._getItem(price);
     let index = item.index;
     let rIndex = index;
+    const clearLastIndex = this.bidSumItem?.index ?? this.items.length - 1;
     const lastMarketDepthIndex = index - marketDepth;
     const lastMarketDeltaDepthIndex = index - marketDeltaDepth;
     let sum = 0;
     let max = 0;
 
-    while (items[++rIndex]?.isAskSideVisible) {
+    while (++rIndex <= clearLastIndex) {
       items[rIndex].setAskVisibility(true, true);
       items[rIndex].clearCurrentAskBest();
       items[rIndex].clearAskDelta();
@@ -2150,6 +2168,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _validateComponentWidth(): void {
+    if (!this.dataGrid || !this.dataGrid.isInitialized)
+      return;
+
     const currentGridWidth = this.dataGrid.tableContainer.nativeElement.offsetWidth;
     const minGridWidth = Math.floor(this.dataGrid.scrollWidth);
     const window = this._windowManagerService.getWindowByComponent(this);
@@ -2161,8 +2182,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (minGridWidth > currentGridWidth) {
       window.width = minWindowWidth;
-      this.dataGrid.resize();
     }
+    this.dataGrid.resize();
   }
 
   toggleTrading(): void {
@@ -2183,14 +2204,14 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
-    this._settings.orderArea = this.domForm.getState() as any;
+    this._settings.orderArea = this.domForm?.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
       settings: this._settings.toJson(),
       ...this.dataGrid.saveState(),
       link: this.link,
-      orderForm: this.domForm.getState()
+      orderForm: this.domForm?.getState()
     };
   }
 
@@ -2218,28 +2239,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       this.account = state.account;
     }
 
-
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESZ1.CME',
-        description: 'E-Mini S&P 500 Dec21',
+        id: 'ESH2.CME',
+        description: 'E-Mini S&P 500 Mar22',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        instrumentTimePeriod: 'Dec21',
+        instrumentTimePeriod: 'Mar22',
         contractSize: 50,
         productCode: 'ES',
-        symbol: 'ESZ1',
+        symbol: 'ESH2',
       };
     // for debug purposes
 
     this._observe();
     this.refresh();
-
-    // Can't recognize where we should validate with to fix problem with horizontal scroll;
-    setTimeout(() => this._validateComponentWidth(), 500);
-    setTimeout(() => this._validateComponentWidth(), 1000);
-    setTimeout(() => this._validateComponentWidth(), 2000);
 
     if (!state?.instrument)
       return;
@@ -2328,12 +2343,9 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private createConfirmModal(params, event) {
-    const left = this.layoutContainer.x + this.layoutContainer.width / 2 - (confirmModalWidth / 2);
-    const top = this.layoutContainer.y + this.layoutContainer.height / 2 - (confirmModalHeight / 2);
-
     const nzStyle = event ? {
-      left: `${left}px`,
-      top: `${top}px`,
+      left: `${event.screenX - (confirmModalWidth / 2)}px`,
+      top: `${event.screenY - (confirmModalHeight / 2)}px`,
     } : {};
     return this._modalService.create({
       nzClassName: 'confirm-order',
@@ -2461,7 +2473,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         );
   }
 
-  handleFormAction(action: FormActions) {
+  handleFormAction(action: FormActions, event?) {
     switch (action) {
       case FormActions.CloseOrders:
       case FormActions.CloseBuyOrders:
@@ -2483,10 +2495,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this._clearOcoOrders();
         break;
       case FormActions.CreateSellMarketOrder:
-        this._createSellMarketOrder();
+        this._createSellMarketOrder(event);
         break;
       case FormActions.CreateBuyMarketOrder:
-        this._createBuyMarketOrder();
+        this._createBuyMarketOrder(event);
         break;
       default:
 
@@ -2502,12 +2514,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _createBuyMarketOrder() {
-    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market });
+  _createBuyMarketOrder(event?) {
+    this._createOrder(OrderSide.Buy, null, { type: OrderType.Market }, event);
   }
 
-  _createSellMarketOrder() {
-    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market });
+  _createSellMarketOrder(event?) {
+    this._createOrder(OrderSide.Sell, null, { type: OrderType.Market }, event);
   }
 
   private _closePositions() {

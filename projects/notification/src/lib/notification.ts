@@ -25,13 +25,16 @@ export class Notification {
   public type: string;
   public body: string;
   public icon: string;
+  hoverInfo: string;
+  sound = true;
 
   constructor(config: NotificationConfig) {
     this.type = config.type ?? NotificationType.MESSAGE;
     this.icon = config.icon ?? 'notication-default';
     this.title = config.title ?? 'Message';
-
+    this.hoverInfo = config.hoverInfo;
     this.body = config.body ?? '';
+    this.sound = config.sound !== false;
 
     this.createAt = config.timestamp ? new Date(config.timestamp) : new Date();
   }

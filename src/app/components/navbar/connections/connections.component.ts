@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -10,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
+import { AccountsManager, Connection } from 'accounts-manager';
 import { ItemsComponent } from 'base-components';
 import { LayoutComponent } from 'layout';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd';
@@ -42,21 +43,18 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
 
   @ViewChild('connectionsList') connectionsList: ElementRef<HTMLUListElement>;
 
-  isLoading: { [key: number]: boolean } = {};
   hasConnectedConnections: boolean;
-  contextMenuConnection: IConnection;
+  contextMenuConnection: Connection;
   isConnectionsDropdownOpened = false;
   connectionsListHeight: number;
 
   protected _clearOnDisconnect = false;
   maxConnections = 2;
 
-  get favourites() {
-    return this.items.filter(item => item.favourite);
-  }
+  private _items = [];
 
-  get hasFavourites() {
-    return this.favourites.length;
+  get items() {
+    return this._items;
   }
 
   constructor(
@@ -64,21 +62,20 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     protected _repository: ConnectionsRepository,
     protected _accountsManager: AccountsManager,
     private nzContextMenuService: NzContextMenuService,
+    protected _cd: ChangeDetectorRef,
   ) {
     super();
-
-    this.builder.setParams({
-      filter: (connection: IConnection) => connection.favourite,
-    });
   }
 
   ngOnInit() {
     super.ngOnInit();
+    this._cd.detach();
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         this.hasConnectedConnections = connections.some(item => item.connected);
-        this.builder.replaceItems(connections);
+        this._items = connections.filter(i => i.favorite);
+        this._cd.detectChanges();
       });
   }
   ngAfterViewInit() {
@@ -100,7 +97,7 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
     });
   }
 
-  connectionContextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, connection: IConnection) {
+  connectionContextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, connection: Connection) {
     this.nzContextMenuService.create(event, menu);
 
     this.contextMenuConnection = connection;
@@ -111,24 +108,15 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
       this.openAccounts(this.contextMenuConnection);
       return;
     }
-    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.connect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
-        (item) => {
-          if (item.error) {
-            this.contextMenuConnection.error = item.error;
-          }
-        },
+        (item) => { },
         err => console.error('Connect error', err),
-        () => {
-          delete this.isLoading[this.contextMenuConnection.id];
-        },
       );
   }
 
   disconnect() {
-    this.isLoading[this.contextMenuConnection.id] = true;
     this._accountsManager.disconnect(this.contextMenuConnection)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -136,14 +124,11 @@ export class ConnectionsComponent extends ItemsComponent<IConnection, any> imple
           this.contextMenuConnection.connected = false;
         },
         err => console.error('Disconnect error', err),
-        () => {
-          delete this.isLoading[this.contextMenuConnection.id];
-        }
       );
   }
 
-  removeFromFavourites() {
-    this._accountsManager.toggleFavourite(this.contextMenuConnection)
+  removeFromFavorites() {
+    this.contextMenuConnection.toggleFavorite()
       .pipe(untilDestroyed(this))
       .subscribe(
         () => this._setConnectionsListHeight(),

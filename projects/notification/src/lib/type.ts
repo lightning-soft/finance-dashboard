@@ -1,5 +1,3 @@
-import { NotificationType } from './notification';
-
 export type NotificationId = number | string;
 
 export type NotificationConfig = {
@@ -7,6 +5,8 @@ export type NotificationConfig = {
   body: string,
   type?: string,
   icon?: string,
+  hoverInfo?: string;
+  sound?: boolean;
   timestamp?: string | number,
 };
 

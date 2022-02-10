@@ -13,10 +13,10 @@ import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
-import { forkJoin } from 'rxjs';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   IAccount,
+  IInstrument,
   InstrumentsRepository,
   IPosition,
   IPositionParams,
@@ -33,6 +33,9 @@ import { GroupedPositionItem, groupStatus } from './models/grouped-position.item
 import { PositionColumn, PositionItem } from './models/position.item';
 import { defaultSettings } from './positions-settings/field.config';
 import { positionsSettings } from './positions-settings/positions-settings.component';
+import { IStoreItem, ItemsStore, ItemsStores } from 'items-store';
+import { complexInstrumentId } from 'base-order-form';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 const profitStyles = {
   // lossBackgroundColor: '#C93B3B',
@@ -78,6 +81,7 @@ enum GroupByItem {
 @LayoutPresets()
 @AccountsListener()
 @SettingsApplier()
+@UntilDestroy()
 export class PositionsComponent extends RealtimeGridComponent<IPosition> implements OnInit, OnDestroy, AfterViewInit {
   builder = new ViewGroupItemsBuilder<IPosition, PositionItem>();
   groupBy = GroupByItem.None;
@@ -102,6 +106,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   ];
 
   Components = Components;
+  protected _instrumentsStore: ItemsStore<IInstrument & IStoreItem>;
 
   private _columns: Column[] = [];
   private _status: PositionStatus = PositionStatus.Open;
@@ -147,16 +152,22 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     private _levelOneDataFeed: Level1DataFeed,
     public readonly _templatesService: TemplatesService,
     public readonly _modalService: NzModalService,
+    protected _itemsStores: ItemsStores,
   ) {
     super();
     this.autoLoadData = false;
     (window as any).positions = this;
     this.componentInstanceId = Date.now();
+    this._instrumentsStore = _itemsStores.get('instruments');
 
     this.builder.setParams({
       groupBy: ['accountId', 'instrumentName'],
       order: 'desc',
-      wrap: (item: IPosition) => new PositionItem(item),
+      wrap: (item: IPosition) => {
+        const positionItem = new PositionItem(item);
+        positionItem.setInstrument(this._instrumentsStore.get(positionItem.complexInstrumentId));
+        return positionItem;
+      },
       unwrap: (item: PositionItem) => item.position,
     });
     this._columns = headers.map((i) => convertToColumn(i, {
@@ -168,12 +179,27 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint, connectionId: Id) => {
       this._lastTrades[trade.instrument.id] = trade;
-      this.items.forEach(i => i.updateUnrealized(trade, connectionId));
+      this.builder.allItems.forEach(i => i.updateUnrealized(trade, connectionId));
       this.updatePl();
     }));
 
     this.setTabIcon('icon-widget-positions');
     this.setTabTitle('Positions');
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this._instrumentsStore.onChange
+      .pipe(untilDestroyed(this))
+      .subscribe(instruments => {
+        for (const item of this.builder.allItems) {
+          const instrument = instruments.get(item.complexInstrumentId);
+
+          if (!instrument || instrument.loading) continue;
+
+          item.setInstrument(instrument);
+        }
+      });
   }
 
   ngAfterViewInit() {
@@ -203,8 +229,11 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleCreateItems(items: IPosition[]) {
     super._handleCreateItems(items);
-    this._loadInstrumentsForPositions(items);
-    items.forEach(item => this._levelOneDataFeed.subscribe(item.instrument, item.connectionId));
+
+    items.forEach(item => {
+      this._instrumentsStore.load(complexInstrumentId(item.instrument?.id, item.accountId));
+      this._levelOneDataFeed.subscribe(item.instrument, item.connectionId);
+    });
     this.updatePl();
   }
 
@@ -220,7 +249,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleUpdateItems(items: IPosition[]) {
     super._handleUpdateItems(items);
-    this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.connectionId));
+    this.builder.allItems.forEach(i => {
+      const newInstrument = this._instrumentsStore.get(i.instrument?.id);
+      if ((i.instrument as any)?.loading && newInstrument && !newInstrument?.loading ) {
+        i.setInstrument(this._instrumentsStore.get(newInstrument.id));
+      }
+
+      i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.connectionId);
+    });
     this.updatePl();
   }
 
@@ -234,24 +270,6 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _transformDataFeedItem(item) {
     return this._addInstrumentName(RealPositionsRepository.transformPosition(item));
-  }
-
-  private _loadInstrumentsForPositions(positions: IPosition[]) {
-    forkJoin(
-      positions.map(p =>
-        this._instrumentsRepository.getItemById(p.instrument.symbol, {
-          exchange: p.instrument.exchange,
-          accountId: p.accountId
-        }))
-    ).subscribe(instruments => {
-        for (const item of this.builder.allItems) {
-          for (const instrument of instruments) {
-            item.setInstrument(instrument);
-          }
-        }
-      },
-      err => this.notifier.showError(err),
-    );
   }
 
   private _addInstrumentName(item) {
@@ -282,6 +300,9 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
   getGroupHeaderItem(item, groupBy) {
     const groupedItem = new GroupedPositionItem();
     groupedItem.instrumentName.updateValue(item);
+    if (groupBy === 'instrumentName') {
+      groupedItem.setInstrument(this._instrumentsStore.get(item.complexInstrumentId));
+    }
     return groupedItem;
   }
 

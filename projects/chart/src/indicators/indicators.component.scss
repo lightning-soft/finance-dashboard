@@ -10,6 +10,12 @@
   }
 
   ::ng-deep {
+    formly-form {
+      .template-label, .ant-checkbox+span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        color: $text-60;
+      }
+    }
+
     formly-form .ant-form-item-has-error .ant-select:not(.ant-select-borderless) .ant-select-selector {
       border-color: transparent !important;
     }
@@ -84,7 +90,7 @@
       nz-form-item {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-column-gap: 10px;
+        grid-column-gap: 0px;
       }
     }
 
@@ -454,6 +460,7 @@
       font-size: 0.86rem;
       line-height: 1.2rem;
       font-weight: 600;
+      color: $text-60;
     }
 
     .template-label {

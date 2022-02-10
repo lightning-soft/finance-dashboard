@@ -3,6 +3,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
 import { Id } from 'communication';
+import { NotifierService } from 'notifier';
 
 export type WorkspaceId = number | string;
 
@@ -18,7 +19,7 @@ export class WorkspacesManager {
   public deletedWindow$ = new Subject<WorkspaceWindow>();
   public workspaceInit = new BehaviorSubject<boolean>(false);
 
-  constructor(private _workspacesStore: WorkspacesStore) {
+  constructor(private _workspacesStore: WorkspacesStore, private _notifier: NotifierService) {
     this._init();
   }
 
@@ -66,7 +67,10 @@ export class WorkspacesManager {
 
   public async createWorkspace(name: string, base?: WorkspaceId): Promise<void> {
     const workspace = new Workspace(name);
-
+    if (this.workspaces.value.some(item => item.name === name)) {
+      this._notifier.showError('Can\'t duplicate names');
+      return;
+    }
     let workspaces = [...this.workspaces.value, workspace];
 
 
@@ -183,6 +187,10 @@ export class WorkspacesManager {
   }
 
   public renameWorkspace(id: WorkspaceId, name: string): void {
+    if (this.workspaces.value.some(item => id !== item.id && item.name === name)) {
+      this._notifier.showError('Can\'t duplicate names');
+      return;
+    }
     const workspace = this.workspaces.value.find(w => w.id === id);
     workspace.name = name;
 
@@ -193,7 +201,8 @@ export class WorkspacesManager {
 
   public duplicateWorkspace(id: WorkspaceId): void {
     const workspace = this.workspaces.value.find(w => w.id === id);
-    this.createWorkspace(workspace.name, id);
+    const name = `${ workspace.name }(copy)`;
+    this.createWorkspace(name, id);
   }
 
   getActiveWorkspace() {
@@ -227,6 +236,10 @@ export class WorkspacesManager {
 
   renameWindow(id: any, result: any) {
     const workspace = this.getActiveWorkspace();
+    if (workspace.windows.some((value) => value.id !== id && result === value.name)) {
+      this._notifier.showError('Can\t duplicate names');
+      return;
+    }
     const workspaceWindow = workspace.windows.find(item => item.id === id);
     workspaceWindow.name = result;
     this.workspaces.next(this.workspaces.value);
@@ -237,6 +250,7 @@ export class WorkspacesManager {
     const workspace = this.getActiveWorkspace();
     const window = workspace.windows.find(item => item.id === windowId);
     const newWindow = new WorkspaceWindow(window);
+    newWindow.name = `${ window.name }(copy)`;
     workspace.windows.push(newWindow);
     this.save();
     return newWindow;
@@ -266,6 +280,10 @@ export class WorkspacesManager {
 
   createWindow(workspaceWindow: WorkspaceWindow): WorkspaceWindow {
     const workspace = this.getActiveWorkspace();
+    if (workspace.windows.some(item => workspaceWindow.name === item.name)) {
+      this._notifier.showError('Can\'t duplicate names');
+      return null;
+    }
     workspace.windows.push(workspaceWindow);
     this.updateWorkspaces();
     return workspaceWindow;

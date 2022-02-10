@@ -1,12 +1,12 @@
-import {Injectable} from '@angular/core';
-import {IBaseTemplate} from './models';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Observable, of, Subscription, throwError} from 'rxjs';
-import {SettingsService} from 'settings';
-import {Id, Repository} from 'base-components';
-import {ExcludeId, IPaginationResponse, RepositoryAction, RepositoryActionData} from 'communication';
-import {WindowPopupManager} from 'layout';
-import {WindowMessengerService} from 'window-messenger';
+import { Injectable } from '@angular/core';
+import { IBaseTemplate } from './models';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable, of, Subscription, throwError } from 'rxjs';
+import { SettingsService } from 'settings';
+import { Id, Repository } from 'base-components';
+import { ExcludeId, IPaginationResponse, RepositoryAction, RepositoryActionData } from 'communication';
+import { WindowPopupManager } from 'layout';
+import { WindowMessengerService } from 'window-messenger';
 
 const savePresetsCommand = 'savePresetsCommand';
 const applyPresetsCommand = 'applyPresetsCommand';
@@ -47,6 +47,9 @@ export class TemplatesService extends Repository<IBaseTemplate> {
   }
 
   createItem(template: ExcludeId<IBaseTemplate>): Observable<IBaseTemplate> {
+    if (this.templates.some((item) => item.type === template.type && item.name === template.name))
+      return throwError('Duplicated names aren\'t allowed');
+
     const id = Date.now();
     const newTemplate: IBaseTemplate = {...template, id} as IBaseTemplate;
     this.save([...this.templates, newTemplate]);
@@ -54,6 +57,10 @@ export class TemplatesService extends Repository<IBaseTemplate> {
   }
 
   updateItem(template: IBaseTemplate): Observable<any> {
+    const filteredTemplates = this.templates.filter(item => item.type === template.type && item.id !== template.id);
+    if (filteredTemplates.some((item) => item.name === template.name))
+      return throwError('Duplicated names aren\'t allowed');
+
     const templates = (this.templates || []).map(i => i.id === template.id ? template : i);
     this.save(templates);
 

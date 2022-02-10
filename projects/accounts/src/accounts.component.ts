@@ -1,20 +1,20 @@
-import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AccountsManager } from 'accounts-manager';
-import { GroupItemsBuilder } from 'base-components';
+import { AccountsManager, Connection } from 'accounts-manager';
+import { GroupItemsBuilder, Id } from 'base-components';
 import { ILayoutNode, IStateProvider, LayoutNode } from 'layout';
 import { NzContextMenuService, NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
-import { finalize, tap } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { BrokersRepository, IBroker, IConnection } from 'trading';
-import { AcccountFormComponent } from './acccount-form/acccount-form.component';
+import { AccountFormComponent } from './account-form/account-form.component';
 
 export interface AccountsComponent extends ILayoutNode {
 }
 
 interface AccountsState {
-  selectedItem?: IConnection;
+  selectedItemId?: Id;
 }
 
 const maxAccountsPerConnection = 4;
@@ -27,17 +27,14 @@ const maxAccountsPerConnection = 4;
 })
 @LayoutNode()
 export class AccountsComponent implements IStateProvider<AccountsState>, OnInit, AfterViewInit {
-  builder = new GroupItemsBuilder<IConnection>();
+  builder = new GroupItemsBuilder<Connection>();
   form: FormGroup;
-  isLoading: { [key: number]: boolean } = {};
-  selectedItem: IConnection;
+  selectedItem: Connection;
   brokers: IBroker[];
   selectedBroker: IBroker;
-  @ViewChild('userData') userData: AcccountFormComponent;
+  @ViewChild('userData')
+  userData: AccountFormComponent;
   isSubmitted = false;
-  connectOnStartUp = true;
-
-  selectItemIndex = -1;
 
   get existDefaultConnection(): boolean {
     for (const broker of this.brokers) {
@@ -53,6 +50,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
   constructor(
     protected _accountsManager: AccountsManager,
+    protected _cd: ChangeDetectorRef,
     protected _injector: Injector,
     protected _notifier: NotifierService,
     private _brokersRepository: BrokersRepository,
@@ -64,16 +62,18 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.setTabIcon('icon-signal');
     this.form = this.fb.group({
       id: [null],
-      name: [null],
-      marketConnection: [null],
-      orderConnection: [null],
-      userData: [null],
-      server: [null],
+      name: [''],
+      // marketConnection: [null, Validators.required],
+      // orderConnection: [null, Validators.required],
+      userData: [null, Validators.required],
+      // server: [null, Validators.required],
+      broker: [null],
       aggregatedQuotes: [null],
       autoSavePassword: [null],
       connectOnStartUp: [null],
-      broker: [null],
     });
+    this.selectItem(_accountsManager.getNewConnection());
+    (window as any).accountsComponent = this;
   }
 
   ngOnInit() {
@@ -84,15 +84,25 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.connectionsChange
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
+        const removeConnections = connections.filter(item => typeof item.broker !== 'string');
+
+        if (removeConnections.length) {
+          removeConnections.forEach(i => this._accountsManager.remove(i)
+            .subscribe(
+              () => console.log('connection removed', i),
+              (err) => console.log('connection removed error', err),
+            ));
+        }
+
         const _conns = connections.filter(item => item.broker != null);
         this.builder.replaceItems(_conns);
         if (!this.selectedItem && _conns.length) {
           const index = 0;
-          this.selectItem(_conns[index], index);
-        } else {
-          this._updateSelectedItem();
+          this.selectItem(_conns[index]);
         }
+
         this.expandBrokers();
+        this._cd.detectChanges();
       });
 
     this._brokersRepository.getItems()
@@ -106,89 +116,73 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
           }
           if (this.builder.items.length >= maxAccountsPerConnection) {
             const index = 0;
-            this.selectItem(this.builder.items[index], index);
+            this.selectItem(this.builder.items[index]);
           } else if (this.brokers.length) {
             const index = 0;
             this.openCreateForm(null, this.brokers[index]);
           }
 
           this.expandBrokers();
-          this._updateSelectedItem();
         },
         err => this._notifier.showError(err)
       );
   }
 
   ngAfterViewInit() {
+    // this.form.valueChanges
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(value => {
+    //     if (this.form.invalid)
+    //       return;
+
+    //     // this.selectedItem.save(value)
+    //     //   .pipe(untilDestroyed(this))
+    //     //   .subscribe(
+    //     //     (item: Connection) => { },
+    //     //     err => this._notifier.showError(err),
+    //     //   );
+    //   });
     this.form.controls.connectOnStartUp.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe(connect => {
-        this.connectOnStartUp = connect;
         if (connect) {
-          this.selectedItem.autoSavePassword = true;
-          this.userData?.form?.controls?.autoSavePassword?.setValue(true);
+          this.userData?.makeAutoSave();
+          this._cd.detectChanges();
         }
-
-        this.selectedItem.connectOnStartUp = connect;
       });
   }
 
-  handleAutosavePasswordToggle(autosave: boolean): void {
-    this.selectedItem.autoSavePassword = autosave;
+  autoSavePasswordChange(autosave: boolean): void {
     if (!autosave) {
-      this.turnOffAutoConnect();
-      this.selectedItem.connectOnStartUp = false;
-      this.selectedItem.autoSavePassword = false;
-      this.form.controls.userData.patchValue({ connectOnStartUp: false });
       this.form.controls.connectOnStartUp.patchValue(false);
-      this.form.controls.autoSavePassword.patchValue(false);
     }
-
-  }
-
-  turnOffAutoConnect(): void {
-    this.connectOnStartUp = false;
   }
 
   contextMenu($event: MouseEvent, menu: any): void {
     this.nzContextMenuService.create($event, menu);
   }
 
-  save() {
-    this._updateConnection({ ...this.selectedItem });
-  }
-
   saveState(): AccountsState {
-    return { selectedItem: this.selectedItem };
+    return { selectedItemId: this.selectedItem.id };
   }
 
   loadState(state: AccountsState) {
-    const { selectedItem } = state;
-    if (selectedItem) {
-      this.selectItem(selectedItem);
-      this._updateSelectedItem();
-    }
-  }
+    const { selectedItemId } = state;
 
-  private _updateConnection(connection: IConnection): void {
-    this._accountsManager.updateItem({ ...connection })
-      .pipe(this.showItemLoader(connection), untilDestroyed(this))
-      .subscribe({
-        error: (error) => {
-          this._notifier.showError(error);
+    this._accountsManager.connectionsChange
+      .pipe(untilDestroyed(this), take(1))
+      .subscribe((connections) => {
+        console.log('loadState ', connections);
+        const connection = connections.find(i => i.id === selectedItemId);
+        if (!connection) {
+          this.expandBrokers();
+          return;
         }
+        this.selectItem(connection);
       });
   }
 
-  private _updateSelectedItem(): void {
-    if (this.selectedItem) {
-      const item = this.builder.items.find(data => data.id === this.selectedItem.id);
-      if (item)
-        this.selectedItem = { ...item };
-    }
-  }
-
-  getConnectionsByBroker(broker: IBroker): IConnection[] {
+  getConnectionsByBroker(broker: IBroker): Connection[] {
     return this.builder.getItems('broker', broker?.name);
   }
 
@@ -197,10 +191,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   }
 
   expandBrokers(): void {
-    if (!Array.isArray(this.brokers) || !this.selectedItem)
+    if (!Array.isArray(this.brokers))
       return;
 
-    this.selectedBroker = this.brokers.find(i => i.name == this.selectedItem?.broker);
+    this.selectedBroker = this.brokers.find(i => i.name === this.selectedItem?.broker) ?? this.brokers[0];
+    this._cd.detectChanges();
   }
 
   handleBrockerClick($event, broker: IBroker): void {
@@ -212,17 +207,23 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   openCreateForm(event: MouseEvent, broker: IBroker): void {
     event?.stopPropagation();
     if (this.canAddAccount(broker)) {
-      const item = { broker: broker.name } as IConnection;
-      this.selectItem(item);
+      const item = this._accountsManager.getNewConnection({ broker: broker.name });
+      this.selectItem(item, true);
     }
   }
 
-  selectItem(item: IConnection, index = -1): void {
-    this.selectItemIndex = index;
+  selectItem(item: Connection, clearSubmit = false): void {
+    if (clearSubmit)
+      this.isSubmitted = false;
+
+    if (item) {
+      item.destroyIfNew();
+    }
+
     this.selectedItem = item;
     this.expandBrokers();
-    this.isSubmitted = false;
-    this.form.reset(item ? this.convertItemToFormValue(item, this.selectedBroker) : undefined);
+    const json = item?.toJson();
+    this.form.reset(json ? this.convertItemToFormValue(json, this.selectedBroker) : undefined);
   }
 
   convertItemToFormValue(item: IConnection, broker: IBroker) {
@@ -235,14 +236,14 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
 
     const { username, password, autoSavePassword, gateway, ...data } = item;
     const userData = { username, password: autoSavePassword ? password : '', server, gateway, autoSavePassword };
-    return { ...data, broker, userData };
+    return { ...data, broker: broker?.name, userData };
   }
 
   handleSubmit(): void {
     this.isSubmitted = true;
-    if (!this.userData?.isValid) {
+    if (this.form.invalid)
       return;
-    }
+
     if (!this.selectedItem.id) {
       this.create();
     } else {
@@ -250,68 +251,63 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
-  getValue() {
+  getConnection(): Connection {
     const value = this.form.value;
     const { userData, ...data } = value;
-    return {
-      ...this.selectedItem, ...data,
+
+    this.selectedItem.applyJson({
+      ...data,
       broker: this.selectedBroker?.name,
-      name: this.selectedItem.name, ...userData
-    };
+      name: this.selectedItem.name,
+      ...userData
+    });
+
+    return this.selectedItem;
+    // return {
+    //   ...this.selectedItem,
+    //   ...data,
+    //   broker: this.selectedBroker?.name,
+    //   name: this.selectedItem.name,
+    //   ...userData
+    // };
   }
 
   create() {
-    this._accountsManager.createConnection(this.getValue())
-      .pipe(this.showItemLoader(this.selectedItem), untilDestroyed(this))
-      .subscribe(
-        (item: IConnection) => {
-          this.expandBrokers();
-          this.selectItem(item);
-          this.connect();
-        },
+    const connection = this.getConnection();
+    this._accountsManager.createConnection(connection)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        this.selectItem(connection);
+        this.expandBrokers();
+        // this.connect();
+      },
         err => this._notifier.showError(err),
       );
   }
 
-  rename(name: string, item: IConnection): void {
-    this._updateConnection({ ...item, name });
-  }
-
-  updateItem() {
-    return this._accountsManager.updateItem(this.getValue())
-      .pipe(this.showItemLoader(this.selectedItem),
-        tap((item: any) => {
-          if (!item.error)
-            this.selectedItem = item;
-          else {
-            this._notifier.showError(item.err, 'Failed to save item');
-          }
-        }),
-        untilDestroyed(this),
-      ).toPromise();
+  rename(name: string, item: Connection): void {
+    item.rename(name)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        error: (error) => this._notifier.showError(error)
+      });
   }
 
   connect() {
-    return this._accountsManager.connect(this.getValue())
-      .pipe(this.showItemLoader(this.selectedItem),
-        tap((item: any) => {
-          if (!item.error) {
-            this.selectedItem = item;
-
-            if (!this.existDefaultConnection) {
-              this.selectFreeConnectionAsDefault();
-            }
+    return this._accountsManager.connect(this.getConnection())
+      .pipe(untilDestroyed(this)).subscribe(
+        (item: any) => {
+          if (!item.error && !this.existDefaultConnection) {
+            this.selectFreeConnectionAsDefault();
           }
-        }),
-        untilDestroyed(this),
-      ).toPromise();
+        });
   }
 
-  disconnect(item: IConnection) {
-    this._disconnect(item)
+  disconnect(item: Connection) {
+    this._accountsManager.disconnect(item)
+      .pipe(untilDestroyed(this))
       .subscribe(
         () => {
-          this.selectedItem = { ...item, connected: false };
           if (!this.existDefaultConnection) {
             this.selectFreeConnectionAsDefault();
           }
@@ -320,48 +316,32 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       );
   }
 
-  makeDefault(item: IConnection, index = -1) {
+  makeDefault(item: Connection) {
     this._accountsManager.makeDefault(item).subscribe(
       (response: any) => {
-        this._updateSelectItemIndex(item);
-
-        const itemList = this.getConnectionsByBroker(this.selectedBroker);
-        if (index !== -1) this.selectItemIndex = index;
-        this.selectItem(itemList[this.selectItemIndex], this.selectItemIndex);
       },
       err => this._notifier.showError(err),
     );
-  }
-
-  private _updateSelectItemIndex(item: IConnection): void {
-    if (this.selectItemIndex === -1) {
-      this.selectItemIndex = this.getConnectionsByBroker(this.selectedBroker).findIndex(i => i.name === item.name);
-    }
   }
 
   selectFreeConnectionAsDefault(): void {
     for (const broker of this.brokers) {
       for (const item of this.getConnectionsByBroker(broker)) {
         if (item.connected && !item.isDefault) {
-          this.makeDefault(item, this.selectItemIndex);
+          this.makeDefault(item);
           return;
         }
       }
     }
   }
 
-  _disconnect(item: IConnection) {
-    return this._accountsManager.disconnect(item)
-      .pipe(this.showItemLoader(item), untilDestroyed(this));
-  }
-
-  delete(event: MouseEvent, item: IConnection) {
+  delete(event: MouseEvent, item: Connection) {
     event.stopPropagation();
 
     this.modal.confirm({
       nzWrapClassName: 'custom-confirm',
       nzIconType: '',
-      nzContent: `Do you want to delete ${ item.name }?`,
+      nzContent: `Do you want to delete ${item.name}?`,
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzAutofocus: null,
@@ -369,11 +349,11 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         if (item.connected)
           this.disconnect(item);
         this._accountsManager.deleteConnection(item)
-          .pipe(this.showItemLoader(item), untilDestroyed(this))
+          .pipe(untilDestroyed(this))
           .subscribe(
             () => {
               const index = 0;
-              this.selectItem(this.builder.items[index], index);
+              this.selectItem(this.builder.items[index]);
             },
             err => this._notifier.showError(err),
           );
@@ -381,23 +361,17 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     });
   }
 
-  toggleFavourite(event: MouseEvent, item: IConnection) {
+  toggleFavorite(event: MouseEvent, item: Connection) {
     event.stopPropagation();
 
-    this._accountsManager.toggleFavourite(item)
-      .pipe(this.showItemLoader(item), untilDestroyed(this))
+    item.toggleFavorite()
+      .pipe(untilDestroyed(this))
       .subscribe(
         () => {
+          console.log('toggleFavorite successfully');
         },
         err => this._notifier.showError(err),
       );
-  }
-
-  showItemLoader(item: IConnection) {
-    const id = item.id;
-    this.isLoading[id] = true;
-
-    return finalize(() => delete this.isLoading[id]);
   }
 
   toggleFormConnection($event: boolean, control: string) {

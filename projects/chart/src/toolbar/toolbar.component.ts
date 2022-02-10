@@ -148,7 +148,6 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   @HostBinding('class.opened')
   get isOpened() {
     return this.priceOpen || this.crossOpen ||
-      this.isDrawingsVisible ||
       this.showFramePopover || this.zoomDropdownVisible;
   }
 

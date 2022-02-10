@@ -1,6 +1,6 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { APP_INITIALIZER, NgModule, NgZone } from '@angular/core';
+import { APP_INITIALIZER, Injector, NgModule, NgZone } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -53,6 +53,8 @@ import {
 import { FramesManagerComponent } from './components/navbar/frames-manager/frames-manager.component';
 import { WorkspaceComponent } from './components/navbar/workspace/workspace.component';
 import { Modules, modulesStore } from './modules';
+import { ItemsStoreModule } from '../../projects/items-store/src/lib/items-store.module';
+import { InstrumentsRepository } from '../../projects/trading/src/trading/repositories/instruments.repository';
 
 function generateLoginLink(config): string {
 
@@ -104,10 +106,17 @@ function navigateToIdentity(config) {
     location.replace(generateLoginLink(config));
 }
 
-export function initApp(config: AppConfig, manager: AccountsManager, authService: AuthService, windowPopupManager: WindowPopupManager) {
+export function initApp(injector: Injector,
+                        config: AppConfig, manager: AccountsManager, authService: AuthService, windowPopupManager: WindowPopupManager) {
   return async () => {
+    window.injector = injector;
     await config.getConfig().pipe(first()).toPromise();
     await initIdentityAccount(authService, config, windowPopupManager);
+
+    // avoid initializing because of shared instances
+    if (window.opener)
+      return;
+
     await initAccounts(manager);
   };
 }
@@ -238,6 +247,9 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
     NzCheckboxModule,
     NzInputModule,
     NzDividerModule,
+    ItemsStoreModule.forRoot(injector => ({
+      instruments: injector.get(InstrumentsRepository),
+    }))
   ],
   providers: [
     ThemesHandler,
@@ -247,6 +259,7 @@ export function initApp(config: AppConfig, manager: AccountsManager, authService
       useFactory: initApp,
       multi: true,
       deps: [
+        Injector,
         AppConfig,
         AccountsManager,
         AuthService,

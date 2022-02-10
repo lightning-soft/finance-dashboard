@@ -98,7 +98,7 @@ export abstract class Cell implements ICell {
     this._setHoveredStatus();
   }
 
-  get hovered(): boolean {
+ get hovered(): boolean {
     return this._hovered;
   }
 

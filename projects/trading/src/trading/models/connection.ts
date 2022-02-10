@@ -11,10 +11,11 @@ export interface IConnection extends IBaseItem {
   gateway: string;
   autoSavePassword: boolean;
   connectOnStartUp: boolean;
-  connected: boolean;
-  favourite: boolean;
+  connected?: boolean;
+  favorite: boolean;
   isDefault: boolean;
   error?: boolean;
   err?: any;
+  loading?: boolean;
   connectionData: any; // api key, ... etc
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { IInstrument, InstrumentsRepository, InstrumentType } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -39,7 +39,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       })
       .pipe(
         map(response => response.result.map(item => {
-          item.id = `${ item.symbol }.${ item.exchange }`;
+          item.id = `${item.symbol}.${item.exchange}`;
           return item;
         })),
         map(result => {
@@ -61,13 +61,13 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     if (item.type === InstrumentType.Future && item.symbol.length > 2) {
       const [monthType, year] = item.symbol.replace(item.productCode, '');
       const decade = new Date().getFullYear().toString()[2];
-      suffix = monthsMap[monthType] + `${ decade }${ year }`;
+      suffix = monthsMap[monthType] + `${decade}${year}`;
     }
     return {
       ...item,
       id: item.symbol,
       instrumentTimePeriod: suffix,
-      description: item.description + ` ${ suffix }`,
+      description: item.description + ` ${suffix}`,
       tickSize: item.increment ?? 0.01,
     };
   }
@@ -87,12 +87,12 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       mergeMap((result: any) => {
         if (!result) {
           console.error(result);
-          return throwError(`Invalid response, ${ result }`);
+          return throwError(`Invalid response, ${result}`);
         }
 
         return of({
           ...result,
-          id: `${ result.symbol }.${ result.exchange }`,
+          id: `${result.symbol}.${result.exchange}`,
           tickSize: result.increment ?? 0.01,
         });
       }),
@@ -114,7 +114,7 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
         const data = res.data.map(({ symbol, exchange, contractSize, precision, increment, description, ...rest }) => {
           return {
             ...rest,
-            id: `${ symbol }.${ exchange }`,
+            id: `${symbol}.${exchange}`,
             symbol,
             description,
             exchange,
@@ -134,7 +134,13 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
       return of([]);
     }
 
-    // return this.getItems({ s: JSON.stringify({ id: { $in: ids } }) }).pipe(map(i => i as any));
-    return forkJoin(ids.map(id => this.getItemById(id)));
+    return forkJoin(ids.map((id: string) => {
+      const [symbol, exchange, accountId] = id.split('.');
+
+      return this.getItemById(symbol, { exchange, accountId }).pipe(
+        map(i => ({ ...i, id })),
+        catchError((err) => of(null)));
+    })).pipe(map(items => items.filter(item => item != null)
+   )) as Observable<IInstrument[]>;
   }
 }

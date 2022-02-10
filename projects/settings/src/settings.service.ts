@@ -1,16 +1,16 @@
-import {Injectable} from '@angular/core';
-import {UntilDestroy} from '@ngneat/until-destroy';
-import {KeyBinding, KeyBindingPart, KeyCode} from 'keyboard';
-import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
-import {Themes, ThemesHandler} from 'themes';
-import {SettingsStore} from './setting-store';
-import {HotkeyEntire, ICommand, SettingsData} from './types';
-import {Workspace} from 'workspace-manager';
-import {ITimezone} from 'timezones-clock';
-import {catchError, debounceTime, filter, shareReplay, tap} from 'rxjs/operators';
-import {SaveLoaderService} from 'ui';
-import {IBaseTemplate} from 'templates';
-import {ISound} from 'sound';
+import { Injectable } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { Themes, ThemesHandler } from 'themes';
+import { SettingsStore } from './setting-store';
+import { HotkeyEntire, ICommand, SettingsData } from './types';
+import { Workspace } from 'workspace-manager';
+import { ITimezone } from 'timezones-clock';
+import { catchError, debounceTime, filter, shareReplay, tap } from 'rxjs/operators';
+import { SaveLoaderService } from 'ui';
+import { IBaseTemplate } from 'templates';
+import { ISound } from 'sound';
 
 function createCommand(name: string, UIString: string = name): ICommand {
   return {
@@ -187,8 +187,8 @@ export class SettingsService {
     return this.settings.value[key];
   }
 
-  set<T = any>(key: string, value: T){
-    this._updateState({[key]: value});
+  set<T = any>(key: string, value: T) {
+    this._updateState({ [key]: value });
   }
 
   public destroy() {

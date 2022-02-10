@@ -369,7 +369,7 @@ class AllOrdersCell extends CompositeCell<OrdersCell> {
     ];
   }
 
-  get order(){
+  get order() {
     return this._item.sellOrders.order || this._item.buyOrders.order;
   }
 
@@ -509,6 +509,16 @@ class SumHistogramCell extends HistogramCell {
   private _hiddenValue: number;
 
   isSumCell = false;
+/*  private _status;
+  public get status() {
+    return this._status;
+  }
+  public set status(value) {
+    if (this._status != null && this._status.includes("total")) {
+      debugger;
+    }
+    this._status = value;
+  }*/
 
   get size() {
     return this.isSumCell ? this._hiddenValue : this._value;
@@ -524,35 +534,53 @@ class SumHistogramCell extends HistogramCell {
   //   }
   // }
 
-  update(value: number, isSum: boolean): boolean {
-    if (this.isSumCell && isSum) {
+  clearSum() {
+    this.clear();
+    this.updateValue(this._hiddenValue);
+    this._hiddenValue = null;
+    this.isSumCell = false;
+  }
+  clear(){
+    this.value = '';
+    this._value = null;
+    this.changeStatus('');
+    if (this._histValue != null)
+      this.calcHist(this._histValue);
+  }
+
+
+  update(value: number, isSum: boolean = null): boolean {
+    if (isSum === false) {
+      console.error('isSum shouldn\'t be false');
+    }
+    if (this.isSumCell && isSum !== true) {
       const isChanged = this._hiddenValue !== value;
       this._hiddenValue = value;
       return isChanged;
     }
 
-    if (this.isSumCell !== isSum) {
-      this.updateValue(this._hiddenValue);
-      this._hiddenValue = null;
+    if (isSum !== null) {
+      const isHoverPrefix = this.hovered ? CellStatus.Hovered : '';
+      const isOrderCell = !this.isSumCell;
+      this.isSumCell = isSum;
 
       if (isSum) {
+        if (isOrderCell)
+          this._hiddenValue = this._value;
+        const res = this.updateValue(value);
+        this.setStatusPrefix(isHoverPrefix + totalPrefix);
         this.visible = true;
         this.hist = null;
-      }
 
-      this.isSumCell = isSum;
-      if (isSum)
-        this.setStatusPrefix(totalPrefix);
-      else
+
+        return res;
+      } else
         this.setStatusPrefix('');
     }
 
     return this.updateValue(value);
-  }
 
-  // updateValue(value: number, time?: number) {
-  //   return super.updateValue(value, time);
-  // }
+  }
 
   calcHist(value: number) {
     if (this.isSumCell || (this.settings.highlightLarge && this.settings.largeSize > this._value)) {
@@ -751,14 +779,18 @@ export class DomItem extends HoverableItem implements IBaseItem {
     if (data.updateType === UpdateType.Undefined) {
       this.currentAsk.changeBest(QuoteSide.Ask);
     }
-
-    if (this.ask.update(data.volume, false)) {
+    const isSumCell = this.ask.isSumCell;
+    if (this.ask.update(data.volume)) {
       if (this._ask == null)
         this._ask = data.volume;
       else
         this._calculateAskDelta();
 
       this.orders.changeAskQuantity(data.volume);
+    }
+
+    if (isSumCell && !this.ask.isSumCell) {
+      console.warn('!!!!! SUM status changed');
     }
 
     if (this.clearCross)
@@ -770,7 +802,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
       this.currentBid.changeBest(QuoteSide.Bid);
     }
 
-    if (this.bid.update(data.volume, false)) {
+    if (this.bid.update(data.volume)) {
       if (this._bid == null)
         this._bid = data.volume;
       else
@@ -792,7 +824,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   }
 
   changePriceStatus(status: string) {
-    if (this.price.status === CellStatus.Highlight || this.price.status === CellStatus.Hovered)
+    if (this.price.status === CellStatus.Highlight || this.price.status.includes(CellStatus.Hovered))
       return;
 
     this.price.changeStatus(status);
@@ -860,8 +892,16 @@ export class DomItem extends HoverableItem implements IBaseItem {
     this.askDelta.changeStatus('');
   }
 
+  clearBidSum() {
+    this.bid.clearSum();
+  }
+
   setBidSum(value: number) {
     this.bid.update(value == null ? this._bid : value, value != null);
+  }
+
+  clearAskSum() {
+    this.ask.clearSum();
   }
 
   setAskSum(value: number) {
@@ -976,7 +1016,7 @@ export class CustomDomItem extends DomItem {
   clearCross = false;
 
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter,
-              snapshot: { [key: number]: DomItem }) {
+    snapshot: { [key: number]: DomItem }) {
     super(index, settings, _priceFormatter);
     this._domItems = snapshot;
     this.calculateFromItems();

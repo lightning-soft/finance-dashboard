@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id } from 'base-components';
 import { ExcludeId, HttpRepository, IPaginationResponse } from 'communication';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Broker, ConnectionsRepository, IConnection } from 'trading';
 
@@ -24,7 +24,7 @@ class Connection implements IConnection {
   autoSavePassword: boolean;
   connectOnStartUp: boolean;
   connected: boolean;
-  favourite: boolean;
+  favorite: boolean;
   connectionData: any;
   isDefault: boolean;
   id: Id;
@@ -80,12 +80,14 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
   }
 
   updateItem(item: IConnection): Observable<IConnection> {
-    return this._http.put<any>(this._accountsSettings, prepareItem(item, true), this._httpOptions)
-      .pipe(tap(() => this._onUpdate(item)));
+    const data = prepareItem(item, true);
+    return this._http.put<any>(this._accountsSettings, data, this._httpOptions)
+      .pipe(tap(() => this._onUpdate(item)), map(() => data as any));
   }
 
   connect(item: IConnection): Observable<any> {
     return this._connect(item).pipe(
+      // delay(5000),
       tap(i => {
         this._onUpdate(item);
       }),
@@ -117,6 +119,18 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
     const data = item.connectionData;
     const apiKey = data?.apiKey;
 
+    if (!apiKey)
+      return throwError({
+        message: 'invalid api key',
+        error: {
+          error: {
+            errorCode: 'InvalidApiKey',
+            message: 'Api-key is missed!',
+            statusCode: 'BadData',
+          }
+        }
+      });
+
     return this._http.post(`${this._getUrl(item.broker)}/logout`, {}, {
       headers: {
         'Api-Key': apiKey ?? '',
@@ -127,7 +141,7 @@ export class RealConnectionsRepository extends HttpRepository<IConnection> imple
   // _getUrl(broker: Broker) {
   _getUrl(broker: any) {
     if (broker == null)
-      throw new Error('Invalid broker');
+      return 'Invalid broker';
 
     return this._communicationConfig[broker].http.url + 'Connection';
   }

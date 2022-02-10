@@ -42,6 +42,8 @@ export class NavbarComponent implements AfterViewInit, OnInit {
 
   @HostBinding('class') public currentNavbarPosition: NavbarPosition;
 
+  isMaximized = false;
+
   @HostBinding('class.hidden')
   get hidden() {
     return this.isNavbarHidden && !this.navbarActive && !this.isInsideDropdownOpened;
@@ -92,15 +94,19 @@ export class NavbarComponent implements AfterViewInit, OnInit {
         debounceTime(100),
         untilDestroyed(this)
       ).subscribe((res) => {
-        this._setNavBarActive(res);
-      });
+      this._setNavBarActive(res);
+    });
   }
-  ngOnInit(){
+
+  ngOnInit() {
     this.windowName = this._windowPopupManager.getWindowName();
   }
 
   ngAfterViewInit() {
     this.isElectron = isElectron();
+    (window as any).api?.ipc.on('maximize', (maximize) => {
+      this.isMaximized = maximize;
+    });
   }
 
   // @HostListener('mouseenter', ['$event'])
@@ -217,5 +223,19 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   saveWindow() {
     this.save.emit();
   }
-}
 
+  nativeClose() {
+    sendIpcCommand('nativeClose');
+  }
+
+  nativeMinimize() {
+    sendIpcCommand('nativeMinimize');
+  }
+
+  nativeMaximize() {
+    sendIpcCommand('nativeMaximize');
+  }
+}
+const sendIpcCommand = (command) => {
+  (window as any).api?.ipc.send(command);
+};

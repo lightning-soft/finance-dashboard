@@ -20,6 +20,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() label: string;
   @Input() default?: any;
   @Input() value?: any;
+  @Input() finder;
   @Input('repository') protected _repository: Repository;
   @Input() autoSelectFirst = true;
   @Input() disabled = false;
@@ -29,7 +30,6 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
   @Input() dropdownClassName = '';
   @Output() handleChange = new EventEmitter<any>();
   @Output() handleUpdate = new EventEmitter<any>();
-
   opened = false;
 
   actions: IDataSelectItemAction[] = [
@@ -45,7 +45,7 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
       autoClose: true,
       callback: (item: any) => {
         const { id, ..._item } = item;
-        this._repository.createItem({ ..._item, name: `${_item.name} (copy)` })
+        this._repository.createItem({ ..._item, name: `${ _item.name } (copy)` })
           .pipe(untilDestroyed(this))
           .subscribe((res) => {
             this.handleValueChange(res);
@@ -75,6 +75,12 @@ export class DataSelectComponent extends ItemsComponent<any> implements OnChange
       if (this.value == null) {
         this._setValueIfNeeded();
       }
+      if (!this.finder)
+        return;
+
+      const item = this.items.find(a => this.finder(this.value, a));
+      if (item)
+        this.value = item.id;
     }
   }
 

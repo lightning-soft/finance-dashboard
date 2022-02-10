@@ -57,6 +57,9 @@ export class SessionManagerComponent extends ItemComponent<ISession> {
     this.setTabIcon('icon-clock');
     this.setTabTitle('Session Manager');
   }
+  timezoneFinder = (value, item) => {
+    return value === item.id || item.utcMap[value];
+  }
 
   handleSessionChange(session: ISession) {
     this.item = session;

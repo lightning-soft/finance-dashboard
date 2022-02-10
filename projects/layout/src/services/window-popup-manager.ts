@@ -8,6 +8,7 @@ import { WindowMessengerService } from 'window-messenger';
 import { Id } from 'communication';
 
 const popupStorageKey = 'widget-popup-state';
+const subWindowsStorageKey = 'windows-for-restore'
 
 const mainKey = 'mainKey';
 const windowResizeKey = 'windowResizeKey';
@@ -30,28 +31,37 @@ export interface WindowPopupConfig {
 export class WindowPopupManager {
   private _state = {};
   windows = [];
+  _windowsData = [];
+  closingWindow = false;
 
   hideWindowHeaderInstruments = false;
 
   constructor(private _storage: Storage,
-              private _route: ActivatedRoute,
-              private storage: Storage,
-              private _windowMessengerService: WindowMessengerService,
-              private injector: Injector,
-  ) {
-  }
+    private _route: ActivatedRoute,
+    private storage: Storage,
+    private _windowMessengerService: WindowMessengerService,
+    private injector: Injector,
+  ) {}
 
   init(workspaces: Workspace[]) {
     if (isElectron()) {
       this.initDesktopSubscriptions(workspaces);
     }
 
-    window.addEventListener('beforeunload', (event) => {
+    if (this.isMainWindow()) {
+      this._restoreWindows();
+    }
+
+    window?.addEventListener('beforeunload', (event) => {
+      this.closingWindow = true;
+      this.sendSaveCommand();
       if (this.isPopup()) {
         this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
       } else {
         this.storage.setItem(windowSettingsKey, this._state);
       }
+      this.sendCloseCommand();
+      this._saveSubWindowsData();
     });
 
     this._windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
@@ -167,6 +177,10 @@ export class WindowPopupManager {
     return params && params.hasOwnProperty('workspaceId') && params.hasOwnProperty('windowId');
   }
 
+  isMainWindow() {
+    return !window.opener;
+  }
+
   get workspaceId() {
     const params = this._route.snapshot.queryParams;
     return params?.workspaceId;
@@ -204,8 +218,8 @@ export class WindowPopupManager {
     const widgetFeatures = new Map(commonFeatures);
     widgetFeatures.set('scrollbars', 'yes');
     widgetFeatures.set('resizable', 'yes');
-    widgetFeatures.set('innerHeight', `${ height }`);
-    widgetFeatures.set('innerWidth', `${ width }`);
+    widgetFeatures.set('innerHeight', `${height}`);
+    widgetFeatures.set('innerWidth', `${width}`);
     const queryParams = new URLSearchParams();
     queryParams.append('popup', 'true');
     widget.close();
@@ -213,6 +227,7 @@ export class WindowPopupManager {
     let subwindow = this._openPopup(config, queryParams, widgetFeatures);
     if (subwindow) {
       subwindow.onbeforeunload = (e) => {
+        console.log('pp onbeforeunload');
         if (widget.saveState)
           state = widget.saveState();
         widget.layoutContainer.options.component = { name, state };
@@ -234,34 +249,107 @@ export class WindowPopupManager {
     const windowFeatures = new Map(commonFeatures);
     windowFeatures.set('scrollbars', 'yes');
     windowFeatures.set('resizable', 'yes');
-    windowFeatures.set('height', `${ height }`);
-    windowFeatures.set('width', `${ width }`);
+    windowFeatures.set('height', `${height}`);
+    windowFeatures.set('width', `${width}`);
 
     if (bounds.x != null)
-      windowFeatures.set('left', `${ bounds.x }`);
+      windowFeatures.set('left', `${bounds.x}`);
     if (bounds.y != null)
-      windowFeatures.set('top', `${ bounds.y }`);
+      windowFeatures.set('top', `${bounds.y}`);
 
     const queryParams = new URLSearchParams();
     queryParams.append('popup', 'true');
-    queryParams.append('workspaceId', `${ workspace.id }`);
-    queryParams.append('windowId', `${ workspaceWindow.id }`);
-    queryParams.append('windowName', `${ workspaceWindow.name }`);
+    queryParams.append('workspaceId', `${workspace.id}`);
+    queryParams.append('windowId', `${workspaceWindow.id}`);
+    queryParams.append('windowName', `${workspaceWindow.name}`);
 
     const config: WindowPopupConfig = { layoutConfig, hideWindowHeaderInstruments: false };
     this.onWindowOpened(workspace, workspaceWindow, bounds);
     this._openPopup(config, queryParams, windowFeatures);
   }
 
-  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>) {
+  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>, forRestore = false, name = '') {
     const featuresArray = [];
     features.forEach((value, key) => {
-      featuresArray.push(`${ key }=${ value }`);
+      featuresArray.push(`${key}=${value}`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
+    if (!name) {
+      name = `popup-${Date.now()}`;
+    }
+    const popup = window.open(window.location.href + '?' + queryParams.toString(), name, featuresArray.join(', '));
+
+    // (popup as any).mess = (window as any).mess;
+    // popup.close = () => {
+    //   console.log('pp close');
+    // };
+
+    (popup as any).deps = (window as any).deps;
+    (popup as any).accountsListeners = (window as any).accountsListeners;
+
     this.windows.push(popup);
+
+    if (!forRestore && this.isMainWindow()) {
+      this._saveWindowForRestore(popup, config, queryParams.toString(), featuresArray);
+    }
+
+    this._observeChangesInWindow(popup);
+
     return popup;
+  }
+
+  private _observeChangesInWindow(popup: Window) {
+    popup?.addEventListener('beforeunload', () => {
+      if (!this.closingWindow) {
+        this.windows = this.windows.filter(w => w.name !== popup.name);
+        this._removeWindowForRestore(popup);
+      }
+    });
+  }
+
+  private _appendWindowForRestore(data: any) {
+    this._windowsData.push(data);
+  }
+
+  private _removeWindowForRestore(popup: Window) {
+    this._windowsData = this._windowsData.filter(data => data.name !== popup.name);
+  }
+
+  private _saveWindowForRestore(popup: Window, config, queryParams: string, features: string[]) {
+    const persistentWindow = {
+      name: popup.name,
+      config,
+      queryParams,
+      features,
+    };
+    this._appendWindowForRestore(persistentWindow);
+  }
+
+  private _saveSubWindowsData() {
+    const serialized = JSON.stringify(this._windowsData);
+    this._storage.setItem(subWindowsStorageKey, serialized);
+  }
+
+  private _restoreWindows() {
+    try {
+      this._windowsData = JSON.parse(this._storage.getItem(subWindowsStorageKey));
+      this._storage.deleteItem(subWindowsStorageKey);
+      for (const data of this._windowsData) {
+        const config = data.config;
+        const queryParams = new URLSearchParams(data.queryParams);
+        const features = new Map();
+        const name = data.name;
+
+        for (const feature of data.features) {
+          const [key, value] = feature.split('=');
+          features.set(key, value);
+        }
+
+        this._openPopup(config, queryParams, features, true, name);
+      }
+    } catch (error) {
+      this._windowsData = [];
+    }
   }
 
   getConfig(): WindowPopupConfig {
@@ -340,5 +428,5 @@ const commonFeatures = new Map([
 ]);
 
 export function hash(windowId, workspaceId) {
-  return `${ windowId }.${ workspaceId }`;
+  return `${windowId}.${workspaceId}`;
 }

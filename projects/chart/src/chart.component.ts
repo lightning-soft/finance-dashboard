@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BindUnsubscribe, IUnsubscribe } from 'base-components';
-import { ConfirmOrderComponent, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
+import { ConfirmOrderComponent, FormActionData, FormActions, OcoStep, SideOrderFormComponent } from 'base-order-form';
 import { IChartState, IChartTemplate, IStockChartXInstrument } from 'chart/models';
 import { ExcludeId } from 'communication';
 import { KeyBinding, KeyboardListener } from 'keyboard';
@@ -81,6 +81,9 @@ const EVENTS_SUFFIX = '.scxComponent';
 // tslint:disable-next-line: no-empty-interface
 export interface ChartComponent extends ILayoutNode, IUnsubscribe {
 }
+
+const confirmModalWidth = 376;
+const confirmModalHeight = 180;
 
 @UntilDestroy()
 @Component({
@@ -432,6 +435,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  handleToggleVisibility(visible) {
+    if (this.chart)
+      this.chart.shouldDraw = visible;
+    if (visible) {
+      this.chart?.setNeedsLayout();
+      this.chart?.setNeedsUpdate();
+    }
+  }
+
   private _updateSubscriptions() {
     const connectionId = this.account?.connectionId;
     const instrument = this.instrument;
@@ -595,18 +607,22 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+    this.broadcastData(this._getCustomVolumeProfileKey(), this);
+
+    chart.shouldDraw = this._shouldDraw;
 
     this._handleSettingsChange(this.settings);
 
     this.instrument = state?.instrument ?? {
-      id: 'ESZ1.CME',
-      symbol: 'ESZ1',
+      id: 'ESH2.CME',
+      description: 'E-Mini S&P 500 Mar22',
       exchange: 'CME',
-      productCode: 'ES',
-      description: 'E-Mini S&P 500 Dec21',
       tickSize: 0.25,
-      instrumentTimePeriod: 'Dec21',
       precision: 2,
+      instrumentTimePeriod: 'Mar22',
+      contractSize: 50,
+      productCode: 'ES',
+      symbol: 'ESH2',
       company: this._getInstrumentCompany(),
     } as IStockChartXInstrument;
 
@@ -700,7 +716,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleValueScaleContextMenu = (e) => {
     this.contextEvent = e.target.evt.originalEvent;
-    this.openSettingsDialog(SettingsItems.ValueScale);
+    this.openSettingsDialog(SettingsItems.ValueScale, { x: -24, y: 0 });
     this._selectValueScale();
   }
 
@@ -820,7 +836,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return false;
     }
     this.keysStack.handle(event);
-    this.toolbar.items.forEach(item => {
+    this.toolbar?.items.forEach(item => {
       const hotkey = item.settings.general?.drawVPC;
       if (hotkey) {
         const keyBinding = KeyBinding.fromDTO(hotkey);
@@ -896,7 +912,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
 
-    this.createCustomVolumeProfile(template.settings);
+    this.createCustomVolumeProfile(template);
   }
 
   ngOnDestroy(): void {
@@ -930,8 +946,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  handleFormAction($event: FormActions) {
-    switch ($event) {
+  handleFormAction($event: FormActionData) {
+    switch ($event.action) {
       case FormActions.CreateOcoOrder:
         if (this.ocoStep === OcoStep.None)
           this.ocoStep = OcoStep.Fist;
@@ -1013,8 +1029,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       nzFooter: null,
       nzNoAnimation: true,
       nzStyle: {
-        left: `${event.evt.clientX}px`,
-        top: `${event.evt.clientY}px`,
+        left: `${event.evt.screenX - (confirmModalWidth / 2)}px`,
+        top: `${event.evt.clientY - (confirmModalHeight / 2)}px`,
       },
       nzComponentParams: params
     });
@@ -1102,7 +1118,9 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   checkIfTradingEnabled() {
-    this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm;
+    if (this.chart.mainPanel.tradingPanel)
+      this.chart.mainPanel.tradingPanel.visible = this.enableOrderForm === true;
+
     this.chart.mainPanel.orders.forEach(item => item.visible = this.enableOrderForm);
     this.chart.setNeedsUpdate(true);
   }
@@ -1154,7 +1172,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private async _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
-    if (data == null)
+    if (data == null || data.template == null)
       return;
 
     const isValid = await this._volumeProfileTemplatesRepository.validateHotkeyTemplate(data.template);
@@ -1241,7 +1259,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this._getSettingsKey()}.cvp`;
   }
 
-  openSettingsDialog(menuItem?: SettingsItems): void {
+  openSettingsDialog(menuItem?: SettingsItems, offset = {x: 0, y: 0}): void {
     const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
       return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
@@ -1252,8 +1270,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.clientX;
-        coords.y = this.contextEvent.clientY;
+        coords.x = this.contextEvent.clientX + offset.x;
+        coords.y = this.contextEvent.clientY + offset.y;
       }
       this.layout.addComponent({
         component: {
@@ -1311,6 +1329,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
               id: this.activeIndicator.templateId,
               settings: this.activeIndicator?.settings,
             },
+            chart: this.chart,
           }
         },
         closeBtn: true,
@@ -1545,6 +1564,9 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.closePositionFontColor = orderAreaSettings.closePositionButton.font;
   sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.closePositionButton.background;
 
+  sideOrderSettings.closePositionFontColor = orderAreaSettings.showLiquidateButton?.font;
+  sideOrderSettings.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton?.background;
+
   sideOrderSettings.icebergFontColor = orderAreaSettings.icebergButton.font;
   sideOrderSettings.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
 
@@ -1552,6 +1574,7 @@ function mapSettingsToSideFormState(settings) {
   sideOrderSettings.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
   sideOrderSettings.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
   sideOrderSettings.formSettings.closePositionButton = orderAreaSettings.closePositionButton.enabled;
+  sideOrderSettings.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton?.enabled;
   sideOrderSettings.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
   sideOrderSettings.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
   sideOrderSettings.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;

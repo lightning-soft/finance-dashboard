@@ -153,6 +153,7 @@ export class DomSettings {
       cancelButtonFontColor: '#fff',
       formSettings: {
         closePositionButton: true,
+        showLiquidateButton: true,
         includeRealizedPL: false,
         roundPL: false,
         showBracket: true,
@@ -185,7 +186,7 @@ export class DomSettings {
       backgroundColor: 'transparent',
       highlightBackgroundColor: '#383A40',
       tradedPriceBackgroundColor: 'rgba(16, 17, 20, 1)',
-      longPositionOpenBackgroundColor: '0C62F7',
+      longPositionOpenBackgroundColor: '#0C62F7',
       shortPositionOpenBackgroundColor: '#C93B3BFF',
     }, CellStatus.Hovered, '#383A40'),
     textAlign: TextAlign.Center,
@@ -206,8 +207,8 @@ export class DomSettings {
     color: '#fff',
     backgroundColor: 'rgba(12,98,247, 0.3)',
     highlightBackgroundColor: 'rgba(12,98,247, 0.4)',
-    hoveredBackgroundColor: 'rgba(12,98,247 1)',
-    hoveredtotalBackgroundColor: 'rgba(12,98,247 1)',
+    hoveredBackgroundColor: 'rgba(12,98,247, 1)',
+    hoveredtotalBackgroundColor: 'rgba(12,98,247, 1)',
     textAlign: TextAlign.Center,
     histogramOrientation: HistogramOrientation.Left,
     largeSize: 14,
@@ -231,7 +232,7 @@ export class DomSettings {
     highlightLarge: false,
     histogramEnabled: true,
     // totalFontColor: 'rgba(255, 255, 0, 1)',
-    totalColor: 'fff',
+    totalColor: '#fff',
     clearInterval: DefaultClearInterval,
   };
   totalAsk: any = {

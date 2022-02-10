@@ -85,10 +85,10 @@
       <tp-units formControlName="takeProfit"></tp-units>
     </div>
     <div class="market-buttons">
-      <button class="buy-market" (click)="createBuyMarket()"><span class="first-letter">B</span><span
+      <button class="buy-market" (click)="createBuyMarket($event)"><span class="first-letter">B</span><span
         class="other-letters">UY</span>&nbsp;MKT
       </button>
-      <button class="sell-market" (click)="createSellMarket()"><span class="first-letter">S</span><span
+      <button class="sell-market" (click)="createSellMarket($event)"><span class="first-letter">S</span><span
         class="other-letters">ELL</span>&nbsp;MKT
       </button>
     </div>
@@ -132,15 +132,15 @@
               class="close-position-button"
               [style.background]="setting.closePositionBackgroundColor"
               [style.color]="setting.closePositionFontColor"
-              [class.d-none]="setting.formSettings.closePositionButton === false" nz-button>CLOSE&nbsp;
-        <span class="first-letter">P</span><span class="other-letters">OSITION</span>
+              [class.d-none]="setting.formSettings.closePositionButton === false" nz-button>
+        <span class="liquidate">liquidate</span>
       </button>
       <button
         [style.color]="setting.flatButtonsFontColor"
         [style.background]="setting.flatButtonsBackgroundColor"
-        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="flatten"
+        (click)="emit(FormActions.Flatten)" [class.d-none]="!setting.formSettings.showFlattenButton" class="liquidate"
         nz-button>
-        FLATTEN
+        liq + cxl all
       </button>
     </div>
   </form>

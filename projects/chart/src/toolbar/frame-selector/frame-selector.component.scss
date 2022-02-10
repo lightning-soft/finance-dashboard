@@ -243,4 +243,9 @@ nz-input-number {
       height: 20px;
     }
   }
+
+
+  .ng-animating frame-selector .ant-collapse-content:not(.ant-collapse-content-active) {
+    display: none;
+  }
 }

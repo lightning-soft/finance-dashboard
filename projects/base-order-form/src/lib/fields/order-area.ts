@@ -20,7 +20,8 @@ export const orderFields: IFieldConfig = new FieldConfig({
         getCheckboxes({
           checkboxes: [
             { key: 'showInstrumentChange', label: 'Show Instrument Change' },
-            { key: 'closePositionButton', label: 'Show Close Position Button' },
+            // { key: 'closePositionButton', label: 'Show Close Position Button' },
+            { key: 'closePositionButton', label: 'Show Liquidate Button' },
             { key: 'showOHLVInfo', label: 'Show OHLV Info' },
             { key: 'showFlattenButton', label: 'Show Flatten Button' },
             { key: 'showBracket', label: 'Show Bracket Button' },

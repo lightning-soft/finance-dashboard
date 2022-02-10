@@ -35,6 +35,8 @@ export const OrderColumnsArray = Object.values(OrderColumn);
 
 export const heldPrefixStatus = 'held';
 export const StopSelectedStatus = `selected${ heldPrefixStatus }`;
+export const inactivePrefixStatus = 'inactive';
+const excludedStatuses = [OrderStatus.Stopped, OrderStatus.Pending, OrderStatus.New];
 
 type IOrderItem = IViewItem<IOrder> & {
   [key in OrderColumn]: Cell;
@@ -42,7 +44,12 @@ type IOrderItem = IViewItem<IOrder> & {
 
 const allColumns = Object.keys(OrderColumn) as OrderColumn[];
 
+export function complexInstrumentId(instrumentId: Id, accountId: Id) {
+  return `${instrumentId}.${accountId}`;
+}
+
 export class OrderItem extends HoverableItem implements IOrderItem {
+  highlightOnlyActive = false;
   protected _priceFormatter = InstrumentFormatter.forInstrument(this.order?.instrument);
 
   set timeFormatter(formatter: DateTimeFormatter) {
@@ -79,6 +86,10 @@ export class OrderItem extends HoverableItem implements IOrderItem {
     return this.checkbox.checked;
   }
 
+  get complexInstrumentId(): string {
+    return complexInstrumentId(this.order?.instrument?.id, this.order.accountId);
+  }
+
   constructor(public order?: IOrder) {
     super();
     if (order)
@@ -88,6 +99,9 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   setInstrument(instrument = this.order?.instrument) {
+    if (!instrument)
+      return;
+
     if (this.order)
       this.order.instrument = instrument;
     this._priceFormatter = InstrumentFormatter.forInstrument(instrument);
@@ -103,6 +117,8 @@ export class OrderItem extends HoverableItem implements IOrderItem {
 
     this.averageFillPrice.formatter = this._priceFormatter;
     this.averageFillPrice.refresh();
+
+    this.description.updateValue(instrument.description);
   }
 
   update(order: IOrder) {
@@ -112,7 +128,6 @@ export class OrderItem extends HoverableItem implements IOrderItem {
       OrderColumn.averageFillPrice,
       OrderColumn.price,
       OrderColumn.triggerPrice,
-      OrderColumn.description,
       OrderColumn.duration,
       OrderColumn.filledQuantity,
       OrderColumn.quantity,
@@ -163,6 +178,11 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   private _updateCellStatus(cell: Cell): void {
+    if (this.highlightOnlyActive && !excludedStatuses.includes(this.order.status))
+      cell.setStatusPrefix(inactivePrefixStatus);
+    else
+      cell.setStatusPrefix('');
+
     if (this.order.status === OrderStatus.Stopped)
       cell.setStatusPrefix(heldPrefixStatus);
 
@@ -175,9 +195,11 @@ export class OrderItem extends HoverableItem implements IOrderItem {
   }
 
   private getSelectedStatus() {
-    if (this.order.status === OrderStatus.Stopped)
+    if (this.order?.status === OrderStatus.Stopped)
       return this.isSelected ? StopSelectedStatus : heldPrefixStatus;
-
+    if (this.highlightOnlyActive && !this.isSelected && !excludedStatuses.includes(this.order.status)) {
+      return inactivePrefixStatus;
+    }
     return this.isSelected ? CellStatus.Selected : CellStatus.None;
   }
 

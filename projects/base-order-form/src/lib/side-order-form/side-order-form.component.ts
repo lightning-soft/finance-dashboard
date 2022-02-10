@@ -29,6 +29,10 @@ export enum FormActions {
   CreateOcoOrder,
   CancelOcoOrder
 }
+export interface FormActionData {
+  action: FormActions;
+  event: any;
+}
 
 export interface DomFormSettings {
   buyButtonsBackgroundColor: string;
@@ -47,6 +51,7 @@ export interface DomFormSettings {
   formSettings: {
     showInstrumentChange: boolean;
     closePositionButton: boolean;
+    showLiquidateButton: boolean;
     showOHLVInfo: boolean;
     showFlattenButton: boolean;
     showPLInfo: boolean;
@@ -170,6 +175,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
     formSettings: {
       showInstrumentChange: true,
       closePositionButton: true,
+      showLiquidateButton: true,
       showOHLVInfo: true,
       showFlattenButton: true,
       showCancelButton: true,
@@ -193,7 +199,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
   };
 
   @Output()
-  actions = new EventEmitter<FormActions>();
+  actions = new EventEmitter<FormActionData>();
 
 
   get setting() {
@@ -346,20 +352,20 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
 
-  emit(action: FormActions) {
-    this.actions.emit(action);
+  emit(action: FormActions, event?) {
+    this.actions.emit({ action, event });
   }
 
   selectQuantityByPosition(position: QuantityPositions) {
     this.quantitySelect.selectByPosition(position);
   }
 
-  createBuyMarket() {
-    this.emit(FormActions.CreateBuyMarketOrder);
+  createBuyMarket( $event) {
+    this.emit(FormActions.CreateBuyMarketOrder, $event);
   }
 
-  createSellMarket() {
-    this.emit(FormActions.CreateSellMarketOrder);
+  createSellMarket( $event) {
+    this.emit(FormActions.CreateSellMarketOrder,  $event);
   }
 }
 

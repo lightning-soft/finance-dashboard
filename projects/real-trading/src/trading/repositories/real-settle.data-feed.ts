@@ -22,10 +22,6 @@ export class RealSettleDataFeed extends RealFeed<SettleData, IInstrument> {
       }
       return super.on(fn);
   }
-  protected _createSubscribeRequest(connection, type, item, dto) {
-    this._createUnsubscribeRequest(connection.id, item);
-    super._createSubscribeRequest(connection, type, item, dto);
-  }
 
   protected _handleUpdate(data, connectionId) {
     const result = super._handleUpdate(data, connectionId);

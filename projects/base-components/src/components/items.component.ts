@@ -198,6 +198,9 @@ export abstract class ItemsComponent<T extends IBaseItem, P extends IPaginationP
   }
 
   detectChanges(force = false) {
+    if (!(this as any)._shouldDraw)
+      return;
+
     if (!force && (this._updatedAt + this._upadateInterval) > Date.now())
       return;
 
