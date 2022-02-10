@@ -94,13 +94,14 @@ class AccountsListenerRegister {
   }
 }
 
-export let accountsListeners: AccountsListenerRegister
+export let accountsListeners: AccountsListenerRegister;
 if (!window?.opener) {
   accountsListeners = new AccountsListenerRegister();
   (window as any).accountsListeners = accountsListeners;
+  window.deps.set('accountsListeners', accountsListeners);
 }
 else {
-  accountsListeners = (window as any).accountsListeners;
+  accountsListeners = (window as any).deps?.get('accountsListeners');
 }
 
 export interface IAccountsListener {

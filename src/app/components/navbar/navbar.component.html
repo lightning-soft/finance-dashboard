@@ -88,10 +88,12 @@
   <div class="control">
     <button
       class="icon-minimize-window native-minimize-button"
-            onclick="window.nativeMinimize && window.nativeMinimize()"></button>
-    <button class="icon-full-screen-window native-maximize-button"
-            onclick="window.nativeMaximize && window.nativeMaximize()"></button>
-    <button class="icon-close-window native-close-button" onclick="window.nativeClose && window.nativeClose()"></button>
+            (click)="nativeMinimize()"></button>
+    <button [class.icon-full-screen-window]="!isMaximized"
+            [class.icon-maximize-window]="isMaximized"
+            class=""
+            (click)="nativeMaximize()"></button>
+    <button class="icon-close-window native-close-button" (click)="nativeClose()"></button>
   </div>
 
   <!-- <div nzOverlayClassName="toolbar-dropdown"
