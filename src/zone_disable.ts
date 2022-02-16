@@ -61,9 +61,30 @@
 // (window as any).__Zone_disable_timers = true; // animation ngzorro depends
 (window as any).__Zone_disable_defineProperty = true;
 (window as any).__Zone_disable_toString = true;
+(window as any).__Zone_disable_XHR = true;
+(window as any).__Zone_disable_on_property = true;
+
 (window as any).__zone_symbol__UNPATCHED_EVENTS = [
   'close', 'error', 'open', 'message', // ws events
   'wheel', 'scroll',
   'mousemove', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel',
+  // http events
+  'load', 'readystatechange', 'loadend', 'loadstart', 'progress'
 ];
 
+(window as any).__Zone_disable_XHR = true;
+(window as any).__Zone_disable_on_property = true;
+
+
+// The creator of Zone also suggest ignoring properties directly on XHR
+// https://github.com/angular/zone.js/issues/1146
+(window as any).__Zone_ignore_on_properties = [
+  {
+    target: XMLHttpRequest.prototype,
+    ignoreProperties: ['load', 'readystatechange', 'loadstart', 'loadend', 'progress']
+  },
+  {
+    target: window,
+    ignoreProperties: ['beforeunload']
+  }
+];
