@@ -1954,10 +1954,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let max = 0;
     let rIndex = this.currentBidRange.minIndex;
     while (rIndex <= this.currentBidRange.maxIndex) {
-      items[rIndex].setBidVisibility(true, true);
+      items[rIndex]?.setBidVisibility(true, true);
       if (rIndex !== index)
-        items[rIndex].clearCurrentBidBest();
-      items[rIndex].clearBidDelta();
+        items[rIndex]?.clearCurrentBidBest();
+      items[rIndex]?.clearBidDelta();
       rIndex++;
     }
 
@@ -2017,10 +2017,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     let max = 0;
     let rIndex = this.currentAskRange.minIndex;
     while (rIndex <= this.currentAskRange.maxIndex) {
-      items[rIndex].setAskVisibility(true, true);
+      items[rIndex]?.setAskVisibility(true, true);
       if (index !== rIndex)
-        items[rIndex].clearCurrentAskBest();
-      items[rIndex].clearAskDelta();
+        items[rIndex]?.clearCurrentAskBest();
+      items[rIndex]?.clearAskDelta();
       rIndex++;
     }
 
