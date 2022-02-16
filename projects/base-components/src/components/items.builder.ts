@@ -142,7 +142,6 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
       _items = this._filter(_items);
     }
 
-    _items = this.wrap(_items);
     _items = this._order(_items);
 
     return _items;
