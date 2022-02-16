@@ -52,16 +52,16 @@ export class WindowPopupManager {
       this._restoreWindows();
     }
 
-    window.addEventListener('beforeunload', (event) => {
+    window?.addEventListener('beforeunload', (event) => {
       this.closingWindow = true;
       this.sendSaveCommand();
-      this.sendCloseCommand();
-      this._saveSubWindowsData();
       if (this.isPopup()) {
         this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
       } else {
         this.storage.setItem(windowSettingsKey, this._state);
       }
+      this.sendCloseCommand();
+      this._saveSubWindowsData();
     });
 
     this._windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
@@ -299,12 +299,12 @@ export class WindowPopupManager {
   }
 
   private _observeChangesInWindow(popup: Window) {
-    popup.addEventListener('beforeunload', () => {
+    popup?.addEventListener('beforeunload', () => {
       if (!this.closingWindow) {
         this.windows = this.windows.filter(w => w.name !== popup.name);
         this._removeWindowForRestore(popup);
       }
-    })
+    });
   }
 
   private _appendWindowForRestore(data: any) {
@@ -341,7 +341,7 @@ export class WindowPopupManager {
         const name = data.name;
 
         for (const feature of data.features) {
-          const [ key, value ] = feature.split('=');
+          const [key, value] = feature.split('=');
           features.set(key, value);
         }
 

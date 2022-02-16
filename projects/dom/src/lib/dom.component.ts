@@ -572,6 +572,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _bestBidPrice: number;
   private _bestAskPrice: number;
+
+  // the problem is that current ask/bid doesn't clear "inside" status. So need to check all trading prices.
+  // current(Ask, Bid)Range contains range of traded indexes
+  currentAskRange = { minIndex: null, maxIndex: null };
+  currentBidRange = { minIndex: null, maxIndex: null };
   componentInstanceId: number;
 
   dailyInfo: Partial<IHistoryItem>;
@@ -1296,6 +1301,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._loadPositions();
     this._loadOrderBook();
+    this.currentAskRange.minIndex = null;
+    this.currentAskRange.maxIndex = null;
+    this.currentBidRange.minIndex = null;
+    this.currentBidRange.maxIndex = null;
     this.refresh();
   }
 
@@ -1494,6 +1503,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const max = this._max;
 
     const _item = this._getItem(trade.price);
+
+    if (trade.side === OrderSide.Sell) {
+      if ((this.currentAskRange.minIndex ?? Infinity) > _item.index) {
+        this.currentAskRange.minIndex = _item.index;
+      }
+      if ( (this.currentAskRange.maxIndex ?? -Infinity) < _item.index) {
+        this.currentAskRange.maxIndex = _item.index;
+      }
+    } else {
+      if ((this.currentBidRange.minIndex ?? Infinity) > _item.index) {
+        this.currentBidRange.minIndex = _item.index;
+      }
+      if ((this.currentBidRange.maxIndex ?? -Infinity) < _item.index) {
+        this.currentBidRange.maxIndex = _item.index;
+      }
+    }
 
     if (prevltqItem?.lastPrice !== trade.price) {
       if (prevltqItem)
@@ -1757,10 +1782,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _applyOffset() {
     if (this._bestAskPrice)
-      this._handleNewBestAsk(this._bestAskPrice);
+      this._handleNewBestAsk();
 
     if (this._bestBidPrice)
-      this._handleNewBestBid(this._bestBidPrice);
+      this._handleNewBestBid();
   }
 
   protected _handleQuote(trade: IQuote) {
@@ -1828,16 +1853,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         // if (this._bestBidPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestBidPrice = price;
-
-        window.lastFn(this._handleNewBestBid, price);
+        this._bestBidPrice = price;
+        window.lastFn(this._handleNewBestBid);
         // this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestAskPrice = price;
-
-        window.lastFn(this._handleNewBestAsk, price);
+        this._bestAskPrice = price;
+        window.lastFn(this._handleNewBestAsk);
         // this._handleNewBestAsk(price);
         // }
       }
@@ -1914,26 +1939,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _handleNewBestBid = (price: number) => {
+  _handleNewBestBid = () => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
     this.bidSumItem.clearBidSum();
-
+    const price = this._bestBidPrice;
     let item = this._getItem(price);
     let index = item.index;
-    let rIndex = index;
-    const clearLastIndex = this.askSumItem?.index ?? 0;
     const lastMarketDepthIndex = index + marketDepth;
     const lastMarketDeltaDepthIndex = index + marketDeltaDepth;
     let sum = 0;
     let max = 0;
-
-    while (--rIndex >= clearLastIndex) {
-      items[rIndex].setBidVisibility(true, true);
-      items[rIndex].clearCurrentBidBest();
-      items[rIndex].clearBidDelta();
+    let rIndex = this.currentBidRange.minIndex;
+    while (rIndex <= this.currentBidRange.maxIndex) {
+      items[rIndex]?.setBidVisibility(true, true);
+      if (rIndex !== index)
+        items[rIndex]?.clearCurrentBidBest();
+      items[rIndex]?.clearBidDelta();
+      rIndex++;
     }
 
     while (item) {
@@ -1975,26 +2000,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateBidHist();
   }
 
-  _handleNewBestAsk = (price: number) => {
+  _handleNewBestAsk = () => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
     this.askSumItem.clearAskSum();
 
+    const price = this._bestAskPrice;
+
     let item = this._getItem(price);
     let index = item.index;
-    let rIndex = index;
-    const clearLastIndex = this.bidSumItem?.index ?? this.items.length - 1;
     const lastMarketDepthIndex = index - marketDepth;
     const lastMarketDeltaDepthIndex = index - marketDeltaDepth;
     let sum = 0;
     let max = 0;
-
-    while (++rIndex <= clearLastIndex) {
-      items[rIndex].setAskVisibility(true, true);
-      items[rIndex].clearCurrentAskBest();
-      items[rIndex].clearAskDelta();
+    let rIndex = this.currentAskRange.minIndex;
+    while (rIndex <= this.currentAskRange.maxIndex) {
+      items[rIndex]?.setAskVisibility(true, true);
+      if (index !== rIndex)
+        items[rIndex]?.clearCurrentAskBest();
+      items[rIndex]?.clearAskDelta();
+      rIndex++;
     }
 
     while (item) {

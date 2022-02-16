@@ -9,14 +9,26 @@ const accountInfoProps = [AccountInfoColumnsEnum.AccountBalance, AccountInfoColu
   AccountInfoColumnsEnum.fcmId, AccountInfoColumnsEnum.IbId, AccountInfoColumnsEnum.LossLimit,
   AccountInfoColumnsEnum.AutoLiquidateThreshold];
 
+class AccountBalanceCell extends NumberCell {
+  updateValue(value) {
+    if (value == null) {
+      super.updateValue(0);
+      return true;
+    }
+
+    return super.updateValue(value);
+  }
+}
+
 export class AccountInfoItem extends HoverableItem {
   id: Id;
 
   private _formatter = new RoundFormatter(2);
 
-  accountBalance: NumberCell = new NumberCell({
+  accountBalance: NumberCell = new AccountBalanceCell({
     withHoverStatus: true, hightlightOnChange: false,
-    formatter: this._formatter
+    formatter: this._formatter,
+    ignoreZero: false,
   });
   closedPnl: NumberCell = new NumberCell({
     withHoverStatus: true,

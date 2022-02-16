@@ -55,6 +55,8 @@ export class WindowManagerService {
 
     this.wm = new WindowManager({
       parent: container.nativeElement,
+      snapOffset: 12,
+      snapIgnoreOffset: 12,
     });
 
     /**

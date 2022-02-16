@@ -277,8 +277,8 @@ export class ConenctionWebSocketService {
   }
 
   _processMessage(payload) {
-    // if (!payload)
-    //   return;
+    if (!payload)
+      return;
 
     const { type, result } = payload;
 
