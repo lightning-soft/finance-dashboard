@@ -191,9 +191,12 @@ export abstract class Datafeed implements IDatafeed {
    * @memberOf StockChartX.Datafeed#
    */
   send(request: IRequest) {
-    this._requests.set(request.id, request);
+  if (request.kind === 'bars')
+      request.chart.dataManager.clearBarDataSeries();
 
-    request.chart.showWaitingBar();
+  this._requests.set(request.id, request);
+
+  request.chart.showWaitingBar();
   }
 
   /**
