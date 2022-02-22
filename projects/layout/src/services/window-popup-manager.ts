@@ -8,7 +8,7 @@ import { WindowMessengerService } from 'window-messenger';
 import { Id } from 'communication';
 
 const popupStorageKey = 'widget-popup-state';
-const subWindowsStorageKey = 'windows-for-restore'
+const subWindowsStorageKey = 'windows-for-restore';
 
 const mainKey = 'mainKey';
 const windowResizeKey = 'windowResizeKey';
@@ -37,21 +37,11 @@ export class WindowPopupManager {
   hideWindowHeaderInstruments = false;
 
   constructor(private _storage: Storage,
-    private _route: ActivatedRoute,
-    private storage: Storage,
-    private _windowMessengerService: WindowMessengerService,
-    private injector: Injector,
-  ) {}
-
-  init(workspaces: Workspace[]) {
-    if (isElectron()) {
-      this.initDesktopSubscriptions(workspaces);
-    }
-
-    if (this.isMainWindow()) {
-      this._restoreWindows();
-    }
-
+              private _route: ActivatedRoute,
+              private storage: Storage,
+              private _windowMessengerService: WindowMessengerService,
+              private injector: Injector,
+  ) {
     window?.addEventListener('beforeunload', (event) => {
       this.closingWindow = true;
       this.sendSaveCommand();
@@ -63,10 +53,24 @@ export class WindowPopupManager {
       this.sendCloseCommand();
       this._saveSubWindowsData();
     });
+  }
+
+  init(workspaces: Workspace[]) {
+    if (isElectron()) {
+      this.initDesktopSubscriptions(workspaces);
+    }
+
+    if (this.isMainWindow()) {
+      this._restoreWindows();
+    }
 
     this._windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
-      delete this._state[hash(windowId, workspaceId)];
+      this._onDeleteWindow(windowId, workspaceId);
     });
+  }
+
+  private _onDeleteWindow(windowId, workspaceId) {
+    delete this._state[hash(windowId, workspaceId)];
   }
 
   initDesktopSubscriptions(workspaces) {
@@ -227,7 +231,6 @@ export class WindowPopupManager {
     let subwindow = this._openPopup(config, queryParams, widgetFeatures);
     if (subwindow) {
       subwindow.onbeforeunload = (e) => {
-        console.log('pp onbeforeunload');
         if (widget.saveState)
           state = widget.saveState();
         widget.layoutContainer.options.component = { name, state };
@@ -292,6 +295,13 @@ export class WindowPopupManager {
     if (!forRestore && this.isMainWindow()) {
       this._saveWindowForRestore(popup, config, queryParams.toString(), featuresArray);
     }
+    setTimeout(() => {
+      if (popup.closed) {
+        const windowId = queryParams.get('windowId');
+        const workspaceId = queryParams.get('workspaceId');
+        this._onDeleteWindow(windowId, workspaceId);
+      }
+    }, 1500);
 
     this._observeChangesInWindow(popup);
 
@@ -408,7 +418,7 @@ export class WindowPopupManager {
         item.postMessage(data);
       }
     });
-    for (let key in this._state) {
+    for (const key in this._state) {
       if (mainKey !== key)
         delete this._state[key];
     }
