@@ -292,11 +292,11 @@ export class ConenctionWebSocketService {
   }
 
   private _checkConnectionDelay(msg) {
-    if (msg.type === RealtimeType.Bar)
+    if (msg.time == null)
       return;
 
     this._lastCheckingTime = Date.now();
-    this._lastMsgTime = msg.result.timestamp;
+    this._lastMsgTime = msg.time;
   }
 
   private _checkMessageActivity(msg) {
