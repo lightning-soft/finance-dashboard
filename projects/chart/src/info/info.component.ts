@@ -32,6 +32,12 @@ export class InfoComponent implements OnInit {
     this._cd.detach();
   }
 
+  clear(){
+    this.bidInfo = null;
+    this.askInfo = null;
+    this._update();
+  }
+
   handleBestAsk(info: any) {
     this.askInfo = info;
     this._update();
@@ -61,6 +67,6 @@ export class InfoComponent implements OnInit {
     });
   }
   private formatInfo(info) {
-    return `${ this.formatter.format(info.price) ?? placeholder } ${ info.volume ?? placeholder }`;
+    return `${ this.formatter.format(info?.price) ?? placeholder } ${ info?.volume ?? placeholder }`;
   }
 }

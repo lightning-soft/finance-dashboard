@@ -974,7 +974,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   _updateDailyInfoComponent = () => {
-    this.dailyInfoComponents.forEach(item => {
+    this.dailyInfoComponents?.forEach(item => {
       item.handleDailyInfo(this.dailyInfo as IHistoryItem);
     });
   }
@@ -1110,6 +1110,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
+      this._updateDailyInfoComponent();
 
       const connectionId = this.account?.connectionId;
       if (connectionId != null) {

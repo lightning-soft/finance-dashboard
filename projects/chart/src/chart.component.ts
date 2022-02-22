@@ -353,6 +353,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.datafeed.changeInstrument(instrument);
+    this.info.clear();
     this.formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
