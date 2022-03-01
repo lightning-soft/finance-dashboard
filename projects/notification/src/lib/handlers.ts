@@ -1,10 +1,10 @@
-import {MessageTypes} from './enums';
-import {Notification} from './notification';
-import {AlertType} from 'communication';
-import {OrderStatus} from 'trading';
+import { MessageTypes } from './enums';
+import { Notification } from './notification';
+import { AlertType } from 'communication';
+import { OrderStatus } from 'trading';
 // Need long import otherwise there is circular dependency
-import {RealtimeType} from '../../../real-trading/src/trading/repositories/realtime';
-import {ConnectionMessageAggregate} from './connection-message.aggregate';
+import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
+import { ConnectionMessageAggregate } from './connection-message.aggregate';
 
 const successConnectionMessage = new ConnectionMessageAggregate();
 const failureConnectionMessage = new ConnectionMessageAggregate();
@@ -26,7 +26,7 @@ export const handlers = {
   DEFAULT: (msg) => {
     if (msg.type === RealtimeType.Delay) {
       return new Notification({
-        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s.`,
+        body: `Check your internet connection. Delay is ${ msg.result.timeDelay / 1000 }s for ${msg.result.connection.name}.`,
         title: 'Connection',
         timestamp: msg.result.now,
         icon: 'notication-default',

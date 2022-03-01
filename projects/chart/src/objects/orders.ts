@@ -131,6 +131,7 @@ export class Orders extends ChartObjects<IOrder> {
       account: order.account,
       quantity: order.quantity,
       orderId: order.orderId,
+      iceQuantity: order.iceQuantity,
       id: order.id,
       ...priceSpecs,
       duration,
@@ -202,6 +203,7 @@ export class Orders extends ChartObjects<IOrder> {
       quantity: item.quantity - (item?.filledQuantity ?? 0),
       price: getPrice(item),
       action: uncapitalize(item.side),
+      iceQuantity: item.iceQuantity,
       kind: kindMap[item.type] || uncapitalize(item.type),
       state: statusMap[item.status],
     };
