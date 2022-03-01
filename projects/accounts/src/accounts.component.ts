@@ -150,6 +150,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         if (connect) {
           this.userData?.makeAutoSave();
           this._cd.detectChanges();
+        } else if (this.selectedItem.connectOnStartUp)  {
+          this.selectedItem.update({ connectOnStartUp: false }).toPromise();
         }
       });
   }
@@ -279,10 +281,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.createConnection(connection)
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        this.selectItem(connection);
-        this.expandBrokers();
-        // this.connect();
-      },
+          this.selectItem(connection);
+          this.expandBrokers();
+          // this.connect();
+        },
         err => this._notifier.showError(err),
       );
   }

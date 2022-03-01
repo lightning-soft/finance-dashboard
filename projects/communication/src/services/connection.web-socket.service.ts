@@ -216,7 +216,9 @@ export class ConenctionWebSocketService {
       if (hasDelay && shouldSendNtf) {
         self.lastSentNotification = self._lastCheckingTime;
         // this.reconnection$.next(this.connection);
-        self._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now: self._lastCheckingTime } });
+        self._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay,
+            connection: this.connection,
+            now: self._lastCheckingTime } });
       }
     }, 500);
   }
