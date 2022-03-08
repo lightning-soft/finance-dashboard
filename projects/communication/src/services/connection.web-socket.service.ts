@@ -9,11 +9,12 @@ import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from '
 import { WebSocketService } from './web-socket.service';
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
 
-const delayOffset = 3000;
-const notificationSendOffset = 3 * 60 * 1000;
-const maxTimeOffset = 10800000; // 3 hours
+const DELAY_OFFSET = 3000;
+const NOTIFICATIONS_OFFSET = 3 * 60 * 1000;
+const MAX_TIME_OFFSET = 10800000; // 3 hours
 
-const inactivityOffset = 2 * 60 * 1000;
+const INACTIVITY_OFFSET = 2 * 60 * 1000;
+const REPEATING_INACTIVITY_OFFSET = 2 * 60 * 60 * 1000;
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,7 @@ export class ConenctionWebSocketService {
   private _delayedMessages = [];
 
   private _lastMessageActivityTime;
+  private _isFirstInactivity = false;
   private _inactivityTimeoutId;
 
   private _lastCheckingTime: number;
@@ -65,7 +67,7 @@ export class ConenctionWebSocketService {
         this._delayedMessages = [];
       });
     this._lastMessageActivityTime = Date.now();
-    this.startInactivityTimer(inactivityOffset);
+    this.startInactivityTimer(INACTIVITY_OFFSET);
     (window as any).getStats = () => {
       const _statistic = this._statistic;
       const upTime = (Date.now() - _statistic.startTime.getTime()) / 1000;
@@ -84,15 +86,18 @@ export class ConenctionWebSocketService {
     this._inactivityTimeoutId = setTimeout(() => {
       const now = Date.now();
       let newTimeOut;
-      if (now >= this._lastMessageActivityTime + timeout) {
-        newTimeOut = inactivityOffset - (now - this._lastMessageActivityTime);
+      const shouldSendMessage = (!this._isFirstInactivity && this._lastMessageActivityTime >= REPEATING_INACTIVITY_OFFSET)
+          && (now >= this._lastMessageActivityTime + timeout);
+      if (shouldSendMessage) {
+        this._isFirstInactivity = true;
+        newTimeOut = INACTIVITY_OFFSET - (now - this._lastMessageActivityTime);
         this._executeListeners(WSEventType.Message, {
           type: RealtimeType.Activity,
           result: { connection: this.connection }
         });
-        newTimeOut = newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
+        newTimeOut = newTimeOut > (INACTIVITY_OFFSET / 3) ? newTimeOut : INACTIVITY_OFFSET;
       } else
-        newTimeOut = inactivityOffset;
+        newTimeOut = INACTIVITY_OFFSET;
       this._lastMessageActivityTime = now;
       clearTimeout(this._inactivityTimeoutId);
       this.startInactivityTimer(newTimeOut);
@@ -210,8 +215,8 @@ export class ConenctionWebSocketService {
     const self = this;
     this._intervalId = setInterval(() => {
       const timeDelay = self._lastCheckingTime - self._lastMsgTime;
-      const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
-      const shouldSendNtf = self._lastCheckingTime > self.lastSentNotification + notificationSendOffset;
+      const hasDelay = timeDelay > DELAY_OFFSET && timeDelay < MAX_TIME_OFFSET;
+      const shouldSendNtf = self._lastCheckingTime > self.lastSentNotification + NOTIFICATIONS_OFFSET;
      //  console.table({ lastCheckingTime: self.lastCheckingTime, msg: this.lastMsg, timeDelay,  lastMsgTime: self.lastMsgTime });
       if (hasDelay && shouldSendNtf) {
         self.lastSentNotification = self._lastCheckingTime;
