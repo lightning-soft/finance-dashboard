@@ -144,7 +144,7 @@ export class ItemsBuilder<T extends IBaseItem, VM extends IBaseItem = T> impleme
 
     _items = this._order(_items);
 
-    return _items;
+    return this.wrap(_items);
   }
 
   protected _isNotArray(items: any[]): boolean {

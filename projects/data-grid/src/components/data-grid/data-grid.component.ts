@@ -179,6 +179,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
   @Input() loadedPresets = false;
   @Output() savePresets: EventEmitter<void> = new EventEmitter();
   @Output() createPresets: EventEmitter<void> = new EventEmitter();
+  @Output() onOnitialized: EventEmitter<void> = new EventEmitter();
 
   constructor(
     public _cd: ChangeDetectorRef,
@@ -275,6 +276,7 @@ export class DataGrid<T extends DataGridItem = any> implements AfterViewInit, On
     // grid.addEventListener('afterrendercell', afterRenderCell);
 
     this._grid = grid;
+    this.onOnitialized.emit();
   }
 
   startEditingAt(x, y) {

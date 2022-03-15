@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { ConnectionsListener, IConnectionsListener } from 'real-trading';
 import { AccountInfo, AccountInfoRepository, IConnection } from 'trading';
@@ -15,6 +15,8 @@ import { NzModalService } from 'ng-zorro-antd';
 import { Subject } from 'rxjs';
 import { untilDestroyed } from '@ngneat/until-destroy';
 import { debounceTime, filter } from 'rxjs/operators';
+import { WindowManagerService } from 'window-manager';
+import { IPaginationResponse } from 'communication';
 
 export interface AccountInfoComponent extends ILayoutNode, IPresets<IAccountInfoState> {
 }
@@ -111,6 +113,10 @@ const headers = [
     title: 'Auto Liquidate Threshold',
   },
 ];
+const rowHeight = 25;
+const windowHeaderHeight = 22;
+const minWindowHeight = 72;
+const yPadding = 2;
 
 @Component({
   selector: 'account-info',
@@ -122,7 +128,7 @@ const headers = [
 @ConnectionsListener()
 @LayoutNode()
 @LayoutPresets()
-export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IConnectionsListener {
+export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IConnectionsListener, AfterViewInit {
   builder = new ItemsBuilder<AccountInfo, AccountInfoItem>();
   contextMenuState = {
     showColumnHeaders: true,
@@ -137,7 +143,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     gridHeaderBorderColor: '#24262C',
     gridBorderColor: 'transparent',
     gridBorderWidth: 0,
-    rowHeight: 25,
+    rowHeight,
     color: '#D0D0D2',
   };
 
@@ -152,6 +158,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
               private _storage: Storage,
               public readonly _notifier: NotifierService,
               public readonly _templatesService: TemplatesService,
+              private _windowManagerService: WindowManagerService,
               public readonly _modalService: NzModalService) {
     super();
     this.$loadData
@@ -160,8 +167,8 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
         filter((connections) => !!connections.length),
         untilDestroyed(this)
       ).subscribe((connections) => {
-        this.loadData({ connections });
-      });
+      this.loadData({ connections });
+    });
   }
 
   ngOnInit(): void {
@@ -171,6 +178,10 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
       wrap: (accountInfo) => new AccountInfoItem(accountInfo),
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
     });
+  }
+
+  ngAfterViewInit() {
+    this.validateComponentHeight();
   }
 
   saveState() {
@@ -214,6 +225,28 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     this._dataGrid?.resize();
   }
 
+  validateComponentHeight(): void {
+    if (!this._dataGrid || !this._dataGrid.isInitialized)
+      return;
+
+    const height = yPadding + windowHeaderHeight + (this.builder.items.length +
+      (this._dataGrid.contextMenuState.showColumnHeaders ? 1 : 0)) * rowHeight;
+    const window = this._windowManagerService.getWindowByComponent(this);
+    if (!window)
+      return;
+
+    window.options.minHeight = Math.max(height, minWindowHeight);
+    if (window.height < window.options.minHeight) {
+      window.height = window.options.minHeight;
+      this._handleResize();
+    }
+  }
+
+  protected _handleResponse(response: IPaginationResponse<AccountInfo>, params: any = {}) {
+    super._handleResponse(response, params);
+    this.validateComponentHeight();
+  }
+
   handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
     this.$loadData.next(connectedConnections);
   }
@@ -223,7 +256,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
 
   handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
     this.builder.removeWhere(item => !connectedConnections.some(acc => acc.id == item.accountInfo.connectionId));
+    this.validateComponentHeight();
   }
-
 
 }
