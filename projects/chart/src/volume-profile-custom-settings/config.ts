@@ -1,7 +1,6 @@
 import {
   FieldConfig,
   getCheckboxes,
-  getColor,
   getColorSelect,
   getHotkey,
   getNumber,
@@ -78,9 +77,7 @@ export const customVolumeProfile = [
           }
         ]
       }),
-      getColor({ label: 'Profile Color', key: 'profileColor', hideOpacity: true, }),
       getNumber({ label: 'Profile width, %', min: 1, max: 100, key: 'widthCorrelation', }),
-      {},
       getNumber({
         label: 'Inside VA Opacity,%',
         min: 1,

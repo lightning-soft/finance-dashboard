@@ -73,7 +73,6 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
 
   loadState(state: ICustomVolumeProfileSettingsState): void {
     this.selectItem(state?.template as IVolumeTemplate);
-    console.log(state.chart);
     this._handleChart(state.chart);
     this._linkKey = state?.linkKey;
     this._identificator = state.identificator;
@@ -158,13 +157,16 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
   selectItem(item: IVolumeTemplate) {
     this._identificator = item;
     this.selectedItem = item;
-    if (item?.settings)
+    if (item?.settings) {
       this.settings = denormalizeSettings(item.settings);
+      this.form.patchValue(this.settings);
+    }
   }
 
   selectUntemplated(item) {
     this.selectedItem = { settings: item.settings, isUntemplated: true, instance: item } as any;
     this.settings = denormalizeSettings(item.settings);
+    this.form.patchValue(this.settings);
   }
 
   rename(template: IVolumeTemplate) {

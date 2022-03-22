@@ -1313,23 +1313,20 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
     if (widget) {
       widget.focus();
-      console.log('w', widget);
     } else {
       const coords: any = {};
       if (this.contextEvent) {
         coords.x = this.contextEvent.clientX;
         coords.y = this.contextEvent.clientY;
       }
+      const template = this._volumeProfileTemplatesRepository.getTemplates().find(item => item.id == this.activeIndicator.templateId);
       this.layout.addComponent({
         component: {
           name: customVolumeProfileSettings,
           state: {
             linkKey,
             identificator: this.activeIndicator,
-            template: {
-              id: this.activeIndicator.templateId,
-              settings: this.activeIndicator?.settings,
-            },
+            template,
             chart: this.chart,
           }
         },

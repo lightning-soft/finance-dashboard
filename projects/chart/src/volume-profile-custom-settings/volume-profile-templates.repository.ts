@@ -705,6 +705,10 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
   }
 
   private _getTemplates(): Observable<IVolumeTemplate[]> {
+   return of(this.getTemplates());
+  }
+
+  getTemplates(): IVolumeTemplate[]{
     const keys = Object.keys(this._store);
     if (keys.length > 0) {
       const items: IVolumeTemplate[] = [];
@@ -714,9 +718,9 @@ export class VolumeProfileTemplatesRepository extends FakeRepository<IVolumeTemp
         }
       }
 
-      return of(items);
+      return items;
     } else {
-      return of(DefaultTemplates);
+      return DefaultTemplates;
     }
   }
 

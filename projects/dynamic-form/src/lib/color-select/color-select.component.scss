@@ -1,5 +1,15 @@
 @import "~src/scss/variables";
 
+::ng-deep {
+  .profile-color-holder {
+    justify-content: space-between;
+
+    .color-holder {
+      margin-right: 6px;
+    }
+  }
+}
+
 .icon-arrow-right {
   font-size: 9px;
   margin-left: auto;
