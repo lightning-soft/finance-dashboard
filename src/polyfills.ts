@@ -1,4 +1,6 @@
 import './zone_disable';
+import 'zone.js/dist/zone'; // Included with Angular CLI.
+import './string';
 // import { Injector } from '@angular/core';
 /**
  * This file includes polyfills needed by Angular and is loaded before the app.
@@ -138,15 +140,12 @@ declare global {
     injector: {get: (...args) => any};
     // mess: MessageBus;
     deps: Map<string, any>;
-    lastFn: <T>(callback: (arg?: T) => void, arg: T) => void;
+    lastFn: <T>(callback: (arg?: T) => void, arg?: T) => void;
   }
 }
 
 window.deps = window?.opener?.deps || new Map();
 // window.mess = window?.opener?.mess || new MessageBus();
-
-import 'zone.js/dist/zone'; // Included with Angular CLI.
-import './string';
 
 
 /***************************************************************************************************

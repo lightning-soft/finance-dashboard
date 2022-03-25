@@ -9,11 +9,12 @@ import { IWSListener, IWSListeners, IWSListenerUnsubscribe, WSEventType } from '
 import { WebSocketService } from './web-socket.service';
 import { RealtimeType } from '../../../real-trading/src/trading/repositories/realtime';
 
-const delayOffset = 3000;
-const notificationSendOffset = 3 * 60 * 1000;
-const maxTimeOffset = 10800000; // 3 hours
+const DELAY_OFFSET = 3000;
+const NOTIFICATIONS_OFFSET = 3 * 60 * 1000;
+const MAX_TIME_OFFSET = 10800000; // 3 hours
 
-const inactivityOffset = 2 * 60 * 1000;
+const INACTIVITY_OFFSET = 2 * 60 * 1000;
+const REPEATING_INACTIVITY_OFFSET = 2 * 60 * 60 * 1000;
 
 @Injectable({
   providedIn: 'root'
@@ -42,8 +43,13 @@ export class ConenctionWebSocketService {
 
   private _delayedMessages = [];
 
-  lastMessageActivityTime;
-  inactivityTimeoutId;
+  private _lastMessageActivityTime;
+  private _isFirstInactivity = false;
+  private _inactivityTimeoutId;
+
+  private _lastCheckingTime: number;
+  private _lastMsgTime: number;
+  private _intervalId: number;
 
   constructor(
     protected _injector: Injector,
@@ -52,6 +58,7 @@ export class ConenctionWebSocketService {
   ) {
     this._setListeners();
     this._setEventListeners();
+    this._setLastCheckDelay();
     this.connection$
       .pipe(filter(i => i))
       .subscribe(() => {
@@ -59,8 +66,8 @@ export class ConenctionWebSocketService {
           this._websocket.send(this._delayedMessages[i]);
         this._delayedMessages = [];
       });
-    this.lastMessageActivityTime = Date.now();
-    this.startInactivityTimer(inactivityOffset);
+    this._lastMessageActivityTime = Date.now();
+    this.startInactivityTimer(INACTIVITY_OFFSET);
     (window as any).getStats = () => {
       const _statistic = this._statistic;
       const upTime = (Date.now() - _statistic.startTime.getTime()) / 1000;
@@ -76,20 +83,23 @@ export class ConenctionWebSocketService {
   }
 
   startInactivityTimer(timeout) {
-    this.inactivityTimeoutId = setTimeout(() => {
+    this._inactivityTimeoutId = setTimeout(() => {
       const now = Date.now();
       let newTimeOut;
-      if (now >= this.lastMessageActivityTime + timeout) {
-        newTimeOut = inactivityOffset - (now - this.lastMessageActivityTime);
+      const shouldSendMessage = (!this._isFirstInactivity && this._lastMessageActivityTime >= REPEATING_INACTIVITY_OFFSET)
+          && (now >= this._lastMessageActivityTime + timeout);
+      if (shouldSendMessage) {
+        this._isFirstInactivity = true;
+        newTimeOut = INACTIVITY_OFFSET - (now - this._lastMessageActivityTime);
         this._executeListeners(WSEventType.Message, {
           type: RealtimeType.Activity,
           result: { connection: this.connection }
         });
-        newTimeOut = newTimeOut > (inactivityOffset / 3) ? newTimeOut : inactivityOffset;
+        newTimeOut = newTimeOut > (INACTIVITY_OFFSET / 3) ? newTimeOut : INACTIVITY_OFFSET;
       } else
-        newTimeOut = inactivityOffset;
-      this.lastMessageActivityTime = now;
-      clearTimeout(this.inactivityTimeoutId);
+        newTimeOut = INACTIVITY_OFFSET;
+      this._lastMessageActivityTime = now;
+      clearTimeout(this._inactivityTimeoutId);
       this.startInactivityTimer(newTimeOut);
     }, timeout);
   }
@@ -128,6 +138,8 @@ export class ConenctionWebSocketService {
     this.get(connection).close();
     this._service.unregister(this.connection.id, this);
     this.connection$.next(false);
+    clearInterval(this._intervalId);
+    clearTimeout(this._inactivityTimeoutId);
   }
 
   connect() {
@@ -172,8 +184,8 @@ export class ConenctionWebSocketService {
   }
 
   close() {
-    if (this.inactivityTimeoutId != null)
-      clearTimeout(this.inactivityTimeoutId);
+    if (this._inactivityTimeoutId != null)
+      clearTimeout(this._inactivityTimeoutId);
     this._websocket.close();
   }
 
@@ -197,6 +209,23 @@ export class ConenctionWebSocketService {
       accum[event] = new Set();
       return accum;
     }, {}) as IWSListeners;
+  }
+
+  private _setLastCheckDelay() {
+    const self = this;
+    this._intervalId = setInterval(() => {
+      const timeDelay = self._lastCheckingTime - self._lastMsgTime;
+      const hasDelay = timeDelay > DELAY_OFFSET && timeDelay < MAX_TIME_OFFSET;
+      const shouldSendNtf = self._lastCheckingTime > self.lastSentNotification + NOTIFICATIONS_OFFSET;
+     //  console.table({ lastCheckingTime: self.lastCheckingTime, msg: this.lastMsg, timeDelay,  lastMsgTime: self.lastMsgTime });
+      if (hasDelay && shouldSendNtf) {
+        self.lastSentNotification = self._lastCheckingTime;
+        // this.reconnection$.next(this.connection);
+        self._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay,
+            connection: this.connection,
+            now: self._lastCheckingTime } });
+      }
+    }, 500);
   }
 
   private _setEventListeners() {
@@ -255,15 +284,14 @@ export class ConenctionWebSocketService {
   }
 
   _processMessage(payload) {
-    // if (!payload)
-    //   return;
+    if (!payload)
+      return;
 
     const { type, result } = payload;
 
     if (type == 'Message' && result.value == 'Api-key accepted!') {
       this.connection$.next(true);
     }
-
     this._checkConnectionDelay(payload);
     this._checkMessageActivity(payload);
 
@@ -271,22 +299,15 @@ export class ConenctionWebSocketService {
   }
 
   private _checkConnectionDelay(msg) {
-    if (msg.type === RealtimeType.Bar)
+    if (msg.time == null)
       return;
 
-    const now = Date.now();
-    const timeDelay = now - msg.result.timestamp;
-    const hasDelay = timeDelay > delayOffset && timeDelay < maxTimeOffset;
-    const shouldSendNtf = now > this.lastSentNotification + notificationSendOffset;
-    if (hasDelay && shouldSendNtf) {
-      this.lastSentNotification = now;
-      // this.reconnection$.next(this.connection);
-      this._executeListeners(WSEventType.Message, { type: RealtimeType.Delay, result: { timeDelay, now } });
-    }
+    this._lastCheckingTime = Date.now();
+    this._lastMsgTime = msg.time;
   }
 
   private _checkMessageActivity(msg) {
-    this.lastMessageActivityTime = Date.now();
+    this._lastMessageActivityTime = Date.now();
   }
 
   private _addEventListeners() {

@@ -36,6 +36,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
   userData: AccountFormComponent;
   isSubmitted = false;
 
+  disableDefaultChange = false;
+
   get existDefaultConnection(): boolean {
     for (const broker of this.brokers) {
       for (const item of this.getConnectionsByBroker(broker)) {
@@ -85,7 +87,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .pipe(untilDestroyed(this))
       .subscribe(connections => {
         const removeConnections = connections.filter(item => typeof item.broker !== 'string');
-
+        this.disableDefaultChange = connections.filter(item => item.connected).length <= 1;
         if (removeConnections.length) {
           removeConnections.forEach(i => this._accountsManager.remove(i)
             .subscribe(
@@ -148,6 +150,8 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
         if (connect) {
           this.userData?.makeAutoSave();
           this._cd.detectChanges();
+        } else if (this.selectedItem.connectOnStartUp)  {
+          this.selectedItem.update({ connectOnStartUp: false }).toPromise();
         }
       });
   }
@@ -277,10 +281,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.createConnection(connection)
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        this.selectItem(connection);
-        this.expandBrokers();
-        // this.connect();
-      },
+          this.selectItem(connection);
+          this.expandBrokers();
+          // this.connect();
+        },
         err => this._notifier.showError(err),
       );
   }

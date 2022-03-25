@@ -8,6 +8,7 @@ import { WindowMessengerService } from 'window-messenger';
 import { Id } from 'communication';
 
 const popupStorageKey = 'widget-popup-state';
+const subWindowsStorageKey = 'windows-for-restore';
 
 const mainKey = 'mainKey';
 const windowResizeKey = 'windowResizeKey';
@@ -30,15 +31,28 @@ export interface WindowPopupConfig {
 export class WindowPopupManager {
   private _state = {};
   windows = [];
+  _windowsData = [];
+  closingWindow = false;
 
   hideWindowHeaderInstruments = false;
 
   constructor(private _storage: Storage,
-    private _route: ActivatedRoute,
-    private storage: Storage,
-    private _windowMessengerService: WindowMessengerService,
-    private injector: Injector,
+              private _route: ActivatedRoute,
+              private storage: Storage,
+              private _windowMessengerService: WindowMessengerService,
+              private injector: Injector,
   ) {
+    window?.addEventListener('beforeunload', (event) => {
+      this.closingWindow = true;
+      this.sendSaveCommand();
+      if (this.isPopup()) {
+        this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
+      } else {
+        this.storage.setItem(windowSettingsKey, this._state);
+      }
+      this.sendCloseCommand();
+      this._saveSubWindowsData();
+    });
   }
 
   init(workspaces: Workspace[]) {
@@ -46,17 +60,17 @@ export class WindowPopupManager {
       this.initDesktopSubscriptions(workspaces);
     }
 
-    window.addEventListener('beforeunload', (event) => {
-      if (this.isPopup()) {
-        this._windowMessengerService.send(windowCloseEvent, this.getWindowInfo());
-      } else {
-        this.storage.setItem(windowSettingsKey, this._state);
-      }
-    });
+    if (this.isMainWindow()) {
+      this._restoreWindows();
+    }
 
     this._windowMessengerService.subscribe(windowCloseEvent, ({ windowId, workspaceId, }) => {
-      delete this._state[hash(windowId, workspaceId)];
+      this._onDeleteWindow(windowId, workspaceId);
     });
+  }
+
+  private _onDeleteWindow(windowId, workspaceId) {
+    delete this._state[hash(windowId, workspaceId)];
   }
 
   initDesktopSubscriptions(workspaces) {
@@ -167,6 +181,10 @@ export class WindowPopupManager {
     return params && params.hasOwnProperty('workspaceId') && params.hasOwnProperty('windowId');
   }
 
+  isMainWindow() {
+    return !window.opener;
+  }
+
   get workspaceId() {
     const params = this._route.snapshot.queryParams;
     return params?.workspaceId;
@@ -213,7 +231,6 @@ export class WindowPopupManager {
     let subwindow = this._openPopup(config, queryParams, widgetFeatures);
     if (subwindow) {
       subwindow.onbeforeunload = (e) => {
-        console.log('pp onbeforeunload');
         if (widget.saveState)
           state = widget.saveState();
         widget.layoutContainer.options.component = { name, state };
@@ -254,22 +271,95 @@ export class WindowPopupManager {
     this._openPopup(config, queryParams, windowFeatures);
   }
 
-  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>) {
+  private _openPopup(config, queryParams: URLSearchParams, features: Map<string, string>, forRestore = false, name = '') {
     const featuresArray = [];
     features.forEach((value, key) => {
       featuresArray.push(`${key}=${value}`);
     });
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
-    const popup = window.open(window.location.href + '?' + queryParams.toString(), '', featuresArray.join(', '));
+    if (!name) {
+      name = `popup-${Date.now()}`;
+    }
+    const popup = window.open(window.location.href + '?' + queryParams.toString(), name, featuresArray.join(', '));
 
     // (popup as any).mess = (window as any).mess;
-    popup.close = () => {
-      console.log('pp close');
-    };
-    (popup as any).deps = window.deps;
+    // popup.close = () => {
+    //   console.log('pp close');
+    // };
+
+    (popup as any).deps = (window as any).deps;
+    (popup as any).accountsListeners = (window as any).accountsListeners;
+
     this.windows.push(popup);
 
+    if (!forRestore && this.isMainWindow()) {
+      this._saveWindowForRestore(popup, config, queryParams.toString(), featuresArray);
+    }
+    setTimeout(() => {
+      if (popup.closed) {
+        const windowId = queryParams.get('windowId');
+        const workspaceId = queryParams.get('workspaceId');
+        this._onDeleteWindow(windowId, workspaceId);
+      }
+    }, 1500);
+
+    this._observeChangesInWindow(popup);
+
     return popup;
+  }
+
+  private _observeChangesInWindow(popup: Window) {
+    popup?.addEventListener('beforeunload', () => {
+      if (!this.closingWindow) {
+        this.windows = this.windows.filter(w => w.name !== popup.name);
+        this._removeWindowForRestore(popup);
+      }
+    });
+  }
+
+  private _appendWindowForRestore(data: any) {
+    this._windowsData.push(data);
+  }
+
+  private _removeWindowForRestore(popup: Window) {
+    this._windowsData = this._windowsData.filter(data => data.name !== popup.name);
+  }
+
+  private _saveWindowForRestore(popup: Window, config, queryParams: string, features: string[]) {
+    const persistentWindow = {
+      name: popup.name,
+      config,
+      queryParams,
+      features,
+    };
+    this._appendWindowForRestore(persistentWindow);
+  }
+
+  private _saveSubWindowsData() {
+    const serialized = JSON.stringify(this._windowsData);
+    this._storage.setItem(subWindowsStorageKey, serialized);
+  }
+
+  private _restoreWindows() {
+    try {
+      this._windowsData = JSON.parse(this._storage.getItem(subWindowsStorageKey));
+      this._storage.deleteItem(subWindowsStorageKey);
+      for (const data of this._windowsData) {
+        const config = data.config;
+        const queryParams = new URLSearchParams(data.queryParams);
+        const features = new Map();
+        const name = data.name;
+
+        for (const feature of data.features) {
+          const [key, value] = feature.split('=');
+          features.set(key, value);
+        }
+
+        this._openPopup(config, queryParams, features, true, name);
+      }
+    } catch (error) {
+      this._windowsData = [];
+    }
   }
 
   getConfig(): WindowPopupConfig {
@@ -328,7 +418,7 @@ export class WindowPopupManager {
         item.postMessage(data);
       }
     });
-    for (let key in this._state) {
+    for (const key in this._state) {
       if (mainKey !== key)
         delete this._state[key];
     }

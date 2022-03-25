@@ -175,10 +175,6 @@ export class RealFeed<T, I extends IBaseItem = any> implements Feed<T> {
     if (type !== this.type || !result || !this._filter(result))
       return;
 
-    if (type === 'Position') {
-      console.log('Position', data);
-    }
-
     const _result = this._getResult(data);
 
     for (const executor of this._executors) {

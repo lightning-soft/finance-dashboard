@@ -3,7 +3,7 @@
 </div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu>
-    <li (click)="select(map.profileColor); $event.stopPropagation(); colorPicker.open($event)" nz-menu-item>
+    <li class="profile-color-holder" (click)="select(map.profileColor); $event.stopPropagation(); colorPicker.open($event)" nz-menu-item>
       Profile Color
       <span class="color-holder" [style.background]="colorForm.controls.profileColor.value"></span>
     </li>

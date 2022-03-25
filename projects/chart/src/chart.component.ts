@@ -353,6 +353,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.datafeed.changeInstrument(instrument);
+    this.info.clear();
     this.formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
@@ -607,6 +608,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!chart) {
       return;
     }
+    this.broadcastData(this._getCustomVolumeProfileKey(), this);
 
     chart.shouldDraw = this._shouldDraw;
 
@@ -715,7 +717,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _handleValueScaleContextMenu = (e) => {
     this.contextEvent = e.target.evt.originalEvent;
-    this.openSettingsDialog(SettingsItems.ValueScale);
+    this.openSettingsDialog(SettingsItems.ValueScale, { x: -24, y: 0 });
     this._selectValueScale();
   }
 
@@ -835,7 +837,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return false;
     }
     this.keysStack.handle(event);
-    this.toolbar.items.forEach(item => {
+    this.toolbar?.items.forEach(item => {
       const hotkey = item.settings.general?.drawVPC;
       if (hotkey) {
         const keyBinding = KeyBinding.fromDTO(hotkey);
@@ -911,7 +913,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadCustomeVolumeTemplate(template: IVolumeTemplate): void {
     this.loadedCustomeVolumeTemplate = template;
 
-    this.createCustomVolumeProfile(template.settings);
+    this.createCustomVolumeProfile(template);
   }
 
   ngOnDestroy(): void {
@@ -1171,7 +1173,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   private async _handleCustomVolumeProfileSettingsChange(data: { template: IVolumeTemplate, identificator: any }) {
-    if (data == null)
+    if (data == null || data.template == null)
       return;
 
     const isValid = await this._volumeProfileTemplatesRepository.validateHotkeyTemplate(data.template);
@@ -1258,7 +1260,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return `${this._getSettingsKey()}.cvp`;
   }
 
-  openSettingsDialog(menuItem?: SettingsItems): void {
+  openSettingsDialog(menuItem?: SettingsItems, offset = {x: 0, y: 0}): void {
     const linkKey = this._getSettingsKey();
     const widget = this.layout.findComponent((item: IWindow) => {
       return item.type === Components.ChartSettings && (item.component as any).linkKey === linkKey;
@@ -1269,8 +1271,8 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     else {
       const coords: any = {};
       if (this.contextEvent) {
-        coords.x = this.contextEvent.clientX;
-        coords.y = this.contextEvent.clientY;
+        coords.x = this.contextEvent.clientX + offset.x;
+        coords.y = this.contextEvent.clientY + offset.y;
       }
       this.layout.addComponent({
         component: {
@@ -1311,23 +1313,21 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
     if (widget) {
       widget.focus();
-      console.log('w', widget);
     } else {
       const coords: any = {};
       if (this.contextEvent) {
         coords.x = this.contextEvent.clientX;
         coords.y = this.contextEvent.clientY;
       }
+      const template = this._volumeProfileTemplatesRepository.getTemplates().find(item => item.id == this.activeIndicator.templateId);
       this.layout.addComponent({
         component: {
           name: customVolumeProfileSettings,
           state: {
             linkKey,
             identificator: this.activeIndicator,
-            template: {
-              id: this.activeIndicator.templateId,
-              settings: this.activeIndicator?.settings,
-            },
+            template,
+            chart: this.chart,
           }
         },
         closeBtn: true,

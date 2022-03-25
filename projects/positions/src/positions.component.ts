@@ -13,7 +13,6 @@ import { LayoutNode } from 'layout';
 import { NzModalService } from 'ng-zorro-antd';
 import { NotifierService } from 'notifier';
 import { AccountsListener, RealPositionsRepository } from 'real-trading';
-import { forkJoin } from 'rxjs';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
   IAccount,
@@ -36,7 +35,7 @@ import { defaultSettings } from './positions-settings/field.config';
 import { positionsSettings } from './positions-settings/positions-settings.component';
 import { IStoreItem, ItemsStore, ItemsStores } from 'items-store';
 import { complexInstrumentId } from 'base-order-form';
-import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 const profitStyles = {
   // lossBackgroundColor: '#C93B3B',
@@ -180,7 +179,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
     this.addUnsubscribeFn(this._tradeDataFeed.on((trade: TradePrint, connectionId: Id) => {
       this._lastTrades[trade.instrument.id] = trade;
-      this.items.forEach(i => i.updateUnrealized(trade, connectionId));
+      this.builder.allItems.forEach(i => i.updateUnrealized(trade, connectionId));
       this.updatePl();
     }));
 
@@ -193,7 +192,7 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
     this._instrumentsStore.onChange
       .pipe(untilDestroyed(this))
       .subscribe(instruments => {
-        for (const item of this.items) {
+        for (const item of this.builder.allItems) {
           const instrument = instruments.get(item.complexInstrumentId);
 
           if (!instrument || instrument.loading) continue;
@@ -250,7 +249,14 @@ export class PositionsComponent extends RealtimeGridComponent<IPosition> impleme
 
   protected _handleUpdateItems(items: IPosition[]) {
     super._handleUpdateItems(items);
-    this.items.forEach(i => i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.connectionId));
+    this.builder.allItems.forEach(i => {
+      const newInstrument = this._instrumentsStore.get(i.instrument?.id);
+      if ((i.instrument as any)?.loading && newInstrument && !newInstrument?.loading ) {
+        i.setInstrument(this._instrumentsStore.get(newInstrument.id));
+      }
+
+      i.updateUnrealized(this._lastTrades[i.position?.instrument.id], i.position?.connectionId);
+    });
     this.updatePl();
   }
 

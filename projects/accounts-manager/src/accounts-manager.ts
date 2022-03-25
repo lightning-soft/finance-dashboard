@@ -82,7 +82,11 @@ export class Connection implements IConnection {
 
   update(value: any): Observable<any> {
     return this._connectionsRepository.updateItem({ ...this.toJson(), ...value }).pipe(
-      tap((res) => this.applyJson(res)),
+      tap((res) => {
+        const {  metadata , ...data } = res as any;
+        this.applyJson(data);
+        this.applyJson(metadata);
+      }),
       map(() => null),
     );
   }
@@ -125,8 +129,7 @@ export class Connection implements IConnection {
   connect(makeDefault: boolean = false): Observable<this> {
     const fn = this._makeLoading();
 
-    if (makeDefault === true)
-      this.isDefault = true;
+    this.isDefault = makeDefault;
 
     const connection = this.toJson();
     return this._connectionsRepository.connect(connection)
@@ -511,8 +514,8 @@ export class AccountsManager implements ConnectionContainer {
   }
 
   connect(connection: Connection): Observable<IConnection> {
-    const defaultConnection = this._connections.find(item => item.isDefault && item.connected);
-    return connection.connect(defaultConnection == null)
+    const defaultConnection = this._connections.find(item => item.isDefault);
+    return connection.connect(defaultConnection == null || defaultConnection.id === connection.id)
       .pipe(
         tap((conn) => {
           if (conn.error) {
@@ -592,7 +595,7 @@ export class AccountsManager implements ConnectionContainer {
 
     // const _connection = { ...item, isDefault: true };
     const defaultConnections = this._connections.filter(i => i.isDefault);
-    if (defaultConnections == null || defaultConnections.includes(item)) {
+    if (defaultConnections == null || defaultConnections.some((conn) => item.id == conn.id)) {
       return of(item);
     }
 

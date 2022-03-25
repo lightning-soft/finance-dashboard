@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Id, IPaginationResponse } from 'communication';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { IInstrument, InstrumentsRepository, InstrumentType } from 'trading';
 import { BaseRepository } from './base-repository';
 
@@ -137,7 +137,10 @@ export class RealInstrumentsRepository extends BaseRepository<IInstrument> imple
     return forkJoin(ids.map((id: string) => {
       const [symbol, exchange, accountId] = id.split('.');
 
-      return this.getItemById(symbol, { exchange, accountId }).pipe(map(i => ({ ...i, id })));
-    }));
+      return this.getItemById(symbol, { exchange, accountId }).pipe(
+        map(i => ({ ...i, id })),
+        catchError((err) => of(null)));
+    })).pipe(map(items => items.filter(item => item != null)
+   )) as Observable<IInstrument[]>;
   }
 }

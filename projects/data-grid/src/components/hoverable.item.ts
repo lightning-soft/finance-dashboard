@@ -1,4 +1,4 @@
-import {Column} from "./types";
+import { Column } from "./types";
 
 export abstract class HoverableItem {
   private _hoveredProperties = [];
@@ -27,8 +27,10 @@ export abstract class HoverableItem {
 
     if (Array.isArray(properties)) {
       for (const property of properties) {
-        if (this[property])
+        if (this[property]) {
           this[property].hovered = hovered;
+          this[property].drawed = false;
+        }
       }
     }
 
