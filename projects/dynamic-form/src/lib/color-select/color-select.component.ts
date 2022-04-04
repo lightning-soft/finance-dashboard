@@ -53,8 +53,10 @@ export class ColorSelectComponent extends FieldType implements OnInit {
   };
 
   ngOnInit() {
-    const { type, value } = this.field.model.color.value;
-    this.colorForm.patchValue({ type, value });
+    if (this.field.model.color) {
+      const { type, value } = this.field.model.color.value;
+      this.colorForm.patchValue({ type, value });
+    }
     this.formControl.valueChanges
       .pipe(
         take(1),

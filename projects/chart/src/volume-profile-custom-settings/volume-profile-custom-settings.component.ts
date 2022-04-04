@@ -104,6 +104,9 @@ export class VolumeProfileCustomSettingsComponent extends ItemsComponent<IVolume
     this.chart.on(StockChartX.ChartEvent.INDICATOR_REMOVED, this._handleIndicatorRemove);
     setTimeout(() => {
       this.unnamedIndicators = this.chart.indicators.filter((item) => isCVP(item));
+      const currentItem = this.unnamedIndicators.find(item => item == this._identificator);
+      if (this.selectedItem == null && currentItem)
+        this.selectUntemplated(currentItem);
     });
   }
 
