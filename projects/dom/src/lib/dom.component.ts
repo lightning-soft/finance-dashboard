@@ -323,6 +323,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this._account = value;
+    this.centralize();
     this.handleAccountChange(value);
   }
 
