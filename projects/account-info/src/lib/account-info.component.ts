@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ILayoutNode, LayoutNode, LayoutNodeEvent } from 'layout';
 import { ConnectionsListener, IConnectionsListener } from 'real-trading';
-import { AccountInfo, AccountInfoRepository, IConnection } from 'trading';
+import { AccountInfo, AccountInfoRepository, IConnection, IPosition, PositionsFeed } from 'trading';
 import { convertToColumn, ItemsBuilder, ItemsComponent } from 'base-components';
 import { AccountInfoItem } from './models/account-info';
 import { NotifierService } from 'notifier';
@@ -128,7 +128,7 @@ const yPadding = 2;
 @ConnectionsListener()
 @LayoutNode()
 @LayoutPresets()
-export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IConnectionsListener, AfterViewInit {
+export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements OnInit, IConnectionsListener, AfterViewInit, OnDestroy {
   builder = new ItemsBuilder<AccountInfo, AccountInfoItem>();
   contextMenuState = {
     showColumnHeaders: true,
@@ -153,12 +153,16 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
 
   Components = Components;
 
+  private _accountMap = {};
+  _unsubscribeFn;
+
 
   constructor(protected _repository: AccountInfoRepository,
               private _storage: Storage,
               public readonly _notifier: NotifierService,
               public readonly _templatesService: TemplatesService,
               private _windowManagerService: WindowManagerService,
+              private _positionFeed: PositionsFeed,
               public readonly _modalService: NzModalService) {
     super();
     this.$loadData
@@ -177,6 +181,11 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     this.builder.setParams({
       wrap: (accountInfo) => new AccountInfoItem(accountInfo),
       unwrap: (accountInfoItem) => accountInfoItem.accountInfo,
+    });
+    this._unsubscribeFn = this._positionFeed.on((position: IPosition) => {
+      const account = this._accountMap[position.account.id];
+      if (account && position.accountBalance !== 0)
+        account.accountBalance.updateValue(position.accountBalance);
     });
   }
 
@@ -242,9 +251,22 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
     }
   }
 
+  ngOnDestroy() {
+    if (this._unsubscribeFn)
+      this._unsubscribeFn();
+  }
+
   protected _handleResponse(response: IPaginationResponse<AccountInfo>, params: any = {}) {
     super._handleResponse(response, params);
     this.validateComponentHeight();
+    this._updateAccountMap();
+  }
+
+  private _updateAccountMap() {
+    this._accountMap = {};
+    for (const account of this.builder.items) {
+      this._accountMap[account.accountInfo.id] = account;
+    }
   }
 
   handleConnectionsConnect(connections: IConnection[], connectedConnections: IConnection[]) {
@@ -257,6 +279,7 @@ export class AccountInfoComponent extends ItemsComponent<AccountInfo> implements
   handleConnectionsDisconnect(connections: IConnection[], connectedConnections: IConnection[]) {
     this.builder.removeWhere(item => !connectedConnections.some(acc => acc.id == item.accountInfo.connectionId));
     this.validateComponentHeight();
+    this._updateAccountMap();
   }
 
 }
