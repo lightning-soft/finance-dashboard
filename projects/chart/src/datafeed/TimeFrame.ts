@@ -126,25 +126,7 @@ export class TimeFrame {
     }
   }
 
-  // StockCharX periodicity type
-  /* static convertToSCXPeriodicy(periodicity) {
-     switch (periodicity) {
-       case Periodicity.Minute:
-         return StockChartXPeriodicity.MINUTE;
-       case Periodicity.Hour:
-         return StockChartXPeriodicity.HOUR;
-       case Periodicity.Day:
-         return StockChartXPeriodicity.DAY;
-       case Periodicity.Week:
-         return StockChartXPeriodicity.WEEK;
-       case Periodicity.Month:
-         return StockChartXPeriodicity.MONTH;
-       case Periodicity.Year:
-         return StockChartXPeriodicity.YEAR;
-     }
-   }*/
-
-  public static timeFrameToTimeInterval(timeFrame: ITimeFrame) {
+  public static timeFrameToTimeInterval(timeFrame: ITimeFrame): number {
     switch (timeFrame.periodicity) {
       case StockChartXPeriodicity.TICK:
         return TimeSpan.MILLISECONDS_IN_MINUTE;

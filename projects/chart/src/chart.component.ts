@@ -436,7 +436,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  handleToggleVisibility(visible) {
+  handleToggleVisibility(visible): void {
     if (this.chart)
       this.chart.shouldDraw = visible;
     if (visible) {
@@ -445,7 +445,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private _updateSubscriptions() {
+  private _updateSubscriptions(): void {
     const connectionId = this.account?.connectionId;
     const instrument = this.instrument;
     if (connectionId != null && instrument != null) {
@@ -478,7 +478,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.chart.setNeedsUpdate();
   }
 
-  async ngAfterViewInit() {
+  async ngAfterViewInit(): Promise<void> {
     this.window = this._windowManager.getWindowByComponent(this);
 
     this.loadFiles()
@@ -520,7 +520,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._lazyLoaderService.load();
   }
 
-  private _handleOHLV(historyItem) {
+  private _handleOHLV(historyItem): void {
     if (!this.instrument || !compareInstruments(historyItem.instrument, this.instrument))
       return;
 

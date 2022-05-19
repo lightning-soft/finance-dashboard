@@ -241,9 +241,11 @@ export class RithmicDatafeed extends Datafeed {
     this._unsubscribe();
   }
 
-  private _getTimeZone() {
-    var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
-    return (offset < 0 ? "" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2) + ":00";
+  private _getTimeZone(): string {
+    const offset: number = new Date().getTimezoneOffset();
+    const o: number = Math.abs(offset);
+
+    return (offset < 0 ? '' : '-') + ('00' + Math.floor(o / 60)).slice(-2) + ':' + ('00' + (o % 60)).slice(-2) + ':00';
   }
 
 }
