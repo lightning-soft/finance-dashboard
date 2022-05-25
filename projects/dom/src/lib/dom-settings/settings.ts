@@ -2,12 +2,13 @@ import { CellStatus, Column, DefaultScrollSensetive, generateNewStatusesByPrefix
 import * as merge from 'deepmerge';
 import { HistogramOrientation, TextAlign } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
+import {OrderDuration} from "trading";
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
 
-const DefaultClearInterval = 2500;
+const DefaultClearInterval = 9999;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -30,17 +31,17 @@ export class DomSettings {
     closeOutstandingOrders: false,
     recenter: true,
     commonView: {
-      autoCenterTicks: 10,
+      autoCenterTicks: 20,
       ticksMultiplier: 2,
       useCustomTickSize: false,
       // onTop: true,
       resetOnNewSession: true,
-      autoCenter: false,
+      autoCenter: true,
       centerLine: true,
     },
     marketDepth: {
       bidAskDeltaDepth: 9,
-      marketDepth: 9,
+      marketDepth: 40,
       showDepthHistory: false,
       bidAskDeltaFilter: 0
     },
@@ -108,14 +109,14 @@ export class DomSettings {
     // currentTradesAtAsk: true,
     // currentTradesAtBid: true,
     ltq: true,
-    delta: true,
+    delta: false,
     notes: true,
-    orders: true,
+    orders: false,
     buyOrders: true,
     sellOrders: true,
     price: true,
-    totalAsk: true,
-    totalBid: true,
+    totalAsk: false,
+    totalBid: false,
     currentBid: true,
     currentAsk: true,
     volume: true,
@@ -130,14 +131,15 @@ export class DomSettings {
     sellBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
   };
+
   orderArea = {
     amountButtons: [
-      { value: 1 },
-      { black: true, value: 2 },
-      { value: 10 },
-      { value: 50 },
-      { value: 100 },
-      { value: 5 },
+      {value: 1},
+      {value: 1, black: true},
+      {value: 3},
+      {value: 5},
+      {value: 10},
+      {value: 25}
     ],
     formData: {
       quantity: 1,
@@ -173,6 +175,7 @@ export class DomSettings {
         FOK: true,
         GTC: true,
         IOC: true,
+        default: OrderDuration.DAY,
       }
     }
   };
@@ -300,7 +303,7 @@ export class DomSettings {
     showPL: true,
     split: false,
     includeRealizedPL: false,
-    overlayOrders: false,
+    overlayOrders: true,
   };
   currentBid: any = {
     color: '#EB5A5A',

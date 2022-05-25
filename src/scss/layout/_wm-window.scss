@@ -6,6 +6,8 @@ $border-width: 1px;
   flex-direction: column;
   border: $border-width solid transparent;
   transition: border 0.3s;
+  min-height: 950px;
+  min-width: 650px;
 
   &.active {
     border: $border-width solid transparent;

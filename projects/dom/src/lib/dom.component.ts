@@ -698,6 +698,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleAccountChange(account: IAccount) {
+    this.domForm.loadState(this._initialState.orderForm);
+
     this._loadData();
     this._onInstrumentChange(this.instrument, true);
   }
@@ -877,7 +879,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this._bestBidPrice == null) {
       this._bestBidPrice = this._lastPrice;
     }
-
     this.items.forEach((i, index) => {
       i.side = this._bestAskPrice <= i.price._value ? QuoteSide.Ask : QuoteSide.Bid;
       i.refresh();
@@ -890,6 +891,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.index = index;
     });
     this._applyOffset();
+    this.domForm?.loadState(this._settings.orderArea as any);
   }
 
   allStopsToPrice() {
