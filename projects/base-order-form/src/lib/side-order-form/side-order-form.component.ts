@@ -287,9 +287,11 @@ export class SideOrderFormComponent extends BaseOrderForm {
     if (state?.settings) {
       if (!this.isLoadedAtFirst && state.settings.tif?.default) {
         this.form.patchValue({ duration: state.settings.tif.default });
-        this.isLoadedAtFirst = true;
+      // was  this.isLoadedAtFirst = true;
       }
       this._settings = { ...this._settings, ...state.settings };
+      this.form.patchValue({ type: OrderType.Limit });
+
       const tif = this._settings.tif;
       this.tifButtons = this.tifButtons.map(item => {
         const selectable = tif[item.value];
