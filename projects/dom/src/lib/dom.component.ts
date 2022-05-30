@@ -158,21 +158,21 @@ const directionsHints: { [key in FormDirection]: string } = {
 };
 
 const headers: HeaderItem[] = [
-  { name: DOMColumns.Orders, tableViewName: 'Orders' },
-  { name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
-  { name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
-  { name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram' },
-  DOMColumns.Price,
-  { name: DOMColumns.Delta, tableViewName: 'Delta' },
-  { name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
-  { name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram' },
-  { name: DOMColumns.LTQ, tableViewName: 'LTQ' },
-  { name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
-  { name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
-  { name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
-  { name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
-  { name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
-  { name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+  {name: DOMColumns.Orders, tableViewName: 'Orders'},
+  {name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders'},
+  {name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders'},
+  {name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram', width: 90},
+  {name: DOMColumns.Price, tableViewName: 'Price', width: 62},
+  {name: DOMColumns.Delta, tableViewName: 'Delta', width: 58},
+  {name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta'},
+  {name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram', width: 69},
+  {name: DOMColumns.LTQ, tableViewName: 'LTQ', width: 49},
+  {name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram', width: 58},
+  {name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram', width: 51},
+  {name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram', width: 68},
+  {name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta', width: 68},
+  {name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram'},
+  {name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram'},
 ];
 
 export enum QuantityPositions {
@@ -1512,7 +1512,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       if ((this.currentAskRange.minIndex ?? Infinity) > _item.index) {
         this.currentAskRange.minIndex = _item.index;
       }
-      if ( (this.currentAskRange.maxIndex ?? -Infinity) < _item.index) {
+      if ((this.currentAskRange.maxIndex ?? -Infinity) < _item.index) {
         this.currentAskRange.maxIndex = _item.index;
       }
     } else {
@@ -2091,7 +2091,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     grid.forEachRow((row, y) => {
       if (enableEth && (!showColumnHeaders || y >= headerHeight))
-        this.drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x });
+        this.drawVolumeEth({row, lastItemIndex, ctx, height, y, volumeColumn, x});
 
       if (centerLineEnabled && row.isCenter) {
         fn = () => {
@@ -2114,7 +2114,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       fn();
   }
 
-  private drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x }) {
+  private drawVolumeEth({row, lastItemIndex, ctx, height, y, volumeColumn, x}) {
     const index = row.index;
     let prevVolume;
     if (index !== 0)
@@ -2129,7 +2129,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   transformAccountLabel(label: string) {
     const replacer = '*';
-    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settings.general;
     if (hideAccountName) {
       const length = digitsToHide > label.length ? label.length : digitsToHide;
       let _label = label;
@@ -2143,7 +2143,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _closeSettings() {
-    this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
+    this.broadcastData(DomSettingsSelector, {action: 'close', linkKey: this._getSettingsKey()} as IDomSettingsEvent);
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
