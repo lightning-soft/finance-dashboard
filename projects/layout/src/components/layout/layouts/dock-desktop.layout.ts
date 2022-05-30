@@ -95,9 +95,9 @@ export class DockDesktopLayout extends Layout {
       instance.componentRef = componentRef; // To remove
       instance.layout = this;
       const configData = {
-        width: 500,
+        width: 650,
         allowPopup: true,
-        height: 500,
+        height: 950,
         visible: true,
         minWidth: 320,
         minHeight: 150,
