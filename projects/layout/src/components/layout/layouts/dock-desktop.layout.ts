@@ -1,11 +1,11 @@
-import { ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef } from '@angular/core';
-import { LazyLoadingService } from 'lazy-assets';
-import { LoadingService } from 'lazy-modules';
-import { IWindow, Options, saveData, WindowManagerService } from 'window-manager';
-import { EmptyLayout } from '../empty-layout';
-import { ComponentOptions, Layout } from './layout';
-import { IBaseTemplate } from "templates";
-import { ILayoutNode } from "layout";
+import {ComponentFactoryResolver, ElementRef, NgZone, ViewContainerRef} from '@angular/core';
+import {LazyLoadingService} from 'lazy-assets';
+import {LoadingService} from 'lazy-modules';
+import {IWindow, Options, saveData, WindowManagerService} from 'window-manager';
+import {EmptyLayout} from '../empty-layout';
+import {ComponentOptions, Layout} from './layout';
+import {IBaseTemplate} from "templates";
+import {Components} from "../../../../../../src/app/modules";
 
 export class DockDesktopLayout extends Layout {
   canDragAndDrop = true;
@@ -59,7 +59,7 @@ export class DockDesktopLayout extends Layout {
       componentName = componentNameOrConfig;
       config = {};
     } else {
-      const { component, ..._config } = componentNameOrConfig;
+      const {component, ..._config} = componentNameOrConfig;
       config = _config;
       componentState = component?.state;
       componentTemplate = component?.template;
@@ -94,10 +94,10 @@ export class DockDesktopLayout extends Layout {
 
       instance.componentRef = componentRef; // To remove
       instance.layout = this;
-      const configData = {
-        width: 650,
+      let configData = {
+        width: 500,
         allowPopup: true,
-        height: 950,
+        height: 500,
         visible: true,
         minWidth: 320,
         minHeight: 150,
@@ -109,6 +109,13 @@ export class DockDesktopLayout extends Layout {
       if (configData.minWidth > configData.width) {
         configData.width = configData.minWidth;
       }
+
+      switch (componentName) {
+        case Components.Dom:
+          configData = {...configData, width: 650, height: 950};
+          break;
+      }
+
       const windowOptions: Options = {
         // type: this.getComponentTitle(componentName),
         type: componentName,
@@ -142,7 +149,7 @@ export class DockDesktopLayout extends Layout {
         instance.loadState(componentState);
       }
 
-      const { _container } = window;
+      const {_container} = window;
 
       _container.appendChild(comp.location.nativeElement);
     } catch (e) {
