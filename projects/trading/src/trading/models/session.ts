@@ -5,6 +5,7 @@ export interface ISessionWorkingTime {
   startTime: number;
   endDay: number;
   endTime: number;
+  tradingDay?: number;
 }
 
 export interface ISession extends IBaseItem {
