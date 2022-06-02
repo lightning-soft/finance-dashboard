@@ -1900,18 +1900,7 @@ export const vwapConfig: IFieldConfig[] = [
           }),
         ]
       }),
-      getCheckboxes({
-        checkboxes: [{
-          key: 'isShowCustomTimes',
-          label: 'Custom Times'
-        }],
-        additionalFields: [
-          getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
-        ],
-        extraConfig: {
-          fieldGroupClassName: 'd-grid two-rows'
-        },
-      }),
+      getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
       getCheckboxes({
         checkboxes: [{
           key: 'isShowCustomDuration',
