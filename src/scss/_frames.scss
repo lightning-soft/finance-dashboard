@@ -85,3 +85,8 @@ body.#{$themeName} {
     }
   }
 }
+/*Redefining the min-height to fix a bug with the application freezing when opening new windows*/
+.wm-container {
+  min-height: auto!important;
+  padding-bottom: 100px!important;
+}
