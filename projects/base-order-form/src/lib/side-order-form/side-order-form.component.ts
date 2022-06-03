@@ -303,8 +303,13 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   getState(): SideOrderFormState {
+    const controls: SideOrderForm = this.form.controls as SideOrderForm;
     return {
-      formData: { quantity: (this.form.controls as SideOrderForm).quantity.value },
+      formData: {
+        quantity: controls.quantity.value,
+        stopLoss: controls.stopLoss.value,
+        takeProfit: controls.takeProfit.value,
+      },
       amountButtons: this.amountButtons,
       settings: this._settings,
     };
