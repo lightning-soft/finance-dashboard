@@ -292,7 +292,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
       this._settings = { ...this._settings, ...state.settings };
       this.form.patchValue({ type: OrderType.Limit });
 
-      const tif = this._settings.tif;
+      const tif = { ...this._settings.tif, ...(state as any).tif };
       this.tifButtons = this.tifButtons.map(item => {
         const selectable = tif[item.value];
         item.selectable = selectable;

@@ -14,6 +14,7 @@ import {
 } from 'dynamic-form';
 import { wrapWithConfig } from 'projects/dynamic-form';
 import { orderFields } from 'base-order-form';
+import {tifSetting} from "chart";
 
 
 function getHightlightColor() {
@@ -375,7 +376,7 @@ export const ltqFields: IFieldConfig[] = [
   }),
 ];
 
-export const orderAreaFields = [{ key: 'orderArea', fieldGroup: [orderFields] }];
+export const orderAreaFields = [{ key: 'orderArea', fieldGroup: [orderFields, tifSetting] }];
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
