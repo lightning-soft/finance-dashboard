@@ -114,6 +114,8 @@ export class DockDesktopLayout extends Layout {
         case Components.Dom:
           configData = {...configData, width: 650, height: 950};
           break;
+        default:
+          break;
       }
 
       const windowOptions: Options = {
