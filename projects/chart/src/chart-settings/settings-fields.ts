@@ -78,6 +78,27 @@ export const tifSetting = new FieldConfig({
   ],
 });
 
+export const orderAreaSettings = new FieldConfig({
+  key: 'orderArea',
+  label: 'Order Area',
+  className: 'mt-4 d-block',
+  fieldGroupClassName: 'p-x-7 d-block',
+  fieldGroup: [
+    {
+      key: 'settings',
+      fieldGroupClassName: 'd-block',
+      fieldGroup: [
+        getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
+        getOrderAreaItemSettings('Show Liquidate Button', 'showLiquidateButton'),
+        getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
+        getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
+        getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),
+        getOrderAreaItemSettings('Show Cancel All Button', 'cancelButton'),
+      ]
+    },
+  ],
+});
+
 export const generalFields: IFieldConfig[] = [
   new FieldConfig({
     key: 'general',
@@ -173,7 +194,7 @@ export const generalFields: IFieldConfig[] = [
     ],
   }),
 ];
-const orderTypesList = [
+export const orderTypesList = [
   {
     key: `${OrderSide.Buy.toLowerCase()}.${OrderType.Limit.toLowerCase()}`,
     label: `${OrderSide.Buy} Limit Orders`
@@ -337,26 +358,7 @@ export const tradingFields: IFieldConfig[] = [
           },
         ],
       }),
-      new FieldConfig({
-        key: 'orderArea',
-        label: 'Order Area',
-        className: 'mt-4 d-block',
-        fieldGroupClassName: 'p-x-7 d-block',
-        fieldGroup: [
-          {
-            key: 'settings',
-            fieldGroupClassName: 'd-block',
-            fieldGroup: [
-              getOrderAreaItemSettings('Show Liq + Cxl All Button', 'flatten'),
-              getOrderAreaItemSettings('Show Liquidate Button', 'showLiquidateButton'),
-              getOrderAreaItemSettings('Show Iceberg Button', 'icebergButton'),
-              getOrderAreaItemSettings('Show Cancel Buy Market Button', 'buyMarketButton'),
-              getOrderAreaItemSettings('Show Cancel Sell Market Button', 'sellMarketButton'),
-              getOrderAreaItemSettings('Show Cancel All Button', 'cancelButton'),
-            ]
-          },
-        ],
-      }),
+      orderAreaSettings,
       tifSetting
     ],
   }),
