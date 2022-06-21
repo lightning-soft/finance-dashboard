@@ -179,6 +179,131 @@ export class DomSettings {
       }
     }
   };
+  trading = {
+    amountButtons: [
+      {value: 1},
+      {value: 1, black: true},
+      {value: 3},
+      {value: 5},
+      {value: 10},
+      {value: 25}
+    ],
+    formData: {
+      quantity: 1,
+    },
+    settings: {
+      formSettings: {
+        showOrderConfirm: true,
+        showCancelConfirm: true,
+        overlayOrders: true,
+        split: false
+      },
+    },
+    orderArea: {
+      formSettings: {
+        showBracket: true,
+        showPLInfo: true,
+        roundPL: false,
+        includeRealizedPL: false,
+      },
+      settings: {
+        cancelButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        closePositionButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        showLiquidateButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        flatten: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        icebergButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#fff',
+        },
+        sellMarketButton: {
+          background: '#C93B3B',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        buyMarketButton: {
+          background: '#0C62F7',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+
+      }
+    },
+
+    ordersColors: {
+      buy: {
+        limit: {
+          length: 1,
+          lineColor: '#0C62F7',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#0C62F7',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'dotted',
+        },
+      },
+      ocoStopLimit: '#FFFF00',
+      ocoStopOrder: '#FFFF00',
+      sell: {
+        limit: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'dotted',
+        },
+      },
+    },
+    tif: {
+      DAY: true,
+      FOK: true,
+      GTC: true,
+      IOC: true,
+      default: OrderDuration.DAY,
+    },
+
+
+  };
   price: any = {
     ...generateNewStatusesByPrefix({
       color: 'rgba(208, 208, 210, 1)',

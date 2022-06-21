@@ -862,7 +862,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const depth = settings.general?.marketDepth;
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
-    this.domForm?.loadState(this._settings.orderArea as any);
+    this.domForm?.loadState(this._settings.trading as any);
     this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
@@ -891,7 +891,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.index = index;
     });
     this._applyOffset();
-    this.domForm?.loadState(this._settings.orderArea as any);
+    this.domForm?.loadState(this._settings.trading as any);
+
   }
 
   allStopsToPrice() {

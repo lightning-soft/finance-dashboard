@@ -42,7 +42,7 @@ export const orderFields: IFieldConfig = new FieldConfig({
         }), 'm-0 settings-pl-info'),
         wrapWithClass(getSwitch('includeRealizedPL', 'Include Realized PL',
           { hideExpression: '!model.showPLInfo' }
-        ), 'ml-4 settings-pl-realized-info'),
+        ), 'settings-pl-realized-info'),
       ],
     }
   ],

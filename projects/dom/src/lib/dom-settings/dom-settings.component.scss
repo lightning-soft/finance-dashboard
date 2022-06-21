@@ -232,6 +232,7 @@ cdk-virtual-scroll-viewport {
   number-input {
     margin-top: 4px;
     display: inline-block;
+    margin-bottom: 7px;
   }
 
   .current-level-item {
@@ -295,6 +296,40 @@ cdk-virtual-scroll-viewport {
     .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
       color: $text-60;
     }
+  }
+
+  .color-without-label {
+    color-picker {
+      .color-wrapper {
+        width: 20px;
+        height: 20px;
+        padding-left: 5px;
+      }
+
+      .color-label {
+        display: none;
+      }
+    }
+  }
+
+  .order-rows-dom {
+    grid-template-columns: 50% 20px 114px 52px;
+    width: 100%;
+    align-items: center;
+    grid-column-gap: 5px;
+  }
+  .order-area-rows {
+    grid-template-columns: 50% 2fr 3fr;
+    grid-column-gap: 5px;
+  }
+
+  .oco-rows-dom {
+    grid-column-gap: 8px;
+  }
+  .two-rows-dom{
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 6px;
   }
 
   .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
@@ -385,4 +420,3 @@ formly-form {
   display: block;
   margin-top: 12px;
 }
-
