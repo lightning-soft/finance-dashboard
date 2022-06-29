@@ -128,6 +128,8 @@ cdk-virtual-scroll-viewport {
 
   .cdk-virtual-scroll-content-wrapper {
     contain: unset;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .use-tick-size {
@@ -313,23 +315,16 @@ cdk-virtual-scroll-viewport {
   }
 
   .order-rows-dom {
-    grid-template-columns: 50% 20px 114px 52px;
+    height: 23px;
+    grid-template-columns: 50% 20px 104px 52px;
     width: 100%;
     align-items: center;
     grid-column-gap: 5px;
+    margin-top: 0.25rem;
   }
   .order-area-rows {
     grid-template-columns: 50% 2fr 3fr;
     grid-column-gap: 5px;
-  }
-
-  .oco-rows-dom {
-    grid-column-gap: 8px;
-  }
-  .two-rows-dom{
-    grid-template-columns: 1fr 1fr;
-    grid-column-gap: 10px;
-    grid-row-gap: 6px;
   }
 
   .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
@@ -339,6 +334,236 @@ cdk-virtual-scroll-viewport {
 
   .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
     border-color: rgba($primary, 0.5);
+  }
+
+  .dom-trading{
+    .ant-checkbox-wrapper {
+      padding-left: 0px;
+    }
+
+    .settings-field {
+      display: block;
+      margin-top: 32px;
+    }
+
+    formly-form {
+      .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        color: $text-60;
+      }
+    }
+
+    window-header {
+      position: relative;
+
+      .window-icon {
+        background: transparent !important;
+      }
+
+      .title {
+        font-size: 1rem !important;
+      }
+
+      &:after {
+        right: 0;
+        content: '';
+        height: 100%;
+        width: 438px;
+        background: $secondary;
+        position: absolute;
+        z-index: -1;
+      }
+    }
+
+    .session-select {
+      label {
+        display: none;
+      }
+    }
+
+    data-select {
+      font-size: 0.8rem;
+    }
+
+    .text-color {
+      display: flex;
+      align-items: center;
+
+      color-picker {
+        width: 100%;
+      }
+    }
+
+    .pl-info {
+      switch {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+
+        span {
+          margin-left: 0;
+          margin-right: 5px;
+        }
+      }
+
+      .select {
+        nz-form-item {
+          flex-direction: row;
+
+          nz-form-label {
+            margin-bottom: 0;
+            margin-right: 5px;
+
+            label {
+              padding-left: 0;
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+
+    .settings-pl-info, .settings-pl-realized-info {
+      display: none;
+    }
+
+    .h-20 {
+      height: 20px;
+    }
+
+    .order-form-settings {
+      grid-column: 1 / span 2;
+
+      formly-group {
+        display: grid !important;
+      }
+    }
+
+    dynamic-select {
+      display: inline-block;
+      width: 100%;
+
+      nz-select-item {
+        line-height: 18px !important;
+      }
+    }
+    number-input{
+      margin-top: 0px;
+      margin-bottom: 0px;
+
+    }
+    number-input .ant-input-number {
+        display: inline-block;
+      width: 100%;
+    }
+
+    .cdk-virtual-scroll-content-wrapper {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .d-flex-just{
+      justify-content: space-between;
+    }
+    .two-rows, .order-bar-rows, .order-rows, .order-area-rows, .session-rows {
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 10px;
+      grid-row-gap: 6px;
+    }
+    .two-rows {
+      > * {
+        width: 98%;
+        margin-top: 0;
+      }
+    }
+    .two-rows-dom {
+      > * {
+        width: 48%;
+        margin-top: 0;
+      }
+    }
+
+    .tif-rows {
+      grid-column-gap: 23px;
+    }
+
+    .font-rows {
+      grid-template-columns: 2fr 1fr 3fr;
+    }
+
+    .trading-rows {
+      grid-column-gap: 7px;
+    }
+
+    .session-rows {
+      grid-template-columns: 1fr 2fr;
+      grid-column-gap: 5px;
+
+    }
+
+    .order-bar-rows {
+      grid-template-columns:90px 1fr 1fr;
+      grid-column-gap: 2px;
+      align-items: center;
+    }
+
+    .order-rows {
+      grid-template-columns: 50% 20px 114px 52px;
+      width: 100%;
+      align-items: center;
+      grid-column-gap: 5px;
+    }
+
+    .order-area-rows {
+      grid-template-columns: 50% 2fr 3fr;
+      grid-column-gap: 5px;
+    }
+
+    .oco-rows {
+      grid-column-gap: 8px;
+    }
+
+    .color-without-label {
+      color-picker {
+        .color-wrapper {
+          width: 20px;
+          height: 20px;
+          padding-left: 5px;
+        }
+
+        .color-label {
+          display: none;
+        }
+      }
+    }
+
+    nz-form-item {
+      flex-direction: column;
+      margin-bottom: 0;
+
+      .ant-form-item-label {
+        text-align: start;
+        margin-bottom: 12px;
+
+        label {
+          font-weight: 600;
+          line-height: 1;
+          padding-left: 6px;
+          font-size: 0.85rem;
+          color: $text-80;
+
+          &:after {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .chart-trading {
+      nz-form-item {
+        .ant-form-item-label {
+          margin-bottom: 8px;
+        }
+      }
+    }
   }
 }
 
