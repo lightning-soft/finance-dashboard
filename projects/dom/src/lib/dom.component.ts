@@ -87,10 +87,10 @@ import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } 
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
 import { DailyInfoComponent } from './daily-info/daily-info.component';
+import { SideOrderSettingsDom } from './interface/dom-settings.interface';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
-
 export class DomItemMax {
   ask: number;
   bid: number;
@@ -245,25 +245,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get showOrderConfirm() {
-    return this.domFormSettings.formSettings.showOrderConfirm;
+    return this.domFormSettings.showOrderConfirm;
   }
 
   set showOrderConfirm(value) {
-    this.domFormSettings.formSettings.showOrderConfirm = value;
+    this.domFormSettings.showOrderConfirm = value;
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 
   get showCancelConfirm() {
-    return this.domFormSettings.formSettings.showCancelConfirm;
+    return this.domFormSettings.showCancelConfirm;
   }
 
   set showCancelConfirm(value) {
-    this.domFormSettings.formSettings.showCancelConfirm = value;
+    this.domFormSettings.showCancelConfirm = value;
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 
   get domFormSettings() {
-    return this._settings.orderArea.settings;
+    return mapSettingsToSideFormState(this._settings).formSettings;
   }
 
   get _tickSize() {
@@ -541,11 +541,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get bracketActive() {
-    return this._settings.orderArea?.settings.formSettings.showBracket === true;
+    return this._settings.trading?.trading?.bracketButton === true;
   }
 
   set bracketActive(value: boolean) {
-    this._settings.orderArea.settings.formSettings.showBracket = value;
+    this._settings.trading.trading.bracketButton = value;
     this._linkSettings(this._settings);
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
@@ -862,7 +862,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const depth = settings.general?.marketDepth;
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
-    this.domForm?.loadState(this._settings.trading as any);
+    this.domForm?.loadState({ settings: mapSettingsToSideFormState(settings) });
     this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
@@ -891,8 +891,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.index = index;
     });
     this._applyOffset();
-    this.domForm?.loadState(this._settings.trading as any);
-
+    this.domForm?.loadState({ settings: mapSettingsToSideFormState(this._settings) });
   }
 
   allStopsToPrice() {
@@ -930,10 +929,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.plInput.nativeElement.value = this.pl;
     }
 
-    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+    const includeRealizedPl = this.domFormSettings.includeRealizedPL;
     const price = this._lastTradeItem.price._value ?? 0;
     const i = this.instrument;
-    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const precision = this.domFormSettings.roundPL ? 0 : (i?.precision ?? 2);
     const pl = calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl);
     if (pl == null)
       return;
@@ -2236,7 +2235,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
-    this._settings.orderArea = this.domForm?.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
@@ -2679,3 +2677,42 @@ export function calculateDay(date, dayOfWeek) {
   return date.getDate() + distance;
 }
 
+function mapSettingsToSideFormState(settings: DomSettings): SideOrderSettingsDom {
+
+  const orderAreaSettings = settings.trading.orderArea.settings;
+  const sideOrderSettingsDom: SideOrderSettingsDom = {};
+  sideOrderSettingsDom.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
+  sideOrderSettingsDom.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;
+
+  sideOrderSettingsDom.sellButtonsBackgroundColor = orderAreaSettings.sellMarketButton.background;
+  sideOrderSettingsDom.sellButtonsFontColor = orderAreaSettings.sellMarketButton.font;
+
+  sideOrderSettingsDom.flatButtonsBackgroundColor = orderAreaSettings.flatten.background;
+  sideOrderSettingsDom.flatButtonsFontColor = orderAreaSettings.flatten.font;
+
+  sideOrderSettingsDom.cancelButtonBackgroundColor = orderAreaSettings.cancelButton.background;
+  sideOrderSettingsDom.cancelButtonFontColor = orderAreaSettings.cancelButton.font;
+
+  sideOrderSettingsDom.closePositionFontColor = orderAreaSettings.showLiquidateButton?.font;
+  sideOrderSettingsDom.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton?.background;
+
+  sideOrderSettingsDom.icebergFontColor = orderAreaSettings.icebergButton.font;
+  sideOrderSettingsDom.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
+
+  sideOrderSettingsDom.formSettings = {};
+  sideOrderSettingsDom.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
+  sideOrderSettingsDom.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
+  sideOrderSettingsDom.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton?.enabled;
+  sideOrderSettingsDom.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
+  sideOrderSettingsDom.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
+  sideOrderSettingsDom.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;
+  sideOrderSettingsDom.formSettings.showBracket = settings.trading.orderArea.bracketButton;
+  sideOrderSettingsDom.formSettings.showInstrumentChange = settings.trading.orderArea.showInstrumentChange;
+  sideOrderSettingsDom.formSettings.showOHLVInfo = settings.trading.orderArea.showOHLVInfo;
+  sideOrderSettingsDom.formSettings.showPLInfo = settings.trading.orderArea.showPLInfo;
+  sideOrderSettingsDom.formSettings.roundPL = settings.trading.orderArea.roundPL;
+  sideOrderSettingsDom.amountButtons = settings.trading.amountButtons;
+  sideOrderSettingsDom.tif = settings.trading.tif;
+
+  return sideOrderSettingsDom;
+}

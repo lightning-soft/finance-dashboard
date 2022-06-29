@@ -2,7 +2,8 @@ import { CellStatus, Column, DefaultScrollSensetive, generateNewStatusesByPrefix
 import * as merge from 'deepmerge';
 import { HistogramOrientation, TextAlign } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
-import {OrderDuration} from "trading";
+import { OrderDuration } from 'trading';
+import { TradingItem } from '../interface/dom-settings.interface';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
@@ -132,80 +133,19 @@ export class DomSettings {
     textAlign: TextAlign.Center,
   };
 
-  orderArea = {
+  trading: TradingItem =  {
     amountButtons: [
       {value: 1},
       {value: 1, black: true},
       {value: 3},
-      {value: 5},
+      {value: 5 },
       {value: 10},
       {value: 25}
     ],
     formData: {
       quantity: 1,
-    },
-    settings: {
-      buyButtonsBackgroundColor: '#0C62F7',
-      flatButtonsBackgroundColor: '#51535A',
-      buyButtonsFontColor: '#fff',
-      flatButtonFontColor: '#D0D0D2',
-      sellButtonsBackgroundColor: '#C93B3B',
-      cancelButtonBackgroundColor: '#51535A',
-      sellButtonsFontColor: '#fff',
-      cancelButtonFontColor: '#fff',
-      formSettings: {
-        closePositionButton: true,
-        showLiquidateButton: true,
-        includeRealizedPL: false,
-        roundPL: false,
-        showBracket: true,
-        showBuyButton: true,
-        showSellButton: true,
-        showOrderConfirm: true,
-        showCancelConfirm: true,
-        showCancelButton: true,
-        showFlattenButton: true,
-        showIcebergButton: true,
-        showInstrumentChange: true,
-        showOHLVInfo: true,
-        showPLInfo: true,
-      },
-      tif: {
-        DAY: true,
-        FOK: true,
-        GTC: true,
-        IOC: true,
-        default: OrderDuration.DAY,
-      }
-    }
-  };
-  trading = {
-    amountButtons: [
-      {value: 1},
-      {value: 1, black: true},
-      {value: 3},
-      {value: 5},
-      {value: 10},
-      {value: 25}
-    ],
-    formData: {
-      quantity: 1,
-    },
-    settings: {
-      formSettings: {
-        showOrderConfirm: true,
-        showCancelConfirm: true,
-        overlayOrders: true,
-        split: false
-      },
     },
     orderArea: {
-      formSettings: {
-        showBracket: true,
-        showPLInfo: true,
-        roundPL: false,
-        includeRealizedPL: false,
-      },
       settings: {
         cancelButton: {
           background: '#51535A',
@@ -242,10 +182,15 @@ export class DomSettings {
           enabled: true,
           font: '#D0D0D2',
         },
+      },
+      showOHLVInfo: true,
+      showPLInfo: true,
+      roundPL: false,
+      showInstrumentChange: false,
+      bracketButton: true,
+      includeRealizedPL: false,
 
-      }
     },
-
     ordersColors: {
       buy: {
         limit: {
@@ -301,8 +246,17 @@ export class DomSettings {
       IOC: true,
       default: OrderDuration.DAY,
     },
-
-
+    trading: {
+      orderBarLength: 100,
+      showOrderConfirm: false,
+      showCancelConfirm: true,
+      orderBarUnit: 'pixels',
+      showWorkingOrders: true,
+      tradingBarLength: 40,
+      tradingBarUnit: 'pixels',
+      overlayOrders: true,
+      split: false,
+    },
   };
   price: any = {
     ...generateNewStatusesByPrefix({
@@ -527,3 +481,5 @@ export class DomSettings {
     return merge({}, this as any);
   }
 }
+
+
