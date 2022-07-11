@@ -26,8 +26,8 @@
     class="wm-header-btn icon-dom-strategy"></button>
   <daily-info [instrument]="instrument"
               #dailyInfoComponent
-              [showInstrumentChange]="domFormSettings?.formSettings.showInstrumentChange"
-              [showOHLVInfo]="domFormSettings?.formSettings.showOHLVInfo"
+              [showInstrumentChange]="domFormSettings?.showInstrumentChange"
+              [showOHLVInfo]="domFormSettings?.showOHLVInfo"
               [class.d-none]="isFormOpen && !isFormOnTop"
               class="header-daily-info"></daily-info>
   <span class="window-icon-container">
@@ -73,10 +73,10 @@
         <daily-info
           #dailyInfoComponent
           [instrument]="instrument"
-          [showInstrumentChange]="domFormSettings.formSettings.showInstrumentChange"
-          [showOHLVInfo]="domFormSettings.formSettings.showOHLVInfo"
+          [showInstrumentChange]="domFormSettings.showInstrumentChange"
+          [showOHLVInfo]="domFormSettings.showOHLVInfo"
         ></daily-info>
-        <nz-input-group [class.d-none]="!domFormSettings.formSettings.showPLInfo" class="pl-input"
+        <nz-input-group [class.d-none]="!domFormSettings.showPLInfo" class="pl-input"
                         [nzPrefix]="prefixTemplateUser">
           <input #plInput disabled [value]="pl" nz-input>
           <ng-template #prefixTemplateUser>PL</ng-template>

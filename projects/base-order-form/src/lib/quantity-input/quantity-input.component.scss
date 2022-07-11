@@ -34,7 +34,7 @@ nz-input-number {
 
 :host ::ng-deep {
   &.black-input {
-    background: $inputBackground;
+    background: $light;
     border: none;
 
     .ant-input-number-handler-wrap {

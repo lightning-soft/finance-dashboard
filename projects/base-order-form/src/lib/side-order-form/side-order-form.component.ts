@@ -16,6 +16,7 @@ import {
 import { BaseOrderForm, OcoStep } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
+import * as clone from 'lodash.clonedeep';
 
 export enum FormActions {
   ClosePositions,
@@ -231,10 +232,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   amountButtons: IAmountButton[] = [
-    { value: 1 }, { value: 2, black: true },
-    { value: 10 }, { value: 50 },
-    { value: 100 }, { value: 5 }
-  ];
+    {value: 1},
+    {value: 1, black: true},
+    {value: 3},
+    {value: 5},
+    {value: 10},
+    {value: 25}];
   _typeButtons: ITypeButton[] = [
     { label: 'LMT', visible: true, black: true, value: OrderType.Limit, selectable: true },
     { label: 'STP MKT', visible: true, value: OrderType.StopMarket, black: true, selectable: true },
@@ -292,7 +295,7 @@ export class SideOrderFormComponent extends BaseOrderForm {
       this._settings = { ...this._settings, ...state.settings };
       this.form.patchValue({ type: OrderType.Limit });
 
-      const tif = { ...this._settings.tif, ...(state as any).tif };
+      const tif = clone(this._settings.tif);
       this.tifButtons = this.tifButtons.map(item => {
         const selectable = tif[item.value];
         item.selectable = selectable;
