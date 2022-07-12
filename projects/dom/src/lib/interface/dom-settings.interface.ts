@@ -1,4 +1,7 @@
 export interface FormSettings {
+  includeRealizedPL?: boolean;
+  showOrderConfirm?: boolean;
+  showCancelConfirm?: boolean;
   roundPL?: boolean;
   showPLInfo?: boolean;
   showOHLVInfo?: boolean;
