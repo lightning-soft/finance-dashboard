@@ -2711,6 +2711,9 @@ function mapSettingsToSideFormState(settings: DomSettings): SideOrderSettingsDom
   sideOrderSettingsDom.formSettings.showOHLVInfo = settings.trading.orderArea.showOHLVInfo;
   sideOrderSettingsDom.formSettings.showPLInfo = settings.trading.orderArea.showPLInfo;
   sideOrderSettingsDom.formSettings.roundPL = settings.trading.orderArea.roundPL;
+  sideOrderSettingsDom.formSettings.showCancelConfirm = settings.trading.trading.showCancelConfirm;
+  sideOrderSettingsDom.formSettings.showOrderConfirm = settings.trading.trading.showOrderConfirm;
+  sideOrderSettingsDom.formSettings.includeRealizedPL = settings.trading.orderArea.includeRealizedPL;
   sideOrderSettingsDom.amountButtons = settings.trading.amountButtons;
   sideOrderSettingsDom.tif = settings.trading.tif;
 
