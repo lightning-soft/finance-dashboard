@@ -17,6 +17,7 @@ export class VolumeProfile extends Indicator {
         align: settings.general.align,
         calculateXProfiles: settings.general.calculateXProfiles,
         customTickSize: settings.general.customTickSize,
+        transparency: settings.general.transparency
       },
       graphics: settings.graphics,
       profile: {
@@ -130,6 +131,7 @@ export class VolumeProfile extends Indicator {
         align: settings.general.align,
         calculateXProfiles: settings.general.calculateXProfiles,
         customTickSize: settings.general.customTickSize,
+        transparency: settings.general.transparency
       },
       graphics: settings.graphics,
       profile: {

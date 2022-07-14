@@ -112,7 +112,7 @@
 
             <label class="custom-checkbox mb-1">
               <input
-                type="checkbox" formControlName="connectOnStartUp" [checked]="connectOnStartUp">
+                type="checkbox" formControlName="connectOnStartUp">
               <span>Connect on start up</span>
             </label>
             <button
@@ -141,7 +141,7 @@
                   </div>
                   <div>
                     <span class="default-label">Default</span>
-                  <nz-switch nzSize="small" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : selectFreeConnectionAsDefault()"></nz-switch>
+                  <nz-switch nzSize="small" [nzDisabled]="disableDefaultChange" [ngModel]="selectedItem.isDefault" (ngModelChange)="$event ? makeDefault(selectedItem) : selectFreeConnectionAsDefault()"></nz-switch>
                   </div>
                 </tr>
                 <tr>

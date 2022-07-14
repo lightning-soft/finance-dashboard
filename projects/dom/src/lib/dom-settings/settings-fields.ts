@@ -5,15 +5,17 @@ import {
   getColor,
   getHistogramColor,
   getHistogramOrientation,
-  getHotkey,
-  getNumber,
-  getSessionSelect,
+  getHotkey, getLabel,
+  getNumber, getSelect,
+  getSessionSelect, getSwitch,
   getTextAlign,
   IFieldConfig,
   wrapWithClass
 } from 'dynamic-form';
 import { wrapWithConfig } from 'projects/dynamic-form';
-import { orderFields } from 'base-order-form';
+import {tradingFields} from 'chart';
+import * as clone from 'lodash.clonedeep';
+
 
 
 function getHightlightColor() {
@@ -375,7 +377,58 @@ export const ltqFields: IFieldConfig[] = [
   }),
 ];
 
-export const orderAreaFields = [{ key: 'orderArea', fieldGroup: [orderFields] }];
+const tradingGeneral =   new FieldConfig({
+    label: 'Trading',
+  className: 'w-100 order-form-settings',
+  fieldGroupClassName: 'd-block ml-2',
+  fieldGroup: [
+    getCheckboxes({
+      checkboxes: [
+        { key: 'showOrderConfirm', label: 'Require Order Confirmation' },
+        { key: 'showCancelConfirm', label: 'Require Cancel Confirmation' },
+        { key: 'overlayOrders', label: 'Overlay orders on the Bid/Ask Delta Column' },
+        { key: 'split', label: 'Split order column into Buy Orders and Sell Orders' },
+      ],
+      extraConfig: { fieldGroupClassName: 'd-block' }
+    })]
+  });
+const tradingOrderDom =   new FieldConfig({
+  className: 'w-100 order-form-settings mb-3',
+  fieldGroupClassName: 'd-block',
+  fieldGroup: [
+    getCheckboxes({
+      checkboxes: [
+        { key: 'showInstrumentChange', label: 'Show Instrument Change' },
+        { key: 'showOHLVInfo', label: 'Show OHLV Info' },
+        { key: 'showBracket', label: 'Show Bracket Button' },
+        { key: 'showPLInfo', label: 'Show PL Info' },
+        { key: 'roundPL', label: 'Round PL to whole numbers' },
+      ],
+      extraConfig: { fieldGroupClassName: 'd-block' }
+    }),
+    getSwitch('includeRealizedPL', 'Include Realized tradingDomFields',
+      { hideExpression: '!model.showPLInfo' }
+    )
+  ],
+  });
+const tradingGeneral2 =       new FieldConfig({
+    fieldGroupClassName: 'd-flex flex-wrap d-flex-just two-rows-dom p-x-7 mt-2',
+    className: 'mt-0',
+    fieldGroup: [
+      disableExpression(getColor({ label: 'Buy Orders Column', key: 'buyOrdersBackgroundColor' }), '!model.split'),
+      disableExpression(getColor({
+        label: 'Sell Orders Column',
+        key: 'sellOrdersBackgroundColor'
+      }), '!model.split')]
+  });
+
+const tradingDomFields = clone(tradingFields);
+tradingDomFields[0].className = 'field-item dom-trading';
+tradingDomFields[0].fieldGroup.shift();
+tradingDomFields[0].fieldGroup.unshift(tradingGeneral2);
+tradingDomFields[0].fieldGroup.unshift(tradingGeneral);
+tradingDomFields[0].fieldGroup[3].fieldGroup.unshift(tradingOrderDom);
+
 export const priceFields: IFieldConfig[] = [
   new FieldConfig({
     fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
@@ -717,6 +770,7 @@ export enum SettingTab {
   Columns = 'columns',
   Common = 'common',
   OrderArea = 'orderArea',
+  Trading = 'trading',
   LTQ = 'ltq',
   Price = 'price',
   BidDelta = 'bidDelta',
@@ -741,7 +795,7 @@ export const SettingsConfig = {
   [SettingTab.Hotkeys]: hotkeyFields,
   [SettingTab.LTQ]: ltqFields,
   [SettingTab.Price]: priceFields,
-  [SettingTab.OrderArea]: orderAreaFields,
+  [SettingTab.Trading]: tradingDomFields,
   [SettingTab.BidDelta]: getDeltaFields('Bid Delta'),
   [SettingTab.AskDelta]: getDeltaFields('Ask Delta'),
   // [SettingTab.Ask]: askFields,

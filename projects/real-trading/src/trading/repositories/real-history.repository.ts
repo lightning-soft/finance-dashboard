@@ -42,13 +42,14 @@ export class RealHistoryRepository extends BaseRepository<IHistoryItem> implemen
       params.startDate = params.startDate?.getTime();
     if (typeof params.endDate !== 'number')
       params.endDate = params.endDate.getTime();
+
     if (params.Exchange === 'FAIRX'){
+      params.id = params.Symbol;
+    } else if (params?.Symbol) {
       params.id = params.Symbol;
     } else if (params?.productCode) {
       params.id = params.productCode;
       delete params.productCode;
-    } else if (params?.Symbol) {
-      params.id = params.Symbol;
     } else if (params?.id) {
       const [symbol, exchange] = params.id.split('.');
       params.id = symbol;

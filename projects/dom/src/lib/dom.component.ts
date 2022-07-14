@@ -87,10 +87,10 @@ import { CustomDomItem, DOMColumns, DomItem, LEVELS, TailInside, VolumeStatus } 
 import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
 import { DailyInfoComponent } from './daily-info/daily-info.component';
+import { SideOrderSettingsDom } from './interface/dom-settings.interface';
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
-
 export class DomItemMax {
   ask: number;
   bid: number;
@@ -158,21 +158,21 @@ const directionsHints: { [key in FormDirection]: string } = {
 };
 
 const headers: HeaderItem[] = [
-  { name: DOMColumns.Orders, tableViewName: 'Orders' },
-  { name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders' },
-  { name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders' },
-  { name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram' },
-  DOMColumns.Price,
-  { name: DOMColumns.Delta, tableViewName: 'Delta' },
-  { name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta' },
-  { name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram' },
-  { name: DOMColumns.LTQ, tableViewName: 'LTQ' },
-  { name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram' },
-  { name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram' },
-  { name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram' },
-  { name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta' },
-  { name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram' },
-  { name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram' },
+  {name: DOMColumns.Orders, tableViewName: 'Orders'},
+  {name: DOMColumns.BuyOrders, title: 'buy Orders', tableViewName: 'Buy Orders'},
+  {name: DOMColumns.SellOrders, title: 'sell Orders', tableViewName: 'Sell Orders'},
+  {name: DOMColumns.Volume, tableViewName: 'Volume', type: 'histogram', width: 90},
+  {name: DOMColumns.Price, tableViewName: 'Price', width: 62},
+  {name: DOMColumns.Delta, tableViewName: 'Delta', width: 58},
+  {name: DOMColumns.BidDelta, title: 'delta', tableViewName: 'Bid Delta', width: 68},
+  {name: DOMColumns.Bid, tableViewName: 'Bid', type: 'histogram', width: 88},
+  {name: DOMColumns.LTQ, tableViewName: 'LTQ', width: 49},
+  {name: DOMColumns.CurrentBid, title: 'c.bid', tableViewName: 'C.Bid', type: 'histogram', width: 50},
+  {name: DOMColumns.CurrentAsk, title: 'c.ask', tableViewName: 'C.Ask', type: 'histogram', width: 50},
+  {name: DOMColumns.Ask, title: 'ask', tableViewName: 'Ask', type: 'histogram', width: 88},
+  {name: DOMColumns.AskDelta, title: 'delta', tableViewName: 'Ask Delta', width: 68},
+  {name: DOMColumns.TotalBid, title: 't.bid', tableViewName: 'T.Bid', type: 'histogram'},
+  {name: DOMColumns.TotalAsk, title: 't.ask', tableViewName: 'T.Ask', type: 'histogram'},
 ];
 
 export enum QuantityPositions {
@@ -245,25 +245,25 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get showOrderConfirm() {
-    return this.domFormSettings.formSettings.showOrderConfirm;
+    return this.domFormSettings.showOrderConfirm;
   }
 
   set showOrderConfirm(value) {
-    this.domFormSettings.formSettings.showOrderConfirm = value;
+    this.domFormSettings.showOrderConfirm = value;
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 
   get showCancelConfirm() {
-    return this.domFormSettings.formSettings.showCancelConfirm;
+    return this.domFormSettings.showCancelConfirm;
   }
 
   set showCancelConfirm(value) {
-    this.domFormSettings.formSettings.showCancelConfirm = value;
+    this.domFormSettings.showCancelConfirm = value;
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
 
   get domFormSettings() {
-    return this._settings.orderArea.settings;
+    return mapSettingsToSideFormState(this._settings).formSettings;
   }
 
   get _tickSize() {
@@ -323,6 +323,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       return;
 
     this._account = value;
+    this.centralize();
     this.handleAccountChange(value);
   }
 
@@ -540,11 +541,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   get bracketActive() {
-    return this._settings.orderArea?.settings.formSettings.showBracket === true;
+    return this._settings.trading?.trading?.bracketButton === true;
   }
 
   set bracketActive(value: boolean) {
-    this._settings.orderArea.settings.formSettings.showBracket = value;
+    this._settings.trading.trading.bracketButton = value;
     this._linkSettings(this._settings);
     this.broadcastData(receiveSettingsKey + this._getSettingsKey(), this._settings);
   }
@@ -572,6 +573,11 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _bestBidPrice: number;
   private _bestAskPrice: number;
+
+  // the problem is that current ask/bid doesn't clear "inside" status. So need to check all trading prices.
+  // current(Ask, Bid)Range contains range of traded indexes
+  currentAskRange = { minIndex: null, maxIndex: null };
+  currentBidRange = { minIndex: null, maxIndex: null };
   componentInstanceId: number;
 
   dailyInfo: Partial<IHistoryItem>;
@@ -692,6 +698,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   handleAccountChange(account: IAccount) {
+    this.domForm.loadState(this._initialState.orderForm);
+
     this._loadData();
     this._onInstrumentChange(this.instrument, true);
   }
@@ -854,7 +862,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const depth = settings.general?.marketDepth;
     this._marketDepth = depth?.marketDepth ?? 10000;
     this._marketDeltaDepth = depth?.bidAskDeltaDepth ?? 10000;
-    this.domForm?.loadState(this._settings.orderArea as any);
+    this.domForm?.loadState({ settings: mapSettingsToSideFormState(settings) });
     this.updatePl();
     this.refresh();
     this._updateVolumeColumn();
@@ -871,7 +879,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     if (this._bestBidPrice == null) {
       this._bestBidPrice = this._lastPrice;
     }
-
     this.items.forEach((i, index) => {
       i.side = this._bestAskPrice <= i.price._value ? QuoteSide.Ask : QuoteSide.Bid;
       i.refresh();
@@ -884,6 +891,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       i.index = index;
     });
     this._applyOffset();
+    this.domForm?.loadState({ settings: mapSettingsToSideFormState(this._settings) });
   }
 
   allStopsToPrice() {
@@ -921,10 +929,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         this.plInput.nativeElement.value = this.pl;
     }
 
-    const includeRealizedPl = this.domFormSettings.formSettings.includeRealizedPL;
+    const includeRealizedPl = this.domFormSettings.includeRealizedPL;
     const price = this._lastTradeItem.price._value ?? 0;
     const i = this.instrument;
-    const precision = this.domFormSettings.formSettings.roundPL ? 0 : (i?.precision ?? 2);
+    const precision = this.domFormSettings.roundPL ? 0 : (i?.precision ?? 2);
     const pl = calculatePL(position, price, this._tickSize, i?.contractSize, includeRealizedPl);
     if (pl == null)
       return;
@@ -969,7 +977,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   _updateDailyInfoComponent = () => {
-    this.dailyInfoComponents.forEach(item => {
+    this.dailyInfoComponents?.forEach(item => {
       item.handleDailyInfo(this.dailyInfo as IHistoryItem);
     });
   }
@@ -1105,6 +1113,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (force || instrument?.id != null && instrument?.id !== prevInstrument?.id) {
       this.dailyInfo = null;
+      this._updateDailyInfoComponent();
 
       const connectionId = this.account?.connectionId;
       if (connectionId != null) {
@@ -1296,6 +1305,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     this._loadPositions();
     this._loadOrderBook();
+    this.currentAskRange.minIndex = null;
+    this.currentAskRange.maxIndex = null;
+    this.currentBidRange.minIndex = null;
+    this.currentBidRange.maxIndex = null;
     this.refresh();
   }
 
@@ -1494,6 +1507,22 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     const max = this._max;
 
     const _item = this._getItem(trade.price);
+
+    if (trade.side === OrderSide.Sell) {
+      if ((this.currentAskRange.minIndex ?? Infinity) > _item.index) {
+        this.currentAskRange.minIndex = _item.index;
+      }
+      if ((this.currentAskRange.maxIndex ?? -Infinity) < _item.index) {
+        this.currentAskRange.maxIndex = _item.index;
+      }
+    } else {
+      if ((this.currentBidRange.minIndex ?? Infinity) > _item.index) {
+        this.currentBidRange.minIndex = _item.index;
+      }
+      if ((this.currentBidRange.maxIndex ?? -Infinity) < _item.index) {
+        this.currentBidRange.maxIndex = _item.index;
+      }
+    }
 
     if (prevltqItem?.lastPrice !== trade.price) {
       if (prevltqItem)
@@ -1757,10 +1786,10 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   private _applyOffset() {
     if (this._bestAskPrice)
-      this._handleNewBestAsk(this._bestAskPrice);
+      this._handleNewBestAsk();
 
     if (this._bestBidPrice)
-      this._handleNewBestBid(this._bestBidPrice);
+      this._handleNewBestBid();
   }
 
   protected _handleQuote(trade: IQuote) {
@@ -1828,16 +1857,16 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
         // if (this._bestBidPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestBidPrice = price;
-
-        window.lastFn(this._handleNewBestBid, price);
+        this._bestBidPrice = price;
+        window.lastFn(this._handleNewBestBid);
         // this._handleNewBestBid(price);
         // }
       } else if (!isBid || (needClear && isBid)) {
         // if (this._bestAskPrice !== price || needClear) {
         // if (!needClear)
         //   this._bestAskPrice = price;
-
-        window.lastFn(this._handleNewBestAsk, price);
+        this._bestAskPrice = price;
+        window.lastFn(this._handleNewBestAsk);
         // this._handleNewBestAsk(price);
         // }
       }
@@ -1914,26 +1943,26 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
-  _handleNewBestBid = (price: number) => {
+  _handleNewBestBid = () => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
     this.bidSumItem.clearBidSum();
-
+    const price = this._bestBidPrice;
     let item = this._getItem(price);
     let index = item.index;
-    let rIndex = index;
-    const clearLastIndex = this.askSumItem?.index ?? 0;
     const lastMarketDepthIndex = index + marketDepth;
     const lastMarketDeltaDepthIndex = index + marketDeltaDepth;
     let sum = 0;
     let max = 0;
-
-    while (--rIndex >= clearLastIndex) {
-      items[rIndex].setBidVisibility(true, true);
-      items[rIndex].clearCurrentBidBest();
-      items[rIndex].clearBidDelta();
+    let rIndex = this.currentBidRange.minIndex;
+    while (rIndex <= this.currentBidRange.maxIndex) {
+      items[rIndex]?.setBidVisibility(true, true);
+      if (rIndex !== index)
+        items[rIndex]?.clearCurrentBidBest();
+      items[rIndex]?.clearBidDelta();
+      rIndex++;
     }
 
     while (item) {
@@ -1975,26 +2004,28 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     this._calculateBidHist();
   }
 
-  _handleNewBestAsk = (price: number) => {
+  _handleNewBestAsk = () => {
     const items = this.items;
     const marketDepth = this._marketDepth;
     const marketDeltaDepth = this._marketDeltaDepth;
 
     this.askSumItem.clearAskSum();
 
+    const price = this._bestAskPrice;
+
     let item = this._getItem(price);
     let index = item.index;
-    let rIndex = index;
-    const clearLastIndex = this.bidSumItem?.index ?? this.items.length - 1;
     const lastMarketDepthIndex = index - marketDepth;
     const lastMarketDeltaDepthIndex = index - marketDeltaDepth;
     let sum = 0;
     let max = 0;
-
-    while (++rIndex <= clearLastIndex) {
-      items[rIndex].setAskVisibility(true, true);
-      items[rIndex].clearCurrentAskBest();
-      items[rIndex].clearAskDelta();
+    let rIndex = this.currentAskRange.minIndex;
+    while (rIndex <= this.currentAskRange.maxIndex) {
+      items[rIndex]?.setAskVisibility(true, true);
+      if (index !== rIndex)
+        items[rIndex]?.clearCurrentAskBest();
+      items[rIndex]?.clearAskDelta();
+      rIndex++;
     }
 
     while (item) {
@@ -2060,7 +2091,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     grid.forEachRow((row, y) => {
       if (enableEth && (!showColumnHeaders || y >= headerHeight))
-        this.drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x });
+        this.drawVolumeEth({row, lastItemIndex, ctx, height, y, volumeColumn, x});
 
       if (centerLineEnabled && row.isCenter) {
         fn = () => {
@@ -2083,7 +2114,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
       fn();
   }
 
-  private drawVolumeEth({ row, lastItemIndex, ctx, height, y, volumeColumn, x }) {
+  private drawVolumeEth({row, lastItemIndex, ctx, height, y, volumeColumn, x}) {
     const index = row.index;
     let prevVolume;
     if (index !== 0)
@@ -2098,7 +2129,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   transformAccountLabel(label: string) {
     const replacer = '*';
-    const { hideAccountName, hideFromLeft, hideFromRight, digitsToHide } = this._settings.general;
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settings.general;
     if (hideAccountName) {
       const length = digitsToHide > label.length ? label.length : digitsToHide;
       let _label = label;
@@ -2112,7 +2143,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   private _closeSettings() {
-    this.broadcastData(DomSettingsSelector, { action: 'close', linkKey: this._getSettingsKey() } as IDomSettingsEvent);
+    this.broadcastData(DomSettingsSelector, {action: 'close', linkKey: this._getSettingsKey()} as IDomSettingsEvent);
   }
 
   handleNodeEvent(name: LayoutNodeEvent, data: any) {
@@ -2204,7 +2235,6 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   saveState(): IDomState {
-    this._settings.orderArea = this.domForm?.getState() as any;
     return {
       instrument: this.instrument,
       componentInstanceId: this.componentInstanceId,
@@ -2241,15 +2271,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
     if (!state?.instrument)
       state.instrument = {
-        id: 'ESH2.CME',
-        description: 'E-Mini S&P 500 Mar22',
+        id: 'ESM2.CME',
+        description: 'E-Mini S&P 500 Jun22',
         exchange: 'CME',
         tickSize: 0.25,
         precision: 2,
-        instrumentTimePeriod: 'Mar22',
+        instrumentTimePeriod: 'Jun22',
         contractSize: 50,
         productCode: 'ES',
-        symbol: 'ESH2',
+        symbol: 'ESM2',
       };
     // for debug purposes
 
@@ -2647,3 +2677,45 @@ export function calculateDay(date, dayOfWeek) {
   return date.getDate() + distance;
 }
 
+function mapSettingsToSideFormState(settings: DomSettings): SideOrderSettingsDom {
+
+  const orderAreaSettings = settings.trading.orderArea.settings;
+  const sideOrderSettingsDom: SideOrderSettingsDom = {};
+  sideOrderSettingsDom.buyButtonsBackgroundColor = orderAreaSettings.buyMarketButton.background;
+  sideOrderSettingsDom.buyButtonsFontColor = orderAreaSettings.buyMarketButton.font;
+
+  sideOrderSettingsDom.sellButtonsBackgroundColor = orderAreaSettings.sellMarketButton.background;
+  sideOrderSettingsDom.sellButtonsFontColor = orderAreaSettings.sellMarketButton.font;
+
+  sideOrderSettingsDom.flatButtonsBackgroundColor = orderAreaSettings.flatten.background;
+  sideOrderSettingsDom.flatButtonsFontColor = orderAreaSettings.flatten.font;
+
+  sideOrderSettingsDom.cancelButtonBackgroundColor = orderAreaSettings.cancelButton.background;
+  sideOrderSettingsDom.cancelButtonFontColor = orderAreaSettings.cancelButton.font;
+
+  sideOrderSettingsDom.closePositionFontColor = orderAreaSettings.showLiquidateButton?.font;
+  sideOrderSettingsDom.closePositionBackgroundColor = orderAreaSettings.showLiquidateButton?.background;
+
+  sideOrderSettingsDom.icebergFontColor = orderAreaSettings.icebergButton.font;
+  sideOrderSettingsDom.icebergBackgroundColor = orderAreaSettings.icebergButton.background;
+
+  sideOrderSettingsDom.formSettings = {};
+  sideOrderSettingsDom.formSettings.showIcebergButton = orderAreaSettings.icebergButton.enabled;
+  sideOrderSettingsDom.formSettings.showFlattenButton = orderAreaSettings.flatten.enabled;
+  sideOrderSettingsDom.formSettings.showLiquidateButton = orderAreaSettings.showLiquidateButton?.enabled;
+  sideOrderSettingsDom.formSettings.showCancelButton = orderAreaSettings.cancelButton.enabled;
+  sideOrderSettingsDom.formSettings.showBuyButton = orderAreaSettings.buyMarketButton.enabled;
+  sideOrderSettingsDom.formSettings.showSellButton = orderAreaSettings.sellMarketButton.enabled;
+  sideOrderSettingsDom.formSettings.showBracket = settings.trading.orderArea.bracketButton;
+  sideOrderSettingsDom.formSettings.showInstrumentChange = settings.trading.orderArea.showInstrumentChange;
+  sideOrderSettingsDom.formSettings.showOHLVInfo = settings.trading.orderArea.showOHLVInfo;
+  sideOrderSettingsDom.formSettings.showPLInfo = settings.trading.orderArea.showPLInfo;
+  sideOrderSettingsDom.formSettings.roundPL = settings.trading.orderArea.roundPL;
+  sideOrderSettingsDom.formSettings.showCancelConfirm = settings.trading.trading.showCancelConfirm;
+  sideOrderSettingsDom.formSettings.showOrderConfirm = settings.trading.trading.showOrderConfirm;
+  sideOrderSettingsDom.formSettings.includeRealizedPL = settings.trading.orderArea.includeRealizedPL;
+  sideOrderSettingsDom.amountButtons = settings.trading.amountButtons;
+  sideOrderSettingsDom.tif = settings.trading.tif;
+
+  return sideOrderSettingsDom;
+}

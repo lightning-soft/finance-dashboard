@@ -15,6 +15,7 @@ $cell-background: #1b1d22;
 
   window-header {
     margin-bottom: 0px;
+    background: #24262C;
   }
 
   &.hide-header-panel {
@@ -59,7 +60,6 @@ $cell-background: #1b1d22;
     }
   }
 }
-
 
 .window-header-button {
   display: flex;
@@ -257,6 +257,7 @@ side-form {
   overflow: hidden;
   width: auto;
   flex-shrink: 0;
+  background: #1b1d22;
 }
 
 .dom-layout {

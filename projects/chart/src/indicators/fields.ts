@@ -1022,6 +1022,13 @@ export const volumeProfileConfig: IFieldConfig[] = [
           getNumber({ label: 'Ticks per price', key: 'value', min: 1, }),
         ],
       },
+      getNumber({
+        key: 'transparency',
+        label: 'Transparency, % ',
+        min: 1,
+        max: 100,
+        className: 'calculate-profiles'
+      }),
     ],
   }),
   new FieldConfig({
@@ -1893,18 +1900,7 @@ export const vwapConfig: IFieldConfig[] = [
           }),
         ]
       }),
-      getCheckboxes({
-        checkboxes: [{
-          key: 'isShowCustomTimes',
-          label: 'Custom Times'
-        }],
-        additionalFields: [
-          getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
-        ],
-        extraConfig: {
-          fieldGroupClassName: 'd-grid two-rows'
-        },
-      }),
+      getSessionsSelect('customTimes', { className: 'wvap-duration select session-template' }),
       getCheckboxes({
         checkboxes: [{
           key: 'isShowCustomDuration',

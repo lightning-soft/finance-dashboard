@@ -7,8 +7,8 @@ export interface L2 {
   timestamp: number;
   instrument: IRealtimeInstrument;
   orderId: number | string;
-  previousPrice: number
-  price: number
+  previousPrice: number;
+  price: number;
   side: OrderSide;
   size: number;
 }

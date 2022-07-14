@@ -191,9 +191,12 @@ export abstract class Datafeed implements IDatafeed {
    * @memberOf StockChartX.Datafeed#
    */
   send(request: IRequest) {
-    this._requests.set(request.id, request);
+  if (request.kind === 'bars')
+      request.chart.dataManager.clearBarDataSeries();
 
-    request.chart.showWaitingBar();
+  this._requests.set(request.id, request);
+
+  request.chart.showWaitingBar();
   }
 
   /**
@@ -264,7 +267,7 @@ export abstract class Datafeed implements IDatafeed {
     if (!lastBar)
       return;
 
-    const bar = {
+    const bar: IBar = {
       open: quote.price,
       high: quote.price,
       low: quote.price,
@@ -317,7 +320,7 @@ export abstract class Datafeed implements IDatafeed {
     }
   }
 
-  private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument) {
+  private _updateLastBarDetails(quote: IQuote, chart: IChart, instrument?: IStockChartXInstrument): void {
     const symbol = instrument && instrument.symbol !== chart.instrument.symbol ? instrument.symbol : '';
     const barDataSeries = chart.dataManager.barDataSeries(symbol);
     const detailsDataSeries = barDataSeries.details;
@@ -340,10 +343,10 @@ export abstract class Datafeed implements IDatafeed {
   }
 }
 
-function handleNewQuote(quote: IQuote, details: IDetails[]) {
+function handleNewQuote(quote: IQuote, details: IDetails[]): IDetails[] {
   const { volume, tradesCount: _tradesCount, price } = quote;
-  const tradesCount = _tradesCount ?? volume;
-  let item = details.find(i => i.price === price);
+  const tradesCount: number = _tradesCount ?? volume;
+  let item: IDetails = details.find(i => i.price === price);
 
   if (!item) {
     item = {

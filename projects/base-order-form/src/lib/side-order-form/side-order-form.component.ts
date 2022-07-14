@@ -16,6 +16,7 @@ import {
 import { BaseOrderForm, OcoStep } from '../base-order-form';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { ITypeButton } from '../type-buttons/type-buttons.component';
+import * as clone from 'lodash.clonedeep';
 
 export enum FormActions {
   ClosePositions,
@@ -231,10 +232,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   amountButtons: IAmountButton[] = [
-    { value: 1 }, { value: 2, black: true },
-    { value: 10 }, { value: 50 },
-    { value: 100 }, { value: 5 }
-  ];
+    {value: 1},
+    {value: 1, black: true},
+    {value: 3},
+    {value: 5},
+    {value: 10},
+    {value: 25}];
   _typeButtons: ITypeButton[] = [
     { label: 'LMT', visible: true, black: true, value: OrderType.Limit, selectable: true },
     { label: 'STP MKT', visible: true, value: OrderType.StopMarket, black: true, selectable: true },
@@ -287,10 +290,12 @@ export class SideOrderFormComponent extends BaseOrderForm {
     if (state?.settings) {
       if (!this.isLoadedAtFirst && state.settings.tif?.default) {
         this.form.patchValue({ duration: state.settings.tif.default });
-        this.isLoadedAtFirst = true;
+      // was  this.isLoadedAtFirst = true;
       }
       this._settings = { ...this._settings, ...state.settings };
-      const tif = this._settings.tif;
+      this.form.patchValue({ type: OrderType.Limit });
+
+      const tif = clone(this._settings.tif);
       this.tifButtons = this.tifButtons.map(item => {
         const selectable = tif[item.value];
         item.selectable = selectable;
@@ -301,8 +306,13 @@ export class SideOrderFormComponent extends BaseOrderForm {
   }
 
   getState(): SideOrderFormState {
+    const controls: SideOrderForm = this.form.controls as SideOrderForm;
     return {
-      formData: { quantity: (this.form.controls as SideOrderForm).quantity.value },
+      formData: {
+        quantity: controls.quantity.value,
+        stopLoss: controls.stopLoss.value,
+        takeProfit: controls.takeProfit.value,
+      },
       amountButtons: this.amountButtons,
       settings: this._settings,
     };

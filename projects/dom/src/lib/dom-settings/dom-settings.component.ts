@@ -38,7 +38,7 @@ export class DomSettingsComponent implements IStateProvider<IDomSettingsState>, 
   list = [
     { tab: SettingTab.General, label: 'General' },
     { tab: SettingTab.Hotkeys, label: 'Hotkeys' },
-    { tab: SettingTab.OrderArea, label: 'Order Area' },
+    { tab: SettingTab.Trading, label: 'Trading' },
     {
       label: 'Columns',
       expanded: true,

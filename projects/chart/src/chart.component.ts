@@ -353,6 +353,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       return;
 
     this.datafeed.changeInstrument(instrument);
+    this.info.clear();
     this.formatter = InstrumentFormatter.forInstrument(instrument);
     this.position = this._positions.items.find((item) => compareInstruments(item.instrument, this.instrument));
     this.chart.instrument = instrument;
@@ -435,7 +436,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  handleToggleVisibility(visible) {
+  handleToggleVisibility(visible): void {
     if (this.chart)
       this.chart.shouldDraw = visible;
     if (visible) {
@@ -444,7 +445,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private _updateSubscriptions() {
+  private _updateSubscriptions(): void {
     const connectionId = this.account?.connectionId;
     const instrument = this.instrument;
     if (connectionId != null && instrument != null) {
@@ -477,7 +478,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.chart.setNeedsUpdate();
   }
 
-  async ngAfterViewInit() {
+  async ngAfterViewInit(): Promise<void> {
     this.window = this._windowManager.getWindowByComponent(this);
 
     this.loadFiles()
@@ -519,7 +520,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     return this._lazyLoaderService.load();
   }
 
-  private _handleOHLV(historyItem) {
+  private _handleOHLV(historyItem): void {
     if (!this.instrument || !compareInstruments(historyItem.instrument, this.instrument))
       return;
 
@@ -614,15 +615,15 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this._handleSettingsChange(this.settings);
 
     this.instrument = state?.instrument ?? {
-      id: 'ESH2.CME',
-      description: 'E-Mini S&P 500 Mar22',
+      id: 'ESM2.CME',
+      description: 'E-Mini S&P 500 Jun22',
       exchange: 'CME',
       tickSize: 0.25,
       precision: 2,
-      instrumentTimePeriod: 'Mar22',
+      instrumentTimePeriod: 'Jun22',
       contractSize: 50,
       productCode: 'ES',
-      symbol: 'ESH2',
+      symbol: 'ESM2',
       company: this._getInstrumentCompany(),
     } as IStockChartXInstrument;
 
@@ -1312,23 +1313,20 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
     if (widget) {
       widget.focus();
-      console.log('w', widget);
     } else {
       const coords: any = {};
       if (this.contextEvent) {
         coords.x = this.contextEvent.clientX;
         coords.y = this.contextEvent.clientY;
       }
+      const template = this._volumeProfileTemplatesRepository.getTemplates().find(item => item.id == this.activeIndicator.templateId);
       this.layout.addComponent({
         component: {
           name: customVolumeProfileSettings,
           state: {
             linkKey,
             identificator: this.activeIndicator,
-            template: {
-              id: this.activeIndicator.templateId,
-              settings: this.activeIndicator?.settings,
-            },
+            template,
             chart: this.chart,
           }
         },

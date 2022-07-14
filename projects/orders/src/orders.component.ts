@@ -137,7 +137,7 @@ export class OrdersComponent extends RealtimeGridComponent<IOrder, IOrderParams>
     OrderColumn.side,
     OrderColumn.type,
     { name: OrderColumn.quantity, title: 'Quantity' },
-    { name: OrderColumn.filledQuantity, title: 'QTY FILLED', tableViewName: 'Quantity Filled' },
+    { name: OrderColumn.filledQuantity, title: 'QTY FILLED', tableViewName: 'Filled' },
     { name: OrderColumn.quantityRemain, title: 'QTY REMAIN', tableViewName: 'Quantity Remaining' },
     { name: OrderColumn.price, title: 'Price' },
     { name: OrderColumn.triggerPrice, title: 'TRIG Price', tableViewName: 'Trigger Price' },

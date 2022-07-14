@@ -2,12 +2,14 @@ import { CellStatus, Column, DefaultScrollSensetive, generateNewStatusesByPrefix
 import * as merge from 'deepmerge';
 import { HistogramOrientation, TextAlign } from 'dynamic-form';
 import { KeyBinding, KeyBindingPart, KeyCode } from 'keyboard';
+import { OrderDuration } from 'trading';
+import { TradingItem } from '../interface/dom-settings.interface';
 
 function getKeyBindings(keyCodes = []) {
   return new KeyBinding(keyCodes.map(item => KeyBindingPart.fromKeyCode(item))).toDTO();
 }
 
-const DefaultClearInterval = 2500;
+const DefaultClearInterval = 9999;
 
 export class DomSettings {
   public set columns(value: Column[]) {
@@ -30,17 +32,17 @@ export class DomSettings {
     closeOutstandingOrders: false,
     recenter: true,
     commonView: {
-      autoCenterTicks: 10,
+      autoCenterTicks: 20,
       ticksMultiplier: 2,
       useCustomTickSize: false,
       // onTop: true,
       resetOnNewSession: true,
-      autoCenter: false,
+      autoCenter: true,
       centerLine: true,
     },
     marketDepth: {
       bidAskDeltaDepth: 9,
-      marketDepth: 9,
+      marketDepth: 40,
       showDepthHistory: false,
       bidAskDeltaFilter: 0
     },
@@ -108,14 +110,14 @@ export class DomSettings {
     // currentTradesAtAsk: true,
     // currentTradesAtBid: true,
     ltq: true,
-    delta: true,
+    delta: false,
     notes: true,
-    orders: true,
+    orders: false,
     buyOrders: true,
     sellOrders: true,
     price: true,
-    totalAsk: true,
-    totalBid: true,
+    totalAsk: false,
+    totalBid: false,
     currentBid: true,
     currentAsk: true,
     volume: true,
@@ -130,51 +132,131 @@ export class DomSettings {
     sellBackgroundColor: 'rgba(201, 59, 59, 1)',
     textAlign: TextAlign.Center,
   };
-  orderArea = {
+
+  trading: TradingItem =  {
     amountButtons: [
-      { value: 1 },
-      { black: true, value: 2 },
-      { value: 10 },
-      { value: 50 },
-      { value: 100 },
-      { value: 5 },
+      {value: 1},
+      {value: 1, black: true},
+      {value: 3},
+      {value: 5 },
+      {value: 10},
+      {value: 25}
     ],
     formData: {
       quantity: 1,
     },
-    settings: {
-      buyButtonsBackgroundColor: '#0C62F7',
-      flatButtonsBackgroundColor: '#51535A',
-      buyButtonsFontColor: '#fff',
-      flatButtonFontColor: '#D0D0D2',
-      sellButtonsBackgroundColor: '#C93B3B',
-      cancelButtonBackgroundColor: '#51535A',
-      sellButtonsFontColor: '#fff',
-      cancelButtonFontColor: '#fff',
-      formSettings: {
-        closePositionButton: true,
-        showLiquidateButton: true,
-        includeRealizedPL: false,
-        roundPL: false,
-        showBracket: true,
-        showBuyButton: true,
-        showSellButton: true,
-        showOrderConfirm: true,
-        showCancelConfirm: true,
-        showCancelButton: true,
-        showFlattenButton: true,
-        showIcebergButton: true,
-        showInstrumentChange: true,
-        showOHLVInfo: true,
-        showPLInfo: true,
+    orderArea: {
+      settings: {
+        cancelButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        closePositionButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        showLiquidateButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        flatten: {
+          background: '#51535A',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        icebergButton: {
+          background: '#51535A',
+          enabled: true,
+          font: '#fff',
+        },
+        sellMarketButton: {
+          background: '#C93B3B',
+          enabled: true,
+          font: '#D0D0D2',
+        },
+        buyMarketButton: {
+          background: '#0C62F7',
+          enabled: true,
+          font: '#D0D0D2',
+        },
       },
-      tif: {
-        DAY: true,
-        FOK: true,
-        GTC: true,
-        IOC: true,
-      }
-    }
+      showOHLVInfo: true,
+      showPLInfo: true,
+      roundPL: false,
+      showInstrumentChange: false,
+      bracketButton: true,
+      includeRealizedPL: false,
+
+    },
+    ordersColors: {
+      buy: {
+        limit: {
+          length: 1,
+          lineColor: '#0C62F7',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#0C62F7',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#33537C',
+          lineType: 'dotted',
+        },
+      },
+      ocoStopLimit: '#FFFF00',
+      ocoStopOrder: '#FFFF00',
+      sell: {
+        limit: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        market: {
+          length: 1,
+          lineColor: '#FF0000',
+          lineType: 'dashed',
+        },
+        stop: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'solid',
+        },
+        stopLimit: {
+          length: 1,
+          lineColor: '#C93B3B',
+          lineType: 'dotted',
+        },
+      },
+    },
+    tif: {
+      DAY: true,
+      FOK: true,
+      GTC: true,
+      IOC: true,
+      default: OrderDuration.DAY,
+    },
+    trading: {
+      orderBarLength: 100,
+      showOrderConfirm: false,
+      showCancelConfirm: true,
+      orderBarUnit: 'pixels',
+      showWorkingOrders: true,
+      tradingBarLength: 40,
+      tradingBarUnit: 'pixels',
+      overlayOrders: true,
+      split: false,
+    },
   };
   price: any = {
     ...generateNewStatusesByPrefix({
@@ -300,7 +382,7 @@ export class DomSettings {
     showPL: true,
     split: false,
     includeRealizedPL: false,
-    overlayOrders: false,
+    overlayOrders: true,
   };
   currentBid: any = {
     color: '#EB5A5A',
@@ -399,3 +481,5 @@ export class DomSettings {
     return merge({}, this as any);
   }
 }
+
+

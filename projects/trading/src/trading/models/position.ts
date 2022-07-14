@@ -22,6 +22,7 @@ export interface IPosition extends IBaseItem {
   status: PositionStatus;
   instrument: IInstrument;
   account?: IAccount;
+  accountBalance?: number;
 }
 
 export enum PositionStatus {

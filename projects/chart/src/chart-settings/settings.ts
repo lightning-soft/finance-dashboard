@@ -182,7 +182,49 @@ defaultChartSettings = {
     }
   },
   session: {
-    sessionTemplate: null,
+    sessionTemplate: {
+      id: 628,
+      name: 'US Extended Trading Hours',
+      exchange: 'CME',
+      timezoneId: 'America/New_York',
+      workingTimes: [
+        {
+          startDay: 4,
+          startTime: 64800000,
+          endDay: 5,
+          endTime: 61200000,
+          tradingDay: 5,
+        },
+        {
+          startDay: 3,
+          startTime: 64800000,
+          endTime: 61200000,
+          tradingDay: 4,
+          endDay: 4,
+        },
+        {
+          startDay: 2,
+          startTime: 64800000,
+          endDay: 3,
+          endTime: 61200000,
+          tradingDay: 3,
+        },
+        {
+          startDay: 1,
+          startTime: 64800000,
+          endDay: 2,
+          endTime: 61200000,
+          tradingDay: 2,
+        },
+        {
+          startDay: 0,
+          startTime: 64800000,
+          endDay: 1,
+          endTime: 61200000,
+          tradingDay: 1,
+        }
+      ]
+    },
     sessionEnabled: true,
   },
   valueScale: {

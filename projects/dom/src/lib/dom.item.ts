@@ -143,10 +143,14 @@ class OrdersCell extends HistogramCell {
               id: item.id,
               side: item.side,
               ...priceSpecs,
+              iceQuantity: item.iceQuantity,
               quantity: item.quantity - item.filledQuantity,
             } as IOrder;
           } else {
             res.quantity += (item.quantity - item.filledQuantity);
+            if (item.iceQuantity) {
+              res.iceQuantity = (res.iceQuantity || 0) + item.iceQuantity;
+            }
           }
           return res;
         }, null);
@@ -199,7 +203,10 @@ class OrdersCell extends HistogramCell {
       return;
 
     const type = this._order.type.replace(/[^A-Z]/g, '');
-    this._text = `${this._order.quantity}${type}`;
+    let quantity = `${this._order.quantity}`;
+    if (this._order.iceQuantity)
+      quantity = `(${quantity})${this._order.iceQuantity}`;
+    this._text = `${quantity}${type}`;
   }
 
   getPl(): number {

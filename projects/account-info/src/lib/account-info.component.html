@@ -3,9 +3,11 @@
 <data-grid
   #dataGrid
   [(contextMenuState)]="contextMenuState"
+  (contextMenuStateChange)="validateComponentHeight()"
   [items]="builder.items"
   [styles]="gridStyles"
   [columns]="columns"
+  (onOnitialized)="validateComponentHeight()"
   [loadedPresets]="loadedPresets"
   (savePresets)="save()"
   (createPresets)="createPresets(Components.AccountInfo)">>

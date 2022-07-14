@@ -75,7 +75,7 @@ export class BarHandler implements IBarHandler {
     return handler?.setAdditionalInfo(additionalInfo);
   }
 
-  clear() {
+  clear(): void {
     this.timeFrameHandler.clear();
     this.rangeBarHandler.clear();
     this.revsBarHandler.clear();
