@@ -229,7 +229,7 @@ defaultChartSettings = {
   },
   valueScale: {
     valueScale: {
-      pixelsPrice: 0,
+      pixelsPrice: 1,
       isAutomatic: IsAutomaticPixelPrice.AUTOMATIC
     }
   }
