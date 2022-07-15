@@ -3,6 +3,8 @@
                  [disabled]="field.templateOptions?.disabled"
                  [nzMax]="max"
                  [(ngModel)]="value"
+                 [nzPrecision]="precision"
+                 nzPrecisionMode="cut"
                  [ngModelOptions]="{standalone: true}"
                  [nzPlaceHolder]="to.placeholder"
                  [formlyAttributes]="field"

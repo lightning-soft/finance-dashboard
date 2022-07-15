@@ -428,6 +428,7 @@ export const valueScale: IFieldConfig[] = [
               wrapWithConfig(
                 getNumber({
                   key: 'pixelsPrice',
+                  precision: 0,
                   min: 1,
                 }),
                 {

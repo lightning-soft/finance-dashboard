@@ -22,6 +22,10 @@ export class NumberInputComponent extends FieldType {
     return this.formControl.value;
   }
 
+  get precision() {
+    return this.field.templateOptions?.precision ?? 5;
+  }
+
   set value(value) {
     if (value != null)
       this.formControl.patchValue(value);
