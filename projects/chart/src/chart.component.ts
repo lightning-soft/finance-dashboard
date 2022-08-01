@@ -1498,7 +1498,7 @@ function getScxTheme(settings: IChartSettings = defaultChartSettings) {
   setCandleBackground(theme.plot.bar.kagi, settings);
   setCandleBackground(theme.plot.bar.equiVolume, settings);
   setCandleBackground(theme.plot.bar.equiVolumeShadow, settings);
-  setBarBackground(theme.plot.bar.coloredHL, settings);
+  setBarBackground(theme.plot.bar.coloredOHLC, settings);
   setCandleBackground(theme.plot.bar.heikinAshi, settings);
   setCandleBackground(theme.plot.bar.pointAndFigure, settings);
 
