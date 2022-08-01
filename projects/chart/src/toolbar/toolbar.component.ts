@@ -78,7 +78,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   @Input() intervalOptions = [];
   @Input() periodOptions = [];
 
-  priceStyles = ['heikinAshi', 'bar', 'coloredHLBar', 'candle',
+  priceStyles = ['heikinAshi', 'bar', 'coloredBar', 'candle',
     'hollowCandle', 'renko', 'lineBreak', 'kagi',
     'candleVolume', 'equiVolume', 'equiVolumeShadow',
     'line', 'mountain', 'pointAndFigure'];
@@ -86,7 +86,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
   priceStyleNames = {
     heikinAshi: 'Heikin Ashi',
     bar: 'Bars',
-    coloredHLBar: 'Colored Bars',
+    coloredBar: 'Colored Bars',
     candle: 'Candle',
     hollowCandle: 'Hollow Candle',
     renko: 'Renko',
