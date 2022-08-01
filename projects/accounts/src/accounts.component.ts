@@ -111,7 +111,12 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       .pipe(untilDestroyed(this))
       .subscribe(
         res => {
+          const indexDefaultBroker = 0;
           this.brokers = res.data;
+          if (this.brokers.length) {
+            this.selectItem(this.getConnectionsByBroker(this.brokers[indexDefaultBroker])[indexDefaultBroker]);
+          }
+
           if (this.selectedItem) {
             this.expandBrokers();
             return;
