@@ -22,7 +22,8 @@ export class RevsBarHandler extends ChartBarHandler {
         this.isUp = false;
         return BarAction.Add;
       } else {
-        this.updateLastBar(this._mapLastBar(bar, lastBar, true));
+        // if uncommented, the Zigzag indicator returns infinity, because this sums last Bar and new Bar in recursion for realtime
+        // this.updateLastBar(this._mapLastBar(bar, lastBar, true));
         return BarAction.Update;
       }
     else {
@@ -30,7 +31,8 @@ export class RevsBarHandler extends ChartBarHandler {
         this.isUp = true;
         return BarAction.Add;
       } else {
-        this.updateLastBar(this._mapLastBar(bar, lastBar, true));
+        // if uncommented, the Zigzag indicator returns infinity, because this sums last Bar and new Bar in recursion for realtime
+        // this.updateLastBar(this._mapLastBar(bar, lastBar, true));
         return BarAction.Update;
       }
     }
