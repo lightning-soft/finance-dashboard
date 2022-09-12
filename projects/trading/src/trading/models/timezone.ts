@@ -580,7 +580,7 @@ export const TIMEZONES = [
     id: 39,
     value: "GMT Standard Time",
     abbr: "GDT",
-    offset: 0,
+    offset: 1,
     isdst: true,
     text: "Dublin, Lisbon",
     utc: [

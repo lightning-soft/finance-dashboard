@@ -4,5 +4,11 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+  "/timezone": {
+    "target": "https://worldtimeapi.org/api/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }
