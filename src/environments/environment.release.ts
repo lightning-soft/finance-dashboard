@@ -12,4 +12,5 @@ export const environment = {
     fontawesome: 'Font Awesome 5.14.0',
   },
   isDev: urlSearchParams.get('dev') === 'false',
+  timezone: 'https://worldtimeapi.org/api/timezone'
 };

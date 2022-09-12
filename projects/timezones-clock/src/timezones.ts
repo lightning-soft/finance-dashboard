@@ -42,6 +42,6 @@ export class Timezone implements ITimezone {
   }
 
   static getDefaultName(timezone: ITimezone): string {
-    return utcPipe.transform(timezone.offset);
+    return utcPipe.transform(timezone.offset, timezone);
   }
 }
