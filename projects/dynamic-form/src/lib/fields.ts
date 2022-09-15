@@ -331,6 +331,7 @@ export function getNumber(_config: any) {
   const config: any = {
     key: '',
     placeholder: '',
+    precision: 5,
     label: null,
     min: null,
     max: null,
@@ -343,6 +344,7 @@ export function getNumber(_config: any) {
     templateOptions: {
       placeholder,
       label,
+      precision: config.precision,
       min: config.min,
       max: config.max,
     },
