@@ -19,8 +19,8 @@ export class ColorSelectComponent extends FieldType implements OnInit {
       lowColor: new FormControl('rgba(201, 59, 59, 1)'),
     }),
     fpShading: new FormGroup({
-      buyColor: new FormControl('#0C62F7'),
-      sellColor: new FormControl('rgba(201, 59, 59, 1)'),
+      buyColor: new FormControl('#0033E9'),
+      sellColor: new FormControl('#BC0606'),
     }),
   });
   map = { profileColor: 'profileColor', heatMap: 'heatMap', customBlend: 'customBlend', fpShading: 'fpShading' };
@@ -28,7 +28,7 @@ export class ColorSelectComponent extends FieldType implements OnInit {
     profileColor: 'Profile Color',
     heatMap: 'Heat Map',
     customBlend: 'Custom Blend',
-    fpShading: 'FB Shading'
+    fpShading: 'FP Shading'
   };
   currentType = 'profileColor';
   visible = false;
