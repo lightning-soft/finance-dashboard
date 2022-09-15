@@ -107,7 +107,7 @@ function getProfileConfig(key, _config = {}) {
           },
           {
             label: 'FP Shading',
-            value: { type: 'fpShading', value: { buyColor:'#0C62F7', sellColor: 'rgba(201, 59, 59, 1)' } },
+            value: { type: 'fpShading', value: {  buyColor:'#0033E9', sellColor: '#BC0606' }},
           }
         ]
       }),
@@ -574,7 +574,7 @@ export const footprintConfig: IFieldConfig[] = [
   }),
   new FieldConfig({
     key: 'intraBar',
-    label: 'IntaBar',
+    label: 'IntraBar',
     className: 'mt-4 d-block',
     fieldGroupClassName: 'd-grid two-rows hide-border-bottom pl-0 pr-0',
     fieldGroup: [
