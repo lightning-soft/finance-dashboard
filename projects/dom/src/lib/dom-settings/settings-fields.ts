@@ -213,11 +213,12 @@ export const generalFields: IFieldConfig[] = [
           key: 'digitsToHide',
           type: FieldType.Number,
         }],
-        extraConfig: { className: 'field-item', fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7', },
+        fieldGroupClassName: 'm-t-0',
+        extraConfig: { className: 'field-item', fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 p-x-7', },
       }),
       new FieldConfig({
         label: 'Common View',
-        fieldGroupClassName: 'd-flex flex-wrap two-rows p-x-7',
+        fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 p-x-7',
         fieldGroup: [
           getCheckboxes({
             checkboxes: [
@@ -241,7 +242,8 @@ export const generalFields: IFieldConfig[] = [
                 label: 'Use Custom Tick Size',
                 key: 'useCustomTickSize',
               }
-            ], extraConfig: { className: 'w-100' }
+            ], extraConfig: { className: 'w-100', fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 ', }
+
           }),
           {
             templateOptions: { label: 'Auto Center Ticks', min: 1, },
@@ -261,13 +263,14 @@ export const generalFields: IFieldConfig[] = [
             key: 'ticksMultiplier',
             type: FieldType.Number,
           },
+
         ]
       }),
 
       new FieldConfig({
         label: 'Depth & Market',
         key: 'marketDepth',
-        fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
+        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap ',
         fieldGroup: [
           {
             templateOptions: { label: 'Market Depth', min: 1, },
@@ -296,7 +299,7 @@ export const generalFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         label: 'Intervals',
-        fieldGroupClassName: 'd-flex two-rows flex-wrap p-x-7',
+        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap',
         fieldGroup: [
           {
             templateOptions: { label: 'Clear Trades Timer Interval', min: 1 },
