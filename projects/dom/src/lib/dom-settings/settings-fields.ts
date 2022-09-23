@@ -202,20 +202,6 @@ export const generalFields: IFieldConfig[] = [
         },
         label: 'Reset settings'
       }),
-      getCheckboxes({
-        checkboxes: [
-          { label: 'Hide Account Name', key: 'hideAccountName' },
-          { label: 'Hide From Left', key: 'hideFromLeft' },
-          { label: 'Hide From Right', key: 'hideFromRight' },
-
-        ], label: 'Account Name', additionalFields: [{
-          templateOptions: { min: 0, label: 'Account Digits To Hide' },
-          key: 'digitsToHide',
-          type: FieldType.Number,
-        }],
-        fieldGroupClassName: 'm-t-0',
-        extraConfig: { className: 'field-item', fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 p-x-7', },
-      }),
       new FieldConfig({
         label: 'Common View',
         fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 p-x-7',

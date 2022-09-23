@@ -6,7 +6,9 @@
     [account]="select.account"
   ></instrument-select>
   <div class="window-header-divider"></div>
-  <account-select [account]="account" (accountChange)="handleAccountChange($event)" #select></account-select>
+  <account-select [account]="account" (accountChange)="handleAccountChange($event)" #select
+                  [labelTransformer]="transformAccountLabel.bind(this)"
+  ></account-select>
 </window-header>
 <cdk-virtual-scroll-viewport itemSize="">
   <form class="h-100 order-form-wrapper main-grid grid" [formGroup]="form">

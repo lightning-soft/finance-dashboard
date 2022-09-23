@@ -1,21 +1,35 @@
 <window-header [window]="this"></window-header>
 <div class="settings">
   <ul class="tabs">
-    <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="activeTab = tab">{{tab}}</li>
+    <li [class.active]="activeTab === tab" *ngFor="let tab of tabs" (click)="setTab(tab)">{{tab}}</li>
   </ul>
 
-  <ul class="tab-content" *ngIf="activeTab === TABS.GENERAL">
-    <li>
-      <nz-radio-group [nzSize]="'large'" [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
-        <div>
-          <label nz-radio [nzValue]="saveDelayValues.fiveMin">Auto save settings every 5 minutes</label>
-        </div>
-        <div>
-          <label nz-radio [nzValue]="saveDelayValues.manualSave">Manual save</label>
-        </div>
-      </nz-radio-group>
-    </li>
-  </ul>
+  <div class="tab-content" *ngIf="activeTab === TABS.GENERAL">
+    <ul>
+      <li>
+        <nz-radio-group [nzSize]="'large'" [(ngModel)]="autoSaveSetting" (ngModelChange)="switchAutoSave($event)">
+          <div>
+            <label nz-radio [nzValue]="saveDelayValues.fiveMin">Auto save settings every 5 minutes</label>
+          </div>
+          <div>
+            <label nz-radio [nzValue]="saveDelayValues.manualSave">Manual save</label>
+          </div>
+        </nz-radio-group>
+      </li>
+    </ul>
+    <div class="{{activeTab}} mt-4">
+      <formly-form
+        [form]="form"
+        [(model)]="settings"
+        [fields]="selectedConfig"
+        (modelChange)="saveSettingsGeneral($event)"
+      >
+      </formly-form>
+    </div>
+
+  </div>
+
+
   <div class="tab-content " *ngIf="activeTab === TABS.HOTKEYS">
     <table class="table">
       <thead>

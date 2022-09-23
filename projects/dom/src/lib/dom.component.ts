@@ -88,6 +88,7 @@ import { OpenPositionStatus, openPositionSuffix } from './price.cell';
 import { VolumeCell } from './histogram';
 import { DailyInfoComponent } from './daily-info/daily-info.component';
 import { SideOrderSettingsDom } from './interface/dom-settings.interface';
+import {SettingsData, SettingsService} from "settings";
 
 export interface DomComponent extends ILayoutNode, LoadingComponent<any, any>, IUnsubscribe, IPresets<IDomState> {
 }
@@ -293,6 +294,8 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     public readonly _templatesService: TemplatesService,
     public readonly _modalService: NzModalService,
     public readonly _notifier: NotifierService,
+    private _settingsService: SettingsService,
+
   ) {
     super();
     this.componentInstanceId = Date.now();
@@ -570,6 +573,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   private _lastTrade: TradePrint;
 
   private _settings: DomSettings = new DomSettings();
+  private _settingsGlobal: SettingsData ;
 
   private _bestBidPrice: number;
   private _bestAskPrice: number;
@@ -2129,7 +2133,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 
   transformAccountLabel(label: string) {
     const replacer = '*';
-    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settings.general;
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settingsService.settings.getValue()?.general;
     if (hideAccountName) {
       const length = digitsToHide > label.length ? label.length : digitsToHide;
       let _label = label;

@@ -248,7 +248,7 @@ export class SettingsService {
   }
 
   saveSounds(type: string, sound: ISound | boolean): void {
-    let setting = this.settings.value.sound;
+    const setting = this.settings.value.sound;
     setting[type] = sound;
     this._updateState({ sound: setting });
   }

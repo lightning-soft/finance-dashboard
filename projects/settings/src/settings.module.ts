@@ -9,19 +9,22 @@ import { SettingsComponent } from './settings.component';
 import { SettingsService } from './settings.service';
 import { HotkeyInputModule } from 'hotkey-input';
 import { SoundModule } from 'sound';
+import { DynamicFormModule } from 'dynamic-form';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    NzSelectModule,
-    FormsModule,
-    WindowHeaderModule,
-    NzRadioModule,
-    NzMessageServiceModule,
-    HotkeyInputModule,
-    NzButtonModule,
-    SoundModule.forRoot(SettingsService),
-  ],
+    imports: [
+        CommonModule,
+        NzSelectModule,
+        FormsModule,
+        WindowHeaderModule,
+        NzRadioModule,
+        NzMessageServiceModule,
+        HotkeyInputModule,
+        NzButtonModule,
+        SoundModule.forRoot(SettingsService),
+        DynamicFormModule,
+
+    ],
   exports: [
     SettingsComponent,
   ],

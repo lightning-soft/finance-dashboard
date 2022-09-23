@@ -25,6 +25,7 @@ import {
 } from 'trading';
 import { InstrumentFormatter } from 'data-grid';
 import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
+import {SettingsService} from "settings";
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -148,6 +149,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     private _storage: Storage,
     protected _injector: Injector,
     protected _changeDetectorRef: ChangeDetectorRef,
+    protected _settingsService: SettingsService,
   ) {
     super();
     this.autoLoadData = false;
@@ -475,5 +477,21 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
       this.firstOcoOrder = null;
       this.updateOrderTypes();
     }
+  }
+
+
+  transformAccountLabel(label: string) {
+    const replacer = '*';
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settingsService.settings.getValue()?.general;
+    if (hideAccountName) {
+      const length = digitsToHide > label.length ? label.length : digitsToHide;
+      let _label = label;
+      if (hideFromLeft)
+        _label = replacer.repeat(length) + _label.substring(length, label.length);
+      if (hideFromRight)
+        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
+      return _label;
+    }
+    return label;
   }
 }
