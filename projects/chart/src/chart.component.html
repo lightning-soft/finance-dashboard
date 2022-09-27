@@ -20,7 +20,6 @@
     <i (click)="toggleTrading()" [class.icon-lock]="!isTradingEnabled" [class.icon-unlock]="isTradingEnabled"
        [title]="isTradingEnabled ? 'Unlock' : 'Lock'" class="lock"></i>
   </div>
-
 </window-header>
 <div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">
