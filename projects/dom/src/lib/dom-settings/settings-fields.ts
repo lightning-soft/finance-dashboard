@@ -256,7 +256,7 @@ export const generalFields: IFieldConfig[] = [
       new FieldConfig({
         label: 'Depth & Market',
         key: 'marketDepth',
-        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap ',
+        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap  p-x-7',
         fieldGroup: [
           {
             templateOptions: { label: 'Market Depth', min: 1, },
@@ -285,7 +285,7 @@ export const generalFields: IFieldConfig[] = [
       }),
       new FieldConfig({
         label: 'Intervals',
-        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap',
+        fieldGroupClassName: 'd-flex two-rows-mt-0 flex-wrap  p-x-7',
         fieldGroup: [
           {
             templateOptions: { label: 'Clear Trades Timer Interval', min: 1 },
