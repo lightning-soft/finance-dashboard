@@ -89,7 +89,7 @@ export class SettingsComponent implements OnInit {
 
   tabs = [TABS.GENERAL, TABS.HOTKEYS, TABS.SOUNDS];
 
-  activeTab: any;
+  activeTab: TABS;
 
   TABS = TABS;
   form: FormGroup;
@@ -176,20 +176,18 @@ export class SettingsComponent implements OnInit {
     this._settingsService.saveKeyBinding(this.settings.hotkeys);
   }
 
-  setTab(item: TABS) {
-    if (this.activeTab === item)
+  setTab(item: TABS): TABS{
+    if (this.activeTab === item){
       return;
-
+    }
     if (item === this.TABS.GENERAL) {
       this.selectedConfig = this.settingsConfig[item];
-
     }
-
 
     return this.activeTab = item;
   }
 
-  saveSettingsGeneral($event) {
+  saveSettingsGeneral($event): void {
     const q = {
         general: $event.general
     };

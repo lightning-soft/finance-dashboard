@@ -29,6 +29,10 @@ export class OrdersToolbarComponent {
     this.handleAccountChange = this._config.data.accountHandler;
   }
 
+  transformAccountLabel(item: string): string {
+    return this._settingsService.transformAccountLabel(item);
+  }
+
   showOrdersForm(): void {
     this._layout.addComponent({
       component: {
@@ -37,21 +41,6 @@ export class OrdersToolbarComponent {
       width: 300,
       height: 390,
     });
-  }
-
-  transformAccountLabel(label: string) {
-    const replacer = '*';
-    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this._settingsService.settings.getValue()?.general;
-    if (hideAccountName) {
-      const length = digitsToHide > label.length ? label.length : digitsToHide;
-      let _label = label;
-      if (hideFromLeft)
-        _label = replacer.repeat(length) + _label.substring(length, label.length);
-      if (hideFromRight)
-        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
-      return _label;
-    }
-    return label;
   }
 }
 

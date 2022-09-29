@@ -225,7 +225,6 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   }
 
   nativeClose() {
-    console.log('v1_isMaximized', 'qweqweqwe');
     sendIpcCommand('nativeClose');
   }
 

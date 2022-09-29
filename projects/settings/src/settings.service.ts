@@ -253,6 +253,23 @@ export class SettingsService {
     this._updateState({ sound: setting });
   }
 
+  transformAccountLabel(label: string): string {
+    const replacer = '*';
+    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this.settings.getValue()?.general;
+    if (hideAccountName) {
+      const length: number = digitsToHide > label.length ? label.length : digitsToHide;
+      let _label = label;
+      if (hideFromLeft){
+        _label = replacer.repeat(length) + _label.substring(length, label.length);
+      }
+      if (hideFromRight){
+        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
+      }
+      return _label;
+    }
+    return label;
+  }
+
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
     try {
       const clonedSettings = jQuery.extend(true, {}, settings);
@@ -263,4 +280,6 @@ export class SettingsService {
       console.error(settings);
     }
   }
+
+
 }
