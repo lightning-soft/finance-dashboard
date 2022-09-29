@@ -42,7 +42,8 @@
     "electron:serve-tsc": "tsc -p tsconfig.app.json",
     "electron:serve": "npm run electron:serve-tsc && npx electron . --serve",
     "electron:local": "npm run build:prod && npx electron .",
-    "electron:build": "npm run build:prod && electron-builder build"
+    "electron:build": "npm run build:prod && electron-builder build",
+    "electron:build-win": "npm run build:prod && electron-builder build --w"
   },
   "build": {
     "appId": "com.tradrr.app",
