@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LayoutComponent } from 'layout';
 import { DynamicComponentConfig } from 'lazy-modules';
+import { SettingsService } from 'settings';
 
 export type CallbackFn = (event: any) => void;
 
@@ -22,9 +23,14 @@ export class OrdersToolbarComponent {
 
   handleAccountChange: CallbackFn;
 
-  constructor(@Inject(DynamicComponentConfig) private _config: DynamicComponentConfig<OrdersToolbarConfig>) {
+  constructor(@Inject(DynamicComponentConfig) private _config: DynamicComponentConfig<OrdersToolbarConfig>,
+              private _settingsService: SettingsService) {
     this._layout = this._config.data.layout;
     this.handleAccountChange = this._config.data.accountHandler;
+  }
+
+  transformAccountLabel(item: string): string {
+    return this._settingsService.transformAccountLabel(item);
   }
 
   showOrdersForm(): void {

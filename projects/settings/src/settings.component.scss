@@ -146,9 +146,9 @@
     }
 
     .tabs {
-      border-radius: 4px;
-      width: 181px;
-      min-width: 181px;
+      background: #24262c;
+      width: 175px;
+      min-width: 175px;
       text-transform: capitalize;
       padding: 16px 8px 12px;
 
@@ -229,3 +229,576 @@
     background: rgba(56, 58, 64, 1);
   }
 }
+
+:host ::ng-deep {
+  .ant-checkbox-wrapper {
+    padding-left: 0px;
+  }
+
+  .hotkey-list {
+    padding-left: 6px;
+    padding-right: 3px;
+    display: block;
+  }
+
+  .histogram-orientation {
+    nz-form-item .ant-form-item-label label {
+      color: $text-60;
+      padding-bottom: 2px;
+    }
+  }
+
+  .content-container {
+    background: $secondary;
+  }
+
+  .table-header {
+    border-bottom: 0.5px solid $light2;
+    color: $text-40;
+    font-weight: 600;
+    margin-top: 14px;
+    margin-left: 8px;
+    margin-right: 8px;
+    font-size: 0.75rem;
+
+    th {
+      padding-bottom: 6px;
+    }
+
+    .ant-btn-link {
+      height: 18px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  formly-group .hotkey-input {
+    background: $light;
+  }
+
+  .ant-form-item-control {
+    /* padding-left: 3px;
+     padding-right: 3px;*/
+  }
+
+  .sessions {
+    sessions-select {
+      data-select {
+        display: grid;
+        grid-template-columns: 50% 49%;
+        justify-content: space-between;
+        margin-right: 8px;
+        align-items: self-end;
+        color: $text-60;
+
+        nz-select {
+          height: 20px !important;
+          font-size: 0.75rem !important;
+        }
+
+        .custom-form-control .ant-select-selector {
+          height: 20px !important;
+        }
+      }
+    }
+  }
+
+  .reset-settings {
+    grid-template-columns: 265px 1fr;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .close-current-orders {
+    grid-column-start: 2 span;
+  }
+
+  .field-item {
+    display: block;
+
+    &:not(:first-child) {
+      margin-top: 24px;
+    }
+
+    > formly-wrapper-nz-form-field > nz-form-item > nz-form-control {
+      padding-left: 3px;
+      padding-right: 3px;
+    }
+  }
+
+  .grid-two-rows {
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 4px;
+  }
+
+  .splitOrdersCheckbox {
+    display: none;
+  }
+
+  .split-orders {
+    .ordersCheckbox {
+      display: none;
+    }
+
+    .splitOrdersCheckbox {
+      display: block;
+    }
+  }
+
+  .cdk-virtual-scroll-content-wrapper {
+    contain: unset;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .use-tick-size {
+    margin-left: 6px;
+  }
+
+  .custom-tick-size {
+    nz-form-item {
+      margin-bottom: 0;
+    }
+  }
+
+  nz-form-item {
+    flex-direction: column;
+    margin-bottom: 0px;
+
+    .ant-form-item-label {
+      text-align: start;
+      margin-bottom: 0px;
+      height: auto;
+      line-height: 1;
+
+      label {
+        font-weight: 600;
+        margin-bottom: 0px;
+        line-height: 1;
+        height: auto;
+        padding-left: 10px;
+        font-size: 0.85rem;
+        color: $text-80;
+        padding-bottom: 6px;
+
+        &:after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .General {
+    nz-form-item {
+      label {
+        padding-bottom: 0px;
+      }
+    }
+
+  }
+
+  window-header {
+    background: #24262C;
+    position: relative;
+
+    .window-icon {
+      margin-right: 6px !important;
+      background-color: transparent !important;
+    }
+
+    .title {
+      font-size: 1rem !important;
+    }
+
+    &:after {
+      right: 0;
+      content: '';
+      height: 100%;
+      width: 441px;
+      background: $secondary;
+      position: absolute;
+      z-index: -1;
+    }
+  }
+
+  .no-underline {
+    nz-form-item .ant-form-item-label {
+      border-bottom: none;
+
+      label {
+        padding-left: 0;
+      }
+    }
+  }
+
+  .plain-label {
+    nz-form-item .ant-form-item-label {
+      margin: 0;
+
+      label {
+        font-weight: 400;
+        color: $text-80;
+        margin: 0;
+        /*font-size: 0.7rem;
+        line-height: 1.1rem;*/
+      }
+    }
+  }
+
+  .iceberg-checkbox {
+    padding-left: 48%;
+    margin-left: 8px;
+  }
+
+  number-input {
+    margin-top: 4px;
+    display: inline-block;
+    margin-bottom: 7px;
+  }
+
+  .current-level-item {
+    margin-top: -2px !important;
+  }
+
+  .current-background {
+    margin-top: 9px !important;
+  }
+
+  .current-level {
+    & > * {
+      &:not(:first-child) {
+        margin-top: 6px;
+        display: block;
+      }
+    }
+  }
+
+  .tail-checkbox {
+    margin-left: 4px;
+  }
+
+  .color-levels {
+    nz-form-label {
+      border-bottom: none;
+      margin-bottom: 0;
+
+      label {
+        color: $text-60;
+        margin: 0;
+        font-size: 0.6rem;
+        font-weight: normal;
+        padding: 0 0 4px;
+        line-height: 0.8rem;
+      }
+    }
+  }
+
+  .two-rows {
+    > * {
+      width: 48%;
+      margin-top: 16px;
+
+      &:nth-child(even) {
+        margin-left: 4px;
+      }
+
+      &:nth-child(odd) {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .two-rows-mt-0 {
+    > * {
+      width: 48%;
+      margin-top: 0px;
+
+      &:nth-child(even) {
+        margin-left: 4px;
+      }
+
+      &:nth-child(odd) {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .ant-checkbox + span {
+    font-weight: 400;
+    color: $text-60;
+  }
+
+  formly-form {
+    .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      color: $text-60;
+    }
+  }
+
+  .color-without-label {
+    color-picker {
+      .color-wrapper {
+        width: 20px;
+        height: 20px;
+        padding-left: 5px;
+      }
+
+      .color-label {
+        display: none;
+      }
+    }
+  }
+
+  .order-rows-dom {
+    height: 23px;
+    grid-template-columns: 50% 20px 104px 52px;
+    width: 100%;
+    align-items: center;
+    grid-column-gap: 5px;
+    margin-top: 0.25rem;
+  }
+  .order-area-rows {
+    grid-template-columns: 50% 2fr 3fr;
+    grid-column-gap: 5px;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    background-color: #1b1d22;
+    box-shadow: none;
+  }
+
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: rgba($primary, 0.5);
+  }
+
+  .dom-trading{
+    .ant-checkbox-wrapper {
+      padding-left: 0px;
+    }
+
+    .settings-field {
+      display: block;
+      margin-top: 32px;
+    }
+
+    formly-form {
+      .ant-radio, .ant-radio-group, .ant-radio-wrapper, .template-label, .ant-checkbox + span, .number-label, .color-label, .switch-label, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        color: $text-60;
+      }
+    }
+
+    window-header {
+      position: relative;
+
+      .window-icon {
+        background: transparent !important;
+      }
+
+      .title {
+        font-size: 1rem !important;
+      }
+
+      &:after {
+        right: 0;
+        content: '';
+        height: 100%;
+        width: 438px;
+        background: $secondary;
+        position: absolute;
+        z-index: -1;
+      }
+    }
+
+    .session-select {
+      label {
+        display: none;
+      }
+    }
+
+    data-select {
+      font-size: 0.8rem;
+    }
+
+    .text-color {
+      display: flex;
+      align-items: center;
+
+      color-picker {
+        width: 100%;
+      }
+    }
+
+    .pl-info {
+      switch {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+
+        span {
+          margin-left: 0;
+          margin-right: 5px;
+        }
+      }
+
+      .select {
+        nz-form-item {
+          flex-direction: row;
+
+          nz-form-label {
+            margin-bottom: 0;
+            margin-right: 5px;
+
+            label {
+              padding-left: 0;
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+
+    .settings-pl-info, .settings-pl-realized-info {
+      display: none;
+    }
+
+    .h-20 {
+      height: 20px;
+    }
+
+    .order-form-settings {
+      grid-column: 1 / span 2;
+
+      formly-group {
+        display: grid !important;
+      }
+    }
+
+    dynamic-select {
+      display: inline-block;
+      width: 100%;
+
+      nz-select-item {
+        line-height: 18px !important;
+      }
+    }
+    number-input{
+      margin-top: 0px;
+      margin-bottom: 0px;
+
+    }
+    number-input .ant-input-number {
+      display: inline-block;
+      width: 100%;
+    }
+
+    .cdk-virtual-scroll-content-wrapper {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .d-flex-just{
+      justify-content: space-between;
+    }
+    .two-rows, .order-bar-rows, .order-rows, .order-area-rows, .session-rows {
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 10px;
+      grid-row-gap: 6px;
+    }
+    .two-rows {
+      > * {
+        width: 98%;
+        margin-top: 0;
+      }
+    }
+    .two-rows-dom {
+      > * {
+        width: 48%;
+        margin-top: 0;
+      }
+    }
+
+    .tif-rows {
+      grid-column-gap: 23px;
+    }
+
+    .font-rows {
+      grid-template-columns: 2fr 1fr 3fr;
+    }
+
+    .trading-rows {
+      grid-column-gap: 7px;
+    }
+
+    .session-rows {
+      grid-template-columns: 1fr 2fr;
+      grid-column-gap: 5px;
+
+    }
+
+    .order-bar-rows {
+      grid-template-columns:90px 1fr 1fr;
+      grid-column-gap: 2px;
+      align-items: center;
+    }
+
+    .order-rows {
+      grid-template-columns: 50% 20px 114px 52px;
+      width: 100%;
+      align-items: center;
+      grid-column-gap: 5px;
+    }
+
+    .order-area-rows {
+      grid-template-columns: 50% 2fr 3fr;
+      grid-column-gap: 5px;
+    }
+
+    .oco-rows {
+      grid-column-gap: 8px;
+    }
+
+    .color-without-label {
+      color-picker {
+        .color-wrapper {
+          width: 20px;
+          height: 20px;
+          padding-left: 5px;
+        }
+
+        .color-label {
+          display: none;
+        }
+      }
+    }
+
+    nz-form-item {
+      flex-direction: column;
+      margin-bottom: 0;
+
+      .ant-form-item-label {
+        text-align: start;
+        margin-bottom: 12px;
+
+        label {
+          font-weight: 600;
+          line-height: 1;
+          padding-left: 6px;
+          font-size: 0.85rem;
+          color: $text-80;
+
+          &:after {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .chart-trading {
+      nz-form-item {
+        .ant-form-item-label {
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+}
+

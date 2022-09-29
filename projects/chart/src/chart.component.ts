@@ -72,6 +72,7 @@ import {
   IVolumeTemplate,
   VolumeProfileTemplatesRepository
 } from './volume-profile-custom-settings/volume-profile-templates.repository';
+import {SettingsService} from "settings";
 
 declare let StockChartX: any;
 declare let $: JQueryStatic;
@@ -125,6 +126,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   currentDirection = 'window-right';
   showChartForm = true;
   enableOrderForm = false;
+
+  transformAccountLabel(item: string): string {
+    return this._settingsService.transformAccountLabel(item);
+  }
 
   get showOrderConfirm(): boolean {
     return this.settings.trading.trading.showOrderConfirm;
@@ -422,6 +427,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     private _templatesService: TemplatesService,
     private _tradeHandler: TradeHandler,
     private _windowManager: WindowManagerService,
+    private _settingsService: SettingsService,
     private _changeDetectorRef: ChangeDetectorRef,
     private _volumeProfileTemplatesRepository: VolumeProfileTemplatesRepository
   ) {

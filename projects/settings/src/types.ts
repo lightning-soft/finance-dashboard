@@ -14,6 +14,12 @@ export interface ICommand {
 export type HotkeyEntire = { [key: string]: IKeyBindingDTO };
 
 export type SettingsData = {
+  general?: {
+    digitsToHide: number;
+    hideAccountName: boolean;
+    hideFromLeft: boolean;
+    hideFromRight: boolean;
+  };
   theme: string;
   autoSave: boolean;
   autoSaveDelay: number;
