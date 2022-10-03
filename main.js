@@ -30,7 +30,7 @@ function createWindow() {
     show: false,
     movable: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(`${__dirname}/src/assets`, 'preload.js'),
       webSecurity: false,
     }
     // webPreferences: {
