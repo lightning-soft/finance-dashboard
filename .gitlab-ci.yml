@@ -25,7 +25,7 @@ install:
 build-web-ssr:
     stage: build
     tags:
-        - docker 
+        - docker
     cache:
         paths:
             - dist/
@@ -87,7 +87,9 @@ deploy-stage-from-latest:
     services:
         - docker:dind
     except:
-        - release 
+        - release
+    only:
+      - stage
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
