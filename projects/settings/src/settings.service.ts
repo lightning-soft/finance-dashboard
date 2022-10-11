@@ -254,8 +254,13 @@ export class SettingsService {
   }
 
   transformAccountLabel(label: string): string {
+
     const replacer = '*';
-    const {hideAccountName, hideFromLeft, hideFromRight, digitsToHide} = this.settings.getValue()?.general;
+    const hideAccountName = this.settings.getValue()?.general?.hideAccountName ?? false;
+    const hideFromLeft = this.settings.getValue()?.general?.hideFromLeft ?? false;
+    const hideFromRight = this.settings.getValue()?.general?.hideFromRight ?? false;
+    const digitsToHide = this.settings.getValue()?.general?.digitsToHide ?? 0;
+
     if (hideAccountName) {
       const length: number = digitsToHide > label.length ? label.length : digitsToHide;
       let _label = label;
