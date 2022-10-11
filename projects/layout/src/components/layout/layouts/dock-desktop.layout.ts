@@ -112,7 +112,9 @@ export class DockDesktopLayout extends Layout {
 
       switch (componentName) {
         case Components.Dom:
-          configData = {...configData, width: 650, height: 950};
+          if (!configData?.id) {
+            configData = {...configData, width: 650, height: 950};
+          }
           break;
         default:
           break;
