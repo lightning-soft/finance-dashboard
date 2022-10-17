@@ -2,8 +2,9 @@
   <button (click)="showOrdersForm()" class="new-orders mr-2">
     <i class="icon-add"></i>
   </button>
-  <account-select 
-    className="custom-form-control" 
+  <account-select
+    className="custom-form-control"
     size="small"
+    [labelTransformer]="transformAccountLabel.bind(this)"
   ></account-select>
 </div>

@@ -4,7 +4,9 @@
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
   <instrument-select class="mr-1" placeholder="Symbol" [(instrument)]="instrument" [account]="account">
   </instrument-select>
-  <account-select #select [(account)]="account"></account-select>
+  <account-select #select [(account)]="account"
+                  [labelTransformer]="transformAccountLabel.bind(this)"
+  ></account-select>
   <div class="vertical-line"></div>
   <div class="d-flex align-items-center instrument-description">
     {{instrument?.description | nullCoalescing : ''}}<ng-container *ngIf="instrument?.description != null && instrument?.description != ''">,</ng-container>
@@ -18,7 +20,6 @@
     <i (click)="toggleTrading()" [class.icon-lock]="!isTradingEnabled" [class.icon-unlock]="isTradingEnabled"
        [title]="isTradingEnabled ? 'Unlock' : 'Lock'" class="lock"></i>
   </div>
-
 </window-header>
 <div class="component-container {{currentDirection}}">
   <div [class.hide-oclc]="!showOHLV" [class.hide-changes]="!showChanges" class="chart-container">

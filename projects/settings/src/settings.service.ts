@@ -248,9 +248,31 @@ export class SettingsService {
   }
 
   saveSounds(type: string, sound: ISound | boolean): void {
-    let setting = this.settings.value.sound;
+    const setting = this.settings.value.sound;
     setting[type] = sound;
     this._updateState({ sound: setting });
+  }
+
+  transformAccountLabel(label: string): string {
+
+    const replacer = '*';
+    const hideAccountName = this.settings.getValue()?.general?.hideAccountName ?? false;
+    const hideFromLeft = this.settings.getValue()?.general?.hideFromLeft ?? false;
+    const hideFromRight = this.settings.getValue()?.general?.hideFromRight ?? false;
+    const digitsToHide = this.settings.getValue()?.general?.digitsToHide ?? 0;
+
+    if (hideAccountName) {
+      const length: number = digitsToHide > label.length ? label.length : digitsToHide;
+      let _label = label;
+      if (hideFromLeft){
+        _label = replacer.repeat(length) + _label.substring(length, label.length);
+      }
+      if (hideFromRight){
+        _label = _label.substring(0, label.length - length) + replacer.repeat(length);
+      }
+      return _label;
+    }
+    return label;
   }
 
   private _updateState(settings: Partial<SettingsData>, saveInStorage = true): void {
@@ -263,4 +285,6 @@ export class SettingsService {
       console.error(settings);
     }
   }
+
+
 }

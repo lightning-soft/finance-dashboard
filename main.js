@@ -6,7 +6,7 @@ const dialog = electron.dialog;
 const url = require("url");
 const electron_log_1 = require("electron-log");
 const path = require("path");
-const {BrowserWindow} = electron;
+const {BrowserWindow,ipcMain} = electron;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 let win;
@@ -23,13 +23,15 @@ function createWindow() {
     y: 0,
     width: size.width,
     height: size.height,
-    frame: true,
+    frame: false,
     alwaysOnTop: false,
+    autoHideMenuBar: true,
     title: "Tradrr",
     show: false,
     movable: true,
     webPreferences: {
-      webSecurity: false
+      preload: path.join(`${__dirname}/src/assets`, 'preload.js'),
+      webSecurity: false,
     }
     // webPreferences: {
     //   nodeIntegration: true,
@@ -128,6 +130,18 @@ try {
       createWindow();
     }
   });
+
+  ipcMain.on('minimize', () => {
+    win.minimize()
+  })
+
+  ipcMain.on('close', () => {
+    win.close()
+  })
+
+  ipcMain.on('maximize', () => {
+    win.maximize()
+  })
 
 } catch (e) {
   // Catch Error
