@@ -221,7 +221,7 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     }
   }
 
-  selectItem(item: Connection, clearSubmit = false): void {
+  selectItem(item: Connection, clearSubmit = false, isConnecting: boolean = false): void {
     if (clearSubmit)
       this.isSubmitted = false;
 
@@ -232,10 +232,10 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this.selectedItem = item;
     this.expandBrokers();
     const json = item?.toJson();
-    this.form.reset(json ? this.convertItemToFormValue(json, this.selectedBroker) : undefined);
+    this.form.reset(json ? this.convertItemToFormValue(json, this.selectedBroker, isConnecting) : undefined);
   }
 
-  convertItemToFormValue(item: IConnection, broker: IBroker) {
+  convertItemToFormValue(item: IConnection, broker: IBroker, isConnecting: boolean = false) {
     const _server: any = item.server;
     let server;
     if (typeof _server === 'string')
@@ -244,8 +244,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
       server = _server.name;
 
     const { username, password, autoSavePassword, gateway, ...data } = item;
-    const userData = { username, password: autoSavePassword ? password : '', server, gateway, autoSavePassword };
-    return { ...data, broker: broker?.name, userData };
+    const userData = { username, password: (autoSavePassword || isConnecting) ? password : '', server, gateway, autoSavePassword };
+    const finalData = { ...data, broker: broker?.name, userData };
+    return finalData;
   }
 
   handleSubmit(): void {
@@ -286,9 +287,9 @@ export class AccountsComponent implements IStateProvider<AccountsState>, OnInit,
     this._accountsManager.createConnection(connection)
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-          this.selectItem(connection);
-          this.expandBrokers();
-          // this.connect();
+          this.selectItem(connection, false, true);
+          // this.expandBrokers();
+          this.connect();
         },
         err => this._notifier.showError(err),
       );
