@@ -8,11 +8,13 @@ export class Workspace {
   id: number | string;
   name: string;
   isActive = false;
+  isDefault: boolean;
   windows: WorkspaceWindow[] = [];
 
-  constructor(name: string) {
+  constructor(name: string, isDefault: boolean = false) {
     this.id = Date.now();
     this.name = name || DEFAULT_WORKSPACE_NAME;
+    this.isDefault = isDefault;
   }
 }
 

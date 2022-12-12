@@ -2,8 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { blankBase, Workspace, WorkspaceWindow } from './workspace';
 import { WorkspacesStore } from './workspaces-storage';
+import { SerializationHelper } from './Serialization.helper';
 import { Id } from 'communication';
 import { NotifierService } from 'notifier';
+
+import { dataConfig } from "./dataConfig";
 
 export type WorkspaceId = number | string;
 
@@ -18,6 +21,7 @@ export class WorkspacesManager {
   public save$ = new Subject<void>();
   public deletedWindow$ = new Subject<WorkspaceWindow>();
   public workspaceInit = new BehaviorSubject<boolean>(false);
+  private configData: any = (dataConfig as any);
 
   constructor(private _workspacesStore: WorkspacesStore, private _notifier: NotifierService) {
     this._init();
@@ -28,7 +32,7 @@ export class WorkspacesManager {
       .getItems()
       .subscribe(
         (w) => this._handleStoreWorkspaces(w),
-        (e) => console.error(`Something goes wrong ${ e.message }`)
+        (e) => console.error(`Something goes wrong ${e.message}`)
       );
   }
 
@@ -60,25 +64,27 @@ export class WorkspacesManager {
       this.workspaces.next(workspaces);
       this.reloadWorkspace$.next();
     } else {
-      this.createWorkspace(DEFAULT_NAME);
+      this.createWorkspace(DEFAULT_NAME, null, true, true);
     }
     this.workspaceInit.next(true);
   }
 
-  public async createWorkspace(name: string, base?: WorkspaceId): Promise<void> {
-    const workspace = new Workspace(name);
+  public async createWorkspace(name: string, base?: WorkspaceId, isDefault?: boolean, createDefaultForNewUser: boolean = false): Promise<void> {
+    const workspace = new Workspace(name, isDefault);
     if (this.workspaces.value.some(item => item.name === name)) {
       this._notifier.showError('Can\'t duplicate names');
       return;
     }
     let workspaces = [...this.workspaces.value, workspace];
-
-
     if (base != null && base !== blankBase) {
       this.save$.next();
       const baseWorkspace = workspaces.find(w => w.id === base);
       workspace.windows = jQuery.extend(true, [], baseWorkspace.windows);
       this.workspaces.next(workspaces);
+    } else if (createDefaultForNewUser) {
+      const windowVal: WorkspaceWindow = SerializationHelper.toInstance(new WorkspaceWindow(), this.configData)
+      windowVal.id = Date.now();
+      workspace.windows.push(windowVal);
     } else {
       const window = this.createBlankWindow();
       workspace.windows.push(window);
@@ -201,7 +207,7 @@ export class WorkspacesManager {
 
   public duplicateWorkspace(id: WorkspaceId): void {
     const workspace = this.workspaces.value.find(w => w.id === id);
-    const name = `${ workspace.name }(copy)`;
+    const name = `${workspace.name}(copy)`;
     this.createWorkspace(name, id);
   }
 
@@ -250,7 +256,7 @@ export class WorkspacesManager {
     const workspace = this.getActiveWorkspace();
     const window = workspace.windows.find(item => item.id === windowId);
     const newWindow = new WorkspaceWindow(window);
-    newWindow.name = `${ window.name }(copy)`;
+    newWindow.name = `${window.name}(copy)`;
     workspace.windows.push(newWindow);
     this.save();
     return newWindow;

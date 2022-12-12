@@ -1,4 +1,4 @@
-image: registry.git.avidi.tech/docker/teracy/angular-cli:latest
+image: teracy/angular-cli:latest
 
 stages:
     - install
@@ -25,7 +25,7 @@ install:
 build-web-ssr:
     stage: build
     tags:
-        - docker
+        - docker 
     cache:
         paths:
             - dist/
@@ -65,10 +65,11 @@ build-web-release:
 deploy-latest:
     stage: deploy
     services:
-        - registry.gitlab.com/docker.hub/docker:dind
-    image: registry.gitlab.com/docker.hub/docker:latest
+        - docker:20.10.11-dind
+    image: docker:20.10.11-dind
     rules:
-        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+        - if: $CI_COMMIT_BRANCH == 'deploy-staging'
+        # - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     cache:
         paths:
             - dist/
@@ -83,13 +84,11 @@ deploy-latest:
 
 deploy-stage-from-latest:
     stage: deploy
-    image: docker:latest
+    image: docker:20.10.11-dind
     services:
-        - docker:dind
+        - docker:20.10.11-dind
     except:
-        - release
-    only:
-      - stage
+        - release 
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
@@ -103,8 +102,8 @@ deploy-stage-from-latest:
 deploy-release:
     stage: deploy
     services:
-        - registry.gitlab.com/docker.hub/docker:dind
-    image: registry.gitlab.com/docker.hub/docker:latest
+        - docker:20.10.11-dind
+    image: docker:20.10.11-dind
     only:
         - release
     cache:
