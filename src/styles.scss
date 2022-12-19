@@ -655,3 +655,33 @@ nz-input-number:not(.custom-form-control) {
 .full-width {
   width: 100%;
 }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #575658 #101114;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 16px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #101114;
+}
+*::-webkit-scrollbar-track:hover {
+  background: #101114;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #575658;
+  border-radius: 10px;
+  border: 3px solid #101114;
+}
+*::-webkit-scrollbar-corner {
+  background: #101114;
+}
+
+*::-webkit-scrollbar-track:active {
+  background: #101114;
+}

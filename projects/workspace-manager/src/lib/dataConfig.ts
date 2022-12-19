@@ -8,7 +8,7 @@ export const dataConfig =
                 "y": 844,
                 "id": "1667840970858_0.41957959401000333",
                 "order": 0,
-                "width": 700,
+                "width": 845,
                 "height": 174,
                 "visible": true,
                 "minWidth": 320,
@@ -1332,7 +1332,7 @@ export const dataConfig =
                 "minimizable": true
             },
             {
-                "x": 701,
+                "x": 845,
                 "y": 36,
                 "id": "1666616956606_0.9069646449966886",
                 "order": 1,
@@ -3555,7 +3555,7 @@ export const dataConfig =
                 "y": 36,
                 "id": "1666129509077_0.6102819159960722",
                 "order": 2,
-                "width": 700,
+                "width": 845,
                 "height": 808,
                 "visible": true,
                 "minWidth": 320,

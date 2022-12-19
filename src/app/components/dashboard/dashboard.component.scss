@@ -27,21 +27,9 @@ layout {
   position: relative;
   width: 100%;
   height: calc(100% - #{$nav-height});
+  overflow-y: auto;
+  overflow-x: auto;
   flex-shrink: 0;
+
 }
 
-ng-scrollbar {
-  --scrollbar-size: 8px;
-  --scrollbar-thumb-color: gray;
-  --scrollbar-hover-size: 12px;
-  --scrollbar-track-color: rgba(0, 0, 0, 0.05);
-  --scrollbar-border-radius: 10px;
-
-  height: 800px;
-
-  // ::ng-deep {
-  //   .ng-scroll-viewport{
-  //     padding: 1em;
-  //   }
-  // }
-}

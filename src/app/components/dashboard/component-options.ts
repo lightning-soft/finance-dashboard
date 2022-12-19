@@ -5,8 +5,8 @@ export const orderFormOptions = {
   minWidth: 369,
   height: 300,
   width: 369,
-  resizable: true,
-  maximizable: true,
+  resizable: false,
+  maximizable: false,
 };
 
 export const widgetList = [
