@@ -1,10 +1,10 @@
 @font-face {font-family: "icon";
-  src: url('icon.eot?t=1630488063039'); /* IE9*/
-  src: url('icon.eot?t=1630488063039#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("icon.woff2?t=1630488063039") format("woff2"),
-  url("icon.woff?t=1630488063039") format("woff"),
-  url('icon.ttf?t=1630488063039') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('icon.svg?t=1630488063039#icon') format('svg'); /* iOS 4.1- */
+  src: url('icon.eot?t=1671446430776'); /* IE9*/
+  src: url('icon.eot?t=1671446430776#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url("icon.woff2?t=1671446430776") format("woff2"),
+  url("icon.woff?t=1671446430776") format("woff"),
+  url('icon.ttf?t=1671446430776') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('icon.svg?t=1671446430776#icon') format('svg'); /* iOS 4.1- */
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -53,7 +53,7 @@
 .icon-clock:before { content: "\ea24"; }
 .icon-close-window:before { content: "\ea25"; }
 .icon-close:before { content: "\ea26"; }
-.icon-coloredBar:before { content: "\ea27"; }
+.icon-coloredHLBar:before { content: "\ea27"; }
 .icon-cursor-arrow-crosshairs:before { content: "\ea28"; }
 .icon-cursor-arrow-dot:before { content: "\ea29"; }
 .icon-cursor-arrow-with-markers:before { content: "\ea2a"; }
@@ -225,7 +225,7 @@ $icon-check: "\ea23";
 $icon-clock: "\ea24";
 $icon-close-window: "\ea25";
 $icon-close: "\ea26";
-$icon-coloredBar: "\ea27";
+$icon-coloredHLBar: "\ea27";
 $icon-cursor-arrow-crosshairs: "\ea28";
 $icon-cursor-arrow-dot: "\ea29";
 $icon-cursor-arrow-with-markers: "\ea2a";

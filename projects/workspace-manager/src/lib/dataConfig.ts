@@ -8,7 +8,7 @@ export const dataConfig =
                 "y": 844,
                 "id": "1667840970858_0.41957959401000333",
                 "order": 0,
-                "width": 845,
+                "width": 700,
                 "height": 174,
                 "visible": true,
                 "minWidth": 320,
@@ -1332,12 +1332,12 @@ export const dataConfig =
                 "minimizable": true
             },
             {
-                "x": 845,
+                "x": 701,
                 "y": 36,
                 "id": "1666616956606_0.9069646449966886",
                 "order": 1,
                 "width": 674,
-                "height": 950,
+                "height": 808,
                 "visible": true,
                 "minWidth": 470,
                 "component": {
@@ -3555,7 +3555,7 @@ export const dataConfig =
                 "y": 36,
                 "id": "1666129509077_0.6102819159960722",
                 "order": 2,
-                "width": 845,
+                "width": 700,
                 "height": 808,
                 "visible": true,
                 "minWidth": 320,
@@ -5387,7 +5387,7 @@ export const dataConfig =
                 "minimizable": true
             },
             {
-                "x": 1294,
+                "x": 1150,
                 "y": 844,
                 "id": "1668082520313_0.8997009401114706",
                 "order": 3,
@@ -5405,7 +5405,7 @@ export const dataConfig =
                 "minimizable": false
             },
             {
-                "x": 845,
+                "x": 701,
                 "y": 844,
                 "id": "1668082537779_0.501330450725656",
                 "order": 4,

@@ -5,6 +5,7 @@ $nav-height: 42px;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 :host-context(.electron) app-navbar {
@@ -27,4 +28,20 @@ layout {
   width: 100%;
   height: calc(100% - #{$nav-height});
   flex-shrink: 0;
+}
+
+ng-scrollbar {
+  --scrollbar-size: 8px;
+  --scrollbar-thumb-color: gray;
+  --scrollbar-hover-size: 12px;
+  --scrollbar-track-color: rgba(0, 0, 0, 0.05);
+  --scrollbar-border-radius: 10px;
+
+  height: 800px;
+
+  // ::ng-deep {
+  //   .ng-scroll-viewport{
+  //     padding: 1em;
+  //   }
+  // }
 }

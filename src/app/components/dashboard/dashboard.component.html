@@ -1,14 +1,15 @@
-<app-navbar [class.window-navbar]="isWindowPopup()"
-            *ngIf="layout && shouldShowToolBar()"
-            (save)="save()"
-            [layout]="layout"
+<app-navbar
+  [class.window-navbar]="isWindowPopup()"
+  *ngIf="layout && shouldShowToolBar()"
+  (save)="save()"
+  [layout]="layout"
 ></app-navbar>
 
-<layout></layout>
+<ng-scrollbar style="height: 1200px">
+  <layout></layout>
 
-<context-menu></context-menu>
-<ng-template #defaultEmptyContainer>
-  <span class="empty-container">
-  No data to display...
-    </span>
-</ng-template>
+  <context-menu></context-menu>
+  <ng-template #defaultEmptyContainer>
+    <span class="empty-container"> No data to display... </span>
+  </ng-template>
+</ng-scrollbar>

@@ -69,12 +69,14 @@ export class WorkspacesManager {
     this.workspaceInit.next(true);
   }
 
-  public async createWorkspace(name: string, base?: WorkspaceId, isDefault?: boolean, createDefaultForNewUser: boolean = false): Promise<void> {
+  public async createWorkspace(name: string, base?: WorkspaceId, isDefault: boolean = false, createDefaultForNewUser: boolean = false): Promise<void> {
     const workspace = new Workspace(name, isDefault);
-    if (this.workspaces.value.some(item => item.name === name)) {
+
+    if (this.workspaces.value.some(item => item.name === name || name.toLowerCase() ===  'default')) {
       this._notifier.showError('Can\'t duplicate names');
       return;
     }
+
     let workspaces = [...this.workspaces.value, workspace];
     if (base != null && base !== blankBase) {
       this.save$.next();
@@ -193,10 +195,12 @@ export class WorkspacesManager {
   }
 
   public renameWorkspace(id: WorkspaceId, name: string): void {
-    if (this.workspaces.value.some(item => id !== item.id && item.name === name)) {
+
+    if (this.workspaces.value.some(item => id !== item.id && (item.name === name || name.toLowerCase() ===  'default'))) {
       this._notifier.showError('Can\'t duplicate names');
       return;
     }
+
     const workspace = this.workspaces.value.find(w => w.id === id);
     workspace.name = name;
 

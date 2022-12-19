@@ -5,8 +5,8 @@ export const orderFormOptions = {
   minWidth: 369,
   height: 300,
   width: 369,
-  resizable: false,
-  maximizable: false,
+  resizable: true,
+  maximizable: true,
 };
 
 export const widgetList = [
@@ -15,7 +15,7 @@ export const widgetList = [
     name: 'Chart',
     component: Components.Chart,
     hasInstrument: true,
-    hasTemplates: true,
+    hasTemplates: true,   
   },
   {
     icon: 'icon-widget-positions',

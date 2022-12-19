@@ -55,6 +55,7 @@ import { WorkspaceComponent } from './components/navbar/workspace/workspace.comp
 import { Modules, modulesStore } from './modules';
 import { ItemsStoreModule } from '../../projects/items-store/src/lib/items-store.module';
 import { InstrumentsRepository } from '../../projects/trading/src/trading/repositories/instruments.repository';
+import { NgScrollbarModule } from 'ngx-scrollbar';
 
 function generateLoginLink(config): string {
 
@@ -120,6 +121,7 @@ export function initApp(injector: Injector,
     await initAccounts(manager);
   };
 }
+
 
 
 @NgModule({
@@ -249,7 +251,9 @@ export function initApp(injector: Injector,
     NzDividerModule,
     ItemsStoreModule.forRoot(injector => ({
       instruments: injector.get(InstrumentsRepository),
-    }))
+    })),
+    NgScrollbarModule
+    
   ],
   providers: [
     ThemesHandler,
@@ -266,7 +270,8 @@ export function initApp(injector: Injector,
         WindowPopupManager,
       ],
     },
-    { provide: NZ_I18N, useValue: en_US }
+    { provide: NZ_I18N, useValue: en_US },
+    
   ],
   bootstrap: [AppComponent]
 })

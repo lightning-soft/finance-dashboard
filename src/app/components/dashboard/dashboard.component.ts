@@ -60,6 +60,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('defaultEmptyContainer', { static: true }) defaultEmptyContainer;
   _active = false;
 
+
   set isActive(value: boolean) {
     if (value === this._active)
       return;

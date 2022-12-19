@@ -2,7 +2,7 @@
   "http": {},
   "ws": {},
   "setting": {
-    "url": "https://userdata-dev.amstradinggroup.com/"
+    "url": "https://localhost:44333/"
   },
   "rithmic": {
     "http": {
