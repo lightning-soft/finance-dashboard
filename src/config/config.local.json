@@ -14,11 +14,11 @@
   },
   "zoneDecoder": {
     "http": {
-      "url": "https://zonedecoder-dev.amstradinggroup.com/api/"
+      "url": "https://zonedecoder-dev1.amstradinggroup.com/api/"
     }
   },
   "identity": {
-    "url": "https://auth-dev.amstradinggroup.com/",
+    "url": "https://auth-dev1.amstradinggroup.com/",
     "scope": [
       "openid",
       "profile",
@@ -31,6 +31,6 @@
     "clientSecret": "SuperSecretPassword",
     "responseType": "code",
     "redirectUri": "http://localhost:4200",
-    "notificationUri": "https://notification-dev.amstradinggroup.com/"
+    "notificationUri": "https://notification-dev1.amstradinggroup.com/"
   }
 }

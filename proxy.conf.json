@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://rithmic-dev.amstradinggroup.com/",
+    "target": "https://rithmic-dev1.amstradinggroup.com/",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

@@ -46,7 +46,7 @@ yarn-error.log
 .bazelrc.user
 
 # User specific ng-dev settings
-.ng-dev.user*
+.ng-dev1.user*
 
 .notes.md
 baseline.json
