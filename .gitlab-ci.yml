@@ -82,6 +82,27 @@ deploy-latest:
     tags:
         - docker
 
+
+deploy-test:
+    stage: deploy
+    services:
+        - docker:20.10.11-dind
+    image: docker:20.10.11-dind
+    rules:
+        - if: $CI_COMMIT_BRANCH == 'test-server-deployment'
+        # - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    cache:
+        paths:
+            - dist/
+    script:
+        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker build --tag $CONTAINER_IMAGE:test .
+        - docker push $CONTAINER_IMAGE:test
+        - docker logout
+    tags:
+        - docker
+
 deploy-stage-from-latest:
     stage: deploy
     image: docker:20.10.11-dind
