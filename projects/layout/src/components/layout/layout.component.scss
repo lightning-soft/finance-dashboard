@@ -14,7 +14,10 @@ $activeColor: #2296f3;
   .layout-container {
     height: 100%;
     width: 100%;
-    overflow: auto;
+    overflow: hidden;
+    & ::-webkit-scrollbar {
+      display: none;
+    }
     .wm-container {
       position: inherit !important;
     }
