@@ -75,7 +75,8 @@ import {
 import {SettingsService} from "settings";
 
 declare let StockChartX: any;
-declare let $: JQueryStatic;
+declare let $: any;
+// declare let $: JQueryStatic;
 
 const EVENTS_SUFFIX = '.scxComponent';
 
@@ -663,7 +664,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
         if (!state) {
           return;
         }
-
+        debugger
         this.checkIfTradingEnabled();
 
         if (state.instrument && state.instrument.id != null) {
@@ -676,7 +677,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
           chart.timeFrame = state.timeFrame;
         }
         if (state.stockChartXState) {
-          chart.loadState(state.stockChartXState);
+          // chart.loadState(state.stockChartXState);
         }
         /* else if (StockChartX.Indicator.registeredIndicators.VOL) {
            chart.addIndicators(new StockChartX.Indicator.registeredIndicators.VOL());
@@ -877,6 +878,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   loadState(state?: IChartState): void {
     this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
+
     this._loadedState$.next(state);
     if (state?.account) {
       this.account = state.account;
