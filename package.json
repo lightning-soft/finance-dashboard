@@ -123,7 +123,7 @@
     "popper.js": "^1.16.1",
     "reconnecting-websocket": "4.4.0",
     "rxjs": "6.6.2",
-    "simple-window-manager": "git+https://tradrr-service-token:Nyk4gm2mwmB9s6vqsu4s@gitlab.com/ams-trading-group-platform/simple-window-manager.git#overflow_issue",
+    "simple-window-manager": "git+https://tradrr-service-token:Nyk4gm2mwmB9s6vqsu4s@gitlab.com/ams-trading-group-platform/simple-window-manager.git",
     "tslib": "2.0.1",
     "underscore": "1.10.2",
     "zone.js": "0.10.3"
