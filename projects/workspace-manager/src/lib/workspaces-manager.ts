@@ -70,6 +70,7 @@ export class WorkspacesManager {
   }
 
   public async createWorkspace(name: string, base?: WorkspaceId, isDefault: boolean = false, createDefaultForNewUser: boolean = false): Promise<void> {
+   debugger
     const workspace = new Workspace(name, isDefault);
 
     if (this.workspaces.value.some(item => item.name === name || name.toLowerCase() ===  'default')) {
@@ -86,6 +87,14 @@ export class WorkspacesManager {
     } else if (createDefaultForNewUser) {
       const windowVal: WorkspaceWindow = SerializationHelper.toInstance(new WorkspaceWindow(), this.configData)
       windowVal.id = Date.now();
+      // windowVal.config[1].component.state.instrument
+      let leng=windowVal.config.length;
+      debugger
+      // windowVal.config[leng+1]=windowVal.config[1];
+      // windowVal.config[leng+2]=windowVal.config[2];
+
+      windowVal.config[1].component.state.instrument ={"id":"ESH3.CME","currency":"USD","stringTypeRepresentation":"Future","productCode":"ES","type":"Future","instrumentTimePeriod":"Mar23","tickSize":0.25,"connectionId":"ccc08d99-6da8-4160-9cf9-005bd5a4259f","symbol":"ESH3","description":"E-Mini S&P 500 Mar23","exchange":"CME","contractSize":50,"precision":2};
+      windowVal.config[2].component.state.instrument ={"id":"ESH3.CME","currency":"USD","stringTypeRepresentation":"Future","productCode":"ES","type":"Future","instrumentTimePeriod":"Mar23","tickSize":0.25,"connectionId":"ccc08d99-6da8-4160-9cf9-005bd5a4259f","symbol":"ESH3","description":"E-Mini S&P 500 Mar23","exchange":"CME","contractSize":50,"precision":2};
       workspace.windows.push(windowVal);
     } else {
       const window = this.createBlankWindow();
