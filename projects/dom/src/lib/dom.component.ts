@@ -2262,17 +2262,7 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
 
     if (!state?.instrument)
-      state.instrument = {
-        id: 'ESM2.CME',
-        description: 'E-Mini S&P 500 Jun22',
-        exchange: 'CME',
-        tickSize: 0.25,
-        precision: 2,
-        instrumentTimePeriod: 'Jun22',
-        contractSize: 50,
-        productCode: 'ES',
-        symbol: 'ESM2',
-      };
+      state.instrument = environment.instrument;
     // for debug purposes
 
     this._observe();

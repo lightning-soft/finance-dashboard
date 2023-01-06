@@ -26,6 +26,7 @@ import {
 import { InstrumentFormatter } from 'data-grid';
 import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
 import {SettingsService} from "settings";
+import { environment } from 'environment';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -243,17 +244,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     if (state?.instrument)
       this.instrument = state.instrument;
     else
-      this.instrument = {
-        id: 'ESM2.CME',
-        description: 'E-Mini S&P 500 Jun22',
-        exchange: 'CME',
-        tickSize: 0.25,
-        precision: 2,
-        instrumentTimePeriod: 'Jun22',
-        contractSize: 50,
-        productCode: 'ES',
-        symbol: 'ESM2',
-      };
+      this.instrument = environment.instrument;
 
     if (state?.account)
       this.account = state.account;
