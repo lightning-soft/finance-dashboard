@@ -13,5 +13,17 @@ export const environment = {
     fontawesome: 'Font Awesome 5.14.0',
   },
   isDev: urlSearchParams.get('dev') === 'true',
-  timezone: 'https://worldtimeapi.org/api/timezone'
+  timezone: 'https://worldtimeapi.org/api/timezone',
+  instrument:{
+    id: 'ESH3.CME',
+    description: 'E-Mini S&P 500 Mar23',
+    exchange: 'CME',
+    tickSize: 0.25,
+    precision: 2,
+    instrumentTimePeriod: 'Mar23',
+    contractSize: 50,
+    productCode: 'ES',
+    symbol: 'ESH3',
+    company:''
+  }
 };

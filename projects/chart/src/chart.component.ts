@@ -621,18 +621,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
     this._handleSettingsChange(this.settings);
 
-    this.instrument = state?.instrument ?? {
-      id: 'ESM2.CME',
-      description: 'E-Mini S&P 500 Jun22',
-      exchange: 'CME',
-      tickSize: 0.25,
-      precision: 2,
-      instrumentTimePeriod: 'Jun22',
-      contractSize: 50,
-      productCode: 'ES',
-      symbol: 'ESM2',
-      company: this._getInstrumentCompany(),
-    } as IStockChartXInstrument;
+    this.instrument = state?.instrument ?? environment?.instrument as IStockChartXInstrument;
 
     this._orders.init();
     this._positions.init();
