@@ -75,6 +75,16 @@
         }
       ]
     },
+    "mac": {
+      "target": [
+        {
+          "target": "default",
+          "arch": [
+            "universal"
+          ]
+        }
+      ]
+    },
     "win": {
       "target": [
         "NSIS"
