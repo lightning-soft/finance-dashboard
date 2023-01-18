@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ArrayHelper, StringHelper } from 'base-components';
 import { ILayoutNode, LayoutNode } from 'layout';
+import { NotifierService } from 'notifier';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { IChart } from '../models';
@@ -148,7 +149,7 @@ export class IndicatorsComponent implements OnInit {
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
   private _forbidAutoScaleIndicators = [];
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor(private cd: ChangeDetectorRef, private _notifier: NotifierService) {
   }
 
   ngOnInit(): void {
@@ -170,10 +171,14 @@ export class IndicatorsComponent implements OnInit {
   }
 
   selectIndicator(item: any) {
+    const priceStat ="PriceStats";
     const _constructor = this._constructorsMap.get(item.className) || General;
-
     this.selectedIndicator = new _constructor(item);
-
+    if (this._notifier.periodInterval < 3 && item._name == priceStat) {
+      this.setDisabled(true);
+    } else if(item._name == priceStat) {
+      this.setDisabled(false);
+    }
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
     this.form.valueChanges
@@ -189,6 +194,11 @@ export class IndicatorsComponent implements OnInit {
       });
   }
 
+  private setDisabled(disabled: boolean) {
+    const options = this.selectedIndicator?.config[0]?.fieldGroup[4]?.fieldGroup[2]?.fieldGroup[0]?.fieldGroup;
+    options[0].templateOptions.disabled = disabled;
+    options[1].templateOptions.disabled = disabled;
+  }
   loadState(state?: any) {
     this.link = state?.link;
     this.chart = state?.chart;
@@ -307,7 +317,7 @@ export class IndicatorsComponent implements OnInit {
           return Promise.reject();
         return StockChartX.Localization.localizeText(
           this.chart,
-          `indicator.${ name }.help.${ key }.${ contentKey }`,
+          `indicator.${name}.help.${key}.${contentKey}`,
           { defaultValue: null },
         );
       });
@@ -351,3 +361,4 @@ export class IndicatorsComponent implements OnInit {
     }
   }
 }
+

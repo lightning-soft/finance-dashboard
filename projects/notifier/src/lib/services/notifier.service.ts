@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 export abstract class NotifierService {
+  periodInterval : any;
   protected _prepareErrorMessage(message, defaultMessage) {
     let _message = defaultMessage ?? 'Something wrong';
     let _title = 'Error';
