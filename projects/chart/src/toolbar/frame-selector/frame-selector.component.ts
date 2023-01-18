@@ -56,8 +56,8 @@ export class FrameSelectorComponent {
   @Output() timePeriodChange = new EventEmitter();
 
   customPeriodOptions = [StockChartXPeriodicity.DAY,
-    StockChartXPeriodicity.WEEK, StockChartXPeriodicity.MONTH,
-    StockChartXPeriodicity.YEAR];
+  StockChartXPeriodicity.WEEK, StockChartXPeriodicity.MONTH,
+  StockChartXPeriodicity.YEAR];
 
   customIntervalOptions = [
     StockChartXPeriodicity.SECOND,
@@ -128,12 +128,12 @@ export class FrameSelectorComponent {
 
   selectTimePeriod(frame) {
     this.timePeriod = frame;
+    this._notifier.periodInterval = frame.interval
   }
 
   updateChartBars() {
     if (this.timeFrame == null || this.timeFrame == null)
       return;
-
     const periodTime = TimeFrame.timeFrameToTimeInterval(this.timePeriod);
     const intervalTime = TimeFrame.timeFrameToTimeInterval(this.timeFrame);
     const endDate = new Date();

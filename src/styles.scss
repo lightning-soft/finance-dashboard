@@ -8,7 +8,8 @@
 // @import "~ng-zorro-antd/style/index.min.css";
 @import "assets/icon-font/icon.css";
 
-.ant-btn, .ant-collapse {
+.ant-btn,
+.ant-collapse {
   font-size: $baseFontSize;
 }
 
@@ -41,16 +42,19 @@ label {
   font-weight: 600;
 }
 
-.ant-dropdown-menu, .ant-menu  {
+.ant-dropdown-menu,
+.ant-menu {
   box-shadow: 0px 0px 15px #101114;
 }
-.workspaces{
+
+.workspaces {
   box-shadow: 0px 0px 15px #101114;
 }
 
 body.electron {
   border: 1px solid $darkBackground;
   border-top: 1px solid $light;
+
   // transition: border 0.3s;
   &.navbarBottom {
     border-top: 1px solid $darkBackground;
@@ -58,7 +62,7 @@ body.electron {
   }
 
   &.highligt {
-  //  border: 1px solid $primary;
+    //  border: 1px solid $primary;
   }
 }
 
@@ -68,7 +72,8 @@ body.electron {
   }
 }
 
-.ant-switch:hover, .ant-switch:focus:hover {
+.ant-switch:hover,
+.ant-switch:focus:hover {
   box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
 }
 
@@ -105,7 +110,7 @@ body.electron {
   -webkit-app-region: drag
 }
 
-.navigation-bar > * {
+.navigation-bar>* {
   -webkit-app-region: no-drag
 }
 
@@ -128,11 +133,13 @@ body {
 }
 
 
-.ant-click-animating-node, [ant-click-animating-without-extra-node=true]::after {
+.ant-click-animating-node,
+[ant-click-animating-without-extra-node=true]::after {
   animation: none;
 }
 
-.ant-switch:hover, .ant-switch:focus:hover:not(.ant-switch-checked) {
+.ant-switch:hover,
+.ant-switch:focus:hover:not(.ant-switch-checked) {
   box-shadow: 0 0 0 2px rgb(72 149 245 / 20%);
 }
 
@@ -141,11 +148,11 @@ body {
 }
 
 
-.ant-checkbox-input:focus:not(:hover) + .ant-checkbox-inner {
+.ant-checkbox-input:focus:not(:hover)+.ant-checkbox-inner {
   border-color: $checkboxBorderColor;
 }
 
-.ant-checkbox-wrapper[disabled] .ant-checkbox + span {
+.ant-checkbox-wrapper[disabled] .ant-checkbox+span {
   color: $light3;
 }
 
@@ -171,7 +178,8 @@ body {
   }
 }
 
-.ant-checkbox-indeterminate.ant-checkbox-disabled, .ant-checkbox-indeterminate {
+.ant-checkbox-indeterminate.ant-checkbox-disabled,
+.ant-checkbox-indeterminate {
   .ant-checkbox-inner {
     &::after {
       background: transparent;
@@ -248,7 +256,8 @@ body.navbarBottom {
     }
   }
 
-  .cursor, .box div .cursor {
+  .cursor,
+  .box div .cursor {
     border: 2px solid $text-80;
   }
 
@@ -265,11 +274,13 @@ body.navbarBottom {
   text-overflow: ellipsis;
 }
 
-.ant-select, .ant-checkbox-wrapper, .ant-radio-wrapper {
+.ant-select,
+.ant-checkbox-wrapper,
+.ant-radio-wrapper {
   font-size: 0.7rem;
 }
 
-.ant-form-item-label > label {
+.ant-form-item-label>label {
   font-size: 0.75rem;
 }
 
@@ -371,7 +382,8 @@ window-header {
   line-height: 20px;
 }
 
-.ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-placeholder {
+.ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-item,
+.ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-placeholder {
   line-height: 17px;
   font-size: 0.7rem;
 }
@@ -469,6 +481,7 @@ nz-message {
   }
 
   .ant-empty {
+
     &-image,
     &-description {
       text-align: center !important;
@@ -504,7 +517,8 @@ nz-message {
   color: $primary;
 }
 
-.ant-input-number:focus, .ant-input-number-focused {
+.ant-input-number:focus,
+.ant-input-number-focused {
   box-shadow: none;
 }
 
@@ -545,7 +559,8 @@ nz-input-number:not(.custom-form-control) {
     mask-image: url('~src/assets/img/svg/arrow-down.svg');
   }
 
-  .ant-input-number-handler-up:hover, .ant-input-number-handler-down:hover {
+  .ant-input-number-handler-up:hover,
+  .ant-input-number-handler-down:hover {
     height: 50% !important;
   }
 }
@@ -582,17 +597,17 @@ nz-input-number:not(.custom-form-control) {
 
 }
 
-.ant-modal-footer button + button {
+.ant-modal-footer button+button {
   margin-left: 16px;
 }
 
 .ant-modal {
   .ant-modal-content {
     padding: 0px;
-   // filter: drop-shadow(0px 0px 10px #15161D);
     background: $secondary;
     box-shadow: 0px 0px 20px #101114 !important;
     border-radius: 2px;
+
     .ant-modal-header {
       background-color: $secondary;
       border: none;
@@ -645,23 +660,19 @@ nz-input-number:not(.custom-form-control) {
     }
   }
 }
-
 // Fix scrolling issue on select(system select in connection dialog)
 .ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover),
 .ant-select-item-option-active:not(.ant-select-item-option-disabled):not(:hover) {
   background-color: transparent;
 }
-
 .full-width {
   width: 100%;
 }
-
 * {
   scrollbar-width: thin;
   scrollbar-color: #575658 #101114;
 }
 
-/* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
   width: 16px;
 }
@@ -669,6 +680,7 @@ nz-input-number:not(.custom-form-control) {
 *::-webkit-scrollbar-track {
   background: #101114;
 }
+
 *::-webkit-scrollbar-track:hover {
   background: #101114;
 }
@@ -678,10 +690,22 @@ nz-input-number:not(.custom-form-control) {
   border-radius: 10px;
   border: 3px solid #101114;
 }
+
 *::-webkit-scrollbar-corner {
   background: #101114;
 }
 
 *::-webkit-scrollbar-track:active {
   background: #101114;
+}
+html {
+  --scrollbarBG: #cfd8dc;
+  --thumbBG: #90a4ae;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.226);
 }
