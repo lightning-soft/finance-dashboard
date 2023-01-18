@@ -53,13 +53,15 @@
     "files": [
       "dist/browser/**/*",
       "package.json",
-      "main.js"
+      "main.js",
+      "src/assets/preload.js"
     ],
     "linux": {
       "target": [
         "AppImage",
         "deb"
-      ]
+      ],
+      "icon": "src/assets/icons/linux/512x512.png"
     },
     "dmg": {
       "contents": [
@@ -83,13 +85,15 @@
             "universal"
           ]
         }
-      ]
+      ],
+      "icon": "src/assets/icons/mac/icon@2x.png"
     },
     "win": {
       "target": [
         "NSIS"
       ],
       "asar": true,
+      "icon": "src/assets/icons/win/tradrr-icon.ico",
       "requestedExecutionLevel": "requireAdministrator"
     },
     "nsis": {
