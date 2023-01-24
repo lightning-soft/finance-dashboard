@@ -133,7 +133,6 @@ export class IndicatorsComponent implements OnInit {
       ],
     }
   ];
-  selectedIndicator: Indicator;
   form: FormGroup;
   formValueChangesSubscription: Subscription;
   indicatorsDescriptions: {
@@ -149,7 +148,7 @@ export class IndicatorsComponent implements OnInit {
   private _constructorsMap: Map<any, new (...args: any[]) => Indicator>;
   private _forbidAutoScaleIndicators = [];
 
-  constructor(private cd: ChangeDetectorRef, private _notifier: NotifierService) {
+  constructor(private cd: ChangeDetectorRef, public _notifier: NotifierService) {
   }
 
   ngOnInit(): void {
@@ -167,17 +166,18 @@ export class IndicatorsComponent implements OnInit {
   }
 
   isSelected(item: any) {
-    return this.selectedIndicator?.instance === item;
+    return this._notifier.selectedIndicator?.instance === item;
   }
 
   selectIndicator(item: any) {
-    const priceStat ="PriceStats";
+    const priceStat = "PriceStats";
+    this._notifier.priceStat = item._name;
     const _constructor = this._constructorsMap.get(item.className) || General;
-    this.selectedIndicator = new _constructor(item);
+    this._notifier.selectedIndicator = new _constructor(item);
     if (this._notifier.periodInterval < 3 && item._name == priceStat) {
-      this.setDisabled(true);
-    } else if(item._name == priceStat) {
-      this.setDisabled(false);
+      this._notifier.setDisabled(true);
+    } else if (item._name == priceStat) {
+      this._notifier.setDisabled(false);
     }
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
@@ -186,19 +186,15 @@ export class IndicatorsComponent implements OnInit {
         debounceTime(10),
         untilDestroyed(this))
       .subscribe(() => {
-        this.selectedIndicator.applySettings(this.selectedIndicator.settings);
+        this._notifier.selectedIndicator.applySettings(this._notifier.selectedIndicator.settings);
         this.chart.updateIndicators();
-        const autoScale = !this._forbidAutoScaleIndicators.includes(this.selectedIndicator.instance.className);
+        const autoScale = !this._forbidAutoScaleIndicators.includes(this._notifier.selectedIndicator.instance.className);
         this.chart.setNeedsLayout();
         this.chart.setNeedsUpdate();
       });
   }
 
-  private setDisabled(disabled: boolean) {
-    const options = this.selectedIndicator?.config[0]?.fieldGroup[4]?.fieldGroup[2]?.fieldGroup[0]?.fieldGroup;
-    options[0].templateOptions.disabled = disabled;
-    options[1].templateOptions.disabled = disabled;
-  }
+
   loadState(state?: any) {
     this.link = state?.link;
     this.chart = state?.chart;
@@ -263,8 +259,8 @@ export class IndicatorsComponent implements OnInit {
 
   removeIndicator(item: any) {
     const { chart } = this;
-    if (this.selectedIndicator?.instance === item)
-      this.selectedIndicator = null;
+    if (this._notifier.selectedIndicator?.instance === item)
+      this._notifier.selectedIndicator = null;
 
     this._applyZIndex();
     chart.removeIndicators(item);

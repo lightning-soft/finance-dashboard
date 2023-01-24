@@ -1,7 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { Indicator } from '../../../../chart/src/indicators/indicators/Indicator'
 export abstract class NotifierService {
-  periodInterval : any;
+  periodInterval: any;
+  selectedIndicator: Indicator;
+  priceStat: string;
   protected _prepareErrorMessage(message, defaultMessage) {
     let _message = defaultMessage ?? 'Something wrong';
     let _title = 'Error';
@@ -15,7 +17,7 @@ export abstract class NotifierService {
     else if (isString(message?.title)) {
       _message = message.title;
       if (message.errors)
-      additionalInfo = Object.values(message?.errors).reduce((total, curr) => `${total}\n${curr}`, '') as string;
+        additionalInfo = Object.values(message?.errors).reduce((total, curr) => `${total}\n${curr}`, '') as string;
     }
     else if (isString(message?.message))
       _message = message.message;
@@ -37,6 +39,14 @@ export abstract class NotifierService {
   abstract showSuccess(message: string);
 
   abstract showError(message: any, defaultMessage?: string);
+  public setDisabled(disabled: boolean) {
+    const options = this.selectedIndicator?.config[0]?.fieldGroup[4]?.fieldGroup[2]?.fieldGroup[0]?.fieldGroup;
+    options[0].key = disabled ? 'disable' : 'enable';
+    options[0].templateOptions.disabled = disabled;
+    options[1].templateOptions.disabled = disabled;
+    options[1].templateOptions['tooltip'] = disabled == true ? 'Load more than 3 days of data' : '';
+    this.selectedIndicator.applySettings(this.selectedIndicator.settings);
+  }
 }
 
 function isString(value) {
