@@ -7,6 +7,6 @@
   [(nzOpen)]="isOpened"
   [(ngModel)]="account"
 >
-  <nz-option *ngFor="let item of items" [nzLabel]="account.id == item.id ? labelTransformer(item.id):item.id.toString()"
+  <nz-option *ngFor="let item of items" [nzLabel]="account.id == item.id && isOpened ? item.id.toString() : labelTransformer(item.id)"
              [nzValue]="item"></nz-option>
 </nz-select>
