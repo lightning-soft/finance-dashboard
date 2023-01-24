@@ -1,4 +1,6 @@
-<nz-input-number [nzSize]="'small'" [nzMin]="min" [disabled]="field.templateOptions?.disabled" [nzMax]="max"
-    [(ngModel)]="value" [nzPrecision]="precision" nzPrecisionMode="cut" [ngModelOptions]="{standalone: true}"
-    [nzPlaceHolder]="to.placeholder" [formlyAttributes]="field"></nz-input-number>
-<span *ngIf="field.templateOptions?.label" class="number-label"> {{field.templateOptions?.label}}</span>
+<nz-input-number data-toggle="tooltip" [title]="field.templateOptions?.tooltip" [nzSize]="'small'" [nzMin]="min"
+  [disabled]="field.templateOptions?.disabled" [nzMax]="max" [(ngModel)]="value" [nzPrecision]="precision"
+  nzPrecisionMode="cut" [ngModelOptions]="{standalone: true}" [nzPlaceHolder]="to.placeholder"
+  [formlyAttributes]="field"></nz-input-number>
+
+<span *ngIf="field.templateOptions?.label" class="number-label">{{field.templateOptions?.label}}</span>

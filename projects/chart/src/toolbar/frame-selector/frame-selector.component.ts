@@ -127,8 +127,14 @@ export class FrameSelectorComponent {
   }
 
   selectTimePeriod(frame) {
+    const priceStat = "PriceStats";
     this.timePeriod = frame;
-    this._notifier.periodInterval = frame.interval
+    this._notifier.periodInterval = frame.interval;
+    if (this._notifier.periodInterval < 3 && this._notifier.priceStat == priceStat) {
+      this._notifier.setDisabled(true);
+    } else if (this._notifier.priceStat == priceStat) {
+      this._notifier.setDisabled(false);
+    }
   }
 
   updateChartBars() {

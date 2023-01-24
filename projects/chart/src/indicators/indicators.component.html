@@ -73,12 +73,12 @@
     </div>
   </div>
   <div class="form-layout">
-    <cdk-virtual-scroll-viewport [class]="selectedIndicator?.instance?.name.toLowerCase()" itemSize="">
+    <cdk-virtual-scroll-viewport [class]="_notifier.selectedIndicator?.instance?.name.toLowerCase()" itemSize="">
       <formly-form
-        *ngIf="selectedIndicator"
+        *ngIf="_notifier.selectedIndicator"
         [form]="form"
-        [(model)]="selectedIndicator.settings"
-        [fields]="selectedIndicator.config">
+        [(model)]="_notifier.selectedIndicator.settings"
+        [fields]="_notifier.selectedIndicator.config">
       </formly-form>
     </cdk-virtual-scroll-viewport>
   </div>
