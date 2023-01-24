@@ -40,13 +40,19 @@ export const generalFields: IFieldConfig[] = [
         checkboxes: [
           {label: 'Hide Account Name', key: 'hideAccountName'},
           {label: 'Hide From Left', key: 'hideFromLeft'},
-          {label: 'Hide From Right', key: 'hideFromRight'},
-
-        ], label: 'Account Name', additionalFields: [{
-          templateOptions: {min: 0, label: 'Account Digits To Hide'},
-          key: 'digitsToHide',
-          type: FieldType.Number,
-        }],
+        ],
+        label: 'Account Name', additionalFields: [
+          {
+            templateOptions: {min: 0, label: 'Account Digits To Hide'},
+            key: 'digitsToHide',
+            type: FieldType.Number,
+          },
+          {
+            templateOptions: { label: 'Hide From Right' },
+            key: 'hideFromRight',
+            type: FieldType.Checkbox,
+          },
+        ],
         fieldGroupClassName: 'm-t-0',
         extraConfig: {className: 'field-item', fieldGroupClassName: 'd-flex flex-wrap two-rows-mt-0 p-x-7',},
       }),

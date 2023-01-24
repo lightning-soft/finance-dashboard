@@ -120,7 +120,7 @@ const defaultSettings: SettingsData = {
       selectedSound: 'Arrowhit',
       volume: 100
     },
-    isPlay: true
+    isPlay: false,
   }
 };
 
