@@ -116,7 +116,7 @@ const defaultSettings: SettingsData = {
     },
     alert: {
       name: 'Alert',
-      checked: true,
+      checked: false,
       selectedSound: 'Arrowhit',
       volume: 100
     },

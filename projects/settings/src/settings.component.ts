@@ -41,7 +41,7 @@ export const generalFields: IFieldConfig[] = [
           {label: 'Hide Account Name', key: 'hideAccountName'},
           {label: 'Hide From Left', key: 'hideFromLeft'},
         ],
-        label: 'Account Name', additionalFields: [
+        label: 'Account Details', additionalFields: [
           {
             templateOptions: {min: 0, label: 'Account Digits To Hide'},
             key: 'digitsToHide',

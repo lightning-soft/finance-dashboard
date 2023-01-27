@@ -15,7 +15,7 @@ $cell-background: #1b1d22;
 
   window-header {
     margin-bottom: 0px;
-    background: #24262C;
+    background: $light;
   }
 
   &.hide-header-panel {
