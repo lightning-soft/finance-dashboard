@@ -384,7 +384,7 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
         },
       },
       width: 600,
-      height:650,
+      height:625,
       x: $event.clientX,
       y: $event.clientY,
       resizable: false,

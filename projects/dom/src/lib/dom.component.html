@@ -8,7 +8,7 @@
     [(account)]="account"
   ></account-select>
 </window-header>
-<div (contextmenu)="grid.createComponentModal($event)" class="window-header-button">
+<div (contextmenu)="grid.createComponentModal($event)" class="window-header-button window-header-bg">
   <button [title]="'Center'" class="wm-header-btn icon-align-center" (click)="centralize()">
   </button>
   <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" [title]="'Clear'"
