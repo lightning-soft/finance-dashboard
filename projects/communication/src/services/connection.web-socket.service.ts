@@ -58,7 +58,6 @@ export class ConenctionWebSocketService {
   ) {
     this._setListeners();
     this._setEventListeners();
-    this._setLastCheckDelay();
     this.connection$
       .pipe(filter(i => i))
       .subscribe(() => {

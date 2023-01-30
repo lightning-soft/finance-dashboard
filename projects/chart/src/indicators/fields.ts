@@ -1984,7 +1984,7 @@ export const zigZagConfig: IFieldConfig[] = [
         className: 'number-space-around',
       }),
       getNumber({
-        label: 'Data Box Offset(Px)',
+        label: 'Data Box Offset (Px)',
         key: 'dataBoxOffset'
       }),
       getColor('Text Color'),

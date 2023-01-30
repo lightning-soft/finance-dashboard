@@ -2,7 +2,7 @@
 
 
 <window-header marginClass="" (close)="onWindowClose()" className="widget" [window]="this">
-  <instrument-select class="mr-1" placeholder="Symbol" [(instrument)]="instrument" [account]="account">
+  <instrument-select class="mr-1" [(instrument)]="instrument" [account]="select.account">
   </instrument-select>
   <account-select [labelTransformer]="transformAccountLabel.bind(this)" #select [(account)]="account"></account-select>
   <div class="vertical-line"></div>
