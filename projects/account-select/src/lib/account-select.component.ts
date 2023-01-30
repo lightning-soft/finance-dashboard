@@ -25,6 +25,9 @@ export class AccountSelectComponent {
   private _account: IAccount;
 
   public get account(): IAccount {
+    if(this._account === undefined){
+      this.placeholder = 'No Connection';
+    }
     return this._account;
   }
 

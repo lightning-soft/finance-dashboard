@@ -20,7 +20,7 @@ import { filter, first } from 'rxjs/operators';
 import { HotkeyEvents, NavbarPosition, SettingsData, SettingsService } from 'settings';
 import { Sound, SoundService } from 'sound';
 import { Themes, ThemesHandler } from 'themes';
-import { OrdersFeed, OrderStatus, OrderType } from 'trading';
+import { IConnection, OrdersFeed, OrderStatus, OrderType } from 'trading';
 import { isEqual } from 'underscore';
 import { WindowMessengerService } from 'window-messenger';
 import { WorkspacesManager, WorkspaceWindow } from 'workspace-manager';
@@ -58,6 +58,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   private _subscriptions = [];
 
   @ViewChild('defaultEmptyContainer', { static: true }) defaultEmptyContainer;
+  @ViewChild('defaultConnectionContainer', { static: true }) defaultConnectionContainer;
   _active = false;
 
 
@@ -92,6 +93,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   ) {
   }
 
+  openAccounts(selectedItem: IConnection = null, index = -1) {
+    this.layout.addComponent({
+      component: {
+        name: 'accounts',
+        state: { selectedItem, selectItemIndex: index }
+      },
+      ...accountsOptions
+    });
+  }
+
   ngOnInit() {
     this._settingsService.init()
       .pipe(untilDestroyed(this))
@@ -100,8 +111,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         console.error(error);
         this._notifier.showError('Something went wrong during loading settings');
       });
-    this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
 
+    this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultConnectionContainer });
     this._setupSettings();
     this._subscribeToOrders();
     /*

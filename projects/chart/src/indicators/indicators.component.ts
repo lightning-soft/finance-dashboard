@@ -227,6 +227,20 @@ export class IndicatorsComponent implements OnInit {
 
     const _constructor = this.registeredIndicators[item];
     const indicator = new _constructor();
+    if(item === 'ZigZag'){
+      if(indicator._settings.parameters.dataBoxOffset != undefined){
+        indicator._settings.parameters.dataBoxOffset = 10;
+      }
+      if(indicator._settings.parameters.showZigZagLine != undefined){
+        indicator._settings.parameters.showZigZagLine = false;
+      }
+      if(indicator._settings.parameters.dataBoxBackground.value != undefined){
+      indicator._settings.parameters.dataBoxBackground.value = '#3F3F3F';
+      }
+      if(indicator._settings.parameters.dataBoxBorder.value != undefined){
+      indicator._settings.parameters.dataBoxBorder.value = '#000000';
+      }
+    }
     this.chart.addIndicators(indicator);
     this._applyZIndex();
     this.chart.setNeedsUpdate();

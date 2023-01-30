@@ -55,6 +55,8 @@ export class DataBoxComponent extends FieldType implements AfterViewInit {
     const value = this.formControl.value;
 
     if (value) {
+      value.delta.enabled=false;
+      value.volume.enabled=false;
       this.formBox.patchValue(value, { emitEvent: false });
     }
 
