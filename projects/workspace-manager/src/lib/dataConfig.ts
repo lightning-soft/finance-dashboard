@@ -5325,9 +5325,9 @@ export const dataConfig =
                                                         "bottom": 3
                                                     },
                                                     "maxAllowedValue": null,
-                                                    "maxVisibleValue": -987653411.512,
+                                                    "maxVisibleValue": 1.00,
                                                     "minAllowedValue": null,
-                                                    "minVisibleValue": -987653430.488,
+                                                    "minVisibleValue": 0.00,
                                                     "maxValueRangeRatio": 5,
                                                     "minValueRangeRatio": 0.1,
                                                     "majorTickMarkLength": 3,
