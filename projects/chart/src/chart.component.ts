@@ -25,7 +25,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { NotifierService } from 'notifier';
 import { filterByConnectionAndInstrument } from 'real-trading';
 import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
-import { TradeHandler } from 'src/app/components';
+import { accountsOptions, TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { environment } from 'src/environments/environment';
 import { TemplatesService } from 'templates';
@@ -331,6 +331,7 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   private _account: IAccount;
   settings: IChartSettings;
+  _connect:boolean=false;
 
   set account(value: IAccount) {
     this._account = value;
@@ -340,9 +341,24 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   get account() {
+    if( this._account === null){
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
+    }
     return this._account;
   }
 
+  openAccounts() {
+    this.layout.addComponent({
+      component: {
+        name: 'accounts',
+        state: {  }
+      },
+      ...accountsOptions
+    });
+  }
   get accountId() {
     return this.account?.id;
   }

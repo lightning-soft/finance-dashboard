@@ -424,7 +424,6 @@ export const valueScale: IFieldConfig[] = [
                 label: 'Pixel / Price',
                 value: 'pixels-price'
               }]),
-              wrapWithClass(getLabel('Pixel Price'), 'pixel-price-rows'),
               wrapWithConfig(
                 getNumber({
                   key: 'pixelsPrice',

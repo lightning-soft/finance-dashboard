@@ -17,10 +17,14 @@ $cell-background: #1b1d22;
     margin-bottom: 0px;
     background: $light;
   }
+  .window_height
+  {
+    height: 22px;
+  }
 
   &.hide-header-panel {
     window-header {
-      margin-bottom: 2px;
+      margin-bottom: -2px;
     }
 
     .window-header-button {
@@ -58,6 +62,15 @@ $cell-background: #1b1d22;
       margin-left: 0px !important;
       align-items: flex-start !important;
     }
+
+    .openconnection{
+      padding-right: 3px;
+      font-size: 0.8rem;
+      color: #D0D0D2;
+    }
+    .openconnection:hover {
+      cursor: pointer;
+    }
   }
 }
 
@@ -66,6 +79,10 @@ $cell-background: #1b1d22;
   background-color:#1B1D22
 }
 
+.title-align
+{
+  margin-left: 4px;
+}
 .window-header-button {
   display: flex;
   width: 100%;

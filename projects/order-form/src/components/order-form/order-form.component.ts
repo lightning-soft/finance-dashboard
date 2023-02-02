@@ -27,6 +27,7 @@ import { InstrumentFormatter } from 'data-grid';
 import { NzInputNumberComponent } from 'ng-zorro-antd/input-number/input-number.component';
 import {SettingsService} from "settings";
 import { environment } from 'environment';
+import { accountsOptions } from 'src/app/components';
 
 const orderLastPriceKey = 'orderLastPrice';
 const orderLastLimitKey = 'orderLastLimitKey';
@@ -79,6 +80,7 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   private orderLink: string;
+  _connect:boolean=false;
 
   @Input()
   set instrument(value: IInstrument) {
@@ -138,6 +140,16 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
     { value: 10 }, { value: 50 },
     { value: 100 },
   ];
+
+  openAccounts() {
+    this.layout.addComponent({
+      component: {
+        name: 'accounts',
+        state: {  }
+      },
+      ...accountsOptions
+    });
+  }
 
   readonly priceFormatter = (price: number) => this._formatter.format(Number(price));
 
@@ -199,6 +211,12 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   }
 
   loadData() {
+    if( this.account === null){
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
+    }
     const instrument = this.instrument;
     const connectionId = this.account?.connectionId;
     if (!instrument || !connectionId)

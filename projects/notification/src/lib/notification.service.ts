@@ -65,6 +65,15 @@ export class NotificationService extends NotifierService {
   }
 
   public getNotification(): Notification[] {
+   let _tempNotifications: Notification[] = [];
+    var arrKey = [];
+    this._notifications.forEach((item)=> {
+      if(arrKey.indexOf(item.body+'_'+item.createAt) < 0){
+        arrKey.push(item.body+'_'+item.createAt);
+        _tempNotifications.push(item);
+      }
+    });
+    this._notifications = _tempNotifications;
     return this._notifications;
   }
 
