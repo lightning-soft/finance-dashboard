@@ -6,7 +6,7 @@
   (click)="timezonesDropdownTriggerButton.click()"
 >
   <span class="zone">{{enabledTimezone.name}}</span>
-  <span class="time" *ngIf="time; else emptyTime">
+  <span class="time timeAlign" *ngIf="time; else emptyTime">
       {{ time | date: "HH:mm:ss": (enabledTimezone.offset | utc) }}
   </span>
 </button>

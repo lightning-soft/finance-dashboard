@@ -23,10 +23,15 @@ export class AccountSelectComponent {
   @Input() selectFirstAsDefault: boolean;
 
   private _account: IAccount;
+  _connect : boolean= true;
 
   public get account(): IAccount {
-    if(this._account === undefined){
+    if(this._account === undefined || this._account === null){
       this.placeholder = 'No Connection';
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
     }
     return this._account;
   }

@@ -9,6 +9,7 @@
   <account-select [account]="account" (accountChange)="handleAccountChange($event)" #select
                   [labelTransformer]="transformAccountLabel.bind(this)"
   ></account-select>
+  <span *ngIf="!_connect" > <div  (click)="openAccounts()" class="openconnection">No Connetion</div></span>
 </window-header>
 <cdk-virtual-scroll-viewport itemSize="">
   <form class="h-100 order-form-wrapper main-grid grid" [formGroup]="form">

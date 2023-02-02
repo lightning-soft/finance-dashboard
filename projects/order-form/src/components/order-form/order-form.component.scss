@@ -115,6 +115,15 @@
   background: $red;
 }
 
+.openconnection{
+  padding-right: 3px;
+  font-size: 0.8rem;
+  color: #D0D0D2;
+}
+.openconnection:hover {
+  cursor: pointer;
+}
+
 :host {
   .order-number-input {
     font-size: 0.7rem;

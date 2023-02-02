@@ -46,7 +46,7 @@ import {
   RealPositionsRepository
 } from 'real-trading';
 import { finalize } from 'rxjs/operators';
-import { TradeHandler } from 'src/app/components';
+import { accountsOptions, TradeHandler } from 'src/app/components';
 import { Components } from 'src/app/modules';
 import { IPresets, LayoutPresets, TemplatesService } from 'templates';
 import {
@@ -199,6 +199,7 @@ const OrderColumns: string[] = [DOMColumns.AskDelta, DOMColumns.BidDelta, DOMCol
 @AccountsListener()
 @BindUnsubscribe()
 export class DomComponent extends LoadingComponent<any, any> implements OnInit, AfterViewInit, IStateProvider<IDomState>, OnDestroy {
+_connect:boolean=false;
 
   get accountId() {
     return this.account?.id;
@@ -321,6 +322,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
   }
 
   public get account(): IAccount {
+    if( this._account === null){
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
+    }
     return this._account;
   }
 
@@ -923,6 +930,15 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
     }
   }
 
+  openAccounts() {
+    this.layout.addComponent({
+      component: {
+        name: 'accounts',
+        state: {  }
+      },
+      ...accountsOptions
+    });
+  }
   updatePl() {
     requestAnimationFrame(this._updatePl);
   }

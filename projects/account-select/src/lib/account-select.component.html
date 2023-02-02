@@ -1,12 +1,18 @@
-<nz-select
-  [class]="className"
-  [nzDropdownClassName]="nzDropdownClassName"
-  [nzPlaceHolder]="placeholder"
-  [nzOptionHeightPx]="23"
-  [compareWith]="compareAccounts"
-  [(nzOpen)]="isOpened"
-  [(ngModel)]="account"
->
-  <nz-option *ngFor="let item of items" [nzLabel]="account.id == item.id && isOpened ? item.id.toString() : labelTransformer(item.id)"
-             [nzValue]="item"></nz-option>
-</nz-select>
+<span *ngIf="_connect" class="number-label">
+  <nz-select
+    [class]="className"
+    [nzDropdownClassName]="nzDropdownClassName"
+    [nzPlaceHolder]="placeholder"
+    [nzOptionHeightPx]="23"
+    [compareWith]="compareAccounts"
+    [(nzOpen)]="isOpened"
+    [(ngModel)]="account"
+    [nzCustomTemplate]="accountFrameTemplate"
+  >
+  <ng-template  #accountFrameTemplate let-selected>
+    {{ labelTransformer(selected.nzLabel) }}
+  </ng-template>
+  <nz-option *ngFor="let item of items" [nzLabel]="account.id == item.id && isOpened ? item.id.toString() : item.id"
+               [nzValue]="item"></nz-option>
+  </nz-select>
+  </span>

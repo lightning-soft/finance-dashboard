@@ -38,6 +38,10 @@
     }
   }
 
+  .timeAlign{
+    padding-left: 5px;
+  }
+
   &:not(&:last-child) {
     &:after {
       position: absolute;
