@@ -202,6 +202,12 @@ export class DomComponent extends LoadingComponent<any, any> implements OnInit, 
 _connect:boolean=false;
 
   get accountId() {
+    if( this.account === null || this.account === undefined){
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
+    }
     return this.account?.id;
   }
 
@@ -322,12 +328,6 @@ _connect:boolean=false;
   }
 
   public get account(): IAccount {
-    if( this._account === null){
-      this._connect = false;
-    }
-    else{
-      this._connect = true;
-    }
     return this._account;
   }
 
