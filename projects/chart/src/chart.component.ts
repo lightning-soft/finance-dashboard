@@ -341,12 +341,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   }
 
   get account() {
-    if( this._account === null){
-      this._connect = false;
-    }
-    else{
-      this._connect = true;
-    }
     return this._account;
   }
 
@@ -360,6 +354,12 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
   get accountId() {
+    if( this.account === null || this.account === undefined){
+      this._connect = false;
+    }
+    else{
+      this._connect = true;
+    }
     return this.account?.id;
   }
 

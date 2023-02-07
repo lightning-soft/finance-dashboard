@@ -205,13 +205,19 @@ export class OrderFormComponent extends BaseOrderForm implements OnInit, OnDestr
   // }
 
   handleAccountChange(account: IAccount) {
+    if( this.account === null || this.account === undefined){
+      this._connect = true;
+    }
+    else{
+      this._connect = false;
+    }
     this.account = account;
     this.form.patchValue({ accountId: account?.id });
     this.loadData();
   }
 
   loadData() {
-    if( this.account === null){
+    if( this.account === null || this.account === undefined){
       this._connect = false;
     }
     else{

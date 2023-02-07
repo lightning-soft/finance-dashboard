@@ -58,7 +58,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   private _subscriptions = [];
 
   @ViewChild('defaultEmptyContainer', { static: true }) defaultEmptyContainer;
-  @ViewChild('defaultConnectionContainer', { static: true }) defaultConnectionContainer;
   _active = false;
 
 
@@ -112,7 +111,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this._notifier.showError('Something went wrong during loading settings');
       });
 
-    this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultConnectionContainer });
+    this.nzConfigService.set('empty', { nzDefaultEmptyContent: this.defaultEmptyContainer });
     this._setupSettings();
     this._subscribeToOrders();
     /*

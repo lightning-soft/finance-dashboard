@@ -228,6 +228,12 @@ export class IndicatorsComponent implements OnInit {
     const _constructor = this.registeredIndicators[item];
     const indicator = new _constructor();
     if(item === 'ZigZag'){
+      if(indicator._settings.dataBox.fields.delta != undefined){
+        indicator._settings.dataBox.fields.delta.enabled= false;
+      }
+      if(indicator._settings.dataBox.fields.volume != undefined){
+        indicator._settings.dataBox.fields.volume.enabled= false;
+      }
       if(indicator._settings.parameters.dataBoxOffset != undefined){
         indicator._settings.parameters.dataBoxOffset = 10;
       }
