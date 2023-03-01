@@ -1,0 +1,48 @@
+# Annotations Reference: https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/ingress/annotations/
+#apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client
+  namespace: client
+  annotations:
+    # Load Balancer Name
+    alb.ingress.kubernetes.io/load-balancer-name: alb-ams-trading-group-dev
+    # Ingress Core Settings  
+    #kubernetes.io/ingress.class: "alb" (OLD INGRESS CLASS NOTATION - STILL WORKS BUT RECOMMENDED TO USE IngressClass Resource)
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/subnets: subnet-33528f58, subnet-0ed531e7e0dfdf025, subnet-bc4c46c6 
+    # Health Check Settings
+    # alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
+    # alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    # #Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer    
+    # alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    # alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    # alb.ingress.kubernetes.io/success-codes: '200'
+    # alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    # alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    ## SSL Settings
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:211142631954:certificate/41dd9b6c-73c9-43e3-831e-64a505e8bb3f    
+    # alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-1-2017-01 #Optional (Picks default if not used)    
+    # SSL Redirect Setting
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # External DNS - For creating a Record Set in Route53
+    # external-dns.alpha.kubernetes.io/hostname: ingress-groups-demo601.stacksimplify.com 
+    # Ingress Groups
+    alb.ingress.kubernetes.io/group.name: alb
+    alb.ingress.kubernetes.io/group.order: '10'
+spec:
+  ingressClassName: ams-trading-group   # Ingress Class
+  rules:
+    - host: tradrr.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client
+                port: 
+                  number: 80

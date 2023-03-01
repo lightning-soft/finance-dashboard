@@ -2,23 +2,23 @@
   "http": {},
   "ws": {},
   "setting": {
-    "url": "https://userdata-dev1.amstradinggroup.com/"
+    "url": "http://userdata-service-service.userdata-service.svc.cluster.local/"
   },
   "rithmic": {
     "http": {
-      "url": "https://rithmic-dev1.amstradinggroup.com/api/"
+      "url": "http://rithmic-datafeed-api-service.rithmic-datafeed-api.svc.cluster.local/api/"
     },
     "ws": {
-      "url": "wss://rithmic-dev1.amstradinggroup.com/api/v2/market"
+      "url": "wss://rithmic-datafeed-api-service.rithmic-datafeed-api.svc.cluster.local/api/v2/market"
     }
   },
   "zoneDecoder": {
     "http": {
-      "url": "https://zonedecoder-dev1.amstradinggroup.com/api/"
+      "url": "http://algodecoder-service.algodecoder.svc.cluster.local/api/"
     }
   },
   "identity": {
-    "url": "https://auth-dev1.amstradinggroup.com/",
+    "url": "https://auth.tradrr.dev/",
     "scope": [
       "openid",
       "profile",
@@ -31,6 +31,6 @@
     "clientSecret": "SuperSecretPassword",
     "responseType": "code",
     "redirectUri": "http://localhost:4200",
-    "notificationUri": "https://notification-dev1.amstradinggroup.com/"
+    "notificationUri": "http://notification-service-service.notification-service.svc.cluster.local/"
   }
 }
