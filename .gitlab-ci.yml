@@ -135,7 +135,7 @@ deploy-latest:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
     rules:
-      - if: $CI_COMMIT_BRANCH == "ft-*" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main"
+      - if: $CI_COMMIT_BRANCH == "main"
         variables:
           tf_dir: "dev"
           AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
@@ -228,8 +228,8 @@ deploy-test:
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test" .
-        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:$CI_COMMIT_BRANCH" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:$CI_COMMIT_BRANCH"
         - docker logout
     tags:
         - docker
@@ -239,16 +239,8 @@ deploy-stage-from-latest:
     image: docker:20.10.11-dind
     services:
         - docker:20.10.11-dind
-    rules:
-      - if: $CI_COMMIT_BRANCH == "release"
-        variables:
-          tf_dir: "prd"
-          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
-          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
-          region_code: $PRD_AWS_DEFAULT_REGION
-          aws_account: $prd_aws_account
-          environment: "prd"
+    only:
+      - release
     before_script:
       - apk add aws-cli
     script:
@@ -267,15 +259,6 @@ deploy-release:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
     rules:
-      - if: $CI_COMMIT_BRANCH == "ft-*" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main"
-        variables:
-          tf_dir: "dev"
-          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
-          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
-          region_code: $DEV_AWS_DEFAULT_REGION
-          aws_account: $dev_aws_account
-          environment: "dev"
       - if: $CI_COMMIT_BRANCH == "release"
         variables:
           tf_dir: "prd"
@@ -298,7 +281,7 @@ deploy-release:
     tags:
         - docker
 
-deploy-eks-test:
+release:
     stage: push
     services:
         - docker:20.10.11-dind
@@ -313,15 +296,15 @@ deploy-eks-test:
           region_code: $DEV_AWS_DEFAULT_REGION
           aws_account: $dev_aws_account
           environment: "dev"
-      - if: $CI_COMMIT_BRANCH == "release"
-        variables:
-          tf_dir: "prd"
-          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
-          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
-          region_code: $PRD_AWS_DEFAULT_REGION
-          aws_account: $prd_aws_account
-          environment: "prd"
+      # - if: $CI_COMMIT_BRANCH == "release"
+      #   variables:
+      #     tf_dir: "prd"
+      #     AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+      #     AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+      #     AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+      #     region_code: $PRD_AWS_DEFAULT_REGION
+      #     aws_account: $prd_aws_account
+      #     environment: "prd"
     cache:
         paths:
             - dist/
@@ -330,13 +313,14 @@ deploy-eks-test:
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test" .
-        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:develop" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:develop"
     tags:
         - docker
 
 deploy:
   stage: deployment
+  when: manual
   rules:
     - if: $CI_COMMIT_BRANCH == "ft-*" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main"
       variables:

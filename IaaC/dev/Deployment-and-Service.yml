@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: 211142631954.dkr.ecr.us-east-2.amazonaws.com/client:eks-test
+          image: 211142631954.dkr.ecr.us-east-2.amazonaws.com/client:develop
           imagePullPolicy: Always
           resources:
             requests:
