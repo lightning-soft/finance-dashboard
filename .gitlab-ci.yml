@@ -112,6 +112,7 @@ build-web-release:
 
 deploy-test:
     stage: push
+    when: manual
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
@@ -141,6 +142,7 @@ deploy-test:
 
 deploy-latest:
     stage: push
+    when: manual
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
@@ -170,6 +172,7 @@ deploy-latest:
 
 deploy-release:
     stage: push
+    when: manual
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
