@@ -1,11 +1,5 @@
 image: teracy/angular-cli:latest
 
-variables:
-  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-  AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
-  region_code: $AWS_DEFAULT_REGION
-
 stages:
     - infrastructure
     - install
@@ -22,8 +16,25 @@ stages:
 
 create_ecr_and_app_namespace:
   stage: infrastructure
-  only:
-    - eks-deployment
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      variables:
+        tf_dir: "dev"
+        AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+        AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+        region_code: $DEV_AWS_DEFAULT_REGION
+        aws_account: $dev_aws_account
+        environment: "dev"
+    - if: $CI_COMMIT_BRANCH == "prd"
+      variables:
+        tf_dir: "prd"
+        AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+        AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+        region_code: $PRD_AWS_DEFAULT_REGION
+        aws_account: $prd_aws_account
+        environment: "prd"
   image:
     name: ubuntu:latest
     entrypoint: ['']
@@ -45,7 +56,7 @@ create_ecr_and_app_namespace:
     - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   script:
-    - cd IaaC
+    - cd "IaaC/$tf_dir"
     - terraform init
     - terraform plan
     - terraform apply --auto-approve -target=module.kubeconfig -target=module.client_ecr -target=module.client_namespace
@@ -54,8 +65,6 @@ create_ecr_and_app_namespace:
 install:
     stage: install
     extends: .libs-cache
-    only:
-        - eks-deployment
     script:
         - apt-get update
         - apt-get install libgnutls30 -y
@@ -107,8 +116,33 @@ deploy-latest:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
     rules:
-        - if: $CI_COMMIT_BRANCH == 'deploy-staging'
-        # - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      - if: $CI_COMMIT_BRANCH == "develop"
+        variables:
+          tf_dir: "dev"
+          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+          region_code: $DEV_AWS_DEFAULT_REGION
+          aws_account: $dev_aws_account
+          environment: "dev"
+      - if: $CI_COMMIT_BRANCH == "prd"
+        variables:
+          tf_dir: "prd"
+          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+          region_code: $PRD_AWS_DEFAULT_REGION
+          aws_account: $prd_aws_account
+          environment: "prd"
+      - if: $CI_COMMIT_BRANCH == "deploy-staging"
+        variables:
+          tf_dir: "dev"
+          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+          region_code: $DEV_AWS_DEFAULT_REGION
+          aws_account: $dev_aws_account
+          environment: "dev"
     cache:
         paths:
             - dist/
@@ -116,9 +150,9 @@ deploy-latest:
       - apk add aws-cli
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest" .
-        - docker push "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest"
         - docker logout
     tags:
         - docker
@@ -130,8 +164,42 @@ deploy-test:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
     rules:
-        - if: $CI_COMMIT_BRANCH == 'test-server-deployment'
-        # - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      - if: $CI_COMMIT_BRANCH == "develop"
+        variables:
+          tf_dir: "dev"
+          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+          region_code: $DEV_AWS_DEFAULT_REGION
+          aws_account: $dev_aws_account
+          environment: "dev"
+      - if: $CI_COMMIT_BRANCH == "prd"
+        variables:
+          tf_dir: "prd"
+          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+          region_code: $PRD_AWS_DEFAULT_REGION
+          aws_account: $prd_aws_account
+          environment: "prd"
+      - if: $CI_COMMIT_BRANCH == "deploy-staging"
+        variables:
+          tf_dir: "dev"
+          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+          region_code: $DEV_AWS_DEFAULT_REGION
+          aws_account: $dev_aws_account
+          environment: "dev"
+      - if: $CI_COMMIT_BRANCH == 'test-server-deployment'
+        variables:
+          tf_dir: "dev"
+          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+          region_code: $DEV_AWS_DEFAULT_REGION
+          aws_account: $dev_aws_account
+          environment: "dev"
     cache:
         paths:
             - dist/
@@ -139,9 +207,9 @@ deploy-test:
       - apk add aws-cli
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test" .
-        - docker push "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:test"
         - docker logout
     tags:
         - docker
@@ -151,18 +219,24 @@ deploy-stage-from-latest:
     image: docker:20.10.11-dind
     services:
         - docker:20.10.11-dind
-    # except:
-    #     # - release
-    only:
-        - release
+    rules:
+      - if: $CI_COMMIT_BRANCH == "release"
+        variables:
+          tf_dir: "prd"
+          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+          region_code: $PRD_AWS_DEFAULT_REGION
+          aws_account: $prd_aws_account
+          environment: "prd"
     before_script:
       - apk add aws-cli
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker pull "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest"
-        - docker tag "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest" "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:stage"
-        - docker push "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:stage"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+        - docker pull "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest"
+        - docker tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest" "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:stage"
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:stage"
         - docker logout
     tags:
         - docker
@@ -172,8 +246,16 @@ deploy-release:
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
-    only:
-        - release
+    rules:
+      - if: $CI_COMMIT_BRANCH == "release"
+        variables:
+          tf_dir: "prd"
+          AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+          AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+          region_code: $PRD_AWS_DEFAULT_REGION
+          aws_account: $prd_aws_account
+          environment: "prd"
     cache:
         paths:
             - dist/
@@ -181,9 +263,9 @@ deploy-release:
       - apk add aws-cli
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:release" .
-        - docker push "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:release"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:release" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:release"
     tags:
         - docker
 
@@ -192,8 +274,25 @@ deploy-eks-test:
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
-    only:
-        - eks-deployment
+    rules:
+        - if: $CI_COMMIT_BRANCH == "develop"
+          variables:
+            tf_dir: "dev"
+            AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+            AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+            region_code: $DEV_AWS_DEFAULT_REGION
+            aws_account: $dev_aws_account
+            environment: "dev"
+        - if: $CI_COMMIT_BRANCH == "prd"
+          variables:
+            tf_dir: "prd"
+            AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+            AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+            region_code: $PRD_AWS_DEFAULT_REGION
+            aws_account: $prd_aws_account
+            environment: "prd"
     cache:
         paths:
             - dist/
@@ -201,16 +300,33 @@ deploy-eks-test:
       - apk add aws-cli
     script:
         - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test" .
-        - docker push "$DEV_AWS_ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test" .
+        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:eks-test"
     tags:
         - docker
 
 deploy:
   stage: deployment
-  only:
-    - eks-deployment
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      variables:
+        tf_dir: "dev"
+        AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+        AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+        region_code: $DEV_AWS_DEFAULT_REGION
+        aws_account: $dev_aws_account
+        environment: "dev"
+    - if: $CI_COMMIT_BRANCH == "prd"
+      variables:
+        tf_dir: "prd"
+        AWS_ACCESS_KEY_ID: $PRD_AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: $PRD_AWS_SECRET_ACCESS_KEY
+        AWS_DEFAULT_REGION: $PRD_AWS_DEFAULT_REGION
+        region_code: $PRD_AWS_DEFAULT_REGION
+        aws_account: $prd_aws_account
+        environment: "prd" 
   image:
     name: ubuntu:latest
     entrypoint: ['']
@@ -232,10 +348,9 @@ deploy:
     - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   script:
-    - cd IaaC
+    - cd "IaaC/$tf_dir"
     - terraform init
     - terraform apply --auto-approve -target=module.kubeconfig
     - kubectl apply -f namespace.yaml --kubeconfig=kubeconfig
-    - export CI_JOB_ID=${CI_JOB_ID}
     - envsubst < Deployment-and-Service.yml | kubectl apply -f - --kubeconfig=kubeconfig
     - kubectl apply -f Ingress.yml --kubeconfig=kubeconfig
