@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    app: client
+  namespace: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+        tag: "${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}-${CI_JOB_ID}"
+      namespace: client
+    spec:
+      containers:
+        - name: client
+          image: 845937828822.dkr.ecr.us-east-2.amazonaws.com/client:eks-test
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "256m"
+              memory: "512Mi"
+            limits:
+              cpu: "256m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8125
+          env:
+            - name: ENV
+              value: "staging"
+            - name: HOST
+              value: tradrr.app
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client
+  labels:
+    app: client
+  namespace: client
+  annotations:
+#Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer    
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    #Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer    
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/success-codes: '200'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+spec:
+  type: NodePort
+  selector:
+    app: client
+  ports:
+    - port: 80
+      targetPort: 8125
