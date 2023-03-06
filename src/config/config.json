@@ -1,23 +1,23 @@
 {
-  "http": {},
-  "ws": {},
+	"http": {},
+	"ws": {},
   "setting": {
-    "url": "http://userdata-service-service.userdata-service.svc.cluster.local/"
+    "url": "https://userdata.tradrr.dev/"
   },
-  "rithmic": {
-    "http": {
-      "url": "http://rithmic-datafeed-api-service.rithmic-datafeed-api.svc.cluster.local/api/"
-    },
-    "ws": {
-      "url": "wss://rithmic-datafeed-api-service.rithmic-datafeed-api.svc.cluster.local/api/v2/market"
-    }
-  },
+	"rithmic": {
+	  "http": {
+  		"url": "https://rithmic.tradrr.dev/api/"
+	  },
+	  "ws": {
+      "url": "wss://rithmic.tradrr.dev/api/v2/market"
+	  }
+	},
   "zoneDecoder": {
     "http": {
-      "url": "http://algodecoder-service.algodecoder.svc.cluster.local/api/"
+      "url": "https://zonedecoder.tradrr.dev/api/"
     }
   },
-  "identity": {
+	"identity": {
     "url": "https://auth.tradrr.dev/",
     "scope": [
       "openid",
@@ -27,10 +27,10 @@
       "userdata.api",
       "notification.api"
     ],
-    "clientId": "oidcCodeClient",
-    "clientSecret": "SuperSecretPassword",
+	"clientId": "oidcCodeClient",
+	"clientSecret": "SuperSecretPassword",
     "responseType": "code",
-    "redirectUri": "http://localhost:4200",
-    "notificationUri": "http://notification-service-service.notification-service.svc.cluster.local/"
+    "redirectUri": "https://tradrr.dev",
+    "notificationUri": "https://notification.tradrr.dev/"
   }
 }
