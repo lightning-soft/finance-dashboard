@@ -116,7 +116,8 @@
 }
 
 .openconnection{
-  padding-right: 3px;
+  padding-right: 5px;
+  padding-left: 7px;
   font-size: 0.8rem;
   color: #D0D0D2;
 }
@@ -139,33 +140,40 @@
 
     ::ng-deep {
       input {
-        height: 24px;
+        height: 22px;
       }
     }
   }
 
+  .window_height
+  {
+    height: 22px;
+  }
+
   ::ng-deep {
     account-select {
-      nz-select-top-control {
-        align-items: center;
+      .custom-form-control {
+        background-color: transparent;
       }
     }
 
     nz-select {
-      height: 24px !important;
+      height: 20px !important;
 
       nz-select-top-control {
-        height: 24px !important;
+        height: 20px !important;
 
         nz-select-item {
-          line-height: 24px !important;
+          line-height: 20px !important;
         }
       }
     }
 
-    nz-select-top-control {
-      padding-left: 5px !important;
-      padding-right: 5px !important;
+    instrument-select {
+      nz-select {
+        min-width: 1px;
+        width: auto;
+      }
     }
 
     cdk-virtual-scroll-viewport, .cdk-virtual-scroll-content-wrapper {

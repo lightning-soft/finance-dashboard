@@ -881,6 +881,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     this.settings = state?.settings || clone(defaultChartSettings);
     this.link = state?.link ?? Math.random();
     this._loadedState$.next(state);
+    if(state?.settings)
+    {
+      this.settings.valueScale.valueScale.pixelsPrice=10;
+    }
     if (state?.account) {
       this.account = state.account;
     }

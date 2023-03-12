@@ -1,9 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject } from 'rxjs';
 import { Indicator } from '../../../../chart/src/indicators/indicators/Indicator'
 export abstract class NotifierService {
   periodInterval: any;
   selectedIndicator: Indicator;
   priceStat: string;
+
+  private customSubject = new Subject<any>();
+  customObservable = this.customSubject.asObservable();
   protected _prepareErrorMessage(message, defaultMessage) {
     let _message = defaultMessage ?? 'Something wrong';
     let _title = 'Error';
@@ -38,13 +42,25 @@ export abstract class NotifierService {
 
   abstract showSuccess(message: string);
 
+  callComponentMethod(value:any) {
+    this.customSubject.next(value);
+  }
+
   abstract showError(message: any, defaultMessage?: string);
-  public setDisabled(disabled: boolean) {
+  public setDisabled(disabled: boolean,OnLoad:boolean) {
     const options = this.selectedIndicator?.config[0]?.fieldGroup[4]?.fieldGroup[2]?.fieldGroup[0]?.fieldGroup;
-    options[0].key = disabled ? 'disable' : 'enable';
     options[0].templateOptions.disabled = disabled;
     options[1].templateOptions.disabled = disabled;
     options[1].templateOptions['tooltip'] = disabled == true ? 'Load more than 3 days of data' : '';
+
+    if(disabled)
+    {
+      this.selectedIndicator.settings.general.sessions.days.enabled=false;
+      this.callComponentMethod(this.selectedIndicator);
+    }
+    if(OnLoad)
+   { this.selectedIndicator.settings.general.sessions.days.enabled=false;
+    this.callComponentMethod(this.selectedIndicator);}
     this.selectedIndicator.applySettings(this.selectedIndicator.settings);
   }
 }
