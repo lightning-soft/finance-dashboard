@@ -40,6 +40,7 @@ export interface IChartSettings {
     valueScale: {
       pixelsPrice: number;
       isAutomatic: string;
+      SetDefaultVal?: boolean;
     }
   };
 }
