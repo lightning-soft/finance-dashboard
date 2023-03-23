@@ -1,11 +1,9 @@
-<window-header marginClass="" className="widget" [window]="this">
+<window-header Class="window_height" marginClass="" className="widget" [window]="this">
   <instrument-select
-    className=""
     [instrument]="instrument"
     (instrumentChange)="instrument = $event"
     [account]="select.account"
   ></instrument-select>
-  <div class="window-header-divider"></div>
   <account-select [account]="account" (accountChange)="handleAccountChange($event)" #select
                   [labelTransformer]="transformAccountLabel.bind(this)"
   ></account-select>

@@ -709,3 +709,6 @@ html {
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.226);
 }
+.icon-coloredBar:before {
+  content: "\ea27" !important;
+}

@@ -153,6 +153,10 @@ export class ToolbarComponent extends ItemsComponent<IVolumeTemplate> implements
 
 
   get timeFrame() {
+    if(this.chart !== undefined)
+    {
+      this.notifier.periodInterval=this.chart.timeFrame.interval;
+    }
     return this.chart?.timeFrame;
   }
 

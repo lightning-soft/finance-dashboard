@@ -163,6 +163,10 @@ export class IndicatorsComponent implements OnInit {
         distinctUntilChanged(),
         untilDestroyed(this)
       ).subscribe((query) => this.search(query));
+      this._notifier.customObservable.subscribe((res) => {
+        this.Loadindicators(res, "PriceStats")
+      }
+    );
   }
 
   isSelected(item: any) {
@@ -175,10 +179,16 @@ export class IndicatorsComponent implements OnInit {
     const _constructor = this._constructorsMap.get(item.className) || General;
     this._notifier.selectedIndicator = new _constructor(item);
     if (this._notifier.periodInterval < 3 && item._name == priceStat) {
-      this._notifier.setDisabled(true);
+      this._notifier.setDisabled(true,true);
     } else if (item._name == priceStat) {
-      this._notifier.setDisabled(false);
+      this._notifier.setDisabled(false,true);
     }
+   this.Loadindicators(this._notifier.selectedIndicator,item._name );
+  }
+
+  Loadindicators(res:any,name:string)
+  {
+    this._notifier.selectedIndicator = res;
     this.formValueChangesSubscription?.unsubscribe();
     this.form = new FormGroup({});
     this.form.valueChanges
@@ -193,8 +203,6 @@ export class IndicatorsComponent implements OnInit {
         this.chart.setNeedsUpdate();
       });
   }
-
-
   loadState(state?: any) {
     this.link = state?.link;
     this.chart = state?.chart;

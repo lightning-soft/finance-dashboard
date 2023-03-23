@@ -131,9 +131,9 @@ export class FrameSelectorComponent {
     this.timePeriod = frame;
     this._notifier.periodInterval = frame.interval;
     if (this._notifier.periodInterval < 3 && this._notifier.priceStat == priceStat) {
-      this._notifier.setDisabled(true);
+      this._notifier.setDisabled(true,false);
     } else if (this._notifier.priceStat == priceStat) {
-      this._notifier.setDisabled(false);
+      this._notifier.setDisabled(false,false);
     }
   }
 
