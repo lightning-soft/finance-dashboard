@@ -12,12 +12,12 @@
       <li nz-menu-item
           *ngIf="currentNavbarPosition !== navbarPosition.Bottom"
           (click)="changeNavbarPosition(navbarPosition.Bottom)">
-        <i class="icon-arrow-down-general"></i> Attach at the bottom
+        <i class="icon-arrow-down-general"></i> Position at bottom
       </li>
       <li nz-menu-item
           *ngIf="currentNavbarPosition !== navbarPosition.Top"
           (click)="changeNavbarPosition(navbarPosition.Top)">
-        <i class="icon-arrow-up-general"></i> Attach at the top
+        <i class="icon-arrow-up-general"></i> Position at top
       </li>
       <li nz-menu-item *ngIf="!isNavbarHidden"
           (click)="changeNavbarVisibility(true)">
@@ -25,7 +25,8 @@
       </li>
       <li nz-menu-item *ngIf="isNavbarHidden"
           (click)="changeNavbarVisibility(false)">
-        <i class="icon-show"></i> Show
+        <i class="icon-show"></i> Always show
+        
       </li>
     </ul>
   </nz-dropdown-menu>

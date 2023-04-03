@@ -77,11 +77,14 @@ export class ChartSettingsComponent implements AfterViewInit {
   loadState(state: IChartSettingsState): void {
     this.settings = state?.settings ? state.settings : clone(defaultChartSettings);
     this._linkKey = state?.linkKey;
-    this.settings.valueScale.valueScale.pixelsPrice = 10;
     if (state.menuItem != null) {
       this.selectItem(this.menuItems[state.menuItem]);
     }
-
+     if(this.settings.valueScale.valueScale.SetDefaultVal)
+     {
+      this.settings.valueScale.valueScale.pixelsPrice = 10;
+      this.settings.valueScale.valueScale.SetDefaultVal = false;
+     }
     this.addLinkObserver({
       link: chartReceiveKey + this._linkKey,
       handleLinkData: (data) => {
