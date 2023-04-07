@@ -110,14 +110,14 @@ build-web-release:
         - npm install --save-dev @angular-devkit/build-angular
         - npm run build:release
 
-deploy-test:
+build-dev-image:
     stage: push
     when: manual
     services:
         - docker:20.10.11-dind
     image: docker:20.10.11-dind
     rules:
-      - if: $CI_COMMIT_BRANCH =~ /^ft-.*/ || $CI_COMMIT_BRANCH == "develop"
+      - if: $CI_COMMIT_BRANCH =~ /^ft-.*/ || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main"
         variables:
           tf_dir: "dev"
           AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
@@ -126,51 +126,22 @@ deploy-test:
           region_code: $DEV_AWS_DEFAULT_REGION
           aws_account: $dev_aws_account
           environment: "dev"
+          docker_image: $aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client
     cache:
         paths:
             - dist/
     before_script:
       - apk add aws-cli
     script:
-        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
         - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:$CI_COMMIT_BRANCH" .
-        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:$CI_COMMIT_BRANCH"
+        - docker pull "$docker_image:$CI_COMMIT_BRANCH" || true
+        - docker build --cache-from "$docker_image:$CI_COMMIT_BRANCH" --tag "$docker_image:$CI_COMMIT_SHORT_SHA" --tag "$docker_image:$CI_COMMIT_BRANCH" .
+        - docker push --all-tags "$docker_image"
         - docker logout
     tags:
         - docker
 
-deploy-latest:
-    stage: push
-    when: manual
-    services:
-        - docker:20.10.11-dind
-    image: docker:20.10.11-dind
-    rules:
-      - if: $CI_COMMIT_BRANCH == "main"
-        variables:
-          tf_dir: "dev"
-          AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
-          AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
-          region_code: $DEV_AWS_DEFAULT_REGION
-          aws_account: $dev_aws_account
-          environment: "dev"
-    cache:
-        paths:
-            - dist/
-    before_script:
-      - apk add aws-cli
-    script:
-        - CONTAINER_IMAGE="$CI_REGISTRY/$CI_PROJECT_PATH"
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-        - docker build --tag "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest" .
-        - docker push "$aws_account.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/client:latest"
-        - docker logout
-    tags:
-        - docker
-
-deploy-release:
+build-release-image:
     stage: push
     when: manual
     services:
@@ -224,6 +195,8 @@ deploy:
   image:
     name: ubuntu:latest
     entrypoint: ['']
+  variables:
+    IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   before_script:
     - apt-get update && apt-get install curl unzip git wget coreutils openssl zip gettext-base -y
     - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
