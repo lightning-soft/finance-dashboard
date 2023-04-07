@@ -7,7 +7,7 @@
     class="ml-1"
     [(account)]="account"
   ></account-select>
-<span *ngIf="!_connect" class="title-align" > <div  (click)="openAccounts()" class="openconnection">No Connetion</div></span>
+<span *ngIf="!_connect" class="title-align" > <div  (click)="openAccounts()" class="openconnection">No Connection</div></span>
 </window-header>
 <div (contextmenu)="grid.createComponentModal($event)" class="window-header-button window-header-bg">
   <button [title]="'Center'" class="wm-header-btn icon-align-center title-align" (click)="centralize()">
