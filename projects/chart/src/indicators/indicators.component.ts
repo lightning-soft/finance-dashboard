@@ -167,6 +167,9 @@ export class IndicatorsComponent implements OnInit {
         this.Loadindicators(res, "PriceStats")
       }
     );
+    if(this._notifier.selectedIndicator){
+      this.Loadindicators(this._notifier.selectedIndicator,this._notifier.selectedIndicator.name);
+    }
   }
 
   isSelected(item: any) {

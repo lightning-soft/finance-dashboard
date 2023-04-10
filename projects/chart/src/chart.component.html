@@ -5,7 +5,7 @@
   <instrument-select class="mr-1" [(instrument)]="instrument" [account]="select.account">
   </instrument-select>
   <account-select [labelTransformer]="transformAccountLabel.bind(this)" #select [(account)]="account"></account-select>
-  <span *ngIf="!_connect" > <div  (click)="openAccounts()" class="openconnection">No Connetion</div></span>
+  <span *ngIf="!_connect" > <div  (click)="openAccounts()" class="openconnection">No Connection</div></span>
   <div class="vertical-line"></div>
   <div class="d-flex align-items-center instrument-description">
     {{instrument?.description | nullCoalescing : ''}}<ng-container *ngIf="instrument?.description != null && instrument?.description != ''">,</ng-container>
