@@ -10,7 +10,8 @@ const {BrowserWindow,ipcMain} = electron;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 let win;
-app.showExitPrompt = true
+app.showExitPrompt = true;
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
 
 // nativeTheme.on('updated', function theThemeHasChanged () {
 //   updateMyAppTheme(nativeTheme.shouldUseDarkColors)
