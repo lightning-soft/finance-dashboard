@@ -19,7 +19,7 @@
     "electron": "electron .",
     "dist:win": "rm -rf ./dest && rm -rf ./dist && npm run electron:win && electron-builder --win --x64",
     "dist:linux": "electron-builder --linux",
-    "dist:mac": "electron-builder --platform mac",
+    "dist:mac": "electron-builder --mac",
     "postinstall": "electron-builder install-app-deps",
     "electron:win": "npm run build:prod && npm run package-win",
     "electron:linux": "npm run electron-build && npm run dist:linux",
