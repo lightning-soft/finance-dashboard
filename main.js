@@ -12,7 +12,7 @@ const args = process.argv.slice(1),
 let win;
 app.showExitPrompt = true;
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
-app.commandLine.appendSwitch('j--allow-file-access-from-files');
+app.commandLine.appendSwitch('--allow-file-access-from-files');
 
 // nativeTheme.on('updated', function theThemeHasChanged () {
 //   updateMyAppTheme(nativeTheme.shouldUseDarkColors)
