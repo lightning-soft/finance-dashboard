@@ -316,6 +316,7 @@ export const generalFields: IFieldConfig[] = [
             templateOptions: { label: 'Reset Delta (ms)', min: 1 },
             key: 'resetDeltaInterval',
             type: FieldType.Number,
+            defaultValue: '5000',
           },
           {
             key: 'printOutlines',
