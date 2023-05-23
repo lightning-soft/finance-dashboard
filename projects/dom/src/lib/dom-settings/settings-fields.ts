@@ -313,6 +313,11 @@ export const generalFields: IFieldConfig[] = [
             type: FieldType.Number,
           },
           {
+            templateOptions: { label: 'Reset Delta (ms)', min: 1 },
+            key: 'resetDeltaInterval',
+            type: FieldType.Number,
+          },
+          {
             key: 'printOutlines',
             type: FieldType.Checkbox,
             templateOptions: {

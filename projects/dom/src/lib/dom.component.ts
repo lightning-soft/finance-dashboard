@@ -531,6 +531,7 @@ _connect:boolean=false;
   private _levelsInterval: number;
   private _clearInterval: () => void;
   private _upadateInterval: number;
+  private _resetDelta: number;
   private _customTickSize: number;
 
   readonly directionsHints = directionsHints;
@@ -845,6 +846,10 @@ _connect:boolean=false;
     this._levelsInterval = levelInterval;
     this._levelsInterval = levelInterval;
     this._upadateInterval = general.intervals.updateInterval;
+    this._resetDelta = general.intervals.resetDeltaInterval;
+    this.items.forEach((item) => {
+      item.resetDeltaInterval = this._resetDelta;
+    });
 
     this._settings.merge(settings);
     const useCustomTickSize = general?.commonView?.useCustomTickSize;
@@ -1984,7 +1989,7 @@ _connect:boolean=false;
       items[rIndex]?.setBidVisibility(true, true);
       if (rIndex !== index)
         items[rIndex]?.clearCurrentBidBest();
-      items[rIndex]?.clearBidDelta();
+      // items[rIndex]?.clearBidDelta();
       rIndex++;
     }
 
@@ -1992,7 +1997,7 @@ _connect:boolean=false;
       item.side = QuoteSide.Bid;
 
       if (item.lastPrice !== price) {
-        item.clearBidDelta();
+        // item.clearBidDelta();
         item.clearCurrentBidBest();
       }
 
@@ -2047,7 +2052,7 @@ _connect:boolean=false;
       items[rIndex]?.setAskVisibility(true, true);
       if (index !== rIndex)
         items[rIndex]?.clearCurrentAskBest();
-      items[rIndex]?.clearAskDelta();
+      // items[rIndex]?.clearAskDelta();
       rIndex++;
     }
 
@@ -2055,7 +2060,7 @@ _connect:boolean=false;
       item.side = QuoteSide.Ask;
 
       if (item.lastPrice !== price) {
-        item.clearAskDelta();
+        // item.clearAskDelta();
         item.clearCurrentAskBest();
       }
 
