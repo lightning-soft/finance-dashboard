@@ -1989,7 +1989,6 @@ _connect:boolean=false;
       items[rIndex]?.setBidVisibility(true, true);
       if (rIndex !== index)
         items[rIndex]?.clearCurrentBidBest();
-      // items[rIndex]?.clearBidDelta();
       rIndex++;
     }
 
@@ -1997,7 +1996,6 @@ _connect:boolean=false;
       item.side = QuoteSide.Bid;
 
       if (item.lastPrice !== price) {
-        // item.clearBidDelta();
         item.clearCurrentBidBest();
       }
 
@@ -2052,7 +2050,6 @@ _connect:boolean=false;
       items[rIndex]?.setAskVisibility(true, true);
       if (index !== rIndex)
         items[rIndex]?.clearCurrentAskBest();
-      // items[rIndex]?.clearAskDelta();
       rIndex++;
     }
 
@@ -2060,7 +2057,6 @@ _connect:boolean=false;
       item.side = QuoteSide.Ask;
 
       if (item.lastPrice !== price) {
-        // item.clearAskDelta();
         item.clearCurrentAskBest();
       }
 
