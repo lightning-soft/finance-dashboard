@@ -21,6 +21,7 @@ function createWindow() {
   win = new BrowserWindow({
     x: 0,
     y: 0,
+    icon: path.join(`${__dirname}/src/`, "icon.png"),
     width: size.width,
     height: size.height,
     frame: false,
