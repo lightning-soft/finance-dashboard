@@ -225,6 +225,7 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   }
 
   nativeClose() {
+    window.close();
     sendIpcCommand('nativeClose');
   }
 
