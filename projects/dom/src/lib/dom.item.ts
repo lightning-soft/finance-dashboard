@@ -633,6 +633,28 @@ export class DomItem extends HoverableItem implements IBaseItem {
   styles: DomItemStyles;
   settings: DomSettings;
 
+  protected _prevInterval: number;
+  protected _resetDeltaInterval: number;
+  protected _baseBid: number = 0;
+  protected _prevBid: number = null;
+  protected _baseAsk: number = 0;
+  protected _prevAsk: number = null;
+
+  set resetDeltaInterval(value: number) {
+    this._resetDeltaInterval = value;
+    clearInterval(this._prevInterval);
+    this._prevInterval = setInterval(() => {
+      this._baseBid = 0;
+      this._prevBid = this.bid.size ?? null;
+      this._baseAsk = 0;
+      this._prevAsk = this.ask.size ?? null;
+    }, value);
+  }
+
+  get resetDeltaInterval(): number {
+    return this._resetDeltaInterval;
+  }
+
   protected _bid = 0;
   protected _ask = 0;
 
@@ -659,6 +681,7 @@ export class DomItem extends HoverableItem implements IBaseItem {
   constructor(index, settings: DomSettings, _priceFormatter: IFormatter, state?: any) {
     super();
     this.settings = settings;
+    this.resetDeltaInterval = settings.general.intervals.resetDeltaInterval;
     this.styles = new DomItemStyles();
     this.index = index;
     this.price = new PriceCell({
@@ -823,11 +846,15 @@ export class DomItem extends HoverableItem implements IBaseItem {
   }
 
   protected _calculateAskDelta() {
-    return this.askDelta.updateValue(this.ask.size - this._ask);
+    this._baseAsk += this.ask.size - (this._prevAsk ?? this.ask.size);
+    this._prevAsk = this.ask.size;
+    return this.askDelta.updateValue(this._baseAsk);
   }
 
   protected _calculateBidDelta() {
-    return this.bidDelta.updateValue(this.bid.size - this._bid);
+    this._baseBid += this.bid.size - (this._prevBid ?? this.bid.size);
+    this._prevBid = this.bid.size;
+    return this.bidDelta.updateValue(this._baseBid);
   }
 
   changePriceStatus(status: string) {
