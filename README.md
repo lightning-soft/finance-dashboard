@@ -61,11 +61,11 @@ Automated deployment logics can be found under `rules`  in the   `gitlab-ci.yaml
 ## Desktop App
 The app acts as a frame for the frontend client. You can build as follows. It will create `dest/` directory inside the root of your app inside which you will find your build.
 ### Windows
-`npm run electron:win`
+`npm run dist:win`
 ### MacOS
-`npm run package-mac`
+`npm run dist:mac`
 ### Linux
-`npm run package-linux`
+`npm run dist:linux`
 
 # Application Endpoints
 
