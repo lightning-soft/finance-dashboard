@@ -139,7 +139,12 @@ try {
   })
 
   ipcMain.on('maximize', () => {
-    BrowserWindow.getFocusedWindow().maximize();
+    const w = BrowserWindow.getFocusedWindow();
+    if(w.isMaximized()) {
+      w.unmaximize();
+    } else {
+      w.maximize();
+    }
   })
 
 } catch (e) {
