@@ -154,7 +154,7 @@
     "@types/moment": "^2.13.0",
     "app-builder-bin": "^3.5.10",
     "codelyzer": "6.0.0",
-    "electron": "19.0.5",
+    "electron": "^12.0.1",
     "electron-builder": "23.3.0",
     "electron-installer-windows": "^3.0.0",
     "electron-log": "^4.2.4",

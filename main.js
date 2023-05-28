@@ -32,6 +32,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(`${__dirname}/src/assets`, 'preload.js'),
       webSecurity: false,
+      contextIsolation: false
     }
     // webPreferences: {
     //   nodeIntegration: true,
@@ -130,15 +131,15 @@ try {
   });
 
   ipcMain.on('minimize', () => {
-    win.minimize()
+    BrowserWindow.getFocusedWindow().minimize();
   })
 
   ipcMain.on('close', () => {
-    win.close()
+    BrowserWindow.getFocusedWindow().close();
   })
 
   ipcMain.on('maximize', () => {
-    win.maximize()
+    BrowserWindow.getFocusedWindow().maximize();
   })
 
 } catch (e) {

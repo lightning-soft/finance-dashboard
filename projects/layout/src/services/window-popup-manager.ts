@@ -276,6 +276,8 @@ export class WindowPopupManager {
     features.forEach((value, key) => {
       featuresArray.push(`${key}=${value}`);
     });
+    featuresArray.push('frame=false');
+    featuresArray.push('preload=' + 'preload.js');
     this._storage.setItem(popupStorageKey, JSON.stringify(config));
     if (!name) {
       name = `popup-${Date.now()}`;
