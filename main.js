@@ -11,7 +11,7 @@ const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 let win;
 app.showExitPrompt = true;
-app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=16384');
 app.commandLine.appendSwitch('--allow-file-access-from-files');
 
 // nativeTheme.on('updated', function theThemeHasChanged () {
